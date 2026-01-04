@@ -1,0 +1,21 @@
+{
+  "framework": "react",
+  "typescript": true,
+  "componentsDir": "src/components/ui",
+  "utilsDir": "src/lib",
+  "theme": {
+    "cssVars": true,
+    "selected": "awesome",
+    "palette": "default",
+    "brandColor": "purple"
+  },
+  "aliases": {
+    "@/components": "./src/components",
+    "@/lib": "./src/lib",
+    "@/styles": "./src/styles"
+  },
+  "webAwesome": {
+    "tier": "free",
+    "version": "^3.1.0"
+  }
+}
