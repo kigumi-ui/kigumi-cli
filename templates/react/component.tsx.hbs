@@ -1,0 +1,35 @@
+import React, { forwardRef } from 'react';
+import '{{{importPath}}}';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * ```tsx
+ * <{{name}} variant="primary" size="medium">
+ *   Click me
+ * </{{name}}>
+ * ```
+ */
+export interface {{name}}Props extends React.HTMLAttributes<HTMLElement> {
+{{#each props}}
+  /**
+   * {{description}}
+   {{#if values}}* @type {{#each values}}'{{this}}'{{#unless @last}} | {{/unless}}{{/each}}{{/if}}
+   {{#if default}}* @default '{{default}}'{{/if}}
+   */
+  {{{quoteProp name}}}?: {{#if values}}{{#each values}}'{{this}}'{{#unless @last}} | {{/unless}}{{/each}}{{else}}{{type}}{{/if}};
+{{/each}}
+}
+
+export const {{name}} = forwardRef<HTMLElement, {{name}}Props>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <{{tagName}} ref={ref} className={className} {...props}>
+        {children}
+      </{{tagName}}>
+    );
+  }
+);
+
+{{name}}.displayName = '{{name}}';
