@@ -3,8 +3,10 @@ import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { loadConfig, saveConfig } from '../../utils/config.js';
 import { regenerateWebAwesomeSetup } from '../../utils/regenerate.js';
-
-const VALID_THEMES = ['default', 'awesome', 'shoelace', 'none'];
+import {
+  getAvailableThemes,
+  isThemeAvailable,
+} from '../../utils/tier-restrictions.js';
 
 export const setCommand = new Command('set')
   .description('Switch to a different theme')
@@ -18,10 +20,38 @@ export const setCommand = new Command('set')
       process.exit(1);
     }
 
+    const tier = config.webAwesome?.tier || 'free';
+
     // Validate theme name
-    if (!VALID_THEMES.includes(themeName)) {
+    if (!isThemeAvailable(themeName, tier)) {
+      const availableThemes = getAvailableThemes(tier);
+
       p.log.error(`Invalid theme: ${themeName}`);
-      p.log.info(`Valid themes: ${VALID_THEMES.join(', ')}`);
+      p.log.info(
+        `Available themes for ${tier} tier: ${availableThemes.join(', ')}`
+      );
+
+      if (tier === 'free') {
+        p.note(
+          'More themes available with Web Awesome Pro:\n' +
+            '• brutalist, glossy, matter, mellow\n' +
+            '• playful, premium, tailspin, active\n\n' +
+            'Upgrade: Run "kigumi init" and select Pro tier',
+          'Upgrade to Pro'
+        );
+      }
+
+      if (themeName === 'custom') {
+        p.note(
+          'To create a custom theme:\n' +
+            '1. Create a CSS file in src/styles/\n' +
+            '2. Define theme CSS variables (--wa-color-*, --wa-font-*, etc.)\n' +
+            '3. Import it in your main entry file\n' +
+            '4. See: https://webawesome.com/docs/customizing',
+          'Custom Theme Guide'
+        );
+      }
+
       process.exit(1);
     }
 
@@ -30,7 +60,7 @@ export const setCommand = new Command('set')
     const spinner = p.spinner();
 
     // Update config
-    config.theme.selected = themeName as 'default' | 'dark' | 'none';
+    config.theme.selected = themeName;
 
     // Save config
     spinner.start('Updating configuration...');

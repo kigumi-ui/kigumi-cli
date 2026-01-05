@@ -13,7 +13,10 @@ import {
   generateComponent,
   updateTypeDeclarations,
   updateComponentIndex,
+  generateComponentCSS,
+  generateComponentTest,
 } from '../utils/template.js';
+import { isComponentAvailable } from '../utils/tier-restrictions.js';
 
 interface AddOptions {
   all?: boolean;
@@ -42,21 +45,28 @@ export async function addCommand(components: string[], options: AddOptions) {
 
   // Determine which components to add
   let componentsToAdd: string[] = [];
+  const tier = config.webAwesome?.tier || 'free';
 
   if (options.all) {
     const allComponents = getAllComponents();
-    componentsToAdd = Object.keys(allComponents);
+    // Filter by tier
+    componentsToAdd = Object.keys(allComponents).filter((key) =>
+      isComponentAvailable(key, tier)
+    );
   } else if (components.length === 0) {
-    // Interactive selection
+    // Interactive multi-select with tier awareness
     const allComponents = getAllComponents();
-    const choices = Object.entries(allComponents).map(([key, comp]) => ({
-      value: key,
-      label: comp.name,
-      hint: comp.description,
-    }));
+
+    const choices = Object.entries(allComponents)
+      .filter(([key]) => isComponentAvailable(key, tier))
+      .map(([key, comp]) => ({
+        value: key,
+        label: comp.name,
+        hint: `${comp.category}${comp.tier === 'pro' ? ' • Pro' : ''}`,
+      }));
 
     const selected = await p.multiselect({
-      message: 'Select components to add:',
+      message: 'Select components (space to select, enter to confirm):',
       options: choices,
       required: true,
     });
@@ -71,7 +81,28 @@ export async function addCommand(components: string[], options: AddOptions) {
     componentsToAdd = components;
   }
 
-  // Validate components
+  // Validate tier restrictions
+  const unavailableComponents = componentsToAdd.filter(
+    (name) => !isComponentAvailable(name, tier)
+  );
+
+  if (unavailableComponents.length > 0) {
+    p.outro(
+      pc.red('These components require Web Awesome Pro:') +
+        '\n  ' +
+        pc.white(unavailableComponents.join(', ')) +
+        '\n\n' +
+        pc.yellow('Upgrade to Pro:') +
+        '\n  ' +
+        pc.dim('Run: ') +
+        pc.cyan('kigumi init') +
+        '\n  ' +
+        pc.dim('Select "Pro" tier and enter your token')
+    );
+    process.exit(1);
+  }
+
+  // Validate components exist
   const invalidComponents = componentsToAdd.filter((name) => !hasComponent(name));
   if (invalidComponents.length > 0) {
     p.outro(
@@ -152,16 +183,26 @@ async function addComponent(
   const componentContent = await generateComponent(component, config);
 
   const ext = config.typescript ? 'tsx' : 'jsx';
-  const componentPath = path.join(cwd, config.componentsDir, `${component.name}.${ext}`);
+  // Component goes into its own directory
+  const componentDir = path.join(cwd, config.componentsDir, component.name);
+  const componentPath = path.join(componentDir, `${component.name}.${ext}`);
 
   // Check if file exists
   if ((await fs.pathExists(componentPath)) && !options.overwrite) {
     throw new Error('Component already exists. Use --overwrite to replace.');
   }
 
+  // Create component directory
+  await fs.ensureDir(componentDir);
+
   // Write component file
-  await fs.ensureDir(path.dirname(componentPath));
   await fs.writeFile(componentPath, componentContent);
+
+  // Generate CSS file
+  await generateComponentCSS(component, config, cwd);
+
+  // Generate unit test
+  await generateComponentTest(component, config, cwd);
 
   // Update TypeScript declarations
   if (config.typescript && options.types !== false) {

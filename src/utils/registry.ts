@@ -26,8 +26,8 @@ export interface ComponentDefinition {
     svelte?: string[];
   };
   props: ComponentProp[];
-  cssVars: string[];
   importPath: string; // e.g., '@awesome.me/webawesome-pro/dist/components/button/button.js'
+  tier: 'free' | 'pro'; // Whether component requires Pro tier
 }
 
 export interface ComponentRegistry {
@@ -123,8 +123,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         required: false,
       },
     ],
-    cssVars: [],
     importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+    tier: 'free',
   },
   input: {
     name: 'Input',
@@ -210,8 +210,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         required: false,
       },
     ],
-    cssVars: [],
     importPath: '@awesome.me/webawesome/dist/components/input/input.js',
+    tier: 'free',
   },
   card: {
     name: 'Card',
@@ -261,8 +261,49 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         required: false,
       },
     ],
-    cssVars: [],
     importPath: '@awesome.me/webawesome/dist/components/card/card.js',
+    tier: 'free',
+  },
+  dialog: {
+    name: 'Dialog',
+    tagName: 'wa-dialog',
+    category: 'Overlays',
+    description: 'Dialogs display important prompts and information',
+    dependencies: [],
+    files: {
+      react: ['components/Dialog.tsx', 'types/dialog.d.ts'],
+      vue: ['components/Dialog.vue'],
+      svelte: ['components/Dialog.svelte'],
+    },
+    props: [
+      {
+        name: 'open',
+        type: 'boolean',
+        default: 'false',
+        description: 'Indicates whether or not the dialog is open',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: "The dialog's label as displayed in the header",
+        required: true,
+      },
+      {
+        name: 'without-header',
+        type: 'boolean',
+        default: 'false',
+        description: 'Disables the header and removes the default close button',
+      },
+      {
+        name: 'light-dismiss',
+        type: 'boolean',
+        default: 'false',
+        description: 'When enabled, the dialog will be closed when the user clicks outside of it',
+      },
+    ],
+    importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
+    tier: 'free',
   },
 };
 
