@@ -8,10 +8,9 @@ export interface KigumiConfig {
   componentsDir: string;
   utilsDir?: string;
   theme: {
-    cssVars: boolean;
-    selected: 'default' | 'awesome' | 'shoelace' | 'none';  // Which theme to use
-    palette: string;                         // Color palette (default, or Pro palettes)
-    brandColor: string;                      // Brand color mapping (blue, purple, green, etc.)
+    selected: string;  // Which theme to use (default, awesome, shoelace, none, or pro themes)
+    palette: string;   // Color palette (default, bright, shoelace, etc.)
+    brandColor: string; // Brand color mapping (blue, purple, green, etc.)
   };
   aliases?: Record<string, string>;
   webAwesome?: {
@@ -28,7 +27,6 @@ export const DEFAULT_CONFIG: KigumiConfig = {
   componentsDir: 'src/components/ui',
   utilsDir: 'src/lib',
   theme: {
-    cssVars: true,
     selected: 'default',
     palette: 'default',
     brandColor: 'blue',

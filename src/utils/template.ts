@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import type { ComponentDefinition } from './registry.js';
 import type { KigumiConfig } from './config.js';
+import { generateCSSTemplate } from './css-metadata.js';
 
 // Register Handlebars helper to quote property names with hyphens
 Handlebars.registerHelper('quoteProp', function (propName: string) {
@@ -42,7 +43,6 @@ interface TemplateContext {
     description?: string;
     required?: boolean;
   }>;
-  cssVars: string[];
 }
 
 /**
@@ -76,7 +76,6 @@ export function buildTemplateContext(
     description: component.description,
     importPath: component.importPath,
     props: component.props,
-    cssVars: component.cssVars,
   };
 }
 
@@ -102,7 +101,17 @@ export async function generateComponent(
     importPath,
   };
 
-  const templatePath = getTemplatePath(config.framework, 'component.tsx.hbs');
+  // Use component-specific template if it exists
+  const componentTemplatePath = path.join(
+    TEMPLATES_DIR,
+    config.framework,
+    component.name,
+    `${component.name}.tsx.hbs`
+  );
+
+  const templatePath = (await fs.pathExists(componentTemplatePath))
+    ? componentTemplatePath
+    : getTemplatePath(config.framework, 'component.tsx.hbs');
 
   return renderTemplate(templatePath, context);
 }
@@ -227,7 +236,8 @@ export async function updateComponentIndex(
     content = await fs.readFile(indexPath, 'utf-8');
   }
 
-  const exportStatement = `export * from './${component.name}';\n`;
+  // Component is now in its own directory
+  const exportStatement = `export * from './${component.name}/${component.name}';\n`;
 
   // Check if already exported
   if (content.includes(exportStatement.trim())) {
@@ -236,4 +246,84 @@ export async function updateComponentIndex(
 
   content += exportStatement;
   await fs.writeFile(indexPath, content);
+}
+
+/**
+ * Generate CSS file for component
+ */
+export async function generateComponentCSS(
+  component: ComponentDefinition,
+  config: KigumiConfig,
+  cwd: string
+): Promise<void> {
+  const componentDir = path.join(cwd, config.componentsDir, component.name);
+  const cssPath = path.join(componentDir, `${component.name}.css`);
+
+  await fs.ensureDir(componentDir);
+
+  // Use component-specific CSS template if it exists
+  const componentCSSTemplatePath = path.join(
+    TEMPLATES_DIR,
+    config.framework,
+    component.name,
+    `${component.name}.css.hbs`
+  );
+
+  let cssContent: string;
+  if (await fs.pathExists(componentCSSTemplatePath)) {
+    cssContent = await renderTemplate(componentCSSTemplatePath, buildTemplateContext(component));
+  } else {
+    cssContent = generateCSSTemplate(component.name);
+  }
+
+  await fs.writeFile(cssPath, cssContent);
+}
+
+/**
+ * Generate unit test for component
+ */
+export async function generateComponentTest(
+  component: ComponentDefinition,
+  config: KigumiConfig,
+  cwd: string
+): Promise<void> {
+  const componentDir = path.join(cwd, config.componentsDir, component.name);
+  const ext = config.typescript ? 'tsx' : 'jsx';
+  const testPath = path.join(componentDir, `${component.name}.test.${ext}`);
+
+  await fs.ensureDir(componentDir);
+
+  // Use component-specific test template if it exists
+  const componentTestTemplatePath = path.join(
+    TEMPLATES_DIR,
+    config.framework,
+    component.name,
+    `${component.name}.test.${ext}.hbs`
+  );
+
+  let testContent: string;
+  if (await fs.pathExists(componentTestTemplatePath)) {
+    testContent = await renderTemplate(componentTestTemplatePath, buildTemplateContext(component));
+  } else {
+    // Fallback to generic test
+    testContent = `import { render, screen } from '@testing-library/react';
+import { ${component.name} } from './${component.name}';
+
+describe('${component.name}', () => {
+  it('renders without crashing', () => {
+    render(<${component.name}>${component.name}</${component.name}>);
+    expect(screen.getByText('${component.name}')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(
+      <${component.name} className="custom-class">Test</${component.name}>
+    );
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});
+`;
+  }
+
+  await fs.writeFile(testPath, testContent);
 }
