@@ -51,6 +51,16 @@ declare module 'react' {
       },
       HTMLElement
     >;
+
+    'wa-dialog': React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLElement> & {
+      open?: boolean;
+      label?: string;
+      'without-header'?: boolean;
+      'light-dismiss'?: boolean;
+      },
+      HTMLElement
+    >;
 }
   }
 }
