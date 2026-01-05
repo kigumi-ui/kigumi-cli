@@ -1,0 +1,32 @@
+/* .Dialog {
+  CSS Custom Properties: https://webawesome.com/docs/components/dialog#css-custom-properties
+  --spacing: ...;
+  --width: ...;
+  --show-duration: ...;
+  --hide-duration: ...;
+
+  CSS Parts: https://webawesome.com/docs/components/dialog#css-parts
+  &::part(dialog) {
+  }
+
+  &::part(header) {
+  }
+
+  &::part(header-actions) {
+  }
+
+  &::part(title) {
+  }
+
+  &::part(close-button) {
+  }
+
+  &::part(close-button__base) {
+  }
+
+  &::part(body) {
+  }
+
+  &::part(footer) {
+  }
+} */
