@@ -12,11 +12,19 @@
  * To change brand color, use: kigumi brand set <color>
  */
 
+// Note: setBasePath is not needed for Vite projects as assets are bundled correctly
+
 // Import base Web Awesome CSS (includes all CSS variables and component styles)
 import '@awesome.me/webawesome/dist/styles/webawesome.css';
 
 // Import selected theme CSS
 import '@awesome.me/webawesome/dist/styles/themes/awesome.css';
+
+// Import Web Awesome components (registers web components)
+import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/input/input.js';
+import '@awesome.me/webawesome/dist/components/card/card.js';
+import '@awesome.me/webawesome/dist/components/dialog/dialog.js';
 
 // Import your custom theme overrides
 import '@/styles/theme.css';

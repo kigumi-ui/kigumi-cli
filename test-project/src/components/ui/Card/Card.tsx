@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome/dist/components/card/card.js';
 import './Card.css';
@@ -28,7 +28,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLElement> {
   'with-media'?: boolean;
 }
 
-export const Card = forwardRef<HTMLElement, CardProps>(
+export const Card = React.forwardRef<HTMLElement, CardProps>(
   ({ children, className, ...props }, ref) => {
     return (
       <wa-card ref={ref} class={clsx('Card', className)} {...props}>
