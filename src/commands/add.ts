@@ -211,4 +211,58 @@ async function addComponent(
 
   // Update component index
   await updateComponentIndex(component, config, cwd);
+
+  // Update webawesome.ts to include component JS import
+  await updateWebAwesomeImports(component, config, cwd);
+}
+
+/**
+ * Update webawesome.ts to include component JS imports
+ */
+async function updateWebAwesomeImports(
+  component: ComponentDefinition,
+  config: ReturnType<typeof getConfig>,
+  cwd: string
+): Promise<void> {
+  const tier = config.webAwesome?.tier || 'free';
+  const packageName = tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+
+  const webawesomePath = path.join(cwd, config.utilsDir || 'src/lib', 'webawesome.ts');
+
+  // Check if file exists
+  if (!(await fs.pathExists(webawesomePath))) {
+    return; // Skip if webawesome.ts doesn't exist
+  }
+
+  const content = await fs.readFile(webawesomePath, 'utf-8');
+  const componentImport = `import '${packageName}/dist/components/${component.tagName.replace('wa-', '')}/${component.tagName.replace('wa-', '')}.js';`;
+
+  // Check if import already exists
+  if (content.includes(componentImport)) {
+    return; // Already imported
+  }
+
+  // Find the section with component imports
+  const importMarker = '// Import Web Awesome components (registers web components)';
+  if (!content.includes(importMarker)) {
+    return; // Can't find marker, skip
+  }
+
+  // Insert the new import after the marker
+  const lines = content.split('\n');
+  const markerIndex = lines.findIndex(line => line.includes(importMarker));
+
+  if (markerIndex !== -1) {
+    // Find the last import line after the marker
+    let insertIndex = markerIndex + 1;
+    while (insertIndex < lines.length && lines[insertIndex].trim().startsWith('import ')) {
+      insertIndex++;
+    }
+
+    // Insert the new import
+    lines.splice(insertIndex, 0, componentImport);
+
+    // Write back
+    await fs.writeFile(webawesomePath, lines.join('\n'));
+  }
 }

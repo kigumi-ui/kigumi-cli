@@ -5,7 +5,7 @@ import path from 'path';
 import pc from 'picocolors';
 import { saveConfig, DEFAULT_CONFIG, type KigumiConfig } from '../utils/config.js';
 import { getProjectInfo } from '../utils/detect-framework.js';
-import { regenerateWebAwesomeSetup } from '../utils/regenerate.js';
+import { regenerateWebAwesomeSetup, generateViteEnvDts } from '../utils/regenerate.js';
 import {
   getAvailableThemes,
   getAvailablePalettes,
@@ -502,6 +502,13 @@ export async function initCommand() {
   await regenerateWebAwesomeSetup(cwd, kigumiConfig, utilsDir);
   spinner.stop('Web Awesome setup file created');
 
+  // Create vite-env.d.ts for TypeScript support (React only)
+  if (kigumiConfig.framework === 'react') {
+    spinner.start('Creating TypeScript definitions for Web Awesome...');
+    await generateViteEnvDts(cwd, 'src');
+    spinner.stop('TypeScript definitions created');
+  }
+
   // Auto-import webawesome.ts in main entry file
   const possibleEntryFiles = [
     'src/main.tsx',
@@ -626,6 +633,24 @@ export async function initCommand() {
             cwd,
           });
           spinner.stop(`${packageName} installed`);
+
+          // Install clsx for React projects (required for className management)
+          if (kigumiConfig.framework === 'react') {
+            spinner.start('Installing clsx...');
+            try {
+              const clsxArgs = projectInfo.packageManager === 'npm'
+                ? ['install', 'clsx']
+                : projectInfo.packageManager === 'pnpm'
+                ? ['add', 'clsx']
+                : ['add', 'clsx']; // yarn/bun
+
+              await execa(projectInfo.packageManager, clsxArgs, { cwd });
+              spinner.stop('clsx installed');
+            } catch (error) {
+              spinner.stop('Failed to install clsx (optional)');
+              p.log.warn('clsx installation failed, but you can install it manually later');
+            }
+          }
         } catch (error: any) {
           spinner.stop(`Failed to install ${packageName}`);
 
@@ -679,6 +704,24 @@ export async function initCommand() {
           cwd,
         });
         spinner.stop(`${packageName} installed`);
+
+        // Install clsx for React projects (required for className management)
+        if (kigumiConfig.framework === 'react') {
+          spinner.start('Installing clsx...');
+          try {
+            const clsxArgs = projectInfo.packageManager === 'npm'
+              ? ['install', 'clsx']
+              : projectInfo.packageManager === 'pnpm'
+              ? ['add', 'clsx']
+              : ['add', 'clsx']; // yarn/bun
+
+            await execa(projectInfo.packageManager, clsxArgs, { cwd });
+            spinner.stop('clsx installed');
+          } catch (error) {
+            spinner.stop('Failed to install clsx (optional)');
+            p.log.warn('clsx installation failed, but you can install it manually later');
+          }
+        }
       } catch (error) {
         spinner.stop(`Failed to install ${packageName}`);
 
