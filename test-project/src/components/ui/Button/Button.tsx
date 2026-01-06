@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import './Button.css';
@@ -11,6 +11,7 @@ import './Button.css';
  * <Button variant="brand">Click me</Button>
  * <Button appearance="outlined" size="large">Large Button</Button>
  * <Button loading>Loading...</Button>
+ * <Button data-dialog="close">Close Dialog</Button>
  * ```
  */
 export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
@@ -36,9 +37,11 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
   download?: string;
   /** Link relationship (when href is set) */
   rel?: string;
+  /** Dialog control attribute (e.g., "close" to close parent dialog) */
+  'data-dialog'?: string;
 }
 
-export const Button = forwardRef<HTMLElement, ButtonProps>(
+export const Button = React.forwardRef<HTMLElement, ButtonProps>(
   ({ children, className, ...props }, ref) => {
     return (
       <wa-button ref={ref} class={clsx('Button', className)} {...props}>
