@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Input.css';
@@ -38,7 +38,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLElement> {
   'password-toggle'?: boolean;
 }
 
-export const Input = forwardRef<HTMLElement, InputProps>(
+export const Input = React.forwardRef<HTMLElement, InputProps>(
   ({ children, className, ...props }, ref) => {
     return (
       <wa-input ref={ref} class={clsx('Input', className)} {...props}>
