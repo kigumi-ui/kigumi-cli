@@ -153,3 +153,69 @@ declare module 'react' {
   const viteEnvPath = path.join(cwd, srcDir, 'vite-env.d.ts');
   await fs.writeFile(viteEnvPath, viteEnvContent);
 }
+
+/**
+ * Generate theme.css content
+ */
+export async function generateThemeCSS(config: any): Promise<string> {
+  const { theme } = config;
+
+  return `/**
+ * Web Awesome Theme Configuration
+ *
+ * Theme: ${theme.selected}
+ * Palette: ${theme.palette}
+ * Brand Color: ${theme.brandColor}
+ */
+
+/* Import Web Awesome theme */
+@import '@awesome.me/webawesome/dist/themes/${theme.selected}.css';
+
+/* Apply palette and brand color */
+:root {
+  --wa-palette: ${theme.palette};
+  --wa-brand-color: ${theme.brandColor};
+}
+
+/* Custom theme overrides */
+/* Add your custom CSS here */
+`;
+}
+
+/**
+ * Generate or update .gitignore
+ */
+export async function generateGitIgnore(cwd: string): Promise<void> {
+  const gitignorePath = path.join(cwd, '.gitignore');
+  const exists = await fs.pathExists(gitignorePath);
+
+  const essentialEntries = [
+    '# Dependencies',
+    'node_modules/',
+    '',
+    '# Environment variables',
+    '.env',
+    '.env.local',
+    '.env.*.local',
+    '',
+    '# Build outputs',
+    'dist/',
+    'build/',
+  ];
+
+  if (!exists) {
+    // Create new .gitignore
+    const content = essentialEntries.join('\n') + '\n';
+    await fs.writeFile(gitignorePath, content);
+  } else {
+    // Update existing .gitignore
+    let content = await fs.readFile(gitignorePath, 'utf-8');
+
+    // Add .env if not present
+    if (!content.includes('.env')) {
+      content += '\n# Environment variables\n.env\n.env.local\n.env.*.local\n';
+    }
+
+    await fs.writeFile(gitignorePath, content);
+  }
+}
