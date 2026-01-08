@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { initCommand } from './commands/init.js';
+import { installCommand } from './commands/install.js';
 import { addCommand } from './commands/add.js';
 import { listCommand } from './commands/list.js';
 import { themeCommand } from './commands/theme.js';
@@ -18,7 +19,22 @@ program
 program
   .command('init')
   .description('Initialize kigumi in your project')
+  .option('--framework <framework>', 'Framework to use (react|vue|svelte)')
+  .option('--typescript', 'Use TypeScript')
+  .option('--no-typescript', 'Use JavaScript')
+  .option('--tier <tier>', 'Web Awesome tier (free|pro)')
+  .option('--theme <theme>', 'Theme name')
+  .option('--palette <palette>', 'Color palette')
+  .option('--brand <color>', 'Brand color')
+  .option('--token <token>', 'Pro tier authentication token')
+  .option('--components-dir <dir>', 'Components directory')
+  .option('--utils-dir <dir>', 'Utils directory')
   .action(initCommand);
+
+program
+  .command('install')
+  .description('Install Web Awesome package (handles Pro tier authentication)')
+  .action(installCommand);
 
 program
   .command('add')
