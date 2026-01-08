@@ -48,10 +48,10 @@ export async function loadTokenFromEnv(cwd: string): Promise<string | null> {
         continue;
       }
 
-      // Check if line contains WA_TOKEN
-      if (trimmed.startsWith('WA_TOKEN=') || trimmed.startsWith('WEBAWESOME_NPM_TOKEN=')) {
+      // Check if line contains WEBAWESOME_NPM_TOKEN or old WA_TOKEN
+      if (trimmed.startsWith('WEBAWESOME_NPM_TOKEN=') || trimmed.startsWith('WA_TOKEN=')) {
         const token = trimmed.split('=')[1]?.trim();
-        if (token) {
+        if (token && token !== 'your-token-here') {
           return token;
         }
       }
@@ -85,8 +85,9 @@ export async function saveTokenToEnv(
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
 
-    if (trimmed.startsWith('WA_TOKEN=') || trimmed.startsWith('WEBAWESOME_NPM_TOKEN=')) {
-      lines[i] = `WA_TOKEN=${token}`;
+    // Replace both old WA_TOKEN and new WEBAWESOME_NPM_TOKEN
+    if (trimmed.startsWith('WEBAWESOME_NPM_TOKEN=') || trimmed.startsWith('WA_TOKEN=')) {
+      lines[i] = `WEBAWESOME_NPM_TOKEN=${token}`;
       tokenUpdated = true;
       break;
     }
@@ -100,7 +101,7 @@ export async function saveTokenToEnv(
     }
 
     lines.push('# Web Awesome Pro Authentication Token');
-    lines.push(`WA_TOKEN=${token}`);
+    lines.push(`WEBAWESOME_NPM_TOKEN=${token}`);
   }
 
   // Write back to .env
