@@ -1,72 +1,98 @@
+/**
+ * Palette Command
+ *
+ * Changes the color palette
+ */
+
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
+import { getOutput } from '../output/index.js';
+import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
+import { handleError, UserCancelledError } from '../errors/index.js';
+import { ValidationError } from '../errors/validation.js';
 import { loadConfig, saveConfig } from '../utils/config.js';
 import { regenerateWebAwesomeSetup } from '../utils/regenerate.js';
 import { getAvailablePalettes } from '../utils/tier-restrictions.js';
 
 async function paletteAction(paletteName?: string) {
+  const output = getOutput();
+  output.intro('kigumi palette');
+
   const cwd = process.cwd();
-  const config = await loadConfig(cwd);
 
-  if (!config) {
-    p.log.error('No kigumi-components.json found. Run "kigumi init" first.');
-    process.exit(1);
-  }
+  try {
+    // 1. Pre-flight checks
+    const checker = new CheckRunner()
+      .add(new ConfigExistsCheck())
+      .add(new ConfigValidCheck());
 
-  const tier = config.webAwesome?.tier || 'free';
-  let selectedPalette = paletteName;
-
-  // If no palette provided, show interactive selection
-  if (!selectedPalette) {
-    const availablePalettes = getAvailablePalettes(tier);
-
-    const options = availablePalettes
-      .filter((pal) => pal !== 'custom')
-      .map((palette) => ({
-        value: palette,
-        label: palette.charAt(0).toUpperCase() + palette.slice(1),
-        hint: palette === config.theme.palette ? 'Current' : '',
-      }));
-
-    const selected = await p.select({
-      message: 'Select a color palette:',
-      options,
-      initialValue: config.theme.palette,
-    });
-
-    if (p.isCancel(selected)) {
-      p.cancel('Operation cancelled.');
-      process.exit(0);
+    const checkResults = await checker.run({ cwd });
+    if (checker.hasErrors(checkResults)) {
+      output.error('Pre-flight checks failed');
+      output.note('Issues found', checker.formatResults(checkResults));
+      process.exit(1);
     }
 
-    selectedPalette = selected as string;
+    // 2. Load configuration
+    const config = await loadConfig(cwd);
+    if (!config) {
+      output.error('Configuration not found');
+      process.exit(1);
+    }
+
+    const tier = config.webAwesome?.tier || 'free';
+    let selectedPalette = paletteName;
+
+    // 3. Interactive selection if no palette provided
+    if (!selectedPalette) {
+      const availablePalettes = getAvailablePalettes(tier);
+
+      const options = availablePalettes
+        .filter((pal) => pal !== 'custom')
+        .map((palette) => ({
+          value: palette,
+          label: palette.charAt(0).toUpperCase() + palette.slice(1),
+          hint: palette === config.theme.palette ? 'Current' : '',
+        }));
+
+      const selected = await p.select({
+        message: 'Select a color palette:',
+        options,
+        initialValue: config.theme.palette,
+      });
+
+      if (p.isCancel(selected)) {
+        throw new UserCancelledError();
+      }
+
+      selectedPalette = selected as string;
+    }
+
+    // 4. Validate palette (all palettes available to all tiers)
+    const availablePalettes = getAvailablePalettes(tier).filter((p) => p !== 'custom');
+    if (!availablePalettes.includes(selectedPalette)) {
+      throw new ValidationError('palette', selectedPalette, availablePalettes);
+    }
+
+    // 5. Update palette
+    const spinner = output.spinner('Updating palette...');
+
+    config.theme.palette = selectedPalette;
+    await saveConfig(config, cwd);
+
+    const utilsDir = config.utilsDir || 'src/lib';
+    await regenerateWebAwesomeSetup(cwd, config, utilsDir);
+
+    spinner.stop('Palette updated');
+
+    output.outro(
+      `${pc.green('✓')} Palette set to ${pc.cyan(selectedPalette)}\n` +
+        pc.dim('Reload your browser to see changes')
+    );
+  } catch (error) {
+    handleError(error, output);
   }
-
-  // Validate palette (all palettes available to all tiers)
-  const availablePalettes = getAvailablePalettes(tier).filter((p) => p !== 'custom');
-  if (!availablePalettes.includes(selectedPalette)) {
-    p.log.error(`Unknown palette: ${selectedPalette}`);
-    p.log.info(`Available palettes: ${availablePalettes.join(', ')}`);
-    process.exit(1);
-  }
-
-  // Update palette
-  const spinner = p.spinner();
-
-  config.theme.palette = selectedPalette;
-
-  spinner.start('Updating palette...');
-  await saveConfig(config, cwd);
-
-  const utilsDir = config.utilsDir || 'src/lib';
-  await regenerateWebAwesomeSetup(cwd, config, utilsDir);
-  spinner.stop('Palette updated');
-
-  p.outro(
-    `${pc.green('✓')} Palette set to ${pc.cyan(selectedPalette)}\n` +
-    pc.dim('Reload your browser to see changes')
-  );
 }
 
 export const paletteCommand = new Command('palette')
