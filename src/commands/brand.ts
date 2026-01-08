@@ -1,6 +1,16 @@
+/**
+ * Brand Command
+ *
+ * Changes the brand color
+ */
+
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
+import { getOutput } from '../output/index.js';
+import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
+import { handleError, UserCancelledError } from '../errors/index.js';
+import { ValidationError } from '../errors/validation.js';
 import { loadConfig, saveConfig } from '../utils/config.js';
 import { regenerateWebAwesomeSetup } from '../utils/regenerate.js';
 
@@ -18,61 +28,77 @@ const BRAND_COLORS = [
 ];
 
 async function brandAction(colorName?: string) {
+  const output = getOutput();
+  output.intro('kigumi brand');
+
   const cwd = process.cwd();
-  const config = await loadConfig(cwd);
 
-  if (!config) {
-    p.log.error('No kigumi-components.json found. Run "kigumi init" first.');
-    process.exit(1);
-  }
+  try {
+    // 1. Pre-flight checks
+    const checker = new CheckRunner()
+      .add(new ConfigExistsCheck())
+      .add(new ConfigValidCheck());
 
-  let selectedColor = colorName;
-
-  // If no color provided, show interactive selection
-  if (!selectedColor) {
-    const options = BRAND_COLORS.map((color) => ({
-      value: color,
-      label: color.charAt(0).toUpperCase() + color.slice(1),
-      hint: color === config.theme.brandColor ? 'Current' : '',
-    }));
-
-    const selected = await p.select({
-      message: 'Select a brand color:',
-      options,
-      initialValue: config.theme.brandColor,
-    });
-
-    if (p.isCancel(selected)) {
-      p.cancel('Operation cancelled.');
-      process.exit(0);
+    const checkResults = await checker.run({ cwd });
+    if (checker.hasErrors(checkResults)) {
+      output.error('Pre-flight checks failed');
+      output.note('Issues found', checker.formatResults(checkResults));
+      process.exit(1);
     }
 
-    selectedColor = selected as string;
+    // 2. Load configuration
+    const config = await loadConfig(cwd);
+    if (!config) {
+      output.error('Configuration not found');
+      process.exit(1);
+    }
+
+    let selectedColor = colorName;
+
+    // 3. Interactive selection if no color provided
+    if (!selectedColor) {
+      const options = BRAND_COLORS.map((color) => ({
+        value: color,
+        label: color.charAt(0).toUpperCase() + color.slice(1),
+        hint: color === config.theme.brandColor ? 'Current' : '',
+      }));
+
+      const selected = await p.select({
+        message: 'Select a brand color:',
+        options,
+        initialValue: config.theme.brandColor,
+      });
+
+      if (p.isCancel(selected)) {
+        throw new UserCancelledError();
+      }
+
+      selectedColor = selected as string;
+    }
+
+    // 4. Validate brand color
+    if (!BRAND_COLORS.includes(selectedColor)) {
+      throw new ValidationError('brand color', selectedColor, BRAND_COLORS);
+    }
+
+    // 5. Update brand color
+    const spinner = output.spinner('Updating brand color...');
+
+    config.theme.brandColor = selectedColor;
+    await saveConfig(config, cwd);
+
+    const utilsDir = config.utilsDir || 'src/lib';
+    await regenerateWebAwesomeSetup(cwd, config, utilsDir);
+
+    spinner.stop('Brand color updated');
+
+    output.outro(
+      `${pc.green('✓')} Brand color set to ${pc.cyan(selectedColor)}\n` +
+        pc.dim('Reload your browser to see changes')
+    );
+  } catch (error) {
+    handleError(error, output);
   }
-
-  // Validate brand color
-  if (!BRAND_COLORS.includes(selectedColor)) {
-    p.log.error(`Unknown brand color: ${selectedColor}`);
-    p.log.info(`Available brand colors: ${BRAND_COLORS.join(', ')}`);
-    process.exit(1);
-  }
-
-  // Update brand color
-  const spinner = p.spinner();
-
-  config.theme.brandColor = selectedColor;
-
-  spinner.start('Updating brand color...');
-  await saveConfig(config, cwd);
-
-  const utilsDir = config.utilsDir || 'src/lib';
-  await regenerateWebAwesomeSetup(cwd, config, utilsDir);
-  spinner.stop('Brand color updated');
-
-  p.outro(
-    `${pc.green('✓')} Brand color set to ${pc.cyan(selectedColor)}\n` +
-    pc.dim('Reload your browser to see changes')
-  );
 }
 
 export const brandCommand = new Command('brand')
