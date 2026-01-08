@@ -17,7 +17,7 @@ import {
 } from '../utils/token-manager.js';
 
 /**
- * Validate WA_TOKEN format (basic check)
+ * Validate WEBAWESOME_NPM_TOKEN format (basic check)
  * Cloudsmith tokens are typically alphanumeric with hyphens
  */
 function isValidTokenFormat(token: string | undefined): boolean {
@@ -31,14 +31,25 @@ function isValidTokenFormat(token: string | undefined): boolean {
   return true;
 }
 
-export async function initCommand() {
+interface InitOptions {
+  framework?: string;
+  typescript?: boolean;
+  tier?: string;
+  theme?: string;
+  palette?: string;
+  brand?: string;
+  token?: string;
+  componentsDir?: string;
+  utilsDir?: string;
+}
+
+export async function initCommand(options: InitOptions = {}) {
   console.clear();
 
   p.intro(pc.bgCyan(pc.black(' kigumi init ')));
 
   const cwd = process.cwd();
   let existingConfig: KigumiConfig | null = null;
-  let tokenWarningShown = false;
 
   // Check if already initialized
   const configExists = await fs.pathExists(path.join(cwd, 'kigumi-components.json'));
@@ -82,7 +93,7 @@ export async function initCommand() {
         p.note(
           `To set up Pro tier manually:\n\n` +
           `1. Create ${pc.cyan('.env')} in project root\n` +
-          `2. Add: ${pc.dim('WA_TOKEN=your-token-here')}\n` +
+          `2. Add: ${pc.dim('WEBAWESOME_NPM_TOKEN=your-token-here')}\n` +
           `3. Get your token from ${pc.cyan('https://webawesome.com')}\n` +
           `4. Run: ${pc.cyan('npm install @awesome.me/webawesome-pro')}`,
           'Manual Setup'
@@ -107,11 +118,38 @@ export async function initCommand() {
   const projectInfo = await getProjectInfo(cwd);
   spinner.stop('Project detected');
 
-  // Interactive prompts (use existing config as defaults if available)
-  const config = await p.group(
+  // Check if all required flags are provided for non-interactive mode
+  const hasAllRequiredFlags = options.framework && options.tier && options.theme;
+
+  let config: any;
+
+  if (hasAllRequiredFlags) {
+    // Non-interactive mode: use all flag values
+    config = {
+      framework: options.framework,
+      typescript: options.typescript ?? true, // Default to true if not specified
+      tier: options.tier,
+      token: options.token,
+      theme: options.theme,
+      palette: options.palette || 'default',
+      brandColor: options.brand || 'blue',
+      componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
+      utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
+      installWebAwesome: true,
+    };
+
+    // Show what we're doing in non-interactive mode
+    p.log.info(`Using flags: ${pc.cyan(options.framework!)} | ${pc.cyan(options.tier!)} | ${pc.cyan(options.theme!)}`);
+  } else {
+    // Interactive mode: prompt for missing values
+    config = await p.group(
     {
-      framework: () =>
-        p.select({
+      framework: () => {
+        // Use flag value if provided
+        if (options.framework) {
+          return Promise.resolve(options.framework);
+        }
+        return p.select({
           message: 'Which framework are you using?',
           initialValue: existingConfig?.framework ||
                        (projectInfo.framework !== 'unknown' ? projectInfo.framework : 'react'),
@@ -120,14 +158,24 @@ export async function initCommand() {
             { value: 'vue', label: 'Vue' },
             { value: 'svelte', label: 'Svelte' },
           ],
-        }),
-      typescript: () =>
-        p.confirm({
+        });
+      },
+      typescript: () => {
+        // Use flag value if provided
+        if (options.typescript !== undefined) {
+          return Promise.resolve(options.typescript);
+        }
+        return p.confirm({
           message: 'Use TypeScript?',
           initialValue: existingConfig?.typescript ?? projectInfo.typescript,
-        }),
-      tier: () =>
-        p.select({
+        });
+      },
+      tier: () => {
+        // Use flag value if provided
+        if (options.tier) {
+          return Promise.resolve(options.tier);
+        }
+        return p.select({
           message: 'Which version of Web Awesome?',
           options: [
             {
@@ -142,17 +190,23 @@ export async function initCommand() {
             },
           ],
           initialValue: existingConfig?.webAwesome?.tier || 'free',
-        }),
+        });
+      },
       token: async ({ results }) => {
         if (results.tier !== 'pro') {
           return Promise.resolve(undefined);
+        }
+
+        // Use flag value if provided
+        if (options.token) {
+          return Promise.resolve(options.token);
         }
 
         // Check if token already exists in .env
         const existingToken = await loadTokenFromEnv(cwd);
         if (existingToken && isValidToken(existingToken)) {
           const useExisting = await p.confirm({
-            message: 'Found existing WA_TOKEN. Use it?',
+            message: 'Found existing WEBAWESOME_NPM_TOKEN. Use it?',
             initialValue: true,
           });
 
@@ -182,10 +236,15 @@ export async function initCommand() {
         return token as string;
       },
       theme: ({ results }) => {
+        // Use flag value if provided
+        if (options.theme) {
+          return Promise.resolve(options.theme);
+        }
+
         const tier = results.tier as 'free' | 'pro';
         const availableThemes = getAvailableThemes(tier);
 
-        const options = availableThemes
+        const themeOptions = availableThemes
           .filter((t) => t !== 'custom') // Don't show custom in initial setup
           .map((themeName) => ({
             value: themeName,
@@ -195,7 +254,7 @@ export async function initCommand() {
 
         return p.select({
           message: 'Which theme would you like to use?',
-          options,
+          options: themeOptions,
           initialValue: existingConfig?.theme?.selected || 'default',
         });
       },
@@ -205,11 +264,16 @@ export async function initCommand() {
           return Promise.resolve('default');
         }
 
+        // Use flag value if provided
+        if (options.palette) {
+          return Promise.resolve(options.palette);
+        }
+
         // CRITICAL FIX: All palettes available to BOTH tiers
         const tier = results.tier as 'free' | 'pro';
         const availablePalettes = getAvailablePalettes(tier);
 
-        const options = availablePalettes
+        const paletteOptions = availablePalettes
           .filter((p) => p !== 'custom') // Don't show custom in initial setup
           .map((paletteName) => ({
             value: paletteName,
@@ -219,7 +283,7 @@ export async function initCommand() {
 
         return p.select({
           message: 'Which color palette?',
-          options,
+          options: paletteOptions,
           initialValue: existingConfig?.theme?.palette || 'default',
         });
       },
@@ -227,6 +291,11 @@ export async function initCommand() {
         // Skip if theme is 'none'
         if (results.theme === 'none') {
           return Promise.resolve('blue');
+        }
+
+        // Use flag value if provided
+        if (options.brand) {
+          return Promise.resolve(options.brand);
         }
 
         return p.select({
@@ -246,23 +315,46 @@ export async function initCommand() {
           initialValue: existingConfig?.theme?.brandColor || 'blue',
         });
       },
-      componentsDir: () =>
-        p.text({
+      componentsDir: () => {
+        // Use flag value if provided
+        if (options.componentsDir) {
+          return Promise.resolve(options.componentsDir);
+        }
+        return p.text({
           message: 'Where should we install components?',
           initialValue: existingConfig?.componentsDir || DEFAULT_CONFIG.componentsDir,
           placeholder: DEFAULT_CONFIG.componentsDir,
-        }),
-      utilsDir: () =>
-        p.text({
+        });
+      },
+      utilsDir: () => {
+        // Use flag value if provided
+        if (options.utilsDir) {
+          return Promise.resolve(options.utilsDir);
+        }
+        return p.text({
           message: 'Where should we install utilities?',
           initialValue: existingConfig?.utilsDir || DEFAULT_CONFIG.utilsDir,
           placeholder: DEFAULT_CONFIG.utilsDir,
-        }),
-      installWebAwesome: ({ results }) =>
-        p.confirm({
-          message: `Install ${results.tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome'}?`,
+        });
+      },
+      installWebAwesome: ({ results }) => {
+        // Pro tier: Don't ask, we'll skip installation (user runs `kigumi install` later)
+        if (results.tier === 'pro') {
+          return Promise.resolve(false);
+        }
+
+        // Free tier: If all required flags provided, auto-confirm installation
+        const hasAllFlags = options.framework && options.tier && options.theme;
+        if (hasAllFlags) {
+          return Promise.resolve(true);
+        }
+
+        // Free tier: Ask user if they want to install
+        return p.confirm({
+          message: 'Install @awesome.me/webawesome?',
           initialValue: true,
-        }),
+        });
+      },
     },
     {
       onCancel: () => {
@@ -270,7 +362,8 @@ export async function initCommand() {
         process.exit(0);
       },
     }
-  );
+    );
+  }
 
   // Build configuration
   const tier = config.tier as 'free' | 'pro';
@@ -295,7 +388,7 @@ export async function initCommand() {
     webAwesome: {
       tier,
       version: '^3.1.0',
-      ...(tier === 'pro' && { tokenEnvVar: 'WA_TOKEN' }),
+      ...(tier === 'pro' && { tokenEnvVar: 'WEBAWESOME_NPM_TOKEN' }),
     },
   };
 
@@ -369,7 +462,7 @@ export async function initCommand() {
     const envExamplePath = path.join(cwd, '.env.example');
     const npmrcPath = path.join(cwd, '.npmrc');
     const envExists = await fs.pathExists(envPath);
-    const hasValidToken = isValidTokenFormat(process.env.WA_TOKEN);
+    const hasValidToken = isValidTokenFormat(process.env.WEBAWESOME_NPM_TOKEN);
 
     // Always create/update .env.example (this gets committed to git)
     const envExampleContent =
@@ -389,7 +482,7 @@ export async function initCommand() {
       '# Security: Never commit this file with a real token!\n' +
       '# The .env file (with your actual token) is gitignored.\n' +
       '\n' +
-      'WA_TOKEN=your-token-here\n';
+      'WEBAWESOME_NPM_TOKEN=your-token-here\n';
 
     spinner.start('Creating .env.example...');
     await fs.writeFile(envExamplePath, envExampleContent);
@@ -400,12 +493,12 @@ export async function initCommand() {
       await fs.writeFile(envPath, envExampleContent);
       spinner.stop('.env file created');
     } else {
-      // Check if WA_TOKEN exists in .env
+      // Check if WEBAWESOME_NPM_TOKEN exists in .env
       const envContent = await fs.readFile(envPath, 'utf-8');
-      if (!envContent.includes('WA_TOKEN')) {
-        spinner.start('Adding WA_TOKEN to .env...');
+      if (!envContent.includes('WEBAWESOME_NPM_TOKEN')) {
+        spinner.start('Adding WEBAWESOME_NPM_TOKEN to .env...');
         await fs.appendFile(envPath, '\n' + envExampleContent);
-        spinner.stop('WA_TOKEN added to .env');
+        spinner.stop('WEBAWESOME_NPM_TOKEN added to .env');
       }
     }
 
@@ -417,9 +510,9 @@ export async function initCommand() {
       '# The @awesome.me scope is configured to use the Cloudsmith registry\n' +
       '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n' +
       '\n' +
-      '# Authentication is loaded from the WA_TOKEN environment variable\n' +
-      '# Make sure WA_TOKEN is set in your .env file before installing\n' +
-      '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WA_TOKEN}\n';
+      '# Authentication is loaded from the WEBAWESOME_NPM_TOKEN environment variable\n' +
+      '# Make sure WEBAWESOME_NPM_TOKEN is set in your .env file before installing\n' +
+      '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n';
 
     const npmrcExists = await fs.pathExists(npmrcPath);
     if (!npmrcExists) {
@@ -438,19 +531,14 @@ export async function initCommand() {
 
     // Show token warning ONCE if token is not valid
     if (!hasValidToken) {
-      const installCommand = projectInfo.packageManager === 'npm'
-        ? 'npm install'
-        : `${projectInfo.packageManager} install`;
-
       p.note(
         `${pc.yellow('⚠ Web Awesome Pro requires authentication')}\n\n` +
         `Before you can install and use Pro:\n\n` +
         `1. Get your Pro token from ${pc.cyan('https://webawesome.com')}\n` +
-        `2. Add it to ${pc.cyan('.env')}:\n   ${pc.dim('WA_TOKEN=your-actual-token')}\n` +
-        `3. Then run:\n   ${pc.cyan(installCommand)}`,
+        `2. Add it to ${pc.cyan('.env')}:\n   ${pc.dim('WEBAWESOME_NPM_TOKEN=your-actual-token')}\n` +
+        `3. Then run:\n   ${pc.cyan('kigumi install')}`,
         'Authentication Required'
       );
-      tokenWarningShown = true;
     }
   }
 
@@ -509,46 +597,9 @@ export async function initCommand() {
     spinner.stop('TypeScript definitions created');
   }
 
-  // Auto-import webawesome.ts in main entry file
-  const possibleEntryFiles = [
-    'src/main.tsx',
-    'src/main.ts',
-    'src/index.tsx',
-    'src/index.ts',
-    'src/App.tsx',
-    'src/App.ts'
-  ];
-
-  let entryFile: string | null = null;
-  for (const file of possibleEntryFiles) {
-    const filePath = path.join(cwd, file);
-    if (await fs.pathExists(filePath)) {
-      entryFile = filePath;
-      break;
-    }
-  }
-
-  if (entryFile) {
-    const entryContent = await fs.readFile(entryFile, 'utf-8');
-    const webawesomeImport = `import '@/lib/webawesome';`;
-
-    // Check if import already exists
-    if (!entryContent.includes(webawesomeImport) && !entryContent.includes("'@/lib/webawesome'") && !entryContent.includes('"@/lib/webawesome"')) {
-      // Add import at the top, after other imports
-      const lines = entryContent.split('\n');
-      let insertIndex = 0;
-
-      // Find last import statement
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].trim().startsWith('import ')) {
-          insertIndex = i + 1;
-        }
-      }
-
-      lines.splice(insertIndex, 0, webawesomeImport);
-      await fs.writeFile(entryFile, lines.join('\n'));
-    }
-  }
+  // Note: We do NOT automatically modify vite.config.ts, tsconfig.json, or add imports
+  // The user must follow the installation guide for their framework
+  // This is intentional - like shadcn, we document the manual steps clearly
 
   // Configure npm registry based on tier
   const npmrcPath = path.join(cwd, '.npmrc');
@@ -581,8 +632,7 @@ export async function initCommand() {
     // Only create .npmrc if user doesn't have global Pro config
     if (!hasGlobalProConfig) {
       const npmrcContent =
-        '# Web Awesome Pro - Private Registry\n' +
-        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n' +
+        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n' +
         '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n';
 
       await fs.writeFile(npmrcPath, npmrcContent);
@@ -591,98 +641,16 @@ export async function initCommand() {
 
   // Install dependencies
   const packageName = tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+
+  // For Pro tier, skip auto-install (user will use `kigumi install` command)
+  // For Free tier, auto-install
+  let skippedProInstall = false;
+
   if (config.installWebAwesome) {
-    // For Pro tier, check if token is set before attempting installation
     if (tier === 'pro') {
-      const hasToken = isValidTokenFormat(process.env.WA_TOKEN);
-
-      if (!hasToken) {
-        // Skip installation and show clear instructions
-        // Only show additional note if token warning wasn't shown earlier
-        if (!tokenWarningShown) {
-          const installCommand = projectInfo.packageManager === 'npm'
-            ? 'npm install'
-            : `${projectInfo.packageManager} install`;
-
-          p.note(
-            `${pc.yellow('⚠ Cannot install without authentication')}\n\n` +
-            `Set your WA_TOKEN in ${pc.cyan('.env')} first, then run:\n` +
-            `${pc.cyan(installCommand)}`,
-            'Installation Skipped'
-          );
-        }
-        // Skip the package installation but continue with setup
-      } else {
-        // Token is set, proceed with installation
-        spinner.start(`Installing ${packageName}...`);
-        try {
-          // Use correct syntax for each package manager
-          let installArgs: string[];
-          if (projectInfo.packageManager === 'npm') {
-            installArgs = ['install', packageName];
-          } else if (projectInfo.packageManager === 'pnpm') {
-            installArgs = ['add', packageName];
-          } else if (projectInfo.packageManager === 'yarn') {
-            installArgs = ['add', packageName];
-          } else {
-            // bun
-            installArgs = ['add', packageName];
-          }
-
-          await execa(projectInfo.packageManager, installArgs, {
-            cwd,
-          });
-          spinner.stop(`${packageName} installed`);
-
-          // Install clsx for React projects (required for className management)
-          if (kigumiConfig.framework === 'react') {
-            spinner.start('Installing clsx...');
-            try {
-              const clsxArgs = projectInfo.packageManager === 'npm'
-                ? ['install', 'clsx']
-                : projectInfo.packageManager === 'pnpm'
-                ? ['add', 'clsx']
-                : ['add', 'clsx']; // yarn/bun
-
-              await execa(projectInfo.packageManager, clsxArgs, { cwd });
-              spinner.stop('clsx installed');
-            } catch (error) {
-              spinner.stop('Failed to install clsx (optional)');
-              p.log.warn('clsx installation failed, but you can install it manually later');
-            }
-          }
-        } catch (error: any) {
-          spinner.stop(`Failed to install ${packageName}`);
-
-          // Provide specific error context
-          const isAuthError = error.message?.includes('401') || error.message?.includes('Unauthorized');
-          const errorDetails = isAuthError
-            ? `${pc.red('❌ Authentication failed (401 Unauthorized)')}\n\n` +
-              `This means your WA_TOKEN is either:\n` +
-              `${pc.dim('•')} Not set correctly in ${pc.cyan('.env')}\n` +
-              `${pc.dim('•')} Invalid or expired\n` +
-              `${pc.dim('•')} Not authorized for Web Awesome Pro\n`
-            : `${pc.red('❌ Installation failed')}\n\n`;
-
-          const installCommand = projectInfo.packageManager === 'npm'
-            ? `npm install`
-            : `${projectInfo.packageManager} add ${packageName}`;
-
-          p.note(
-            errorDetails +
-            `\n${pc.bold('Steps to fix:')}\n\n` +
-            `${pc.green('1.')} Get a valid token from ${pc.cyan('https://webawesome.com')}\n` +
-            `   ${pc.dim('→')} Sign in to your account\n` +
-            `   ${pc.dim('→')} Go to Settings → API Tokens\n` +
-            `   ${pc.dim('→')} Generate or copy your token\n\n` +
-            `${pc.green('2.')} Update ${pc.cyan('.env')} with the token:\n` +
-            `   ${pc.dim('WA_TOKEN=your-actual-token-here')}\n\n` +
-            `${pc.green('3.')} Try installing again:\n` +
-            `   ${pc.cyan(installCommand)}`,
-            'Installation Error'
-          );
-        }
-      }
+      // Skip Pro tier installation - user will run `kigumi install`
+      skippedProInstall = true;
+      p.log.info(pc.dim('Pro tier installation skipped - run `kigumi install` next'))
     } else {
       // Free tier - proceed normally
       spinner.start(`Installing ${packageName}...`);
@@ -788,36 +756,29 @@ export async function initCommand() {
     }
   }
 
-  // Success message (consolidated, no repetition)
+  // Success message with clear next steps
   const setupPath = path.join(utilsDir, 'webawesome.ts');
-  const nextSteps = [];
-
-  // Only mention token if not already shown
-  if (tier === 'pro' && !tokenWarningShown && !process.env.WA_TOKEN) {
-    nextSteps.push(`Set your WA_TOKEN in ${pc.cyan('.env')}`);
-  }
-
-  nextSteps.push(`Import Web Awesome in your main file:\n   ${pc.cyan(`import './${setupPath.replace(/\\/g, '/')}';`)}`);
-  nextSteps.push(`Add your first component:\n   ${pc.cyan('kigumi add button')}`);
-
-  const formattedSteps = nextSteps
-    .map((step, i) => `${i + 1}. ${step}`)
-    .join('\n');
 
   p.note(
-    `Configuration: ${pc.cyan('kigumi-components.json')}\n` +
-      `Package: ${pc.cyan(packageName)}\n` +
-      `Components: ${pc.cyan(componentsDir)}\n` +
-      `Setup File: ${pc.cyan(setupPath)}\n` +
-      `Theme: ${pc.cyan(kigumiConfig.theme.selected)}\n` +
-      `Palette: ${pc.cyan(kigumiConfig.theme.palette)}\n` +
-      `Brand Color: ${pc.cyan(kigumiConfig.theme.brandColor)}\n` +
-      `Customization: ${pc.cyan('src/styles/theme.css')}` +
-      `\n\n${pc.yellow('Next steps:')}\n${formattedSteps}`,
-    'Setup Complete! 🎉'
+    `${pc.green('✓')} Configuration: ${pc.cyan('kigumi-components.json')}\n` +
+      `${pc.green('✓')} Package: ${pc.cyan(packageName)}\n` +
+      `${pc.green('✓')} Setup File: ${pc.cyan(setupPath)}\n` +
+      `${pc.green('✓')} Theme: ${pc.cyan(kigumiConfig.theme.selected)} (${kigumiConfig.theme.palette}, ${kigumiConfig.theme.brandColor})\n` +
+      `${pc.green('✓')} Customization: ${pc.cyan('src/styles/theme.css')}` +
+      (skippedProInstall
+        ? `\n\n${pc.yellow('⚠ Next: Install Web Awesome Pro')}\n\n` +
+          `Run: ${pc.cyan('kigumi install')}\n`
+        : '') +
+      `\n\n${pc.yellow('⚠ Manual Setup Required')}\n\n` +
+      `${pc.bold('Next steps:')}\n` +
+      (skippedProInstall ? `1. Run ${pc.cyan('kigumi install')} to install the Pro package\n` : '') +
+      `${skippedProInstall ? '2' : '1'}. Configure path aliases in ${pc.cyan('vite.config.ts')} and ${pc.cyan('tsconfig.json')}\n` +
+      `${skippedProInstall ? '3' : '2'}. Add ${pc.cyan("import '@/lib/webawesome'")} to your main file\n` +
+      `${skippedProInstall ? '4' : '3'}. Run ${pc.cyan('kigumi add button')} to add components`,
+    'Kigumi Initialized! 🎉'
   );
 
-  p.outro(pc.green('Happy coding!'));
+  p.outro(pc.green(skippedProInstall ? 'Run `kigumi install` to continue' : 'Setup complete!'));
 }
 
 // Helper function for reinstall-only path
@@ -872,8 +833,7 @@ async function reinstallDependencies(cwd: string, config: KigumiConfig) {
     // Only create .npmrc if user doesn't have global Pro config
     if (!hasGlobalProConfig) {
       const npmrcContent =
-        '# Web Awesome Pro - Private Registry\n' +
-        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n' +
+        '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro\n' +
         '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}\n';
 
       await fs.writeFile(npmrcPath, npmrcContent);
@@ -905,7 +865,7 @@ async function reinstallDependencies(cwd: string, config: KigumiConfig) {
           '#\n' +
           '# For team members: Ask your team lead for the shared Pro token\n' +
           '\n' +
-          'WA_TOKEN=your-token-here\n';
+          'WEBAWESOME_NPM_TOKEN=your-token-here\n';
       }
 
       spinner.start('Creating .env file...');
@@ -922,7 +882,7 @@ async function reinstallDependencies(cwd: string, config: KigumiConfig) {
         `   ${pc.dim('•')} Generate a new token\n` +
         `   ${pc.dim('•')} Or ask your team lead for the shared token\n\n` +
         `${pc.green('2.')} Add token to ${pc.cyan('.env')}:\n` +
-        `   ${pc.dim('WA_TOKEN=your-actual-token-here')}\n\n` +
+        `   ${pc.dim('WEBAWESOME_NPM_TOKEN=your-actual-token-here')}\n\n` +
         `${pc.green('3.')} Install all dependencies:\n` +
         `   ${pc.cyan(installCmd)}\n\n` +
         `${pc.dim('Note: .env is gitignored for security')}`,
@@ -932,10 +892,10 @@ async function reinstallDependencies(cwd: string, config: KigumiConfig) {
       process.exit(0);
     }
 
-    const hasToken = isValidTokenFormat(process.env.WA_TOKEN);
+    const hasToken = isValidTokenFormat(process.env.WEBAWESOME_NPM_TOKEN);
     if (!hasToken) {
       p.note(
-        `${pc.yellow('⚠ WA_TOKEN not found or invalid')}\n\n` +
+        `${pc.yellow('⚠ WEBAWESOME_NPM_TOKEN not found or invalid')}\n\n` +
         `Your ${pc.cyan('.env')} file exists but the token is not set.\n\n` +
         `${pc.bold('To fix:')}\n\n` +
         `${pc.green('1.')} Open ${pc.cyan('.env')} in your editor\n` +
@@ -970,7 +930,7 @@ async function reinstallDependencies(cwd: string, config: KigumiConfig) {
       if (stderr.includes('E401') || stderr.includes('Incorrect or missing password') || stderr.includes('authentication')) {
         p.note(
           `${pc.red('Authentication Error - Invalid Token!')}\n\n` +
-          `${pc.bold('The WA_TOKEN in your .env is incorrect or expired.')}\n\n` +
+          `${pc.bold('The WEBAWESOME_NPM_TOKEN in your .env is incorrect or expired.')}\n\n` +
           `${pc.yellow('This is a Pro tier project that requires a valid Web Awesome Pro token.')}\n\n` +
           `${pc.bold('How to fix:')}\n\n` +
           `${pc.green('1.')} Go to ${pc.cyan('https://webawesome.com')}\n` +
@@ -978,7 +938,7 @@ async function reinstallDependencies(cwd: string, config: KigumiConfig) {
           `   ${pc.dim('→')} Navigate to Settings → API Tokens\n` +
           `   ${pc.dim('→')} Copy your valid Pro token\n\n` +
           `${pc.green('2.')} Update your ${pc.cyan('.env')} file:\n` +
-          `   ${pc.dim('WA_TOKEN=your-actual-pro-token-here')}\n\n` +
+          `   ${pc.dim('WEBAWESOME_NPM_TOKEN=your-actual-pro-token-here')}\n\n` +
           `${pc.green('3.')} Verify the token is correct (no extra spaces)\n\n` +
           `${pc.green('4.')} Try again: ${pc.cyan(installCmd)}\n\n` +
           `${pc.dim('If you don\'t have a Pro subscription, change to free tier in kigumi-components.json')}`,
