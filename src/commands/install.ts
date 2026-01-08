@@ -1,179 +1,64 @@
-import * as p from '@clack/prompts';
-import pc from 'picocolors';
-import path from 'path';
-import fs from 'fs-extra';
-import { execa } from 'execa';
+/**
+ * Install Command
+ *
+ * Installs Web Awesome package and framework-specific dependencies
+ * Reuses installer logic from init command
+ */
+
+import { getOutput } from '../output/index.js';
+import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
+import { handleError } from '../errors/index.js';
 import { loadConfig } from '../utils/config.js';
 import { getProjectInfo } from '../utils/detect-framework.js';
-import { loadTokenFromEnv } from '../utils/token-manager.js';
+import { installDependencies } from './init/installer.js';
 
 /**
- * Install Web Awesome package
+ * Install command
  *
- * For Pro tier, this command reads the token from .env and installs the package
- * For Free tier, it just installs the package normally
+ * Installs Web Awesome and framework-specific dependencies
  */
 export async function installCommand() {
-  console.clear();
-
-  p.intro(pc.bgCyan(pc.black(' kigumi install ')));
+  const output = getOutput();
+  output.intro('kigumi install');
 
   const cwd = process.cwd();
 
-  // Load kigumi config
-  const config = await loadConfig(cwd);
-  if (!config) {
-    p.outro(pc.red('✖ No kigumi-components.json found. Run `kigumi init` first.'));
-    process.exit(1);
-  }
+  try {
+    // 1. Pre-flight checks
+    const checker = new CheckRunner()
+      .add(new ConfigExistsCheck())
+      .add(new ConfigValidCheck());
 
-  const tier = config.webAwesome?.tier || 'free';
-  const packageName = tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
-
-  // Get project info to determine package manager
-  const projectInfo = await getProjectInfo(cwd);
-
-  const spinner = p.spinner();
-
-  // For Pro tier, verify token exists
-  if (tier === 'pro') {
-    const token = await loadTokenFromEnv(cwd);
-
-    if (!token) {
-      p.outro(
-        pc.red('✖ No valid token found in .env\n\n') +
-        pc.dim('Add your Web Awesome Pro token to .env:\n') +
-        pc.cyan('WEBAWESOME_NPM_TOKEN=your-token-here\n\n') +
-        pc.dim('Get your token from: ') + pc.cyan('https://webawesome.com')
-      );
+    const checkResults = await checker.run({ cwd });
+    if (checker.hasErrors(checkResults)) {
+      output.error('Pre-flight checks failed');
+      output.note('Issues found', checker.formatResults(checkResults));
       process.exit(1);
     }
 
-    // Install with token
-    spinner.start(`Installing ${packageName}...`);
-
-    try {
-      // Determine install command based on package manager
-      let installArgs: string[];
-      if (projectInfo.packageManager === 'npm') {
-        installArgs = ['install', packageName];
-      } else if (projectInfo.packageManager === 'pnpm') {
-        installArgs = ['add', packageName];
-      } else if (projectInfo.packageManager === 'yarn') {
-        installArgs = ['add', packageName];
-      } else {
-        // bun
-        installArgs = ['add', packageName];
-      }
-
-      // Run install with token in environment
-      await execa(projectInfo.packageManager, installArgs, {
-        cwd,
-        env: {
-          ...process.env,
-          WEBAWESOME_NPM_TOKEN: token,
-        },
-      });
-
-      spinner.stop(pc.green(`✓ ${packageName} installed successfully`));
-
-      // Also install clsx for React projects
-      if (config.framework === 'react') {
-        const hasClsx = await fs.pathExists(path.join(cwd, 'node_modules', 'clsx'));
-        if (!hasClsx) {
-          spinner.start('Installing clsx...');
-          try {
-            const clsxArgs = projectInfo.packageManager === 'npm'
-              ? ['install', 'clsx']
-              : ['add', 'clsx'];
-
-            await execa(projectInfo.packageManager, clsxArgs, { cwd });
-            spinner.stop(pc.green('✓ clsx installed'));
-          } catch (error) {
-            spinner.stop(pc.yellow('⚠ Failed to install clsx (optional)'));
-          }
-        }
-      }
-
-      p.outro(
-        pc.green('✓ Installation complete!\n\n') +
-        pc.dim('Next steps:\n') +
-        pc.dim('1. Configure path aliases (see INSTALLATION.md)\n') +
-        pc.dim('2. Add ') + pc.cyan("import '@/lib/webawesome'") + pc.dim(' to your main file\n') +
-        pc.dim('3. Run ') + pc.cyan('kigumi add button') + pc.dim(' to add components')
-      );
-    } catch (error: any) {
-      spinner.stop(pc.red('✖ Installation failed'));
-
-      let errorMessage = 'Failed to install Web Awesome Pro package.\n\n';
-
-      if (error.stderr?.includes('401') || error.stderr?.includes('Unauthorized')) {
-        errorMessage +=
-          pc.yellow('Authentication failed. Your token may be invalid or expired.\n\n') +
-          pc.dim('1. Get a new token from: ') + pc.cyan('https://webawesome.com\n') +
-          pc.dim('2. Update .env with your new token\n') +
-          pc.dim('3. Try running ') + pc.cyan('kigumi install') + pc.dim(' again');
-      } else if (error.stderr?.includes('404')) {
-        errorMessage +=
-          pc.yellow('Package not found. Check your .npmrc configuration.\n\n') +
-          pc.dim('Expected .npmrc content:\n') +
-          pc.cyan('@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n') +
-          pc.cyan('//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=${WEBAWESOME_NPM_TOKEN}');
-      } else {
-        errorMessage += pc.dim('Error: ') + (error.message || String(error));
-      }
-
-      p.outro(pc.red(errorMessage));
+    // 2. Load configuration
+    const config = loadConfig(cwd);
+    if (!config) {
+      output.error('Configuration not found');
+      output.note('Run kigumi init first', 'kigumi init');
       process.exit(1);
     }
-  } else {
-    // Free tier - simple install
-    spinner.start(`Installing ${packageName}...`);
 
-    try {
-      let installArgs: string[];
-      if (projectInfo.packageManager === 'npm') {
-        installArgs = ['install', packageName];
-      } else if (projectInfo.packageManager === 'pnpm') {
-        installArgs = ['add', packageName];
-      } else if (projectInfo.packageManager === 'yarn') {
-        installArgs = ['add', packageName];
-      } else {
-        installArgs = ['add', packageName];
-      }
+    // 3. Get project info
+    const projectInfo = await getProjectInfo(cwd);
 
-      await execa(projectInfo.packageManager, installArgs, { cwd });
-      spinner.stop(pc.green(`✓ ${packageName} installed successfully`));
+    // 4. Reuse installer from init command
+    await installDependencies(cwd, config, projectInfo.packageManager, output);
 
-      // Also install clsx for React projects
-      if (config.framework === 'react') {
-        const hasClsx = await fs.pathExists(path.join(cwd, 'node_modules', 'clsx'));
-        if (!hasClsx) {
-          spinner.start('Installing clsx...');
-          try {
-            const clsxArgs = projectInfo.packageManager === 'npm'
-              ? ['install', 'clsx']
-              : ['add', 'clsx'];
-
-            await execa(projectInfo.packageManager, clsxArgs, { cwd });
-            spinner.stop(pc.green('✓ clsx installed'));
-          } catch (error) {
-            spinner.stop(pc.yellow('⚠ Failed to install clsx (optional)'));
-          }
-        }
-      }
-
-      p.outro(
-        pc.green('✓ Installation complete!\n\n') +
-        pc.dim('Next steps:\n') +
-        pc.dim('1. Configure path aliases (see INSTALLATION.md)\n') +
-        pc.dim('2. Add ') + pc.cyan("import '@/lib/webawesome'") + pc.dim(' to your main file\n') +
-        pc.dim('3. Run ') + pc.cyan('kigumi add button') + pc.dim(' to add components')
-      );
-    } catch (error: any) {
-      spinner.stop(pc.red('✖ Installation failed'));
-      p.outro(pc.red('Failed to install package: ') + (error.message || String(error)));
-      process.exit(1);
-    }
+    // 5. Success
+    output.outro('✓ Installation complete!');
+    output.note(
+      'Next steps',
+      '1. Configure path aliases (see INSTALLATION.md)\n' +
+        "2. Add import '@/lib/webawesome' to your main file\n" +
+        '3. Run kigumi add button to add components'
+    );
+  } catch (error) {
+    handleError(error, output);
   }
 }
