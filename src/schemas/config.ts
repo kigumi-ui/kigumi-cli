@@ -35,6 +35,7 @@ export const themeConfigSchema = z.object({
 export const webAwesomeConfigSchema = z.object({
   tier: tierSchema,
   version: z.string().optional(),
+  token: z.string().optional(), // Pro tier token (used for .env generation)
   tokenEnvVar: z.string().optional(),
   cdnUrl: z.string().url('Must be a valid URL').optional(),
 });

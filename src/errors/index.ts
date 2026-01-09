@@ -16,6 +16,8 @@
  */
 
 // Base error classes
+import { KigumiError, UnknownError } from './base.js';
+
 export {
   KigumiError,
   UserCancelledError,

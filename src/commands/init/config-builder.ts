@@ -24,12 +24,16 @@ export async function buildConfigNonInteractive(
   const tier = options.tier || 'free';
   const theme = options.theme || 'default';
   const palette = options.palette || 'default';
-  const brandColor = options.brandColor || 'blue';
+  // Accept both --brand and --brandColor (--brand is preferred)
+  const brandColor = options.brand || options.brandColor || 'blue';
+  const token = options.token;
 
   output.info(`Framework: ${framework}`);
   output.info(`TypeScript: ${typescript}`);
   output.info(`Tier: ${tier}`);
   output.info(`Theme: ${theme}`);
+  output.info(`Palette: ${palette}`);
+  output.info(`Brand Color: ${brandColor}`);
 
   return {
     framework: framework as any,
@@ -45,6 +49,7 @@ export async function buildConfigNonInteractive(
     webAwesome: {
       tier: tier as 'free' | 'pro',
       version: DEFAULT_CONFIG.webAwesome?.version,
+      token, // Include token if provided
     },
   };
 }
@@ -123,8 +128,8 @@ export async function buildConfigInteractive(
     process.exit(0);
   }
 
-  // Brand color
-  const brandColor = options.brandColor || await p.select({
+  // Brand color (accept both --brand and --brandColor)
+  const brandColor = options.brand || options.brandColor || await p.select({
     message: 'Select brand color',
     options: [
       { value: 'blue', label: 'Blue' },
@@ -140,6 +145,9 @@ export async function buildConfigInteractive(
     process.exit(0);
   }
 
+  // Token (for Pro tier)
+  const token = options.token;
+
   return {
     framework: framework as any,
     typescript: typescript as boolean,
@@ -154,6 +162,7 @@ export async function buildConfigInteractive(
     webAwesome: {
       tier: tier as 'free' | 'pro',
       version: DEFAULT_CONFIG.webAwesome?.version,
+      token, // Include token if provided
     },
   };
 }
