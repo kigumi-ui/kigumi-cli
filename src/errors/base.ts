@@ -223,7 +223,7 @@ export class UnknownError extends KigumiError {
         {
           title: 'This is an unexpected error',
           steps: [
-            'Please report this issue at: https://github.com/anthropics/kigumi-cli/issues',
+            'Please report this issue at: https://github.com/Siregar/kigumi-cli/issues',
             'Include the full error message and stack trace',
           ],
         },
@@ -247,8 +247,6 @@ export class UnknownError extends KigumiError {
       );
     }
 
-    return new UnknownError(
-      `An unexpected error occurred: ${String(error)}`
-    );
+    return new UnknownError(`An unexpected error occurred: ${String(error)}`);
   }
 }

@@ -1,5 +1,8 @@
 # Kigumi CLI - Developer Guide for Claude Code
 
+> **Note for AI Assistants**: For quick reference, see [AGENTS.md](AGENTS.md) (227 lines, optimized for AI tools).
+> This document (CLAUDE.md) is the comprehensive human-readable guide with detailed explanations.
+
 This document provides essential context for working on the Kigumi CLI codebase.
 
 ## What is Kigumi?

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(curl:*)",
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(kigumi init --help:*)",
+      "Bash(kigumi init:*)",
+      "Bash(pnpm build)"
+    ]
+  }
+}

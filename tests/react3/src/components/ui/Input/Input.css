@@ -1,0 +1,32 @@
+/* .Input {
+  CSS Parts: https://webawesome.com/docs/components/input#css-parts
+  &::part(form-control) {
+  }
+
+  &::part(form-control-label) {
+  }
+
+  &::part(form-control-input) {
+  }
+
+  &::part(form-control-help-text) {
+  }
+
+  &::part(base) {
+  }
+
+  &::part(input) {
+  }
+
+  &::part(prefix) {
+  }
+
+  &::part(clear-button) {
+  }
+
+  &::part(password-toggle-button) {
+  }
+
+  &::part(suffix) {
+  }
+} */

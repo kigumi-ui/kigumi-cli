@@ -1,0 +1,10 @@
+{
+  "agents": {
+    "auto_apply_changes": false,
+    "legacy_terminal_tool": true,
+    "max_turns_per_session": 40
+  },
+  "models": {
+    "codebase_indexing": "gemini-3-pro"
+  }
+}
