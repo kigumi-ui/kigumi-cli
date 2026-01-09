@@ -70,14 +70,8 @@ export class ConsoleOutput implements OutputInterface {
       if ('format' in error && typeof error.format === 'function') {
         const formatted = (error as any).format();
         p.log.error(pc.red(formatted));
-
-        // Show suggestions if available
-        if ('formatSuggestions' in error && typeof error.formatSuggestions === 'function') {
-          const suggestions = (error as any).formatSuggestions();
-          if (suggestions) {
-            this.note('How to fix', suggestions);
-          }
-        }
+        // Note: Suggestions are handled by handleError() in errors/index.ts
+        // to avoid duplicate output
       } else {
         p.log.error(pc.red(message));
         if (error.message) {
