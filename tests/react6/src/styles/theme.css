@@ -1,0 +1,19 @@
+/**
+ * Web Awesome Theme Configuration
+ *
+ * Theme: brutalist
+ * Palette: rudimentary
+ * Brand Color: red
+ */
+
+/* Import Web Awesome theme */
+@import '@awesome.me/webawesome/dist/themes/brutalist.css';
+
+/* Apply palette and brand color */
+:root {
+  --wa-palette: rudimentary;
+  --wa-brand-color: red;
+}
+
+/* Custom theme overrides */
+/* Add your custom CSS here */

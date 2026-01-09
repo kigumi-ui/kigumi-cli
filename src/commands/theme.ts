@@ -11,7 +11,7 @@ import { getOutput } from '../output/index.js';
 import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
 import { handleError, UserCancelledError } from '../errors/index.js';
 import { TierRestrictionError } from '../errors/tier.js';
-import { loadConfig, saveConfig } from '../utils/config.js';
+import { loadConfig, saveConfig, getConfig } from '../utils/config.js';
 import { regenerateWebAwesomeSetup } from '../utils/regenerate.js';
 import {
   getAvailableThemes,
@@ -25,23 +25,30 @@ async function themeAction(themeName?: string) {
   const cwd = process.cwd();
 
   try {
-    // 1. Pre-flight checks
+    // 1. Load configuration (needed for checks)
+    let config: any;
+    try {
+      loadConfig(cwd);
+      config = getConfig(cwd);
+    } catch (error) {
+      // Config loading failed - will be caught by checks
+    }
+
+    // 2. Pre-flight checks
     const checker = new CheckRunner()
       .add(new ConfigExistsCheck())
       .add(new ConfigValidCheck());
 
-    const checkResults = await checker.run({ cwd });
+    const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
       output.error('Pre-flight checks failed');
       output.note('Issues found', checker.formatResults(checkResults));
       process.exit(1);
     }
 
-    // 2. Load configuration
-    const config = await loadConfig(cwd);
+    // 3. Config is valid at this point (checks passed)
     if (!config) {
-      output.error('Configuration not found');
-      process.exit(1);
+      throw new Error('Configuration not loaded despite passing checks');
     }
 
     const tier = config.webAwesome?.tier || 'free';
