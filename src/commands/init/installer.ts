@@ -5,6 +5,8 @@
  */
 
 import { execa } from 'execa';
+import fs from 'fs-extra';
+import path from 'path';
 import type { OutputInterface } from '../../output/types.js';
 import type { KigumiConfig } from '../../schemas/index.js';
 import { DependencyInstallError } from '../../errors/index.js';
@@ -40,6 +42,24 @@ export async function installDependencies(
       dependencies.push('clsx');
     }
 
+    // For Pro tier, load .env file and pass token to npm
+    const env = { ...process.env };
+    if (tier === 'pro') {
+      const envPath = path.join(cwd, '.env');
+      if (await fs.pathExists(envPath)) {
+        const envContent = await fs.readFile(envPath, 'utf-8');
+        const tokenMatch = envContent.match(/WEBAWESOME_NPM_TOKEN=(.+)/);
+        if (tokenMatch && tokenMatch[1]) {
+          env.WEBAWESOME_NPM_TOKEN = tokenMatch[1].trim();
+          output.log(`[DEBUG] Loaded WEBAWESOME_NPM_TOKEN from .env`);
+        }
+      } else if (config.webAwesome?.token) {
+        // Fallback to token from config
+        env.WEBAWESOME_NPM_TOKEN = config.webAwesome.token;
+        output.log(`[DEBUG] Using token from config`);
+      }
+    }
+
     // Install command
     const installCmd = packageManager === 'npm' ? 'install' : 'add';
     const args = [installCmd, ...dependencies];
@@ -49,6 +69,7 @@ export async function installDependencies(
     await execa(packageManager, args, {
       cwd,
       stdio: 'pipe',
+      env, // Pass environment with token
     });
 
     spinner.stop('Dependencies installed');
