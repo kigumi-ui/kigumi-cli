@@ -1,33 +1,41 @@
 /**
- * Install Command
+ * Install Command (DEPRECATED)
  *
- * Installs Web Awesome package and framework-specific dependencies
- * Reuses installer logic from init command
+ * This command is deprecated. Use `kigumi init` instead.
+ * The init command now handles installation automatically.
+ *
+ * @deprecated Use `kigumi init` instead
  */
 
 import { getOutput } from '../output/index.js';
-import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
+import {
+  CheckRunner,
+  ConfigExistsCheck,
+  ConfigValidCheck,
+} from '../checks/index.js';
 import { handleError } from '../errors/index.js';
 import { loadConfig } from '../utils/config.js';
 import { getProjectInfo } from '../utils/detect-framework.js';
 import { installDependencies } from './init/installer.js';
+import { detectTier } from '../utils/tier.js';
 
 /**
- * Install command
+ * Install command (DEPRECATED)
  *
- * Installs Web Awesome and framework-specific dependencies
+ * @deprecated Use `kigumi init` instead
  */
 export async function installCommand() {
   const output = getOutput();
-  output.intro('kigumi install');
+  output.intro('kigumi install (DEPRECATED)');
+  
+  output.warn('⚠️  This command is deprecated!');
+  output.info('Use `kigumi init` instead - it now handles installation automatically.');
 
   const cwd = process.cwd();
 
   try {
-    // 1. Pre-flight checks
-    const checker = new CheckRunner()
-      .add(new ConfigExistsCheck())
-      .add(new ConfigValidCheck());
+    // 1. Pre-flight check: Config exists
+    const checker = new CheckRunner().add(new ConfigExistsCheck());
 
     const checkResults = await checker.run({ cwd });
     if (checker.hasErrors(checkResults)) {
@@ -44,19 +52,38 @@ export async function installCommand() {
       process.exit(1);
     }
 
-    // 3. Get project info
+    // 3. Validate configuration
+    const validationChecker = new CheckRunner().add(new ConfigValidCheck());
+    const validationResults = await validationChecker.run({ cwd, config });
+    if (validationChecker.hasErrors(validationResults)) {
+      output.error('Configuration validation failed');
+      output.note(
+        'Issues found',
+        validationChecker.formatResults(validationResults)
+      );
+      process.exit(1);
+    }
+
+    // 4. Detect tier
+    const tier = await detectTier(cwd);
+    
+    // 5. Get project info
     const projectInfo = await getProjectInfo(cwd);
 
-    // 4. Reuse installer from init command
-    await installDependencies(cwd, config, projectInfo.packageManager, output);
+    // 6. Reuse installer from init command
+    await installDependencies({
+      cwd,
+      config,
+      tier,
+      packageManager: projectInfo.packageManager,
+      output,
+    });
 
-    // 5. Success
+    // 7. Success
     output.outro('✓ Installation complete!');
     output.note(
-      'Next steps',
-      '1. Configure path aliases (see INSTALLATION.md)\n' +
-        "2. Add import '@/lib/webawesome' to your main file\n" +
-        '3. Run kigumi add button to add components'
+      'Recommendation',
+      'This command is deprecated. Next time, use `kigumi init` which handles installation automatically.'
     );
   } catch (error) {
     handleError(error, output);
