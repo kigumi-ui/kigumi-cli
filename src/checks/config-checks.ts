@@ -15,10 +15,10 @@ import { CheckSeverity } from './types.js';
 export class ConfigExistsCheck implements Check {
   readonly id = 'config-exists';
   readonly name = 'Configuration File Exists';
-  readonly description = 'Check if kigumi-components.json exists';
+  readonly description = 'Check if kigumi.config.json exists';
 
   async run(context: CheckContext): Promise<CheckResult> {
-    const configPath = path.join(context.cwd, 'kigumi-components.json');
+    const configPath = path.join(context.cwd, 'kigumi.config.json');
     const exists = await fs.pathExists(configPath);
 
     if (!exists) {
@@ -28,7 +28,7 @@ export class ConfigExistsCheck implements Check {
         message: 'Configuration file not found',
         suggestion: [
           'Run: kigumi init',
-          'This will create kigumi-components.json',
+          'This will create kigumi.config.json',
         ],
         details: {
           path: configPath,
