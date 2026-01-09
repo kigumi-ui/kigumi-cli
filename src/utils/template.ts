@@ -84,7 +84,8 @@ export function buildTemplateContext(
  */
 export async function generateComponent(
   component: ComponentDefinition,
-  config: KigumiConfig
+  config: KigumiConfig,
+  typescript: boolean = true
 ): Promise<string> {
   // Build context with correct import path based on tier
   const tier = config.webAwesome?.tier || 'free';
@@ -102,16 +103,17 @@ export async function generateComponent(
   };
 
   // Use component-specific template if it exists
+  const fileExtension = typescript ? 'tsx' : 'jsx';
   const componentTemplatePath = path.join(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${component.name}.tsx.hbs`
+    `${component.name}.${fileExtension}.hbs`
   );
 
   const templatePath = (await fs.pathExists(componentTemplatePath))
     ? componentTemplatePath
-    : getTemplatePath(config.framework, 'component.tsx.hbs');
+    : getTemplatePath(config.framework, `component.${fileExtension}.hbs`);
 
   return renderTemplate(templatePath, context);
 }

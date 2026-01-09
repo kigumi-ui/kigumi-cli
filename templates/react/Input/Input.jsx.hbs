@@ -1,0 +1,37 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Input.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * <Input label="Email" type="email" placeholder="Enter email" />
+ * <Input type="password" password-toggle />
+ * <Input with-clear hint="Help text" />
+ *
+ * @param {Object} props
+ * @param {'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search'} [props.type] - Input type
+ * @param {string} [props.label] - Accessible label for the input
+ * @param {string} [props.hint] - Descriptive hint text
+ * @param {string} [props.placeholder] - Placeholder text
+ * @param {string} [props.value] - Input value
+ * @param {'filled' | 'filled-outlined' | 'outlined'} [props.appearance] - Visual appearance style
+ * @param {'small' | 'medium' | 'large'} [props.size] - Input size
+ * @param {boolean} [props.pill] - Gives the input rounded edges
+ * @param {boolean} [props.disabled] - Disables the input
+ * @param {boolean} [props['with-clear']] - Adds a clear button when input has content
+ * @param {boolean} [props['password-toggle']] - Adds a toggle button for password visibility
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {React.ReactNode} [props.children] - Input content
+ */
+export const Input = React.forwardRef(({ children, className, ...props }, ref) => {
+  return (
+    <wa-input ref={ref} class={clsx('Input', className)} {...props}>
+      {children}
+    </wa-input>
+  );
+});
+
+Input.displayName = 'Input';

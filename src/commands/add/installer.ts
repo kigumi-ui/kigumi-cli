@@ -75,7 +75,7 @@ export class ComponentInstaller {
     options: AddOptions
   ): Promise<void> {
     // Generate component file
-    const componentContent = await generateComponent(component, this.config);
+    const componentContent = await generateComponent(component, this.config, this.config.typescript);
 
     const ext = this.config.typescript ? 'tsx' : 'jsx';
     const componentDir = path.join(this.cwd, this.config.componentsDir, component.name);

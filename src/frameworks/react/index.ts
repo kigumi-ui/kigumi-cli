@@ -6,6 +6,7 @@
 
 import fs from 'fs-extra';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { execa } from 'execa';
 import type {
   FrameworkPlugin,
@@ -15,6 +16,24 @@ import type {
   ValidationResult,
   ComponentDefinition,
 } from '../types.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Find package root by looking for package.json
+function findPackageRoot(startDir: string): string {
+  let currentDir = startDir;
+  while (currentDir !== path.parse(currentDir).root) {
+    if (fs.existsSync(path.join(currentDir, 'package.json'))) {
+      return currentDir;
+    }
+    currentDir = path.dirname(currentDir);
+  }
+  throw new Error('Could not find package.json');
+}
+
+const PACKAGE_ROOT = findPackageRoot(__dirname);
+const TEMPLATES_DIR = path.join(PACKAGE_ROOT, 'templates');
 
 export class ReactPlugin implements FrameworkPlugin {
   readonly name = 'react' as const;
@@ -75,7 +94,7 @@ export class ReactPlugin implements FrameworkPlugin {
     options: GenerateOptions
   ): Promise<GeneratedFile[]> {
     // Import the existing component generation logic
-    const { generateComponentFromTemplate } = await import('../../utils/regenerate.js');
+    const { generateComponent } = await import('../../utils/template.js');
 
     // Use existing template generation system
     const files: GeneratedFile[] = [];
@@ -84,11 +103,10 @@ export class ReactPlugin implements FrameworkPlugin {
     const fileExtension = options.typescript ? 'tsx' : 'jsx';
 
     // Generate main component file
-    const componentContent = await generateComponentFromTemplate(
-      'react',
+    const componentContent = await generateComponent(
       component,
       config,
-      options
+      options.typescript
     );
 
     files.push({
@@ -226,8 +244,7 @@ export class ReactPlugin implements FrameworkPlugin {
   private async generateStylesFile(component: ComponentDefinition): Promise<string> {
     // Use existing template system
     const templatePath = path.join(
-      process.cwd(),
-      'templates',
+      TEMPLATES_DIR,
       'react',
       component.name,
       `${component.name}.css.hbs`
@@ -255,8 +272,7 @@ export class ReactPlugin implements FrameworkPlugin {
   ): Promise<string> {
     const fileExtension = options.typescript ? 'tsx' : 'jsx';
     const templatePath = path.join(
-      process.cwd(),
-      'templates',
+      TEMPLATES_DIR,
       'react',
       component.name,
       `${component.name}.test.${fileExtension}.hbs`
@@ -292,8 +308,7 @@ async function generateComponentFromTemplate(
 ): Promise<string> {
   // Placeholder - will integrate with existing template system
   const templatePath = path.join(
-    process.cwd(),
-    'templates',
+    TEMPLATES_DIR,
     framework,
     component.name,
     `${component.name}.${options.typescript ? 'tsx' : 'jsx'}.hbs`

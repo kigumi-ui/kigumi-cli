@@ -1,0 +1,115 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Dialog.css';
+
+/**
+ * Dialogs display important prompts and information
+ *
+ * @example
+ * // Using ref methods
+ * const dialogRef = React.useRef(null);
+ * <Dialog ref={dialogRef} label="Dialog Title">
+ *   <p>Dialog content</p>
+ *   <div slot="footer">
+ *     <Button data-dialog="close">Close</Button>
+ *   </div>
+ * </Dialog>
+ * dialogRef.current?.show();
+ *
+ * // Using open prop (recommended)
+ * const [open, setOpen] = React.useState(false);
+ * <Dialog open={open} label="Dialog Title" onHide={() => setOpen(false)}>
+ *   <p>Dialog content</p>
+ * </Dialog>
+ *
+ * @param {Object} props
+ * @param {boolean} [props.open] - Indicates whether or not the dialog is open
+ * @param {string} props.label - The dialog's label as displayed in the header
+ * @param {boolean} [props['without-header']] - Disables the header and removes the default close button
+ * @param {boolean} [props['light-dismiss']] - When enabled, the dialog will be closed when the user clicks outside of it
+ * @param {function} [props.onShow] - Event fired when the dialog is shown
+ * @param {function} [props.onAfterShow] - Event fired after the dialog is shown
+ * @param {function} [props.onHide] - Event fired when the dialog is about to hide
+ * @param {function} [props.onAfterHide] - Event fired after the dialog is hidden
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {React.ReactNode} [props.children] - Dialog content
+ * @param {React.Ref} ref - Ref with methods: show(), hide(), requestClose()
+ */
+export const Dialog = React.forwardRef(
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+    const dialogRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => {
+          if (dialogRef.current && typeof dialogRef.current.show === 'function') {
+            dialogRef.current.show();
+          }
+        },
+        hide: () => {
+          // hide is an alias for requestClose for consistency with other components
+          if (dialogRef.current && typeof dialogRef.current.requestClose === 'function') {
+            dialogRef.current.requestClose();
+          }
+        },
+        requestClose: () => {
+          if (dialogRef.current && typeof dialogRef.current.requestClose === 'function') {
+            dialogRef.current.requestClose();
+          }
+        },
+        get element() {
+          return dialogRef.current;
+        },
+      }),
+      []
+    );
+
+    // Setup event listeners
+    React.useEffect(() => {
+      const el = dialogRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => {
+        if (onShow) onShow(e);
+      };
+
+      const handleAfterShow = (e) => {
+        if (onAfterShow) onAfterShow(e);
+      };
+
+      const handleHide = (e) => {
+        if (onHide) onHide(e);
+      };
+
+      const handleAfterHide = (e) => {
+        if (onAfterHide) onAfterHide(e);
+      };
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-dialog
+        ref={dialogRef}
+        class={clsx('Dialog', className)}
+        {...props}
+      >
+        {children}
+      </wa-dialog>
+    );
+  }
+);
+
+Dialog.displayName = 'Dialog';

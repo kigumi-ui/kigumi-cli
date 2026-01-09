@@ -1,0 +1,39 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Button.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * <Button variant="brand">Click me</Button>
+ * <Button appearance="outlined" size="large">Large Button</Button>
+ * <Button loading>Loading...</Button>
+ * <Button data-dialog="close">Close Dialog</Button>
+ *
+ * @param {Object} props
+ * @param {'neutral' | 'brand' | 'success' | 'warning' | 'danger'} [props.variant] - Semantic variant of the button
+ * @param {'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain'} [props.appearance] - Visual appearance style
+ * @param {'small' | 'medium' | 'large'} [props.size] - Button size
+ * @param {boolean} [props.pill] - Gives the button rounded edges
+ * @param {boolean} [props.disabled] - Disables the button
+ * @param {boolean} [props.loading] - Shows a loading indicator
+ * @param {boolean} [props['with-caret']] - Adds a dropdown indicator caret
+ * @param {string} [props.href] - Makes the button work like a link
+ * @param {'_blank' | '_self' | '_parent' | '_top'} [props.target] - Link target (when href is set)
+ * @param {string} [props.download] - Download filename (when href is set)
+ * @param {string} [props.rel] - Link relationship (when href is set)
+ * @param {string} [props['data-dialog']] - Dialog control attribute (e.g., "close" to close parent dialog)
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {React.ReactNode} [props.children] - Button content
+ */
+export const Button = React.forwardRef(({ children, className, ...props }, ref) => {
+  return (
+    <wa-button ref={ref} class={clsx('Button', className)} {...props}>
+      {children}
+    </wa-button>
+  );
+});
+
+Button.displayName = 'Button';
