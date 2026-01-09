@@ -91,14 +91,14 @@ export async function buildConfigInteractive(
   }
 
   // Tier
-  const tier = options.tier || await p.select({
+  const tier = (options.tier || await p.select({
     message: 'Which tier?',
     options: [
-      { value: 'free', label: 'Free', hint: '3 themes, all components' },
-      { value: 'pro', label: 'Pro', hint: '11 themes, all features' },
+      { value: 'free' as const, label: 'Free', hint: '3 themes, all components' },
+      { value: 'pro' as const, label: 'Pro', hint: '11 themes, all features' },
     ],
-    initialValue: 'free',
-  });
+    initialValue: 'free' as const,
+  })) as 'free' | 'pro';
 
   if (p.isCancel(tier)) {
     process.exit(0);
@@ -117,7 +117,7 @@ export async function buildConfigInteractive(
   }
 
   // Palette
-  const availablePalettes = getAvailablePalettes();
+  const availablePalettes = getAvailablePalettes(tier as 'free' | 'pro');
   const palette = options.palette || await p.select({
     message: 'Select palette',
     options: availablePalettes.map((p) => ({ value: p, label: p })),
