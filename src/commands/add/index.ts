@@ -29,21 +29,31 @@ export async function addCommand(components: string[], options: AddOptions = {})
     // 1. Validate options
     const validatedOptions = validators.add(options);
 
-    // 2. Pre-flight checks
+    // 2. Load configuration (needed for checks)
+    let config: any;
+    try {
+      loadConfig(cwd);
+      config = getConfig(cwd);
+    } catch (error) {
+      // Config loading failed - will be caught by checks
+    }
+
+    // 3. Pre-flight checks
     const checker = new CheckRunner()
       .add(new ConfigExistsCheck())
       .add(new ConfigValidCheck());
 
-    const checkResults = await checker.run({ cwd });
+    const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
       output.error('Pre-flight checks failed');
       output.note('Issues found', checker.formatResults(checkResults));
       process.exit(1);
     }
 
-    // 3. Load configuration
-    const userConfig = loadConfig(cwd);
-    const config = getConfig(cwd);
+    // 4. Config is valid at this point (checks passed)
+    if (!config) {
+      throw new Error('Configuration not loaded despite passing checks');
+    }
     const tier = config.webAwesome?.tier || 'free';
 
     // 4. Determine components to add
