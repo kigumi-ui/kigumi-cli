@@ -16,7 +16,9 @@ export const initOptionsSchema = z.object({
   tier: tierSchema.optional(),
   theme: z.string().optional(),
   palette: z.string().optional(),
-  brandColor: z.string().optional(),
+  brand: z.string().optional(), // Brand color (short form)
+  brandColor: z.string().optional(), // Brand color (long form)
+  token: z.string().optional(), // Pro tier token
   componentsDir: z.string().optional(),
   utilsDir: z.string().optional(),
   yes: z.boolean().optional(), // Non-interactive mode

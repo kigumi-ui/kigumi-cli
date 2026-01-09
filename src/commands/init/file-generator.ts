@@ -25,36 +25,83 @@ export async function generateProjectFiles(
   const spinner = output.spinner('Generating project files...');
 
   try {
-    // 1. Generate webawesome.ts
-    spinner.message('Generating webawesome.ts...');
-    await regenerateWebAwesomeSetup(cwd, config);
-
-    // 2. Generate theme.css
-    spinner.message('Generating theme.css...');
-    const themeCss = await generateThemeCSS(config);
+    // 1. Create necessary directories first
+    output.log(`[DEBUG] Creating directories in ${cwd}`);
+    const componentsDir = config.componentsDir || 'src/components/ui';
     const utilsDir = config.utilsDir || 'src/lib';
-    await fs.ensureDir(path.join(cwd, utilsDir));
-    await fs.writeFile(path.join(cwd, utilsDir, 'theme.css'), themeCss);
+    const stylesDir = 'src/styles';
 
-    // 3. Generate vite-env.d.ts (TypeScript + React)
+    output.log(`[DEBUG] Components dir: ${componentsDir}`);
+    output.log(`[DEBUG] Utils dir: ${utilsDir}`);
+    output.log(`[DEBUG] Styles dir: ${stylesDir}`);
+
+    await fs.ensureDir(path.join(cwd, componentsDir));
+    output.log(`[DEBUG] ✓ Created ${componentsDir}`);
+
+    await fs.ensureDir(path.join(cwd, utilsDir));
+    output.log(`[DEBUG] ✓ Created ${utilsDir}`);
+
+    await fs.ensureDir(path.join(cwd, stylesDir));
+    output.log(`[DEBUG] ✓ Created ${stylesDir}`);
+
+    // 2. Generate webawesome.ts
+    spinner.message('Generating webawesome.ts...');
+    output.log(`[DEBUG] Generating webawesome.ts in ${utilsDir}`);
+    await regenerateWebAwesomeSetup(cwd, config, utilsDir);
+    output.log(`[DEBUG] ✓ webawesome.ts generated`);
+
+    // 3. Generate theme.css
+    spinner.message('Generating theme.css...');
+    output.log(`[DEBUG] Generating theme.css in ${stylesDir}`);
+    const themeCss = await generateThemeCSS(config);
+    await fs.writeFile(path.join(cwd, stylesDir, 'theme.css'), themeCss);
+    output.log(`[DEBUG] ✓ theme.css generated`);
+
+    // 4. Generate vite-env.d.ts (TypeScript + React)
     if (config.typescript && config.framework === 'react') {
       spinner.message('Generating vite-env.d.ts...');
-      await generateViteEnvDts(cwd, config);
+      output.log(`[DEBUG] Generating vite-env.d.ts`);
+      await generateViteEnvDts(cwd, 'src');
+      output.log(`[DEBUG] ✓ vite-env.d.ts generated`);
     }
 
-    // 4. Generate/update .gitignore
+    // 5. Generate/update .gitignore
     spinner.message('Updating .gitignore...');
+    output.log(`[DEBUG] Updating .gitignore`);
     await generateGitIgnore(cwd);
+    output.log(`[DEBUG] ✓ .gitignore updated`);
 
-    // 5. Generate .env.example for Pro tier
+    // 6. Generate .env.example for Pro tier
     if (config.webAwesome?.tier === 'pro') {
       spinner.message('Generating .env.example...');
+      output.log(`[DEBUG] Generating .env.example`);
       await generateEnvExample(cwd);
+      output.log(`[DEBUG] ✓ .env.example generated`);
+    }
+
+    // 7. Generate .env file for Pro tier (with actual token if provided)
+    if (config.webAwesome?.tier === 'pro') {
+      spinner.message('Generating .env file...');
+      output.log(`[DEBUG] Generating .env file`);
+      await generateEnvFile(cwd, config);
+      output.log(`[DEBUG] ✓ .env generated`);
+    }
+
+    // 8. Generate .npmrc for Pro tier
+    if (config.webAwesome?.tier === 'pro') {
+      spinner.message('Generating .npmrc...');
+      output.log(`[DEBUG] Generating .npmrc`);
+      await generateNpmrc(cwd);
+      output.log(`[DEBUG] ✓ .npmrc generated`);
     }
 
     spinner.stop('Project files generated');
   } catch (error) {
     spinner.error('File generation failed');
+    if (error instanceof Error) {
+      output.error(`[ERROR] File generation error: ${error.message}`);
+      output.log(`[ERROR] Stack: ${error.stack}`);
+    }
     throw error;
   }
 }
@@ -79,8 +126,37 @@ async function generateEnvExample(cwd: string): Promise<void> {
 #
 # Security: Never commit this file with a real token!
 
-WA_TOKEN=your-token-here
+WEBAWESOME_NPM_TOKEN=your-token-here
 `;
 
   await fs.writeFile(envExamplePath, envExampleContent);
+}
+
+/**
+ * Generate .env file for Pro tier with token
+ */
+async function generateEnvFile(cwd: string, config: KigumiConfig): Promise<void> {
+  const envPath = path.join(cwd, '.env');
+
+  // Get token from config (if provided via --token flag)
+  const token = config.webAwesome?.token || 'your-token-here';
+
+  const envContent = `# Web Awesome Pro authentication token
+# Get your token from https://webawesome.com
+WEBAWESOME_NPM_TOKEN=${token}
+`;
+
+  await fs.writeFile(envPath, envContent);
+}
+
+/**
+ * Generate .npmrc file for Pro tier authentication
+ */
+async function generateNpmrc(cwd: string): Promise<void> {
+  const npmrcPath = path.join(cwd, '.npmrc');
+  const npmrcContent = `@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/
+//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=\${WEBAWESOME_NPM_TOKEN}
+`;
+
+  await fs.writeFile(npmrcPath, npmrcContent);
 }

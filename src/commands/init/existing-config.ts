@@ -17,11 +17,13 @@ export type ExistingConfigAction = 'update' | 'reinstall' | 'cancel';
  *
  * @param cwd - Current working directory
  * @param output - Output interface
+ * @param force - Force overwrite in non-interactive mode
  * @returns Action to take
  */
 export async function handleExistingConfig(
   cwd: string,
-  output: OutputInterface
+  output: OutputInterface,
+  force = false
 ): Promise<ExistingConfigAction | null> {
   const configPath = path.join(cwd, 'kigumi-components.json');
   const exists = await fs.pathExists(configPath);
@@ -46,6 +48,12 @@ export async function handleExistingConfig(
     `Tier: ${existingConfig.webAwesome?.tier || 'free'}\n` +
     `Theme: ${existingConfig.theme.selected}`
   );
+
+  // In force mode (non-interactive), automatically update
+  if (force) {
+    output.info('Overwriting existing configuration (non-interactive mode)');
+    return 'update';
+  }
 
   // Ask what to do
   const action = await p.select({

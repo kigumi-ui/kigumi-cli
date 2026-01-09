@@ -42,37 +42,38 @@ export async function initCommand(options: InitOptions = {}) {
       process.exit(1);
     }
 
-    // 3. Check for existing config
-    const existingAction = await handleExistingConfig(cwd, output);
-    if (existingAction === 'cancel') {
-      output.outro('Cancelled');
-      process.exit(0);
-    }
-
-    // 4. Detect project info
+    // 3. Detect project info
     const projectInfo = await getProjectInfo(cwd);
 
-    // 5. Build configuration (interactive or non-interactive)
+    // 4. Determine if running in non-interactive mode
     const isNonInteractive =
       validatedOptions.framework &&
       validatedOptions.tier &&
       validatedOptions.theme;
 
+    // 5. Check for existing config (skip prompt in non-interactive mode)
+    const existingAction = await handleExistingConfig(cwd, output, isNonInteractive);
+    if (existingAction === 'cancel') {
+      output.outro('Cancelled');
+      process.exit(0);
+    }
+
+    // 6. Build configuration (interactive or non-interactive)
     const config = isNonInteractive
       ? await buildConfigNonInteractive(validatedOptions, projectInfo, output)
       : await buildConfigInteractive(validatedOptions, projectInfo, output);
 
-    // 6. Save configuration
+    // 7. Save configuration
     await saveConfig(config, cwd);
     output.success('Configuration saved');
 
-    // 7. Generate project files
+    // 8. Generate project files
     await generateProjectFiles(cwd, config, output);
 
-    // 8. Install dependencies
+    // 9. Install dependencies
     await installDependencies(cwd, config, projectInfo.packageManager, output);
 
-    // 9. Success
+    // 10. Success
     output.outro('✓ Initialization complete!');
 
   } catch (error) {
