@@ -28,7 +28,7 @@ npm install
 
 #### 2. Configure Path Aliases
 
-**`tsconfig.json`** or **`tsconfig.app.json`**:
+**`tsconfig.json`** or **`tsconfig.app.json`** (TypeScript) / **`jsconfig.json`** (JavaScript):
 
 ```json
 {
@@ -60,40 +60,33 @@ export default defineConfig({
 
 #### 3. Initialize Kigumi
 
-**Free Tier (Interactive)**:
+**Free Tier**:
 
 ```bash
 npx kigumi init
-# Follow prompts: Framework → Tier → Theme → Palette → Brand
-```
+# Interactive: Follow prompts for Framework → Theme → Palette → Brand
 
-**Free Tier (Non-Interactive)**:
-
-```bash
-npx kigumi init \
-  --framework=react \
-  --tier=free \
-  --theme=awesome \
-  --palette=default \
-  --brand=purple
+# Or non-interactive:
+npx kigumi init --framework=react --theme=awesome --palette=default --brand=purple
 ```
 
 **Pro Tier**:
 
 ```bash
-npx kigumi init \
-  --framework=react \
-  --tier=pro \
-  --theme=brutalist \
-  --palette=rudimentary \
-  --brand=purple \
-  --token=YOUR_PRO_TOKEN
-
-# Install Pro package
-npx kigumi install
+npx kigumi init --framework=react --theme=brutalist --token=YOUR_PRO_TOKEN
 ```
 
 > **Get Pro Token**: [webawesome.com](https://webawesome.com) → Settings → API Tokens
+
+**What `init` does**:
+
+- ✅ Creates `kigumi.config.json`
+- ✅ Generates `src/lib/webawesome.ts` (theme setup)
+- ✅ Generates `src/styles/theme.css` (customization)
+- ✅ Creates `.env` (Pro only, with token)
+- ✅ Creates `.npmrc` (registry configuration)
+- ✅ Installs Web Awesome package automatically
+- ✅ Generates TypeScript definitions (if TypeScript)
 
 #### 4. Import Web Awesome
 
@@ -159,42 +152,11 @@ Open [http://localhost:5173](http://localhost:5173) 🎉
 ```bash
 npx kigumi init
 
-# Non-interactive with all options
-npx kigumi init \
-  --framework=react \
-  --typescript \
-  --tier=pro \
-  --theme=brutalist \
-  --palette=rudimentary \
-  --brand=purple \
-  --token=YOUR_TOKEN
+# Non-interactive
+npx kigumi init --framework=react --theme=awesome --token=YOUR_TOKEN
 ```
 
-**What it does**:
-
-- ✅ Creates `kigumi-components.json` config
-- ✅ Generates `src/lib/webawesome.ts` (theme setup)
-- ✅ Generates `src/styles/theme.css` (customization)
-- ✅ Creates `.env` and `.env.example` (Pro tokens)
-- ✅ Creates `.npmrc` (Pro registry, if needed)
-- ✅ Generates `src/vite-env.d.ts` (TypeScript definitions)
-- ✅ Installs `@awesome.me/webawesome` (Free tier only)
-
-**What you must do**:
-
-- ❌ Configure path aliases (see Quick Start step 2)
-- ❌ Import Web Awesome in main entry (see Quick Start step 4)
-- ❌ Run `kigumi install` (Pro tier only)
-
-### `install` - Install Pro Package
-
-```bash
-npx kigumi install
-```
-
-Installs `@awesome.me/webawesome-pro` with authentication from `.env`.
-
-**Pro tier only**. Automatically installs `clsx` for React projects.
+Initializes Kigumi in your project and installs dependencies automatically.
 
 ### `add [components...]` - Add Components
 
@@ -230,7 +192,6 @@ npx kigumi theme list
 # Switch theme
 npx kigumi theme set awesome
 npx kigumi theme set brutalist
-npx kigumi theme set none
 
 # Change palette
 npx kigumi palette default
@@ -298,13 +259,17 @@ See [Web Awesome tokens](https://webawesome.com/docs/tokens) for all available t
 
 **Pro-only components**: page, charts, combobox, data-grid, date-picker, file-input, toast, video
 
-Get Pro at [webawesome.com](https://webawesome.com)
+### Upgrading Free → Pro
+
+1. Get Pro token from [webawesome.com](https://webawesome.com)
+2. Run `npx kigumi init --token=YOUR_PRO_TOKEN`
+3. Done! Existing components are automatically migrated
 
 ---
 
 ## 🔧 Configuration
 
-`kigumi-components.json`:
+`kigumi.config.json`:
 
 ```json
 {
@@ -322,11 +287,12 @@ Get Pro at [webawesome.com](https://webawesome.com)
     "@/lib": "./src/lib"
   },
   "webAwesome": {
-    "tier": "free",
     "version": "^3.1.0"
   }
 }
 ```
+
+**Tier Detection**: Automatically detected from `.env` file. If `WEBAWESOME_NPM_TOKEN` exists, Pro tier is used.
 
 ---
 
@@ -353,13 +319,16 @@ Add `import '@/lib/webawesome'` to your main entry file (see Quick Start step 4)
 
 Web component wrappers use `import React from 'react'` (not named imports) for compatibility.
 
+### Registry mismatch errors (pnpm)
+
+Run `rm -rf node_modules pnpm-lock.yaml && pnpm install` to recreate lockfile with new registry configuration.
+
 ---
 
 ## 📚 Documentation
 
 - **AGENTS.md** - AI assistant development guide
 - **CLAUDE.md** - Human developer documentation
-- **INSTALLATION.md** - Detailed installation guide (deprecated, use README)
 
 ---
 
