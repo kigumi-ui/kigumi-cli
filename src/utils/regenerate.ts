@@ -2,6 +2,9 @@ import fs from 'fs-extra';
 import path from 'path';
 import type { KigumiConfig } from './config.js';
 
+import type { Tier } from './tier.js';
+import { detectTierSync } from './tier.js';
+
 /**
  * Regenerate the Web Awesome setup file with updated theme configuration
  *
@@ -11,12 +14,13 @@ import type { KigumiConfig } from './config.js';
 export async function regenerateWebAwesomeSetup(
   cwd: string,
   config: KigumiConfig,
-  utilsDir: string
+  utilsDir: string,
+  tierOverride?: Tier
 ): Promise<void> {
-  const tier = config.webAwesome?.tier || 'free';
-  const packageName = tier === 'pro'
-    ? '@awesome.me/webawesome-pro'
-    : '@awesome.me/webawesome';
+  // Detect tier from .env, or use override
+  const tier = tierOverride || detectTierSync(cwd);
+  const packageName =
+    tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
 
   // Base Web Awesome CSS (required for all components and CSS variables)
   const baseImport = `import '${packageName}/dist/styles/webawesome.css';`;
@@ -28,12 +32,13 @@ export async function regenerateWebAwesomeSetup(
     themeImport = `import '${packageName}/dist/styles/themes/${themeName}.css';`;
   }
 
-  // User overrides import
+  // User overrides import (uses @/ alias - user must configure in vite.config.ts)
   const userOverridesImport = `import '@/styles/theme.css';`;
 
   // Generate runtime script to set HTML classes
-  const themeClasses = config.theme.selected !== 'none'
-    ? `
+  const themeClasses =
+    config.theme.selected !== 'none'
+      ? `
 // Apply theme classes to <html> element
 if (typeof document !== 'undefined') {
   const html = document.documentElement;
@@ -50,7 +55,7 @@ if (typeof document !== 'undefined') {
   html.classList.add('wa-brand-${config.theme.brandColor}');
 }
 `
-    : '';
+      : '';
 
   const setupFileContent = `/**
  * Web Awesome Setup
@@ -157,8 +162,13 @@ declare module 'react' {
 /**
  * Generate theme.css content
  */
-export async function generateThemeCSS(config: any): Promise<string> {
+export async function generateThemeCSS(config: KigumiConfig, tierOverride?: Tier): Promise<string> {
   const { theme } = config;
+  
+  // Detect tier from .env if not provided
+  const tier = tierOverride || 'free'; // Will be determined by caller
+  const packageName =
+    tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
 
   return `/**
  * Web Awesome Theme Configuration
@@ -169,7 +179,7 @@ export async function generateThemeCSS(config: any): Promise<string> {
  */
 
 /* Import Web Awesome theme */
-@import '@awesome.me/webawesome/dist/themes/${theme.selected}.css';
+@import '${packageName}/dist/styles/themes/${theme.selected}.css';
 
 /* Apply palette and brand color */
 :root {

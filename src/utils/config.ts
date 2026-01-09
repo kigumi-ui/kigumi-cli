@@ -14,10 +14,8 @@ export interface KigumiConfig {
   };
   aliases?: Record<string, string>;
   webAwesome?: {
-    tier: 'free' | 'pro';                    // NEW: Free or Pro
     version?: string;
-    tokenEnvVar?: string;                    // Only for Pro
-    cdnUrl?: string;                         // Only for Pro (optional)
+    cdnUrl?: string;  // Optional CDN URL override
   };
 }
 
@@ -36,7 +34,6 @@ export const DEFAULT_CONFIG: KigumiConfig = {
     '@/lib': './src/lib',
   },
   webAwesome: {
-    tier: 'free',
     version: '^3.1.0',
   },
 };
@@ -47,8 +44,9 @@ export const DEFAULT_CONFIG: KigumiConfig = {
 export function loadConfig(cwd: string = process.cwd()): KigumiConfig | null {
   const explorer = cosmiconfigSync('kigumi', {
     searchPlaces: [
+      'kigumi.config.json',      // NEW: Preferred name
+      'kigumi-components.json',  // OLD: For backward compatibility
       'kigumi.json',
-      'kigumi-components.json',
       '.kigumirc',
       '.kigumirc.json',
       'package.json',
@@ -66,7 +64,7 @@ export async function saveConfig(
   config: KigumiConfig,
   cwd: string = process.cwd()
 ): Promise<void> {
-  const configPath = path.join(cwd, 'kigumi-components.json');
+  const configPath = path.join(cwd, 'kigumi.config.json');
   await fs.writeJson(configPath, config, { spaces: 2 });
 }
 
