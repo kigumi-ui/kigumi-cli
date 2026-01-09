@@ -9,30 +9,30 @@ import fs from 'fs-extra';
 import path from 'path';
 import type { OutputInterface } from '../../output/types.js';
 import type { KigumiConfig } from '../../schemas/index.js';
+import type { Tier } from '../../utils/tier.js';
+import { getWebAwesomePackage } from '../../utils/tier.js';
 import { DependencyInstallError } from '../../errors/index.js';
+
+export interface InstallOptions {
+  cwd: string;
+  config: KigumiConfig;
+  tier: Tier;
+  packageManager: string;
+  output: OutputInterface;
+}
 
 /**
  * Install project dependencies
- *
- * @param cwd - Current working directory
- * @param config - Kigumi configuration
- * @param packageManager - Package manager to use
- * @param output - Output interface
  */
 export async function installDependencies(
-  cwd: string,
-  config: KigumiConfig,
-  packageManager: string,
-  output: OutputInterface
+  options: InstallOptions
 ): Promise<void> {
+  const { cwd, config, tier, packageManager, output } = options;
   const spinner = output.spinner('Installing dependencies...');
 
   try {
-    // Determine Web Awesome package
-    const tier = config.webAwesome?.tier || 'free';
-    const waPackage = tier === 'pro'
-      ? '@awesome.me/webawesome-pro'
-      : '@awesome.me/webawesome';
+    // Determine Web Awesome package based on tier
+    const waPackage = getWebAwesomePackage(tier);
 
     // Base dependencies
     const dependencies = [waPackage];
@@ -42,21 +42,17 @@ export async function installDependencies(
       dependencies.push('clsx');
     }
 
-    // For Pro tier, load .env file and pass token to npm
+    // For Pro tier, load token from .env
     const env = { ...process.env };
     if (tier === 'pro') {
       const envPath = path.join(cwd, '.env');
       if (await fs.pathExists(envPath)) {
         const envContent = await fs.readFile(envPath, 'utf-8');
-        const tokenMatch = envContent.match(/WEBAWESOME_NPM_TOKEN=(.+)/);
+        const tokenMatch = envContent.match(/^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m);
         if (tokenMatch && tokenMatch[1]) {
           env.WEBAWESOME_NPM_TOKEN = tokenMatch[1].trim();
           output.log(`[DEBUG] Loaded WEBAWESOME_NPM_TOKEN from .env`);
         }
-      } else if (config.webAwesome?.token) {
-        // Fallback to token from config
-        env.WEBAWESOME_NPM_TOKEN = config.webAwesome.token;
-        output.log(`[DEBUG] Using token from config`);
       }
     }
 
@@ -69,7 +65,7 @@ export async function installDependencies(
     await execa(packageManager, args, {
       cwd,
       stdio: 'pipe',
-      env, // Pass environment with token
+      env,
     });
 
     spinner.stop('Dependencies installed');

@@ -8,25 +8,35 @@ import * as p from '@clack/prompts';
 import type { OutputInterface } from '../../output/types.js';
 import type { InitOptions, KigumiConfig } from '../../schemas/index.js';
 import type { ProjectInfo } from '../../utils/detect-framework.js';
-import { getAvailableThemes, getAvailablePalettes } from '../../utils/tier-restrictions.js';
+import { detectTierSync } from '../../utils/tier.js';
+import {
+  getAvailableThemes,
+  getAvailablePalettes,
+} from '../../utils/tier-restrictions.js';
 import { DEFAULT_CONFIG } from '../../schemas/config.js';
 
 /**
  * Build configuration non-interactively from options
+ * NOTE: Tier is now detected from .env, not stored in config
  */
 export async function buildConfigNonInteractive(
   options: InitOptions,
   projectInfo: ProjectInfo,
+  cwd: string,
   output: OutputInterface
-): Promise<KigumiConfig> {
+): Promise<{ config: KigumiConfig; proToken?: string }> {
   const framework = options.framework || projectInfo.framework;
   const typescript = options.typescript ?? projectInfo.typescript;
-  const tier = options.tier || 'free';
+  
+  // Token provided via CLI flag (will be written to .env later)
+  const proToken = options.token;
+  
+  // Determine tier: Pro if token provided, otherwise detect from .env
+  const tier = proToken ? 'pro' : detectTierSync(cwd);
+  
   const theme = options.theme || 'default';
   const palette = options.palette || 'default';
-  // Accept both --brand and --brandColor (--brand is preferred)
   const brandColor = options.brand || options.brandColor || 'blue';
-  const token = options.token;
 
   output.info(`Framework: ${framework}`);
   output.info(`TypeScript: ${typescript}`);
@@ -35,7 +45,7 @@ export async function buildConfigNonInteractive(
   output.info(`Palette: ${palette}`);
   output.info(`Brand Color: ${brandColor}`);
 
-  return {
+  const config: KigumiConfig = {
     framework: framework as any,
     typescript,
     componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
@@ -47,108 +57,146 @@ export async function buildConfigNonInteractive(
     },
     aliases: DEFAULT_CONFIG.aliases,
     webAwesome: {
-      tier: tier as 'free' | 'pro',
       version: DEFAULT_CONFIG.webAwesome?.version,
-      token, // Include token if provided
     },
   };
+
+  return { config, proToken };
 }
 
 /**
  * Build configuration interactively with prompts
+ * NOTE: Tier is now detected from .env, not stored in config
  */
 export async function buildConfigInteractive(
   options: InitOptions,
   projectInfo: ProjectInfo,
+  cwd: string,
   output: OutputInterface
-): Promise<KigumiConfig> {
-  output.info('Let\'s configure your project');
+): Promise<{ config: KigumiConfig; proToken?: string }> {
+  output.info("Let's configure your project");
+
+  // Detect tier from .env
+  const detectedTier = detectTierSync(cwd);
 
   // Framework
-  const framework = options.framework || await p.select({
-    message: 'Which framework are you using?',
-    options: [
-      { value: 'react', label: 'React' },
-      { value: 'vue', label: 'Vue' },
-      { value: 'svelte', label: 'Svelte' },
-      { value: 'angular', label: 'Angular' },
-    ],
-    initialValue: projectInfo.framework !== 'unknown' ? projectInfo.framework : 'react',
-  });
+  const framework =
+    options.framework ||
+    (await p.select({
+      message: 'Which framework are you using?',
+      options: [
+        { value: 'react', label: 'React' },
+        { value: 'vue', label: 'Vue' },
+        { value: 'svelte', label: 'Svelte' },
+        { value: 'angular', label: 'Angular' },
+      ],
+      initialValue:
+        projectInfo.framework !== 'unknown' ? projectInfo.framework : 'react',
+    }));
 
   if (p.isCancel(framework)) {
     process.exit(0);
   }
 
   // TypeScript
-  const typescript = options.typescript ?? await p.confirm({
-    message: 'Use TypeScript?',
-    initialValue: projectInfo.typescript,
-  });
+  const typescript =
+    options.typescript ??
+    (await p.confirm({
+      message: 'Use TypeScript?',
+      initialValue: projectInfo.typescript,
+    }));
 
   if (p.isCancel(typescript)) {
     process.exit(0);
   }
 
-  // Tier
-  const tier = (options.tier || await p.select({
-    message: 'Which tier?',
-    options: [
-      { value: 'free' as const, label: 'Free', hint: '3 themes, all components' },
-      { value: 'pro' as const, label: 'Pro', hint: '11 themes, all features' },
-    ],
-    initialValue: 'free' as const,
-  })) as 'free' | 'pro';
+  // Pro Token (optional - if provided, enables Pro tier)
+  let proToken = options.token;
+  
+  if (!proToken && detectedTier === 'free') {
+    // Offer to enter Pro token
+    const wantsPro = await p.confirm({
+      message: 'Do you have a Web Awesome Pro token?',
+      initialValue: false,
+    });
 
-  if (p.isCancel(tier)) {
-    process.exit(0);
+    if (p.isCancel(wantsPro)) {
+      process.exit(0);
+    }
+
+    if (wantsPro) {
+      proToken = (await p.text({
+        message: 'Enter your Web Awesome Pro token',
+        placeholder: 'Your pro token here',
+        validate: (value) => {
+          if (!value || value.trim().length === 0) {
+            return 'Token is required for Pro tier';
+          }
+          if (value.trim().length < 10) {
+            return 'Token seems too short. Get your token from https://webawesome.com/pro';
+          }
+          return undefined;
+        },
+      })) as string;
+
+      if (p.isCancel(proToken)) {
+        process.exit(0);
+      }
+    }
   }
 
+  // Determine final tier based on token
+  const finalTier = proToken ? 'pro' : detectedTier;
+
   // Theme
-  const availableThemes = getAvailableThemes(tier as 'free' | 'pro');
-  const theme = options.theme || await p.select({
-    message: 'Select theme',
-    options: availableThemes.map((t) => ({ value: t, label: t })),
-    initialValue: 'default',
-  });
+  const availableThemes = getAvailableThemes(finalTier);
+  const theme =
+    options.theme ||
+    (await p.select({
+      message: 'Select theme',
+      options: availableThemes.map((t) => ({ value: t, label: t })),
+      initialValue: 'default',
+    }));
 
   if (p.isCancel(theme)) {
     process.exit(0);
   }
 
   // Palette
-  const availablePalettes = getAvailablePalettes(tier as 'free' | 'pro');
-  const palette = options.palette || await p.select({
-    message: 'Select palette',
-    options: availablePalettes.map((p) => ({ value: p, label: p })),
-    initialValue: 'default',
-  });
+  const availablePalettes = getAvailablePalettes(finalTier);
+  const palette =
+    options.palette ||
+    (await p.select({
+      message: 'Select palette',
+      options: availablePalettes.map((p) => ({ value: p, label: p })),
+      initialValue: 'default',
+    }));
 
   if (p.isCancel(palette)) {
     process.exit(0);
   }
 
-  // Brand color (accept both --brand and --brandColor)
-  const brandColor = options.brand || options.brandColor || await p.select({
-    message: 'Select brand color',
-    options: [
-      { value: 'blue', label: 'Blue' },
-      { value: 'purple', label: 'Purple' },
-      { value: 'green', label: 'Green' },
-      { value: 'red', label: 'Red' },
-      { value: 'orange', label: 'Orange' },
-    ],
-    initialValue: 'blue',
-  });
+  // Brand color
+  const brandColor =
+    options.brand ||
+    options.brandColor ||
+    (await p.select({
+      message: 'Select brand color',
+      options: [
+        { value: 'blue', label: 'Blue' },
+        { value: 'purple', label: 'Purple' },
+        { value: 'green', label: 'Green' },
+        { value: 'red', label: 'Red' },
+        { value: 'orange', label: 'Orange' },
+      ],
+      initialValue: 'blue',
+    }));
 
   if (p.isCancel(brandColor)) {
     process.exit(0);
   }
 
-  // Token (for Pro tier)
-  const token = options.token;
-
-  return {
+  const config: KigumiConfig = {
     framework: framework as any,
     typescript: typescript as boolean,
     componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
@@ -160,9 +208,9 @@ export async function buildConfigInteractive(
     },
     aliases: DEFAULT_CONFIG.aliases,
     webAwesome: {
-      tier: tier as 'free' | 'pro',
       version: DEFAULT_CONFIG.webAwesome?.version,
-      token, // Include token if provided
     },
   };
+
+  return { config, proToken };
 }
