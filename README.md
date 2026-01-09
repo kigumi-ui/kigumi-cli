@@ -1,44 +1,120 @@
 # Kigumi CLI
 
-> CLI tool to add Web Awesome components to your React, Vue, or Svelte project
+> Add Web Awesome components to your React, Vue, or Svelte project
 
-Inspired by [shadcn/ui](https://ui.shadcn.com), Kigumi provides a seamless way to integrate Web Awesome components into your existing projects with framework-specific wrappers.
+Inspired by [shadcn/ui](https://ui.shadcn.com), Kigumi provides a seamless way to integrate Web Awesome components with framework-specific wrappers.
 
-## Features
+## ✨ Features
 
-- 🎯 **Framework Support**: React (Vue and Svelte coming soon)
-- 📦 **Component Registry**: Easy access to Web Awesome components
-- 🎨 **Theme System**: Full theme support with CLI commands
-- 🎭 **3 Pre-built Themes**: default, awesome, shoelace
-- 🌈 **10 Brand Colors**: blue, purple, green, red, orange, yellow, cyan, indigo, pink, gray
+- 🎯 **Framework Support**: React (Vue/Svelte coming soon)
+- 📦 **Component Registry**: 40+ Web Awesome components
+- 🎨 **Theme System**: 11 themes + 9 color palettes
+- 🌈 **Brand Colors**: Customize with your brand
 - ⚡ **Hot Reload**: Theme changes apply instantly
-- 🔧 **Auto-Detection**: Automatically detects your project setup
-- 📝 **TypeScript First**: Full TypeScript support with auto-generated types
-- ✨ **User Overrides**: Customize design tokens via CSS custom properties
+- 📝 **TypeScript First**: Auto-generated types
+- 🔧 **Free & Pro Tiers**: Flexible licensing
 
-## Quick Start
+## 🚀 Quick Start
 
-### Initialize in your project
+### React + Vite (Recommended)
+
+#### 1. Create Project
 
 ```bash
-npx @kigumi/cli init
+npm create vite@latest my-app -- --template react
+cd my-app
+npm install
 ```
 
-This will:
-- Detect your framework and setup
-- Create a `kigumi-components.json` configuration file
-- Set up directory structure
-- Create a theme file with CSS custom properties
-- Add `WA_TOKEN` to your `.env` file
+#### 2. Configure Path Aliases
 
-### Add components
+**`tsconfig.json`** or **`tsconfig.app.json`**:
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+**`vite.config.ts`** (or `.js`):
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+```
+
+#### 3. Initialize Kigumi
+
+**Free Tier (Interactive)**:
 
 ```bash
-# Add a single component
+npx kigumi init
+# Follow prompts: Framework → Tier → Theme → Palette → Brand
+```
+
+**Free Tier (Non-Interactive)**:
+
+```bash
+npx kigumi init \
+  --framework=react \
+  --tier=free \
+  --theme=awesome \
+  --palette=default \
+  --brand=purple
+```
+
+**Pro Tier**:
+
+```bash
+npx kigumi init \
+  --framework=react \
+  --tier=pro \
+  --theme=brutalist \
+  --palette=rudimentary \
+  --brand=purple \
+  --token=YOUR_PRO_TOKEN
+
+# Install Pro package
+npx kigumi install
+```
+
+> **Get Pro Token**: [webawesome.com](https://webawesome.com) → Settings → API Tokens
+
+#### 4. Import Web Awesome
+
+**`src/main.tsx`** (or `main.jsx`):
+
+```tsx
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
+import '@/lib/webawesome'; // Add this line
+
+createRoot(document.getElementById('root')!).render(<App />);
+```
+
+#### 5. Add Components
+
+```bash
+# Add single component
 npx kigumi add button
 
 # Add multiple components
-npx kigumi add button input card
+npx kigumi add button input card dialog
 
 # Interactive selection
 npx kigumi add
@@ -47,72 +123,9 @@ npx kigumi add
 npx kigumi add --all
 ```
 
-### List available components
+#### 6. Use Components
 
-```bash
-npx kigumi list
-```
-
-## Configuration
-
-After running `init`, you'll have a `kigumi-components.json` file:
-
-```json
-{
-  "framework": "react",
-  "typescript": true,
-  "componentsDir": "src/components/ui",
-  "utilsDir": "src/lib",
-  "theme": {
-    "cssVars": true,
-    "selected": "awesome",
-    "palette": "default",
-    "brandColor": "purple"
-  },
-  "aliases": {
-    "@/components": "./src/components",
-    "@/lib": "./src/lib",
-    "@/styles": "./src/styles"
-  },
-  "webAwesome": {
-    "tier": "free",
-    "version": "^3.1.0"
-  }
-}
-```
-
-## Theme Customization
-
-Customize components by overriding Web Awesome design tokens in `src/styles/theme.css`:
-
-```css
-/**
- * Web Awesome Theme Customizations
- *
- * Override Web Awesome design tokens here.
- * This file is imported AFTER the theme CSS, so your values take precedence.
- */
-
-:root {
-  /* Example: Customize spacing */
-  --wa-space-xs: 0.25rem;
-  --wa-space-s: 0.5rem;
-  --wa-space-m: 1rem;
-
-  /* Example: Customize typography */
-  --wa-font-size-s: 0.875rem;
-  --wa-font-weight-bold: 700;
-
-  /* Example: Customize brand color (advanced) */
-  --wa-color-brand-fill-loud: #your-custom-color;
-}
-```
-
-For all available design tokens, see the [Web Awesome documentation](https://webawesome.com/docs/tokens).
-
-## Usage Example
-
-After adding components:
+**`src/App.tsx`**:
 
 ```tsx
 import { Button, Input, Card } from '@/components/ui';
@@ -121,112 +134,252 @@ function App() {
   return (
     <Card>
       <Input placeholder="Enter your name" />
-      <Button variant="primary">Submit</Button>
+      <Button variant="brand">Submit</Button>
     </Card>
   );
 }
+
+export default App;
 ```
 
-## CLI Commands
+#### 7. Start Dev Server
 
-### `init`
+```bash
+npm run dev
+```
 
-Initialize Kigumi in your project with theme selection.
+Open [http://localhost:5173](http://localhost:5173) 🎉
+
+---
+
+## 📦 CLI Commands
+
+### `init` - Initialize Kigumi
 
 ```bash
 npx kigumi init
+
+# Non-interactive with all options
+npx kigumi init \
+  --framework=react \
+  --typescript \
+  --tier=pro \
+  --theme=brutalist \
+  --palette=rudimentary \
+  --brand=purple \
+  --token=YOUR_TOKEN
 ```
 
-You'll be prompted to select:
-- Framework (React, Vue, Svelte)
-- Web Awesome tier (Free or Pro)
-- Theme (default, awesome, shoelace, or none)
-- Color palette
-- Brand color (blue, purple, green, red, orange, yellow, cyan, indigo, pink, gray)
+**What it does**:
 
-### `add [components...]`
+- ✅ Creates `kigumi-components.json` config
+- ✅ Generates `src/lib/webawesome.ts` (theme setup)
+- ✅ Generates `src/styles/theme.css` (customization)
+- ✅ Creates `.env` and `.env.example` (Pro tokens)
+- ✅ Creates `.npmrc` (Pro registry, if needed)
+- ✅ Generates `src/vite-env.d.ts` (TypeScript definitions)
+- ✅ Installs `@awesome.me/webawesome` (Free tier only)
 
-Add components to your project.
+**What you must do**:
+
+- ❌ Configure path aliases (see Quick Start step 2)
+- ❌ Import Web Awesome in main entry (see Quick Start step 4)
+- ❌ Run `kigumi install` (Pro tier only)
+
+### `install` - Install Pro Package
 
 ```bash
-npx kigumi add button input
+npx kigumi install
+```
+
+Installs `@awesome.me/webawesome-pro` with authentication from `.env`.
+
+**Pro tier only**. Automatically installs `clsx` for React projects.
+
+### `add [components...]` - Add Components
+
+```bash
+npx kigumi add button
+npx kigumi add button input card
 npx kigumi add --all
 npx kigumi add button --overwrite
 ```
 
-Options:
-- `--all`: Add all available components
-- `--overwrite`: Overwrite existing components
-- `--no-types`: Skip TypeScript type definitions
+**Options**:
 
-### `list`
+- `--all` - Add all available components
+- `--overwrite` - Overwrite existing components
 
-List all available components.
+### `list` - List Components
 
 ```bash
 npx kigumi list
 ```
 
-### Theme Management
+Shows all available components with tier requirements.
 
-Switch themes, palettes, and brand colors after initialization.
+### `theme` - Theme Management
 
 ```bash
-# List available themes, palettes, and brand colors
-npx kigumi theme list
-
-# Show current theme configuration
+# Show current theme
 npx kigumi theme show
 
-# Switch to a different theme
+# List available themes
+npx kigumi theme list
+
+# Switch theme
 npx kigumi theme set awesome
-npx kigumi theme set shoelace
+npx kigumi theme set brutalist
 npx kigumi theme set none
+
+# Change palette
+npx kigumi palette default
+npx kigumi palette rudimentary
 
 # Change brand color
 npx kigumi brand purple
 npx kigumi brand green
-
-# Change color palette
-npx kigumi palette default
 ```
 
-## Development
+**Available Themes**:
 
-```bash
-# Install dependencies
-npm install
+| Theme     | Tier | Style               |
+| --------- | ---- | ------------------- |
+| awesome   | Both | Web Awesome default |
+| light     | Both | Light & clean       |
+| dark      | Both | Dark mode           |
+| brutalist | Pro  | Bold & raw          |
+| material  | Pro  | Material Design     |
+| ios       | Pro  | iOS style           |
+| fluent    | Pro  | Microsoft Fluent    |
+| nord      | Pro  | Nord color scheme   |
+| neon      | Pro  | Neon glow           |
+| coffee    | Pro  | Warm coffee tones   |
+| ocean     | Pro  | Ocean blues         |
 
-# Run in development mode
-npm run dev
+**Available Palettes**: default, bright, subdued, high-contrast, low-contrast, warm, cool, rudimentary, vivid (all available for both tiers)
 
-# Build
-npm run build
+**Brand Colors**: blue, purple, green, red, orange, yellow, cyan, indigo, pink, gray
 
-# Run built CLI
-npm start
+---
+
+## 🎨 Customization
+
+Override Web Awesome design tokens in `src/styles/theme.css`:
+
+```css
+:root {
+  /* Spacing */
+  --wa-space-xs: 0.25rem;
+  --wa-space-s: 0.5rem;
+  --wa-space-m: 1rem;
+
+  /* Typography */
+  --wa-font-size-s: 0.875rem;
+  --wa-font-weight-bold: 700;
+
+  /* Brand color */
+  --wa-color-brand-fill-loud: #your-custom-color;
+}
 ```
 
-## How It Works
+See [Web Awesome tokens](https://webawesome.com/docs/tokens) for all available tokens.
 
-1. **Component Registry**: Maintains a registry of all Web Awesome components with metadata
-2. **Templates**: Uses Handlebars templates for each framework (React, Vue, Svelte)
-3. **Auto-Generation**: Generates framework-specific wrappers with proper TypeScript types
-4. **File Management**: Automatically updates imports, exports, and type declarations
+---
 
-## Roadmap
+## 🆓 Free vs Pro
 
-- [ ] More framework support (Angular, Solid)
+| Feature            | Free | Pro |
+| ------------------ | ---- | --- |
+| **Themes**         | 3    | 11  |
+| **Palettes**       | 9    | 9   |
+| **Components**     | 30+  | 40+ |
+| **Pro Components** | ❌   | ✅  |
+
+**Pro-only components**: page, charts, combobox, data-grid, date-picker, file-input, toast, video
+
+Get Pro at [webawesome.com](https://webawesome.com)
+
+---
+
+## 🔧 Configuration
+
+`kigumi-components.json`:
+
+```json
+{
+  "framework": "react",
+  "typescript": true,
+  "componentsDir": "src/components/ui",
+  "utilsDir": "src/lib",
+  "theme": {
+    "selected": "awesome",
+    "palette": "default",
+    "brandColor": "purple"
+  },
+  "aliases": {
+    "@/components": "./src/components",
+    "@/lib": "./src/lib"
+  },
+  "webAwesome": {
+    "tier": "free",
+    "version": "^3.1.0"
+  }
+}
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### "Failed to resolve import @/lib/webawesome"
+
+Configure path aliases in `vite.config.ts` and `tsconfig.json` (see Quick Start step 2).
+
+### "401 Unauthorized" when installing Pro
+
+Invalid token in `.env`. Get new token from [webawesome.com](https://webawesome.com).
+
+### Components render unstyled
+
+1. Check `src/lib/webawesome.ts` has component imports
+2. Verify `import '@/lib/webawesome'` in `src/main.tsx`
+
+### Components don't render at all
+
+Add `import '@/lib/webawesome'` to your main entry file (see Quick Start step 4).
+
+### TypeScript errors with React hooks
+
+Web component wrappers use `import React from 'react'` (not named imports) for compatibility.
+
+---
+
+## 📚 Documentation
+
+- **AGENTS.md** - AI assistant development guide
+- **CLAUDE.md** - Human developer documentation
+- **INSTALLATION.md** - Detailed installation guide (deprecated, use README)
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Vue framework support
+- [ ] Svelte framework support
+- [ ] Angular framework support
 - [ ] Remote component registry
 - [ ] Component preview/documentation generation
-- [ ] Custom template overrides
-- [ ] Component composition examples
 - [ ] Storybook integration
 
-## License
+---
+
+## 📄 License
 
 MIT
 
-## Credits
+---
 
-Inspired by [shadcn/ui](https://ui.shadcn.com) - built for [Web Awesome](https://awesome.me)
+## 💙 Credits
+
+Inspired by [shadcn/ui](https://ui.shadcn.com) - Built for [Web Awesome](https://awesome.me)

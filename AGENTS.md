@@ -1,244 +1,227 @@
 # Kigumi CLI - AI Agent Guide
 
-> **shadcn/ui for Web Awesome** - Template-based CLI that scaffolds React/Vue/Svelte wrappers for Web Awesome components with tier restrictions and theme management.
+> **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Svelte wrappers around Web Awesome components.
 
 **Status**: MVP Complete ✅ | **Framework**: TypeScript, Commander, Handlebars
 
-## 🚨 Critical Rules (Top Priority)
+## 🚨 Critical Rules (Must Follow)
 
-### 1. React Import Pattern (React 18/19 Compatibility)
-
+### 1. React Import Pattern
 ```typescript
-// ✅ ALWAYS USE THIS
+// ✅ ALWAYS USE
 import React from 'react';
 React.useState();
-React.useEffect();
 
-// ❌ NEVER USE THESE
-import { useState } from 'react'; // TypeScript errors
-import * as React from 'react'; // Doesn't work
+// ❌ NEVER USE
+import { useState } from 'react'; // Breaks with moduleResolution: "bundler"
 ```
 
-**Why**: `moduleResolution: "bundler"` breaks named imports from React types.
-
 ### 2. Templates-First Development
-
-**Never edit generated code only. Always update `.hbs` templates first.**
-
-Workflow: Edit `.hbs` → `pnpm build` → Re-add with `--overwrite` → Test
+**NEVER edit generated code. ALWAYS update `.hbs` templates.**
+```
+Edit .hbs → pnpm build → Re-add with --overwrite → Test in browser
+```
 
 ### 3. Web Component Registration
-
-Web components MUST be imported in `src/lib/webawesome.ts`:
-
+Components MUST be imported in `src/lib/webawesome.ts`:
 ```typescript
 import '@awesome.me/webawesome/dist/components/button/button.js';
 ```
-
 Auto-managed by `updateWebAwesomeImports()` in `src/commands/add.ts`.
 
-### 4. `class` NOT `className`
-
-Web components use `class` attribute. Convert user's `className` prop to `class`.
-
-### 5. Dialog API Uses `requestClose()` Not `hide()`
-
-Provide both in wrapper: `hide()` aliases to `requestClose()`.
-
-### 6. Tier Restrictions
-
-- **Free**: 3 themes (default/awesome/shoelace), ALL 9 palettes, most components
-- **Pro**: 11 themes, ALL 9 palettes, ALL components (8 are Pro-only)
-- Validate in: `init`, `add`, `theme set`, `palette` commands
-
-### 7. Remove `wa-` Prefix from Event Props
-
-`wa-show` → `onShow`, `wa-after-show` → `onAfterShow` (cleaner API)
-
-## ⚡ Quick Start
-
-```bash
-# Build & Test
-pnpm build
-cd tests/react1 && pnpm dev  # http://localhost:5173
-
-# CLI Usage (from root)
-node dist/index.js init
-node dist/index.js add button --overwrite --cwd=tests/react1
-node dist/index.js theme set awesome --cwd=tests/react1
-```
-
-## 📁 Key Files
-
-| What               | Where                            |
-| ------------------ | -------------------------------- |
-| Component registry | `src/utils/registry.ts`          |
-| CLI commands       | `src/commands/*.ts`              |
-| Templates          | `templates/react/{Component}/`   |
-| Tier restrictions  | `src/utils/tier-restrictions.ts` |
-| Config management  | `src/utils/config.ts`            |
-| File generation    | `src/utils/regenerate.ts`        |
-
-## 🏗️ Architecture
-
-### Component Addition Flow
-
-```
-User: kigumi add button
-  ↓
-1. Load config (config.ts)
-2. Check tier (tier-restrictions.ts)
-3. Get component def (registry.ts)
-4. Read templates (templates/react/Button/*.hbs)
-5. Compile with Handlebars
-6. Write files (components/Button/)
-7. Update webawesome.ts imports
-8. Update vite-env.d.ts types
-```
-
-### 5 Key Systems
-
-1. **Registry** (`registry.ts`) - Component definitions (props, tier, files)
-2. **Templates** (`templates/`) - Handlebars templates per framework
-3. **Tier** (`tier-restrictions.ts`) - Free/Pro validation
-4. **Config** (`config.ts`) - `kigumi-components.json` management
-5. **Generation** (`regenerate.ts`) - Auto-generate webawesome.ts, vite-env.d.ts, theme.css
-
-## 📋 Common Workflows
-
-### Add New Component
-
-1. Update `LOCAL_REGISTRY` in `src/utils/registry.ts` with component metadata
-2. Create templates in `templates/react/{Component}/` (`.tsx.hbs`, `.css.hbs`, `.test.tsx.hbs`)
-3. Build & test: `pnpm build` → `node dist/index.js add {component} --cwd=tests/react1`
-
-### Fix Component Bug
-
-1. Identify: Template issue vs CLI logic vs tier restriction
-2. Edit template → rebuild → regenerate with `--overwrite`
-3. Test in browser + verify TypeScript
-
-### Add Theme
-
-1. Update `FREE_THEMES` or `PRO_THEMES` in `tier-restrictions.ts`
-2. Verify appears in prompt (dynamically generated)
-3. Test: `node dist/index.js theme set {theme}`
-
-## 🐛 Debugging Quick Reference
-
-| Problem                | Check                               | Fix                                            |
-| ---------------------- | ----------------------------------- | ---------------------------------------------- |
-| Components unstyled    | Component imports in webawesome.ts? | Run `updateWebAwesomeImports()`                |
-| TypeScript errors      | Using `React.*` pattern?            | Update template to `import React from 'react'` |
-| wa-\* type errors      | vite-env.d.ts exists?               | Run `init` or `generateViteEnvDts()`           |
-| Theme not applying     | CSS imported? HTML classes set?     | Run `theme set {theme}`                        |
-| Tier restriction wrong | Check tier-restrictions.ts          | Remember: ALL palettes for BOTH tiers          |
-
-## 📝 Component Template Pattern
-
+### 4. Use `class` NOT `className`
 ```typescript
-import React from 'react';
-import clsx from 'clsx';
-import './{{name}}.css';
+// ✅ Web components use 'class'
+<wa-button class={clsx('Button', className)}>
 
-export interface {{name}}Props extends Omit<React.HTMLAttributes<HTMLElement>, 'className'> {
-  className?: string;
-  variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
-}
-
-export const {{name}} = React.forwardRef<HTMLElement, {{name}}Props>(
-  ({ children, className, ...props }, ref) => (
-    <wa-{{tag-name}} ref={ref} class={clsx('{{name}}', className)} {...props}>
-      {children}
-    </wa-{{tag-name}}>
-  )
-);
-
-{{name}}.displayName = '{{name}}';
+// ❌ className doesn't work
+<wa-button className={className}>
 ```
 
-**Complex components** (events/methods): See `templates/react/Dialog/Dialog.tsx.hbs`
+### 5. Dialog API: `requestClose()` NOT `hide()`
+```typescript
+// ✅ Provide both (hide as alias)
+hide: () => dialogRef.current?.requestClose();
+requestClose: () => dialogRef.current?.requestClose();
+```
 
-## 🧪 Testing Checklist
+### 6. Event Listeners in useEffect
+```typescript
+// ✅ Cleanup prevents memory leaks
+React.useEffect(() => {
+  const el = dialogRef.current;
+  if (!el) return;
+  el.addEventListener('wa-show', handleShow);
+  return () => el.removeEventListener('wa-show', handleShow);
+}, [onShow]);
+```
 
-**Before committing:**
+### 7. Remove `wa-` Prefix from Props
+```typescript
+// Web Awesome events: wa-show, wa-hide
+// React props: onShow, onHide (clean API)
+```
 
-- [ ] `pnpm build` succeeds
-- [ ] `pnpm type-check` passes
-- [ ] Test in browser (`cd tests/react1 && pnpm dev`)
-- [ ] No console errors
-- [ ] TypeScript works in IDE
+### 8. Tier Restrictions
+- **Free**: 3 themes, ALL 9 palettes, most components
+- **Pro**: 11 themes, ALL 9 palettes, ALL components
+- **Pro-only**: page, charts, combobox, data-grid, date-picker, file-input, toast, video
 
-**Test projects**: `tests/react1-6/` - Use different projects for different configs/tiers.
+### 9. Registry URL (Critical for pnpm)
+```
+✅ @awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro
+❌ NO trailing slash (causes ERR_PNPM_REGISTRIES_MISMATCH)
+```
 
-## ⚠️ Common Mistakes
-
-1. Editing generated code instead of templates
-2. Using `{ useState }` instead of `React.useState()`
-3. Forgetting web component imports in webawesome.ts
-4. Using `className` on web components instead of `class`
-5. Assuming Dialog has `hide()` (use `requestClose()`)
-6. Restricting palettes to Pro (ALL available to both)
-7. Event listeners in ref callback (use useEffect with cleanup)
-
-## 🚀 Quick Commands
-
+### 10. Pro Token Workflow
 ```bash
-# Development
-pnpm build:watch
+# Interactive
+kigumi init         # Prompts for token
+kigumi install      # Installs @awesome.me/webawesome-pro
 
-# Add components
-node dist/index.js add button --cwd=tests/react1
-node dist/index.js add button --overwrite --cwd=tests/react1
-node dist/index.js add --all --cwd=tests/react1
+# Non-interactive
+kigumi init --tier=pro --token=YOUR_TOKEN
+```
+Token saved to `.env`, referenced in `.npmrc`.
 
-# Theme management
-node dist/index.js theme set awesome --cwd=tests/react1
-node dist/index.js palette bright --cwd=tests/react1
-node dist/index.js theme show --cwd=tests/react1
-node dist/index.js theme list
+### 11. Manual Setup Required
+CLI does NOT configure:
+1. Path aliases (`vite.config.ts` + `tsconfig.json`)
+2. Web Awesome import in `main.tsx`
+
+Users must manually add `import '@/lib/webawesome'` to main entry.
+
+## 🎯 Core Files
+
+| File | Purpose |
+|------|---------|
+| `src/utils/registry.ts` | Single source of truth for components |
+| `src/utils/tier-restrictions.ts` | Tier validation logic |
+| `src/commands/add.ts` | Component addition + auto-imports |
+| `src/utils/regenerate.ts` | Auto-generate webawesome.ts, vite-env.d.ts, theme.css |
+| `templates/react/Button/` | Simple component template reference |
+| `templates/react/Dialog/` | Complex component template (events, refs) |
+
+## 🐛 Debugging
+
+| Problem | Fix |
+|---------|-----|
+| Components unstyled | Check webawesome.ts imports |
+| TypeScript errors | Use `React.*` pattern, not named imports |
+| wa-* type errors | Run `init` or regenerate vite-env.d.ts |
+| Dialog won't close | Use `requestClose()` |
+| Memory leaks | Event listeners in useEffect with cleanup |
+| Registry mismatch (pnpm) | Remove trailing slash from .npmrc |
+| "Failed to resolve @/lib" | Configure path aliases manually |
+| "401 Unauthorized" | Check token in .env, run `kigumi install` |
+| Components not rendering | Import '@/lib/webawesome' in main.tsx |
+
+## 🧪 Testing (Critical)
+
+**DO NOT rely on unit tests only. They give false confidence.**
+
+### Required Tests Before Commit:
+
+1. **Visual Browser Test** (Primary validation)
+   ```bash
+   pnpm build
+   cd tests/react8 && pnpm dev
+   # Open http://localhost:5173
+   # Verify: Styles work, events fire, no console errors
+   ```
+
+2. **Terminal Happy Paths**
+   ```bash
+   # Test full workflow
+   pnpm create vite@latest tests/react9 --template react
+   cd tests/react9 && pnpm install
+   node ../../dist/index.js init --framework=react --tier=free
+   node ../../dist/index.js add button card dialog
+   pnpm dev
+   ```
+
+3. **TypeScript Validation**
+   ```bash
+   pnpm type-check
+   # Check IDE: No red squiggles in generated files
+   ```
+
+4. **Test Matrix** (Use multiple test projects)
+   - `tests/react1`: Free tier, TypeScript
+   - `tests/react2`: Pro tier, TypeScript
+   - `tests/react7`: Free tier, JavaScript
+   - `tests/react8`: Pro tier, JavaScript
+
+### Why Visual Tests Matter
+- Unit tests can't catch: Web component registration, CSS loading, browser APIs
+- Console errors only show in browser DevTools
+- Event listeners might "pass" tests but leak memory
+- TypeScript might compile but break in IDE
+
+## 📝 Component Addition Workflow
+
+```
+1. Update registry.ts (name, tier, importPath, props)
+2. Create templates in templates/react/{Component}/
+3. Follow React import pattern
+4. Add TypeScript declarations in vite-env.d.ts.hbs
+5. Build: pnpm build
+6. Test: node dist/index.js add {component} --cwd=tests/react1
+7. Browser test: cd tests/react1 && pnpm dev
+8. Verify: Files generated, imports added, renders correctly
 ```
 
-## 💡 Pro Tips
+## 📋 Quick Reference
 
-- Use multiple test projects for edge cases
-- Check browser console for runtime errors
-- Verify in DevTools for actual web component API
-- Read Web Awesome docs in `webawesome-docs/` folder
-- clsx auto-installed, don't add manually
-- TypeScript declarations auto-generate
+### Build & Test
+```bash
+pnpm build                    # One-time
+pnpm build:watch              # Watch mode
 
-## 📚 Documentation
+# Test workflow
+node dist/index.js init --cwd=tests/react9
+node dist/index.js add button --cwd=tests/react9
+cd tests/react9 && pnpm dev
+```
 
-| File                | Purpose                                   |
-| ------------------- | ----------------------------------------- |
-| `AGENTS.md`         | This file - AI assistant guide            |
-| `CLAUDE.md`         | Detailed developer guide (human-readable) |
-| `PROJECT-STATUS.md` | Current implementation status             |
-| `THEME-SYSTEM.md`   | Web Awesome theme system                  |
-| `INSTALLATION.md`   | Package installation & tier setup         |
+### Component Templates
+**Simple (Button)**: Basic component with props
+**Complex (Dialog)**: Events, refs, imperativeHandle, controlled/uncontrolled
 
-## 🎯 Getting Started
+### Auto-Generated Files (Don't Edit)
+- `src/lib/webawesome.ts` - Component imports
+- `vite-env.d.ts` - TypeScript declarations
+- `theme.css` - Theme CSS
 
-1. Read this file (✅)
-2. Read `PROJECT-STATUS.md` for current state
-3. Build: `pnpm build`
-4. Test: `cd tests/react1 && pnpm dev`
-5. Check working components: Button, Input, Card, Dialog
-6. Read `CLAUDE.md` for deep dive
+### Common Mistakes
+1. Editing generated code instead of `.hbs` templates
+2. Using `{ useState }` instead of `React.useState()`
+3. Forgetting web component imports
+4. Using `className` on `<wa-*>` elements
+5. Not testing in browser
+6. Trusting unit tests without visual verification
+7. Skipping path alias configuration
+8. Not importing Web Awesome in main entry
 
-**Most important files:**
+## 🔧 5 Core Systems
 
-- `src/utils/registry.ts` - Component definitions
-- `src/commands/add.ts` - Component addition logic
-- `templates/react/Button/Button.tsx.hbs` - Simple template
-- `templates/react/Dialog/Dialog.tsx.hbs` - Complex template
+1. **Registry** - Component definitions (single source of truth)
+2. **Templates** - Handlebars templates per framework
+3. **Tier** - Free/Pro validation at init, add, theme commands
+4. **Config** - kigumi-components.json load/save
+5. **Generation** - Auto-generate supporting files
+
+## 💡 Key Insights
+
+- **Registry Structure**: Changes here propagate to entire system
+- **Template Patterns**: Reference Button (simple) and Dialog (complex)
+- **Browser First**: Always test in browser before committing
+- **Multiple Test Projects**: Different tiers/configs catch edge cases
+- **clsx auto-installs**: During init, don't add manually
+- **Path aliases manual**: CLI doesn't modify vite.config.ts
+- **Web Awesome import manual**: User must add to main.tsx
 
 ---
 
-## Changelog
-
-- **2026-01-09**: Optimized for universal AI tool compatibility, reduced to <300 lines
-- **2026-01-09**: Initial AGENTS.md created from CLAUDE.md
-
-**Maintained by**: AI Assistants | **Questions**: See `CLAUDE.md` or `webawesome-docs/`
+**Last Updated**: 2026-01-09
+**For Users**: See `README.md` | **For Humans**: See `CLAUDE.md`
