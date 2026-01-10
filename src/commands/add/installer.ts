@@ -7,7 +7,10 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import { getComponent, type ComponentDefinition } from '../../utils/registry.js';
+import {
+  getComponent,
+  type ComponentDefinition,
+} from '../../utils/registry.js';
 import {
   generateComponent,
   generateComponentCSS,
@@ -45,7 +48,9 @@ export class ComponentInstaller {
     const results: InstallResult[] = [];
 
     for (const componentName of componentNames) {
-      const spinner = this.output.spinner(`Adding ${pc.cyan(componentName)}...`);
+      const spinner = this.output.spinner(
+        `Adding ${pc.cyan(componentName)}...`
+      );
 
       try {
         const component = getComponent(componentName);
@@ -58,9 +63,14 @@ export class ComponentInstaller {
         spinner.stop(`${pc.green('✓')} Added ${pc.cyan(componentName)}`);
         results.push({ name: componentName, success: true });
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
         spinner.error(`${pc.red('✗')} Failed to add ${pc.cyan(componentName)}`);
-        results.push({ name: componentName, success: false, error: errorMessage });
+        results.push({
+          name: componentName,
+          success: false,
+          error: errorMessage,
+        });
       }
     }
 
@@ -75,10 +85,18 @@ export class ComponentInstaller {
     options: AddOptions
   ): Promise<void> {
     // Generate component file
-    const componentContent = await generateComponent(component, this.config, this.config.typescript);
+    const componentContent = await generateComponent(
+      component,
+      this.config,
+      this.config.typescript
+    );
 
     const ext = this.config.typescript ? 'tsx' : 'jsx';
-    const componentDir = path.join(this.cwd, this.config.componentsDir, component.name);
+    const componentDir = path.join(
+      this.cwd,
+      this.config.componentsDir,
+      component.name
+    );
     const componentPath = path.join(componentDir, `${component.name}.${ext}`);
 
     // Check if file exists
@@ -99,7 +117,7 @@ export class ComponentInstaller {
     await generateComponentTest(component, this.config, this.cwd);
 
     // Update TypeScript declarations
-    if (this.config.typescript && options.types !== false) {
+    if (this.config.typescript) {
       await updateTypeDeclarations(component, this.config, this.cwd);
     }
 
@@ -113,8 +131,11 @@ export class ComponentInstaller {
   /**
    * Update webawesome.ts to include component JS imports
    */
-  private async updateWebAwesomeImports(component: ComponentDefinition): Promise<void> {
-    const tier = this.config.webAwesome?.tier || 'free';
+  private async updateWebAwesomeImports(
+    component: ComponentDefinition
+  ): Promise<void> {
+    const { detectTier } = await import('../../utils/tier.js');
+    const tier = await detectTier(this.cwd);
     const packageName =
       tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
 
@@ -138,19 +159,23 @@ export class ComponentInstaller {
     }
 
     // Find the section with component imports
-    const importMarker = '// Import Web Awesome components (registers web components)';
+    const importMarker =
+      '// Import Web Awesome components (registers web components)';
     if (!content.includes(importMarker)) {
       return; // Can't find marker, skip
     }
 
     // Insert the new import after the marker
     const lines = content.split('\n');
-    const markerIndex = lines.findIndex(line => line.includes(importMarker));
+    const markerIndex = lines.findIndex((line) => line.includes(importMarker));
 
     if (markerIndex !== -1) {
       // Find the last import line after the marker
       let insertIndex = markerIndex + 1;
-      while (insertIndex < lines.length && lines[insertIndex].trim().startsWith('import ')) {
+      while (
+        insertIndex < lines.length &&
+        lines[insertIndex].trim().startsWith('import ')
+      ) {
         insertIndex++;
       }
 
