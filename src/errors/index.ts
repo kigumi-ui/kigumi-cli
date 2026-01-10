@@ -15,6 +15,8 @@
  * ```
  */
 
+import type { OutputInterface } from '../output/types.js';
+
 // Base error classes
 import { KigumiError, UnknownError } from './base.js';
 
@@ -96,10 +98,9 @@ export {
  * }
  * ```
  */
-export function handleError(error: unknown, output?: any): never {
-  const kigumiError = error instanceof KigumiError
-    ? error
-    : UnknownError.from(error);
+export function handleError(error: unknown, output?: OutputInterface): never {
+  const kigumiError =
+    error instanceof KigumiError ? error : UnknownError.from(error);
 
   // Output error message
   if (output && typeof output.error === 'function') {

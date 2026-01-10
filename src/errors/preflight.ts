@@ -60,7 +60,11 @@ export class PreFlightCheckError extends KigumiError {
   }
 
   format(): string {
-    const { errors, warnings, checks } = this.context.details || {};
+    const {
+      errors: _errors,
+      warnings: _warnings,
+      checks,
+    } = this.context.details || {};
     const failedChecks = (checks || []) as CheckResult[];
 
     const parts = ['Pre-flight checks failed:'];

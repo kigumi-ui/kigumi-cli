@@ -99,10 +99,7 @@ export class ProThemeRequiredError extends KigumiError {
       },
       {
         title: 'Or use a free theme',
-        steps: [
-          'Free tier themes:',
-          ...freeThemes.map((t) => `  - ${t}`),
-        ],
+        steps: ['Free tier themes:', ...freeThemes.map((t) => `  - ${t}`)],
       },
     ];
 
@@ -161,7 +158,7 @@ export class TokenInvalidError extends KigumiError {
         steps: [
           'Verify your token is correct in .env',
           'Make sure there are no extra spaces or quotes',
-          'Check that the token hasn\'t expired',
+          "Check that the token hasn't expired",
           'Get a new token from: https://webawesome.com/pro',
         ],
       },

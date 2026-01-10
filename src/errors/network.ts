@@ -35,8 +35,8 @@ export class DependencyInstallError extends KigumiError {
             packageManager === 'pnpm'
               ? 'pnpm-lock.yaml'
               : packageManager === 'yarn'
-              ? 'yarn.lock'
-              : 'package-lock.json'
+                ? 'yarn.lock'
+                : 'package-lock.json'
           }`,
           `Then run: ${packageManager} install`,
           'This will recreate the lockfile with the new registry configuration',
