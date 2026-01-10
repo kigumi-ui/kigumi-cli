@@ -1,3 +1,4 @@
+import type { KigumiConfig } from '../schemas/config.js';
 /**
  * Check System Types
  *
@@ -8,9 +9,9 @@
  * Check severity levels
  */
 export enum CheckSeverity {
-  ERROR = 'error',     // Must be fixed before continuing
+  ERROR = 'error', // Must be fixed before continuing
   WARNING = 'warning', // Should be fixed but can continue
-  INFO = 'info',       // Informational only
+  INFO = 'info', // Informational only
 }
 
 /**
@@ -21,7 +22,7 @@ export interface CheckResult {
   severity: CheckSeverity;
   message: string;
   suggestion?: string[];
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -31,8 +32,8 @@ export interface CheckResult {
  */
 export interface CheckContext {
   cwd: string;
-  config?: any; // KigumiConfig - will be properly typed when integrated
-  [key: string]: any;
+  config?: KigumiConfig;
+  [key: string]: unknown;
 }
 
 /**

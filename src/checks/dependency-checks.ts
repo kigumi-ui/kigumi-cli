@@ -50,10 +50,13 @@ export class WebAwesomeInstalledCheck implements Check {
   readonly description = 'Check if @awesome.me/webawesome is installed';
 
   async run(context: CheckContext): Promise<CheckResult> {
-    const tier = context.config?.webAwesome?.tier || 'free';
-    const packageName = tier === 'pro'
-      ? '@awesome.me/webawesome-pro'
-      : '@awesome.me/webawesome';
+    const { cwd } = context;
+
+    // Detect tier from .env
+    const { detectTier } = await import('../utils/tier.js');
+    const tier = await detectTier(cwd);
+    const packageName =
+      tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
 
     const packagePath = path.join(
       context.cwd,
@@ -118,9 +121,7 @@ export class DependencyInstalledCheck implements Check {
         passed: false,
         severity: this.severity,
         message: `${this.packageName} is not installed`,
-        suggestion: [
-          `Install the package: npm install ${this.packageName}`,
-        ],
+        suggestion: [`Install the package: npm install ${this.packageName}`],
         details: {
           packageName: this.packageName,
         },
@@ -174,9 +175,7 @@ export class PackageJsonDependencyCheck implements Check {
         passed: false,
         severity: this.severity,
         message: `${this.packageName} not found in package.json`,
-        suggestion: [
-          `Add to package.json: npm install ${this.packageName}`,
-        ],
+        suggestion: [`Add to package.json: npm install ${this.packageName}`],
       };
     }
 

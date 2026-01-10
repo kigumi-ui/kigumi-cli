@@ -90,7 +90,11 @@ export class CheckRunner {
         results.push(result);
 
         // Stop on first error if configured
-        if (this.options.stopOnError && !result.passed && result.severity === CheckSeverity.ERROR) {
+        if (
+          this.options.stopOnError &&
+          !result.passed &&
+          result.severity === CheckSeverity.ERROR
+        ) {
           break;
         }
       } catch (error) {
@@ -148,7 +152,9 @@ export class CheckRunner {
    * @returns True if there are warnings
    */
   hasWarnings(results: CheckResult[]): boolean {
-    return results.some((r) => !r.passed && r.severity === CheckSeverity.WARNING);
+    return results.some(
+      (r) => !r.passed && r.severity === CheckSeverity.WARNING
+    );
   }
 
   /**
@@ -158,7 +164,9 @@ export class CheckRunner {
    * @returns Array of error results
    */
   getErrors(results: CheckResult[]): CheckResult[] {
-    return results.filter((r) => !r.passed && r.severity === CheckSeverity.ERROR);
+    return results.filter(
+      (r) => !r.passed && r.severity === CheckSeverity.ERROR
+    );
   }
 
   /**
@@ -168,7 +176,9 @@ export class CheckRunner {
    * @returns Array of warning results
    */
   getWarnings(results: CheckResult[]): CheckResult[] {
-    return results.filter((r) => !r.passed && r.severity === CheckSeverity.WARNING);
+    return results.filter(
+      (r) => !r.passed && r.severity === CheckSeverity.WARNING
+    );
   }
 
   /**

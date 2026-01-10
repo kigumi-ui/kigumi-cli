@@ -20,7 +20,13 @@
  */
 
 // Core types and runner
-export { CheckSeverity, type Check, type CheckContext, type CheckResult, type CheckGroup } from './types.js';
+export {
+  CheckSeverity,
+  type Check,
+  type CheckContext,
+  type CheckResult,
+  type CheckGroup,
+} from './types.js';
 export { CheckRunner, type CheckRunnerOptions } from './runner.js';
 
 // Configuration checks
@@ -38,24 +44,3 @@ export {
   DependencyInstalledCheck,
   PackageJsonDependencyCheck,
 } from './dependency-checks.js';
-
-/**
- * Create a standard pre-flight check runner for commands
- *
- * @param requireConfig - Whether to require configuration file
- * @returns Configured check runner
- */
-export function createStandardCheckRunner(requireConfig: boolean = true): CheckRunner {
-  const runner = new CheckRunner();
-
-  // Always check package.json
-  runner.add(new PackageJsonExistsCheck());
-
-  // Check config if required
-  if (requireConfig) {
-    runner.add(new ConfigExistsCheck());
-    runner.add(new ConfigValidCheck());
-  }
-
-  return runner;
-}
