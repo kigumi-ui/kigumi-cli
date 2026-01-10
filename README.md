@@ -296,6 +296,51 @@ See [Web Awesome tokens](https://webawesome.com/docs/tokens) for all available t
 
 ---
 
+## 🔧 Development
+
+### Code Quality Tools
+
+This project uses automated code quality tools to ensure consistent, high-quality code:
+
+- **ESLint**: Lints TypeScript/JavaScript code for errors and code quality issues
+- **Prettier**: Formats code consistently across the entire codebase
+- **Husky**: Manages Git hooks to enforce quality standards before commits
+- **lint-staged**: Runs linting/formatting only on staged files for efficient pre-commit checks
+
+### Available Scripts
+
+```bash
+# Linting
+pnpm lint          # Check for linting issues
+pnpm lint:fix      # Auto-fix linting issues
+
+# Formatting
+pnpm format        # Format all code with Prettier
+pnpm format:check  # Check if code is formatted correctly
+
+# Type Checking
+pnpm type-check    # Run TypeScript type checker
+
+# Testing
+pnpm test          # Run all tests
+pnpm test:watch    # Run tests in watch mode
+
+# Building
+pnpm build         # Build the CLI for distribution
+pnpm dev           # Run the CLI in development mode with watch
+```
+
+### Pre-Commit Hooks
+
+All commits are automatically checked before being created:
+
+1. **ESLint** runs on staged TypeScript files (errors block commits)
+2. **Prettier** formats all staged files automatically
+
+This ensures all committed code meets quality standards.
+
+---
+
 ## 🐛 Troubleshooting
 
 ### "Failed to resolve import @/lib/webawesome"
