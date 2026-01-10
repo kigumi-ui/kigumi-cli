@@ -48,7 +48,10 @@ interface TemplateContext {
 /**
  * Get the template path for a given framework
  */
-export function getTemplatePath(framework: string, templateName: string): string {
+export function getTemplatePath(
+  framework: string,
+  templateName: string
+): string {
   return path.join(TEMPLATES_DIR, framework, templateName);
 }
 
@@ -88,8 +91,10 @@ export async function generateComponent(
   typescript: boolean = true
 ): Promise<string> {
   // Build context with correct import path based on tier
-  const tier = config.webAwesome?.tier || 'free';
-  const packageName = tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+  const { detectTierSync } = await import('./tier.js');
+  const tier = detectTierSync(process.cwd());
+  const packageName =
+    tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
 
   // Replace package name in import path
   const importPath = component.importPath.replace(
@@ -121,7 +126,9 @@ export async function generateComponent(
 /**
  * Generate TypeScript declaration for a component
  */
-export function generateTypeDeclaration(component: ComponentDefinition): string {
+export function generateTypeDeclaration(
+  component: ComponentDefinition
+): string {
   const propTypes = component.props
     .map((prop) => {
       let type = prop.type;
@@ -192,7 +199,9 @@ declare module 'react' {
   // Find the IntrinsicElements interface
   const interfaceMatch = content.indexOf('interface IntrinsicElements {');
   if (interfaceMatch === -1) {
-    throw new Error('Could not find IntrinsicElements interface in declarations file');
+    throw new Error(
+      'Could not find IntrinsicElements interface in declarations file'
+    );
   }
 
   // Find the closing brace of the IntrinsicElements interface
@@ -273,7 +282,10 @@ export async function generateComponentCSS(
 
   let cssContent: string;
   if (await fs.pathExists(componentCSSTemplatePath)) {
-    cssContent = await renderTemplate(componentCSSTemplatePath, buildTemplateContext(component));
+    cssContent = await renderTemplate(
+      componentCSSTemplatePath,
+      buildTemplateContext(component)
+    );
   } else {
     cssContent = generateCSSTemplate(component.name);
   }
@@ -305,7 +317,10 @@ export async function generateComponentTest(
 
   let testContent: string;
   if (await fs.pathExists(componentTestTemplatePath)) {
-    testContent = await renderTemplate(componentTestTemplatePath, buildTemplateContext(component));
+    testContent = await renderTemplate(
+      componentTestTemplatePath,
+      buildTemplateContext(component)
+    );
   } else {
     // Fallback to generic test
     testContent = `import { render, screen } from '@testing-library/react';

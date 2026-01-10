@@ -51,7 +51,10 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       { name: 'input', description: 'The internal input element' },
       { name: 'prefix', description: 'The container that wraps the prefix' },
       { name: 'clear-button', description: 'The clear button' },
-      { name: 'password-toggle-button', description: 'The password toggle button' },
+      {
+        name: 'password-toggle-button',
+        description: 'The password toggle button',
+      },
       { name: 'suffix', description: 'The container that wraps the suffix' },
     ],
     customProperties: [
@@ -78,18 +81,35 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       { name: 'dialog', description: "The dialog's internal <dialog> element" },
       { name: 'header', description: 'Wraps the title and header actions' },
-      { name: 'header-actions', description: 'Container for optional header actions' },
+      {
+        name: 'header-actions',
+        description: 'Container for optional header actions',
+      },
       { name: 'title', description: "The dialog's title" },
       { name: 'close-button', description: 'The close button (<wa-button>)' },
-      { name: 'close-button__base', description: "The close button's exported base part" },
+      {
+        name: 'close-button__base',
+        description: "The close button's exported base part",
+      },
       { name: 'body', description: "The dialog's body content area" },
       { name: 'footer', description: "The dialog's footer section" },
     ],
     customProperties: [
-      { name: '--spacing', description: 'Controls space around and between the dialog content' },
+      {
+        name: '--spacing',
+        description: 'Controls space around and between the dialog content',
+      },
       { name: '--width', description: 'Sets the preferred dialog width' },
-      { name: '--show-duration', default: '200ms', description: 'Animation duration when displaying' },
-      { name: '--hide-duration', default: '200ms', description: 'Animation duration when hiding' },
+      {
+        name: '--show-duration',
+        default: '200ms',
+        description: 'Animation duration when displaying',
+      },
+      {
+        name: '--hide-duration',
+        default: '200ms',
+        description: 'Animation duration when hiding',
+      },
     ],
   },
 };
@@ -97,7 +117,9 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
 /**
  * Get CSS metadata for a component
  */
-export function getCSSMetadata(componentName: string): ComponentCSSMetadata | null {
+export function getCSSMetadata(
+  componentName: string
+): ComponentCSSMetadata | null {
   return CSS_METADATA[componentName.toLowerCase()] || null;
 }
 

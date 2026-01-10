@@ -49,7 +49,10 @@ export async function loadTokenFromEnv(cwd: string): Promise<string | null> {
       }
 
       // Check if line contains WEBAWESOME_NPM_TOKEN or old WA_TOKEN
-      if (trimmed.startsWith('WEBAWESOME_NPM_TOKEN=') || trimmed.startsWith('WA_TOKEN=')) {
+      if (
+        trimmed.startsWith('WEBAWESOME_NPM_TOKEN=') ||
+        trimmed.startsWith('WA_TOKEN=')
+      ) {
         const token = trimmed.split('=')[1]?.trim();
         if (token && token !== 'your-token-here') {
           return token;
@@ -86,7 +89,10 @@ export async function saveTokenToEnv(
     const trimmed = lines[i].trim();
 
     // Replace both old WA_TOKEN and new WEBAWESOME_NPM_TOKEN
-    if (trimmed.startsWith('WEBAWESOME_NPM_TOKEN=') || trimmed.startsWith('WA_TOKEN=')) {
+    if (
+      trimmed.startsWith('WEBAWESOME_NPM_TOKEN=') ||
+      trimmed.startsWith('WA_TOKEN=')
+    ) {
       lines[i] = `WEBAWESOME_NPM_TOKEN=${token}`;
       tokenUpdated = true;
       break;

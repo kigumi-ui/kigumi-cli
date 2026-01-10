@@ -141,7 +141,16 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'type',
         type: 'string',
-        values: ['text', 'email', 'password', 'number', 'date', 'tel', 'url', 'search'],
+        values: [
+          'text',
+          'email',
+          'password',
+          'number',
+          'date',
+          'tel',
+          'url',
+          'search',
+        ],
         default: 'text',
         description: 'Input type',
       },
@@ -299,7 +308,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'light-dismiss',
         type: 'boolean',
         default: 'false',
-        description: 'When enabled, the dialog will be closed when the user clicks outside of it',
+        description:
+          'When enabled, the dialog will be closed when the user clicks outside of it',
       },
     ],
     importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
