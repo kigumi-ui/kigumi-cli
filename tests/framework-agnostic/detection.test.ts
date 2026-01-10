@@ -25,7 +25,7 @@ describe('Framework Detection', () => {
     await fs.remove(testDir);
   });
 
-  async function createPackageJson(deps: Record<string, any>) {
+  async function createPackageJson(deps: Record<string, string>) {
     await fs.writeJson(path.join(testDir, 'package.json'), {
       name: 'test-project',
       version: '1.0.0',

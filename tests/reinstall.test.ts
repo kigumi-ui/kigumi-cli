@@ -56,7 +56,7 @@ describe('Reinstall Dependencies Command', () => {
     it('should use correct args for installing ALL dependencies', () => {
       const packageManagers = ['npm', 'pnpm', 'yarn', 'bun'];
 
-      packageManagers.forEach((pm) => {
+      packageManagers.forEach((_pm) => {
         // For reinstall ALL deps, all PMs use ['install']
         const args = ['install'];
 

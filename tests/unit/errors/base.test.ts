@@ -103,13 +103,7 @@ describe('KigumiError', () => {
 
     class TestErrorWithCause extends KigumiError {
       constructor() {
-        super(
-          ErrorCode.FILE_READ_ERROR,
-          'Failed to read file',
-          {},
-          [],
-          cause
-        );
+        super(ErrorCode.FILE_READ_ERROR, 'Failed to read file', {}, [], cause);
       }
     }
 
@@ -169,6 +163,8 @@ describe('UnknownError', () => {
 
     expect(error.suggestions).toHaveLength(1);
     expect(error.suggestions[0].title).toContain('unexpected error');
-    expect(error.suggestions[0].steps.some((s) => s.includes('github'))).toBe(true);
+    expect(error.suggestions[0].steps.some((s) => s.includes('github'))).toBe(
+      true
+    );
   });
 });

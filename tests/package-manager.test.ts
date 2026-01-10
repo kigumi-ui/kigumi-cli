@@ -13,9 +13,8 @@ describe('Package Manager Command Generation', () => {
     ];
 
     testCases.forEach(({ pm, expected }) => {
-      const installArgs = pm === 'npm'
-        ? ['install', packageName]
-        : ['add', packageName];
+      const installArgs =
+        pm === 'npm' ? ['install', packageName] : ['add', packageName];
 
       expect(installArgs).toEqual(expected);
     });
@@ -32,9 +31,10 @@ describe('Package Manager Command Generation', () => {
     ];
 
     testCases.forEach(({ pm, expected }) => {
-      const installCmd = pm === 'npm'
-        ? `npm install ${packageName}`
-        : `${pm} add ${packageName}`;
+      const installCmd =
+        pm === 'npm'
+          ? `npm install ${packageName}`
+          : `${pm} add ${packageName}`;
 
       expect(installCmd).toBe(expected);
     });
@@ -44,9 +44,10 @@ describe('Package Manager Command Generation', () => {
     const packageManager = 'npm';
     const packageName = '@awesome.me/webawesome';
 
-    const installArgs = packageManager === 'npm'
-      ? ['install', packageName]
-      : ['add', packageName];
+    const installArgs =
+      packageManager === 'npm'
+        ? ['install', packageName]
+        : ['add', packageName];
 
     // npm should NEVER use "add"
     expect(installArgs).not.toContain('add');

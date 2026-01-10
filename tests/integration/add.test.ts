@@ -10,7 +10,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ComponentInstaller } from '../../src/commands/add/installer.js';
 import { validateComponents } from '../../src/commands/add/validator.js';
-import { getComponent } from '../../src/utils/registry.js';
 import type { KigumiConfig } from '../../src/utils/config.js';
 import type { OutputInterface } from '../../src/output/types.js';
 
@@ -29,7 +28,7 @@ const mockOutput: OutputInterface = {
   error: () => {},
   note: () => {},
   log: () => {},
-  spinner: (message: string) => ({
+  spinner: (_message: string) => ({
     start: () => {},
     message: () => {},
     stop: () => {},
@@ -127,13 +126,16 @@ describe('Add Command Integration', () => {
       );
 
       const installer = new ComponentInstaller(projectDir, config, mockOutput);
-      const results = await installer.installComponents(['button', 'input', 'card'], {
-        overwrite: false,
-        types: true,
-      });
+      const results = await installer.installComponents(
+        ['button', 'input', 'card'],
+        {
+          overwrite: false,
+          types: true,
+        }
+      );
 
       expect(results).toHaveLength(3);
-      expect(results.every(r => r.success)).toBe(true);
+      expect(results.every((r) => r.success)).toBe(true);
 
       // Verify all components created
       const buttonExists = await fs.pathExists(

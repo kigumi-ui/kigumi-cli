@@ -4,7 +4,12 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CheckRunner } from '../../../src/checks/runner.js';
-import { CheckSeverity, type Check, type CheckContext, type CheckResult } from '../../../src/checks/types.js';
+import {
+  CheckSeverity,
+  type Check,
+  type CheckContext,
+  type CheckResult,
+} from '../../../src/checks/types.js';
 
 // Mock check that always passes
 class PassingCheck implements Check {
@@ -82,9 +87,7 @@ describe('CheckRunner', () => {
     });
 
     it('should support chaining', () => {
-      const result = runner
-        .add(new PassingCheck())
-        .add(new PassingCheck());
+      const result = runner.add(new PassingCheck()).add(new PassingCheck());
 
       expect(result).toBe(runner);
     });
@@ -116,9 +119,7 @@ describe('CheckRunner', () => {
     });
 
     it('should run multiple checks sequentially', async () => {
-      runner
-        .add(new PassingCheck())
-        .add(new PassingCheck());
+      runner.add(new PassingCheck()).add(new PassingCheck());
 
       const results = await runner.run(context);
 
@@ -140,9 +141,7 @@ describe('CheckRunner', () => {
     });
 
     it('should not stop on warnings', async () => {
-      runner
-        .add(new WarningCheck())
-        .add(new PassingCheck());
+      runner.add(new WarningCheck()).add(new PassingCheck());
 
       const results = await runner.run(context);
 
@@ -153,9 +152,7 @@ describe('CheckRunner', () => {
 
     it('should continue on error if stopOnError=false', async () => {
       runner = new CheckRunner({ stopOnError: false });
-      runner
-        .add(new FailingCheck())
-        .add(new PassingCheck());
+      runner.add(new FailingCheck()).add(new PassingCheck());
 
       const results = await runner.run(context);
 
@@ -244,7 +241,9 @@ describe('CheckRunner', () => {
       const errors = runner.getErrors(results);
 
       expect(errors).toHaveLength(2);
-      expect(errors.every((e) => e.severity === CheckSeverity.ERROR)).toBe(true);
+      expect(errors.every((e) => e.severity === CheckSeverity.ERROR)).toBe(
+        true
+      );
     });
   });
 
@@ -252,14 +251,24 @@ describe('CheckRunner', () => {
     it('should return only warnings', () => {
       const results: CheckResult[] = [
         { passed: false, severity: CheckSeverity.ERROR, message: 'Error' },
-        { passed: false, severity: CheckSeverity.WARNING, message: 'Warning 1' },
-        { passed: false, severity: CheckSeverity.WARNING, message: 'Warning 2' },
+        {
+          passed: false,
+          severity: CheckSeverity.WARNING,
+          message: 'Warning 1',
+        },
+        {
+          passed: false,
+          severity: CheckSeverity.WARNING,
+          message: 'Warning 2',
+        },
       ];
 
       const warnings = runner.getWarnings(results);
 
       expect(warnings).toHaveLength(2);
-      expect(warnings.every((w) => w.severity === CheckSeverity.WARNING)).toBe(true);
+      expect(warnings.every((w) => w.severity === CheckSeverity.WARNING)).toBe(
+        true
+      );
     });
   });
 
@@ -267,7 +276,11 @@ describe('CheckRunner', () => {
     it('should format errors and warnings', () => {
       const results: CheckResult[] = [
         { passed: false, severity: CheckSeverity.ERROR, message: 'Error 1' },
-        { passed: false, severity: CheckSeverity.WARNING, message: 'Warning 1' },
+        {
+          passed: false,
+          severity: CheckSeverity.WARNING,
+          message: 'Warning 1',
+        },
       ];
 
       const formatted = runner.formatResults(results);

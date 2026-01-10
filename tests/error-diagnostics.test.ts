@@ -45,11 +45,11 @@ npm error If you were trying to login, change your password...`;
 
   describe('Network Errors', () => {
     it('should detect ENOTFOUND', () => {
-      const stderr = 'npm error code ENOTFOUND\nnpm error network request failed';
+      const stderr =
+        'npm error code ENOTFOUND\nnpm error network request failed';
 
       const hasNetworkError =
-        stderr.includes('ENOTFOUND') ||
-        stderr.includes('ETIMEDOUT');
+        stderr.includes('ENOTFOUND') || stderr.includes('ETIMEDOUT');
 
       expect(hasNetworkError).toBe(true);
     });
@@ -58,8 +58,7 @@ npm error If you were trying to login, change your password...`;
       const stderr = 'npm error code ETIMEDOUT\nnpm error network timeout';
 
       const hasNetworkError =
-        stderr.includes('ENOTFOUND') ||
-        stderr.includes('ETIMEDOUT');
+        stderr.includes('ENOTFOUND') || stderr.includes('ETIMEDOUT');
 
       expect(hasNetworkError).toBe(true);
     });
@@ -67,11 +66,11 @@ npm error If you were trying to login, change your password...`;
 
   describe('404 Errors', () => {
     it('should detect 404 status code', () => {
-      const stderr = 'npm error 404 Not Found - GET https://registry.npmjs.org/@awesome.me/webawesome';
+      const stderr =
+        'npm error 404 Not Found - GET https://registry.npmjs.org/@awesome.me/webawesome';
 
       const has404Error =
-        stderr.includes('404') ||
-        stderr.includes('Not Found');
+        stderr.includes('404') || stderr.includes('Not Found');
 
       expect(has404Error).toBe(true);
     });
@@ -80,8 +79,7 @@ npm error If you were trying to login, change your password...`;
       const stderr = 'Package Not Found in registry';
 
       const has404Error =
-        stderr.includes('404') ||
-        stderr.includes('Not Found');
+        stderr.includes('404') || stderr.includes('Not Found');
 
       expect(has404Error).toBe(true);
     });
@@ -92,18 +90,17 @@ npm error If you were trying to login, change your password...`;
       const stderr = 'npm error code EACCES\nnpm error permission denied';
 
       const hasPermissionError =
-        stderr.includes('EACCES') ||
-        stderr.includes('permission denied');
+        stderr.includes('EACCES') || stderr.includes('permission denied');
 
       expect(hasPermissionError).toBe(true);
     });
 
     it('should detect permission denied message', () => {
-      const stderr = 'Error: permission denied, mkdir /usr/local/lib/node_modules';
+      const stderr =
+        'Error: permission denied, mkdir /usr/local/lib/node_modules';
 
       const hasPermissionError =
-        stderr.includes('EACCES') ||
-        stderr.includes('permission denied');
+        stderr.includes('EACCES') || stderr.includes('permission denied');
 
       expect(hasPermissionError).toBe(true);
     });
@@ -122,8 +119,7 @@ npm error 404 Not Found`;
         stderr.includes('authentication');
 
       const has404Error =
-        stderr.includes('404') ||
-        stderr.includes('Not Found');
+        stderr.includes('404') || stderr.includes('Not Found');
 
       expect(hasAuthError).toBe(true);
       expect(has404Error).toBe(true);
@@ -162,8 +158,7 @@ npm error errno ENOTFOUND
 npm error network request to https://registry.npmjs.org/@awesome.me/webawesome failed, reason: getaddrinfo ENOTFOUND registry.npmjs.org`;
 
       const hasNetworkError =
-        stderr.includes('ENOTFOUND') ||
-        stderr.includes('ETIMEDOUT');
+        stderr.includes('ENOTFOUND') || stderr.includes('ETIMEDOUT');
 
       expect(hasNetworkError).toBe(true);
     });
@@ -175,8 +170,7 @@ npm error 404
 npm error 404  '@awesome.me/wrong-package@latest' is not in this registry.`;
 
       const has404Error =
-        stderr.includes('404') ||
-        stderr.includes('Not Found');
+        stderr.includes('404') || stderr.includes('Not Found');
 
       expect(has404Error).toBe(true);
     });

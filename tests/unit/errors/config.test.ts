@@ -27,14 +27,22 @@ describe('ConfigNotFoundError', () => {
 
     expect(error.suggestions).toHaveLength(2);
     expect(error.suggestions[0].title.toLowerCase()).toContain('init');
-    expect(error.suggestions[0].steps.some((s) => s.includes('kigumi init'))).toBe(true);
+    expect(
+      error.suggestions[0].steps.some((s) => s.includes('kigumi init'))
+    ).toBe(true);
   });
 });
 
 describe('ConfigInvalidError', () => {
   it('should create error with validation errors', () => {
-    const validationErrors = ['Missing field: framework', 'Invalid value for typescript'];
-    const error = new ConfigInvalidError(validationErrors, '/path/to/config.json');
+    const validationErrors = [
+      'Missing field: framework',
+      'Invalid value for typescript',
+    ];
+    const error = new ConfigInvalidError(
+      validationErrors,
+      '/path/to/config.json'
+    );
 
     expect(error.code).toBe(ErrorCode.CONFIG_INVALID);
     expect(error.exitCode).toBe(1);
@@ -75,15 +83,20 @@ describe('ConfigParseError', () => {
     const cause = new SyntaxError('Unexpected token');
     const error = new ConfigParseError('/path/to/config.json', cause);
 
-    expect(error.suggestions.some((s) =>
-      s.steps.some((step) => step.toLowerCase().includes('json'))
-    )).toBe(true);
+    expect(
+      error.suggestions.some((s) =>
+        s.steps.some((step) => step.toLowerCase().includes('json'))
+      )
+    ).toBe(true);
   });
 });
 
 describe('ConfigFieldMissingError', () => {
   it('should create error for missing field', () => {
-    const error = new ConfigFieldMissingError('framework', '/path/to/config.json');
+    const error = new ConfigFieldMissingError(
+      'framework',
+      '/path/to/config.json'
+    );
 
     expect(error.code).toBe(ErrorCode.CONFIG_INVALID);
     expect(error.message).toContain('framework');
@@ -93,7 +106,9 @@ describe('ConfigFieldMissingError', () => {
   it('should suggest adding the field', () => {
     const error = new ConfigFieldMissingError('framework');
 
-    expect(error.suggestions[0].steps.some((s) => s.includes('"framework"'))).toBe(true);
+    expect(
+      error.suggestions[0].steps.some((s) => s.includes('"framework"'))
+    ).toBe(true);
   });
 });
 
@@ -110,7 +125,11 @@ describe('ConfigFieldInvalidError', () => {
     expect(error.context.details?.field).toBe('framework');
     expect(error.context.details?.value).toBe('invalid-framework');
     expect(error.context.details?.expectedType).toBe('string');
-    expect(error.context.details?.validValues).toEqual(['react', 'vue', 'svelte']);
+    expect(error.context.details?.validValues).toEqual([
+      'react',
+      'vue',
+      'svelte',
+    ]);
   });
 
   it('should show valid values in suggestions', () => {
@@ -127,7 +146,11 @@ describe('ConfigFieldInvalidError', () => {
   });
 
   it('should work without valid values list', () => {
-    const error = new ConfigFieldInvalidError('typescript', 'invalid', 'boolean');
+    const error = new ConfigFieldInvalidError(
+      'typescript',
+      'invalid',
+      'boolean'
+    );
 
     expect(error.code).toBe(ErrorCode.CONFIG_INVALID);
     expect(error.context.details?.validValues).toBeUndefined();
