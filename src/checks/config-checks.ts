@@ -26,10 +26,7 @@ export class ConfigExistsCheck implements Check {
         passed: false,
         severity: CheckSeverity.ERROR,
         message: 'Configuration file not found',
-        suggestion: [
-          'Run: kigumi init',
-          'This will create kigumi.config.json',
-        ],
+        suggestion: ['Run: kigumi init', 'This will create kigumi.config.json'],
         details: {
           path: configPath,
         },
