@@ -4,6 +4,7 @@
  * Minimal implementation for Vue support.
  * Will be fully implemented when Vue templates are ready.
  */
+import type { KigumiConfig } from '../../schemas/config.js';
 
 import fs from 'fs-extra';
 import path from 'path';
@@ -39,15 +40,10 @@ export class VuePlugin implements FrameworkPlugin {
       return { detected: false, confidence: 'low' };
     }
 
-    const hasVueRouter = !!deps['vue-router'];
+    const _hasVueRouter = !!deps['vue-router'];
     const hasVite = !!deps.vite && !!deps['@vitejs/plugin-vue'];
 
-    const confidence =
-      hasVue && hasVite
-        ? 'high'
-        : hasVue
-          ? 'medium'
-          : 'low';
+    const confidence = hasVue && hasVite ? 'high' : hasVue ? 'medium' : 'low';
 
     return {
       detected: true,
@@ -61,16 +57,21 @@ export class VuePlugin implements FrameworkPlugin {
   }
 
   async generateComponent(
-    cwd: string,
-    config: any,
-    component: ComponentDefinition,
-    options: GenerateOptions
+    _cwd: string,
+    _config: KigumiConfig,
+    _component: ComponentDefinition,
+    _options: GenerateOptions
   ): Promise<GeneratedFile[]> {
     // TODO: Implement Vue component generation
-    throw new Error('Vue component generation is not yet implemented. Coming soon!');
+    throw new Error(
+      'Vue component generation is not yet implemented. Coming soon!'
+    );
   }
 
-  async generateSetupFiles(cwd: string, config: any): Promise<GeneratedFile[]> {
+  async generateSetupFiles(
+    _cwd: string,
+    _config: KigumiConfig
+  ): Promise<GeneratedFile[]> {
     // TODO: Implement Vue setup files
     throw new Error('Vue setup files are not yet implemented. Coming soon!');
   }
@@ -83,20 +84,18 @@ export class VuePlugin implements FrameworkPlugin {
     const deps = [...additionalDeps];
 
     const installArgs =
-      packageManager === 'npm'
-        ? ['install', ...deps]
-        : ['add', ...deps];
+      packageManager === 'npm' ? ['install', ...deps] : ['add', ...deps];
 
     await execa(packageManager, installArgs, { cwd, stdio: 'inherit' });
   }
 
-  validateConfig(config: Partial<any>): ValidationResult {
+  validateConfig(_config: Partial<KigumiConfig>): ValidationResult {
     return {
       valid: true,
     };
   }
 
-  getTypeScriptConfig(): Partial<Record<string, any>> {
+  getTypeScriptConfig(): Partial<Record<string, unknown>> {
     return {
       compilerOptions: {
         jsx: 'preserve',

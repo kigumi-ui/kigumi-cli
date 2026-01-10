@@ -37,15 +37,16 @@ export async function listCommand() {
       content += pc.bold(pc.cyan(`\n${category}`)) + '\n';
       for (const item of items) {
         const component = components[item];
-        content +=
-          `  ${pc.green('○')} ${pc.white(item.padEnd(15))} ${pc.dim(component.description)}\n`;
+        content += `  ${pc.green('○')} ${pc.white(item.padEnd(15))} ${pc.dim(component.description)}\n`;
       }
     }
 
     output.note('Available Components', content);
 
     output.outro(
-      pc.dim(`\nTotal: ${pc.cyan(Object.keys(components).length)} components\n`) +
+      pc.dim(
+        `\nTotal: ${pc.cyan(Object.keys(components).length)} components\n`
+      ) +
         pc.white('Add a component: ') +
         pc.cyan('npx kigumi add <component>')
     );

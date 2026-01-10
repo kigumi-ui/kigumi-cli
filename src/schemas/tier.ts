@@ -76,12 +76,11 @@ export const PRO_COMPONENTS = [
 export function createThemeSchema(tier: Tier) {
   const allowedThemes = TIER_THEMES[tier];
 
-  return z.string().refine(
-    (theme) => allowedThemes.includes(theme as any),
-    {
+  return z
+    .string()
+    .refine((theme) => (allowedThemes as readonly string[]).includes(theme), {
       message: `Theme must be one of: ${allowedThemes.join(', ')} (available in ${tier} tier)`,
-    }
-  );
+    });
 }
 
 /**
@@ -105,7 +104,9 @@ export const brandColorSchema = z.enum(AVAILABLE_BRAND_COLORS, {
 /**
  * Component name schema (basic validation)
  */
-export const componentNameSchema = z.string().min(1, 'Component name cannot be empty');
+export const componentNameSchema = z
+  .string()
+  .min(1, 'Component name cannot be empty');
 
 /**
  * Validate theme for tier
@@ -115,7 +116,7 @@ export const componentNameSchema = z.string().min(1, 'Component name cannot be e
  * @returns True if theme is allowed
  */
 export function isThemeAllowedForTier(theme: string, tier: Tier): boolean {
-  return TIER_THEMES[tier].includes(theme as any);
+  return (TIER_THEMES[tier] as readonly string[]).includes(theme);
 }
 
 /**
@@ -125,13 +126,16 @@ export function isThemeAllowedForTier(theme: string, tier: Tier): boolean {
  * @param tier - User's tier (free or pro)
  * @returns True if component is allowed
  */
-export function isComponentAllowedForTier(componentName: string, tier: Tier): boolean {
+export function isComponentAllowedForTier(
+  componentName: string,
+  tier: Tier
+): boolean {
   if (tier === 'pro') {
     return true; // Pro tier has access to everything
   }
 
   // Free tier cannot use pro components
-  return !PRO_COMPONENTS.includes(componentName as any);
+  return !(PRO_COMPONENTS as readonly string[]).includes(componentName);
 }
 
 /**
@@ -169,7 +173,7 @@ export function getAvailableBrandColors(): string[] {
  * @returns True if component requires Pro tier
  */
 export function isProComponent(componentName: string): boolean {
-  return PRO_COMPONENTS.includes(componentName as any);
+  return (PRO_COMPONENTS as readonly string[]).includes(componentName);
 }
 
 /**
@@ -197,7 +201,10 @@ export interface TierValidationResult {
  * @param tier - User's tier
  * @returns Validation result
  */
-export function validateThemeForTier(theme: string, tier: Tier): TierValidationResult {
+export function validateThemeForTier(
+  theme: string,
+  tier: Tier
+): TierValidationResult {
   if (isThemeAllowedForTier(theme, tier)) {
     return { allowed: true };
   }

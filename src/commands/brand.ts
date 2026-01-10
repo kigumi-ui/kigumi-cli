@@ -4,11 +4,17 @@
  * Changes the brand color
  */
 
+import type { KigumiConfig } from '../schemas/config.js';
+
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
-import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
+import {
+  CheckRunner,
+  ConfigExistsCheck,
+  ConfigValidCheck,
+} from '../checks/index.js';
 import { handleError, UserCancelledError } from '../errors/index.js';
 import { ValidationError } from '../errors/validation.js';
 import { loadConfig, saveConfig, getConfig } from '../utils/config.js';
@@ -35,11 +41,11 @@ async function brandAction(colorName?: string) {
 
   try {
     // 1. Load configuration (needed for checks)
-    let config: any;
+    let config: KigumiConfig | undefined;
     try {
       loadConfig(cwd);
       config = getConfig(cwd);
-    } catch (error) {
+    } catch {
       // Config loading failed - will be caught by checks
     }
 
@@ -55,7 +61,7 @@ async function brandAction(colorName?: string) {
       process.exit(1);
     }
 
-    // 3. Config is valid at this point (checks passed)
+    // Config must be loaded at this point (checks passed)
     if (!config) {
       throw new Error('Configuration not loaded despite passing checks');
     }
@@ -67,7 +73,7 @@ async function brandAction(colorName?: string) {
       const options = BRAND_COLORS.map((color) => ({
         value: color,
         label: color.charAt(0).toUpperCase() + color.slice(1),
-        hint: color === config.theme.brandColor ? 'Current' : '',
+        hint: config && color === config.theme.brandColor ? 'Current' : '',
       }));
 
       const selected = await p.select({

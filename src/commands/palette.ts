@@ -4,11 +4,17 @@
  * Changes the color palette
  */
 
+import type { KigumiConfig } from '../schemas/config.js';
+
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
-import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
+import {
+  CheckRunner,
+  ConfigExistsCheck,
+  ConfigValidCheck,
+} from '../checks/index.js';
 import { handleError, UserCancelledError } from '../errors/index.js';
 import { ValidationError } from '../errors/validation.js';
 import { loadConfig, saveConfig, getConfig } from '../utils/config.js';
@@ -23,11 +29,11 @@ async function paletteAction(paletteName?: string) {
 
   try {
     // 1. Load configuration (needed for checks)
-    let config: any;
+    let config: KigumiConfig | undefined;
     try {
       loadConfig(cwd);
       config = getConfig(cwd);
-    } catch (error) {
+    } catch {
       // Config loading failed - will be caught by checks
     }
 
@@ -43,12 +49,14 @@ async function paletteAction(paletteName?: string) {
       process.exit(1);
     }
 
-    // 3. Config is valid at this point (checks passed)
+    // Config must be loaded at this point (checks passed)
     if (!config) {
       throw new Error('Configuration not loaded despite passing checks');
     }
 
-    const tier = config.webAwesome?.tier || 'free';
+    // Detect tier from .env
+    const { detectTier } = await import('../utils/tier.js');
+    const tier = await detectTier(cwd);
     let selectedPalette = paletteName;
 
     // 3. Interactive selection if no palette provided
@@ -60,7 +68,7 @@ async function paletteAction(paletteName?: string) {
         .map((palette) => ({
           value: palette,
           label: palette.charAt(0).toUpperCase() + palette.slice(1),
-          hint: palette === config.theme.palette ? 'Current' : '',
+          hint: config && palette === config.theme.palette ? 'Current' : '',
         }));
 
       const selected = await p.select({
@@ -77,7 +85,9 @@ async function paletteAction(paletteName?: string) {
     }
 
     // 4. Validate palette (all palettes available to all tiers)
-    const availablePalettes = getAvailablePalettes(tier).filter((p) => p !== 'custom');
+    const availablePalettes = getAvailablePalettes(tier).filter(
+      (p) => p !== 'custom'
+    );
     if (!availablePalettes.includes(selectedPalette)) {
       throw new ValidationError('palette', selectedPalette, availablePalettes);
     }

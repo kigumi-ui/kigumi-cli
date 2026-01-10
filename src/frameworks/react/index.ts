@@ -4,6 +4,7 @@
  * Implements the FrameworkPlugin interface for React projects.
  */
 
+import type { KigumiConfig } from '../../schemas/config.js';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,6 +17,7 @@ import type {
   ValidationResult,
   ComponentDefinition,
 } from '../types.js';
+import type { ComponentDefinition as RegistryComponentDefinition } from '../../utils/registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -89,7 +91,7 @@ export class ReactPlugin implements FrameworkPlugin {
    */
   async generateComponent(
     cwd: string,
-    config: any,
+    config: KigumiConfig,
     component: ComponentDefinition,
     options: GenerateOptions
   ): Promise<GeneratedFile[]> {
@@ -104,7 +106,7 @@ export class ReactPlugin implements FrameworkPlugin {
 
     // Generate main component file
     const componentContent = await generateComponent(
-      component,
+      component as unknown as RegistryComponentDefinition,
       config,
       options.typescript
     );
@@ -130,7 +132,10 @@ export class ReactPlugin implements FrameworkPlugin {
       const testContent = await this.generateTestFile(component, options);
       if (testContent) {
         files.push({
-          path: path.join(componentDir, `${component.name}.test.${fileExtension}`),
+          path: path.join(
+            componentDir,
+            `${component.name}.test.${fileExtension}`
+          ),
           content: testContent,
           overwrite: options.overwrite,
         });
@@ -143,39 +148,24 @@ export class ReactPlugin implements FrameworkPlugin {
   /**
    * Generate React-specific setup files
    */
-  async generateSetupFiles(cwd: string, config: any): Promise<GeneratedFile[]> {
-    const files: GeneratedFile[] = [];
+  async generateSetupFiles(
+    cwd: string,
+    config: KigumiConfig
+  ): Promise<GeneratedFile[]> {
+    // These files are now generated directly by regenerate functions
+    // This method is kept for compatibility but delegates to regenerate.ts
+    const { regenerateWebAwesomeSetup, generateViteEnvDts } =
+      await import('../../utils/regenerate.js');
 
-    // Generate webawesome.ts
-    const { generateWebAwesomeSetup } = await import('../../utils/regenerate.js');
-    const webAwesomeContent = await generateWebAwesomeSetup(cwd, config);
+    // Trigger file generation (they write directly to disk)
+    await regenerateWebAwesomeSetup(cwd, config, config.utilsDir || 'src/lib');
 
-    files.push({
-      path: path.join(cwd, config.utilsDir || 'src/lib', 'webawesome.ts'),
-      content: webAwesomeContent,
-    });
-
-    // Generate vite-env.d.ts for TypeScript projects
     if (config.typescript) {
-      const { generateViteEnvDts } = await import('../../utils/regenerate.js');
-      const viteEnvContent = await generateViteEnvDts(cwd, config);
-
-      files.push({
-        path: path.join(cwd, 'src', 'vite-env.d.ts'),
-        content: viteEnvContent,
-      });
+      await generateViteEnvDts(cwd, 'src');
     }
 
-    // Generate theme.css
-    const { generateThemeCSS } = await import('../../utils/regenerate.js');
-    const themeCssContent = await generateThemeCSS(config);
-
-    files.push({
-      path: path.join(cwd, config.utilsDir || 'src/lib', 'theme.css'),
-      content: themeCssContent,
-    });
-
-    return files;
+    // Return empty array since files are written directly
+    return [];
   }
 
   /**
@@ -190,9 +180,7 @@ export class ReactPlugin implements FrameworkPlugin {
     const deps = ['clsx', ...additionalDeps];
 
     const installArgs =
-      packageManager === 'npm'
-        ? ['install', ...deps]
-        : ['add', ...deps];
+      packageManager === 'npm' ? ['install', ...deps] : ['add', ...deps];
 
     await execa(packageManager, installArgs, { cwd, stdio: 'inherit' });
   }
@@ -200,7 +188,7 @@ export class ReactPlugin implements FrameworkPlugin {
   /**
    * Validate React-specific configuration
    */
-  validateConfig(config: Partial<any>): ValidationResult {
+  validateConfig(config: Partial<KigumiConfig>): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -212,7 +200,10 @@ export class ReactPlugin implements FrameworkPlugin {
     }
 
     // Validate utilsDir for React
-    if (config.utilsDir && !['src/lib', 'src/utils'].includes(config.utilsDir)) {
+    if (
+      config.utilsDir &&
+      !['src/lib', 'src/utils'].includes(config.utilsDir)
+    ) {
       warnings.push(
         'React projects typically use "src/lib" or "src/utils" for utilities.'
       );
@@ -228,7 +219,7 @@ export class ReactPlugin implements FrameworkPlugin {
   /**
    * Get React-specific TypeScript configuration
    */
-  getTypeScriptConfig(): Partial<Record<string, any>> {
+  getTypeScriptConfig(): Partial<Record<string, unknown>> {
     return {
       compilerOptions: {
         jsx: 'react-jsx',
@@ -241,7 +232,9 @@ export class ReactPlugin implements FrameworkPlugin {
   /**
    * Generate styles file for component
    */
-  private async generateStylesFile(component: ComponentDefinition): Promise<string> {
+  private async generateStylesFile(
+    component: ComponentDefinition
+  ): Promise<string> {
     // Use existing template system
     const templatePath = path.join(
       TEMPLATES_DIR,
@@ -300,10 +293,10 @@ describe('${component.name}', () => {
  * Helper function to generate component from template
  * This will be implemented to use existing template system
  */
-async function generateComponentFromTemplate(
+async function _generateComponentFromTemplate(
   framework: string,
   component: ComponentDefinition,
-  config: any,
+  config: KigumiConfig,
   options: GenerateOptions
 ): Promise<string> {
   // Placeholder - will integrate with existing template system

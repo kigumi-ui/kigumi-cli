@@ -67,8 +67,13 @@ export class ConsoleOutput implements OutputInterface {
   error(message: string, error?: Error): void {
     if (error) {
       // Check if it's a KigumiError with formatting
-      if ('format' in error && typeof error.format === 'function') {
-        const formatted = (error as any).format();
+      if (
+        error &&
+        typeof error === 'object' &&
+        'format' in error &&
+        typeof error.format === 'function'
+      ) {
+        const formatted = (error as { format: () => string }).format();
         p.log.error(pc.red(formatted));
         // Note: Suggestions are handled by handleError() in errors/index.ts
         // to avoid duplicate output

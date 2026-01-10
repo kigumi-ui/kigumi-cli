@@ -5,6 +5,8 @@
  * Each framework (React, Vue, Angular, Svelte) provides its own implementation.
  */
 
+import type { KigumiConfig } from '../schemas/config.js';
+
 /**
  * Detection result from framework.detect()
  */
@@ -65,7 +67,7 @@ export interface ComponentProp {
   type: string;
   description?: string;
   required?: boolean;
-  default?: any;
+  default?: string | number | boolean;
 }
 
 /**
@@ -99,7 +101,7 @@ export interface FrameworkPlugin {
    */
   generateComponent(
     cwd: string,
-    config: any, // Will be properly typed once config types are updated
+    config: KigumiConfig,
     component: ComponentDefinition,
     options: GenerateOptions
   ): Promise<GeneratedFile[]>;
@@ -118,7 +120,7 @@ export interface FrameworkPlugin {
    */
   generateSetupFiles(
     cwd: string,
-    config: any
+    config: KigumiConfig
   ): Promise<GeneratedFile[]>;
 
   /**
@@ -140,7 +142,7 @@ export interface FrameworkPlugin {
    * @param config - Partial configuration to validate
    * @returns Validation result with errors/warnings
    */
-  validateConfig(config: Partial<any>): ValidationResult;
+  validateConfig(config: Partial<KigumiConfig>): ValidationResult;
 
   /**
    * Get framework-specific TypeScript configuration
@@ -149,7 +151,7 @@ export interface FrameworkPlugin {
    *
    * @returns Partial TypeScript config object
    */
-  getTypeScriptConfig?(): Partial<Record<string, any>>;
+  getTypeScriptConfig?(): Partial<Record<string, unknown>>;
 
   /**
    * Get framework-specific build configuration
@@ -158,5 +160,5 @@ export interface FrameworkPlugin {
    *
    * @returns Build config object
    */
-  getBuildConfig?(): Record<string, any>;
+  getBuildConfig?(): Record<string, unknown>;
 }

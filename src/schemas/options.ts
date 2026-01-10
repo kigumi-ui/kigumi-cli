@@ -113,7 +113,8 @@ export function validateOptions<T extends z.ZodType>(
 export const validators = {
   init: (options: unknown) => validateOptions(initOptionsSchema, options),
   add: (options: unknown) => validateOptions(addOptionsSchema, options),
-  themeSet: (options: unknown) => validateOptions(themeSetOptionsSchema, options),
+  themeSet: (options: unknown) =>
+    validateOptions(themeSetOptionsSchema, options),
   palette: (options: unknown) => validateOptions(paletteOptionsSchema, options),
   brand: (options: unknown) => validateOptions(brandOptionsSchema, options),
   list: (options: unknown) => validateOptions(listOptionsSchema, options),
