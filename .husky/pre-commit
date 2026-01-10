@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# NOTE: type-check is disabled due to existing TypeScript errors in the codebase
+# TODO: Fix TypeScript errors and re-enable: pnpm type-check
+
+# Run lint-staged (ESLint + Prettier on staged files)
+pnpm lint-staged

@@ -5,7 +5,10 @@ import 'react';
 declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
-      'wa-button': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      'wa-button': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      > & {
         class?: string;
         variant?: string;
         appearance?: string;
@@ -20,7 +23,10 @@ declare module 'react' {
         rel?: string;
         'data-dialog'?: string;
       };
-      'wa-input': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      'wa-input': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      > & {
         class?: string;
         type?: string;
         label?: string;
@@ -34,7 +40,10 @@ declare module 'react' {
         'with-clear'?: boolean;
         'password-toggle'?: boolean;
       };
-      'wa-card': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      'wa-card': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      > & {
         class?: string;
         appearance?: string;
         orientation?: string;
@@ -42,7 +51,10 @@ declare module 'react' {
         'with-footer'?: boolean;
         'with-media'?: boolean;
       };
-      'wa-dialog': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      'wa-dialog': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      > & {
         class?: string;
         open?: boolean;
         label?: string;
