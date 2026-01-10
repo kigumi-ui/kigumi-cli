@@ -13,13 +13,14 @@ import type { ZodError } from 'zod';
 export class ValidationError extends KigumiError {
   constructor(
     field: string,
-    value: any,
-    validValues?: any[],
+    value: unknown,
+    validValues?: unknown[],
     zodError?: ZodError
   ) {
-    const errorMessages = zodError?.errors.map((err) => {
-      return `${err.path.join('.')}: ${err.message}`;
-    }) || [];
+    const errorMessages =
+      zodError?.errors.map((err) => {
+        return `${err.path.join('.')}: ${err.message}`;
+      }) || [];
 
     const suggestions: ErrorSuggestion[] = [
       {
@@ -27,7 +28,9 @@ export class ValidationError extends KigumiError {
         steps: [
           `The value "${value}" is not valid for: ${field}`,
           ...(validValues
-            ? [`Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`]
+            ? [
+                `Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`,
+              ]
             : []),
           ...errorMessages.map((msg) => `Error: ${msg}`),
           'Check the command documentation for valid options',
@@ -50,7 +53,9 @@ export class ValidationError extends KigumiError {
     parts.push(`  Received: ${JSON.stringify(value)}`);
 
     if (validValues && Array.isArray(validValues)) {
-      parts.push(`  Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`);
+      parts.push(
+        `  Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`
+      );
     }
 
     const zodErrors = this.context.details?.zodErrors as string[] | undefined;

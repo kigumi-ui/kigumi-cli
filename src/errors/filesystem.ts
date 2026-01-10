@@ -18,7 +18,7 @@ export class FileNotFoundError extends KigumiError {
           `File not found: ${filePath}`,
           'Verify the path is correct',
           'Check that the file exists',
-          'Ensure you\'re in the correct directory',
+          "Ensure you're in the correct directory",
         ],
       },
     ];

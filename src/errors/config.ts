@@ -135,9 +135,9 @@ export class ConfigFieldMissingError extends KigumiError {
 export class ConfigFieldInvalidError extends KigumiError {
   constructor(
     field: string,
-    value: any,
+    value: unknown,
     expectedType: string,
-    validValues?: any[]
+    validValues?: unknown[]
   ) {
     const suggestions: ErrorSuggestion[] = [
       {
@@ -146,7 +146,9 @@ export class ConfigFieldInvalidError extends KigumiError {
           `Field "${field}" has invalid value: ${JSON.stringify(value)}`,
           `Expected type: ${expectedType}`,
           ...(validValues
-            ? [`Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`]
+            ? [
+                `Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`,
+              ]
             : []),
           'Update the value in kigumi-components.json',
         ],

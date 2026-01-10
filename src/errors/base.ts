@@ -61,7 +61,7 @@ export enum ErrorCode {
 export interface ErrorContext {
   code: ErrorCode;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   cause?: Error;
 }
 
@@ -88,7 +88,7 @@ export abstract class KigumiError extends Error {
   constructor(
     code: ErrorCode,
     message: string,
-    details?: Record<string, any>,
+    details?: Record<string, unknown>,
     suggestions: ErrorSuggestion[] = [],
     cause?: Error
   ) {
@@ -184,7 +184,7 @@ export abstract class KigumiError extends Error {
   /**
    * Convert to JSON for logging/telemetry
    */
-  toJSON(): Record<string, any> {
+  toJSON(): Record<string, unknown> {
     return {
       name: this.name,
       code: this.code,
