@@ -31,12 +31,10 @@ export const themeConfigSchema = z.object({
 
 /**
  * Web Awesome configuration schema
+ * NOTE: tier is NOT stored in config - it's detected from .env
  */
 export const webAwesomeConfigSchema = z.object({
-  tier: tierSchema,
   version: z.string().optional(),
-  token: z.string().optional(), // Pro tier token (used for .env generation)
-  tokenEnvVar: z.string().optional(),
   cdnUrl: z.string().url('Must be a valid URL').optional(),
 });
 
@@ -82,7 +80,6 @@ export const DEFAULT_CONFIG: KigumiConfig = {
     '@/lib': './src/lib',
   },
   webAwesome: {
-    tier: 'free',
     version: '^3.1.0',
   },
 };
@@ -100,12 +97,13 @@ export function validateConfig(data: unknown): KigumiConfig {
   if (!result.success) {
     // Format validation errors
     const errorList = result.error.errors || [];
-    const errors = errorList.length > 0
-      ? errorList.map((err) => {
-          const path = err.path.join('.');
-          return path ? `${path}: ${err.message}` : err.message;
-        })
-      : ['Unknown validation error'];
+    const errors =
+      errorList.length > 0
+        ? errorList.map((err) => {
+            const path = err.path.join('.');
+            return path ? `${path}: ${err.message}` : err.message;
+          })
+        : ['Unknown validation error'];
 
     // We'll throw the proper error in the next phase when integrating
     // For now, just throw a basic error
@@ -126,12 +124,13 @@ export function validatePartialConfig(data: unknown): Partial<KigumiConfig> {
 
   if (!result.success) {
     const errorList = result.error.errors || [];
-    const errors = errorList.length > 0
-      ? errorList.map((err) => {
-          const path = err.path.join('.');
-          return path ? `${path}: ${err.message}` : err.message;
-        })
-      : ['Unknown validation error'];
+    const errors =
+      errorList.length > 0
+        ? errorList.map((err) => {
+            const path = err.path.join('.');
+            return path ? `${path}: ${err.message}` : err.message;
+          })
+        : ['Unknown validation error'];
 
     throw new Error(`Configuration validation failed:\n${errors.join('\n')}`);
   }

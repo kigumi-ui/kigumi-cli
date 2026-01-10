@@ -4,6 +4,7 @@
  * Minimal implementation for Svelte support.
  * Will be fully implemented when Svelte templates are ready.
  */
+import type { KigumiConfig } from '../../schemas/config.js';
 
 import fs from 'fs-extra';
 import path from 'path';
@@ -65,16 +66,21 @@ export class SveltePlugin implements FrameworkPlugin {
   }
 
   async generateComponent(
-    cwd: string,
-    config: any,
-    component: ComponentDefinition,
-    options: GenerateOptions
+    _cwd: string,
+    _config: KigumiConfig,
+    _component: ComponentDefinition,
+    _options: GenerateOptions
   ): Promise<GeneratedFile[]> {
     // TODO: Implement Svelte component generation
-    throw new Error('Svelte component generation is not yet implemented. Coming soon!');
+    throw new Error(
+      'Svelte component generation is not yet implemented. Coming soon!'
+    );
   }
 
-  async generateSetupFiles(cwd: string, config: any): Promise<GeneratedFile[]> {
+  async generateSetupFiles(
+    _cwd: string,
+    _config: KigumiConfig
+  ): Promise<GeneratedFile[]> {
     // TODO: Implement Svelte setup files
     throw new Error('Svelte setup files are not yet implemented. Coming soon!');
   }
@@ -87,20 +93,18 @@ export class SveltePlugin implements FrameworkPlugin {
     const deps = [...additionalDeps];
 
     const installArgs =
-      packageManager === 'npm'
-        ? ['install', ...deps]
-        : ['add', ...deps];
+      packageManager === 'npm' ? ['install', ...deps] : ['add', ...deps];
 
     await execa(packageManager, installArgs, { cwd, stdio: 'inherit' });
   }
 
-  validateConfig(config: Partial<any>): ValidationResult {
+  validateConfig(_config: Partial<KigumiConfig>): ValidationResult {
     return {
       valid: true,
     };
   }
 
-  getTypeScriptConfig(): Partial<Record<string, any>> {
+  getTypeScriptConfig(): Partial<Record<string, unknown>> {
     return {
       extends: './.svelte-kit/tsconfig.json',
     };

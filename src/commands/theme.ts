@@ -4,11 +4,17 @@
  * Changes the Web Awesome theme
  */
 
+import type { KigumiConfig } from '../schemas/config.js';
+
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
-import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../checks/index.js';
+import {
+  CheckRunner,
+  ConfigExistsCheck,
+  ConfigValidCheck,
+} from '../checks/index.js';
 import { handleError, UserCancelledError } from '../errors/index.js';
 import { TierRestrictionError } from '../errors/tier.js';
 import { loadConfig, saveConfig, getConfig } from '../utils/config.js';
@@ -26,11 +32,11 @@ async function themeAction(themeName?: string) {
 
   try {
     // 1. Load configuration (needed for checks)
-    let config: any;
+    let config: KigumiConfig | undefined;
     try {
       loadConfig(cwd);
       config = getConfig(cwd);
-    } catch (error) {
+    } catch {
       // Config loading failed - will be caught by checks
     }
 
@@ -46,12 +52,14 @@ async function themeAction(themeName?: string) {
       process.exit(1);
     }
 
-    // 3. Config is valid at this point (checks passed)
+    // Config must be loaded at this point (checks passed)
     if (!config) {
       throw new Error('Configuration not loaded despite passing checks');
     }
 
-    const tier = config.webAwesome?.tier || 'free';
+    // Detect tier from .env
+    const { detectTier } = await import('../utils/tier.js');
+    const tier = await detectTier(cwd);
     let selectedTheme = themeName;
 
     // 3. Interactive selection if no theme provided
@@ -63,7 +71,7 @@ async function themeAction(themeName?: string) {
         .map((theme) => ({
           value: theme,
           label: theme.charAt(0).toUpperCase() + theme.slice(1),
-          hint: theme === config.theme.selected ? 'Current' : '',
+          hint: config && theme === config.theme.selected ? 'Current' : '',
         }));
 
       const selected = await p.select({
@@ -81,22 +89,7 @@ async function themeAction(themeName?: string) {
 
     // 4. Validate theme availability
     if (!isThemeAvailable(selectedTheme, tier)) {
-      const availableThemes = getAvailableThemes(tier).filter((t) => t !== 'custom');
-
-      throw new TierRestrictionError('theme', selectedTheme, [
-        {
-          title: 'Available free themes',
-          steps: availableThemes.map(t => `- ${t}`),
-        },
-        {
-          title: 'Upgrade to Pro',
-          steps: [
-            'Run: kigumi init',
-            'Select "Pro" tier',
-            'Enter your Web Awesome Pro token',
-          ],
-        },
-      ]);
+      throw new TierRestrictionError(`theme:${selectedTheme}`, 'pro', tier);
     }
 
     // 5. Update theme

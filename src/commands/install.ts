@@ -27,9 +27,11 @@ import { detectTier } from '../utils/tier.js';
 export async function installCommand() {
   const output = getOutput();
   output.intro('kigumi install (DEPRECATED)');
-  
-  output.warn('⚠️  This command is deprecated!');
-  output.info('Use `kigumi init` instead - it now handles installation automatically.');
+
+  output.warning('⚠️  This command is deprecated!');
+  output.info(
+    'Use `kigumi init` instead - it now handles installation automatically.'
+  );
 
   const cwd = process.cwd();
 
@@ -66,7 +68,7 @@ export async function installCommand() {
 
     // 4. Detect tier
     const tier = await detectTier(cwd);
-    
+
     // 5. Get project info
     const projectInfo = await getProjectInfo(cwd);
 

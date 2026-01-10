@@ -65,7 +65,8 @@ export class FrameworkRegistry {
    * @returns Framework plugin or null if no framework detected
    */
   static async detectFramework(cwd: string): Promise<FrameworkPlugin | null> {
-    const results: Array<{ plugin: FrameworkPlugin; result: DetectionResult }> = [];
+    const results: Array<{ plugin: FrameworkPlugin; result: DetectionResult }> =
+      [];
 
     // Load all plugins and run detection in parallel
     const detectionPromises = Array.from(FRAMEWORK_PLUGINS.entries()).map(
@@ -98,7 +99,10 @@ export class FrameworkRegistry {
     // Multiple frameworks - pick highest confidence
     const confidenceScore = { high: 3, medium: 2, low: 1 };
     results.sort((a, b) => {
-      return confidenceScore[b.result.confidence] - confidenceScore[a.result.confidence];
+      return (
+        confidenceScore[b.result.confidence] -
+        confidenceScore[a.result.confidence]
+      );
     });
 
     return results[0].plugin;

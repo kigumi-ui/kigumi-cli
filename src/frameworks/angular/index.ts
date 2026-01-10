@@ -4,6 +4,7 @@
  * Minimal implementation for Angular support.
  * Will be fully implemented when Angular templates are ready.
  */
+import type { KigumiConfig } from '../../schemas/config.js';
 
 import fs from 'fs-extra';
 import path from 'path';
@@ -61,18 +62,25 @@ export class AngularPlugin implements FrameworkPlugin {
   }
 
   async generateComponent(
-    cwd: string,
-    config: any,
-    component: ComponentDefinition,
-    options: GenerateOptions
+    _cwd: string,
+    _config: KigumiConfig,
+    _component: ComponentDefinition,
+    _options: GenerateOptions
   ): Promise<GeneratedFile[]> {
     // TODO: Implement Angular component generation
-    throw new Error('Angular component generation is not yet implemented. Coming soon!');
+    throw new Error(
+      'Angular component generation is not yet implemented. Coming soon!'
+    );
   }
 
-  async generateSetupFiles(cwd: string, config: any): Promise<GeneratedFile[]> {
+  async generateSetupFiles(
+    _cwd: string,
+    _config: KigumiConfig
+  ): Promise<GeneratedFile[]> {
     // TODO: Implement Angular setup files
-    throw new Error('Angular setup files are not yet implemented. Coming soon!');
+    throw new Error(
+      'Angular setup files are not yet implemented. Coming soon!'
+    );
   }
 
   async installDependencies(
@@ -83,20 +91,18 @@ export class AngularPlugin implements FrameworkPlugin {
     const deps = [...additionalDeps];
 
     const installArgs =
-      packageManager === 'npm'
-        ? ['install', ...deps]
-        : ['add', ...deps];
+      packageManager === 'npm' ? ['install', ...deps] : ['add', ...deps];
 
     await execa(packageManager, installArgs, { cwd, stdio: 'inherit' });
   }
 
-  validateConfig(config: Partial<any>): ValidationResult {
+  validateConfig(_config: Partial<KigumiConfig>): ValidationResult {
     return {
       valid: true,
     };
   }
 
-  getTypeScriptConfig(): Partial<Record<string, any>> {
+  getTypeScriptConfig(): Partial<Record<string, unknown>> {
     return {
       compilerOptions: {
         experimentalDecorators: true,
