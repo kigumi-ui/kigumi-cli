@@ -8,14 +8,14 @@ export interface KigumiConfig {
   componentsDir: string;
   utilsDir?: string;
   theme: {
-    selected: string;  // Which theme to use (default, awesome, shoelace, none, or pro themes)
-    palette: string;   // Color palette (default, bright, shoelace, etc.)
+    selected: string; // Which theme to use (default, awesome, shoelace, none, or pro themes)
+    palette: string; // Color palette (default, bright, shoelace, etc.)
     brandColor: string; // Brand color mapping (blue, purple, green, etc.)
   };
   aliases?: Record<string, string>;
   webAwesome?: {
     version?: string;
-    cdnUrl?: string;  // Optional CDN URL override
+    cdnUrl?: string; // Optional CDN URL override
   };
 }
 
@@ -44,8 +44,8 @@ export const DEFAULT_CONFIG: KigumiConfig = {
 export function loadConfig(cwd: string = process.cwd()): KigumiConfig | null {
   const explorer = cosmiconfigSync('kigumi', {
     searchPlaces: [
-      'kigumi.config.json',      // NEW: Preferred name
-      'kigumi-components.json',  // OLD: For backward compatibility
+      'kigumi.config.json', // NEW: Preferred name
+      'kigumi-components.json', // OLD: For backward compatibility
       'kigumi.json',
       '.kigumirc',
       '.kigumirc.json',

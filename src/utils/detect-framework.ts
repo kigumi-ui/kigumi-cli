@@ -13,7 +13,9 @@ export interface ProjectInfo {
 /**
  * Detect the framework used in the project
  */
-export async function detectFramework(cwd: string = process.cwd()): Promise<Framework> {
+export async function detectFramework(
+  cwd: string = process.cwd()
+): Promise<Framework> {
   const packageJsonPath = path.join(cwd, 'package.json');
 
   if (!(await fs.pathExists(packageJsonPath))) {
@@ -52,7 +54,9 @@ export async function detectFramework(cwd: string = process.cwd()): Promise<Fram
 /**
  * Detect if the project uses TypeScript
  */
-export async function detectTypeScript(cwd: string = process.cwd()): Promise<boolean> {
+export async function detectTypeScript(
+  cwd: string = process.cwd()
+): Promise<boolean> {
   const tsconfigPath = path.join(cwd, 'tsconfig.json');
   const packageJsonPath = path.join(cwd, 'package.json');
 
@@ -95,7 +99,9 @@ export async function detectPackageManager(
 /**
  * Get comprehensive project information
  */
-export async function getProjectInfo(cwd: string = process.cwd()): Promise<ProjectInfo> {
+export async function getProjectInfo(
+  cwd: string = process.cwd()
+): Promise<ProjectInfo> {
   const framework = await detectFramework(cwd);
   const typescript = await detectTypeScript(cwd);
   const packageManager = await detectPackageManager(cwd);

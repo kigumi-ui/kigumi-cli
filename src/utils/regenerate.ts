@@ -162,9 +162,12 @@ declare module 'react' {
 /**
  * Generate theme.css content
  */
-export async function generateThemeCSS(config: KigumiConfig, tierOverride?: Tier): Promise<string> {
+export async function generateThemeCSS(
+  config: KigumiConfig,
+  tierOverride?: Tier
+): Promise<string> {
   const { theme } = config;
-  
+
   // Detect tier from .env if not provided
   const tier = tierOverride || 'free'; // Will be determined by caller
   const packageName =
