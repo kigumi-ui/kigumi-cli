@@ -14,26 +14,28 @@ export const showCommand = new Command('show')
       process.exit(1);
     }
 
+    const { detectTier } = await import('../../utils/tier.js');
+    const tier = await detectTier(cwd);
+
     p.intro(pc.bgCyan(pc.black(' Current Theme Configuration ')));
 
     p.note(
       `Theme: ${pc.cyan(config.theme.selected)}\n` +
-      `Palette: ${pc.cyan(config.theme.palette)}\n` +
-      `Brand Color: ${pc.cyan(config.theme.brandColor)}\n` +
-      `Tier: ${pc.cyan(config.webAwesome?.tier || 'free')}`,
+        `Palette: ${pc.cyan(config.theme.palette)}\n` +
+        `Brand Color: ${pc.cyan(config.theme.brandColor)}\n` +
+        `Tier: ${pc.cyan(tier)}`,
       'Settings'
     );
 
     p.note(
       `wa-theme-${config.theme.selected}\n` +
-      `wa-palette-${config.theme.palette}\n` +
-      `wa-brand-${config.theme.brandColor}`,
+        `wa-palette-${config.theme.palette}\n` +
+        `wa-brand-${config.theme.brandColor}`,
       'HTML Classes'
     );
 
-    const packageName = config.webAwesome?.tier === 'pro'
-      ? '@awesome.me/webawesome-pro'
-      : '@awesome.me/webawesome';
+    const packageName =
+      tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
 
     if (config.theme.selected !== 'none') {
       p.note(
