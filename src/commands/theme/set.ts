@@ -1,3 +1,4 @@
+import type { KigumiConfig } from '../../schemas/config.js';
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
@@ -7,7 +8,11 @@ import {
   getAvailableThemes,
   isThemeAvailable,
 } from '../../utils/tier-restrictions.js';
-import { CheckRunner, ConfigExistsCheck, ConfigValidCheck } from '../../checks/index.js';
+import {
+  CheckRunner,
+  ConfigExistsCheck,
+  ConfigValidCheck,
+} from '../../checks/index.js';
 import { handleError } from '../../errors/index.js';
 
 export const setCommand = new Command('set')
@@ -18,11 +23,11 @@ export const setCommand = new Command('set')
 
     try {
       // 1. Load configuration (needed for checks)
-      let config: any;
+      let config: KigumiConfig | undefined;
       try {
         loadConfig(cwd);
         config = getConfig(cwd);
-      } catch (error) {
+      } catch {
         // Config loading failed - will be caught by checks
       }
 
@@ -39,12 +44,14 @@ export const setCommand = new Command('set')
         process.exit(1);
       }
 
-      // 3. Config is valid at this point (checks passed)
+      // Config must be loaded at this point (checks passed)
       if (!config) {
         throw new Error('Configuration not loaded despite passing checks');
       }
 
-      const tier = config.webAwesome?.tier || 'free';
+      // Detect tier from .env
+      const { detectTier } = await import('../../utils/tier.js');
+      const tier = await detectTier(cwd);
 
       // 4. Validate theme name
       if (!isThemeAvailable(themeName, tier)) {
@@ -100,15 +107,14 @@ export const setCommand = new Command('set')
 
       p.note(
         `Theme: ${pc.cyan(themeName)}\n\n` +
-        `HTML classes updated:\n` +
-        `  ${pc.green('wa-theme-' + config.theme.selected)}\n` +
-        `  ${pc.green('wa-palette-' + config.theme.palette)}\n` +
-        `  ${pc.green('wa-brand-' + config.theme.brandColor)}`,
+          `HTML classes updated:\n` +
+          `  ${pc.green('wa-theme-' + config.theme.selected)}\n` +
+          `  ${pc.green('wa-palette-' + config.theme.palette)}\n` +
+          `  ${pc.green('wa-brand-' + config.theme.brandColor)}`,
         'Theme Updated! 🎨'
       );
 
       p.outro(pc.green('Reload your browser to see changes'));
-
     } catch (error) {
       handleError(error);
     }

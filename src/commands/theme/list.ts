@@ -9,41 +9,46 @@ export const listCommand = new Command('list')
     p.intro(pc.bgCyan(pc.black(' Available Themes ')));
 
     const cwd = process.cwd();
-    const config = await loadConfig(cwd);
-    const tier = config?.webAwesome?.tier || 'free';
+    const _config = await loadConfig(cwd);
+    const { detectTier } = await import('../../utils/tier.js');
+    const tier = await detectTier(cwd);
 
     // Themes
     p.note(
       `${pc.cyan('Free:')}\n` +
-      `  - default (Recommended)\n` +
-      `  - awesome\n` +
-      `  - shoelace\n` +
-      `  - none (No theme, just base styles)\n` +
-      (tier === 'pro' ? `\n${pc.cyan('Pro:')}\n  - Additional themes available (check webawesome.com)` : ''),
+        `  - default (Recommended)\n` +
+        `  - awesome\n` +
+        `  - shoelace\n` +
+        `  - none (No theme, just base styles)\n` +
+        (tier === 'pro'
+          ? `\n${pc.cyan('Pro:')}\n  - Additional themes available (check webawesome.com)`
+          : ''),
       'Themes'
     );
 
     // Palettes
     p.note(
       `${pc.cyan('Free:')}\n` +
-      `  - default\n` +
-      (tier === 'pro' ? `\n${pc.cyan('Pro:')}\n  - Additional palettes available (check webawesome.com)` : ''),
+        `  - default\n` +
+        (tier === 'pro'
+          ? `\n${pc.cyan('Pro:')}\n  - Additional palettes available (check webawesome.com)`
+          : ''),
       'Color Palettes'
     );
 
     // Brand Colors
     p.note(
       `${pc.cyan('Available for all tiers:')}\n` +
-      `  - blue (Recommended)\n` +
-      `  - purple\n` +
-      `  - green\n` +
-      `  - red\n` +
-      `  - orange\n` +
-      `  - yellow\n` +
-      `  - cyan\n` +
-      `  - indigo\n` +
-      `  - pink\n` +
-      `  - gray`,
+        `  - blue (Recommended)\n` +
+        `  - purple\n` +
+        `  - green\n` +
+        `  - red\n` +
+        `  - orange\n` +
+        `  - yellow\n` +
+        `  - cyan\n` +
+        `  - indigo\n` +
+        `  - pink\n` +
+        `  - gray`,
       'Brand Colors'
     );
 
