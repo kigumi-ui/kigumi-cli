@@ -6,12 +6,11 @@
 
 import fs from 'fs-extra';
 import path from 'path';
-import { glob } from 'glob';
 import type { OutputInterface } from '../../output/types.js';
 
 /**
  * Migrate package references from Free to Pro
- * 
+ *
  * Replaces @awesome.me/webawesome → @awesome.me/webawesome-pro
  * in generated files only (not user components)
  */
@@ -35,7 +34,7 @@ export async function migratePackageReferences(
 
     for (const relativePath of filesToMigrate) {
       const filePath = path.join(cwd, relativePath);
-      
+
       if (!(await fs.pathExists(filePath))) {
         continue;
       }
@@ -54,13 +53,13 @@ export async function migratePackageReferences(
     }
 
     spinner.stop(`Migrated ${migratedCount} file(s)`);
-    
+
     if (migratedCount > 0) {
       output.success('Migration complete!');
       output.note(
         'Migrated files',
         'Package references updated from Free to Pro.\n' +
-        'User components were not modified.'
+          'User components were not modified.'
       );
     }
   } catch (error) {

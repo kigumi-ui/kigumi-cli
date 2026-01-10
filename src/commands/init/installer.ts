@@ -48,7 +48,9 @@ export async function installDependencies(
       const envPath = path.join(cwd, '.env');
       if (await fs.pathExists(envPath)) {
         const envContent = await fs.readFile(envPath, 'utf-8');
-        const tokenMatch = envContent.match(/^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m);
+        const tokenMatch = envContent.match(
+          /^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m
+        );
         if (tokenMatch && tokenMatch[1]) {
           env.WEBAWESOME_NPM_TOKEN = tokenMatch[1].trim();
           output.log(`[DEBUG] Loaded WEBAWESOME_NPM_TOKEN from .env`);
@@ -72,14 +74,31 @@ export async function installDependencies(
   } catch (error) {
     spinner.error('Installation failed');
 
-    const execaError = error as any;
-    const statusCode = execaError.exitCode;
+    // Type guard for execa error
+    if (
+      error &&
+      typeof error === 'object' &&
+      'exitCode' in error &&
+      'stderr' in error
+    ) {
+      const execaError = error as {
+        exitCode?: number;
+        stderr?: string;
+        stdout?: string;
+      };
+
+      throw new DependencyInstallError(
+        'dependencies',
+        packageManager,
+        execaError as Error,
+        execaError.exitCode
+      );
+    }
 
     throw new DependencyInstallError(
       'dependencies',
       packageManager,
-      error as Error,
-      statusCode
+      error as Error
     );
   }
 }
