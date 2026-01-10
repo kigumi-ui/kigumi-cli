@@ -6,7 +6,11 @@
 
 import * as p from '@clack/prompts';
 import type { OutputInterface } from '../../output/types.js';
-import type { InitOptions, KigumiConfig } from '../../schemas/index.js';
+import type {
+  InitOptions,
+  KigumiConfig,
+  Framework,
+} from '../../schemas/index.js';
 import type { ProjectInfo } from '../../utils/detect-framework.js';
 import { detectTierSync } from '../../utils/tier.js';
 import {
@@ -27,13 +31,13 @@ export async function buildConfigNonInteractive(
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
   const framework = options.framework || projectInfo.framework;
   const typescript = options.typescript ?? projectInfo.typescript;
-  
+
   // Token provided via CLI flag (will be written to .env later)
   const proToken = options.token;
-  
+
   // Determine tier: Pro if token provided, otherwise detect from .env
   const tier = proToken ? 'pro' : detectTierSync(cwd);
-  
+
   const theme = options.theme || 'default';
   const palette = options.palette || 'default';
   const brandColor = options.brand || options.brandColor || 'blue';
@@ -46,7 +50,7 @@ export async function buildConfigNonInteractive(
   output.info(`Brand Color: ${brandColor}`);
 
   const config: KigumiConfig = {
-    framework: framework as any,
+    framework: framework as Framework,
     typescript,
     componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
     utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
@@ -112,7 +116,7 @@ export async function buildConfigInteractive(
 
   // Pro Token (optional - if provided, enables Pro tier)
   let proToken = options.token;
-  
+
   if (!proToken && detectedTier === 'free') {
     // Offer to enter Pro token
     const wantsPro = await p.confirm({
@@ -197,7 +201,7 @@ export async function buildConfigInteractive(
   }
 
   const config: KigumiConfig = {
-    framework: framework as any,
+    framework: framework as Framework,
     typescript: typescript as boolean,
     componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
     utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,

@@ -40,13 +40,16 @@ export async function handleExistingConfig(
     return null;
   }
 
+  const { detectTier } = await import('../../utils/tier.js');
+  const tier = await detectTier(cwd);
+
   // Show existing config
   output.note(
     'Current Configuration',
     `Framework: ${existingConfig.framework}\n` +
-    `TypeScript: ${existingConfig.typescript}\n` +
-    `Tier: ${existingConfig.webAwesome?.tier || 'free'}\n` +
-    `Theme: ${existingConfig.theme.selected}`
+      `TypeScript: ${existingConfig.typescript}\n` +
+      `Tier: ${tier}\n` +
+      `Theme: ${existingConfig.theme.selected}`
   );
 
   // In force mode (non-interactive), automatically update
@@ -59,8 +62,16 @@ export async function handleExistingConfig(
   const action = await p.select({
     message: 'Configuration already exists. What would you like to do?',
     options: [
-      { value: 'update', label: 'Update configuration', hint: 'Modify settings' },
-      { value: 'reinstall', label: 'Reinstall dependencies only', hint: 'Keep config, reinstall packages' },
+      {
+        value: 'update',
+        label: 'Update configuration',
+        hint: 'Modify settings',
+      },
+      {
+        value: 'reinstall',
+        label: 'Reinstall dependencies only',
+        hint: 'Keep config, reinstall packages',
+      },
       { value: 'cancel', label: 'Cancel', hint: 'Exit without changes' },
     ],
   });

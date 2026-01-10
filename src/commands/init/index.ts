@@ -11,7 +11,10 @@ import { CheckRunner, PackageJsonExistsCheck } from '../../checks/index.js';
 import { handleError } from '../../errors/index.js';
 import { validators, type InitOptions } from '../../schemas/index.js';
 import { handleExistingConfig } from './existing-config.js';
-import { buildConfigInteractive, buildConfigNonInteractive } from './config-builder.js';
+import {
+  buildConfigInteractive,
+  buildConfigNonInteractive,
+} from './config-builder.js';
 import { installDependencies } from './installer.js';
 import { generateProjectFiles } from './file-generator.js';
 import { getProjectInfo } from '../../utils/detect-framework.js';
@@ -35,8 +38,7 @@ export async function initCommand(options: InitOptions = {}) {
     const validatedOptions = validators.init(options);
 
     // 2. Pre-flight checks
-    const checker = new CheckRunner()
-      .add(new PackageJsonExistsCheck());
+    const checker = new CheckRunner().add(new PackageJsonExistsCheck());
 
     const checkResults = await checker.run({ cwd });
     if (checker.hasErrors(checkResults)) {
@@ -50,12 +52,15 @@ export async function initCommand(options: InitOptions = {}) {
 
     // 4. Determine if running in non-interactive mode
     const isNonInteractive =
-      validatedOptions.framework &&
-      validatedOptions.theme;
+      validatedOptions.framework && validatedOptions.theme;
 
     // 5. Check for existing config
     const existingConfig = loadConfig(cwd);
-    const existingAction = await handleExistingConfig(cwd, output, isNonInteractive);
+    const existingAction = await handleExistingConfig(
+      cwd,
+      output,
+      Boolean(isNonInteractive)
+    );
     if (existingAction === 'cancel') {
       output.outro('Cancelled');
       process.exit(0);
@@ -63,11 +68,21 @@ export async function initCommand(options: InitOptions = {}) {
 
     // 6. Detect tier BEFORE building config (from .env)
     const previousTier = existingConfig ? await detectTier(cwd) : 'free';
-    
+
     // 7. Build configuration (interactive or non-interactive)
     const { config, proToken } = isNonInteractive
-      ? await buildConfigNonInteractive(validatedOptions, projectInfo, cwd, output)
-      : await buildConfigInteractive(validatedOptions, projectInfo, cwd, output);
+      ? await buildConfigNonInteractive(
+          validatedOptions,
+          projectInfo,
+          cwd,
+          output
+        )
+      : await buildConfigInteractive(
+          validatedOptions,
+          projectInfo,
+          cwd,
+          output
+        );
 
     // 8. Detect NEW tier (after potential token was added)
     const newTier = proToken ? 'pro' : await detectTier(cwd);
@@ -75,20 +90,20 @@ export async function initCommand(options: InitOptions = {}) {
     // 9. Check for Free → Pro migration
     if (existingConfig && previousTier === 'free' && newTier === 'pro') {
       output.info('Pro token detected - migration available');
-      
+
       // Non-interactive mode: auto-migrate
       // Interactive mode: ask user
-      let shouldMigrate = isNonInteractive;
-      
+      let shouldMigrate = Boolean(isNonInteractive);
+
       if (!isNonInteractive) {
-        shouldMigrate = (await p.confirm({
+        const confirmResult = await p.confirm({
           message: 'Migrate existing components from Free to Pro package?',
           initialValue: true,
-        })) as boolean;
+        });
 
-        if (p.isCancel(shouldMigrate)) {
-          shouldMigrate = false;
-        }
+        shouldMigrate = p.isCancel(confirmResult)
+          ? false
+          : Boolean(confirmResult);
       }
 
       if (shouldMigrate) {
@@ -111,7 +126,7 @@ export async function initCommand(options: InitOptions = {}) {
 
     // 12. Ask about installation (non-interactive always installs)
     let shouldInstall = true;
-    
+
     if (!isNonInteractive) {
       shouldInstall = (await p.confirm({
         message: 'Install dependencies now?',
@@ -136,24 +151,23 @@ export async function initCommand(options: InitOptions = {}) {
 
     // 14. Success
     output.outro('✓ Initialization complete!');
-    
+
     if (!shouldInstall) {
       output.note(
         'Next steps',
         `1. Run: ${projectInfo.packageManager} install\n` +
-        `2. Configure path aliases (see README.md)\n` +
-        `3. Add import '@/lib/webawesome' to your main file\n` +
-        `4. Run: kigumi add button`
+          `2. Configure path aliases (see README.md)\n` +
+          `3. Add import '@/lib/webawesome' to your main file\n` +
+          `4. Run: kigumi add button`
       );
     } else {
       output.note(
         'Next steps',
         `1. Configure path aliases (see README.md)\n` +
-        `2. Add import '@/lib/webawesome' to your main file\n` +
-        `3. Run: kigumi add button`
+          `2. Add import '@/lib/webawesome' to your main file\n` +
+          `3. Run: kigumi add button`
       );
     }
-
   } catch (error) {
     handleError(error, output);
   }

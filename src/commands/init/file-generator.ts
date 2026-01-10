@@ -118,13 +118,13 @@ async function ensureEnvFile(
   // Check if .env already exists
   if (await fs.pathExists(envPath)) {
     output.log(`[DEBUG] .env already exists, checking for token`);
-    
+
     const content = await fs.readFile(envPath, 'utf-8');
-    
+
     // Check if WEBAWESOME_NPM_TOKEN already exists
     const tokenRegex = /^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m;
     const match = content.match(tokenRegex);
-    
+
     if (match) {
       // Token exists - don't overwrite
       output.log(`[DEBUG] WEBAWESOME_NPM_TOKEN already set in .env`);
@@ -149,17 +149,17 @@ WEBAWESOME_NPM_TOKEN=${token}
 
 /**
  * Generate .npmrc file
- * 
+ *
  * IMPORTANT: Both tiers need .npmrc to override potential global ~/.npmrc
- * 
+ *
  * Pro tier: Points to private Cloudsmith registry with auth
  * Free tier: Explicitly use public npm registry (overrides global config)
  */
 async function generateNpmrc(cwd: string, tier: Tier): Promise<void> {
   const npmrcPath = path.join(cwd, '.npmrc');
-  
+
   let npmrcContent: string;
-  
+
   if (tier === 'pro') {
     npmrcContent = `@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro
 //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=\${WEBAWESOME_NPM_TOKEN}
