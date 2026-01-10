@@ -23,7 +23,7 @@ export async function selectComponents(
   components: string[],
   options: AddOptions,
   tier: 'free' | 'pro',
-  output: OutputInterface
+  _output: OutputInterface
 ): Promise<string[]> {
   // All components mode
   if (options.all) {
@@ -44,7 +44,7 @@ export async function selectComponents(
  */
 function getAllAvailableComponents(tier: 'free' | 'pro'): string[] {
   const allComponents = getAllComponents();
-  return Object.keys(allComponents).filter(key =>
+  return Object.keys(allComponents).filter((key) =>
     isComponentAvailable(key, tier)
   );
 }
@@ -52,7 +52,9 @@ function getAllAvailableComponents(tier: 'free' | 'pro'): string[] {
 /**
  * Interactive component selection
  */
-async function selectComponentsInteractive(tier: 'free' | 'pro'): Promise<string[]> {
+async function selectComponentsInteractive(
+  tier: 'free' | 'pro'
+): Promise<string[]> {
   const allComponents = getAllComponents();
 
   const choices = Object.entries(allComponents)
