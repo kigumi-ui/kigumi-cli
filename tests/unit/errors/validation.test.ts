@@ -43,13 +43,21 @@ describe('ValidationError', () => {
 
 describe('InvalidFrameworkError', () => {
   it('should create error with framework details', () => {
-    const error = new InvalidFrameworkError('ember', ['react', 'vue', 'svelte']);
+    const error = new InvalidFrameworkError('ember', [
+      'react',
+      'vue',
+      'svelte',
+    ]);
 
     expect(error.code).toBe(ErrorCode.INVALID_FRAMEWORK);
     expect(error.exitCode).toBe(2);
     expect(error.message).toContain('ember');
     expect(error.context.details?.framework).toBe('ember');
-    expect(error.context.details?.supportedFrameworks).toEqual(['react', 'vue', 'svelte']);
+    expect(error.context.details?.supportedFrameworks).toEqual([
+      'react',
+      'vue',
+      'svelte',
+    ]);
   });
 
   it('should list supported frameworks in suggestions', () => {
@@ -63,13 +71,19 @@ describe('InvalidFrameworkError', () => {
 
 describe('InvalidComponentError', () => {
   it('should create error with component name', () => {
-    const error = new InvalidComponentError('invalid-component', ['button', 'input']);
+    const error = new InvalidComponentError('invalid-component', [
+      'button',
+      'input',
+    ]);
 
     expect(error.code).toBe(ErrorCode.INVALID_COMPONENT);
     expect(error.exitCode).toBe(2);
     expect(error.message).toContain('invalid-component');
     expect(error.context.details?.componentName).toBe('invalid-component');
-    expect(error.context.details?.availableComponents).toEqual(['button', 'input']);
+    expect(error.context.details?.availableComponents).toEqual([
+      'button',
+      'input',
+    ]);
   });
 
   it('should list available components', () => {
@@ -91,17 +105,28 @@ describe('InvalidComponentError', () => {
 
 describe('InvalidThemeError', () => {
   it('should create error with theme and tier info', () => {
-    const error = new InvalidThemeError('custom', ['default', 'awesome'], 'free');
+    const error = new InvalidThemeError(
+      'custom',
+      ['default', 'awesome'],
+      'free'
+    );
 
     expect(error.code).toBe(ErrorCode.INVALID_THEME);
     expect(error.exitCode).toBe(2);
     expect(error.context.details?.theme).toBe('custom');
-    expect(error.context.details?.availableThemes).toEqual(['default', 'awesome']);
+    expect(error.context.details?.availableThemes).toEqual([
+      'default',
+      'awesome',
+    ]);
     expect(error.context.details?.tier).toBe('free');
   });
 
   it('should list available themes for tier', () => {
-    const error = new InvalidThemeError('custom', ['default', 'awesome'], 'free');
+    const error = new InvalidThemeError(
+      'custom',
+      ['default', 'awesome'],
+      'free'
+    );
 
     const suggestions = error.formatSuggestions();
     expect(suggestions).toContain('free tier');
@@ -117,7 +142,10 @@ describe('InvalidPaletteError', () => {
     expect(error.code).toBe(ErrorCode.INVALID_PALETTE);
     expect(error.exitCode).toBe(2);
     expect(error.context.details?.palette).toBe('custom');
-    expect(error.context.details?.availablePalettes).toEqual(['default', 'bright']);
+    expect(error.context.details?.availablePalettes).toEqual([
+      'default',
+      'bright',
+    ]);
   });
 
   it('should list available palettes', () => {

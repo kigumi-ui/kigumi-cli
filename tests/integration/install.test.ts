@@ -95,7 +95,9 @@ describe('Install Command Integration', () => {
 
       const tier = config.webAwesome?.tier || 'free';
       const packageName =
-        tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+        tier === 'pro'
+          ? '@awesome.me/webawesome-pro'
+          : '@awesome.me/webawesome';
 
       expect(packageName).toBe('@awesome.me/webawesome');
     });
@@ -118,7 +120,9 @@ describe('Install Command Integration', () => {
 
       const tier = config.webAwesome?.tier || 'free';
       const packageName =
-        tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+        tier === 'pro'
+          ? '@awesome.me/webawesome-pro'
+          : '@awesome.me/webawesome';
 
       expect(packageName).toBe('@awesome.me/webawesome-pro');
     });
@@ -242,7 +246,10 @@ WEBAWESOME_NPM_TOKEN=test-token-12345
       await fs.writeJson(path.join(projectDir, 'package.json'), {
         name: 'test',
       });
-      await fs.writeFile(path.join(projectDir, 'pnpm-lock.yaml'), 'lockfileVersion: 5.4');
+      await fs.writeFile(
+        path.join(projectDir, 'pnpm-lock.yaml'),
+        'lockfileVersion: 5.4'
+      );
 
       const hasPnpmLock = await fs.pathExists(
         path.join(projectDir, 'pnpm-lock.yaml')
@@ -257,7 +264,10 @@ WEBAWESOME_NPM_TOKEN=test-token-12345
       await fs.writeJson(path.join(projectDir, 'package.json'), {
         name: 'test',
       });
-      await fs.writeFile(path.join(projectDir, 'yarn.lock'), '# yarn lockfile v1');
+      await fs.writeFile(
+        path.join(projectDir, 'yarn.lock'),
+        '# yarn lockfile v1'
+      );
 
       const hasYarnLock = await fs.pathExists(
         path.join(projectDir, 'yarn.lock')

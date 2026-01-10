@@ -78,7 +78,6 @@ describe('themeConfigSchema', () => {
 describe('webAwesomeConfigSchema', () => {
   it('should accept valid config', () => {
     const config = {
-      tier: 'free' as const,
       version: '^3.1.0',
     };
 
@@ -88,9 +87,7 @@ describe('webAwesomeConfigSchema', () => {
 
   it('should accept optional fields', () => {
     const config = {
-      tier: 'pro' as const,
       version: '^3.1.0',
-      tokenEnvVar: 'WA_TOKEN',
       cdnUrl: 'https://cdn.example.com',
     };
 
@@ -101,7 +98,6 @@ describe('webAwesomeConfigSchema', () => {
   it('should reject invalid URL', () => {
     expect(() =>
       webAwesomeConfigSchema.parse({
-        tier: 'pro',
         cdnUrl: 'not-a-url',
       })
     ).toThrow(/Must be a valid URL/);
@@ -124,7 +120,6 @@ describe('kigumiConfigSchema', () => {
         '@/components': './src/components',
       },
       webAwesome: {
-        tier: 'free',
         version: '^3.1.0',
       },
     };

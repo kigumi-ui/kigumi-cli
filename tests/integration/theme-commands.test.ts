@@ -46,9 +46,6 @@ describe('Theme Commands Integration', () => {
           palette: 'default',
           brandColor: 'blue',
         },
-        webAwesome: {
-          tier: 'free',
-        },
       };
 
       await saveConfig(config, projectDir);
@@ -104,7 +101,9 @@ describe('Theme Commands Integration', () => {
         path.join(projectDir, 'src/lib/webawesome.ts'),
         'utf-8'
       );
-      expect(content).toContain("import '@awesome.me/webawesome/dist/styles/themes/awesome.css'");
+      expect(content).toContain(
+        "import '@awesome.me/webawesome/dist/styles/themes/awesome.css'"
+      );
     });
 
     it('should list available themes for free tier', () => {
@@ -138,9 +137,6 @@ describe('Theme Commands Integration', () => {
           selected: 'default',
           palette: 'default',
           brandColor: 'blue',
-        },
-        webAwesome: {
-          tier: 'free',
         },
       };
 
@@ -210,9 +206,6 @@ describe('Theme Commands Integration', () => {
           palette: 'default',
           brandColor: 'blue',
         },
-        webAwesome: {
-          tier: 'free',
-        },
       };
 
       await saveConfig(config, projectDir);
@@ -269,8 +262,19 @@ describe('Theme Commands Integration', () => {
         'gray',
       ];
 
-      brandColors.forEach(color => {
-        expect(['blue', 'purple', 'green', 'red', 'orange', 'yellow', 'cyan', 'indigo', 'pink', 'gray']).toContain(color);
+      brandColors.forEach((color) => {
+        expect([
+          'blue',
+          'purple',
+          'green',
+          'red',
+          'orange',
+          'yellow',
+          'cyan',
+          'indigo',
+          'pink',
+          'gray',
+        ]).toContain(color);
       });
     });
   });
@@ -290,9 +294,6 @@ describe('Theme Commands Integration', () => {
           selected: 'default',
           palette: 'default',
           brandColor: 'blue',
-        },
-        webAwesome: {
-          tier: 'free',
         },
       };
 

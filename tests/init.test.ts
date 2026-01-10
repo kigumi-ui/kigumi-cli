@@ -44,13 +44,21 @@ describe('init command flow', () => {
         },
       };
 
-      await fs.writeJson(path.join(projectDir, 'kigumi-components.json'), config, { spaces: 2 });
+      await fs.writeJson(
+        path.join(projectDir, 'kigumi-components.json'),
+        config,
+        { spaces: 2 }
+      );
 
       // Verify file exists
-      const configExists = await fs.pathExists(path.join(projectDir, 'kigumi-components.json'));
+      const configExists = await fs.pathExists(
+        path.join(projectDir, 'kigumi-components.json')
+      );
       expect(configExists).toBe(true);
 
-      const savedConfig = await fs.readJson(path.join(projectDir, 'kigumi-components.json'));
+      const savedConfig = await fs.readJson(
+        path.join(projectDir, 'kigumi-components.json')
+      );
       expect(savedConfig.webAwesome.tier).toBe('free');
       expect(savedConfig.theme.selected).toBe('default');
       expect(savedConfig.theme.cssVars).toBeUndefined(); // cssVars should NOT exist
@@ -64,7 +72,10 @@ describe('init command flow', () => {
         webAwesome: { tier: 'free' },
       };
 
-      await fs.writeJson(path.join(projectDir, 'kigumi-components.json'), config);
+      await fs.writeJson(
+        path.join(projectDir, 'kigumi-components.json'),
+        config
+      );
 
       // .env should NOT exist for free tier
       const envExists = await fs.pathExists(path.join(projectDir, '.env'));
@@ -115,12 +126,20 @@ describe('init command flow', () => {
         },
       };
 
-      await fs.writeJson(path.join(projectDir, 'kigumi-components.json'), existingConfig, { spaces: 2 });
+      await fs.writeJson(
+        path.join(projectDir, 'kigumi-components.json'),
+        existingConfig,
+        { spaces: 2 }
+      );
 
-      const configExists = await fs.pathExists(path.join(projectDir, 'kigumi-components.json'));
+      const configExists = await fs.pathExists(
+        path.join(projectDir, 'kigumi-components.json')
+      );
       expect(configExists).toBe(true);
 
-      const config = await fs.readJson(path.join(projectDir, 'kigumi-components.json'));
+      const config = await fs.readJson(
+        path.join(projectDir, 'kigumi-components.json')
+      );
       expect(config.theme.selected).toBe('awesome');
       expect(config.theme.brandColor).toBe('purple');
     });
@@ -135,15 +154,22 @@ describe('init command flow', () => {
         theme: { selected: 'default' },
       };
 
-      await fs.writeJson(path.join(projectDir, 'kigumi-components.json'), config);
+      await fs.writeJson(
+        path.join(projectDir, 'kigumi-components.json'),
+        config
+      );
 
-      const configExists = await fs.pathExists(path.join(projectDir, 'kigumi-components.json'));
+      const configExists = await fs.pathExists(
+        path.join(projectDir, 'kigumi-components.json')
+      );
       const envExists = await fs.pathExists(path.join(projectDir, '.env'));
 
       expect(configExists).toBe(true);
       expect(envExists).toBe(false);
 
-      const savedConfig = await fs.readJson(path.join(projectDir, 'kigumi-components.json'));
+      const savedConfig = await fs.readJson(
+        path.join(projectDir, 'kigumi-components.json')
+      );
       const isPro = savedConfig.webAwesome.tier === 'pro';
       const missingEnv = isPro && !envExists;
 
@@ -172,10 +198,16 @@ describe('init command flow', () => {
         },
       };
 
-      await fs.writeJson(path.join(projectDir, 'kigumi-components.json'), originalConfig, { spaces: 2 });
+      await fs.writeJson(
+        path.join(projectDir, 'kigumi-components.json'),
+        originalConfig,
+        { spaces: 2 }
+      );
 
       // Simulate reinstall (config should remain unchanged)
-      const configAfterReinstall = await fs.readJson(path.join(projectDir, 'kigumi-components.json'));
+      const configAfterReinstall = await fs.readJson(
+        path.join(projectDir, 'kigumi-components.json')
+      );
 
       expect(configAfterReinstall.theme.selected).toBe('shoelace');
       expect(configAfterReinstall.theme.brandColor).toBe('green');
