@@ -91,67 +91,36 @@ export {};
  * Generate vite-env.d.ts with Web Awesome custom element type definitions
  *
  * This file extends React's JSX.IntrinsicElements to include wa-* custom elements,
- * fixing TypeScript errors when using Web Awesome components in React.
+ * using the official types from the Web Awesome package.
  *
  * See: https://webawesome.com/docs/#react-users
  */
 export async function generateViteEnvDts(
   cwd: string,
-  srcDir: string
+  srcDir: string,
+  waPackage: string = '@awesome.me/webawesome'
 ): Promise<void> {
   const viteEnvContent = `/// <reference types="vite/client" />
 
-import 'react';
+/**
+ * Web Awesome JSX Types
+ *
+ * This extends React's JSX.IntrinsicElements with Web Awesome custom elements.
+ * Uses the official types from the ${waPackage} package.
+ *
+ * @see https://webawesome.com/docs/#react-users
+ */
+
+import type {
+  CustomElements,
+  CustomCssProperties,
+} from '${waPackage}/dist/custom-elements-jsx.d.ts';
 
 declare module 'react' {
   namespace JSX {
-    interface IntrinsicElements {
-      'wa-button': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        class?: string;
-        variant?: string;
-        appearance?: string;
-        size?: string;
-        pill?: boolean;
-        disabled?: boolean;
-        loading?: boolean;
-        'with-caret'?: boolean;
-        href?: string;
-        target?: string;
-        download?: string;
-        rel?: string;
-        'data-dialog'?: string;
-      };
-      'wa-input': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        class?: string;
-        type?: string;
-        label?: string;
-        hint?: string;
-        placeholder?: string;
-        value?: string;
-        appearance?: string;
-        size?: string;
-        pill?: boolean;
-        disabled?: boolean;
-        'with-clear'?: boolean;
-        'password-toggle'?: boolean;
-      };
-      'wa-card': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        class?: string;
-        appearance?: string;
-        orientation?: string;
-        'with-header'?: boolean;
-        'with-footer'?: boolean;
-        'with-media'?: boolean;
-      };
-      'wa-dialog': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
-        class?: string;
-        open?: boolean;
-        label?: string;
-        'without-header'?: boolean;
-        'light-dismiss'?: boolean;
-      };
-    }
+    interface IntrinsicElements extends CustomElements {}
   }
+  interface CSSProperties extends CustomCssProperties {}
 }
 `;
 

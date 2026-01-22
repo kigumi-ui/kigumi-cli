@@ -161,7 +161,14 @@ export class ReactPlugin implements FrameworkPlugin {
     await regenerateWebAwesomeSetup(cwd, config, config.utilsDir || 'src/lib');
 
     if (config.typescript) {
-      await generateViteEnvDts(cwd, 'src');
+      // Detect tier from .env or default to free
+      const { detectTier } = await import('../../utils/tier.js');
+      const tier = await detectTier(cwd);
+      const waPackage =
+        tier === 'pro'
+          ? '@awesome.me/webawesome-pro'
+          : '@awesome.me/webawesome';
+      await generateViteEnvDts(cwd, 'src', waPackage);
     }
 
     // Return empty array since files are written directly

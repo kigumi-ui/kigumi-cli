@@ -62,7 +62,6 @@ export class VuePlugin implements FrameworkPlugin {
     _component: ComponentDefinition,
     _options: GenerateOptions
   ): Promise<GeneratedFile[]> {
-    // TODO: Implement Vue component generation
     throw new Error(
       'Vue component generation is not yet implemented. Coming soon!'
     );
@@ -72,7 +71,6 @@ export class VuePlugin implements FrameworkPlugin {
     _cwd: string,
     _config: KigumiConfig
   ): Promise<GeneratedFile[]> {
-    // TODO: Implement Vue setup files
     throw new Error('Vue setup files are not yet implemented. Coming soon!');
   }
 

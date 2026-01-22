@@ -15,6 +15,11 @@ import {
 } from '../../utils/regenerate.js';
 import fs from 'fs-extra';
 import path from 'path';
+import Handlebars from 'handlebars';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface FileGenerationOptions {
   cwd: string;
@@ -69,9 +74,11 @@ export async function generateProjectFiles(
     // 4. Generate vite-env.d.ts (TypeScript + React)
     if (config.typescript && config.framework === 'react') {
       spinner.message('Generating vite-env.d.ts...');
-      output.log(`[DEBUG] Generating vite-env.d.ts`);
-      await generateViteEnvDts(cwd, 'src');
-      output.log(`[DEBUG] ✓ vite-env.d.ts generated`);
+      const waPackage =
+        tier === 'pro'
+          ? '@awesome.me/webawesome-pro'
+          : '@awesome.me/webawesome';
+      await generateViteEnvDts(cwd, 'src', waPackage);
     }
 
     // 5. Generate/update .gitignore
@@ -93,6 +100,26 @@ export async function generateProjectFiles(
     output.log(`[DEBUG] Generating .npmrc`);
     await generateNpmrc(cwd, tier);
     output.log(`[DEBUG] ✓ .npmrc generated`);
+
+    // 9. Configure path aliases and TypeScript compatibility
+    if (config.framework === 'react') {
+      spinner.message('Configuring project...');
+
+      const { configureVitePathAliases, configureTSConfig } =
+        await import('../../utils/project-config.js');
+
+      await configureVitePathAliases(cwd, output);
+
+      if (config.typescript) {
+        await configureTSConfig(cwd, output);
+      }
+    }
+
+    // 10. Generate KIGUMI_SETUP.md
+    spinner.message('Generating setup instructions...');
+    output.log(`[DEBUG] Generating KIGUMI_SETUP.md`);
+    await generateSetupInstructions(cwd, config, tier);
+    output.log(`[DEBUG] ✓ KIGUMI_SETUP.md generated`);
 
     spinner.stop('Project files generated');
   } catch (error) {
@@ -172,4 +199,40 @@ async function generateNpmrc(cwd: string, tier: Tier): Promise<void> {
   }
 
   await fs.writeFile(npmrcPath, npmrcContent);
+}
+
+/**
+ * Generate KIGUMI_SETUP.md with setup instructions
+ */
+async function generateSetupInstructions(
+  cwd: string,
+  config: KigumiConfig,
+  tier: Tier
+): Promise<void> {
+  // Get template path
+  const templatePath = path.join(
+    __dirname,
+    '../../../templates/react/KIGUMI_SETUP.md.hbs'
+  );
+
+  if (!(await fs.pathExists(templatePath))) {
+    // Template not found, skip generation
+    return;
+  }
+
+  const templateContent = await fs.readFile(templatePath, 'utf-8');
+  const template = Handlebars.compile(templateContent);
+
+  const waPackage =
+    tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+
+  const data = {
+    waPackage,
+    theme: config.theme.selected,
+    componentsDir: config.componentsDir || 'src/components/ui',
+    version: '0.2.0', // TODO: Get from package.json
+  };
+
+  const output = template(data);
+  await fs.writeFile(path.join(cwd, 'KIGUMI_SETUP.md'), output);
 }
