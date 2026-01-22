@@ -26,39 +26,7 @@ cd my-app
 npm install
 ```
 
-#### 2. Configure Path Aliases
-
-**`tsconfig.json`** or **`tsconfig.app.json`** (TypeScript) / **`jsconfig.json`** (JavaScript):
-
-```json
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
-}
-```
-
-**`vite.config.ts`** (or `.js`):
-
-```ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-});
-```
-
-#### 3. Initialize Kigumi
+#### 2. Initialize Kigumi
 
 **Free Tier**:
 
@@ -83,12 +51,13 @@ npx kigumi init --framework=react --theme=brutalist --token=YOUR_PRO_TOKEN
 - ✅ Creates `kigumi.config.json`
 - ✅ Generates `src/lib/webawesome.ts` (theme setup)
 - ✅ Generates `src/styles/theme.css` (customization)
+- ✅ **Configures path aliases automatically** (`vite.config.ts` + `tsconfig.app.json`)
 - ✅ Creates `.env` (Pro only, with token)
 - ✅ Creates `.npmrc` (registry configuration)
-- ✅ Installs Web Awesome package automatically
+- ✅ Installs Web Awesome package + `@types/react` (TypeScript)
 - ✅ Generates TypeScript definitions (if TypeScript)
 
-#### 4. Import Web Awesome
+#### 3. Import Web Awesome
 
 **`src/main.tsx`** (or `main.jsx`):
 
@@ -100,7 +69,7 @@ import '@/lib/webawesome'; // Add this line
 createRoot(document.getElementById('root')!).render(<App />);
 ```
 
-#### 5. Add Components
+#### 4. Add Components
 
 ```bash
 # Add single component
@@ -206,9 +175,9 @@ npx kigumi brand green
 
 | Theme     | Tier | Style               |
 | --------- | ---- | ------------------- |
-| awesome   | Both | Web Awesome default |
-| light     | Both | Light & clean       |
-| dark      | Both | Dark mode           |
+| awesome   | Free | Web Awesome default |
+| default   | Free | Default theme       |
+| shoelace  | Free | Shoelace theme      |
 | brutalist | Pro  | Bold & raw          |
 | material  | Pro  | Material Design     |
 | ios       | Pro  | iOS style           |
@@ -217,6 +186,8 @@ npx kigumi brand green
 | neon      | Pro  | Neon glow           |
 | coffee    | Pro  | Warm coffee tones   |
 | ocean     | Pro  | Ocean blues         |
+
+> **Note**: Pro tier themes are listed in `src/utils/tier-restrictions.ts` but may not all be available in the actual package yet.
 
 **Available Palettes**: default, bright, subdued, high-contrast, low-contrast, warm, cool, rudimentary, vivid (all available for both tiers)
 
@@ -345,7 +316,13 @@ This ensures all committed code meets quality standards.
 
 ### "Failed to resolve import @/lib/webawesome"
 
-Configure path aliases in `vite.config.ts` and `tsconfig.json` (see Quick Start step 2).
+With CLI v0.2.0+, path aliases are configured automatically for Vite projects.
+
+If you still see this error:
+
+1. Verify `vite.config.ts` has `resolve.alias['@']`
+2. Verify `tsconfig.app.json` has `paths["@/*"]`
+3. Re-run `npx kigumi init` (safe, won't break existing setup)
 
 ### "401 Unauthorized" when installing Pro
 
