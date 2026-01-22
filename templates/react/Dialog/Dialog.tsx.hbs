@@ -1,4 +1,4 @@
-import React from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Dialog.css';
@@ -9,7 +9,8 @@ import './Dialog.css';
  * @example
  * ```tsx
  * // Using ref methods
- * const dialogRef = React.useRef<DialogRef>(null);
+ * import { useRef } from 'react';
+ * const dialogRef = useRef<DialogRef>(null);
  * <Dialog ref={dialogRef} label="Dialog Title">
  *   <p>Dialog content</p>
  *   <div slot="footer">
@@ -19,13 +20,14 @@ import './Dialog.css';
  * dialogRef.current?.show();
  *
  * // Using open prop (recommended)
- * const [open, setOpen] = React.useState(false);
+ * import { useState } from 'react';
+ * const [open, setOpen] = useState(false);
  * <Dialog open={open} label="Dialog Title" onWaHide={() => setOpen(false)}>
  *   <p>Dialog content</p>
  * </Dialog>
  * ```
  */
-export interface DialogProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onLoad'> {
+export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad'> {
   /** Indicates whether or not the dialog is open */
   open?: boolean;
   /** The dialog's label as displayed in the header */
@@ -51,11 +53,14 @@ export interface DialogRef {
   element: HTMLElement | null;
 }
 
-export const Dialog = React.forwardRef<DialogRef, DialogProps>(
+export const Dialog = forwardRef<DialogRef, DialogProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const dialogRef = React.useRef<any>(null);
+    const dialogRef = useRef<HTMLElement & {
+      show?: () => void;
+      requestClose?: () => void;
+    }>(null);
 
-    React.useImperativeHandle(
+    useImperativeHandle(
       ref,
       () => ({
         show: () => {
@@ -82,7 +87,7 @@ export const Dialog = React.forwardRef<DialogRef, DialogProps>(
     );
 
     // Setup event listeners
-    React.useEffect(() => {
+    useEffect(() => {
       const el = dialogRef.current;
       if (!el) return;
 

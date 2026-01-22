@@ -1,4 +1,4 @@
-import React from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Card.css';
@@ -15,7 +15,7 @@ import './Card.css';
  * </Card>
  * ```
  */
-export interface CardProps extends React.HTMLAttributes<HTMLElement> {
+export interface CardProps extends HTMLAttributes<HTMLElement> {
   /** Visual appearance style */
   appearance?: 'outlined' | 'filled-outlined' | 'plain' | 'filled' | 'accent';
   /** Card layout orientation */
@@ -28,7 +28,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLElement> {
   'with-media'?: boolean;
 }
 
-export const Card = React.forwardRef<HTMLElement, CardProps>(
+export const Card = forwardRef<HTMLElement, CardProps>(
   ({ children, className, ...props }, ref) => {
     return (
       <wa-card ref={ref} class={clsx('Card', className)} {...props}>
