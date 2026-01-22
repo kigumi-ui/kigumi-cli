@@ -4,8 +4,6 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   eslint.configs.recommended,
-  // NOTE: Type-checked rules disabled due to existing TypeScript errors
-  // TODO: Fix TS errors and switch to: ...tseslint.configs.recommendedTypeChecked
   ...tseslint.configs.recommended,
   {
     ignores: [
