@@ -1,4 +1,4 @@
-import React from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Input.css';
@@ -13,7 +13,7 @@ import './Input.css';
  * <Input with-clear hint="Help text" />
  * ```
  */
-export interface InputProps extends React.HTMLAttributes<HTMLElement> {
+export interface InputProps extends HTMLAttributes<HTMLElement> {
   /** Input type */
   type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search';
   /** Accessible label for the input */
@@ -38,7 +38,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLElement> {
   'password-toggle'?: boolean;
 }
 
-export const Input = React.forwardRef<HTMLElement, InputProps>(
+export const Input = forwardRef<HTMLElement, InputProps>(
   ({ children, className, ...props }, ref) => {
     return (
       <wa-input ref={ref} class={clsx('Input', className)} {...props}>

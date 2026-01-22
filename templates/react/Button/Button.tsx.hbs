@@ -1,4 +1,4 @@
-import React from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Button.css';
@@ -14,7 +14,7 @@ import './Button.css';
  * <Button data-dialog="close">Close Dialog</Button>
  * ```
  */
-export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
+export interface ButtonProps extends HTMLAttributes<HTMLElement> {
   /** Semantic variant of the button */
   variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
   /** Visual appearance style */
@@ -41,7 +41,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
   'data-dialog'?: string;
 }
 
-export const Button = React.forwardRef<HTMLElement, ButtonProps>(
+export const Button = forwardRef<HTMLElement, ButtonProps>(
   ({ children, className, ...props }, ref) => {
     return (
       <wa-button ref={ref} class={clsx('Button', className)} {...props}>
