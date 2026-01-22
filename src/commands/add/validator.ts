@@ -51,6 +51,15 @@ export async function validateComponents(
       })
       .join(', ');
 
+    // Phase 6: Show warning before error (let npm handle 401)
+    _output.warning(
+      `Pro-only component(s) detected: ${componentList}\n\n` +
+        `These components require a Web Awesome Pro token.\n` +
+        `The installation will fail without a valid token.\n\n` +
+        `Get your token from: https://webawesome.com/account/tokens\n` +
+        `Add to your .env file: WEBAWESOME_NPM_TOKEN=your_token_here`
+    );
+
     throw new TierRestrictionError(componentList, 'pro', tier);
   }
 }

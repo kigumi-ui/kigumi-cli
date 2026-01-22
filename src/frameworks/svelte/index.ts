@@ -71,7 +71,6 @@ export class SveltePlugin implements FrameworkPlugin {
     _component: ComponentDefinition,
     _options: GenerateOptions
   ): Promise<GeneratedFile[]> {
-    // TODO: Implement Svelte component generation
     throw new Error(
       'Svelte component generation is not yet implemented. Coming soon!'
     );
@@ -81,7 +80,6 @@ export class SveltePlugin implements FrameworkPlugin {
     _cwd: string,
     _config: KigumiConfig
   ): Promise<GeneratedFile[]> {
-    // TODO: Implement Svelte setup files
     throw new Error('Svelte setup files are not yet implemented. Coming soon!');
   }
 

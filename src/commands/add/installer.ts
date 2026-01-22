@@ -25,6 +25,7 @@ import type { KigumiConfig } from '../../utils/config.js';
 export interface InstallResult {
   name: string;
   success: boolean;
+  skipped?: boolean;
   error?: string;
 }
 
@@ -58,10 +59,17 @@ export class ComponentInstaller {
           throw new Error(`Component ${componentName} not found`);
         }
 
-        await this.installComponent(component, options);
+        const wasSkipped = await this.installComponent(component, options);
 
-        spinner.stop(`${pc.green('✓')} Added ${pc.cyan(componentName)}`);
-        results.push({ name: componentName, success: true });
+        if (wasSkipped) {
+          spinner.stop(
+            `${pc.yellow('○')} Skipped ${pc.cyan(componentName)} (already exists)`
+          );
+          results.push({ name: componentName, success: true, skipped: true });
+        } else {
+          spinner.stop(`${pc.green('✓')} Added ${pc.cyan(componentName)}`);
+          results.push({ name: componentName, success: true });
+        }
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
@@ -79,11 +87,12 @@ export class ComponentInstaller {
 
   /**
    * Install a single component
+   * @returns true if skipped, false if installed
    */
   private async installComponent(
     component: ComponentDefinition,
     options: AddOptions
-  ): Promise<void> {
+  ): Promise<boolean> {
     // Generate component file
     const componentContent = await generateComponent(
       component,
@@ -101,6 +110,10 @@ export class ComponentInstaller {
 
     // Check if file exists
     if ((await fs.pathExists(componentPath)) && !options.overwrite) {
+      // When using --all flag, skip silently instead of throwing
+      if (options.all) {
+        return true; // Skip this component
+      }
       throw new Error('Component already exists. Use --overwrite to replace.');
     }
 
@@ -113,8 +126,11 @@ export class ComponentInstaller {
     // Generate CSS file
     await generateComponentCSS(component, this.config, this.cwd);
 
-    // Generate unit test
-    await generateComponentTest(component, this.config, this.cwd);
+    // Generate unit test ONLY if test setup exists
+    const hasTestSetup = await this.checkTestSetup();
+    if (hasTestSetup) {
+      await generateComponentTest(component, this.config, this.cwd);
+    }
 
     // Update TypeScript declarations
     if (this.config.typescript) {
@@ -126,6 +142,41 @@ export class ComponentInstaller {
 
     // Update webawesome.ts to include component JS import
     await this.updateWebAwesomeImports(component);
+
+    return false; // Not skipped
+  }
+
+  /**
+   * Check if project has test setup (Vitest or Jest)
+   */
+  private async checkTestSetup(): Promise<boolean> {
+    try {
+      const packageJsonPath = path.join(this.cwd, 'package.json');
+      if (!(await fs.pathExists(packageJsonPath))) {
+        return false;
+      }
+
+      const packageJson = await fs.readJSON(packageJsonPath);
+
+      // Check for Vitest or Jest
+      const hasVitest = !!(
+        packageJson.devDependencies?.vitest || packageJson.dependencies?.vitest
+      );
+
+      const hasJest = !!(
+        packageJson.devDependencies?.jest || packageJson.dependencies?.jest
+      );
+
+      // Check for testing-library
+      const hasTestingLibrary = !!(
+        packageJson.devDependencies?.['@testing-library/react'] ||
+        packageJson.dependencies?.['@testing-library/react']
+      );
+
+      return (hasVitest || hasJest) && hasTestingLibrary;
+    } catch {
+      return false;
+    }
   }
 
   /**

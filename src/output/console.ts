@@ -64,6 +64,10 @@ export class ConsoleOutput implements OutputInterface {
     p.log.warning(pc.yellow(message));
   }
 
+  warn(message: string): void {
+    this.warning(message);
+  }
+
   error(message: string, error?: Error): void {
     if (error) {
       // Check if it's a KigumiError with formatting

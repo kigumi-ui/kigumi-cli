@@ -61,6 +61,11 @@ export interface OutputInterface {
   warning(message: string): void;
 
   /**
+   * Show warning message (alias for warning)
+   */
+  warn(message: string): void;
+
+  /**
    * Show error message
    */
   error(message: string, error?: Error): void;

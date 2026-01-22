@@ -35,6 +35,7 @@ export const addOptionsSchema = z.object({
   all: z.boolean().optional().default(false),
   typescript: z.boolean().optional(),
   tests: z.boolean().optional().default(false),
+  yes: z.boolean().optional(), // Non-interactive mode
   cwd: z.string().optional(),
 });
 

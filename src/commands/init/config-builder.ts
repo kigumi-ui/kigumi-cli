@@ -16,6 +16,7 @@ import { detectTierSync } from '../../utils/tier.js';
 import {
   getAvailableThemes,
   getAvailablePalettes,
+  isThemeAvailable,
 } from '../../utils/tier-restrictions.js';
 import { DEFAULT_CONFIG } from '../../schemas/config.js';
 
@@ -41,6 +42,22 @@ export async function buildConfigNonInteractive(
   const theme = options.theme || 'default';
   const palette = options.palette || 'default';
   const brandColor = options.brand || options.brandColor || 'blue';
+
+  // Phase 4: Validate theme is available for current tier
+  if (!isThemeAvailable(theme, tier)) {
+    output.error(`Theme "${theme}" is not available for ${tier} tier`);
+    output.note(
+      'Pro theme requires token',
+      'The selected theme is only available with Web Awesome Pro.\n\n' +
+        'To use this theme:\n' +
+        '1. Get a token from https://webawesome.com/account/tokens\n' +
+        '2. Run: kigumi init --theme=' +
+        theme +
+        ' --token=your_token_here\n\n' +
+        'Or choose a free theme: awesome, shoelace, default'
+    );
+    process.exit(1);
+  }
 
   output.info(`Framework: ${framework}`);
   output.info(`TypeScript: ${typescript}`);

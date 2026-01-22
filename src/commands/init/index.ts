@@ -6,6 +6,9 @@
  */
 
 import * as p from '@clack/prompts';
+import fs from 'fs-extra';
+import path from 'path';
+import pc from 'picocolors';
 import { getOutput } from '../../output/index.js';
 import { CheckRunner, PackageJsonExistsCheck } from '../../checks/index.js';
 import { handleError } from '../../errors/index.js';
@@ -15,12 +18,72 @@ import {
   buildConfigInteractive,
   buildConfigNonInteractive,
 } from './config-builder.js';
-import { installDependencies } from './installer.js';
+import { installDependencies, cleanupOldPackage } from './installer.js';
 import { generateProjectFiles } from './file-generator.js';
 import { getProjectInfo } from '../../utils/detect-framework.js';
 import { saveConfig, loadConfig } from '../../utils/config.js';
-import { detectTier } from '../../utils/tier.js';
-import { migratePackageReferences } from './migration.js';
+import { detectTier, type Tier } from '../../utils/tier.js';
+import {
+  migratePackageReferences,
+  reverseMigratePackageReferences,
+} from './migration.js';
+
+/**
+ * Detect previous tier from installed packages (not from .env)
+ * This allows us to detect Pro→Free downgrades even when token was removed
+ */
+async function detectPreviousTier(cwd: string): Promise<Tier> {
+  const packageJsonPath = path.join(cwd, 'package.json');
+
+  try {
+    if (!(await fs.pathExists(packageJsonPath))) {
+      return 'free';
+    }
+
+    const packageJson = await fs.readJSON(packageJsonPath);
+
+    // If Pro package is installed, previous tier was Pro
+    if (packageJson.dependencies?.['@awesome.me/webawesome-pro']) {
+      return 'pro';
+    }
+
+    return 'free';
+  } catch {
+    return 'free';
+  }
+}
+
+/**
+ * Check for duplicate packages and warn user
+ * Both free and pro packages should not be installed simultaneously
+ */
+async function checkDuplicatePackages(
+  cwd: string,
+  output: import('../../output/types.js').OutputInterface
+): Promise<void> {
+  const packageJsonPath = path.join(cwd, 'package.json');
+
+  try {
+    if (!(await fs.pathExists(packageJsonPath))) {
+      return;
+    }
+
+    const packageJson = await fs.readJSON(packageJsonPath);
+    const hasFree = !!packageJson.dependencies?.['@awesome.me/webawesome'];
+    const hasPro = !!packageJson.dependencies?.['@awesome.me/webawesome-pro'];
+
+    if (hasFree && hasPro) {
+      output.warning(
+        'Both webawesome and webawesome-pro are installed.\n' +
+          'webawesome-pro includes all Free features.\n' +
+          'Consider removing @awesome.me/webawesome to reduce bundle size:\n' +
+          '  npm uninstall @awesome.me/webawesome'
+      );
+    }
+  } catch {
+    // Ignore errors - this is just a helpful warning
+  }
+}
 
 /**
  * Init command
@@ -51,8 +114,10 @@ export async function initCommand(options: InitOptions = {}) {
     const projectInfo = await getProjectInfo(cwd);
 
     // 4. Determine if running in non-interactive mode
+    // --yes flag OR providing both framework and theme triggers non-interactive
     const isNonInteractive =
-      validatedOptions.framework && validatedOptions.theme;
+      validatedOptions.yes ||
+      (validatedOptions.framework && validatedOptions.theme);
 
     // 5. Check for existing config
     const existingConfig = loadConfig(cwd);
@@ -66,8 +131,11 @@ export async function initCommand(options: InitOptions = {}) {
       process.exit(0);
     }
 
-    // 6. Detect tier BEFORE building config (from .env)
-    const previousTier = existingConfig ? await detectTier(cwd) : 'free';
+    // 6. Detect previous tier from installed packages (not .env)
+    // This allows detecting Pro→Free downgrades even when token was removed
+    const previousTier = existingConfig
+      ? await detectPreviousTier(cwd)
+      : 'free';
 
     // 7. Build configuration (interactive or non-interactive)
     const { config, proToken } = isNonInteractive
@@ -84,10 +152,15 @@ export async function initCommand(options: InitOptions = {}) {
           output
         );
 
-    // 8. Detect NEW tier (after potential token was added)
+    // 8. Detect NEW tier from current .env state (token determines tier)
+    // proToken from config builder means token was just added via --token flag
+    // detectTier() checks actual .env file
     const newTier = proToken ? 'pro' : await detectTier(cwd);
 
-    // 9. Check for Free → Pro migration
+    // 9. Check for tier migration
+    let didMigrate = false;
+
+    // 9a. Check for Free → Pro migration
     if (existingConfig && previousTier === 'free' && newTier === 'pro') {
       output.info('Pro token detected - migration available');
 
@@ -108,6 +181,32 @@ export async function initCommand(options: InitOptions = {}) {
 
       if (shouldMigrate) {
         await migratePackageReferences(cwd, output);
+        didMigrate = true;
+      }
+    }
+
+    // 9b. Check for Pro → Free downgrade (Bug #2 fix)
+    if (existingConfig && previousTier === 'pro' && newTier === 'free') {
+      output.info('Downgrading from Pro to Free tier');
+
+      // Non-interactive mode: auto-migrate
+      // Interactive mode: ask user
+      let shouldMigrate = Boolean(isNonInteractive);
+
+      if (!isNonInteractive) {
+        const confirmResult = await p.confirm({
+          message: 'Migrate existing components from Pro to Free package?',
+          initialValue: true,
+        });
+
+        shouldMigrate = p.isCancel(confirmResult)
+          ? false
+          : Boolean(confirmResult);
+      }
+
+      if (shouldMigrate) {
+        await reverseMigratePackageReferences(cwd, output);
+        didMigrate = true;
       }
     }
 
@@ -147,28 +246,75 @@ export async function initCommand(options: InitOptions = {}) {
         packageManager: projectInfo.packageManager,
         output,
       });
+
+      // 13a. Clean up old package after migration (Bug #3 fix)
+      if (didMigrate) {
+        const oldPackage =
+          newTier === 'pro'
+            ? '@awesome.me/webawesome'
+            : '@awesome.me/webawesome-pro';
+        await cleanupOldPackage(
+          cwd,
+          oldPackage,
+          projectInfo.packageManager,
+          output
+        );
+      }
+
+      // 13b. Check for duplicate packages and warn
+      await checkDuplicatePackages(cwd, output);
     }
 
-    // 14. Success
-    output.outro('✓ Initialization complete!');
+    // 14. Success - Show post-install instructions
+    output.outro('✓ Kigumi initialized successfully!');
 
-    if (!shouldInstall) {
-      output.note(
-        'Next steps',
-        `1. Run: ${projectInfo.packageManager} install\n` +
-          `2. Configure path aliases (see README.md)\n` +
-          `3. Add import '@/lib/webawesome' to your main file\n` +
-          `4. Run: kigumi add button`
-      );
-    } else {
-      output.note(
-        'Next steps',
-        `1. Configure path aliases (see README.md)\n` +
-          `2. Add import '@/lib/webawesome' to your main file\n` +
-          `3. Run: kigumi add button`
-      );
-    }
+    showPostInstallInstructions(
+      output,
+      config,
+      projectInfo.packageManager,
+      shouldInstall
+    );
   } catch (error) {
     handleError(error, output);
   }
+}
+
+/**
+ * Show post-install instructions with manual steps
+ */
+function showPostInstallInstructions(
+  output: import('../../output/types.js').OutputInterface,
+  config: import('../../schemas/index.js').KigumiConfig,
+  packageManager: string,
+  depsInstalled: boolean
+): void {
+  console.log('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
+
+  if (config.typescript && config.framework === 'react') {
+    console.log(pc.cyan('1. Add components:\n'));
+    console.log(pc.dim('   npx kigumi add button card dialog\n'));
+
+    console.log(pc.cyan('2. Start development:\n'));
+    console.log(pc.dim(`   ${packageManager} run dev\n`));
+  } else {
+    // Non-TypeScript or non-React
+    if (!depsInstalled) {
+      console.log(pc.cyan('1. Install dependencies:\n'));
+      console.log(pc.dim(`   ${packageManager} install\n`));
+
+      console.log(pc.cyan('2. Add components:\n'));
+      console.log(pc.dim('   npx kigumi add button card dialog\n'));
+
+      console.log(pc.cyan('3. Start development:\n'));
+      console.log(pc.dim(`   ${packageManager} run dev\n`));
+    } else {
+      console.log(pc.cyan('1. Add components:\n'));
+      console.log(pc.dim('   npx kigumi add button card dialog\n'));
+
+      console.log(pc.cyan('2. Start development:\n'));
+      console.log(pc.dim(`   ${packageManager} run dev\n`));
+    }
+  }
+
+  console.log(pc.dim('📖 Full setup guide: ./KIGUMI_SETUP.md\n'));
 }

@@ -67,7 +67,6 @@ export class AngularPlugin implements FrameworkPlugin {
     _component: ComponentDefinition,
     _options: GenerateOptions
   ): Promise<GeneratedFile[]> {
-    // TODO: Implement Angular component generation
     throw new Error(
       'Angular component generation is not yet implemented. Coming soon!'
     );
@@ -77,7 +76,6 @@ export class AngularPlugin implements FrameworkPlugin {
     _cwd: string,
     _config: KigumiConfig
   ): Promise<GeneratedFile[]> {
-    // TODO: Implement Angular setup files
     throw new Error(
       'Angular setup files are not yet implemented. Coming soon!'
     );
