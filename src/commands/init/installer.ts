@@ -1,12 +1,23 @@
 /**
  * Dependency Installer
  *
- * Handles package installation for kigumi projects
+ * PURPOSE: Handles package installation for kigumi projects.
+ *
+ * EXPORTS:
+ * - installDependencies() - Install Web Awesome and framework dependencies
+ * - cleanupOldPackage() - Remove old package after tier migration
+ *
+ * @see AGENTS.md Rule #9 for auto-installation behavior
  */
 
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
+import {
+  ENV_FILE_NAME,
+  ENV_TOKEN_KEY,
+  ENV_TOKEN_REGEX,
+} from '../../constants.js';
 import type { OutputInterface } from '../../output/types.js';
 import type { KigumiConfig } from '../../schemas/index.js';
 import type { Tier } from '../../utils/tier.js';
@@ -23,6 +34,8 @@ export interface InstallOptions {
 
 /**
  * Install project dependencies
+ *
+ * @param options - Installation options
  */
 export async function installDependencies(
   options: InstallOptions
@@ -51,14 +64,12 @@ export async function installDependencies(
     // For Pro tier, load token from .env
     const env = { ...process.env };
     if (tier === 'pro') {
-      const envPath = path.join(cwd, '.env');
+      const envPath = path.join(cwd, ENV_FILE_NAME);
       if (await fs.pathExists(envPath)) {
         const envContent = await fs.readFile(envPath, 'utf-8');
-        const tokenMatch = envContent.match(
-          /^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m
-        );
+        const tokenMatch = envContent.match(ENV_TOKEN_REGEX);
         if (tokenMatch && tokenMatch[1]) {
-          env.WEBAWESOME_NPM_TOKEN = tokenMatch[1].trim();
+          env[ENV_TOKEN_KEY] = tokenMatch[1].trim();
         }
       }
     }
@@ -123,7 +134,7 @@ export async function installDependencies(
             '1. Visit https://webawesome.com/account/tokens\n' +
             '2. Generate or copy your token\n' +
             '3. Add to your .env file:\n' +
-            '   WEBAWESOME_NPM_TOKEN=your_token_here\n\n' +
+            `   ${ENV_TOKEN_KEY}=your_token_here\n\n` +
             'Then run kigumi init again.'
         );
       }

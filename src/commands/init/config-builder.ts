@@ -1,7 +1,14 @@
 /**
  * Configuration Builder
  *
- * Builds configuration interactively or from options
+ * PURPOSE: Builds configuration interactively or from CLI options.
+ * Handles Pro token input, theme/palette selection, and framework detection.
+ *
+ * EXPORTS:
+ * - buildConfigNonInteractive() - Build config from CLI options
+ * - buildConfigInteractive() - Build config with user prompts
+ *
+ * @see AGENTS.md for tier system architecture
  */
 
 import * as p from '@clack/prompts';
@@ -18,7 +25,53 @@ import {
   getAvailablePalettes,
   isThemeAvailable,
 } from '../../utils/tier-restrictions.js';
-import { DEFAULT_CONFIG } from '../../schemas/config.js';
+import { DEFAULT_CONFIG, FRAMEWORKS } from '../../schemas/config.js';
+import {
+  ProThemeRequiredError,
+  UserCancelledError,
+} from '../../errors/index.js';
+
+// =============================================================================
+// Type Guards for @clack/prompts Results
+// =============================================================================
+
+/**
+ * Type guard to safely extract string value from prompt result.
+ * Throws UserCancelledError if cancelled.
+ * @internal
+ */
+function ensureString(value: unknown): string {
+  if (p.isCancel(value)) {
+    throw new UserCancelledError();
+  }
+  if (typeof value !== 'string') {
+    throw new Error(`Expected string, got ${typeof value}`);
+  }
+  return value;
+}
+
+/**
+ * Type guard to safely extract boolean value from prompt result.
+ * Throws UserCancelledError if cancelled.
+ * @internal
+ */
+function ensureBoolean(value: unknown): boolean {
+  if (p.isCancel(value)) {
+    throw new UserCancelledError();
+  }
+  if (typeof value !== 'boolean') {
+    throw new Error(`Expected boolean, got ${typeof value}`);
+  }
+  return value;
+}
+
+/**
+ * Type guard to validate framework value.
+ * @internal
+ */
+function isValidFramework(value: string): value is Framework {
+  return FRAMEWORKS.includes(value as Framework);
+}
 
 /**
  * Build configuration non-interactively from options
@@ -30,7 +83,15 @@ export async function buildConfigNonInteractive(
   cwd: string,
   output: OutputInterface
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
-  const framework = options.framework || projectInfo.framework;
+  // Framework: validate against allowed values
+  const frameworkStr = options.framework || projectInfo.framework;
+  if (!isValidFramework(frameworkStr)) {
+    throw new Error(
+      `Invalid framework: ${frameworkStr}. Must be one of: ${FRAMEWORKS.join(', ')}`
+    );
+  }
+  const framework: Framework = frameworkStr;
+
   const typescript = options.typescript ?? projectInfo.typescript;
 
   // Token provided via CLI flag (will be written to .env later)
@@ -45,18 +106,8 @@ export async function buildConfigNonInteractive(
 
   // Phase 4: Validate theme is available for current tier
   if (!isThemeAvailable(theme, tier)) {
-    output.error(`Theme "${theme}" is not available for ${tier} tier`);
-    output.note(
-      'Pro theme requires token',
-      'The selected theme is only available with Web Awesome Pro.\n\n' +
-        'To use this theme:\n' +
-        '1. Get a token from https://webawesome.com/account/tokens\n' +
-        '2. Run: kigumi init --theme=' +
-        theme +
-        ' --token=your_token_here\n\n' +
-        'Or choose a free theme: awesome, shoelace, default'
-    );
-    process.exit(1);
+    const freeThemes = getAvailableThemes('free');
+    throw new ProThemeRequiredError(theme, freeThemes);
   }
 
   output.info(`Framework: ${framework}`);
@@ -67,7 +118,7 @@ export async function buildConfigNonInteractive(
   output.info(`Brand Color: ${brandColor}`);
 
   const config: KigumiConfig = {
-    framework: framework as Framework,
+    framework,
     typescript,
     componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
     utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
@@ -101,52 +152,47 @@ export async function buildConfigInteractive(
   const detectedTier = detectTierSync(cwd);
 
   // Framework
-  const framework =
-    options.framework ||
-    (await p.select({
-      message: 'Which framework are you using?',
-      options: [
-        { value: 'react', label: 'React' },
-        { value: 'vue', label: 'Vue' },
-        { value: 'svelte', label: 'Svelte' },
-        { value: 'angular', label: 'Angular' },
-      ],
-      initialValue:
-        projectInfo.framework !== 'unknown' ? projectInfo.framework : 'react',
-    }));
-
-  if (p.isCancel(framework)) {
-    process.exit(0);
+  const frameworkResult = options.framework
+    ? options.framework
+    : await p.select({
+        message: 'Which framework are you using?',
+        options: [
+          { value: 'react', label: 'React' },
+          { value: 'vue', label: 'Vue' },
+          { value: 'svelte', label: 'Svelte' },
+          { value: 'angular', label: 'Angular' },
+        ],
+        initialValue:
+          projectInfo.framework !== 'unknown' ? projectInfo.framework : 'react',
+      });
+  const frameworkStr = ensureString(frameworkResult);
+  if (!isValidFramework(frameworkStr)) {
+    throw new Error(`Invalid framework: ${frameworkStr}`);
   }
+  const framework: Framework = frameworkStr;
 
   // TypeScript
-  const typescript =
+  const typescriptResult =
     options.typescript ??
     (await p.confirm({
       message: 'Use TypeScript?',
       initialValue: projectInfo.typescript,
     }));
-
-  if (p.isCancel(typescript)) {
-    process.exit(0);
-  }
+  const typescript = ensureBoolean(typescriptResult);
 
   // Pro Token (optional - if provided, enables Pro tier)
   let proToken = options.token;
 
   if (!proToken && detectedTier === 'free') {
     // Offer to enter Pro token
-    const wantsPro = await p.confirm({
+    const wantsProResult = await p.confirm({
       message: 'Do you have a Web Awesome Pro token?',
       initialValue: false,
     });
-
-    if (p.isCancel(wantsPro)) {
-      process.exit(0);
-    }
+    const wantsPro = ensureBoolean(wantsProResult);
 
     if (wantsPro) {
-      proToken = (await p.text({
+      const tokenResult = await p.text({
         message: 'Enter your Web Awesome Pro token',
         placeholder: 'Your pro token here',
         validate: (value) => {
@@ -158,11 +204,8 @@ export async function buildConfigInteractive(
           }
           return undefined;
         },
-      })) as string;
-
-      if (p.isCancel(proToken)) {
-        process.exit(0);
-      }
+      });
+      proToken = ensureString(tokenResult);
     }
   }
 
@@ -171,34 +214,28 @@ export async function buildConfigInteractive(
 
   // Theme
   const availableThemes = getAvailableThemes(finalTier);
-  const theme =
+  const themeResult =
     options.theme ||
     (await p.select({
       message: 'Select theme',
       options: availableThemes.map((t) => ({ value: t, label: t })),
       initialValue: 'default',
     }));
-
-  if (p.isCancel(theme)) {
-    process.exit(0);
-  }
+  const theme = ensureString(themeResult);
 
   // Palette
   const availablePalettes = getAvailablePalettes(finalTier);
-  const palette =
+  const paletteResult =
     options.palette ||
     (await p.select({
       message: 'Select palette',
-      options: availablePalettes.map((p) => ({ value: p, label: p })),
+      options: availablePalettes.map((pal) => ({ value: pal, label: pal })),
       initialValue: 'default',
     }));
-
-  if (p.isCancel(palette)) {
-    process.exit(0);
-  }
+  const palette = ensureString(paletteResult);
 
   // Brand color
-  const brandColor =
+  const brandColorResult =
     options.brand ||
     options.brandColor ||
     (await p.select({
@@ -212,20 +249,17 @@ export async function buildConfigInteractive(
       ],
       initialValue: 'blue',
     }));
-
-  if (p.isCancel(brandColor)) {
-    process.exit(0);
-  }
+  const brandColor = ensureString(brandColorResult);
 
   const config: KigumiConfig = {
-    framework: framework as Framework,
-    typescript: typescript as boolean,
+    framework,
+    typescript,
     componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
     utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
     theme: {
-      selected: theme as string,
-      palette: palette as string,
-      brandColor: brandColor as string,
+      selected: theme,
+      palette,
+      brandColor,
     },
     aliases: DEFAULT_CONFIG.aliases,
     webAwesome: {
