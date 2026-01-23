@@ -1,7 +1,16 @@
 /**
  * Tier Restrictions
  *
- * Defines which themes, palettes, and components are available for each Web Awesome tier.
+ * PURPOSE: Defines which themes, palettes, and components are available for each tier.
+ *
+ * EXPORTS:
+ * - TIER_RESTRICTIONS - Static definition of tier limitations
+ * - getAvailableThemes() - Get themes for a tier
+ * - getAvailablePalettes() - Get palettes for a tier
+ * - isThemeAvailable() - Check if theme is available for tier
+ * - isComponentAvailable() - Check if component is available for tier
+ *
+ * @internal - Used by init and add commands
  */
 
 export interface TierRestrictions {

@@ -1,9 +1,20 @@
 /**
  * Component Registry
  *
- * This module handles fetching and managing component definitions.
+ * PURPOSE: Handles fetching and managing component definitions.
  * Component definitions include metadata, props, CSS variables, and dependencies.
+ *
+ * EXPORTS:
+ * - LOCAL_REGISTRY - Static registry of all available components
+ * - getComponent() - Get a single component definition
+ * - getAllComponents() - Get all component definitions
+ * - getComponentNames() - Get list of component names
+ * - hasComponent() - Check if component exists
+ *
+ * @see AGENTS.md for component template patterns
  */
+
+import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
 
 export interface ComponentProp {
   name: string;
@@ -35,8 +46,10 @@ export interface ComponentRegistry {
 }
 
 /**
- * Local registry as fallback
- * TODO: Fetch this from a remote source or build from Web Awesome docs
+ * Local registry - single source of truth for component definitions
+ *
+ * WHY: Static registry instead of remote fetch for reliability and offline support.
+ * Component definitions match Web Awesome documentation.
  */
 export const LOCAL_REGISTRY: ComponentRegistry = {
   button: {
@@ -123,7 +136,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         required: false,
       },
     ],
-    importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/button/button.js`,
     tier: 'free',
   },
   input: {
@@ -219,7 +232,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         required: false,
       },
     ],
-    importPath: '@awesome.me/webawesome/dist/components/input/input.js',
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/input/input.js`,
     tier: 'free',
   },
   card: {
@@ -270,7 +283,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         required: false,
       },
     ],
-    importPath: '@awesome.me/webawesome/dist/components/card/card.js',
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/card/card.js`,
     tier: 'free',
   },
   dialog: {
@@ -345,14 +358,5 @@ export function hasComponent(name: string): boolean {
   return name.toLowerCase() in LOCAL_REGISTRY;
 }
 
-/**
- * Future: Fetch component definitions from remote registry
- */
-export async function fetchRegistry(): Promise<ComponentRegistry> {
-  // TODO: Implement remote registry fetch
-  // This could fetch from:
-  // - NPM package (@kigumi/registry)
-  // - CDN (unpkg, jsdelivr)
-  // - GitHub (raw.githubusercontent.com)
-  return LOCAL_REGISTRY;
-}
+// Note: Remote registry fetch has been removed.
+// Use LOCAL_REGISTRY directly or getAllComponents() for component data.
