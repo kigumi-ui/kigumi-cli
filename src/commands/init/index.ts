@@ -305,7 +305,10 @@ function showPostInstallInstructions(
       console.log(pc.cyan('2. Add components:\n'));
       console.log(pc.dim('   npx kigumi add button card dialog\n'));
 
-      console.log(pc.cyan('3. Start development:\n'));
+      console.log(pc.cyan('3. Add webawesome import:\n'));
+      console.log(pc.dim('   import "@/lib/webawesome";\n'));
+
+      console.log(pc.cyan('4. Start development:\n'));
       console.log(pc.dim(`   ${packageManager} run dev\n`));
     } else {
       console.log(pc.cyan('1. Add components:\n'));

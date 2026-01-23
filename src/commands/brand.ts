@@ -35,7 +35,6 @@ const BRAND_COLORS = [
 
 async function brandAction(colorName?: string) {
   const output = getOutput();
-  output.intro('kigumi brand');
 
   const cwd = process.cwd();
 
@@ -66,27 +65,22 @@ async function brandAction(colorName?: string) {
       throw new Error('Configuration not loaded despite passing checks');
     }
 
-    let selectedColor = colorName;
-
     // 3. Interactive selection if no color provided
-    if (!selectedColor) {
-      const options = BRAND_COLORS.map((color) => ({
-        value: color,
-        label: color.charAt(0).toUpperCase() + color.slice(1),
-        hint: config && color === config.theme.brandColor ? 'Current' : '',
+    const selectedColor =
+      colorName ||
+      (await p.select({
+        message: 'Select a brand color:',
+        options: BRAND_COLORS.map((color) => ({
+          value: color,
+          label: color.charAt(0).toUpperCase() + color.slice(1),
+        })),
+        initialValue: BRAND_COLORS.includes(config.theme.brandColor)
+          ? config.theme.brandColor
+          : BRAND_COLORS[0],
       }));
 
-      const selected = await p.select({
-        message: 'Select a brand color:',
-        options,
-        initialValue: config.theme.brandColor,
-      });
-
-      if (p.isCancel(selected)) {
-        throw new UserCancelledError();
-      }
-
-      selectedColor = selected as string;
+    if (p.isCancel(selectedColor)) {
+      throw new UserCancelledError();
     }
 
     // 4. Validate brand color

@@ -26,8 +26,6 @@ import {
 
 async function themeAction(themeName?: string) {
   const output = getOutput();
-  output.intro('kigumi theme');
-
   const cwd = process.cwd();
 
   try {
@@ -60,31 +58,27 @@ async function themeAction(themeName?: string) {
     // Detect tier from .env
     const { detectTier } = await import('../utils/tier.js');
     const tier = await detectTier(cwd);
-    let selectedTheme = themeName;
+
+    const availableThemes = getAvailableThemes(tier).filter(
+      (t) => t !== 'custom'
+    );
 
     // 3. Interactive selection if no theme provided
-    if (!selectedTheme) {
-      const availableThemes = getAvailableThemes(tier);
-
-      const options = availableThemes
-        .filter((t) => t !== 'custom')
-        .map((theme) => ({
+    const selectedTheme =
+      themeName ||
+      (await p.select({
+        message: 'Select a theme:',
+        options: availableThemes.map((theme) => ({
           value: theme,
           label: theme.charAt(0).toUpperCase() + theme.slice(1),
-          hint: config && theme === config.theme.selected ? 'Current' : '',
-        }));
+        })),
+        initialValue: availableThemes.includes(config.theme.selected)
+          ? config.theme.selected
+          : availableThemes[0],
+      }));
 
-      const selected = await p.select({
-        message: 'Select a theme:',
-        options,
-        initialValue: config.theme.selected,
-      });
-
-      if (p.isCancel(selected)) {
-        throw new UserCancelledError();
-      }
-
-      selectedTheme = selected as string;
+    if (p.isCancel(selectedTheme)) {
+      throw new UserCancelledError();
     }
 
     // 4. Validate theme availability
