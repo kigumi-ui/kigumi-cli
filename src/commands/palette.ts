@@ -23,8 +23,6 @@ import { getAvailablePalettes } from '../utils/tier-restrictions.js';
 
 async function paletteAction(paletteName?: string) {
   const output = getOutput();
-  output.intro('kigumi palette');
-
   const cwd = process.cwd();
 
   try {
@@ -57,37 +55,30 @@ async function paletteAction(paletteName?: string) {
     // Detect tier from .env
     const { detectTier } = await import('../utils/tier.js');
     const tier = await detectTier(cwd);
-    let selectedPalette = paletteName;
+
+    const availablePalettes = getAvailablePalettes(tier).filter(
+      (pal) => pal !== 'custom'
+    );
 
     // 3. Interactive selection if no palette provided
-    if (!selectedPalette) {
-      const availablePalettes = getAvailablePalettes(tier);
-
-      const options = availablePalettes
-        .filter((pal) => pal !== 'custom')
-        .map((palette) => ({
+    const selectedPalette =
+      paletteName ||
+      (await p.select({
+        message: 'Select a color palette:',
+        options: availablePalettes.map((palette) => ({
           value: palette,
           label: palette.charAt(0).toUpperCase() + palette.slice(1),
-          hint: config && palette === config.theme.palette ? 'Current' : '',
-        }));
+        })),
+        initialValue: availablePalettes.includes(config.theme.palette)
+          ? config.theme.palette
+          : availablePalettes[0],
+      }));
 
-      const selected = await p.select({
-        message: 'Select a color palette:',
-        options,
-        initialValue: config.theme.palette,
-      });
-
-      if (p.isCancel(selected)) {
-        throw new UserCancelledError();
-      }
-
-      selectedPalette = selected as string;
+    if (p.isCancel(selectedPalette)) {
+      throw new UserCancelledError();
     }
 
     // 4. Validate palette (all palettes available to all tiers)
-    const availablePalettes = getAvailablePalettes(tier).filter(
-      (p) => p !== 'custom'
-    );
     if (!availablePalettes.includes(selectedPalette)) {
       throw new ValidationError('palette', selectedPalette, availablePalettes);
     }
