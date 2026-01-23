@@ -2,7 +2,10 @@ import type { KigumiConfig } from '../../schemas/config.js';
 /**
  * Add Command - Main Orchestrator
  *
- * Adds Web Awesome components to the project
+ * PURPOSE: Adds Web Awesome components to the project.
+ * Handles component selection, validation, and installation.
+ *
+ * @public
  */
 
 import { getOutput } from '../../output/index.js';
@@ -11,7 +14,7 @@ import {
   ConfigExistsCheck,
   ConfigValidCheck,
 } from '../../checks/index.js';
-import { handleError } from '../../errors/index.js';
+import { handleError, PreFlightCheckError } from '../../errors/index.js';
 import { validators, type AddOptions } from '../../schemas/index.js';
 import { loadConfig, getConfig } from '../../utils/config.js';
 import { selectComponents } from './component-selector.js';
@@ -58,9 +61,7 @@ export async function addCommand(components: string[], options?: AddOptions) {
 
     const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
-      output.error('Pre-flight checks failed');
-      output.note('Issues found', checker.formatResults(checkResults));
-      process.exit(1);
+      throw new PreFlightCheckError(checkResults);
     }
 
     // Config must be loaded at this point (checks passed)
