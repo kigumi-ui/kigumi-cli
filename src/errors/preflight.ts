@@ -5,16 +5,10 @@
  */
 
 import { KigumiError, ErrorCode, type ErrorSuggestion } from './base.js';
+import { CheckSeverity, type CheckResult } from '../checks/types.js';
 
-/**
- * Check result for pre-flight checks
- */
-export interface CheckResult {
-  passed: boolean;
-  severity: 'error' | 'warning' | 'info';
-  message: string;
-  suggestion?: string[];
-}
+// Re-export CheckResult for backward compatibility
+export type { CheckResult };
 
 /**
  * Generic pre-flight check failed error
@@ -22,8 +16,12 @@ export interface CheckResult {
 export class PreFlightCheckError extends KigumiError {
   constructor(checkResults: CheckResult[]) {
     const failedChecks = checkResults.filter((r) => !r.passed);
-    const errorChecks = failedChecks.filter((r) => r.severity === 'error');
-    const warningChecks = failedChecks.filter((r) => r.severity === 'warning');
+    const errorChecks = failedChecks.filter(
+      (r) => r.severity === CheckSeverity.ERROR
+    );
+    const warningChecks = failedChecks.filter(
+      (r) => r.severity === CheckSeverity.WARNING
+    );
 
     const suggestions: ErrorSuggestion[] = [];
 
@@ -70,7 +68,9 @@ export class PreFlightCheckError extends KigumiError {
     const parts = ['Pre-flight checks failed:'];
     parts.push('');
 
-    const errorChecks = failedChecks.filter((c) => c.severity === 'error');
+    const errorChecks = failedChecks.filter(
+      (c) => c.severity === CheckSeverity.ERROR
+    );
     if (errorChecks.length > 0) {
       parts.push(`Errors (${errorChecks.length}):`);
       errorChecks.forEach((check) => {
@@ -79,7 +79,9 @@ export class PreFlightCheckError extends KigumiError {
       parts.push('');
     }
 
-    const warningChecks = failedChecks.filter((c) => c.severity === 'warning');
+    const warningChecks = failedChecks.filter(
+      (c) => c.severity === CheckSeverity.WARNING
+    );
     if (warningChecks.length > 0) {
       parts.push(`Warnings (${warningChecks.length}):`);
       warningChecks.forEach((check) => {
