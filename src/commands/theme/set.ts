@@ -1,3 +1,9 @@
+/**
+ * Theme Set Command
+ *
+ * Switches to a different theme.
+ */
+
 import type { KigumiConfig } from '../../schemas/config.js';
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
@@ -13,7 +19,8 @@ import {
   ConfigExistsCheck,
   ConfigValidCheck,
 } from '../../checks/index.js';
-import { handleError } from '../../errors/index.js';
+import { handleError, PreFlightCheckError } from '../../errors/index.js';
+import { ProThemeRequiredError } from '../../errors/tier.js';
 
 export const setCommand = new Command('set')
   .description('Switch to a different theme')
@@ -38,10 +45,7 @@ export const setCommand = new Command('set')
 
       const checkResults = await checker.run({ cwd, config });
       if (checker.hasErrors(checkResults)) {
-        p.log.error('Pre-flight checks failed');
-        const formatted = checker.formatResults(checkResults);
-        p.note(formatted, 'Issues found');
-        process.exit(1);
+        throw new PreFlightCheckError(checkResults);
       }
 
       // Config must be loaded at this point (checks passed)
@@ -55,35 +59,8 @@ export const setCommand = new Command('set')
 
       // 4. Validate theme name
       if (!isThemeAvailable(themeName, tier)) {
-        const availableThemes = getAvailableThemes(tier);
-
-        p.log.error(`Invalid theme: ${themeName}`);
-        p.log.info(
-          `Available themes for ${tier} tier: ${availableThemes.join(', ')}`
-        );
-
-        if (tier === 'free') {
-          p.note(
-            'More themes available with Web Awesome Pro:\n' +
-              '• brutalist, glossy, matter, mellow\n' +
-              '• playful, premium, tailspin, active\n\n' +
-              'Upgrade: Run "kigumi init" and select Pro tier',
-            'Upgrade to Pro'
-          );
-        }
-
-        if (themeName === 'custom') {
-          p.note(
-            'To create a custom theme:\n' +
-              '1. Create a CSS file in src/styles/\n' +
-              '2. Define theme CSS variables (--wa-color-*, --wa-font-*, etc.)\n' +
-              '3. Import it in your main entry file\n' +
-              '4. See: https://webawesome.com/docs/customizing',
-            'Custom Theme Guide'
-          );
-        }
-
-        process.exit(1);
+        const freeThemes = getAvailableThemes('free');
+        throw new ProThemeRequiredError(themeName, freeThemes);
       }
 
       // 5. Update theme
