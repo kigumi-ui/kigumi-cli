@@ -7,10 +7,15 @@
 import { z } from 'zod';
 
 /**
+ * Supported frameworks constant - single source of truth
+ */
+export const FRAMEWORKS = ['react', 'vue', 'svelte', 'angular'] as const;
+
+/**
  * Framework schema - must be one of the supported frameworks
  */
-export const frameworkSchema = z.enum(['react', 'vue', 'svelte', 'angular'], {
-  errorMap: () => ({ message: 'Must be one of: react, vue, svelte, angular' }),
+export const frameworkSchema = z.enum(FRAMEWORKS, {
+  errorMap: () => ({ message: `Must be one of: ${FRAMEWORKS.join(', ')}` }),
 });
 
 /**
