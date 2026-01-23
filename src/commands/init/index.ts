@@ -1,14 +1,27 @@
 /**
  * Init Command - Main Orchestrator
  *
- * Initializes kigumi in a project with framework detection,
+ * PURPOSE: Initializes kigumi in a project with framework detection,
  * interactive configuration, and dependency installation.
+ *
+ * This is the main entry point for `kigumi init`. It orchestrates:
+ * 1. Pre-flight checks
+ * 2. Configuration building (interactive or non-interactive)
+ * 3. Tier migration (Free ↔ Pro)
+ * 4. File generation
+ * 5. Dependency installation
+ *
+ * @see AGENTS.md for tier migration architecture
  */
 
 import * as p from '@clack/prompts';
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
+import {
+  WEB_AWESOME_FREE_PACKAGE,
+  WEB_AWESOME_PRO_PACKAGE,
+} from '../../constants.js';
 import { getOutput } from '../../output/index.js';
 import { CheckRunner, PackageJsonExistsCheck } from '../../checks/index.js';
 import { handleError } from '../../errors/index.js';
@@ -27,10 +40,17 @@ import {
   migratePackageReferences,
   reverseMigratePackageReferences,
 } from './migration.js';
+import { PreFlightCheckError, UserCancelledError } from '../../errors/index.js';
 
 /**
  * Detect previous tier from installed packages (not from .env)
- * This allows us to detect Pro→Free downgrades even when token was removed
+ *
+ * WHY: This allows detecting Pro→Free downgrades even when token was removed.
+ * If we checked .env, downgrades would be impossible because the token would
+ * already be gone. We need package.json as source of truth for "what WAS installed".
+ *
+ * @see AGENTS.md Rule #12 for tier migration architecture
+ * @internal
  */
 async function detectPreviousTier(cwd: string): Promise<Tier> {
   const packageJsonPath = path.join(cwd, 'package.json');
@@ -43,7 +63,7 @@ async function detectPreviousTier(cwd: string): Promise<Tier> {
     const packageJson = await fs.readJSON(packageJsonPath);
 
     // If Pro package is installed, previous tier was Pro
-    if (packageJson.dependencies?.['@awesome.me/webawesome-pro']) {
+    if (packageJson.dependencies?.[WEB_AWESOME_PRO_PACKAGE]) {
       return 'pro';
     }
 
@@ -55,7 +75,11 @@ async function detectPreviousTier(cwd: string): Promise<Tier> {
 
 /**
  * Check for duplicate packages and warn user
- * Both free and pro packages should not be installed simultaneously
+ *
+ * WHY: Both free and pro packages should not be installed simultaneously.
+ * This wastes bundle size since Pro includes all Free features.
+ *
+ * @internal
  */
 async function checkDuplicatePackages(
   cwd: string,
@@ -69,15 +93,15 @@ async function checkDuplicatePackages(
     }
 
     const packageJson = await fs.readJSON(packageJsonPath);
-    const hasFree = !!packageJson.dependencies?.['@awesome.me/webawesome'];
-    const hasPro = !!packageJson.dependencies?.['@awesome.me/webawesome-pro'];
+    const hasFree = !!packageJson.dependencies?.[WEB_AWESOME_FREE_PACKAGE];
+    const hasPro = !!packageJson.dependencies?.[WEB_AWESOME_PRO_PACKAGE];
 
     if (hasFree && hasPro) {
       output.warning(
         'Both webawesome and webawesome-pro are installed.\n' +
           'webawesome-pro includes all Free features.\n' +
-          'Consider removing @awesome.me/webawesome to reduce bundle size:\n' +
-          '  npm uninstall @awesome.me/webawesome'
+          `Consider removing ${WEB_AWESOME_FREE_PACKAGE} to reduce bundle size:\n` +
+          `  npm uninstall ${WEB_AWESOME_FREE_PACKAGE}`
       );
     }
   } catch {
@@ -85,10 +109,44 @@ async function checkDuplicatePackages(
   }
 }
 
+// =============================================================================
+// Helper Types for Internal State
+// =============================================================================
+
+/** Internal context passed between init phases */
+interface InitContext {
+  cwd: string;
+  output: import('../../output/types.js').OutputInterface;
+  isNonInteractive: boolean;
+  existingConfig: import('../../schemas/index.js').KigumiConfig | null;
+  projectInfo: Awaited<ReturnType<typeof getProjectInfo>>;
+  previousTier: Tier;
+}
+
+/** Result from configuration phase */
+interface ConfigResult {
+  config: import('../../schemas/index.js').KigumiConfig;
+  proToken: string | undefined;
+  newTier: Tier;
+}
+
+/** Result from migration phase */
+interface MigrationResult {
+  didMigrate: boolean;
+}
+
+// =============================================================================
+// Init Command - Entry Point
+// =============================================================================
+
 /**
  * Init command
  *
+ * Main entry point that orchestrates all initialization phases.
+ * Each phase is delegated to a focused helper function.
+ *
  * @param options - Command options
+ * @public
  */
 export async function initCommand(options: InitOptions = {}) {
   const output = getOutput();
@@ -97,186 +155,281 @@ export async function initCommand(options: InitOptions = {}) {
   const cwd = options.cwd || process.cwd();
 
   try {
-    // 1. Validate options
-    const validatedOptions = validators.init(options);
+    // Phase 1: Validate and prepare
+    const context = await validateAndPrepare(options, cwd, output);
 
-    // 2. Pre-flight checks
-    const checker = new CheckRunner().add(new PackageJsonExistsCheck());
+    // Phase 2: Build configuration
+    const configResult = await buildConfiguration(context, options);
 
-    const checkResults = await checker.run({ cwd });
-    if (checker.hasErrors(checkResults)) {
-      output.error('Pre-flight checks failed');
-      output.note('Issues found', checker.formatResults(checkResults));
-      process.exit(1);
-    }
+    // Phase 3: Handle tier migration
+    const migrationResult = await handleTierMigration(context, configResult);
 
-    // 3. Detect project info
-    const projectInfo = await getProjectInfo(cwd);
+    // Phase 4: Save config and generate files
+    await saveAndGenerate(context, configResult);
 
-    // 4. Determine if running in non-interactive mode
-    // --yes flag OR providing both framework and theme triggers non-interactive
-    const isNonInteractive =
-      validatedOptions.yes ||
-      (validatedOptions.framework && validatedOptions.theme);
+    // Phase 5: Handle dependencies
+    await handleDependencies(context, configResult, migrationResult);
 
-    // 5. Check for existing config
-    const existingConfig = loadConfig(cwd);
-    const existingAction = await handleExistingConfig(
-      cwd,
-      output,
-      Boolean(isNonInteractive)
-    );
-    if (existingAction === 'cancel') {
-      output.outro('Cancelled');
-      process.exit(0);
-    }
-
-    // 6. Detect previous tier from installed packages (not .env)
-    // This allows detecting Pro→Free downgrades even when token was removed
-    const previousTier = existingConfig
-      ? await detectPreviousTier(cwd)
-      : 'free';
-
-    // 7. Build configuration (interactive or non-interactive)
-    const { config, proToken } = isNonInteractive
-      ? await buildConfigNonInteractive(
-          validatedOptions,
-          projectInfo,
-          cwd,
-          output
-        )
-      : await buildConfigInteractive(
-          validatedOptions,
-          projectInfo,
-          cwd,
-          output
-        );
-
-    // 8. Detect NEW tier from current .env state (token determines tier)
-    // proToken from config builder means token was just added via --token flag
-    // detectTier() checks actual .env file
-    const newTier = proToken ? 'pro' : await detectTier(cwd);
-
-    // 9. Check for tier migration
-    let didMigrate = false;
-
-    // 9a. Check for Free → Pro migration
-    if (existingConfig && previousTier === 'free' && newTier === 'pro') {
-      output.info('Pro token detected - migration available');
-
-      // Non-interactive mode: auto-migrate
-      // Interactive mode: ask user
-      let shouldMigrate = Boolean(isNonInteractive);
-
-      if (!isNonInteractive) {
-        const confirmResult = await p.confirm({
-          message: 'Migrate existing components from Free to Pro package?',
-          initialValue: true,
-        });
-
-        shouldMigrate = p.isCancel(confirmResult)
-          ? false
-          : Boolean(confirmResult);
-      }
-
-      if (shouldMigrate) {
-        await migratePackageReferences(cwd, output);
-        didMigrate = true;
-      }
-    }
-
-    // 9b. Check for Pro → Free downgrade (Bug #2 fix)
-    if (existingConfig && previousTier === 'pro' && newTier === 'free') {
-      output.info('Downgrading from Pro to Free tier');
-
-      // Non-interactive mode: auto-migrate
-      // Interactive mode: ask user
-      let shouldMigrate = Boolean(isNonInteractive);
-
-      if (!isNonInteractive) {
-        const confirmResult = await p.confirm({
-          message: 'Migrate existing components from Pro to Free package?',
-          initialValue: true,
-        });
-
-        shouldMigrate = p.isCancel(confirmResult)
-          ? false
-          : Boolean(confirmResult);
-      }
-
-      if (shouldMigrate) {
-        await reverseMigratePackageReferences(cwd, output);
-        didMigrate = true;
-      }
-    }
-
-    // 10. Save configuration
-    await saveConfig(config, cwd);
-    output.success('Configuration saved');
-
-    // 11. Generate project files
-    await generateProjectFiles({
-      cwd,
-      config,
-      tier: newTier,
-      proToken,
-      output,
-    });
-
-    // 12. Ask about installation (non-interactive always installs)
-    let shouldInstall = true;
-
-    if (!isNonInteractive) {
-      shouldInstall = (await p.confirm({
-        message: 'Install dependencies now?',
-        initialValue: true,
-      })) as boolean;
-
-      if (p.isCancel(shouldInstall)) {
-        shouldInstall = false;
-      }
-    }
-
-    // 13. Install dependencies
-    if (shouldInstall) {
-      await installDependencies({
-        cwd,
-        config,
-        tier: newTier,
-        packageManager: projectInfo.packageManager,
-        output,
-      });
-
-      // 13a. Clean up old package after migration (Bug #3 fix)
-      if (didMigrate) {
-        const oldPackage =
-          newTier === 'pro'
-            ? '@awesome.me/webawesome'
-            : '@awesome.me/webawesome-pro';
-        await cleanupOldPackage(
-          cwd,
-          oldPackage,
-          projectInfo.packageManager,
-          output
-        );
-      }
-
-      // 13b. Check for duplicate packages and warn
-      await checkDuplicatePackages(cwd, output);
-    }
-
-    // 14. Success - Show post-install instructions
+    // Phase 6: Show success
     output.outro('✓ Kigumi initialized successfully!');
-
     showPostInstallInstructions(
       output,
-      config,
-      projectInfo.packageManager,
-      shouldInstall
+      configResult.config,
+      context.projectInfo.packageManager,
+      true // Always true if we reach here without errors
     );
   } catch (error) {
     handleError(error, output);
   }
+}
+
+// =============================================================================
+// Phase 1: Validate and Prepare
+// =============================================================================
+
+/**
+ * Validate options, run pre-flight checks, detect project info
+ *
+ * @internal
+ */
+async function validateAndPrepare(
+  options: InitOptions,
+  cwd: string,
+  output: import('../../output/types.js').OutputInterface
+): Promise<InitContext> {
+  // 1. Validate options
+  const validatedOptions = validators.init(options);
+
+  // 2. Pre-flight checks
+  const checker = new CheckRunner().add(new PackageJsonExistsCheck());
+  const checkResults = await checker.run({ cwd });
+  if (checker.hasErrors(checkResults)) {
+    throw new PreFlightCheckError(checkResults);
+  }
+
+  // 3. Detect project info
+  const projectInfo = await getProjectInfo(cwd);
+
+  // 4. Determine if running in non-interactive mode
+  const isNonInteractive = Boolean(
+    validatedOptions.yes ||
+    (validatedOptions.framework && validatedOptions.theme)
+  );
+
+  // 5. Check for existing config
+  const existingConfig = loadConfig(cwd);
+  const existingAction = await handleExistingConfig(
+    cwd,
+    output,
+    isNonInteractive
+  );
+  if (existingAction === 'cancel') {
+    throw new UserCancelledError('Configuration cancelled by user');
+  }
+
+  // 6. Detect previous tier from installed packages
+  const previousTier = existingConfig ? await detectPreviousTier(cwd) : 'free';
+
+  return {
+    cwd,
+    output,
+    isNonInteractive,
+    existingConfig,
+    projectInfo,
+    previousTier,
+  };
+}
+
+// =============================================================================
+// Phase 2: Build Configuration
+// =============================================================================
+
+/**
+ * Build configuration (interactive or non-interactive)
+ *
+ * @internal
+ */
+async function buildConfiguration(
+  context: InitContext,
+  options: InitOptions
+): Promise<ConfigResult> {
+  const { cwd, output, isNonInteractive, projectInfo } = context;
+  const validatedOptions = validators.init(options);
+
+  const { config, proToken } = isNonInteractive
+    ? await buildConfigNonInteractive(
+        validatedOptions,
+        projectInfo,
+        cwd,
+        output
+      )
+    : await buildConfigInteractive(validatedOptions, projectInfo, cwd, output);
+
+  // Detect NEW tier from current .env state
+  const newTier = proToken ? 'pro' : await detectTier(cwd);
+
+  return { config, proToken, newTier };
+}
+
+// =============================================================================
+// Phase 3: Handle Tier Migration
+// =============================================================================
+
+/**
+ * Handle Free ↔ Pro tier migrations
+ *
+ * @internal
+ */
+async function handleTierMigration(
+  context: InitContext,
+  configResult: ConfigResult
+): Promise<MigrationResult> {
+  const { cwd, output, isNonInteractive, existingConfig, previousTier } =
+    context;
+  const { newTier } = configResult;
+
+  let didMigrate = false;
+
+  // Free → Pro migration
+  if (existingConfig && previousTier === 'free' && newTier === 'pro') {
+    output.info('Pro token detected - migration available');
+    const shouldMigrate = await confirmMigration(
+      'Migrate existing components from Free to Pro package?',
+      isNonInteractive
+    );
+    if (shouldMigrate) {
+      await migratePackageReferences(cwd, output);
+      didMigrate = true;
+    }
+  }
+
+  // Pro → Free downgrade
+  if (existingConfig && previousTier === 'pro' && newTier === 'free') {
+    output.info('Downgrading from Pro to Free tier');
+    const shouldMigrate = await confirmMigration(
+      'Migrate existing components from Pro to Free package?',
+      isNonInteractive
+    );
+    if (shouldMigrate) {
+      await reverseMigratePackageReferences(cwd, output);
+      didMigrate = true;
+    }
+  }
+
+  return { didMigrate };
+}
+
+/**
+ * Ask for migration confirmation (or auto-confirm in non-interactive mode)
+ *
+ * @internal
+ */
+async function confirmMigration(
+  message: string,
+  isNonInteractive: boolean
+): Promise<boolean> {
+  if (isNonInteractive) {
+    return true;
+  }
+
+  const result = await p.confirm({ message, initialValue: true });
+  return p.isCancel(result) ? false : Boolean(result);
+}
+
+// =============================================================================
+// Phase 4: Save and Generate
+// =============================================================================
+
+/**
+ * Save configuration and generate project files
+ *
+ * @internal
+ */
+async function saveAndGenerate(
+  context: InitContext,
+  configResult: ConfigResult
+): Promise<void> {
+  const { cwd, output } = context;
+  const { config, proToken, newTier } = configResult;
+
+  await saveConfig(config, cwd);
+  output.success('Configuration saved');
+
+  await generateProjectFiles({
+    cwd,
+    config,
+    tier: newTier,
+    proToken,
+    output,
+  });
+}
+
+// =============================================================================
+// Phase 5: Handle Dependencies
+// =============================================================================
+
+/**
+ * Install dependencies and clean up old packages
+ *
+ * @internal
+ */
+async function handleDependencies(
+  context: InitContext,
+  configResult: ConfigResult,
+  migrationResult: MigrationResult
+): Promise<void> {
+  const { cwd, output, isNonInteractive, projectInfo } = context;
+  const { config, newTier } = configResult;
+  const { didMigrate } = migrationResult;
+
+  // Ask about installation
+  const shouldInstall = await confirmInstallation(isNonInteractive);
+  if (!shouldInstall) {
+    return;
+  }
+
+  // Install dependencies
+  await installDependencies({
+    cwd,
+    config,
+    tier: newTier,
+    packageManager: projectInfo.packageManager,
+    output,
+  });
+
+  // Clean up old package after migration
+  if (didMigrate) {
+    const oldPackage =
+      newTier === 'pro' ? WEB_AWESOME_FREE_PACKAGE : WEB_AWESOME_PRO_PACKAGE;
+    await cleanupOldPackage(
+      cwd,
+      oldPackage,
+      projectInfo.packageManager,
+      output
+    );
+  }
+
+  // Check for duplicate packages
+  await checkDuplicatePackages(cwd, output);
+}
+
+/**
+ * Ask for installation confirmation (or auto-confirm in non-interactive mode)
+ *
+ * @internal
+ */
+async function confirmInstallation(
+  isNonInteractive: boolean
+): Promise<boolean> {
+  if (isNonInteractive) {
+    return true;
+  }
+
+  const result = await p.confirm({
+    message: 'Install dependencies now?',
+    initialValue: true,
+  });
+  return p.isCancel(result) ? false : Boolean(result);
 }
 
 /**

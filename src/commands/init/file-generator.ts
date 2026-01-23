@@ -1,12 +1,24 @@
 /**
  * File Generator
  *
- * Generates project files (webawesome.ts, theme.css, etc.)
+ * PURPOSE: Generates project files during `kigumi init`.
+ * Creates webawesome.ts, theme.css, vite-env.d.ts, .npmrc, etc.
+ *
+ * @see AGENTS.md for list of auto-generated files
  */
 
 import type { OutputInterface } from '../../output/types.js';
 import type { KigumiConfig } from '../../schemas/index.js';
 import type { Tier } from '../../utils/tier.js';
+import {
+  ENV_FILE_NAME,
+  ENV_TOKEN_KEY,
+  ENV_TOKEN_REGEX,
+  NPM_PRO_REGISTRY,
+  NPM_PUBLIC_REGISTRY,
+  WEB_AWESOME_SCOPE,
+} from '../../constants.js';
+import { getWebAwesomePackage } from '../../utils/tier.js';
 import {
   regenerateWebAwesomeSetup,
   generateViteEnvDts,
@@ -74,10 +86,7 @@ export async function generateProjectFiles(
     // 4. Generate vite-env.d.ts (TypeScript + React)
     if (config.typescript && config.framework === 'react') {
       spinner.message('Generating vite-env.d.ts...');
-      const waPackage =
-        tier === 'pro'
-          ? '@awesome.me/webawesome-pro'
-          : '@awesome.me/webawesome';
+      const waPackage = getWebAwesomePackage(tier);
       await generateViteEnvDts(cwd, 'src', waPackage);
     }
 
@@ -134,13 +143,14 @@ export async function generateProjectFiles(
 
 /**
  * Ensure .env file has the Pro token (append if exists, create if not)
+ * @internal
  */
 async function ensureEnvFile(
   cwd: string,
   token: string,
   output: OutputInterface
 ): Promise<void> {
-  const envPath = path.join(cwd, '.env');
+  const envPath = path.join(cwd, ENV_FILE_NAME);
 
   // Check if .env already exists
   if (await fs.pathExists(envPath)) {
@@ -149,18 +159,17 @@ async function ensureEnvFile(
     const content = await fs.readFile(envPath, 'utf-8');
 
     // Check if WEBAWESOME_NPM_TOKEN already exists
-    const tokenRegex = /^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m;
-    const match = content.match(tokenRegex);
+    const match = content.match(ENV_TOKEN_REGEX);
 
     if (match) {
       // Token exists - don't overwrite
-      output.log(`[DEBUG] WEBAWESOME_NPM_TOKEN already set in .env`);
+      output.log(`[DEBUG] ${ENV_TOKEN_KEY} already set in .env`);
       return;
     }
 
     // Append token
-    output.log(`[DEBUG] Adding WEBAWESOME_NPM_TOKEN to .env`);
-    const appendContent = `\n# Web Awesome Pro authentication token\nWEBAWESOME_NPM_TOKEN=${token}\n`;
+    output.log(`[DEBUG] Adding ${ENV_TOKEN_KEY} to .env`);
+    const appendContent = `\n# Web Awesome Pro authentication token\n${ENV_TOKEN_KEY}=${token}\n`;
     await fs.appendFile(envPath, appendContent);
     return;
   }
@@ -168,7 +177,7 @@ async function ensureEnvFile(
   // Create new .env file
   const envContent = `# Web Awesome Pro authentication token
 # Get your token from https://webawesome.com/pro
-WEBAWESOME_NPM_TOKEN=${token}
+${ENV_TOKEN_KEY}=${token}
 `;
 
   await fs.writeFile(envPath, envContent);
@@ -177,10 +186,12 @@ WEBAWESOME_NPM_TOKEN=${token}
 /**
  * Generate .npmrc file
  *
- * IMPORTANT: Both tiers need .npmrc to override potential global ~/.npmrc
+ * WHY: Both tiers need .npmrc to override potential global ~/.npmrc
  *
- * Pro tier: Points to private Cloudsmith registry with auth
- * Free tier: Explicitly use public npm registry (overrides global config)
+ * - Pro tier: Points to private Cloudsmith registry with auth
+ * - Free tier: Explicitly use public npm registry (overrides global config)
+ *
+ * @internal
  */
 async function generateNpmrc(cwd: string, tier: Tier): Promise<void> {
   const npmrcPath = path.join(cwd, '.npmrc');
@@ -188,13 +199,13 @@ async function generateNpmrc(cwd: string, tier: Tier): Promise<void> {
   let npmrcContent: string;
 
   if (tier === 'pro') {
-    npmrcContent = `@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro
-//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=\${WEBAWESOME_NPM_TOKEN}
+    npmrcContent = `${WEB_AWESOME_SCOPE}:registry=${NPM_PRO_REGISTRY}
+//${NPM_PRO_REGISTRY.replace('https://', '')}/:_authToken=\${${ENV_TOKEN_KEY}}
 `;
   } else {
     // Free tier: Explicitly point to public npm registry
     // This overrides any global ~/.npmrc that might point to Pro registry
-    npmrcContent = `@awesome.me:registry=https://registry.npmjs.org/
+    npmrcContent = `${WEB_AWESOME_SCOPE}:registry=${NPM_PUBLIC_REGISTRY}
 `;
   }
 
@@ -223,14 +234,13 @@ async function generateSetupInstructions(
   const templateContent = await fs.readFile(templatePath, 'utf-8');
   const template = Handlebars.compile(templateContent);
 
-  const waPackage =
-    tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+  const waPackage = getWebAwesomePackage(tier);
 
   const data = {
     waPackage,
     theme: config.theme.selected,
     componentsDir: config.componentsDir || 'src/components/ui',
-    version: '0.2.0', // TODO: Get from package.json
+    version: '0.2.0', // CLI version, update with each release
   };
 
   const output = template(data);
