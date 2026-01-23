@@ -1,7 +1,9 @@
 /**
  * Brand Command
  *
- * Changes the brand color
+ * PURPOSE: Changes the brand color for the project.
+ *
+ * @public
  */
 
 import type { KigumiConfig } from '../schemas/config.js';
@@ -15,7 +17,11 @@ import {
   ConfigExistsCheck,
   ConfigValidCheck,
 } from '../checks/index.js';
-import { handleError, UserCancelledError } from '../errors/index.js';
+import {
+  handleError,
+  UserCancelledError,
+  PreFlightCheckError,
+} from '../errors/index.js';
 import { ValidationError } from '../errors/validation.js';
 import { loadConfig, saveConfig, getConfig } from '../utils/config.js';
 import { regenerateWebAwesomeSetup } from '../utils/regenerate.js';
@@ -55,9 +61,7 @@ async function brandAction(colorName?: string) {
 
     const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
-      output.error('Pre-flight checks failed');
-      output.note('Issues found', checker.formatResults(checkResults));
-      process.exit(1);
+      throw new PreFlightCheckError(checkResults);
     }
 
     // Config must be loaded at this point (checks passed)
