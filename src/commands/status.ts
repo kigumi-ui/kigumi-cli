@@ -1,15 +1,33 @@
 /**
  * Status Command
  *
- * Displays current project status including tier, theme, components, and token info
+ * PURPOSE: Displays current project status including tier, theme, components, and token info.
+ *
+ * Shows:
+ * - Current tier (Free/Pro)
+ * - Framework and TypeScript status
+ * - Theme configuration
+ * - Token status
+ * - Installed components
+ * - Warnings for tier mismatches or duplicate packages
+ *
+ * @public
  */
 
 import fs from 'fs-extra';
 import path from 'path';
+import {
+  ENV_FILE_NAME,
+  ENV_TOKEN_REGEX,
+  MIN_TOKEN_LENGTH,
+  WEB_AWESOME_FREE_PACKAGE,
+  WEB_AWESOME_PRO_PACKAGE,
+} from '../constants.js';
 import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { detectTier } from '../utils/tier.js';
 import type { Tier } from '../utils/tier.js';
+import { handleError, ConfigNotFoundError } from '../errors/index.js';
 
 interface StatusOptions {
   cwd?: string;
@@ -40,6 +58,7 @@ async function getInstalledComponents(
 
 /**
  * Get installed Web Awesome package info
+ * @internal
  */
 async function getPackageInfo(
   cwd: string
@@ -54,18 +73,18 @@ async function getPackageInfo(
     const dependencies = packageJson.dependencies || {};
 
     // Check for Pro package first
-    if (dependencies['@awesome.me/webawesome-pro']) {
+    if (dependencies[WEB_AWESOME_PRO_PACKAGE]) {
       return {
-        package: '@awesome.me/webawesome-pro',
-        version: dependencies['@awesome.me/webawesome-pro'],
+        package: WEB_AWESOME_PRO_PACKAGE,
+        version: dependencies[WEB_AWESOME_PRO_PACKAGE],
       };
     }
 
     // Check for Free package
-    if (dependencies['@awesome.me/webawesome']) {
+    if (dependencies[WEB_AWESOME_FREE_PACKAGE]) {
       return {
-        package: '@awesome.me/webawesome',
-        version: dependencies['@awesome.me/webawesome'],
+        package: WEB_AWESOME_FREE_PACKAGE,
+        version: dependencies[WEB_AWESOME_FREE_PACKAGE],
       };
     }
 
@@ -77,20 +96,23 @@ async function getPackageInfo(
 
 /**
  * Check if token exists in .env
+ * @internal
  */
 async function checkTokenStatus(cwd: string): Promise<boolean> {
   try {
-    const envPath = path.join(cwd, '.env');
+    const envPath = path.join(cwd, ENV_FILE_NAME);
     if (!(await fs.pathExists(envPath))) {
       return false;
     }
 
     const content = await fs.readFile(envPath, 'utf-8');
-    const tokenMatch = content.match(
-      /^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m
-    );
+    const tokenMatch = content.match(ENV_TOKEN_REGEX);
 
-    return !!(tokenMatch && tokenMatch[1] && tokenMatch[1].length >= 10);
+    return !!(
+      tokenMatch &&
+      tokenMatch[1] &&
+      tokenMatch[1].length >= MIN_TOKEN_LENGTH
+    );
   } catch {
     return false;
   }
@@ -111,12 +133,7 @@ export async function statusCommand(
     // 1. Load config
     const config = await loadConfig(cwd);
     if (!config) {
-      output.error('No kigumi.config.json found');
-      output.note(
-        'Not initialized',
-        'Run "kigumi init" to initialize your project.'
-      );
-      process.exit(1);
+      throw new ConfigNotFoundError(cwd);
     }
 
     // 2. Detect tier
@@ -171,16 +188,13 @@ export async function statusCommand(
     const warnings: string[] = [];
 
     // Check for tier mismatch
-    if (
-      tier === 'free' &&
-      packageInfo?.package === '@awesome.me/webawesome-pro'
-    ) {
+    if (tier === 'free' && packageInfo?.package === WEB_AWESOME_PRO_PACKAGE) {
       warnings.push(
         '⚠️  Pro package installed but no token found - may cause installation issues'
       );
     }
 
-    if (tier === 'pro' && packageInfo?.package === '@awesome.me/webawesome') {
+    if (tier === 'pro' && packageInfo?.package === WEB_AWESOME_FREE_PACKAGE) {
       warnings.push(
         '⚠️  Free package installed but Pro token present - consider upgrading package'
       );
@@ -190,8 +204,8 @@ export async function statusCommand(
     try {
       const packageJsonPath = path.join(cwd, 'package.json');
       const packageJson = await fs.readJSON(packageJsonPath);
-      const hasFree = !!packageJson.dependencies?.['@awesome.me/webawesome'];
-      const hasPro = !!packageJson.dependencies?.['@awesome.me/webawesome-pro'];
+      const hasFree = !!packageJson.dependencies?.[WEB_AWESOME_FREE_PACKAGE];
+      const hasPro = !!packageJson.dependencies?.[WEB_AWESOME_PRO_PACKAGE];
 
       if (hasFree && hasPro) {
         warnings.push(
@@ -209,10 +223,6 @@ export async function statusCommand(
 
     output.outro('✓ Status check complete');
   } catch (error) {
-    output.error('Failed to get status');
-    if (error instanceof Error) {
-      output.note('Error', error.message);
-    }
-    process.exit(1);
+    handleError(error, output);
   }
 }
