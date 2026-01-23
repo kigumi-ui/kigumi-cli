@@ -1,7 +1,24 @@
+/**
+ * Configuration Management
+ *
+ * PURPOSE: Load, save, and manage kigumi.config.json configuration files.
+ *
+ * EXPORTS:
+ * - loadConfig() - Load configuration from project
+ * - saveConfig() - Save configuration to project
+ * - getConfig() - Get cached configuration
+ *
+ * @internal - Utility module for internal CLI use
+ */
+
 import { cosmiconfigSync } from 'cosmiconfig';
 import fs from 'fs-extra';
 import path from 'path';
 
+/**
+ * Configuration interface for kigumi projects
+ * @public - Used by command handlers
+ */
 export interface KigumiConfig {
   framework: 'react' | 'vue' | 'svelte' | 'angular';
   typescript: boolean;
@@ -40,6 +57,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
 
 /**
  * Load kigumi configuration from the user's project
+ * @internal
  */
 export function loadConfig(cwd: string = process.cwd()): KigumiConfig | null {
   const explorer = cosmiconfigSync('kigumi', {
@@ -59,6 +77,7 @@ export function loadConfig(cwd: string = process.cwd()): KigumiConfig | null {
 
 /**
  * Save kigumi configuration to the user's project
+ * @internal
  */
 export async function saveConfig(
   config: KigumiConfig,
@@ -70,6 +89,7 @@ export async function saveConfig(
 
 /**
  * Get the resolved configuration with defaults
+ * @internal
  */
 export function getConfig(cwd: string = process.cwd()): KigumiConfig {
   const userConfig = loadConfig(cwd);

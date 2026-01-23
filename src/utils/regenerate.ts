@@ -1,15 +1,35 @@
+/**
+ * Regenerate Utilities
+ *
+ * PURPOSE: Regenerates auto-generated files (webawesome.ts, theme.css, vite-env.d.ts)
+ * when configuration changes.
+ *
+ * EXPORTS:
+ * - regenerateWebAwesomeSetup() - Regenerate webawesome.ts with theme config
+ * - generateViteEnvDts() - Generate TypeScript declarations for wa-* elements
+ * - generateThemeCSS() - Generate theme.css content
+ * - generateGitIgnore() - Create/update .gitignore
+ *
+ * @see AGENTS.md for auto-generated files list
+ */
+
 import fs from 'fs-extra';
 import path from 'path';
+import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
 import type { KigumiConfig } from './config.js';
-
 import type { Tier } from './tier.js';
-import { detectTierSync } from './tier.js';
+import { detectTierSync, getWebAwesomePackage } from './tier.js';
 
 /**
  * Regenerate the Web Awesome setup file with updated theme configuration
  *
  * This function is used by init and all theme management commands
  * to ensure webawesome.ts is always in sync with the config.
+ *
+ * @param cwd - Current working directory
+ * @param config - Kigumi configuration
+ * @param utilsDir - Path to utils directory (e.g., 'src/lib')
+ * @param tierOverride - Optional tier override (uses .env detection if not provided)
  */
 export async function regenerateWebAwesomeSetup(
   cwd: string,
@@ -19,8 +39,7 @@ export async function regenerateWebAwesomeSetup(
 ): Promise<void> {
   // Detect tier from .env, or use override
   const tier = tierOverride || detectTierSync(cwd);
-  const packageName =
-    tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+  const packageName = getWebAwesomePackage(tier);
 
   // Base Web Awesome CSS (required for all components and CSS variables)
   const baseImport = `import '${packageName}/dist/styles/webawesome.css';`;
@@ -94,11 +113,15 @@ export {};
  * using the official types from the Web Awesome package.
  *
  * See: https://webawesome.com/docs/#react-users
+ *
+ * @param cwd - Current working directory
+ * @param srcDir - Source directory (e.g., 'src')
+ * @param waPackage - Web Awesome package name (defaults to free package)
  */
 export async function generateViteEnvDts(
   cwd: string,
   srcDir: string,
-  waPackage: string = '@awesome.me/webawesome'
+  waPackage: string = WEB_AWESOME_FREE_PACKAGE
 ): Promise<void> {
   const viteEnvContent = `/// <reference types="vite/client" />
 
@@ -130,6 +153,10 @@ declare module 'react' {
 
 /**
  * Generate theme.css content
+ *
+ * @param config - Kigumi configuration
+ * @param tierOverride - Optional tier override
+ * @returns CSS content string
  */
 export async function generateThemeCSS(
   config: KigumiConfig,
@@ -139,8 +166,7 @@ export async function generateThemeCSS(
 
   // Detect tier from .env if not provided
   const tier = tierOverride || 'free'; // Will be determined by caller
-  const packageName =
-    tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
+  const packageName = getWebAwesomePackage(tier);
 
   return `/**
  * Web Awesome Theme Configuration
