@@ -1,48 +1,60 @@
+/**
+ * Theme Show Command
+ *
+ * Displays current theme configuration.
+ */
+
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { loadConfig } from '../../utils/config.js';
+import { detectTier, getWebAwesomePackage } from '../../utils/tier.js';
+import { ConfigNotFoundError, handleError } from '../../errors/index.js';
+import { getOutput } from '../../output/index.js';
 
 export const showCommand = new Command('show')
   .description('Show current theme configuration')
   .action(async () => {
     const cwd = process.cwd();
-    const config = await loadConfig(cwd);
+    const output = getOutput();
 
-    if (!config) {
-      p.log.error('No kigumi-components.json found. Run "kigumi init" first.');
-      process.exit(1);
-    }
+    try {
+      const config = await loadConfig(cwd);
 
-    const { detectTier } = await import('../../utils/tier.js');
-    const tier = await detectTier(cwd);
+      if (!config) {
+        throw new ConfigNotFoundError(cwd);
+      }
 
-    p.intro(pc.bgCyan(pc.black(' Current Theme Configuration ')));
+      const tier = await detectTier(cwd);
 
-    p.note(
-      `Theme: ${pc.cyan(config.theme.selected)}\n` +
-        `Palette: ${pc.cyan(config.theme.palette)}\n` +
-        `Brand Color: ${pc.cyan(config.theme.brandColor)}\n` +
-        `Tier: ${pc.cyan(tier)}`,
-      'Settings'
-    );
+      p.intro(pc.bgCyan(pc.black(' Current Theme Configuration ')));
 
-    p.note(
-      `wa-theme-${config.theme.selected}\n` +
-        `wa-palette-${config.theme.palette}\n` +
-        `wa-brand-${config.theme.brandColor}`,
-      'HTML Classes'
-    );
-
-    const packageName =
-      tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome';
-
-    if (config.theme.selected !== 'none') {
       p.note(
-        `${packageName}/dist/styles/themes/${config.theme.selected}.css`,
-        'Theme Import'
+        `Theme: ${pc.cyan(config.theme.selected)}\n` +
+          `Palette: ${pc.cyan(config.theme.palette)}\n` +
+          `Brand Color: ${pc.cyan(config.theme.brandColor)}\n` +
+          `Tier: ${pc.cyan(tier)}`,
+        'Settings'
       );
-    }
 
-    p.outro(`Run ${pc.cyan('kigumi theme set <name>')} to change theme`);
+      p.note(
+        `wa-theme-${config.theme.selected}\n` +
+          `wa-palette-${config.theme.palette}\n` +
+          `wa-brand-${config.theme.brandColor}`,
+        'HTML Classes'
+      );
+
+      const packageName = getWebAwesomePackage(tier);
+
+      if (config.theme.selected !== 'none') {
+        p.note(
+          `${packageName}/dist/styles/themes/${config.theme.selected}.css`,
+          'Theme Import'
+        );
+      }
+
+      p.outro(`Run ${pc.cyan('kigumi theme set <name>')} to change theme`);
+    } catch (error) {
+      handleError(error, output);
+    }
   });
