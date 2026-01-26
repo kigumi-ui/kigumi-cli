@@ -521,17 +521,40 @@ See `templates/react/Dialog/Dialog.tsx.hbs` for:
 
 ## 🔄 Common Workflows
 
-### Add New Component
+### Add New Component (Automated with Cursor Skill)
 
-1. Update `src/utils/registry.ts`
-2. Create templates in `templates/react/{Component}/`:
+**Use the `generate-webawesome-component` Cursor Skill** for automated generation:
+
+```
+User: "Generate React wrapper for Button Group from Web Awesome docs"
+Agent: [Uses skill to extract metadata and generate all templates]
+```
+
+The skill will:
+
+1. Fetch Web Awesome documentation
+2. Extract metadata (props, events, methods, slots, CSS parts)
+3. Detect complexity (simple vs complex pattern)
+4. Update `src/utils/registry.ts`
+5. Generate all template files
+6. Validate generated code
+
+**See:** `~/.cursor/skills/generate-webawesome-component/SKILL.md`
+
+### Add New Component (Manual Process)
+
+If not using the Cursor skill:
+
+1. Analyze Web Awesome docs at `https://webawesome.com/docs/components/{name}`
+2. Update `src/utils/registry.ts` with component definition
+3. Create templates in `templates/react/{Component}/`:
    - `{Component}.tsx.hbs` (TypeScript with interfaces)
    - `{Component}.jsx.hbs` (JavaScript with JSDoc)
    - `{Component}.test.tsx.hbs` and `.test.jsx.hbs`
    - `{Component}.css.hbs`
-3. Use named imports from React: `import { forwardRef } from 'react'`
-4. Add TypeScript declarations in `templates/react/vite-env.d.ts.hbs`
-5. Test: `pnpm build && node dist/index.js add {component}` (both TS and JS projects)
+4. Use named imports from React: `import { forwardRef } from 'react'`
+5. Add TypeScript declarations in `templates/react/vite-env.d.ts.hbs`
+6. Test: `pnpm build && node dist/index.js add {component}` (both TS and JS projects)
 
 ### Fix Component Bug
 
@@ -766,10 +789,15 @@ export {};
 **Files Changed:**
 
 - `templates/react/vite-env.d.ts.hbs` - Now uses `declare global`
+- `src/utils/regenerate.ts` - **CRITICAL FIX (2026-01-26)**: Updated `generateViteEnvDts()` to use `declare global` instead of `declare module 'react'`
+- `src/utils/template.ts` - **CRITICAL FIX (2026-01-26)**: Updated `updateTypeDeclarations()` and `generateTypeDeclaration()` to use `declare global` and import React types
+- `templates/react/Dialog/Dialog.tsx.hbs` - Added `open` prop synchronization with useEffect, improved examples
 - `src/commands/add/index.ts` - Updated regex for new format
 - `KIGUMI_SETUP.md.hbs` - Simplified (no manual steps needed)
 
 **Result:** TypeScript works out-of-the-box with Vite 6 + React 19. No manual configuration needed!
+
+**IMPORTANT:** Both `generateViteEnvDts()` (for vite-env.d.ts) and `updateTypeDeclarations()` (for web-awesome.d.ts) now use `declare global` instead of `declare module 'react'`. This ensures React exports are never overwritten.
 
 ### Tier Migration Improvements (2026-01-11)
 
@@ -846,6 +874,44 @@ All tests performed with real Vite projects in `tests/` folder:
 
 ---
 
-**Last Updated**: 2026-01-22
+## 🤖 Cursor Skills
+
+### Generate Web Awesome Component
+
+**Location**: `~/.cursor/skills/generate-webawesome-component/`
+
+Automates the creation of React wrapper templates from Web Awesome documentation.
+
+**Usage Example:**
+
+```
+User: "Add button-group component from Web Awesome docs"
+```
+
+**The skill will:**
+
+1. Fetch `https://webawesome.com/docs/components/button-group`
+2. Extract all component metadata (props, events, methods, etc.)
+3. Determine if component is simple or complex
+4. Generate registry entry in `src/utils/registry.ts`
+5. Create all template files (.tsx, .jsx, tests, css)
+6. Validate templates follow AGENTS.md patterns
+
+**When to use:**
+
+- Adding any new Web Awesome component
+- User provides a webawesome.com/docs URL
+- User mentions creating templates for a `wa-*` component
+
+**Complexity Detection:**
+
+- **Simple**: No custom events/methods (Button, Input, Card)
+- **Complex**: Has `wa-*` events or imperative methods (Dialog, Drawer)
+
+The skill automatically chooses the right template pattern based on component complexity.
+
+---
+
+**Last Updated**: 2026-01-26
 **Maintained by**: AI Assistants
 **Questions**: See `README.md` or ask user for help.

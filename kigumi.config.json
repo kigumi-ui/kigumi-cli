@@ -5,8 +5,8 @@
   "utilsDir": "src/lib",
   "theme": {
     "selected": "awesome",
-    "palette": "default",
-    "brandColor": "blue"
+    "palette": "rudimentary",
+    "brandColor": "red"
   },
   "aliases": {
     "@/components": "./src/components",
