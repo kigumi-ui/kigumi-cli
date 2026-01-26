@@ -27,11 +27,6 @@ import {
 } from '../../utils/regenerate.js';
 import fs from 'fs-extra';
 import path from 'path';
-import Handlebars from 'handlebars';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export interface FileGenerationOptions {
   cwd: string;
@@ -124,12 +119,6 @@ export async function generateProjectFiles(
       }
     }
 
-    // 10. Generate KIGUMI_SETUP.md
-    spinner.message('Generating setup instructions...');
-    output.log(`[DEBUG] Generating KIGUMI_SETUP.md`);
-    await generateSetupInstructions(cwd, config, tier);
-    output.log(`[DEBUG] ✓ KIGUMI_SETUP.md generated`);
-
     spinner.stop('Project files generated');
   } catch (error) {
     spinner.error('File generation failed');
@@ -210,39 +199,4 @@ async function generateNpmrc(cwd: string, tier: Tier): Promise<void> {
   }
 
   await fs.writeFile(npmrcPath, npmrcContent);
-}
-
-/**
- * Generate KIGUMI_SETUP.md with setup instructions
- */
-async function generateSetupInstructions(
-  cwd: string,
-  config: KigumiConfig,
-  tier: Tier
-): Promise<void> {
-  // Get template path
-  const templatePath = path.join(
-    __dirname,
-    '../../../templates/react/KIGUMI_SETUP.md.hbs'
-  );
-
-  if (!(await fs.pathExists(templatePath))) {
-    // Template not found, skip generation
-    return;
-  }
-
-  const templateContent = await fs.readFile(templatePath, 'utf-8');
-  const template = Handlebars.compile(templateContent);
-
-  const waPackage = getWebAwesomePackage(tier);
-
-  const data = {
-    waPackage,
-    theme: config.theme.selected,
-    componentsDir: config.componentsDir || 'src/components/ui',
-    version: '0.2.0', // CLI version, update with each release
-  };
-
-  const output = template(data);
-  await fs.writeFile(path.join(cwd, 'KIGUMI_SETUP.md'), output);
 }

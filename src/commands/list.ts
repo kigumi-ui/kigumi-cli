@@ -35,7 +35,9 @@ export async function listCommand() {
     let content = '';
     for (const [category, items] of Object.entries(byCategory)) {
       content += pc.bold(pc.cyan(`\n${category}`)) + '\n';
-      for (const item of items) {
+      // Sort items alphabetically within each category
+      const sortedItems = items.sort((a, b) => a.localeCompare(b));
+      for (const item of sortedItems) {
         const component = components[item];
         content += `  ${pc.green('○')} ${pc.white(item.padEnd(15))} ${pc.dim(component.description)}\n`;
       }
