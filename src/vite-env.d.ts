@@ -1,0 +1,24 @@
+/// <reference types="vite/client" />
+
+/**
+ * Web Awesome JSX Types
+ *
+ * This extends React's JSX.IntrinsicElements with Web Awesome custom elements.
+ * Uses the official types from the @awesome.me/webawesome package.
+ *
+ * @see https://webawesome.com/docs/#react-users
+ */
+
+import type {
+  CustomElements,
+  CustomCssProperties,
+} from '@awesome.me/webawesome/dist/custom-elements-jsx.d.ts';
+
+declare module 'react' {
+  namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface IntrinsicElements extends CustomElements {}
+  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface CSSProperties extends CustomCssProperties {}
+}

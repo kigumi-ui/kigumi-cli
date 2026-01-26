@@ -5,8 +5,8 @@
  * It imports Web Awesome styles and applies theme classes to the <html> element.
  *
  * Current theme: awesome
- * Current palette: default
- * Current brand: blue
+ * Current palette: rudimentary
+ * Current brand: red
  *
  * To change themes, use: kigumi theme set <name>
  * To change brand color, use: kigumi brand set <color>
@@ -33,8 +33,8 @@ if (typeof document !== 'undefined') {
 
   // Add new theme classes
   html.classList.add('wa-theme-awesome');
-  html.classList.add('wa-palette-default');
-  html.classList.add('wa-brand-blue');
+  html.classList.add('wa-palette-rudimentary');
+  html.classList.add('wa-brand-red');
 }
 
 export {};

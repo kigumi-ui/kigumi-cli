@@ -131,6 +131,8 @@ export async function generateViteEnvDts(
  * This extends React's JSX.IntrinsicElements with Web Awesome custom elements.
  * Uses the official types from the ${waPackage} package.
  *
+ * IMPORTANT: Uses 'declare global' to extend JSX without overwriting React module.
+ *
  * @see https://webawesome.com/docs/#react-users
  */
 
@@ -139,12 +141,17 @@ import type {
   CustomCssProperties,
 } from '${waPackage}/dist/custom-elements-jsx.d.ts';
 
-declare module 'react' {
+declare global {
   namespace JSX {
     interface IntrinsicElements extends CustomElements {}
   }
+}
+
+declare module 'react' {
   interface CSSProperties extends CustomCssProperties {}
 }
+
+export {};
 `;
 
   const viteEnvPath = path.join(cwd, srcDir, 'vite-env.d.ts');

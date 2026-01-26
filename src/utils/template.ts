@@ -204,12 +204,12 @@ export function generateTypeDeclaration(
     })
     .join('\n');
 
-  return `    '${component.tagName}': React.DetailedHTMLProps<
-      React.HTMLAttributes<HTMLElement> & {
+  return `      '${component.tagName}': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
 ${propTypes}
-      },
-      HTMLElement
-    >;`;
+        },
+        HTMLElement
+      >;`;
 }
 
 /**
@@ -241,12 +241,16 @@ export async function updateTypeDeclarations(
  * This file provides type safety for Web Awesome custom elements in React
  */
 
-declare module 'react' {
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
+
+declare global {
   namespace JSX {
     interface IntrinsicElements {
     }
   }
 }
+
+export {};
 `;
   }
 
