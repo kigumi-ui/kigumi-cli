@@ -347,9 +347,40 @@ Run `rm -rf node_modules pnpm-lock.yaml && pnpm install` to recreate lockfile wi
 
 ---
 
+## 🏗️ Architecture
+
+```
+src/
+├── commands/           # CLI command handlers
+│   ├── init/           # Project initialization
+│   ├── add/            # Component installation
+│   └── theme/          # Theme management
+├── utils/              # Internal utilities
+│   ├── tier.ts         # Free/Pro tier detection
+│   ├── config.ts       # Configuration management
+│   ├── registry.ts     # Component definitions
+│   └── template.ts     # Handlebars template rendering
+├── schemas/            # Zod validation schemas
+├── errors/             # Typed error classes
+├── output/             # Console output formatting
+└── constants.ts        # Centralized magic strings
+templates/
+└── react/              # .hbs template files
+```
+
+**Key Design Patterns**:
+
+- Templates-first development (never edit generated code)
+- Tier detection from `.env` (not stored in config)
+- Centralized constants (`src/constants.ts`)
+- Structured error handling with semantic exit codes
+- Template compilation caching for performance
+
+---
+
 ## 📚 Documentation
 
-- **AGENTS.md** - AI assistant development guide
+- **AGENTS.md** - AI assistant development guide (architecture diagrams, data flow)
 - **CLAUDE.md** - Human developer documentation
 
 ---
