@@ -8,22 +8,37 @@ import './Dialog.css';
  *
  * @example
  * ```tsx
- * // Using ref methods
- * import { useRef } from 'react';
- * const dialogRef = useRef<DialogRef>(null);
- * <Dialog ref={dialogRef} label="Dialog Title">
- *   <p>Dialog content</p>
- *   <div slot="footer">
- *     <Button data-dialog="close">Close</Button>
- *   </div>
- * </Dialog>
- * dialogRef.current?.show();
- *
  * // Using open prop (recommended)
  * import { useState } from 'react';
- * const [open, setOpen] = useState(false);
- * <Dialog open={open} label="Dialog Title" onWaHide={() => setOpen(false)}>
+ * import { Dialog } from './components/ui';
+ * import { Button } from './components/ui';
+ * 
+ * function App() {
+ *   const [open, setOpen] = useState(false);
+ *   
+ *   return (
+ *     <>
+ *       <Button onClick={() => setOpen(true)}>Open Dialog</Button>
+ *       <Dialog open={open} label="Dialog Title" onHide={() => setOpen(false)}>
+ *         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+ *         <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+ *           Close
+ *         </Button>
+ *       </Dialog>
+ *     </>
+ *   );
+ * }
+ *
+ * // Using ref methods (alternative)
+ * import { useRef } from 'react';
+ * const dialogRef = useRef<DialogRef>(null);
+ * 
+ * <Button onClick={() => dialogRef.current?.show()}>Open Dialog</Button>
+ * <Dialog ref={dialogRef} label="Dialog Title">
  *   <p>Dialog content</p>
+ *   <Button slot="footer" variant="brand" onClick={() => dialogRef.current?.hide()}>
+ *     Close
+ *   </Button>
  * </Dialog>
  * ```
  */
@@ -54,10 +69,11 @@ export interface DialogRef {
 }
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
     const dialogRef = useRef<HTMLElement & {
       show?: () => void;
       requestClose?: () => void;
+      open?: boolean;
     }>(null);
 
     useImperativeHandle(
@@ -85,6 +101,20 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       }),
       []
     );
+
+    // Sync open prop with dialog element
+    useEffect(() => {
+      const el = dialogRef.current;
+      if (!el || open === undefined) return;
+
+      // Sync open prop with element state
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.requestClose?.();
+      }
+    }, [open]);
 
     // Setup event listeners
     useEffect(() => {
@@ -122,6 +152,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return (
       <wa-dialog
+        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={dialogRef}
         class={clsx('Dialog', className)}
         {...props}

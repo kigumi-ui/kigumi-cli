@@ -1,0 +1,72 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Avatar.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * ```tsx
+ * // With image
+ * <Avatar image="https://example.com/avatar.jpg" label="User avatar" />
+ *
+ * // With initials
+ * <Avatar initials="JD" label="John Doe" />
+ *
+ * // With custom icon
+ * <Avatar label="Settings">
+ *   <wa-icon slot="icon" name="gear" />
+ * </Avatar>
+ * ```
+ */
+export interface AvatarProps extends HTMLAttributes<HTMLElement> {
+  /** The image source to use for the avatar */
+  image?: string;
+  /** A label to use to describe the avatar to assistive devices */
+  label: string;
+  /** Initials to use as a fallback when no image is available */
+  initials?: string;
+  /** Indicates how the browser should load the image */
+  loading?: 'eager' | 'lazy';
+  /** The shape of the avatar */
+  shape?: 'circle' | 'square' | 'rounded';
+  /** Event fired when the image could not be loaded */
+  onError?: (event: CustomEvent) => void;
+}
+
+export const Avatar = forwardRef<HTMLElement, AvatarProps>(
+  ({ children, className, onError, ...props }, ref) => {
+    const elementRef = useRef<HTMLElement>(null);
+
+    useImperativeHandle(ref, () => elementRef.current as HTMLElement, []);
+
+    useEffect(() => {
+      const el = elementRef.current;
+      if (!el || !onError) return;
+
+      const handleError = (e: Event) => {
+        onError(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-error', handleError);
+
+      return () => {
+        el.removeEventListener('wa-error', handleError);
+      };
+    }, [onError]);
+
+    return (
+      <wa-avatar
+        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
+        ref={elementRef}
+        class={clsx('Avatar', className)}
+        {...props}
+      >
+        {children}
+      </wa-avatar>
+    );
+  }
+);
+
+Avatar.displayName = 'Avatar';

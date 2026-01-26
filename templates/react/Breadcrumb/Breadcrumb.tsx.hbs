@@ -1,0 +1,49 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Breadcrumb.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * ```tsx
+ * import { Breadcrumb, BreadcrumbItem } from './components/ui';
+ *
+ * <Breadcrumb>
+ *   <BreadcrumbItem>Home</BreadcrumbItem>
+ *   <BreadcrumbItem>Category</BreadcrumbItem>
+ *   <BreadcrumbItem>Product</BreadcrumbItem>
+ * </Breadcrumb>
+ *
+ * // With links
+ * <Breadcrumb>
+ *   <BreadcrumbItem href="/">Home</BreadcrumbItem>
+ *   <BreadcrumbItem href="/products">Products</BreadcrumbItem>
+ *   <BreadcrumbItem>Current Page</BreadcrumbItem>
+ * </Breadcrumb>
+ *
+ * // With custom separator
+ * <Breadcrumb>
+ *   <wa-icon slot="separator" name="angle-right" />
+ *   <BreadcrumbItem>First</BreadcrumbItem>
+ *   <BreadcrumbItem>Second</BreadcrumbItem>
+ * </Breadcrumb>
+ * ```
+ */
+export interface BreadcrumbProps extends HTMLAttributes<HTMLElement> {
+  /** The label to use for the breadcrumb control for assistive devices */
+  label?: string;
+}
+
+export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-breadcrumb ref={ref} class={clsx('Breadcrumb', className)} {...props}>
+        {children}
+      </wa-breadcrumb>
+    );
+  }
+);
+
+Breadcrumb.displayName = 'Breadcrumb';
