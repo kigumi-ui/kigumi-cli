@@ -186,14 +186,16 @@ export async function buildConfigInteractive(
   if (!proToken && detectedTier === 'free') {
     // Offer to enter Pro token
     const wantsProResult = await p.confirm({
-      message: 'Do you have a Web Awesome Pro token?',
+      message:
+        'Do you have a Web Awesome Pro token? (Unlock premium themes and components)',
       initialValue: false,
     });
     const wantsPro = ensureBoolean(wantsProResult);
 
     if (wantsPro) {
       const tokenResult = await p.text({
-        message: 'Enter your Web Awesome Pro token',
+        message:
+          'Enter your Web Awesome Pro token (Get one at https://webawesome.com/pro)',
         placeholder: 'Your pro token here',
         validate: (value) => {
           if (!value || value.trim().length === 0) {
@@ -217,7 +219,8 @@ export async function buildConfigInteractive(
   const themeResult =
     options.theme ||
     (await p.select({
-      message: 'Select theme',
+      message:
+        'Select theme (Preview themes at https://webawesome.com/docs/themes)',
       options: availableThemes.map((t) => ({ value: t, label: t })),
       initialValue: 'default',
     }));
@@ -228,7 +231,8 @@ export async function buildConfigInteractive(
   const paletteResult =
     options.palette ||
     (await p.select({
-      message: 'Select palette',
+      message:
+        'Select color palette (Preview palettes at https://webawesome.com/docs/color-palettes)',
       options: availablePalettes.map((pal) => ({ value: pal, label: pal })),
       initialValue: 'default',
     }));
@@ -239,7 +243,7 @@ export async function buildConfigInteractive(
     options.brand ||
     options.brandColor ||
     (await p.select({
-      message: 'Select brand color',
+      message: 'Select brand color (Primary color for interactive elements)',
       options: [
         { value: 'blue', label: 'Blue' },
         { value: 'purple', label: 'Purple' },

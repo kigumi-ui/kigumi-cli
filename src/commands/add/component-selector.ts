@@ -44,9 +44,9 @@ export async function selectComponents(
  */
 function getAllAvailableComponents(tier: 'free' | 'pro'): string[] {
   const allComponents = getAllComponents();
-  return Object.keys(allComponents).filter((key) =>
-    isComponentAvailable(key, tier)
-  );
+  return Object.keys(allComponents)
+    .filter((key) => isComponentAvailable(key, tier))
+    .sort((a, b) => a.localeCompare(b));
 }
 
 /**
@@ -63,7 +63,8 @@ async function selectComponentsInteractive(
       value: key,
       label: comp.name,
       hint: `${comp.category}${comp.tier === 'pro' ? ' • Pro' : ''}`,
-    }));
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const selected = await p.multiselect({
     message: 'Select components (space to select, enter to confirm):',

@@ -443,34 +443,55 @@ function showPostInstallInstructions(
 ): void {
   console.log('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
-  if (config.typescript && config.framework === 'react') {
-    console.log(pc.cyan('1. Add components:\n'));
-    console.log(pc.dim('   npx kigumi add button card dialog\n'));
+  let stepNum = 1;
 
-    console.log(pc.cyan('2. Start development:\n'));
-    console.log(pc.dim(`   ${packageManager} run dev\n`));
-  } else {
-    // Non-TypeScript or non-React
-    if (!depsInstalled) {
-      console.log(pc.cyan('1. Install dependencies:\n'));
-      console.log(pc.dim(`   ${packageManager} install\n`));
-
-      console.log(pc.cyan('2. Add components:\n'));
-      console.log(pc.dim('   npx kigumi add button card dialog\n'));
-
-      console.log(pc.cyan('3. Add webawesome import:\n'));
-      console.log(pc.dim('   import "@/lib/webawesome";\n'));
-
-      console.log(pc.cyan('4. Start development:\n'));
-      console.log(pc.dim(`   ${packageManager} run dev\n`));
-    } else {
-      console.log(pc.cyan('1. Add components:\n'));
-      console.log(pc.dim('   npx kigumi add button card dialog\n'));
-
-      console.log(pc.cyan('2. Start development:\n'));
-      console.log(pc.dim(`   ${packageManager} run dev\n`));
-    }
+  // Step: Install dependencies (if not installed)
+  if (!depsInstalled) {
+    console.log(pc.bold(pc.cyan(`${stepNum}. Install dependencies:\n`)));
+    console.log(pc.dim(`   ${packageManager} install\n`));
+    stepNum++;
   }
 
-  console.log(pc.dim('📖 Full setup guide: ./KIGUMI_SETUP.md\n'));
+  // Step: Import webawesome setup
+  console.log(
+    pc.bold(
+      pc.cyan(`${stepNum}. Import Web Awesome in your main entry file:\n`)
+    )
+  );
+  console.log(pc.dim('   Add this import to src/main.tsx (or src/main.jsx):'));
+  console.log(pc.green('   import "@/lib/webawesome";\n'));
+  stepNum++;
+
+  // Step: Add components
+  console.log(pc.bold(pc.cyan(`${stepNum}. Add UI components:\n`)));
+  console.log(pc.dim('   npx kigumi add button card dialog input\n'));
+  stepNum++;
+
+  // Step: Start development
+  console.log(pc.bold(pc.cyan(`${stepNum}. Start development server:\n`)));
+  console.log(pc.dim(`   ${packageManager} run dev\n`));
+
+  // Info box with theme details
+  console.log(pc.bold(pc.cyan('ℹ️  Theme Configuration:\n')));
+  console.log(pc.dim(`   Theme: ${config.theme.selected}`));
+  console.log(pc.dim(`   Palette: ${config.theme.palette}`));
+  console.log(pc.dim(`   Brand Color: ${config.theme.brandColor}\n`));
+
+  console.log(
+    pc.dim(
+      '   The webawesome.ts file automatically applies theme classes to <html>.'
+    )
+  );
+  console.log(pc.dim('   No manual HTML changes needed!\n'));
+
+  // Additional resources
+  console.log(pc.bold(pc.cyan('📚 Learn More:\n')));
+  console.log(
+    pc.dim('   • Customize themes: https://webawesome.com/docs/customizing')
+  );
+  console.log(pc.dim('   • Browse components: https://webawesome.com/docs'));
+  console.log(pc.dim('   • View themes: https://webawesome.com/docs/themes'));
+  console.log(
+    pc.dim('   • View palettes: https://webawesome.com/docs/color-palettes\n')
+  );
 }
