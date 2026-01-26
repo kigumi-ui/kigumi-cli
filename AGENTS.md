@@ -337,6 +337,110 @@ export {}; // Makes this a module
 
 **This was the root cause of ALL TypeScript issues in the CLI!**
 
+## 🏗️ Architecture Overview
+
+### Data Flow Diagram
+
+```mermaid
+flowchart TD
+    subgraph CLI["CLI Entry (src/index.ts)"]
+        CMD[Commander.js]
+    end
+
+    subgraph Commands["Commands (src/commands/)"]
+        INIT[init/index.ts]
+        ADD[add/index.ts]
+        THEME[theme.ts]
+        STATUS[status.ts]
+    end
+
+    subgraph Utils["Utilities (src/utils/)"]
+        TIER[tier.ts]
+        CONFIG[config.ts]
+        REGISTRY[registry.ts]
+        TEMPLATE[template.ts]
+        REGEN[regenerate.ts]
+    end
+
+    subgraph Schemas["Validation (src/schemas/)"]
+        ZOD[Zod Schemas]
+    end
+
+    subgraph Templates["Templates (templates/)"]
+        HBS[.hbs files]
+    end
+
+    subgraph Output["Generated Files"]
+        CONF[kigumi.config.json]
+        WA[webawesome.ts]
+        CSS[theme.css]
+        COMP[Component Files]
+    end
+
+    CMD --> INIT & ADD & THEME & STATUS
+    INIT --> CONFIG & TIER & REGEN
+    ADD --> REGISTRY & TEMPLATE
+    TEMPLATE --> HBS
+    REGEN --> WA & CSS
+    CONFIG --> CONF
+    TEMPLATE --> COMP
+    ZOD --> INIT & ADD
+```
+
+### Module Boundaries
+
+| Layer         | Directory          | Responsibility                     | Dependencies           |
+| ------------- | ------------------ | ---------------------------------- | ---------------------- |
+| **Entry**     | `src/index.ts`     | CLI routing, global error handling | Commander              |
+| **Commands**  | `src/commands/`    | User-facing operations             | Utils, Schemas, Output |
+| **Utils**     | `src/utils/`       | Reusable business logic            | Constants, fs-extra    |
+| **Schemas**   | `src/schemas/`     | Input validation                   | Zod                    |
+| **Output**    | `src/output/`      | Console formatting                 | @clack/prompts         |
+| **Errors**    | `src/errors/`      | Typed error classes                | -                      |
+| **Constants** | `src/constants.ts` | Magic strings, regex patterns      | -                      |
+
+### Init Command Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI
+    participant Validator
+    participant ConfigBuilder
+    participant TierDetector
+    participant FileGenerator
+    participant Installer
+
+    User->>CLI: kigumi init
+    CLI->>Validator: validateAndPrepare()
+    Validator->>Validator: Pre-flight checks
+    Validator-->>CLI: context
+
+    CLI->>ConfigBuilder: buildConfiguration()
+    ConfigBuilder->>TierDetector: detectTier()
+    TierDetector-->>ConfigBuilder: free/pro
+    ConfigBuilder-->>CLI: config, proToken
+
+    CLI->>CLI: handleTierMigration()
+    Note over CLI: Free↔Pro if tier changed
+
+    CLI->>FileGenerator: saveAndGenerate()
+    FileGenerator->>FileGenerator: Generate webawesome.ts, theme.css
+
+    CLI->>Installer: handleDependencies()
+    Installer->>Installer: npm/pnpm install
+
+    CLI-->>User: Success!
+```
+
+### Key Design Decisions
+
+1. **Tier Detection from .env**: Token presence determines Pro tier, not stored in config
+2. **Templates-First**: All generated code comes from `.hbs` templates
+3. **Centralized Constants**: Magic strings in `src/constants.ts`
+4. **Structured Errors**: Custom error classes with semantic exit codes
+5. **Type-Safe Config**: Zod validation for all user input
+
 ## 🎯 Core Files
 
 | File                                  | Purpose                                        |
