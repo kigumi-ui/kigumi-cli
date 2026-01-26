@@ -58,10 +58,16 @@ describe('configureTSConfig', () => {
     expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
   });
 
-  it('should add esModuleInterop when missing', async () => {
+  // NOTE: configureTSConfig now ONLY adds path aliases.
+  // It no longer modifies esModuleInterop, verbatimModuleSyntax, or types.
+  // This is because Kigumi uses named React imports which work with Vite 6's defaults.
+  // See AGENTS.md Rule #16 and #1 for details.
+
+  it('should preserve existing tsconfig settings (not modify esModuleInterop)', async () => {
     const tsconfig = {
       compilerOptions: {
         target: 'ES2022',
+        esModuleInterop: false, // Explicitly set - should be preserved
       },
     };
     await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), tsconfig);
@@ -69,24 +75,12 @@ describe('configureTSConfig', () => {
     await configureTSConfig(testDir, mockOutput);
 
     const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.esModuleInterop).toBe(true);
+    // Should preserve user's setting, only add path aliases
+    expect(updated.compilerOptions.esModuleInterop).toBe(false);
+    expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
   });
 
-  it('should add allowSyntheticDefaultImports when missing', async () => {
-    const tsconfig = {
-      compilerOptions: {
-        target: 'ES2022',
-      },
-    };
-    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), tsconfig);
-
-    await configureTSConfig(testDir, mockOutput);
-
-    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.allowSyntheticDefaultImports).toBe(true);
-  });
-
-  it('should remove verbatimModuleSyntax when present', async () => {
+  it('should preserve verbatimModuleSyntax when present', async () => {
     const tsconfig = {
       compilerOptions: {
         target: 'ES2022',
@@ -98,10 +92,12 @@ describe('configureTSConfig', () => {
     await configureTSConfig(testDir, mockOutput);
 
     const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.verbatimModuleSyntax).toBeUndefined();
+    // Now preserved - Kigumi's named imports work with this setting
+    expect(updated.compilerOptions.verbatimModuleSyntax).toBe(true);
+    expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
   });
 
-  it('should remove restrictive types array (vite/client only)', async () => {
+  it('should preserve types array', async () => {
     const tsconfig = {
       compilerOptions: {
         target: 'ES2022',
@@ -113,7 +109,9 @@ describe('configureTSConfig', () => {
     await configureTSConfig(testDir, mockOutput);
 
     const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.types).toBeUndefined();
+    // Now preserved
+    expect(updated.compilerOptions.types).toEqual(['vite/client']);
+    expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
   });
 
   it('should preserve types array with multiple entries', async () => {
@@ -208,20 +206,16 @@ describe('configureTSConfig', () => {
 
     const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
 
-    // Should have all required flags
-    expect(updated.compilerOptions.esModuleInterop).toBe(true);
-    expect(updated.compilerOptions.allowSyntheticDefaultImports).toBe(true);
+    // Should add path aliases
     expect(updated.compilerOptions.baseUrl).toBe('.');
     expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
 
-    // Should have removed problematic flags
-    expect(updated.compilerOptions.verbatimModuleSyntax).toBeUndefined();
-    expect(updated.compilerOptions.types).toBeUndefined();
-
-    // Should preserve other settings
+    // Should preserve ALL Vite 6 defaults (no longer modified)
+    expect(updated.compilerOptions.verbatimModuleSyntax).toBe(true);
     expect(updated.compilerOptions.moduleResolution).toBe('bundler');
     expect(updated.compilerOptions.jsx).toBe('react-jsx');
     expect(updated.compilerOptions.strict).toBe(true);
+    expect(updated.compilerOptions.erasableSyntaxOnly).toBe(true);
   });
 
   it('should be idempotent (running twice produces same result)', async () => {
