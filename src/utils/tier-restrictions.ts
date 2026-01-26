@@ -92,7 +92,7 @@ export const TIER_RESTRICTIONS: TierRestrictions = {
  * Check if a theme is available for a given tier
  */
 export function isThemeAvailable(theme: string, tier: 'free' | 'pro'): boolean {
-  if (theme === 'none' || theme === 'custom') {
+  if (theme === 'none') {
     return true;
   }
   return TIER_RESTRICTIONS.themes[tier].includes(theme);
@@ -105,9 +105,6 @@ export function isPaletteAvailable(
   palette: string,
   tier: 'free' | 'pro'
 ): boolean {
-  if (palette === 'custom') {
-    return true;
-  }
   return TIER_RESTRICTIONS.palettes[tier].includes(palette);
 }
 
@@ -133,14 +130,14 @@ export function isComponentAvailable(
  * Get list of available themes for a tier
  */
 export function getAvailableThemes(tier: 'free' | 'pro'): string[] {
-  return ['none', ...TIER_RESTRICTIONS.themes[tier], 'custom'];
+  return ['none', ...TIER_RESTRICTIONS.themes[tier]];
 }
 
 /**
  * Get list of available palettes for a tier
  */
 export function getAvailablePalettes(tier: 'free' | 'pro'): string[] {
-  return [...TIER_RESTRICTIONS.palettes[tier], 'custom'];
+  return TIER_RESTRICTIONS.palettes[tier];
 }
 
 /**

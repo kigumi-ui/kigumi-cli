@@ -2,8 +2,8 @@
  * Web Awesome Theme Configuration
  *
  * Theme: awesome
- * Palette: default
- * Brand Color: blue
+ * Palette: rudimentary
+ * Brand Color: red
  */
 
 /* Import Web Awesome theme */
@@ -11,8 +11,8 @@
 
 /* Apply palette and brand color */
 :root {
-  --wa-palette: default;
-  --wa-brand-color: blue;
+  --wa-palette: rudimentary;
+  --wa-brand-color: red;
 }
 
 /* Custom theme overrides */
