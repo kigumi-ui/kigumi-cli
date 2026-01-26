@@ -7,33 +7,100 @@ import './Button.css';
  * {{description}}
  *
  * @example
+ * ```jsx
  * <Button variant="brand">Click me</Button>
  * <Button appearance="outlined" size="large">Large Button</Button>
  * <Button loading>Loading...</Button>
  * <Button data-dialog="close">Close Dialog</Button>
  *
- * @param {Object} props
- * @param {'neutral' | 'brand' | 'success' | 'warning' | 'danger'} [props.variant] - Semantic variant of the button
- * @param {'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain'} [props.appearance] - Visual appearance style
- * @param {'small' | 'medium' | 'large'} [props.size] - Button size
- * @param {boolean} [props.pill] - Gives the button rounded edges
- * @param {boolean} [props.disabled] - Disables the button
- * @param {boolean} [props.loading] - Shows a loading indicator
- * @param {boolean} [props['with-caret']] - Adds a dropdown indicator caret
- * @param {string} [props.href] - Makes the button work like a link
- * @param {'_blank' | '_self' | '_parent' | '_top'} [props.target] - Link target (when href is set)
- * @param {string} [props.download] - Download filename (when href is set)
- * @param {string} [props.rel] - Link relationship (when href is set)
- * @param {string} [props['data-dialog']] - Dialog control attribute (e.g., "close" to close parent dialog)
- * @param {string} [props.className] - Additional CSS classes
- * @param {React.ReactNode} [props.children] - Button content
+ * // With event handlers
+ * <Button onBlur={() => console.log('Lost focus')}>
+ *   Button
+ * </Button>
+ *
+ * // With ref methods
+ * const buttonRef = React.useRef(null);
+ * <button onClick={() => buttonRef.current?.focus()}>Focus Button</button>
+ * <Button ref={buttonRef}>Focusable</Button>
+ * ```
+ *
+ * @typedef {Object} ButtonProps
+ * @property {string} [variant] - Semantic variant
+ * @property {string} [appearance] - Visual appearance
+ * @property {string} [size] - Button size
+ * @property {boolean} [pill] - Rounded edges
+ * @property {boolean} [disabled] - Disables button
+ * @property {boolean} [loading] - Shows loading indicator
+ * @property {boolean} [with-caret] - Adds dropdown caret
+ * @property {string} [href] - Makes button work like link
+ * @property {string} [target] - Link target
+ * @property {string} [download] - Download filename
+ * @property {string} [rel] - Link relationship
+ * @property {string} [data-dialog] - Dialog control attribute
+ * @property {function} [onBlur] - Event fired when button loses focus
+ * @property {function} [onFocus] - Event fired when button gains focus
  */
-export const Button = React.forwardRef(({ children, className, ...props }, ref) => {
-  return (
-    <wa-button ref={ref} class={clsx('Button', className)} {...props}>
-      {children}
-    </wa-button>
-  );
-});
+
+export const Button = React.forwardRef(
+  ({ children, className, onBlur, onFocus, ...props }, ref) => {
+    const buttonRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        focus: () => {
+          if (buttonRef.current && typeof buttonRef.current.focus === 'function') {
+            buttonRef.current.focus();
+          }
+        },
+        blur: () => {
+          if (buttonRef.current && typeof buttonRef.current.blur === 'function') {
+            buttonRef.current.blur();
+          }
+        },
+        click: () => {
+          if (buttonRef.current && typeof buttonRef.current.click === 'function') {
+            buttonRef.current.click();
+          }
+        },
+        get element() {
+          return buttonRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = buttonRef.current;
+      if (!el) return;
+
+      const handleBlur = (e) => {
+        if (onBlur) onBlur(e);
+      };
+
+      const handleFocus = (e) => {
+        if (onFocus) onFocus(e);
+      };
+
+      el.addEventListener('wa-blur', handleBlur);
+      el.addEventListener('wa-focus', handleFocus);
+
+      return () => {
+        el.removeEventListener('wa-blur', handleBlur);
+        el.removeEventListener('wa-focus', handleFocus);
+      };
+    }, [onBlur, onFocus]);
+
+    return (
+      <wa-button
+        ref={buttonRef}
+        class={clsx('Button', className)}
+        {...props}
+      >
+        {children}
+      </wa-button>
+    );
+  }
+);
 
 Button.displayName = 'Button';

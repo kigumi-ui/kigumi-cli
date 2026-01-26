@@ -7,31 +7,120 @@ import './Input.css';
  * {{description}}
  *
  * @example
+ * ```jsx
+ * // Basic usage
  * <Input label="Email" type="email" placeholder="Enter email" />
  * <Input type="password" password-toggle />
  * <Input with-clear hint="Help text" />
  *
- * @param {Object} props
- * @param {'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search'} [props.type] - Input type
- * @param {string} [props.label] - Accessible label for the input
- * @param {string} [props.hint] - Descriptive hint text
- * @param {string} [props.placeholder] - Placeholder text
- * @param {string} [props.value] - Input value
- * @param {'filled' | 'filled-outlined' | 'outlined'} [props.appearance] - Visual appearance style
- * @param {'small' | 'medium' | 'large'} [props.size] - Input size
- * @param {boolean} [props.pill] - Gives the input rounded edges
- * @param {boolean} [props.disabled] - Disables the input
- * @param {boolean} [props['with-clear']] - Adds a clear button when input has content
- * @param {boolean} [props['password-toggle']] - Adds a toggle button for password visibility
- * @param {string} [props.className] - Additional CSS classes
- * @param {React.ReactNode} [props.children] - Input content
+ * // With event handlers
+ * <Input 
+ *   label="Name"
+ *   onInput={(e) => console.log(e.detail.value)}
+ *   onChange={(e) => console.log('Changed:', e.detail.value)}
+ * />
+ *
+ * // With ref methods
+ * const inputRef = React.useRef(null);
+ * <button onClick={() => inputRef.current?.focus()}>Focus Input</button>
+ * <Input ref={inputRef} label="Focusable" />
+ * ```
+ *
+ * @typedef {Object} InputProps
+ * @property {string} [type] - Input type
+ * @property {string} [label] - Accessible label
+ * @property {string} [hint] - Descriptive hint text
+ * @property {string} [placeholder] - Placeholder text
+ * @property {string} [value] - Input value
+ * @property {string} [appearance] - Visual appearance style
+ * @property {string} [size] - Input size
+ * @property {boolean} [pill] - Rounded edges
+ * @property {boolean} [disabled] - Disables the input
+ * @property {boolean} [with-clear] - Adds clear button
+ * @property {boolean} [password-toggle] - Adds password toggle
+ * @property {function} [onBlur] - Event fired when input loses focus
+ * @property {function} [onFocus] - Event fired when input gains focus
+ * @property {function} [onInput] - Event fired when value changes
+ * @property {function} [onChange] - Event fired when value changes and loses focus
  */
-export const Input = React.forwardRef(({ children, className, ...props }, ref) => {
-  return (
-    <wa-input ref={ref} class={clsx('Input', className)} {...props}>
-      {children}
-    </wa-input>
-  );
-});
+
+export const Input = React.forwardRef(
+  ({ children, className, onBlur, onFocus, onInput, onChange, ...props }, ref) => {
+    const inputRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        focus: () => {
+          if (inputRef.current && typeof inputRef.current.focus === 'function') {
+            inputRef.current.focus();
+          }
+        },
+        blur: () => {
+          if (inputRef.current && typeof inputRef.current.blur === 'function') {
+            inputRef.current.blur();
+          }
+        },
+        select: () => {
+          if (inputRef.current && typeof inputRef.current.select === 'function') {
+            inputRef.current.select();
+          }
+        },
+        setSelectionRange: (start, end) => {
+          if (inputRef.current && typeof inputRef.current.setSelectionRange === 'function') {
+            inputRef.current.setSelectionRange(start, end);
+          }
+        },
+        get element() {
+          return inputRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = inputRef.current;
+      if (!el) return;
+
+      const handleBlur = (e) => {
+        if (onBlur) onBlur(e);
+      };
+
+      const handleFocus = (e) => {
+        if (onFocus) onFocus(e);
+      };
+
+      const handleInput = (e) => {
+        if (onInput) onInput(e);
+      };
+
+      const handleChange = (e) => {
+        if (onChange) onChange(e);
+      };
+
+      el.addEventListener('wa-blur', handleBlur);
+      el.addEventListener('wa-focus', handleFocus);
+      el.addEventListener('wa-input', handleInput);
+      el.addEventListener('wa-change', handleChange);
+
+      return () => {
+        el.removeEventListener('wa-blur', handleBlur);
+        el.removeEventListener('wa-focus', handleFocus);
+        el.removeEventListener('wa-input', handleInput);
+        el.removeEventListener('wa-change', handleChange);
+      };
+    }, [onBlur, onFocus, onInput, onChange]);
+
+    return (
+      <wa-input
+        ref={inputRef}
+        class={clsx('Input', className)}
+        {...props}
+      >
+        {children}
+      </wa-input>
+    );
+  }
+);
 
 Input.displayName = 'Input';

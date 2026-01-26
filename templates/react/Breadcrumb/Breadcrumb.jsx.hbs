@@ -1,0 +1,48 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Breadcrumb.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * ```jsx
+ * import { Breadcrumb, BreadcrumbItem } from './components/ui';
+ *
+ * <Breadcrumb>
+ *   <BreadcrumbItem>Home</BreadcrumbItem>
+ *   <BreadcrumbItem>Category</BreadcrumbItem>
+ *   <BreadcrumbItem>Product</BreadcrumbItem>
+ * </Breadcrumb>
+ *
+ * // With links
+ * <Breadcrumb>
+ *   <BreadcrumbItem href="/">Home</BreadcrumbItem>
+ *   <BreadcrumbItem href="/products">Products</BreadcrumbItem>
+ *   <BreadcrumbItem>Current Page</BreadcrumbItem>
+ * </Breadcrumb>
+ *
+ * // With custom separator
+ * <Breadcrumb>
+ *   <wa-icon slot="separator" name="angle-right" />
+ *   <BreadcrumbItem>First</BreadcrumbItem>
+ *   <BreadcrumbItem>Second</BreadcrumbItem>
+ * </Breadcrumb>
+ * ```
+ *
+ * @typedef {Object} BreadcrumbProps
+ * @property {string} [label] - The label for assistive devices
+ */
+
+export const Breadcrumb = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-breadcrumb ref={ref} class={clsx('Breadcrumb', className)} {...props}>
+        {children}
+      </wa-breadcrumb>
+    );
+  }
+);
+
+Breadcrumb.displayName = 'Breadcrumb';
