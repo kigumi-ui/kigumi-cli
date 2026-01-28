@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { SplitPanel } from './SplitPanel';
+
+describe('SplitPanel', () => {
+  it('renders children', () => {
+    render(<SplitPanel>Test</SplitPanel>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<SplitPanel className="custom-class">Test</SplitPanel>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

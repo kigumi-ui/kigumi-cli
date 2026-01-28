@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { TabGroup } from './TabGroup';
+
+describe('TabGroup', () => {
+  it('renders children', () => {
+    render(<TabGroup>Test</TabGroup>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<TabGroup className="custom-class">Test</TabGroup>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

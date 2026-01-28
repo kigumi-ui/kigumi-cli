@@ -1,0 +1,27 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Option.css';
+
+export interface OptionProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** The option's value */
+  value?: string;
+  /** Draws the option in a disabled state */
+  disabled?: boolean;
+}
+
+export const Option = forwardRef<HTMLElement, OptionProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-option
+        ref={ref}
+        class={clsx('Option', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-option>
+    );
+  }
+);
+
+Option.displayName = 'Option';

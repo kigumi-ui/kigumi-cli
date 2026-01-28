@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { Rating } from './Rating';
+
+describe('Rating', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<Rating />);
+    expect(container.querySelector('wa-rating')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Rating className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,58 @@
+import React, { useRef, useImperativeHandle, useEffect } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Textarea.css';
+
+export const Textarea = React.forwardRef(
+  ({ className, onInput, onChange, onInvalid, onFocus, onBlur, ...props }, ref) => {
+    const textareaRef = useRef(null);
+
+    useImperativeHandle(ref, () => ({
+      focus: (options) => textareaRef.current?.focus?.(options),
+      blur: () => textareaRef.current?.blur?.(),
+      select: () => textareaRef.current?.select?.(),
+      setRangeText: (replacement, start, end, selectMode) =>
+        textareaRef.current?.setRangeText?.(replacement, start, end, selectMode),
+      setSelectionRange: (start, end, direction) =>
+        textareaRef.current?.setSelectionRange?.(start, end, direction),
+      get element() {
+        return textareaRef.current;
+      },
+    }), []);
+
+    useEffect(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+
+      const handleInput = (e) => onInput?.(e);
+      const handleChange = (e) => onChange?.(e);
+      const handleInvalid = (e) => onInvalid?.(e);
+      const handleFocus = (e) => onFocus?.(e);
+      const handleBlur = (e) => onBlur?.(e);
+
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+
+      return () => {
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+      };
+    }, [onInput, onChange, onInvalid, onFocus, onBlur]);
+
+    return (
+      <wa-textarea
+        ref={textareaRef}
+        class={clsx('Textarea', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+Textarea.displayName = 'Textarea';

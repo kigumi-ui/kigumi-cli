@@ -1,0 +1,79 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Select.css';
+
+export const Select = React.forwardRef(
+  ({ children, className, open, onChange, onShow, onAfterShow, onHide, onAfterHide, onClear, onInvalid, ...props }, ref) => {
+    const selectRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => selectRef.current?.show?.(),
+        hide: () => selectRef.current?.hide?.(),
+        focus: (options) => selectRef.current?.focus?.(options),
+        blur: () => selectRef.current?.blur?.(),
+        get element() {
+          return selectRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = selectRef.current;
+      if (!el || open === undefined) return;
+
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.hide?.();
+      }
+    }, [open]);
+
+    React.useEffect(() => {
+      const el = selectRef.current;
+      if (!el) return;
+
+      const handleChange = (e) => onChange?.(e);
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+      const handleClear = (e) => onClear?.(e);
+      const handleInvalid = (e) => onInvalid?.(e);
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-clear', handleClear);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-clear', handleClear);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onChange, onShow, onAfterShow, onHide, onAfterHide, onClear, onInvalid]);
+
+    return (
+      <wa-select
+        ref={selectRef}
+        class={clsx('Select', className)}
+        {...props}
+      >
+        {children}
+      </wa-select>
+    );
+  }
+);
+
+Select.displayName = 'Select';

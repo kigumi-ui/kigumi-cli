@@ -1,0 +1,18 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './FormatDate.css';
+
+export const FormatDate = React.forwardRef(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-format-date
+        ref={ref}
+        class={clsx('FormatDate', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+FormatDate.displayName = 'FormatDate';

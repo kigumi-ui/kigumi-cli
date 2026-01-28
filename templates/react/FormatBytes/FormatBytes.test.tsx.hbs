@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { FormatBytes } from './FormatBytes';
+
+describe('FormatBytes', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<FormatBytes value={1024} />);
+    expect(container.querySelector('wa-format-bytes')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<FormatBytes value={1024} className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

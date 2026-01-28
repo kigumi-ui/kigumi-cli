@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { Divider } from './Divider';
+
+describe('Divider', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<Divider />);
+    expect(container.querySelector('wa-divider')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Divider className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

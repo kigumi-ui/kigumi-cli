@@ -1,0 +1,20 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './ProgressBar.css';
+
+export const ProgressBar = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-progress-bar
+        ref={ref}
+        class={clsx('ProgressBar', className)}
+        {...props}
+      >
+        {children}
+      </wa-progress-bar>
+    );
+  }
+);
+
+ProgressBar.displayName = 'ProgressBar';

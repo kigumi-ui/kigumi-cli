@@ -1,0 +1,113 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Checkbox.css';
+
+/**
+ * Checkboxes allow the user to toggle an option on or off
+ *
+ * @example
+ * ```tsx
+ * <Checkbox checked>Remember me</Checkbox>
+ * <Checkbox indeterminate>Select all</Checkbox>
+ * <Checkbox hint="Optional setting">Enable feature</Checkbox>
+ * ```
+ */
+export interface CheckboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInvalid' | 'dir'> {
+  /** Draws checkbox in checked state */
+  checked?: boolean;
+  /** Default value for form resets */
+  defaultChecked?: boolean;
+  /** Disables the checkbox */
+  disabled?: boolean;
+  /** Descriptive helper text */
+  hint?: string;
+  /** Mixed/parent selection state */
+  indeterminate?: boolean;
+  /** Form submission identifier */
+  name?: string;
+  /** Makes field mandatory */
+  required?: boolean;
+  /** Adjusts checkbox dimensions */
+  size?: 'small' | 'medium' | 'large';
+  /** Form submission value */
+  value?: string;
+  /** Event fired when validation fails */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface CheckboxRef {
+  focus: (options?: FocusOptions) => void;
+  blur: () => void;
+  click: () => void;
+  setCustomValidity: (message: string) => void;
+  element: HTMLElement | null;
+}
+
+export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
+  ({ children, className, onInvalid, ...props }, ref) => {
+    const checkboxRef = useRef<HTMLElement & {
+      focus?: (options?: FocusOptions) => void;
+      blur?: () => void;
+      click?: () => void;
+      setCustomValidity?: (message: string) => void;
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options?: FocusOptions) => {
+          if (checkboxRef.current && typeof checkboxRef.current.focus === 'function') {
+            checkboxRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (checkboxRef.current && typeof checkboxRef.current.blur === 'function') {
+            checkboxRef.current.blur();
+          }
+        },
+        click: () => {
+          if (checkboxRef.current && typeof checkboxRef.current.click === 'function') {
+            checkboxRef.current.click();
+          }
+        },
+        setCustomValidity: (message: string) => {
+          if (checkboxRef.current && typeof checkboxRef.current.setCustomValidity === 'function') {
+            checkboxRef.current.setCustomValidity(message);
+          }
+        },
+        get element() {
+          return checkboxRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = checkboxRef.current;
+      if (!el) return;
+
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onInvalid]);
+
+    return (
+      <wa-checkbox
+        ref={checkboxRef}
+        class={clsx('Checkbox', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-checkbox>
+    );
+  }
+);
+
+Checkbox.displayName = 'Checkbox';

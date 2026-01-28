@@ -1,0 +1,18 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './QrCode.css';
+
+export const QrCode = React.forwardRef(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-qr-code
+        ref={ref}
+        class={clsx('QrCode', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+QrCode.displayName = 'QrCode';

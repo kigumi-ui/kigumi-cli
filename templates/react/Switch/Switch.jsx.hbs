@@ -1,0 +1,51 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Switch.css';
+
+export const Switch = React.forwardRef(
+  ({ children, className, onChange, onInvalid, ...props }, ref) => {
+    const switchRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options) => switchRef.current?.focus?.(options),
+        blur: () => switchRef.current?.blur?.(),
+        click: () => switchRef.current?.click?.(),
+        get element() {
+          return switchRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = switchRef.current;
+      if (!el) return;
+
+      const handleChange = (e) => onChange?.(e);
+      const handleInvalid = (e) => onInvalid?.(e);
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onChange, onInvalid]);
+
+    return (
+      <wa-switch
+        ref={switchRef}
+        class={clsx('Switch', className)}
+        {...props}
+      >
+        {children}
+      </wa-switch>
+    );
+  }
+);
+
+Switch.displayName = 'Switch';

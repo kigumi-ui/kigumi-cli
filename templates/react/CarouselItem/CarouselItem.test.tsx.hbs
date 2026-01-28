@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { CarouselItem } from './CarouselItem';
+
+describe('CarouselItem', () => {
+  it('renders children', () => {
+    render(<CarouselItem>Test</CarouselItem>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<CarouselItem className="custom-class">Test</CarouselItem>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

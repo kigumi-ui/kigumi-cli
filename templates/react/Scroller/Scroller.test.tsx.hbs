@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Scroller } from './Scroller';
+
+describe('Scroller', () => {
+  it('renders children', () => {
+    render(<Scroller>Test</Scroller>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Scroller className="custom-class">Test</Scroller>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { ZoomableFrame } from './ZoomableFrame';
+
+describe('ZoomableFrame', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<ZoomableFrame src="https://example.com" />);
+    expect(container.querySelector('wa-zoomable-frame')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<ZoomableFrame src="https://example.com" className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

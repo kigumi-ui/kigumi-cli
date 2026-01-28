@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Radio } from './Radio';
+
+describe('Radio', () => {
+  it('renders children', () => {
+    render(<Radio value="1">Test</Radio>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Radio value="1" className="custom-class">Test</Radio>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

@@ -42,7 +42,7 @@ import './Dialog.css';
  * </Dialog>
  * ```
  */
-export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad'> {
+export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'dir'> {
   /** Indicates whether or not the dialog is open */
   open?: boolean;
   /** The dialog's label as displayed in the header */
@@ -152,10 +152,9 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return (
       <wa-dialog
-        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={dialogRef}
         class={clsx('Dialog', className)}
-        {...props}
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-dialog>

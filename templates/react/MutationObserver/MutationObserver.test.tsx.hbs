@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { MutationObserver } from './MutationObserver';
+
+describe('MutationObserver', () => {
+  it('renders children', () => {
+    render(<MutationObserver>Test</MutationObserver>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<MutationObserver className="custom-class">Test</MutationObserver>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

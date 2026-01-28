@@ -16,8 +16,8 @@ import './Icon.css';
  * // With label for accessibility
  * <Icon name="star" label="Favorite" />
  *
- * // Sizing
- * <Icon name="bell" style={{ fontSize: '2em' }} />
+ * // Sizing (use CSS or className for sizing)
+ * <Icon name="bell" className="icon-large" />
  *
  * // Custom icon
  * <Icon src="/path/to/icon.svg" label="Custom icon" />
@@ -30,7 +30,7 @@ import './Icon.css';
  * />
  * ```
  */
-export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad'> {
+export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
   /** The name of the icon to draw */
   name?: string;
   /** The name of a registered custom icon library */
@@ -82,10 +82,9 @@ export const Icon = forwardRef<HTMLElement, IconProps>(
 
     return (
       <wa-icon
-        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={elementRef}
         class={clsx('Icon', className)}
-        {...props}
+        {...(props as Record<string, unknown>)}
       />
     );
   }

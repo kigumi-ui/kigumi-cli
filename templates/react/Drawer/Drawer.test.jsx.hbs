@@ -1,0 +1,27 @@
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import React from 'react';
+import { Drawer } from './Drawer';
+
+describe('Drawer', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<Drawer label="Test" />);
+    expect(container.querySelector('wa-drawer')).toBeInTheDocument();
+  });
+
+  it('exposes ref methods', () => {
+    const ref = React.createRef();
+    render(<Drawer ref={ref} label="Test" />);
+    expect(ref.current).toHaveProperty('show');
+    expect(ref.current).toHaveProperty('hide');
+  });
+
+  it('renders children', () => {
+    const { getByText } = render(
+      <Drawer label="Test">
+        Content here
+      </Drawer>
+    );
+    expect(getByText('Content here')).toBeInTheDocument();
+  });
+});

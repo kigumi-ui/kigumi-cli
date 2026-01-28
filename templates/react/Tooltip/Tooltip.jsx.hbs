@@ -1,0 +1,63 @@
+import React, { useRef, useImperativeHandle, useEffect } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Tooltip.css';
+
+export const Tooltip = React.forwardRef(
+  ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+    const tooltipRef = useRef(null);
+
+    useImperativeHandle(ref, () => ({
+      show: () => tooltipRef.current?.show?.(),
+      hide: () => tooltipRef.current?.hide?.(),
+      get element() {
+        return tooltipRef.current;
+      },
+    }), []);
+
+    useEffect(() => {
+      const el = tooltipRef.current;
+      if (!el || open === undefined) return;
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.hide?.();
+      }
+    }, [open]);
+
+    useEffect(() => {
+      const el = tooltipRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-tooltip
+        ref={tooltipRef}
+        class={clsx('Tooltip', className)}
+        {...props}
+      >
+        {children}
+      </wa-tooltip>
+    );
+  }
+);
+
+Tooltip.displayName = 'Tooltip';

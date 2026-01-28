@@ -15,7 +15,7 @@ import './Card.css';
  * </Card>
  * ```
  */
-export interface CardProps extends HTMLAttributes<HTMLElement> {
+export interface CardProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   /** Visual appearance style */
   appearance?: 'outlined' | 'filled-outlined' | 'plain' | 'filled' | 'accent';
   /** Card layout orientation */
@@ -31,7 +31,7 @@ export interface CardProps extends HTMLAttributes<HTMLElement> {
 export const Card = forwardRef<HTMLElement, CardProps>(
   ({ children, className, ...props }, ref) => {
     return (
-      <wa-card ref={ref} class={clsx('Card', className)} {...props}>
+      <wa-card ref={ref} class={clsx('Card', className)} {...(props as Record<string, unknown>)}>
         {children}
       </wa-card>
     );

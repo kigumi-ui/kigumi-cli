@@ -1,0 +1,45 @@
+import { forwardRef, useRef, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './ResizeObserver.css';
+
+export interface ResizeObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** Disables the observer */
+  disabled?: boolean;
+  /** Event fired when the element is resized */
+  onResize?: (event: CustomEvent) => void;
+}
+
+export const ResizeObserver = forwardRef<HTMLElement, ResizeObserverProps>(
+  ({ children, className, onResize, ...props }, ref) => {
+    const observerRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+      const el = observerRef.current;
+      if (!el) return;
+
+      const handleResize = (e: Event) => onResize?.(e as CustomEvent);
+      el.addEventListener('wa-resize', handleResize);
+
+      return () => {
+        el.removeEventListener('wa-resize', handleResize);
+      };
+    }, [onResize]);
+
+    return (
+      <wa-resize-observer
+        ref={(node: HTMLElement | null) => {
+          (observerRef as React.MutableRefObject<HTMLElement | null>).current = node;
+          if (typeof ref === 'function') ref(node);
+          else if (ref) ref.current = node;
+        }}
+        class={clsx('ResizeObserver', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-resize-observer>
+    );
+  }
+);
+
+ResizeObserver.displayName = 'ResizeObserver';

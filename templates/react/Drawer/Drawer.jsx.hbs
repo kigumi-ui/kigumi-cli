@@ -1,0 +1,75 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Drawer.css';
+
+/**
+ * @typedef {Object} DrawerRef
+ * @property {() => void} show
+ * @property {() => void} hide
+ * @property {HTMLElement | null} element
+ */
+
+export const Drawer = React.forwardRef(
+  ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+    const drawerRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => drawerRef.current?.show?.(),
+        hide: () => drawerRef.current?.hide?.(),
+        get element() {
+          return drawerRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = drawerRef.current;
+      if (!el || open === undefined) return;
+
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.hide?.();
+      }
+    }, [open]);
+
+    React.useEffect(() => {
+      const el = drawerRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-drawer
+        ref={drawerRef}
+        class={clsx('Drawer', className)}
+        {...props}
+      >
+        {children}
+      </wa-drawer>
+    );
+  }
+);
+
+Drawer.displayName = 'Drawer';

@@ -20,7 +20,7 @@ import './Avatar.css';
  * </Avatar>
  * ```
  */
-export interface AvatarProps extends HTMLAttributes<HTMLElement> {
+export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onError' | 'dir'> {
   /** The image source to use for the avatar */
   image?: string;
   /** A label to use to describe the avatar to assistive devices */
@@ -58,10 +58,9 @@ export const Avatar = forwardRef<HTMLElement, AvatarProps>(
 
     return (
       <wa-avatar
-        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={elementRef}
         class={clsx('Avatar', className)}
-        {...props}
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-avatar>

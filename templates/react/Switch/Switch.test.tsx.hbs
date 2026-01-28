@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Switch } from './Switch';
+
+describe('Switch', () => {
+  it('renders children', () => {
+    render(<Switch>Test</Switch>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Switch className="custom-class">Test</Switch>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

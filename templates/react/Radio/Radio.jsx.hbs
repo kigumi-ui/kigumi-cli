@@ -1,0 +1,20 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Radio.css';
+
+export const Radio = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-radio
+        ref={ref}
+        class={clsx('Radio', className)}
+        {...props}
+      >
+        {children}
+      </wa-radio>
+    );
+  }
+);
+
+Radio.displayName = 'Radio';

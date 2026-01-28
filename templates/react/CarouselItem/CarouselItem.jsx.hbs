@@ -1,0 +1,28 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './CarouselItem.css';
+
+/**
+ * Represents an individual slide within a carousel component
+ *
+ * @example
+ * ```jsx
+ * <Carousel>
+ *   <CarouselItem>
+ *     <img src="slide1.jpg" alt="Slide 1" />
+ *   </CarouselItem>
+ * </Carousel>
+ * ```
+ */
+export const CarouselItem = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-carousel-item ref={ref} class={clsx('CarouselItem', className)} {...props}>
+        {children}
+      </wa-carousel-item>
+    );
+  }
+);
+
+CarouselItem.displayName = 'CarouselItem';

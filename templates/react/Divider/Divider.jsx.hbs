@@ -1,0 +1,24 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Divider.css';
+
+/**
+ * @typedef {Object} DividerProps
+ * @property {'horizontal' | 'vertical'} [orientation] - Sets the divider's orientation
+ */
+
+export const Divider = React.forwardRef(
+  ({ className, orientation, ...props }, ref) => {
+    return (
+      <wa-divider
+        ref={ref}
+        class={clsx('Divider', className)}
+        orientation={orientation}
+        {...props}
+      />
+    );
+  }
+);
+
+Divider.displayName = 'Divider';

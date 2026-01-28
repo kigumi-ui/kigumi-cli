@@ -36,7 +36,7 @@ import './BreadcrumbItem.css';
  * </Breadcrumb>
  * ```
  */
-export interface BreadcrumbItemProps extends HTMLAttributes<HTMLElement> {
+export interface BreadcrumbItemProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   /** Optional URL to direct the user to when activated */
   href?: string;
   /** Tells the browser where to open the link */
@@ -48,7 +48,7 @@ export interface BreadcrumbItemProps extends HTMLAttributes<HTMLElement> {
 export const BreadcrumbItem = forwardRef<HTMLElement, BreadcrumbItemProps>(
   ({ children, className, ...props }, ref) => {
     return (
-      <wa-breadcrumb-item ref={ref} class={clsx('BreadcrumbItem', className)} {...props}>
+      <wa-breadcrumb-item ref={ref} class={clsx('BreadcrumbItem', className)} {...(props as Record<string, unknown>)}>
         {children}
       </wa-breadcrumb-item>
     );
