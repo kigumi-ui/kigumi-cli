@@ -318,7 +318,8 @@ export async function updateComponentIndex(
   config: KigumiConfig,
   cwd: string
 ): Promise<void> {
-  const indexPath = path.join(cwd, config.componentsDir, 'index.ts');
+  const indexExt = config.typescript ? 'ts' : 'js';
+  const indexPath = path.join(cwd, config.componentsDir, `index.${indexExt}`);
 
   let content = '';
   if (await fs.pathExists(indexPath)) {
