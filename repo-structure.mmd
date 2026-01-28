@@ -1,0 +1,117 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4f46e5', 'primaryTextColor': '#fff', 'primaryBorderColor': '#4338ca', 'lineColor': '#6366f1', 'secondaryColor': '#f0f9ff', 'tertiaryColor': '#fef3c7'}}}%%
+
+flowchart TB
+    subgraph root["kigumi-cli/"]
+        direction TB
+
+        %% Root level files
+        pkg[("package.json")]
+        tsconfig[("tsconfig.json")]
+        vitest[("vitest.config.ts")]
+        kconfig[("kigumi.config.json")]
+
+        subgraph src["src/"]
+            direction TB
+            index["index.ts<br/><i>CLI Entry Point</i>"]
+            constants["constants.ts"]
+
+            subgraph commands["commands/"]
+                direction LR
+                init["init/<br/><i>Project Setup</i>"]
+                add["add/<br/><i>Component Install</i>"]
+                theme["theme/<br/><i>Theme Management</i>"]
+                generate["generate/<br/><i>Code Generation</i>"]
+                cmdFiles["brand.ts | palette.ts<br/>list.ts | status.ts"]
+            end
+
+            subgraph frameworks["frameworks/"]
+                direction LR
+                react["react/<br/><i>React Wrappers</i>"]
+                vue["vue/<br/><i>Vue Support</i>"]
+                svelte["svelte/<br/><i>Svelte Support</i>"]
+                angular["angular/<br/><i>Angular Support</i>"]
+            end
+
+            subgraph utils["utils/"]
+                direction LR
+                registry["registry.ts<br/><i>40+ Components</i>"]
+                template["template.ts<br/><i>Handlebars</i>"]
+                tier["tier.ts<br/><i>Free/Pro Tiers</i>"]
+                config["config.ts"]
+            end
+
+            subgraph schemas["schemas/"]
+                direction LR
+                schemaConfig["config.ts"]
+                schemaOptions["options.ts"]
+                schemaTier["tier.ts"]
+            end
+
+            subgraph errors["errors/"]
+                direction LR
+                errBase["base.ts"]
+                errConfig["config.ts"]
+                errFs["filesystem.ts"]
+                errNet["network.ts"]
+            end
+
+            subgraph checks["checks/"]
+                direction LR
+                configChecks["config-checks.ts"]
+                depChecks["dependency-checks.ts"]
+                runner["runner.ts"]
+            end
+
+            output["output/<br/><i>Console Formatting</i>"]
+            types["types/<br/><i>Type Definitions</i>"]
+            styles["styles/<br/><i>Style Management</i>"]
+            lib["lib/<br/><i>webawesome.ts</i>"]
+        end
+
+        subgraph templates["templates/"]
+            direction TB
+            subgraph reactTpl["react/"]
+                direction LR
+                uiComps["UI: Button, Card<br/>Dialog, Dropdown"]
+                formComps["Form: Input, Select<br/>Checkbox, Switch"]
+                layoutComps["Layout: Breadcrumb<br/>Tab, Tree, Carousel"]
+                utilComps["Util: Icon, Avatar<br/>Badge, Animation"]
+            end
+        end
+
+        subgraph tests["tests/"]
+            direction TB
+            subgraph unit["unit/"]
+                unitTests["config.test.ts<br/>tier.test.ts<br/>migration.test.ts<br/>..."]
+            end
+            subgraph e2e["e2e/"]
+                smokeTest["smoke.test.ts"]
+            end
+            tmpReact[".tmp-react-js/<br/>.tmp-react-ts/"]
+        end
+
+        subgraph dist["dist/"]
+            distTpl["templates/react/<br/><i>Compiled Templates</i>"]
+        end
+
+        scripts["scripts/<br/><i>Dev Utilities</i>"]
+    end
+
+    %% Connections showing data flow
+    index --> commands
+    commands --> frameworks
+    commands --> utils
+    utils --> schemas
+    utils --> errors
+    utils --> checks
+    generate --> templates
+    templates --> dist
+
+    %% Styling
+    classDef folder fill:#4f46e5,stroke:#4338ca,color:#fff
+    classDef file fill:#f0f9ff,stroke:#60a5fa,color:#1e40af
+    classDef subFolder fill:#818cf8,stroke:#6366f1,color:#fff
+
+    class root,src,templates,tests,dist folder
+    class commands,frameworks,utils,schemas,errors,checks,unit,e2e,reactTpl subFolder
+    class pkg,tsconfig,vitest,kconfig,index,constants file
