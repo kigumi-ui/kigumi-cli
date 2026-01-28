@@ -153,6 +153,7 @@ export async function statusCommand(
     output.info(`Tier: ${tier}${tier === 'pro' ? ' 🌟' : ''}`);
     output.info(`Framework: ${config.framework}`);
     output.info(`TypeScript: ${config.typescript ? 'Yes' : 'No'}`);
+    output.info(`Components Directory: ${config.componentsDir}`);
     output.info('');
     output.info('Theme Configuration:');
     output.info(`  Theme: ${config.theme.selected}`);

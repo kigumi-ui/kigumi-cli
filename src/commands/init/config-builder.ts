@@ -139,17 +139,31 @@ export async function buildConfigNonInteractive(
 /**
  * Build configuration interactively with prompts
  * NOTE: Tier is now detected from .env, not stored in config
+ *
+ * @param options - CLI options passed to init command
+ * @param projectInfo - Detected project information (framework, typescript)
+ * @param cwd - Current working directory
+ * @param output - Output interface for logging
+ * @param existingConfig - Existing kigumi.config.json (if present) for pre-populating values
  */
 export async function buildConfigInteractive(
   options: InitOptions,
   projectInfo: ProjectInfo,
   cwd: string,
-  output: OutputInterface
+  output: OutputInterface,
+  existingConfig?: KigumiConfig | null
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
   output.info("Let's configure your project");
 
   // Detect tier from .env
   const detectedTier = detectTierSync(cwd);
+
+  // Determine initial values: CLI options > existing config > project detection > defaults
+  const getInitialFramework = (): Framework => {
+    if (existingConfig?.framework) return existingConfig.framework;
+    if (projectInfo.framework !== 'unknown') return projectInfo.framework;
+    return 'react';
+  };
 
   // Framework
   const frameworkResult = options.framework
@@ -162,8 +176,7 @@ export async function buildConfigInteractive(
           { value: 'svelte', label: 'Svelte' },
           { value: 'angular', label: 'Angular' },
         ],
-        initialValue:
-          projectInfo.framework !== 'unknown' ? projectInfo.framework : 'react',
+        initialValue: getInitialFramework(),
       });
   const frameworkStr = ensureString(frameworkResult);
   if (!isValidFramework(frameworkStr)) {
@@ -172,11 +185,17 @@ export async function buildConfigInteractive(
   const framework: Framework = frameworkStr;
 
   // TypeScript
+  const getInitialTypescript = (): boolean => {
+    if (existingConfig?.typescript !== undefined)
+      return existingConfig.typescript;
+    return projectInfo.typescript;
+  };
+
   const typescriptResult =
     options.typescript ??
     (await p.confirm({
       message: 'Use TypeScript?',
-      initialValue: projectInfo.typescript,
+      initialValue: getInitialTypescript(),
     }));
   const typescript = ensureBoolean(typescriptResult);
 
@@ -214,31 +233,62 @@ export async function buildConfigInteractive(
   // Determine final tier based on token
   const finalTier = proToken ? 'pro' : detectedTier;
 
-  // Theme
+  // Theme - use existing value if available and valid for current tier
   const availableThemes = getAvailableThemes(finalTier);
+  const getInitialTheme = (): string => {
+    if (
+      existingConfig?.theme?.selected &&
+      availableThemes.includes(existingConfig.theme.selected)
+    ) {
+      return existingConfig.theme.selected;
+    }
+    return 'default';
+  };
+
   const themeResult =
     options.theme ||
     (await p.select({
       message:
         'Select theme (Preview themes at https://webawesome.com/docs/themes)',
       options: availableThemes.map((t) => ({ value: t, label: t })),
-      initialValue: 'default',
+      initialValue: getInitialTheme(),
     }));
   const theme = ensureString(themeResult);
 
-  // Palette
+  // Palette - use existing value if available and valid for current tier
   const availablePalettes = getAvailablePalettes(finalTier);
+  const getInitialPalette = (): string => {
+    if (
+      existingConfig?.theme?.palette &&
+      availablePalettes.includes(existingConfig.theme.palette)
+    ) {
+      return existingConfig.theme.palette;
+    }
+    return 'default';
+  };
+
   const paletteResult =
     options.palette ||
     (await p.select({
       message:
         'Select color palette (Preview palettes at https://webawesome.com/docs/color-palettes)',
       options: availablePalettes.map((pal) => ({ value: pal, label: pal })),
-      initialValue: 'default',
+      initialValue: getInitialPalette(),
     }));
   const palette = ensureString(paletteResult);
 
-  // Brand color
+  // Brand color - use existing value if available
+  const brandColorOptions = ['blue', 'purple', 'green', 'red', 'orange'];
+  const getInitialBrandColor = (): string => {
+    if (
+      existingConfig?.theme?.brandColor &&
+      brandColorOptions.includes(existingConfig.theme.brandColor)
+    ) {
+      return existingConfig.theme.brandColor;
+    }
+    return 'blue';
+  };
+
   const brandColorResult =
     options.brand ||
     options.brandColor ||
@@ -251,14 +301,35 @@ export async function buildConfigInteractive(
         { value: 'red', label: 'Red' },
         { value: 'orange', label: 'Orange' },
       ],
-      initialValue: 'blue',
+      initialValue: getInitialBrandColor(),
     }));
   const brandColor = ensureString(brandColorResult);
+
+  // Components directory - use existing value if available
+  const getInitialComponentsDir = (): string => {
+    if (existingConfig?.componentsDir) return existingConfig.componentsDir;
+    return DEFAULT_CONFIG.componentsDir;
+  };
+
+  const componentsDirResult =
+    options.componentsDir ||
+    (await p.text({
+      message: 'Where should components be generated?',
+      placeholder: DEFAULT_CONFIG.componentsDir,
+      initialValue: getInitialComponentsDir(),
+      validate: (value) => {
+        if (!value || value.trim().length === 0) {
+          return 'Components directory cannot be empty';
+        }
+        return undefined;
+      },
+    }));
+  const componentsDir = ensureString(componentsDirResult);
 
   const config: KigumiConfig = {
     framework,
     typescript,
-    componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
+    componentsDir,
     utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
     theme: {
       selected: theme,
