@@ -143,11 +143,13 @@ import type {
 
 declare global {
   namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface IntrinsicElements extends CustomElements {}
   }
 }
 
 declare module 'react' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface CSSProperties extends CustomCssProperties {}
 }
 
