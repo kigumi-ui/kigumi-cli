@@ -57,13 +57,15 @@ Edit .hbs → pnpm build → node dist/index.js add {component} --overwrite → 
 
 ### 2. React Import Patterns
 
+> **Why different?** TypeScript benefits from tree-shaking with named imports. JavaScript uses default import for broader compatibility with older bundlers.
+
 **TypeScript (.tsx):** Use named imports
 
 ```typescript
 import { forwardRef, useState, type HTMLAttributes } from 'react';
 ```
 
-**JavaScript (.jsx):** Use default import
+**JavaScript (.jsx):** Use default import + destructure
 
 ```javascript
 import React from 'react';
