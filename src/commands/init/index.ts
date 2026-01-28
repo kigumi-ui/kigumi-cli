@@ -263,7 +263,13 @@ async function buildConfiguration(
         cwd,
         output
       )
-    : await buildConfigInteractive(validatedOptions, projectInfo, cwd, output);
+    : await buildConfigInteractive(
+        validatedOptions,
+        projectInfo,
+        cwd,
+        output,
+        context.existingConfig
+      );
 
   // Detect NEW tier from current .env state
   const newTier = proToken ? 'pro' : await detectTier(cwd);
