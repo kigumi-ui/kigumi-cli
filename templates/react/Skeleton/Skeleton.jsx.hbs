@@ -1,0 +1,18 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Skeleton.css';
+
+export const Skeleton = React.forwardRef(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-skeleton
+        ref={ref}
+        class={clsx('Skeleton', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+Skeleton.displayName = 'Skeleton';

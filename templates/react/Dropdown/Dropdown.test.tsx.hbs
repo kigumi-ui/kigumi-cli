@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Dropdown } from './Dropdown';
+
+describe('Dropdown', () => {
+  it('renders children', () => {
+    render(<Dropdown>Test</Dropdown>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Dropdown className="custom-class">Test</Dropdown>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

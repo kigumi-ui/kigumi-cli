@@ -1,0 +1,49 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './RadioGroup.css';
+
+export const RadioGroup = React.forwardRef(
+  ({ children, className, onChange, onInvalid, ...props }, ref) => {
+    const groupRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options) => groupRef.current?.focus?.(options),
+        get element() {
+          return groupRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = groupRef.current;
+      if (!el) return;
+
+      const handleChange = (e) => onChange?.(e);
+      const handleInvalid = (e) => onInvalid?.(e);
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onChange, onInvalid]);
+
+    return (
+      <wa-radio-group
+        ref={groupRef}
+        class={clsx('RadioGroup', className)}
+        {...props}
+      >
+        {children}
+      </wa-radio-group>
+    );
+  }
+);
+
+RadioGroup.displayName = 'RadioGroup';

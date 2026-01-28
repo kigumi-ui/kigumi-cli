@@ -1,0 +1,49 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './CopyButton.css';
+
+/**
+ * Copies text data to the clipboard when clicked
+ *
+ * @example
+ * ```jsx
+ * <CopyButton value="Text to copy" />
+ * <CopyButton from=".code-block" copy-label="Copy code" />
+ * ```
+ */
+export const CopyButton = React.forwardRef(
+  ({ children, className, onCopy, onError, ...props }, ref) => {
+    const internalRef = React.useRef(null);
+    const elementRef = ref || internalRef;
+
+    React.useEffect(() => {
+      const el = elementRef.current;
+      if (!el) return;
+
+      const handleCopy = (e) => {
+        if (onCopy) onCopy(e);
+      };
+
+      const handleError = (e) => {
+        if (onError) onError(e);
+      };
+
+      el.addEventListener('wa-copy', handleCopy);
+      el.addEventListener('wa-error', handleError);
+
+      return () => {
+        el.removeEventListener('wa-copy', handleCopy);
+        el.removeEventListener('wa-error', handleError);
+      };
+    }, [elementRef, onCopy, onError]);
+
+    return (
+      <wa-copy-button ref={elementRef} class={clsx('CopyButton', className)} {...props}>
+        {children}
+      </wa-copy-button>
+    );
+  }
+);
+
+CopyButton.displayName = 'CopyButton';

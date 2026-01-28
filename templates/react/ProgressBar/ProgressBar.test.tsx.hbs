@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { ProgressBar } from './ProgressBar';
+
+describe('ProgressBar', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<ProgressBar value={50} />);
+    expect(container.querySelector('wa-progress-bar')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<ProgressBar value={50} className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

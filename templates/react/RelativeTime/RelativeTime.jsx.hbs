@@ -1,0 +1,18 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './RelativeTime.css';
+
+export const RelativeTime = React.forwardRef(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-relative-time
+        ref={ref}
+        class={clsx('RelativeTime', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+RelativeTime.displayName = 'RelativeTime';

@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { IntersectionObserver } from './IntersectionObserver';
+
+describe('IntersectionObserver', () => {
+  it('renders children', () => {
+    render(<IntersectionObserver>Test</IntersectionObserver>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<IntersectionObserver className="custom-class">Test</IntersectionObserver>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

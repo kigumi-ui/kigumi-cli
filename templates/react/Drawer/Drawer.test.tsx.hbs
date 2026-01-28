@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Drawer } from './Drawer';
+
+describe('Drawer', () => {
+  it('renders children', () => {
+    render(<Drawer label="Test">Test</Drawer>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Drawer label="Test" className="custom-class">Test</Drawer>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { Slider } from './Slider';
+
+describe('Slider', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<Slider />);
+    expect(container.querySelector('wa-slider')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Slider className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

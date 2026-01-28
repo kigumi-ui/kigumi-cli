@@ -26,7 +26,7 @@ import './Input.css';
  * <Input ref={inputRef} label="Focusable" />
  * ```
  */
-export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange'> {
+export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'dir'> {
   /** Input type */
   type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search';
   /** Accessible label for the input */
@@ -141,10 +141,9 @@ export const Input = forwardRef<InputRef, InputProps>(
 
     return (
       <wa-input
-        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={inputRef}
         class={clsx('Input', className)}
-        {...props}
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-input>

@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Combobox } from './Combobox';
+
+describe('Combobox', () => {
+  it('renders children', () => {
+    render(<Combobox>Test</Combobox>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Combobox className="custom-class">Test</Combobox>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

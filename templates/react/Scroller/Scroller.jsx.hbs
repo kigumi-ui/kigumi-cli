@@ -1,0 +1,20 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Scroller.css';
+
+export const Scroller = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-scroller
+        ref={ref}
+        class={clsx('Scroller', className)}
+        {...props}
+      >
+        {children}
+      </wa-scroller>
+    );
+  }
+);
+
+Scroller.displayName = 'Scroller';

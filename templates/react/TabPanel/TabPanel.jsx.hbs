@@ -1,0 +1,20 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './TabPanel.css';
+
+export const TabPanel = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-tab-panel
+        ref={ref}
+        class={clsx('TabPanel', className)}
+        {...props}
+      >
+        {children}
+      </wa-tab-panel>
+    );
+  }
+);
+
+TabPanel.displayName = 'TabPanel';

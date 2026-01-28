@@ -1,0 +1,18 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './FormatNumber.css';
+
+export const FormatNumber = React.forwardRef(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-format-number
+        ref={ref}
+        class={clsx('FormatNumber', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+FormatNumber.displayName = 'FormatNumber';

@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { ProgressRing } from './ProgressRing';
+
+describe('ProgressRing', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<ProgressRing value={50} />);
+    expect(container.querySelector('wa-progress-ring')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<ProgressRing value={50} className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

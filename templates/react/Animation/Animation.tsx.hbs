@@ -21,7 +21,7 @@ import './Animation.css';
  * </Animation>
  * ```
  */
-export interface AnimationProps extends HTMLAttributes<HTMLElement> {
+export interface AnimationProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   /** The name of the built-in animation to use */
   name?: string;
   /** Plays the animation. When omitted, the animation will be paused */
@@ -114,10 +114,9 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
 
     return (
       <wa-animation
-        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={animationRef}
         class={clsx('Animation', className)}
-        {...props}
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-animation>

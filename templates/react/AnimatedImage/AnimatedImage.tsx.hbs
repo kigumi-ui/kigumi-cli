@@ -15,7 +15,7 @@ import './AnimatedImage.css';
  * />
  * ```
  */
-export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad'> {
+export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
   /** The path to the image to load */
   src: string;
   /** A description of the image used by assistive devices */
@@ -57,10 +57,9 @@ export const AnimatedImage = forwardRef<HTMLElement, AnimatedImageProps>(
 
     return (
       <wa-animated-image
-        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={elementRef}
         class={clsx('AnimatedImage', className)}
-        {...props}
+        {...(props as Record<string, unknown>)}
       />
     );
   }

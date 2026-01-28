@@ -31,7 +31,7 @@ import './Breadcrumb.css';
  * </Breadcrumb>
  * ```
  */
-export interface BreadcrumbProps extends HTMLAttributes<HTMLElement> {
+export interface BreadcrumbProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   /** The label to use for the breadcrumb control for assistive devices */
   label?: string;
 }
@@ -39,7 +39,7 @@ export interface BreadcrumbProps extends HTMLAttributes<HTMLElement> {
 export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
   ({ children, className, ...props }, ref) => {
     return (
-      <wa-breadcrumb ref={ref} class={clsx('Breadcrumb', className)} {...props}>
+      <wa-breadcrumb ref={ref} class={clsx('Breadcrumb', className)} {...(props as Record<string, unknown>)}>
         {children}
       </wa-breadcrumb>
     );

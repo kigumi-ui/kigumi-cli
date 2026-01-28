@@ -1,0 +1,48 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Rating.css';
+
+export const Rating = React.forwardRef(
+  ({ className, onChange, onHover, ...props }, ref) => {
+    const ratingRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options) => ratingRef.current?.focus?.(options),
+        blur: () => ratingRef.current?.blur?.(),
+        get element() {
+          return ratingRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = ratingRef.current;
+      if (!el) return;
+
+      const handleChange = (e) => onChange?.(e);
+      const handleHover = (e) => onHover?.(e);
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-hover', handleHover);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-hover', handleHover);
+      };
+    }, [onChange, onHover]);
+
+    return (
+      <wa-rating
+        ref={ratingRef}
+        class={clsx('Rating', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+Rating.displayName = 'Rating';

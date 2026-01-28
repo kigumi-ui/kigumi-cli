@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { RadioGroup } from './RadioGroup';
+
+describe('RadioGroup', () => {
+  it('renders children', () => {
+    render(<RadioGroup label="Options">Test</RadioGroup>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<RadioGroup label="Options" className="custom-class">Test</RadioGroup>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

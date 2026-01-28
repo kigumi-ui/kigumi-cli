@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Checkbox } from './Checkbox';
+
+describe('Checkbox', () => {
+  it('renders children', () => {
+    render(<Checkbox>Test</Checkbox>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Checkbox className="custom-class">Test</Checkbox>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,16 @@
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import React from 'react';
+import { ProgressRing } from './ProgressRing';
+
+describe('ProgressRing', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<ProgressRing value={50} />);
+    expect(container.querySelector('wa-progress-ring')).toBeInTheDocument();
+  });
+
+  it('applies value prop', () => {
+    const { container } = render(<ProgressRing value={75} />);
+    expect(container.querySelector('wa-progress-ring')).toHaveAttribute('value', '75');
+  });
+});

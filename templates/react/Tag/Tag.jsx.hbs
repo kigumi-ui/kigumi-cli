@@ -1,0 +1,41 @@
+import React, { useRef, useImperativeHandle, useEffect } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Tag.css';
+
+export const Tag = React.forwardRef(
+  ({ children, className, onRemove, ...props }, ref) => {
+    const tagRef = useRef(null);
+
+    useImperativeHandle(ref, () => ({
+      get element() {
+        return tagRef.current;
+      },
+    }), []);
+
+    useEffect(() => {
+      const el = tagRef.current;
+      if (!el) return;
+
+      const handleRemove = (e) => onRemove?.(e);
+
+      el.addEventListener('wa-remove', handleRemove);
+
+      return () => {
+        el.removeEventListener('wa-remove', handleRemove);
+      };
+    }, [onRemove]);
+
+    return (
+      <wa-tag
+        ref={tagRef}
+        class={clsx('Tag', className)}
+        {...props}
+      >
+        {children}
+      </wa-tag>
+    );
+  }
+);
+
+Tag.displayName = 'Tag';

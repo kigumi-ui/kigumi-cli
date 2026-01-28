@@ -1,0 +1,16 @@
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import React from 'react';
+import { SplitPanel } from './SplitPanel';
+
+describe('SplitPanel', () => {
+  it('renders without crashing', () => {
+    const { container } = render(
+      <SplitPanel>
+        <div slot="start">Start</div>
+        <div slot="end">End</div>
+      </SplitPanel>
+    );
+    expect(container.querySelector('wa-split-panel')).toBeInTheDocument();
+  });
+});

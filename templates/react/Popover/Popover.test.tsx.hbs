@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Popover } from './Popover';
+
+describe('Popover', () => {
+  it('renders children', () => {
+    render(<Popover>Test</Popover>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Popover className="custom-class">Test</Popover>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

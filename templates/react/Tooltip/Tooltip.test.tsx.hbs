@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Tooltip } from './Tooltip';
+
+describe('Tooltip', () => {
+  it('renders children', () => {
+    render(<Tooltip content="Tooltip text">Test</Tooltip>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Tooltip content="Tooltip text" className="custom-class">Test</Tooltip>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

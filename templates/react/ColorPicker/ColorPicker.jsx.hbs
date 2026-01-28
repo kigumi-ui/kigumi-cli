@@ -1,0 +1,72 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './ColorPicker.css';
+
+/**
+ * Color pickers allow the user to select a color
+ *
+ * @example
+ * ```jsx
+ * <ColorPicker value="#ff0000" />
+ * <ColorPicker format="rgb" opacity />
+ * ```
+ */
+export const ColorPicker = React.forwardRef(
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, onInvalid, ...props }, ref) => {
+    const pickerRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => pickerRef.current?.show?.(),
+        hide: () => pickerRef.current?.hide?.(),
+        focus: (options) => pickerRef.current?.focus?.(options),
+        blur: () => pickerRef.current?.blur?.(),
+        getFormattedValue: (format) => pickerRef.current?.getFormattedValue?.(format) || '',
+        reportValidity: () => pickerRef.current?.reportValidity?.() ?? true,
+        get element() {
+          return pickerRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = pickerRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+      const handleInvalid = (e) => onInvalid?.(e);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide, onInvalid]);
+
+    return (
+      <wa-color-picker
+        ref={pickerRef}
+        class={clsx('ColorPicker', className)}
+        {...props}
+      >
+        {children}
+      </wa-color-picker>
+    );
+  }
+);
+
+ColorPicker.displayName = 'ColorPicker';

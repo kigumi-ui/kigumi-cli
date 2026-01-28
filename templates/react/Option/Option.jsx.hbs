@@ -1,0 +1,20 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Option.css';
+
+export const Option = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-option
+        ref={ref}
+        class={clsx('Option', className)}
+        {...props}
+      >
+        {children}
+      </wa-option>
+    );
+  }
+);
+
+Option.displayName = 'Option';

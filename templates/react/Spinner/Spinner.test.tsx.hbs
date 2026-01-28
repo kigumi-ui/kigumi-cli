@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { Spinner } from './Spinner';
+
+describe('Spinner', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<Spinner />);
+    expect(container.querySelector('wa-spinner')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Spinner className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

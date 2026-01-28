@@ -1,0 +1,18 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Spinner.css';
+
+export const Spinner = React.forwardRef(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-spinner
+        ref={ref}
+        class={clsx('Spinner', className)}
+        {...props}
+      />
+    );
+  }
+);
+
+Spinner.displayName = 'Spinner';

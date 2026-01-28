@@ -1,0 +1,14 @@
+import { render } from '@testing-library/react';
+import { QrCode } from './QrCode';
+
+describe('QrCode', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<QrCode value="https://example.com" />);
+    expect(container.querySelector('wa-qr-code')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<QrCode value="https://example.com" className="custom-class" />);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

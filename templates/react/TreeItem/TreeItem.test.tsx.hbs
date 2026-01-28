@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { TreeItem } from './TreeItem';
+
+describe('TreeItem', () => {
+  it('renders children', () => {
+    render(<TreeItem>Test</TreeItem>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<TreeItem className="custom-class">Test</TreeItem>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

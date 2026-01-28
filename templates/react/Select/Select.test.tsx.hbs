@@ -1,0 +1,14 @@
+import { render, screen } from '@testing-library/react';
+import { Select } from './Select';
+
+describe('Select', () => {
+  it('renders children', () => {
+    render(<Select>Test</Select>);
+    expect(screen.getByText('Test')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(<Select className="custom-class">Test</Select>);
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+});

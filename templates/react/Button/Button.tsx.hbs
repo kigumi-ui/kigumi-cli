@@ -24,7 +24,7 @@ import './Button.css';
  * <Button ref={buttonRef}>Focusable</Button>
  * ```
  */
-export interface ButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus'> {
+export interface ButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus' | 'dir'> {
   /** Semantic variant of the button */
   variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
   /** Visual appearance style */
@@ -118,10 +118,9 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
 
     return (
       <wa-button
-        // @ts-expect-error - Web Component ref types don't align perfectly with React's ref system
         ref={buttonRef}
         class={clsx('Button', className)}
-        {...props}
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-button>

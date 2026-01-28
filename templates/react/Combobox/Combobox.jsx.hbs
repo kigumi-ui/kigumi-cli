@@ -1,0 +1,67 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Combobox.css';
+
+/**
+ * Combines a text input with a listbox for filtering and selecting options
+ */
+export const Combobox = React.forwardRef(
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, onClear, onInvalid, ...props }, ref) => {
+    const comboboxRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => comboboxRef.current?.show?.(),
+        hide: () => comboboxRef.current?.hide?.(),
+        focus: (options) => comboboxRef.current?.focus?.(options),
+        blur: () => comboboxRef.current?.blur?.(),
+        get element() {
+          return comboboxRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = comboboxRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+      const handleClear = (e) => onClear?.(e);
+      const handleInvalid = (e) => onInvalid?.(e);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-clear', handleClear);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-clear', handleClear);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide, onClear, onInvalid]);
+
+    return (
+      <wa-combobox
+        ref={comboboxRef}
+        class={clsx('Combobox', className)}
+        {...props}
+      >
+        {children}
+      </wa-combobox>
+    );
+  }
+);
+
+Combobox.displayName = 'Combobox';
