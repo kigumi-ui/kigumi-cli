@@ -1,6 +1,6 @@
 {
   "name": "kigumi",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "CLI tool to add Web Awesome components to your project",
   "type": "module",
   "bin": {
@@ -49,7 +49,7 @@
     "vue",
     "ui"
   ],
-  "author": "",
+  "author": "Michael Suzuki <legal@kigumi.style>",
   "license": "MIT",
   "dependencies": {
     "@clack/prompts": "^0.11.0",
