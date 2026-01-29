@@ -1,0 +1,117 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Page.css';
+
+/**
+ * Pages offer an easy way to scaffold entire page layouts using minimal markup
+ *
+ * @example
+ * ```jsx
+ * import { Page } from './components/ui';
+ *
+ * function App() {
+ *   return (
+ *     <Page>
+ *       <div slot="header">
+ *         <h1>My Application</h1>
+ *       </div>
+ *       <nav slot="navigation">
+ *         <a href="/">Home</a>
+ *         <a href="/about">About</a>
+ *       </nav>
+ *       <div>
+ *         <h2>Main Content</h2>
+ *         <p>Your page content goes here</p>
+ *       </div>
+ *       <div slot="footer">
+ *         <p>&copy; 2026 My Company</p>
+ *       </div>
+ *     </Page>
+ *   );
+ * }
+ * ```
+ */
+
+/**
+ * @typedef {Object} PageProps
+ * @property {boolean} [disableNavigationToggle] - Controls visibility of default hamburger button
+ * @property {string} [mobileBreakpoint] - Viewport width threshold for hiding navigation
+ * @property {'start' | 'end'} [navigationPlacement] - Drawer placement location when in mobile viewport
+ * @property {boolean} [navOpen] - Controls mobile navigation drawer open/closed state
+ * @property {'mobile' | 'desktop'} [view] - Reflects viewport relative to mobile-breakpoint
+ * @property {React.ReactNode} [children] - Content of the page
+ * @property {string} [className] - Additional CSS classes
+ */
+
+/**
+ * @typedef {Object} PageRef
+ * @property {() => void} hideNavigation - Hides the mobile navigation drawer
+ * @property {() => void} showNavigation - Shows the mobile navigation drawer
+ * @property {() => void} toggleNavigation - Toggles the mobile navigation drawer
+ * @property {(element: HTMLElement | null) => number | void} visiblePixelsInViewport - Calculates visible area
+ * @property {HTMLElement | null} element - The underlying HTML element
+ */
+
+/**
+ * @type {React.ForwardRefExoticComponent<PageProps & React.RefAttributes<PageRef>>}
+ */
+export const Page = React.forwardRef(({ children, className, navOpen, ...props }, ref) => {
+  const pageRef = React.useRef(null);
+
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      hideNavigation: () => {
+        if (pageRef.current && typeof pageRef.current.hideNavigation === 'function') {
+          pageRef.current.hideNavigation();
+        }
+      },
+      showNavigation: () => {
+        if (pageRef.current && typeof pageRef.current.showNavigation === 'function') {
+          pageRef.current.showNavigation();
+        }
+      },
+      toggleNavigation: () => {
+        if (pageRef.current && typeof pageRef.current.toggleNavigation === 'function') {
+          pageRef.current.toggleNavigation();
+        }
+      },
+      visiblePixelsInViewport: (element) => {
+        if (pageRef.current && typeof pageRef.current.visiblePixelsInViewport === 'function') {
+          return pageRef.current.visiblePixelsInViewport(element);
+        }
+      },
+      get element() {
+        return pageRef.current;
+      },
+    }),
+    []
+  );
+
+  // Sync navOpen prop with page element
+  React.useEffect(() => {
+    const el = pageRef.current;
+    if (!el || navOpen === undefined) return;
+
+    // Sync navOpen prop with element state
+    const isNavOpen = el.navOpen ?? false;
+    if (navOpen && !isNavOpen) {
+      el.showNavigation?.();
+    } else if (!navOpen && isNavOpen) {
+      el.hideNavigation?.();
+    }
+  }, [navOpen]);
+
+  return (
+    <wa-page
+      ref={pageRef}
+      class={clsx('Page', className)}
+      {...props}
+    >
+      {children}
+    </wa-page>
+  );
+});
+
+Page.displayName = 'Page';

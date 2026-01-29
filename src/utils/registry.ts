@@ -1683,6 +1683,56 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/resize-observer/resize-observer.js`,
     tier: 'free',
   },
+  page: {
+    name: 'Page',
+    tagName: 'wa-page',
+    category: 'Layout',
+    description:
+      'Pages offer an easy way to scaffold entire page layouts using minimal markup',
+    dependencies: ['button', 'icon', 'drawer'],
+    files: {
+      react: ['components/Page.tsx', 'types/page.d.ts'],
+    },
+    props: [
+      {
+        name: 'disableNavigationToggle',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Controls visibility of default hamburger button; auto-set to true when custom toggle elements are present',
+      },
+      {
+        name: 'mobileBreakpoint',
+        type: 'string',
+        default: "'768px'",
+        description:
+          'Viewport width threshold for hiding navigation and collapsing into hamburger; accepts numbers (px) or CSS lengths',
+      },
+      {
+        name: 'navigationPlacement',
+        type: 'string',
+        values: ['start', 'end'],
+        default: "'start'",
+        description: 'Drawer placement location when in mobile viewport',
+      },
+      {
+        name: 'navOpen',
+        type: 'boolean',
+        default: 'false',
+        description: 'Controls mobile navigation drawer open/closed state',
+      },
+      {
+        name: 'view',
+        type: 'string',
+        values: ['mobile', 'desktop'],
+        default: "'desktop'",
+        description:
+          'Reflects viewport relative to mobile-breakpoint; defaults to desktop for SSR compatibility',
+      },
+    ],
+    importPath: '@awesome.me/webawesome/dist/components/page/page.js',
+    tier: 'pro',
+  },
   popover: {
     name: 'Popover',
     tagName: 'wa-popover',

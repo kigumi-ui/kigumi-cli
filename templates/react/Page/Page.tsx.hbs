@@ -1,0 +1,122 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Page.css';
+
+/**
+ * Pages offer an easy way to scaffold entire page layouts using minimal markup
+ *
+ * @example
+ * ```tsx
+ * import { Page } from './components/ui';
+ *
+ * function App() {
+ *   return (
+ *     <Page>
+ *       <div slot="header">
+ *         <h1>My Application</h1>
+ *       </div>
+ *       <nav slot="navigation">
+ *         <a href="/">Home</a>
+ *         <a href="/about">About</a>
+ *       </nav>
+ *       <div>
+ *         <h2>Main Content</h2>
+ *         <p>Your page content goes here</p>
+ *       </div>
+ *       <div slot="footer">
+ *         <p>&copy; 2026 My Company</p>
+ *       </div>
+ *     </Page>
+ *   );
+ * }
+ * ```
+ */
+export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** Controls visibility of default hamburger button; auto-set to true when custom toggle elements are present */
+  disableNavigationToggle?: boolean;
+  /** Viewport width threshold for hiding navigation and collapsing into hamburger; accepts numbers (px) or CSS lengths */
+  mobileBreakpoint?: string;
+  /** Drawer placement location when in mobile viewport */
+  navigationPlacement?: 'start' | 'end';
+  /** Controls mobile navigation drawer open/closed state */
+  navOpen?: boolean;
+  /** Reflects viewport relative to mobile-breakpoint; defaults to desktop for SSR compatibility */
+  view?: 'mobile' | 'desktop';
+}
+
+export interface PageRef {
+  hideNavigation: () => void;
+  showNavigation: () => void;
+  toggleNavigation: () => void;
+  visiblePixelsInViewport: (element: HTMLElement | null) => number | void;
+  element: HTMLElement | null;
+}
+
+export const Page = forwardRef<PageRef, PageProps>(
+  ({ children, className, navOpen, ...props }, ref) => {
+    const pageRef = useRef<HTMLElement & {
+      hideNavigation?: () => void;
+      showNavigation?: () => void;
+      toggleNavigation?: () => void;
+      visiblePixelsInViewport?: (element: HTMLElement | null) => number | void;
+      navOpen?: boolean;
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        hideNavigation: () => {
+          if (pageRef.current && typeof pageRef.current.hideNavigation === 'function') {
+            pageRef.current.hideNavigation();
+          }
+        },
+        showNavigation: () => {
+          if (pageRef.current && typeof pageRef.current.showNavigation === 'function') {
+            pageRef.current.showNavigation();
+          }
+        },
+        toggleNavigation: () => {
+          if (pageRef.current && typeof pageRef.current.toggleNavigation === 'function') {
+            pageRef.current.toggleNavigation();
+          }
+        },
+        visiblePixelsInViewport: (element: HTMLElement | null) => {
+          if (pageRef.current && typeof pageRef.current.visiblePixelsInViewport === 'function') {
+            return pageRef.current.visiblePixelsInViewport(element);
+          }
+        },
+        get element() {
+          return pageRef.current;
+        },
+      }),
+      []
+    );
+
+    // Sync navOpen prop with page element
+    useEffect(() => {
+      const el = pageRef.current;
+      if (!el || navOpen === undefined) return;
+
+      // Sync navOpen prop with element state
+      const isNavOpen = el.navOpen ?? false;
+      if (navOpen && !isNavOpen) {
+        el.showNavigation?.();
+      } else if (!navOpen && isNavOpen) {
+        el.hideNavigation?.();
+      }
+    }, [navOpen]);
+
+    return (
+      <wa-page
+        ref={pageRef}
+        class={clsx('Page', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-page>
+    );
+  }
+);
+
+Page.displayName = 'Page';
