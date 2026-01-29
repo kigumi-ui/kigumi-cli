@@ -53,6 +53,7 @@ export const kigumiConfigSchema = z.object({
   }),
   componentsDir: z.string().min(1, 'Components directory cannot be empty'),
   utilsDir: z.string().min(1, 'Utils directory cannot be empty').optional(),
+  stylesDir: z.string().min(1, 'Styles directory cannot be empty').optional(),
   theme: themeConfigSchema,
   aliases: z.record(z.string(), z.string()).optional(),
   webAwesome: webAwesomeConfigSchema.optional(),
@@ -75,6 +76,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
   typescript: true,
   componentsDir: 'src/components/ui',
   utilsDir: 'src/lib',
+  stylesDir: 'src/styles',
   theme: {
     selected: 'default',
     palette: 'default',
@@ -83,6 +85,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
   aliases: {
     '@/components': './src/components',
     '@/lib': './src/lib',
+    '@/styles': './src/styles',
   },
   webAwesome: {
     version: '^3.1.0',

@@ -24,6 +24,7 @@ export interface KigumiConfig {
   typescript: boolean;
   componentsDir: string;
   utilsDir?: string;
+  stylesDir?: string;
   theme: {
     selected: string; // Which theme to use (default, awesome, shoelace, none, or pro themes)
     palette: string; // Color palette (default, bright, shoelace, etc.)
@@ -41,6 +42,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
   typescript: true,
   componentsDir: 'src/components/ui',
   utilsDir: 'src/lib',
+  stylesDir: 'src/styles',
   theme: {
     selected: 'default',
     palette: 'default',
@@ -49,6 +51,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
   aliases: {
     '@/components': './src/components',
     '@/lib': './src/lib',
+    '@/styles': './src/styles',
   },
   webAwesome: {
     version: '^3.1.0',

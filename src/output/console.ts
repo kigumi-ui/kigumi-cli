@@ -101,7 +101,10 @@ export class ConsoleOutput implements OutputInterface {
   }
 
   log(message: string): void {
-    p.log.message(message);
+    // Only show log messages when DEBUG environment variable is set
+    if (process.env.DEBUG) {
+      p.log.message(message);
+    }
   }
 }
 
