@@ -62,9 +62,10 @@ describe('tier restrictions', () => {
       expect(isThemeAvailable('none', 'pro')).toBe(true);
     });
 
-    it('should allow "custom" theme for both tiers', () => {
-      expect(isThemeAvailable('custom', 'free')).toBe(true);
-      expect(isThemeAvailable('custom', 'pro')).toBe(true);
+    it('should deny "custom" theme (not in standard themes)', () => {
+      // "custom" is not a built-in theme - users should use theme.css for customization
+      expect(isThemeAvailable('custom', 'free')).toBe(false);
+      expect(isThemeAvailable('custom', 'pro')).toBe(false);
     });
 
     it('should deny unknown themes', () => {
@@ -98,9 +99,10 @@ describe('tier restrictions', () => {
       expect(isPaletteAvailable('vogue', 'pro')).toBe(true);
     });
 
-    it('should allow "custom" palette for both tiers', () => {
-      expect(isPaletteAvailable('custom', 'free')).toBe(true);
-      expect(isPaletteAvailable('custom', 'pro')).toBe(true);
+    it('should deny "custom" palette (not in standard palettes)', () => {
+      // "custom" is not a built-in palette - users should use theme.css for customization
+      expect(isPaletteAvailable('custom', 'free')).toBe(false);
+      expect(isPaletteAvailable('custom', 'pro')).toBe(false);
     });
 
     it('should deny unknown palettes', () => {
@@ -167,7 +169,6 @@ describe('tier restrictions', () => {
       expect(themes).toContain('default');
       expect(themes).toContain('awesome');
       expect(themes).toContain('shoelace');
-      expect(themes).toContain('custom');
 
       // Should NOT contain pro themes
       expect(themes).not.toContain('brutalist');
@@ -189,7 +190,6 @@ describe('tier restrictions', () => {
       expect(themes).toContain('premium');
       expect(themes).toContain('tailspin');
       expect(themes).toContain('active');
-      expect(themes).toContain('custom');
     });
 
     it('should always start with "none"', () => {
@@ -197,12 +197,11 @@ describe('tier restrictions', () => {
       expect(getAvailableThemes('pro')[0]).toBe('none');
     });
 
-    it('should always end with "custom"', () => {
-      const freeThemes = getAvailableThemes('free');
-      const proThemes = getAvailableThemes('pro');
-
-      expect(freeThemes[freeThemes.length - 1]).toBe('custom');
-      expect(proThemes[proThemes.length - 1]).toBe('custom');
+    it('should have correct length', () => {
+      // Free: none + 3 themes = 4
+      expect(getAvailableThemes('free')).toHaveLength(4);
+      // Pro: none + 11 themes = 12
+      expect(getAvailableThemes('pro')).toHaveLength(12);
     });
   });
 
@@ -219,7 +218,6 @@ describe('tier restrictions', () => {
       expect(palettes).toContain('natural');
       expect(palettes).toContain('anodized');
       expect(palettes).toContain('vogue');
-      expect(palettes).toContain('custom');
     });
 
     it('should return all palettes for pro tier', () => {
@@ -228,26 +226,24 @@ describe('tier restrictions', () => {
       expect(palettes).toContain('default');
       expect(palettes).toContain('bright');
       expect(palettes).toContain('shoelace');
-      expect(palettes).toContain('custom');
+      expect(palettes).toContain('rudimentary');
+      expect(palettes).toContain('elegant');
+      expect(palettes).toContain('mild');
+      expect(palettes).toContain('natural');
+      expect(palettes).toContain('anodized');
+      expect(palettes).toContain('vogue');
     });
 
-    it('should have same palettes for both tiers (except custom)', () => {
-      const freePalettes = getAvailablePalettes('free').filter(
-        (p) => p !== 'custom'
-      );
-      const proPalettes = getAvailablePalettes('pro').filter(
-        (p) => p !== 'custom'
-      );
+    it('should have same palettes for both tiers', () => {
+      const freePalettes = getAvailablePalettes('free');
+      const proPalettes = getAvailablePalettes('pro');
 
       expect(freePalettes).toEqual(proPalettes);
     });
 
-    it('should always end with "custom"', () => {
-      const freePalettes = getAvailablePalettes('free');
-      const proPalettes = getAvailablePalettes('pro');
-
-      expect(freePalettes[freePalettes.length - 1]).toBe('custom');
-      expect(proPalettes[proPalettes.length - 1]).toBe('custom');
+    it('should have correct length', () => {
+      expect(getAvailablePalettes('free')).toHaveLength(9);
+      expect(getAvailablePalettes('pro')).toHaveLength(9);
     });
   });
 
