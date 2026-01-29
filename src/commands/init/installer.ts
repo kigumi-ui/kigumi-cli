@@ -78,8 +78,6 @@ export async function installDependencies(
     const installCmd = packageManager === 'npm' ? 'install' : 'add';
     const args = [installCmd, ...dependencies];
 
-    spinner.message(`Running: ${packageManager} ${args.join(' ')}`);
-
     await execa(packageManager, args, {
       cwd,
       stdio: 'pipe',
@@ -92,8 +90,6 @@ export async function installDependencies(
         packageManager === 'npm'
           ? ['install', '--save-dev', ...devDependencies]
           : ['add', '-D', ...devDependencies];
-
-      spinner.message(`Running: ${packageManager} ${devArgs.join(' ')}`);
 
       await execa(packageManager, devArgs, {
         cwd,

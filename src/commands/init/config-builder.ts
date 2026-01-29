@@ -25,7 +25,12 @@ import {
   getAvailablePalettes,
   isThemeAvailable,
 } from '../../utils/tier-restrictions.js';
-import { DEFAULT_CONFIG, FRAMEWORKS } from '../../schemas/config.js';
+import {
+  PALETTE_OPTIONS,
+  BRAND_COLOR_OPTIONS,
+  getThemeOptionsForTier,
+} from '../../utils/display-options.js';
+import { DEFAULT_CONFIG } from '../../schemas/config.js';
 import {
   ProThemeRequiredError,
   UserCancelledError,
@@ -69,9 +74,9 @@ function ensureBoolean(value: unknown): boolean {
  * Type guard to validate framework value.
  * @internal
  */
-function isValidFramework(value: string): value is Framework {
-  return FRAMEWORKS.includes(value as Framework);
-}
+// function isValidFramework(value: string): value is Framework {
+//   return FRAMEWORKS.includes(value as Framework);
+// }
 
 /**
  * Build configuration non-interactively from options
@@ -83,14 +88,14 @@ export async function buildConfigNonInteractive(
   cwd: string,
   output: OutputInterface
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
-  // Framework: validate against allowed values
-  const frameworkStr = options.framework || projectInfo.framework;
-  if (!isValidFramework(frameworkStr)) {
-    throw new Error(
-      `Invalid framework: ${frameworkStr}. Must be one of: ${FRAMEWORKS.join(', ')}`
+  // Framework - currently only React is supported
+  // Warn if user specified a different framework
+  if (options.framework && options.framework !== 'react') {
+    output.warning(
+      `Framework "${options.framework}" is not yet supported. Using React. (Vue, Angular, Svelte coming soon)`
     );
   }
-  const framework: Framework = frameworkStr;
+  const framework: Framework = 'react';
 
   const typescript = options.typescript ?? projectInfo.typescript;
 
@@ -122,6 +127,7 @@ export async function buildConfigNonInteractive(
     typescript,
     componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
     utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
+    stylesDir: options.stylesDir || DEFAULT_CONFIG.stylesDir,
     theme: {
       selected: theme,
       palette,
@@ -158,31 +164,10 @@ export async function buildConfigInteractive(
   // Detect tier from .env
   const detectedTier = detectTierSync(cwd);
 
-  // Determine initial values: CLI options > existing config > project detection > defaults
-  const getInitialFramework = (): Framework => {
-    if (existingConfig?.framework) return existingConfig.framework;
-    if (projectInfo.framework !== 'unknown') return projectInfo.framework;
-    return 'react';
-  };
-
-  // Framework
-  const frameworkResult = options.framework
-    ? options.framework
-    : await p.select({
-        message: 'Which framework are you using?',
-        options: [
-          { value: 'react', label: 'React' },
-          { value: 'vue', label: 'Vue' },
-          { value: 'svelte', label: 'Svelte' },
-          { value: 'angular', label: 'Angular' },
-        ],
-        initialValue: getInitialFramework(),
-      });
-  const frameworkStr = ensureString(frameworkResult);
-  if (!isValidFramework(frameworkStr)) {
-    throw new Error(`Invalid framework: ${frameworkStr}`);
-  }
-  const framework: Framework = frameworkStr;
+  // Framework - currently only React is supported
+  // Vue, Angular, and Svelte support coming soon
+  const framework: Framework = 'react';
+  output.info('Framework: React (Vue, Angular, Svelte coming soon)');
 
   // TypeScript
   const getInitialTypescript = (): boolean => {
@@ -235,6 +220,7 @@ export async function buildConfigInteractive(
 
   // Theme - use existing value if available and valid for current tier
   const availableThemes = getAvailableThemes(finalTier);
+  const themeOptions = getThemeOptionsForTier(finalTier);
   const getInitialTheme = (): string => {
     if (
       existingConfig?.theme?.selected &&
@@ -250,13 +236,16 @@ export async function buildConfigInteractive(
     (await p.select({
       message:
         'Select theme (Preview themes at https://webawesome.com/docs/themes)',
-      options: availableThemes.map((t) => ({ value: t, label: t })),
+      options: themeOptions,
       initialValue: getInitialTheme(),
     }));
   const theme = ensureString(themeResult);
 
   // Palette - use existing value if available and valid for current tier
   const availablePalettes = getAvailablePalettes(finalTier);
+  const paletteOptions = PALETTE_OPTIONS.filter((o) =>
+    availablePalettes.includes(o.value)
+  );
   const getInitialPalette = (): string => {
     if (
       existingConfig?.theme?.palette &&
@@ -272,17 +261,18 @@ export async function buildConfigInteractive(
     (await p.select({
       message:
         'Select color palette (Preview palettes at https://webawesome.com/docs/color-palettes)',
-      options: availablePalettes.map((pal) => ({ value: pal, label: pal })),
+      options: paletteOptions,
       initialValue: getInitialPalette(),
     }));
   const palette = ensureString(paletteResult);
 
-  // Brand color - use existing value if available
-  const brandColorOptions = ['blue', 'purple', 'green', 'red', 'orange'];
+  // Brand color - all Web Awesome color options
+  // https://webawesome.com/docs/tokens/color
+  const brandColorValues: string[] = BRAND_COLOR_OPTIONS.map((o) => o.value);
   const getInitialBrandColor = (): string => {
     if (
       existingConfig?.theme?.brandColor &&
-      brandColorOptions.includes(existingConfig.theme.brandColor)
+      brandColorValues.includes(existingConfig.theme.brandColor)
     ) {
       return existingConfig.theme.brandColor;
     }
@@ -294,13 +284,10 @@ export async function buildConfigInteractive(
     options.brandColor ||
     (await p.select({
       message: 'Select brand color (Primary color for interactive elements)',
-      options: [
-        { value: 'blue', label: 'Blue' },
-        { value: 'purple', label: 'Purple' },
-        { value: 'green', label: 'Green' },
-        { value: 'red', label: 'Red' },
-        { value: 'orange', label: 'Orange' },
-      ],
+      options: BRAND_COLOR_OPTIONS.map(({ value, label }) => ({
+        value,
+        label,
+      })),
       initialValue: getInitialBrandColor(),
     }));
   const brandColor = ensureString(brandColorResult);
@@ -326,11 +313,33 @@ export async function buildConfigInteractive(
     }));
   const componentsDir = ensureString(componentsDirResult);
 
+  // Styles directory - use existing value if available
+  const getInitialStylesDir = (): string => {
+    if (existingConfig?.stylesDir) return existingConfig.stylesDir;
+    return DEFAULT_CONFIG.stylesDir || 'src/styles';
+  };
+
+  const stylesDirResult =
+    options.stylesDir ||
+    (await p.text({
+      message: 'Where should theme.css be generated?',
+      placeholder: DEFAULT_CONFIG.stylesDir || 'src/styles',
+      initialValue: getInitialStylesDir(),
+      validate: (value) => {
+        if (!value || value.trim().length === 0) {
+          return 'Styles directory cannot be empty';
+        }
+        return undefined;
+      },
+    }));
+  const stylesDir = ensureString(stylesDirResult);
+
   const config: KigumiConfig = {
     framework,
     typescript,
     componentsDir,
     utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
+    stylesDir,
     theme: {
       selected: theme,
       palette,

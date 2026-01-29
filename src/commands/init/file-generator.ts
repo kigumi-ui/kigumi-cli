@@ -50,7 +50,7 @@ export async function generateProjectFiles(
     output.log(`[DEBUG] Creating directories in ${cwd}`);
     const componentsDir = config.componentsDir || 'src/components/ui';
     const utilsDir = config.utilsDir || 'src/lib';
-    const stylesDir = 'src/styles';
+    const stylesDir = config.stylesDir || 'src/styles';
 
     output.log(`[DEBUG] Components dir: ${componentsDir}`);
     output.log(`[DEBUG] Utils dir: ${utilsDir}`);

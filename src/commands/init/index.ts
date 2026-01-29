@@ -41,6 +41,11 @@ import {
   reverseMigratePackageReferences,
 } from './migration.js';
 import { PreFlightCheckError, UserCancelledError } from '../../errors/index.js';
+import {
+  getThemeLabel,
+  getPaletteLabel,
+  getBrandColorLabel,
+} from '../../utils/display-options.js';
 
 /**
  * Detect previous tier from installed packages (not from .env)
@@ -454,7 +459,7 @@ function showPostInstallInstructions(
   // Step: Install dependencies (if not installed)
   if (!depsInstalled) {
     console.log(pc.bold(pc.cyan(`${stepNum}. Install dependencies:\n`)));
-    console.log(pc.dim(`   ${packageManager} install\n`));
+    console.log(pc.dim(`\t${packageManager} install\n`));
     stepNum++;
   }
 
@@ -464,40 +469,54 @@ function showPostInstallInstructions(
       pc.cyan(`${stepNum}. Import Web Awesome in your main entry file:\n`)
     )
   );
-  console.log(pc.dim('   Add this import to src/main.tsx (or src/main.jsx):'));
-  console.log(pc.green('   import "@/lib/webawesome";\n'));
+  console.log(pc.dim('\tAdd this import to src/main.tsx (or src/main.jsx):'));
+  console.log(pc.green('\timport "@/lib/webawesome";\n'));
   stepNum++;
 
   // Step: Add components
   console.log(pc.bold(pc.cyan(`${stepNum}. Add UI components:\n`)));
-  console.log(pc.dim('   npx kigumi add button card dialog input\n'));
+  console.log(pc.dim('\tnpx kigumi add button card dialog input\n'));
   stepNum++;
 
   // Step: Start development
   console.log(pc.bold(pc.cyan(`${stepNum}. Start development server:\n`)));
-  console.log(pc.dim(`   ${packageManager} run dev\n`));
+  console.log(pc.dim(`\t${packageManager} run dev\n`));
 
-  // Info box with theme details
-  console.log(pc.bold(pc.cyan('ℹ️  Theme Configuration:\n')));
-  console.log(pc.dim(`   Theme: ${config.theme.selected}`));
-  console.log(pc.dim(`   Palette: ${config.theme.palette}`));
-  console.log(pc.dim(`   Brand Color: ${config.theme.brandColor}\n`));
+  // Info box with project structure
+  console.log(pc.bold(pc.cyan('ℹ️  Generated Files:\n')));
+  console.log(pc.dim(`\tComponents:\t${config.componentsDir}/`));
+  console.log(
+    pc.dim(`\tStyles:\t\t${config.stylesDir || 'src/styles'}/theme.css`)
+  );
+  console.log(
+    pc.dim(`\tSetup:\t\t${config.utilsDir || 'src/lib'}/webawesome.ts\n`)
+  );
 
+  // Info box with theme details (using display labels for proper capitalization)
+  console.log(pc.bold(pc.cyan('🎨 Theme Configuration:\n')));
+  console.log(pc.dim(`\tTheme:\t\t${getThemeLabel(config.theme.selected)}`));
+  console.log(pc.dim(`\tPalette:\t${getPaletteLabel(config.theme.palette)}`));
+  console.log(
+    pc.dim(`\tBrand Color:\t${getBrandColorLabel(config.theme.brandColor)}`)
+  );
   console.log(
     pc.dim(
-      '   The webawesome.ts file automatically applies theme classes to <html>.'
+      '\tEdit theme.css to customize: https://www.npmjs.com/package/kigumi#customization\n'
     )
   );
-  console.log(pc.dim('   No manual HTML changes needed!\n'));
 
   // Additional resources
-  console.log(pc.bold(pc.cyan('📚 Learn More:\n')));
+  console.log(pc.bold(pc.cyan('📚 Useful Web Awesome resources:\n')));
   console.log(
-    pc.dim('   • Customize themes: https://webawesome.com/docs/customizing')
+    pc.dim('\t• Components: https://webawesome.com/docs/components/')
   );
-  console.log(pc.dim('   • Browse components: https://webawesome.com/docs'));
-  console.log(pc.dim('   • View themes: https://webawesome.com/docs/themes'));
+  console.log(pc.dim('\t• Design Tokens: https://webawesome.com/docs/tokens/'));
   console.log(
-    pc.dim('   • View palettes: https://webawesome.com/docs/color-palettes\n')
+    pc.dim('\t• Style Utilities: https://webawesome.com/docs/utilities/')
+  );
+  console.log(pc.dim('\t• Layout: https://webawesome.com/docs/layout/'));
+  console.log(pc.dim('\t• Themes: https://webawesome.com/docs/themes'));
+  console.log(
+    pc.dim('\t• Color Palettes: https://webawesome.com/docs/color-palettes\n')
   );
 }

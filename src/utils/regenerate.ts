@@ -51,8 +51,11 @@ export async function regenerateWebAwesomeSetup(
     themeImport = `import '${packageName}/dist/styles/themes/${themeName}.css';`;
   }
 
-  // User overrides import (uses @/ alias - user must configure in vite.config.ts)
-  const userOverridesImport = `import '@/styles/theme.css';`;
+  // User overrides import - derive alias from stylesDir
+  // e.g., 'src/styles' -> '@/styles/theme.css'
+  const stylesDir = config.stylesDir || 'src/styles';
+  const stylesAlias = stylesDir.replace(/^src\//, '@/');
+  const userOverridesImport = `import '${stylesAlias}/theme.css';`;
 
   // Generate runtime script to set HTML classes
   const themeClasses =
@@ -161,7 +164,7 @@ export {};
 }
 
 /**
- * Generate theme.css content
+ * Generate theme.css content with customization examples
  *
  * @param config - Kigumi configuration
  * @param tierOverride - Optional tier override
@@ -174,28 +177,113 @@ export async function generateThemeCSS(
   const { theme } = config;
 
   // Detect tier from .env if not provided
-  const tier = tierOverride || 'free'; // Will be determined by caller
+  const tier = tierOverride || 'free';
   const packageName = getWebAwesomePackage(tier);
 
   return `/**
- * Web Awesome Theme Configuration
+ * Web Awesome Theme Customization
  *
- * Theme: ${theme.selected}
- * Palette: ${theme.palette}
- * Brand Color: ${theme.brandColor}
+ * This file is for your custom theme overrides.
+ * It's imported after Web Awesome's base styles, so your values take precedence.
+ *
+ * Current config:
+ *   Theme: ${theme.selected}
+ *   Palette: ${theme.palette}
+ *   Brand: ${theme.brandColor}
+ *
+ * Learn more:
+ *   Customizing: https://webawesome.com/docs/customizing
+ *   Design Tokens: https://webawesome.com/docs/tokens
+ *   Color System: https://webawesome.com/docs/tokens/color
  */
 
 /* Import Web Awesome theme */
 @import '${packageName}/dist/styles/themes/${theme.selected}.css';
 
-/* Apply palette and brand color */
+/*
+ * =============================================================================
+ * CUSTOM OVERRIDES
+ * =============================================================================
+ *
+ * Override any Web Awesome design token below.
+ * Uncomment and modify the examples to customize your theme.
+ */
+
 :root {
-  --wa-palette: ${theme.palette};
-  --wa-brand-color: ${theme.brandColor};
+  /*
+   * Brand Color Override
+   * ---------------------------------------------------------------------------
+   * The brand color is used for primary buttons, links, focus rings, etc.
+   * You can use any valid CSS color value.
+   *
+   * Examples:
+   *   --wa-color-brand-600: #6366f1;
+   *   --wa-color-brand-600: hsl(239 84% 67%);
+   *   --wa-color-brand-600: oklch(0.65 0.25 265);
+   */
+
+  /*
+   * Typography
+   * ---------------------------------------------------------------------------
+   * --wa-font-family-sans: 'Inter', system-ui, sans-serif;
+   * --wa-font-family-mono: 'JetBrains Mono', monospace;
+   * --wa-font-size-base: 1rem;
+   * --wa-line-height-normal: 1.5;
+   */
+
+  /*
+   * Border Radius
+   * ---------------------------------------------------------------------------
+   * --wa-border-radius-small: 0.25rem;
+   * --wa-border-radius-medium: 0.5rem;
+   * --wa-border-radius-large: 1rem;
+   * --wa-border-radius-pill: 9999px;
+   */
+
+  /*
+   * Spacing
+   * ---------------------------------------------------------------------------
+   * --wa-spacing-3x-small: 0.125rem;
+   * --wa-spacing-2x-small: 0.25rem;
+   * --wa-spacing-x-small: 0.5rem;
+   * --wa-spacing-small: 0.75rem;
+   * --wa-spacing-medium: 1rem;
+   * --wa-spacing-large: 1.25rem;
+   * --wa-spacing-x-large: 1.75rem;
+   * --wa-spacing-2x-large: 2.25rem;
+   * --wa-spacing-3x-large: 3rem;
+   */
+
+  /*
+   * Shadows
+   * ---------------------------------------------------------------------------
+   * --wa-shadow-x-small: 0 1px 2px rgba(0, 0, 0, 0.05);
+   * --wa-shadow-small: 0 1px 3px rgba(0, 0, 0, 0.1);
+   * --wa-shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+   * --wa-shadow-large: 0 10px 15px rgba(0, 0, 0, 0.1);
+   * --wa-shadow-x-large: 0 20px 25px rgba(0, 0, 0, 0.1);
+   */
+
+  /*
+   * Focus Ring
+   * ---------------------------------------------------------------------------
+   * --wa-focus-ring-color: var(--wa-color-brand-600);
+   * --wa-focus-ring-width: 3px;
+   * --wa-focus-ring-offset: 2px;
+   */
 }
 
-/* Custom theme overrides */
-/* Add your custom CSS here */
+/*
+ * Dark Mode Overrides
+ * ---------------------------------------------------------------------------
+ * Web Awesome supports dark mode via the .wa-theme-dark class on <html>.
+ * Override tokens for dark mode below.
+ */
+/*
+.wa-theme-dark {
+  --wa-color-brand-600: #818cf8;
+}
+*/
 `;
 }
 

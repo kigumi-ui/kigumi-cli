@@ -21,6 +21,7 @@ export const initOptionsSchema = z.object({
   token: z.string().optional(), // Pro tier token
   componentsDir: z.string().optional(),
   utilsDir: z.string().optional(),
+  stylesDir: z.string().optional(),
   yes: z.boolean().optional(), // Non-interactive mode
   cwd: z.string().optional(),
 });

@@ -20,7 +20,10 @@ program
 program
   .command('init')
   .description('Initialize kigumi in your project')
-  .option('--framework <framework>', 'Framework to use (react|vue|svelte)')
+  .option(
+    '--framework <framework>',
+    'Framework (only react supported currently)'
+  )
   .option('--typescript', 'Use TypeScript')
   .option('--no-typescript', 'Use JavaScript')
   .option('--tier <tier>', 'Web Awesome tier (free|pro)')
@@ -30,6 +33,7 @@ program
   .option('--token <token>', 'Pro tier authentication token')
   .option('--components-dir <dir>', 'Components directory')
   .option('--utils-dir <dir>', 'Utils directory')
+  .option('--styles-dir <dir>', 'Styles directory (for theme.css)')
   .option('-y, --yes', 'Skip all prompts (non-interactive mode)')
   .action(initCommand);
 
