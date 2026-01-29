@@ -1,0 +1,26 @@
+/**
+ * Slider Component Styles
+ * Documentation: https://webawesome.com/docs/components/slider
+ *
+ * CSS Custom Properties:
+ * - --track-size: The size of the track (Default: 0.75em)
+ * - --thumb-width: The width of the thumb (Default: 1.25em)
+ * - --thumb-height: The height of the thumb (Default: 1.25em)
+ * - --marker-width: The width of markers (Default: 0.1875em)
+ * - --marker-height: The height of markers (Default: 0.1875em)
+ *
+ * CSS Parts:
+ * - slider: The slider track
+ * - indicator: The slider's fill indicator
+ * - thumb: The slider's thumb or thumbs
+ * - tooltip: The tooltip that appears above the thumb
+ * - marker: Markers that appear along the slider when using marks
+ *
+ * @example
+ * .Slider::part(thumb) {
+ *   // Custom styles
+ * }
+ */
+.Slider {
+  /* Add your custom styles here */
+}

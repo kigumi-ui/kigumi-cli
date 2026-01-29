@@ -1,0 +1,190 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/combobox/combobox.js';
+import './Combobox.css';
+
+/**
+ * Combines a text input with a listbox for filtering and selecting options
+ *
+ * @example
+ * ```tsx
+ * <Combobox label="Select a fruit" placeholder="Search...">
+ *   <wa-option value="apple">Apple</wa-option>
+ *   <wa-option value="banana">Banana</wa-option>
+ *   <wa-option value="cherry">Cherry</wa-option>
+ * </Combobox>
+ * ```
+ */
+export interface ComboboxProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onInvalid' | 'dir'
+> {
+  /** Allows entering custom values */
+  'allow-custom-value'?: boolean;
+  /** Visual appearance style */
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  /** Autocomplete behavior */
+  autocomplete?: 'list' | 'none';
+  /** Disables the combobox */
+  disabled?: boolean;
+  /** Hint text */
+  hint?: string;
+  /** Label text */
+  label?: string;
+  /** Maximum visible options */
+  'max-options-visible'?: number;
+  /** Allows multiple selections */
+  multiple?: boolean;
+  /** Form field name */
+  name?: string;
+  /** Whether the listbox is open */
+  open?: boolean;
+  /** Rounded edges style */
+  pill?: boolean;
+  /** Placeholder text */
+  placeholder?: string;
+  /** Listbox placement */
+  placement?: 'top' | 'bottom';
+  /** Makes field mandatory */
+  required?: boolean;
+  /** Combobox size */
+  size?: 'small' | 'medium' | 'large';
+  /** Current value */
+  value?: string | string[];
+  /** Shows clear button */
+  'with-clear'?: boolean;
+  /** Event fired when listbox opens */
+  onShow?: (event: CustomEvent) => void;
+  /** Event fired after listbox opens */
+  onAfterShow?: (event: CustomEvent) => void;
+  /** Event fired when listbox closes */
+  onHide?: (event: CustomEvent) => void;
+  /** Event fired after listbox closes */
+  onAfterHide?: (event: CustomEvent) => void;
+  /** Event fired when value is cleared */
+  onClear?: (event: CustomEvent) => void;
+  /** Event fired when validation fails */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface ComboboxRef {
+  show: () => void;
+  hide: () => void;
+  focus: (options?: FocusOptions) => void;
+  blur: () => void;
+  element: HTMLElement | null;
+}
+
+export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
+  (
+    {
+      children,
+      className,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onClear,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
+    const comboboxRef = useRef<
+      HTMLElement & {
+        show?: () => void;
+        hide?: () => void;
+        focus?: (options?: FocusOptions) => void;
+        blur?: () => void;
+      }
+    >(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        show: () => {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.show === 'function'
+          ) {
+            comboboxRef.current.show();
+          }
+        },
+        hide: () => {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.hide === 'function'
+          ) {
+            comboboxRef.current.hide();
+          }
+        },
+        focus: (options?: FocusOptions) => {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.focus === 'function'
+          ) {
+            comboboxRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.blur === 'function'
+          ) {
+            comboboxRef.current.blur();
+          }
+        },
+        get element() {
+          return comboboxRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = comboboxRef.current;
+      if (!el) return;
+
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleClear = (e: Event) => onClear?.(e as CustomEvent);
+      const handleInvalid = (e: Event) => onInvalid?.(e as CustomEvent);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-clear', handleClear);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-clear', handleClear);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide, onClear, onInvalid]);
+
+    return (
+      <wa-combobox
+        ref={comboboxRef}
+        class={clsx('Combobox', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-combobox>
+    );
+  }
+);
+
+Combobox.displayName = 'Combobox';

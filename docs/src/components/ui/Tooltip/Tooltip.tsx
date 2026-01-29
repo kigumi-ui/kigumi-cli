@@ -1,0 +1,140 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/tooltip/tooltip.js';
+import './Tooltip.css';
+
+export interface TooltipProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** The tooltip's content */
+  content?: string;
+  /** Disables the tooltip */
+  disabled?: boolean;
+  /** Distance in pixels from the target */
+  distance?: number;
+  /** Delay before hiding (ms) */
+  hideDelay?: number;
+  /** Whether the tooltip is open */
+  open?: boolean;
+  /** Tooltip placement */
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end';
+  /** Delay before showing (ms) */
+  showDelay?: number;
+  /** Offset along the target (px) */
+  skidding?: number;
+  /** Activation method */
+  trigger?: string;
+  /** Removes the arrow */
+  withoutArrow?: boolean;
+  /** Emitted when the tooltip begins to show */
+  onShow?: (event: CustomEvent) => void;
+  /** Emitted after the tooltip has shown */
+  onAfterShow?: (event: CustomEvent) => void;
+  /** Emitted when the tooltip begins to hide */
+  onHide?: (event: CustomEvent) => void;
+  /** Emitted after the tooltip has hidden */
+  onAfterHide?: (event: CustomEvent) => void;
+}
+
+export interface TooltipRef {
+  show: () => void;
+  hide: () => void;
+  element: HTMLElement | null;
+}
+
+export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
+  (
+    {
+      children,
+      className,
+      open,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      ...props
+    },
+    ref
+  ) => {
+    const tooltipRef = useRef<
+      HTMLElement & {
+        show?: () => void;
+        hide?: () => void;
+        open?: boolean;
+      }
+    >(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        show: () => tooltipRef.current?.show?.(),
+        hide: () => tooltipRef.current?.hide?.(),
+        get element() {
+          return tooltipRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = tooltipRef.current;
+      if (!el || open === undefined) return;
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.hide?.();
+      }
+    }, [open]);
+
+    useEffect(() => {
+      const el = tooltipRef.current;
+      if (!el) return;
+
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-tooltip
+        ref={tooltipRef}
+        class={clsx('Tooltip', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-tooltip>
+    );
+  }
+);
+
+Tooltip.displayName = 'Tooltip';

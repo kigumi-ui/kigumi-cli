@@ -1,0 +1,21 @@
+/**
+ * Option Component Styles
+ * Documentation: https://webawesome.com/docs/components/option
+ *
+ * CSS Custom Properties:
+ * (No custom properties defined for this component)
+ *
+ * CSS Parts:
+ * - checked-icon: The checked icon, a <wa-icon> element
+ * - label: The option's label
+ * - start: The container that wraps the start slot
+ * - end: The container that wraps the end slot
+ *
+ * @example
+ * .Option::part(label) {
+ *   // Custom styles
+ * }
+ */
+.Option {
+  /* Add your custom styles here */
+}

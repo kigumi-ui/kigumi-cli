@@ -1,0 +1,174 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/select/select.js';
+import './Select.css';
+
+export interface SelectProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'onInvalid' | 'dir'
+> {
+  /** The select's label */
+  label?: string;
+  /** Name for form submission */
+  name?: string;
+  /** The select's value */
+  value?: string | string[];
+  /** Placeholder text */
+  placeholder?: string;
+  /** The select's visual appearance */
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  /** The select's size */
+  size?: 'small' | 'medium' | 'large';
+  /** Allows multiple selections */
+  multiple?: boolean;
+  /** Whether the select is open */
+  open?: boolean;
+  /** Disables the select */
+  disabled?: boolean;
+  /** Makes the field required */
+  required?: boolean;
+  /** Pill style with rounded edges */
+  pill?: boolean;
+  /** Shows clear button */
+  'with-clear'?: boolean;
+  /** Preferred placement of the menu */
+  placement?: 'top' | 'bottom';
+  /** Max visible options in multi-select */
+  'max-options-visible'?: number;
+  /** Hint text */
+  hint?: string;
+  /** Event fired when value changes */
+  onChange?: (event: Event) => void;
+  /** Event fired when the menu opens */
+  onShow?: (event: CustomEvent) => void;
+  /** Event fired after the menu opens */
+  onAfterShow?: (event: CustomEvent) => void;
+  /** Event fired when the menu closes */
+  onHide?: (event: CustomEvent) => void;
+  /** Event fired after the menu closes */
+  onAfterHide?: (event: CustomEvent) => void;
+  /** Event fired when value is cleared */
+  onClear?: (event: CustomEvent) => void;
+  /** Event fired when validation fails */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface SelectRef {
+  show: () => void;
+  hide: () => void;
+  focus: (options?: FocusOptions) => void;
+  blur: () => void;
+  element: HTMLElement | null;
+}
+
+export const Select = forwardRef<SelectRef, SelectProps>(
+  (
+    {
+      children,
+      className,
+      open,
+      onChange,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onClear,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
+    const selectRef = useRef<
+      HTMLElement & {
+        show?: () => void;
+        hide?: () => void;
+        focus?: (options?: FocusOptions) => void;
+        blur?: () => void;
+        open?: boolean;
+      }
+    >(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        show: () => selectRef.current?.show?.(),
+        hide: () => selectRef.current?.hide?.(),
+        focus: (options) => selectRef.current?.focus?.(options),
+        blur: () => selectRef.current?.blur?.(),
+        get element() {
+          return selectRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = selectRef.current;
+      if (!el || open === undefined) return;
+
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.hide?.();
+      }
+    }, [open]);
+
+    useEffect(() => {
+      const el = selectRef.current;
+      if (!el) return;
+
+      const handleChange = (e: Event) => onChange?.(e);
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleClear = (e: Event) => onClear?.(e as CustomEvent);
+      const handleInvalid = (e: Event) => onInvalid?.(e as CustomEvent);
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-clear', handleClear);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-clear', handleClear);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [
+      onChange,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onClear,
+      onInvalid,
+    ]);
+
+    return (
+      <wa-select
+        ref={selectRef}
+        class={clsx('Select', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-select>
+    );
+  }
+);
+
+Select.displayName = 'Select';
