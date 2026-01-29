@@ -1,0 +1,18 @@
+/**
+ * Badge Component Styles
+ * Documentation: https://webawesome.com/docs/components/badge
+ *
+ * CSS Custom Properties:
+ * - --pulse-color: The color of the badge's pulse effect when using attention="pulse"
+ *
+ * CSS Parts:
+ * - base: The component's base wrapper
+ *
+ * @example
+ * .Badge::part(base) {
+ *   // Custom styles
+ * }
+ */
+.Badge {
+  /* Add your custom styles here */
+}
