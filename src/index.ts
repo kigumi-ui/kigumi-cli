@@ -2,6 +2,9 @@
 
 import { Command } from 'commander';
 import pc from 'picocolors';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { initCommand } from './commands/init.js';
 import { addCommand } from './commands/add.js';
 import { listCommand } from './commands/list.js';
@@ -10,12 +13,17 @@ import { themeCommand } from './commands/theme.js';
 import { brandCommand } from './commands/brand.js';
 import { paletteCommand } from './commands/palette.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJsonPath = join(__dirname, '..', 'package.json');
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+
 const program = new Command();
 
 program
   .name('kigumi')
   .description('CLI tool to add Web Awesome components to your project')
-  .version('0.2.0');
+  .version(packageJson.version);
 
 program
   .command('init')
