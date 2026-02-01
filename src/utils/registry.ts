@@ -139,6 +139,36 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/button/button.js`,
     tier: 'free',
   },
+  'button-group': {
+    name: 'ButtonGroup',
+    tagName: 'wa-button-group',
+    category: 'Actions',
+    description:
+      'Groups related buttons into organized sections, supporting both horizontal and vertical layouts',
+    dependencies: ['button'],
+    files: {
+      react: ['components/ButtonGroup.tsx', 'types/button-group.d.ts'],
+    },
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description:
+          "A label to use for the button group. This won't be displayed on the screen, but it will be announced by assistive devices",
+        required: false,
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+        values: ['horizontal', 'vertical'],
+        default: 'horizontal',
+        description: "Controls the button group's layout direction",
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/button-group/button-group.js`,
+    tier: 'free',
+  },
   input: {
     name: 'Input',
     tagName: 'wa-input',
@@ -1026,6 +1056,56 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/comparison/comparison.js`,
     tier: 'free',
+  },
+  page: {
+    name: 'Page',
+    tagName: 'wa-page',
+    category: 'Layout',
+    description:
+      'Pages offer an easy way to scaffold entire page layouts using minimal markup',
+    dependencies: [],
+    files: {
+      react: ['components/Page.tsx', 'types/page.d.ts'],
+    },
+    props: [
+      {
+        name: 'disable-navigation-toggle',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Hide default hamburger button; auto-sets true if custom toggle element present',
+        required: false,
+      },
+      {
+        name: 'mobile-breakpoint',
+        type: 'string',
+        default: '768px',
+        description:
+          'Viewport width threshold for navigation collapse; accepts numbers (px) or CSS lengths',
+      },
+      {
+        name: 'navigation-placement',
+        type: 'string',
+        values: ['start', 'end'],
+        default: 'start',
+        description: 'Navigation drawer position on mobile',
+      },
+      {
+        name: 'nav-open',
+        type: 'boolean',
+        default: 'false',
+        description: 'Mobile navigation drawer open state',
+      },
+      {
+        name: 'view',
+        type: 'string',
+        values: ['mobile', 'desktop'],
+        default: 'desktop',
+        description: 'Current viewport classification relative to breakpoint',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/page/page.js`,
+    tier: 'pro',
   },
   'copy-button': {
     name: 'CopyButton',
@@ -3031,6 +3111,41 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/zoomable-frame/zoomable-frame.js`,
+    tier: 'free',
+  },
+  callout: {
+    name: 'Callout',
+    tagName: 'wa-callout',
+    category: 'Display',
+    description: 'Callouts are used to display important messages inline',
+    dependencies: [],
+    files: {
+      react: ['components/Callout.tsx'],
+    },
+    props: [
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['accent', 'filled', 'outlined', 'plain', 'filled-outlined'],
+        default: 'filled-outlined',
+        description: "The callout's visual appearance",
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large'],
+        default: 'medium',
+        description: "The callout's size",
+      },
+      {
+        name: 'variant',
+        type: 'string',
+        values: ['brand', 'neutral', 'success', 'warning', 'danger'],
+        default: 'brand',
+        description: "The callout's theme variant",
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/callout/callout.js`,
     tier: 'free',
   },
 };

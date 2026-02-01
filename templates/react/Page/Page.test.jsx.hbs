@@ -1,0 +1,38 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Page } from './Page';
+
+describe('Page', () => {
+  it('renders without crashing', () => {
+    render(
+      <Page>
+        <main>Page content</main>
+      </Page>
+    );
+    const content = screen.getByText('Page content');
+    expect(content).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(
+      <Page className="custom-class">
+        <main>Test</main>
+      </Page>
+    );
+    const page = container.querySelector('wa-page');
+    expect(page?.className).toContain('custom-class');
+  });
+
+  it('forwards ref correctly', () => {
+    const ref = React.createRef();
+    render(
+      <Page ref={ref}>
+        <main>Test</main>
+      </Page>
+    );
+    expect(ref.current).toHaveProperty('showNavigation');
+    expect(ref.current).toHaveProperty('hideNavigation');
+    expect(ref.current).toHaveProperty('toggleNavigation');
+    expect(ref.current).toHaveProperty('visiblePixelsInViewport');
+  });
+});

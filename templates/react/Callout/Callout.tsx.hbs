@@ -1,0 +1,32 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './{{name}}.css';
+
+export interface {{name}}Props extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
+  /** The callout's visual appearance */
+  appearance?: 'accent' | 'filled' | 'outlined' | 'plain' | 'filled-outlined';
+  /** The callout's size */
+  size?: 'small' | 'medium' | 'large';
+  /** The callout's theme variant */
+  variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+}
+
+export const {{name}} = forwardRef<HTMLElement, {{name}}Props>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-callout
+        ref={ref}
+        class={clsx('{{name}}', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-callout>
+    );
+  }
+);
+
+{{name}}.displayName = '{{name}}';

@@ -1,0 +1,109 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Page.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * ```tsx
+ * // Basic page layout
+ * <Page>
+ *   <header slot="header">
+ *     <h1>My App</h1>
+ *   </header>
+ *   <nav slot="navigation">
+ *     <a href="/">Home</a>
+ *     <a href="/about">About</a>
+ *   </nav>
+ *   <main>
+ *     <h2>Welcome</h2>
+ *     <p>Main content goes here</p>
+ *   </main>
+ *   <footer slot="footer">
+ *     <p>&copy; 2025 My App</p>
+ *   </footer>
+ * </Page>
+ *
+ * // With aside and custom breakpoint
+ * <Page mobile-breakpoint="1024px">
+ *   <header slot="header">Header</header>
+ *   <nav slot="navigation">Navigation</nav>
+ *   <main>Main Content</main>
+ *   <aside slot="aside">Table of Contents</aside>
+ * </Page>
+ *
+ * // Using ref methods
+ * const pageRef = useRef<PageRef>(null);
+ * <button onClick={() => pageRef.current?.showNavigation()}>
+ *   Open Menu
+ * </button>
+ * <Page ref={pageRef}>...</Page>
+ * ```
+ */
+export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** Hide default hamburger button; auto-sets true if custom toggle element present */
+  'disable-navigation-toggle'?: boolean;
+  /** Viewport width threshold for navigation collapse; accepts numbers (px) or CSS lengths */
+  'mobile-breakpoint'?: string;
+  /** Navigation drawer position on mobile */
+  'navigation-placement'?: 'start' | 'end';
+  /** Mobile navigation drawer open state */
+  'nav-open'?: boolean;
+  /** Current viewport classification relative to breakpoint */
+  view?: 'mobile' | 'desktop';
+}
+
+export interface PageRef {
+  hideNavigation: () => void;
+  showNavigation: () => void;
+  toggleNavigation: () => void;
+  visiblePixelsInViewport: (element: HTMLElement | null) => number;
+  element: HTMLElement | null;
+}
+
+export const Page = forwardRef<PageRef, PageProps>(
+  ({ children, className, ...props }, ref) => {
+    const pageRef = useRef<
+      HTMLElement & {
+        hideNavigation?: () => void;
+        showNavigation?: () => void;
+        toggleNavigation?: () => void;
+        visiblePixelsInViewport?: (element: HTMLElement | null) => number;
+      }
+    >(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        hideNavigation: () => pageRef.current?.hideNavigation?.(),
+        showNavigation: () => pageRef.current?.showNavigation?.(),
+        toggleNavigation: () => pageRef.current?.toggleNavigation?.(),
+        visiblePixelsInViewport: (element: HTMLElement | null) =>
+          pageRef.current?.visiblePixelsInViewport?.(element) ?? 0,
+        get element() {
+          return pageRef.current;
+        },
+      }),
+      []
+    );
+
+    return (
+      <wa-page
+        ref={pageRef}
+        class={clsx('Page', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-page>
+    );
+  }
+);
+
+Page.displayName = 'Page';
