@@ -7,6 +7,7 @@ import { Page } from '@/components/ui/Page/Page';
 function App() {
   return (
     <Page>
+      {/* <Header /> */}
       <Hero />
       <ExampleGrid />
       {/* <GetStarted /> */}

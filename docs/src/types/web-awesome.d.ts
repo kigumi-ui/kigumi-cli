@@ -93,6 +93,13 @@ declare global {
         HTMLElement
       >;
 
+      'wa-button-group': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          orientation?: 'horizontal' | 'vertical';
+        },
+        HTMLElement
+      >;
+
       'wa-card': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
           appearance?:
@@ -745,6 +752,31 @@ declare global {
           'without-interaction'?: boolean;
           sandbox?: string;
           referrerpolicy?: string;
+        },
+        HTMLElement
+      >;
+
+      'wa-callout': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          appearance?:
+            | 'accent'
+            | 'filled'
+            | 'outlined'
+            | 'plain'
+            | 'filled-outlined';
+          size?: 'small' | 'medium' | 'large';
+          variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+        },
+        HTMLElement
+      >;
+
+      'wa-page': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          'disable-navigation-toggle'?: boolean;
+          'mobile-breakpoint'?: string;
+          'navigation-placement'?: 'start' | 'end';
+          'nav-open'?: boolean;
+          view?: 'mobile' | 'desktop';
         },
         HTMLElement
       >;

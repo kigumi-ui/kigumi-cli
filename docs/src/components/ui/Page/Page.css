@@ -1,0 +1,50 @@
+/**
+ * Page Component Styles
+ * Documentation: https://webawesome.com/docs/components/page
+ *
+ * CSS Custom Properties:
+ * - --aside-width: Aside section width (default: auto)
+ * - --banner-height: Banner height (default: 0px, auto-calculated)
+ * - --header-height: Header height (default: 0px, auto-calculated)
+ * - --main-width: Main content width (default: 1fr)
+ * - --menu-width: Menu section width (default: auto)
+ * - --subheader-height: Subheader height (default: 0px, auto-calculated)
+ *
+ * CSS Parts:
+ * - base: The component's base wrapper
+ * - banner: Banner section
+ * - header: Header section
+ * - subheader: Subheader section
+ * - body: Body container
+ * - menu: Menu section
+ * - navigation: Navigation section
+ * - main-content: Main content area
+ * - main-header: Main content header
+ * - main-footer: Main content footer
+ * - aside: Aside section
+ * - footer: Footer section
+ * - navigation-header: Navigation header
+ * - navigation-footer: Navigation footer
+ * - navigation-toggle: Navigation toggle button
+ * - navigation-toggle-icon: Navigation toggle icon
+ * - skip-links: Skip links container
+ * - skip-link: Individual skip link
+ * - dialog-wrapper: Mobile navigation dialog wrapper
+ *
+ * @example
+ * .Page::part(header) {
+ *   background: var(--wa-color-background-brand);
+ * }
+ *
+ * .Page::part(navigation) {
+ *   border-right: 1px solid var(--wa-color-border);
+ * }
+ *
+ * .Page {
+ *   --main-width: 800px;
+ *   --aside-width: 250px;
+ * }
+ */
+.Page {
+  /* Add your custom styles here */
+}
