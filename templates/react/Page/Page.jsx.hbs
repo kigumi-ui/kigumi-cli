@@ -1,0 +1,70 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Page.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * // Basic page layout
+ * <Page>
+ *   <header slot="header">
+ *     <h1>My App</h1>
+ *   </header>
+ *   <nav slot="navigation">
+ *     <a href="/">Home</a>
+ *     <a href="/about">About</a>
+ *   </nav>
+ *   <main>
+ *     <h2>Welcome</h2>
+ *     <p>Main content goes here</p>
+ *   </main>
+ *   <footer slot="footer">
+ *     <p>&copy; 2025 My App</p>
+ *   </footer>
+ * </Page>
+ *
+ * // Using ref methods
+ * const pageRef = React.useRef(null);
+ * <button onClick={() => pageRef.current?.showNavigation()}>
+ *   Open Menu
+ * </button>
+ * <Page ref={pageRef}>...</Page>
+ *
+ * @param {Object} props
+ * @param {boolean} [props['disable-navigation-toggle']] - Hide default hamburger button
+ * @param {string} [props['mobile-breakpoint']] - Viewport width threshold for navigation collapse
+ * @param {'start' | 'end'} [props['navigation-placement']] - Navigation drawer position on mobile
+ * @param {boolean} [props['nav-open']] - Mobile navigation drawer open state
+ * @param {'mobile' | 'desktop'} [props.view] - Current viewport classification
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {React.ReactNode} [props.children] - Page content
+ * @param {React.Ref} ref - Ref with methods: hideNavigation(), showNavigation(), toggleNavigation(), visiblePixelsInViewport()
+ */
+export const Page = React.forwardRef(({ children, className, ...props }, ref) => {
+  const pageRef = React.useRef(null);
+
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      hideNavigation: () => pageRef.current?.hideNavigation?.(),
+      showNavigation: () => pageRef.current?.showNavigation?.(),
+      toggleNavigation: () => pageRef.current?.toggleNavigation?.(),
+      visiblePixelsInViewport: (element) =>
+        pageRef.current?.visiblePixelsInViewport?.(element) ?? 0,
+      get element() {
+        return pageRef.current;
+      },
+    }),
+    []
+  );
+
+  return (
+    <wa-page ref={pageRef} class={clsx('Page', className)} {...props}>
+      {children}
+    </wa-page>
+  );
+});
+
+Page.displayName = 'Page';

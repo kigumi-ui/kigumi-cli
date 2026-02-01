@@ -1,0 +1,35 @@
+import { render, screen } from '@testing-library/react';
+import { Page } from './Page';
+
+describe('Page', () => {
+  it('renders children', () => {
+    render(
+      <Page>
+        <main>Test Content</main>
+      </Page>
+    );
+    expect(screen.getByText('Test Content')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    const { container } = render(
+      <Page className="custom-class">
+        <main>Test</main>
+      </Page>
+    );
+    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  });
+
+  it('exposes ref methods', () => {
+    const ref = { current: null };
+    render(
+      <Page ref={ref}>
+        <main>Test</main>
+      </Page>
+    );
+    expect(ref.current).toHaveProperty('showNavigation');
+    expect(ref.current).toHaveProperty('hideNavigation');
+    expect(ref.current).toHaveProperty('toggleNavigation');
+    expect(ref.current).toHaveProperty('visiblePixelsInViewport');
+  });
+});
