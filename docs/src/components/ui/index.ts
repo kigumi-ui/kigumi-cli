@@ -54,3 +54,6 @@ export * from './Tooltip/Tooltip';
 export * from './Tree/Tree';
 export * from './TreeItem/TreeItem';
 export * from './ZoomableFrame/ZoomableFrame';
+export * from './Callout/Callout';
+export * from './ButtonGroup/ButtonGroup';
+export * from './Page/Page';
