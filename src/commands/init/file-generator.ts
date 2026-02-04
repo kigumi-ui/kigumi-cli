@@ -25,6 +25,7 @@ import {
   generateThemeCSS,
   generateGitIgnore,
 } from '../../utils/regenerate.js';
+import { addProScripts } from './package-json-updater.js';
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -33,6 +34,7 @@ export interface FileGenerationOptions {
   config: KigumiConfig;
   tier: Tier;
   proToken?: string;
+  packageManager: 'npm' | 'pnpm' | 'yarn' | 'bun';
   output: OutputInterface;
 }
 
@@ -42,7 +44,7 @@ export interface FileGenerationOptions {
 export async function generateProjectFiles(
   options: FileGenerationOptions
 ): Promise<void> {
-  const { cwd, config, tier, proToken, output } = options;
+  const { cwd, config, tier, proToken, packageManager, output } = options;
   const spinner = output.spinner('Generating project files...');
 
   try {
@@ -105,7 +107,15 @@ export async function generateProjectFiles(
     await generateNpmrc(cwd, tier);
     output.log(`[DEBUG] ✓ .npmrc generated`);
 
-    // 9. Configure path aliases and TypeScript compatibility
+    // 9. Add Pro-specific package.json scripts
+    if (tier === 'pro') {
+      spinner.message('Configuring Pro tier scripts...');
+      output.log(`[DEBUG] Adding Pro tier scripts to package.json`);
+      await addProScripts(cwd, tier, packageManager);
+      output.log(`[DEBUG] ✓ Pro scripts configured`);
+    }
+
+    // 10. Configure path aliases and TypeScript compatibility
     if (config.framework === 'react') {
       spinner.message('Configuring project...');
 
