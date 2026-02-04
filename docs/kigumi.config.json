@@ -5,9 +5,9 @@
   "utilsDir": "src/lib",
   "stylesDir": "src/styles",
   "theme": {
-    "selected": "tailspin",
-    "palette": "rudimentary",
-    "brandColor": "purple"
+    "selected": "default",
+    "palette": "default",
+    "brandColor": "blue"
   },
   "aliases": {
     "@/components": "./src/components",
@@ -15,7 +15,6 @@
     "@/styles": "./src/styles"
   },
   "webAwesome": {
-    "version": "^3.1.0",
-    "pro": true
+    "version": "^3.1.0"
   }
 }
