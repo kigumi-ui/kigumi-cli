@@ -61,6 +61,11 @@ export async function installDependencies(
       devDependencies.push('@types/react', '@types/react-dom');
     }
 
+    // For Pro tier, add dotenv-cli for .env token loading
+    if (tier === 'pro') {
+      devDependencies.push('dotenv-cli');
+    }
+
     // For Pro tier, load token from .env
     const env = { ...process.env };
     if (tier === 'pro') {
