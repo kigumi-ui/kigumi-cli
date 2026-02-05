@@ -1,0 +1,94 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/switch/switch.js';
+import './Switch.css';
+
+export interface SwitchProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'onInvalid' | 'dir'
+> {
+  /** Draws the switch in a checked state */
+  checked?: boolean;
+  /** Disables the switch */
+  disabled?: boolean;
+  /** Makes the switch required */
+  required?: boolean;
+  /** Visual size variant */
+  size?: 'small' | 'medium' | 'large';
+  /** Name for form submission */
+  name?: string | null;
+  /** Form submission value */
+  value?: string | null;
+  /** Descriptive hint text */
+  hint?: string;
+  /** Event fired when checked state changes */
+  onChange?: (event: Event) => void;
+  /** Event fired when validation fails */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface SwitchRef {
+  focus: (options?: FocusOptions) => void;
+  blur: () => void;
+  click: () => void;
+  element: HTMLElement | null;
+}
+
+export const Switch = forwardRef<SwitchRef, SwitchProps>(
+  ({ children, className, onChange, onInvalid, ...props }, ref) => {
+    const switchRef = useRef<
+      HTMLElement & {
+        focus?: (options?: FocusOptions) => void;
+        blur?: () => void;
+        click?: () => void;
+      }
+    >(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options) => switchRef.current?.focus?.(options),
+        blur: () => switchRef.current?.blur?.(),
+        click: () => switchRef.current?.click?.(),
+        get element() {
+          return switchRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = switchRef.current;
+      if (!el) return;
+
+      const handleChange = (e: Event) => onChange?.(e);
+      const handleInvalid = (e: Event) => onInvalid?.(e as CustomEvent);
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onChange, onInvalid]);
+
+    return (
+      <wa-switch
+        ref={switchRef}
+        class={clsx('Switch', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-switch>
+    );
+  }
+);
+
+Switch.displayName = 'Switch';

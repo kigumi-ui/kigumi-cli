@@ -1,0 +1,117 @@
+/* Landing Page Styles */
+
+/* Hero Section */
+.hero-gradient {
+  background: linear-gradient(135deg, var(--wa-color-brand-50) 0%, var(--wa-color-brand-20) 100%);
+}
+
+/* Example Section Container */
+.example-section {
+  padding-block: var(--wa-spacing-2xl);
+  padding-inline: var(--wa-spacing-m);
+}
+
+.example-container {
+  max-width: 1280px;
+  margin-inline: auto;
+}
+
+.example-header {
+  margin-bottom: var(--wa-spacing-xl);
+}
+
+/* Example Grid Layout - CSS Columns for Masonry Effect */
+.ui-component-examples {
+  column-count: 1;
+  column-gap: 1rem;
+  width: 100%;
+}
+
+.ui-component-examples > * {
+  break-inside: avoid; /* Prevent cards from breaking across columns */
+  margin-bottom: 1rem;
+  display: inline-block; /* Required for break-inside to work */
+  width: 100%;
+}
+
+/* Dark mode support */
+.ui-component-examples.wa-dark {
+  background-color: var(--wa-color-neutral-10);
+  padding: 2rem;
+  border-radius: var(--wa-border-radius-l);
+}
+
+/* Responsive adjustments - More columns on larger screens */
+@media (min-width: 640px) {
+  .ui-component-examples {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ui-component-examples {
+    column-count: 3;
+  }
+}
+
+/* Code Block Syntax Highlighting */
+.code-token.code-tag {
+  color: var(--wa-color-blue-60);
+}
+
+.code-token.code-attr-name {
+  color: var(--wa-color-green-60);
+}
+
+.code-token.code-attr-value {
+  color: var(--wa-color-yellow-60);
+}
+
+.code-token.code-punctuation {
+  color: var(--wa-color-neutral-60);
+}
+
+.code-token.code-comment {
+  color: var(--wa-color-neutral-50);
+  font-style: italic;
+}
+
+pre {
+  margin: 0;
+  padding: 1rem;
+  block-size: 100%;
+  background-color: var(--wa-color-neutral-95);
+  border-radius: var(--wa-border-radius-m);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.wa-dark pre {
+  background-color: var(--wa-color-neutral-10);
+}
+
+code {
+  font-family: inherit;
+}
+
+.hide-copy-button {
+  position: relative;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+/* Utility Classes for Examples */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-embiggen {
+  font-size: 1.25em;
+}

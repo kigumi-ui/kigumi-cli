@@ -1,0 +1,37 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/carousel-item/carousel-item.js';
+import './CarouselItem.css';
+
+/**
+ * Represents an individual slide within a carousel component
+ *
+ * @example
+ * ```tsx
+ * <Carousel>
+ *   <CarouselItem>
+ *     <img src="slide1.jpg" alt="Slide 1" />
+ *   </CarouselItem>
+ *   <CarouselItem>
+ *     <img src="slide2.jpg" alt="Slide 2" />
+ *   </CarouselItem>
+ * </Carousel>
+ * ```
+ */
+export type CarouselItemProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
+
+export const CarouselItem = forwardRef<HTMLElement, CarouselItemProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-carousel-item
+        ref={ref}
+        class={clsx('CarouselItem', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-carousel-item>
+    );
+  }
+);
+
+CarouselItem.displayName = 'CarouselItem';
