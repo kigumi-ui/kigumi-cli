@@ -1,126 +1,133 @@
 # Kigumi
 
-CLI to add [Web Awesome](https://webawesome.com) components to your React project with type-safe wrappers.
-
-> **Note:** Currently React-only. Vue, Angular, and Svelte support coming soon.
+> Build framework-agnostic UIs with ready-made components. Kigumi wraps Web Components for React (Vue, Angular, Svelte soon). Same components, any stack.
 
 ## Quick Start
 
 ```bash
 npx kigumi init
-npx kigumi add button card input
+npx kigumi add button input
 ```
 
-Import Web Awesome in your entry file:
+Import in your entry file (e.g. `src/main.tsx`):
 
 ```tsx
-// src/main.tsx
 import '@/lib/webawesome';
 ```
 
-Use the components:
+Use components:
 
 ```tsx
-import { Button, Card } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
 
-function App() {
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+
   return (
-    <Card>
-      <Button variant="brand">Click me</Button>
-    </Card>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        console.log('Email:', email);
+      }}
+    >
+      <Input
+        type="email"
+        label="Email"
+        value={email}
+        onInput={(e) => setEmail(e.target.value)}
+        required
+      />
+      <Button type="submit" variant="brand">
+        Sign In
+      </Button>
+    </form>
   );
 }
 ```
 
-## What You Get
+## Why Kigumi
 
-Kigumi generates React wrappers for Web Awesome components with:
+**Framework-agnostic by design**
+Build your UI once. Web Components work in React, Vue, Angular, Svelte, or vanilla JS.
 
-- **TypeScript support** - Full type definitions for all props
-- **React-friendly events** - Web Awesome events mapped to React conventions (`onChange`, `onInput`, etc.)
-- **Ref forwarding** - Access the underlying Web Component when needed
-- **Copied to your project** - No external dependencies, customize as needed
+**You own the code**
+Components are copied to your project. Modify, extend, or remove whatever you need.
+
+**Production-ready**
+35+ components with TypeScript support, accessibility built-in, and 11 themes included.
 
 ## Commands
 
-```bash
-npx kigumi init              # Initialize project
-npx kigumi add <component>   # Add component(s)
-npx kigumi add               # Interactive component selection
-npx kigumi add --all         # Add all components
-npx kigumi list              # List available components
-npx kigumi status            # Show current configuration
-npx kigumi theme set <name>  # Change theme
-npx kigumi palette <name>    # Change color palette
-npx kigumi brand <color>     # Change brand color
-```
+### `init`
 
-**Brand colors:** blue, indigo, purple, pink, red, orange, yellow, green, cyan, gray
-
-Non-interactive mode with `--yes`:
+Initialize Kigumi in your project. Sets up theming and installs dependencies.
 
 ```bash
-npx kigumi init --yes --framework react --typescript
-npx kigumi add button card --yes
+npx kigumi init
 ```
 
-## Configuration
-
-Settings in `kigumi.config.json`:
-
-```json
-{
-  "framework": "react",
-  "typescript": true,
-  "componentsDir": "src/components/ui",
-  "stylesDir": "src/styles",
-  "theme": {
-    "selected": "default",
-    "palette": "default",
-    "brandColor": "blue"
-  }
-}
-```
-
-## Customization
-
-Kigumi generates `theme.css` in your configured `stylesDir` with documented examples for customizing your theme.
-
-Override any [design token](https://webawesome.com/docs/tokens) in your CSS:
-
-```css
-:root {
-  /* Brand color */
-  --wa-color-brand-600: #6366f1;
-
-  /* Typography */
-  --wa-font-family-sans: 'Inter', system-ui, sans-serif;
-
-  /* Border radius */
-  --wa-border-radius-medium: 0.5rem;
-
-  /* Spacing */
-  --wa-spacing-medium: 1rem;
-}
-```
-
-See the full customization guide: [webawesome.com/docs/customizing](https://webawesome.com/docs/customizing)
-
-## Pro Tier
-
-Access premium themes and components with a [Web Awesome Pro](https://webawesome.com) token:
+**Have Web Awesome Pro?** Use your token during initialization:
 
 ```bash
 npx kigumi init --token=YOUR_PRO_TOKEN
 ```
 
-## Troubleshooting
+### `add`
 
-**Components not rendering?**
-Ensure `import '@/lib/webawesome'` is in your entry file.
+Add components to your project:
 
-**Path alias errors?**
-Re-run `npx kigumi init` to reconfigure aliases.
+```bash
+npx kigumi add <components> # Add specific components
+npx kigumi add              # Add from list of components
+npx kigumi add --all        # Add all components
+```
+
+### `theme`
+
+Change theme, palette, or brand color:
+
+```bash
+kigumi theme <name>   # Change theme
+kigumi palette <name> # Change color palette
+kigumi brand <color>  # Change brand color
+```
+
+**Free themes:** `default`, `awesome`, `shoelace`
+**Pro themes:** `brutalist`, `glossy`, `matter`, `mellow`, `playful`, `premium`, `tailspin`, `active`
+**Brand colors:** `blue`, `indigo`, `purple`, `pink`, `red`, `orange`, `yellow`, `green`, `cyan`, `gray`
+
+## Utility Classes
+
+With the included [style](https://webawesome.com/docs/utilities) and [layout](https://webawesome.com/docs/layout/) utility classes you can quickly build your UI:
+
+```tsx
+<div className="wa-stack wa-gap-md">
+  <h1 className="wa-heading-2xl">Welcome</h1>
+  <p className="wa-text-muted">Get started below</p>
+</div>
+```
+
+## Customization
+
+Override design tokens in `src/styles/theme.css`:
+
+```css
+:root {
+  --wa-color-brand-600: #6366f1;
+  --wa-font-family-sans: 'Inter', system-ui, sans-serif;
+  --wa-border-radius-medium: 0.5rem;
+}
+```
+
+[Design Tokens Reference](https://webawesome.com/docs/tokens)
+[Theming Guide](https://webawesome.com/docs/themes)
+
+## Resources
+
+- [Web Awesome Documentation](https://webawesome.com/docs)
+- [Component Gallery](https://webawesome.com/docs/components)
+- [GitHub Repository](https://github.com/giregar/kigumi-cli)
+- [Report Issues](https://github.com/giregar/kigumi-cli/issues)
 
 ## License
 
