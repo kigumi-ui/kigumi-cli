@@ -5,9 +5,9 @@
  * It's imported after Web Awesome's base styles, so your values take precedence.
  *
  * Current config:
- *   Theme: default
- *   Palette: default
- *   Brand: blue
+ *   Theme: tailspin
+ *   Palette: rudimentary
+ *   Brand: purple
  *
  * Learn more:
  *   Customizing: https://webawesome.com/docs/customizing
@@ -16,7 +16,7 @@
  */
 
 /* Import Web Awesome theme */
-@import '@awesome.me/webawesome-pro/dist/styles/themes/default.css';
+@import '@awesome.me/webawesome-pro/dist/styles/themes/tailspin.css';
 
 /*
  * =============================================================================
