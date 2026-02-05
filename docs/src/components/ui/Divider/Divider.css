@@ -1,0 +1,21 @@
+/**
+ * Divider Component Styles
+ * Documentation: https://webawesome.com/docs/components/divider
+ *
+ * CSS Custom Properties:
+ * - --color: The color of the divider
+ * - --width: The width of the divider
+ * - --spacing: The spacing of the divider
+ *
+ * CSS Parts:
+ * (No CSS parts defined for this component)
+ *
+ * @example
+ * .Divider {
+ *   --color: #ccc;
+ *   --width: 2px;
+ * }
+ */
+.Divider {
+  /* Add your custom styles here */
+}

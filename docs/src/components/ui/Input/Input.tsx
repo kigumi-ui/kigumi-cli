@@ -1,0 +1,185 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/input/input.js';
+import './Input.css';
+
+/**
+ * Inputs collect data from the user
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Input label="Email" type="email" placeholder="Enter email" />
+ * <Input type="password" password-toggle />
+ * <Input with-clear hint="Help text" />
+ *
+ * // With event handlers
+ * <Input
+ *   label="Name"
+ *   onInput={(e) => console.log(e.detail.value)}
+ *   onChange={(e) => console.log('Changed:', e.detail.value)}
+ * />
+ *
+ * // With ref methods
+ * const inputRef = useRef<InputRef>(null);
+ * <button onClick={() => inputRef.current?.focus()}>Focus Input</button>
+ * <Input ref={inputRef} label="Focusable" />
+ * ```
+ */
+export interface InputProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'dir'
+> {
+  /** Input type */
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'date'
+    | 'tel'
+    | 'url'
+    | 'search';
+  /** Accessible label for the input */
+  label?: string;
+  /** Descriptive hint text */
+  hint?: string;
+  /** Placeholder text */
+  placeholder?: string;
+  /** Input value */
+  value?: string;
+  /** Visual appearance style */
+  appearance?: 'filled' | 'filled-outlined' | 'outlined';
+  /** Input size */
+  size?: 'small' | 'medium' | 'large';
+  /** Gives the input rounded edges */
+  pill?: boolean;
+  /** Disables the input */
+  disabled?: boolean;
+  /** Adds a clear button when input has content */
+  'with-clear'?: boolean;
+  /** Adds a toggle button for password visibility */
+  'password-toggle'?: boolean;
+  /** Event fired when the input loses focus */
+  onBlur?: (event: FocusEvent) => void;
+  /** Event fired when the input gains focus */
+  onFocus?: (event: FocusEvent) => void;
+  /** Event fired when the input value changes */
+  onInput?: (event: CustomEvent) => void;
+  /** Event fired when the input value changes and loses focus */
+  onChange?: (event: CustomEvent) => void;
+}
+
+export interface InputRef {
+  focus: () => void;
+  blur: () => void;
+  select: () => void;
+  setSelectionRange: (start: number, end: number) => void;
+  element: HTMLElement | null;
+}
+
+export const Input = forwardRef<InputRef, InputProps>(
+  (
+    { children, className, onBlur, onFocus, onInput, onChange, ...props },
+    ref
+  ) => {
+    const inputRef = useRef<
+      HTMLElement & {
+        focus?: () => void;
+        blur?: () => void;
+        select?: () => void;
+        setSelectionRange?: (start: number, end: number) => void;
+      }
+    >(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: () => {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.focus === 'function'
+          ) {
+            inputRef.current.focus();
+          }
+        },
+        blur: () => {
+          if (inputRef.current && typeof inputRef.current.blur === 'function') {
+            inputRef.current.blur();
+          }
+        },
+        select: () => {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.select === 'function'
+          ) {
+            inputRef.current.select();
+          }
+        },
+        setSelectionRange: (start: number, end: number) => {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.setSelectionRange === 'function'
+          ) {
+            inputRef.current.setSelectionRange(start, end);
+          }
+        },
+        get element() {
+          return inputRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = inputRef.current;
+      if (!el) return;
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
+
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-blur', handleBlur);
+      el.addEventListener('wa-focus', handleFocus);
+      el.addEventListener('wa-input', handleInput);
+      el.addEventListener('wa-change', handleChange);
+
+      return () => {
+        el.removeEventListener('wa-blur', handleBlur);
+        el.removeEventListener('wa-focus', handleFocus);
+        el.removeEventListener('wa-input', handleInput);
+        el.removeEventListener('wa-change', handleChange);
+      };
+    }, [onBlur, onFocus, onInput, onChange]);
+
+    return (
+      <wa-input
+        ref={inputRef}
+        class={clsx('Input', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-input>
+    );
+  }
+);
+
+Input.displayName = 'Input';
