@@ -181,8 +181,7 @@ export async function initCommand(options: InitOptions = {}) {
       output,
       configResult.config,
       context.projectInfo.packageManager,
-      true, // Always true if we reach here without errors
-      configResult.newTier
+      true // Always true if we reach here without errors
     );
   } catch (error) {
     handleError(error, output);
@@ -361,7 +360,7 @@ async function saveAndGenerate(
   context: InitContext,
   configResult: ConfigResult
 ): Promise<void> {
-  const { cwd, output, projectInfo } = context;
+  const { cwd, output } = context;
   const { config, proToken, newTier } = configResult;
 
   await saveConfig(config, cwd);
@@ -372,7 +371,6 @@ async function saveAndGenerate(
     config,
     tier: newTier,
     proToken,
-    packageManager: projectInfo.packageManager,
     output,
   });
 }
@@ -452,8 +450,7 @@ function showPostInstallInstructions(
   output: import('../../output/types.js').OutputInterface,
   config: import('../../schemas/index.js').KigumiConfig,
   packageManager: string,
-  depsInstalled: boolean,
-  tier: Tier
+  depsInstalled: boolean
 ): void {
   console.log('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
@@ -462,14 +459,7 @@ function showPostInstallInstructions(
   // Step: Install dependencies (if not installed)
   if (!depsInstalled) {
     console.log(pc.bold(pc.cyan(`${stepNum}. Install dependencies:\n`)));
-
-    // Pro tier: Show dotenv-cli usage
-    if (tier === 'pro') {
-      console.log(pc.dim(`\tdotenv -- ${packageManager} install`));
-      console.log(pc.dim(`\t# Or use the npm script: npm run install:deps\n`));
-    } else {
-      console.log(pc.dim(`\t${packageManager} install\n`));
-    }
+    console.log(pc.dim(`\t${packageManager} install\n`));
     stepNum++;
   }
 
@@ -514,21 +504,6 @@ function showPostInstallInstructions(
       '\tEdit theme.css to customize: https://www.npmjs.com/package/kigumi#customization\n'
     )
   );
-
-  // Pro tier specific notes
-  if (tier === 'pro') {
-    console.log(pc.bold(pc.yellow('\n⚠️  Pro Tier Notes:\n')));
-    console.log(pc.dim('\tFor installing new packages, use the npm scripts:'));
-    console.log(pc.green('\t  npm run install:deps'));
-    console.log(pc.green('\t  npm run add <package>'));
-    console.log(pc.dim('\n\tOr set the environment variable manually:'));
-    console.log(
-      pc.green(
-        "\t  export WEBAWESOME_NPM_TOKEN=$(grep WEBAWESOME_NPM_TOKEN .env | cut -d '=' -f2)"
-      )
-    );
-    console.log(pc.green(`\t  ${packageManager} install\n`));
-  }
 
   // Additional resources
   console.log(pc.bold(pc.cyan('📚 Useful Web Awesome resources:\n')));
