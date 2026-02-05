@@ -66,11 +66,21 @@ Initialize Kigumi in your project. Sets up theming and installs dependencies.
 npx kigumi init
 ```
 
-**Have Web Awesome Pro?** Use your token during initialization:
+**Web Awesome Pro:** To use Pro themes and components, provide your token during init:
 
 ```bash
 npx kigumi init --token=YOUR_PRO_TOKEN
 ```
+
+This saves your token to `.env` and configures `.npmrc` automatically. When you run `npm install`, your package manager reads the token from `.env` and authenticates with the Pro registry.
+
+**Manual setup:** If you prefer to configure manually, add your token to `.env`:
+
+```bash
+echo "WEBAWESOME_NPM_TOKEN=your_token_here" >> .env
+```
+
+Then run `npx kigumi init` (without the `--token` flag) to complete setup.
 
 ### `add`
 
