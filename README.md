@@ -54,7 +54,7 @@ Build your UI once. Web Components work in React, Vue, Angular, Svelte, or vanil
 Components are copied to your project. Modify, extend, or remove whatever you need.
 
 **Production-ready**
-35+ components with TypeScript support, accessibility built-in, and 11 themes included.
+50+ components (including Pro-only advanced components) with TypeScript support, accessibility built-in, and 11 themes included.
 
 ## Commands
 
@@ -66,45 +66,48 @@ Initialize Kigumi in your project. Sets up theming and installs dependencies.
 npx kigumi init
 ```
 
-**Web Awesome Pro:** To use Pro themes and components, provide your token during init:
+**Web Awesome Pro:** Provide your token during `init` to unlock premium themes and Pro-only components:
 
 ```bash
 npx kigumi init --token=YOUR_PRO_TOKEN
 ```
 
-This saves your token to `.env` and configures `.npmrc` automatically. When you run `npm install`, your package manager reads the token from `.env` and authenticates with the Pro registry.
-
-**Manual setup:** If you prefer to configure manually, add your token to `.env`:
-
-```bash
-echo "WEBAWESOME_NPM_TOKEN=your_token_here" >> .env
-```
-
-Then run `npx kigumi init` (without the `--token` flag) to complete setup.
+This saves your token to `.env` and configures authentication automatically. To change your token later, edit `.env` or run `init` again with a new token.
 
 ### `add`
 
 Add components to your project:
 
 ```bash
-npx kigumi add <components> # Add specific components
-npx kigumi add              # Add from list of components
-npx kigumi add --all        # Add all components
+npx kigumi add <components> # Add specific components (e.g., button input card)
+npx kigumi add              # Interactive component selector
+npx kigumi add --all        # Add all 80+ components at once
 ```
+
+### `list`
+
+View all available components:
+
+```bash
+npx kigumi list
+```
+
+Shows component name, description, and Pro badge for Pro-only components.
 
 ### `theme`
 
 Change theme, palette, or brand color:
 
 ```bash
-kigumi theme <name>   # Change theme
-kigumi palette <name> # Change color palette
-kigumi brand <color>  # Change brand color
+npx kigumi theme [name]    # Change theme (shows selector if name omitted)
+npx kigumi palette [name]  # Change color palette
+npx kigumi brand [color]   # Change brand color
 ```
 
 **Free themes:** `default`, `awesome`, `shoelace`
 **Pro themes:** `brutalist`, `glossy`, `matter`, `mellow`, `playful`, `premium`, `tailspin`, `active`
-**Brand colors:** `blue`, `indigo`, `purple`, `pink`, `red`, `orange`, `yellow`, `green`, `cyan`, `gray`
+**Color palettes:** `default`, `bright`, `shoelace`, `rudimentary`, `elegant`, `mild`, `natural`, `anodized`, `vogue`
+**Brand colors:** `blue`, `purple`, `green`, `red`, `orange`, `yellow`, `cyan`, `indigo`, `pink`, `gray`
 
 ## Utility Classes
 
@@ -131,6 +134,58 @@ Override design tokens in `src/styles/theme.css`:
 
 [Design Tokens Reference](https://webawesome.com/docs/tokens)
 [Theming Guide](https://webawesome.com/docs/themes)
+
+## Troubleshooting
+
+### Import errors with @ alias
+
+If you see errors like `Cannot find module '@/lib/webawesome'`, configure path aliases:
+
+**Vite (vite.config.ts):**
+
+```typescript
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+```
+
+**TypeScript (tsconfig.json):**
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+### Pro token authentication fails
+
+If `npm install` fails with 401 errors:
+
+1. Verify your token is in `.env`: `cat .env | grep WEBAWESOME_NPM_TOKEN`
+2. Check your token is valid at [webawesome.com/account](https://webawesome.com/account)
+3. Ensure `.npmrc` exists and references the token correctly
+
+### Component styles not loading
+
+Make sure you've imported the Web Awesome setup in your app entry point:
+
+```tsx
+import '@/lib/webawesome'; // Must be imported before components
+```
+
+### Need more help?
+
+- [Web Awesome Documentation](https://webawesome.com/docs)
+- [GitHub Issues](https://github.com/giregar/kigumi-cli/issues)
+- Run `npx kigumi --help` for command reference
 
 ## Resources
 
