@@ -84,7 +84,7 @@ export async function generateProjectFiles(
         'ℹ️  Existing theme.css found - preserving your custom styles'
       );
     } else {
-      const themeCss = await generateThemeCSS(config, tier);
+      const themeCss = await generateThemeCSS();
       await fs.writeFile(themeCssPath, themeCss);
       output.log(`[DEBUG] ✓ theme.css generated`);
     }
