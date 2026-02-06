@@ -71,12 +71,23 @@ export async function generateProjectFiles(
     await regenerateWebAwesomeSetup(cwd, config, utilsDir, tier);
     output.log(`[DEBUG] ✓ webawesome.ts generated`);
 
-    // 3. Generate theme.css
+    // 3. Generate theme.css (only if it doesn't exist)
     spinner.message('Generating theme.css...');
-    output.log(`[DEBUG] Generating theme.css in ${stylesDir}`);
-    const themeCss = await generateThemeCSS(config, tier);
-    await fs.writeFile(path.join(cwd, stylesDir, 'theme.css'), themeCss);
-    output.log(`[DEBUG] ✓ theme.css generated`);
+    output.log(`[DEBUG] Checking for existing theme.css in ${stylesDir}`);
+
+    const themeCssPath = path.join(cwd, stylesDir, 'theme.css');
+    const themeCssExists = await fs.pathExists(themeCssPath);
+
+    if (themeCssExists) {
+      output.log(`[DEBUG] theme.css already exists, skipping generation`);
+      output.info(
+        'ℹ️  Existing theme.css found - preserving your custom styles'
+      );
+    } else {
+      const themeCss = await generateThemeCSS(config, tier);
+      await fs.writeFile(themeCssPath, themeCss);
+      output.log(`[DEBUG] ✓ theme.css generated`);
+    }
 
     // 4. Generate vite-env.d.ts (TypeScript + React)
     if (config.typescript && config.framework === 'react') {
