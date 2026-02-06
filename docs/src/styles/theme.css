@@ -1,33 +1,23 @@
 /**
  * Web Awesome Theme Customization
  *
- * This file is for your custom theme overrides.
- * It's imported after Web Awesome's base styles, so your values take precedence.
+ * This file is for your custom CSS overrides.
+ * Web Awesome base and theme imports are handled in layers.css.
  *
- * Current config:
- *   Theme: tailspin
- *   Palette: rudimentary
- *   Brand: purple
+ * This file is imported into the 'theme' cascade layer,
+ * which has higher priority than Web Awesome base styles.
+ * This means your customizations will always override Web Awesome defaults.
  *
  * Learn more:
  *   Customizing: https://webawesome.com/docs/customizing
  *   Design Tokens: https://webawesome.com/docs/tokens
- *   Color System: https://webawesome.com/docs/tokens/color
- */
-
-/* Import Web Awesome theme */
-@import '@awesome.me/webawesome-pro/dist/styles/themes/tailspin.css';
-
-/*
- * =============================================================================
- * CUSTOM OVERRIDES
- * =============================================================================
- *
- * Override any Web Awesome design token below.
- * Uncomment and modify the examples to customize your theme.
+ *   CSS Cascade Layers: https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
  */
 
 :root {
+  --max-width: 1280px;
+  --padding-block: var(--wa-spacing-2xl);
+  --padding-inline: var(--wa-spacing-m);
   /*
    * Brand Color Override
    * ---------------------------------------------------------------------------
