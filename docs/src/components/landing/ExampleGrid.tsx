@@ -1,40 +1,40 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/Button/Button';
-import { Icon } from '@/components/ui/Icon/Icon';
 import { CommentsExample } from './examples/CommentsExample';
 import { ActionPanelExample } from './examples/ActionPanelExample';
 import { ActivityLogExample } from './examples/ActivityLogExample';
 import { DataDisplayExample } from './examples/DataDisplayExample';
 import { PaginationButtonGroupExample } from './examples/PaginationButtonGroupExample';
 import { ContactExample } from './examples/ContactExample';
+import { Scroller } from '@/components/ui';
 
 export function ExampleGrid() {
-  const [darkMode, setDarkMode] = useState(false);
-
   return (
-    <section id="examples" className="example-section">
-      <div className="example-container">
-        <div className="wa-split:row wa-align-items-center example-header">
-          <h2 className="wa-heading-2xl">See What's Possible</h2>
-          <Button
-            appearance="outlined"
-            size="small"
-            onClick={() => setDarkMode(!darkMode)}
-          >
-            <Icon name={darkMode ? 'sun' : 'moon'} />
-            {darkMode ? 'Light' : 'Dark'} Mode
-          </Button>
-        </div>
-
-        <div className={`ui-component-examples ${darkMode ? 'wa-dark' : ''}`}>
-          <ActionPanelExample />
-          <ActivityLogExample />
-          <CommentsExample />
-          <DataDisplayExample />
-          <PaginationButtonGroupExample />
-          <ContactExample />
-        </div>
+    <section className="example-grid section">
+      <div className="example-header">
+        <h2 className="wa-heading-2xl">Some examples</h2>
       </div>
+
+      <Scroller orientation="vertical" style={{ maxHeight: '80vh' }}>
+        <div className="example-masonry">
+          <div className="example-masonry-item">
+            <ActionPanelExample />
+          </div>
+          <div className="example-masonry-item">
+            <ActivityLogExample />
+          </div>
+          <div className="example-masonry-item">
+            <CommentsExample />
+          </div>
+          <div className="example-masonry-item">
+            <DataDisplayExample />
+          </div>
+          <div className="example-masonry-item">
+            <PaginationButtonGroupExample />
+          </div>
+          <div className="example-masonry-item">
+            <ContactExample />
+          </div>
+        </div>
+      </Scroller>
     </section>
   );
 }

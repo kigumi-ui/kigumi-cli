@@ -1,0 +1,38 @@
+/* Example Grid */
+.example-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* @media (min-width: 1024px) {
+  .example-grid {
+    padding-inline: var(--wa-space-4xl);
+  }
+} */
+
+.example-masonry {
+  column-count: 1;
+  column-gap: var(--wa-space-m, 1rem);
+  padding: var(--wa-space-m, 1rem) 0;
+}
+
+@media (min-width: 768px) {
+  .example-masonry {
+    column-count: 2;
+    column-gap: var(--wa-space-l, 1.5rem);
+  }
+}
+
+@media (min-width: 1200px) {
+  .example-masonry {
+    column-count: 3;
+    column-gap: var(--wa-space-xl, 2rem);
+  }
+}
+
+.example-masonry-item {
+  break-inside: avoid;
+  margin-bottom: var(--wa-space-l, 1.5rem);
+  display: inline-block;
+  width: 100%;
+}

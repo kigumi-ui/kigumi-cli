@@ -12,14 +12,8 @@
  * To change brand color, use: kigumi brand set <color>
  */
 
-// Import base Web Awesome CSS (includes all CSS variables and component styles)
-import '@awesome.me/webawesome-pro/dist/styles/webawesome.css';
-
-// Import selected theme CSS
-import '@awesome.me/webawesome-pro/dist/styles/themes/tailspin.css';
-
-// Import your custom theme overrides
-import '@/styles/theme.css';
+// Import Web Awesome CSS with cascade layers for predictable specificity control
+import '@/styles/layers.css';
 
 // Apply theme classes to <html> element
 if (typeof document !== 'undefined') {
