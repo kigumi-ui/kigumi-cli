@@ -1,26 +1,5 @@
-import { Badge, Card, Icon } from '@/components/ui';
+import { Badge, Card } from '@/components/ui';
 import { CopyButton } from '@/components/ui';
-
-const features = [
-  {
-    icon: 'cubes',
-    title: 'Framework-agnostic by design',
-    description:
-      'Build your UI once. Web Components work in React, Vue, Angular, Svelte, or vanilla JS.',
-  },
-  {
-    icon: 'code-branch',
-    title: 'You own the code',
-    description:
-      'Components are copied to your project. Modify, extend, or remove whatever you need.',
-  },
-  {
-    icon: 'rocket',
-    title: 'Production-ready',
-    description:
-      '50+ components (including Pro-only advanced components) with TypeScript support, accessibility built-in, and 11 themes included.',
-  },
-];
 
 export function GettingStarted() {
   return (
@@ -45,7 +24,7 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>2</Badge>
-              <h3 className="wa-heading-l">Add Components</h3>
+              <h3 className="wa-heading-l">Add components</h3>
             </div>
             <Card appearance="outlined" style={{ '--spacing': '0' }}>
               <div
@@ -102,7 +81,7 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>3</Badge>
-              <h3 className="wa-heading-l">Import and Use</h3>
+              <h3 className="wa-heading-l">Import and use</h3>
             </div>
 
             <p className="wa-caption-m">
@@ -136,6 +115,7 @@ export function GettingStarted() {
             <div className="wa-stack wa-gap-m"></div>
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>4</Badge>
+              <h3 className="wa-heading-l">Build your UI</h3>
             </div>
 
             <p className="wa-caption-m">Use components in your code:</p>
@@ -209,29 +189,6 @@ export default function LoginForm() {
               </span>
             </div>
           </Card>
-        </div>
-
-        {/* Why Kigumi Section */}
-        <div className="wa-stack wa-gap-xl">
-          <h2 className="wa-heading-2xl">Why Kigumi</h2>
-
-          <div className="features-grid">
-            {features.map((feature) => (
-              <Card key={feature.title} appearance="outlined">
-                <div className="wa-stack wa-gap-m">
-                  <Icon
-                    name={feature.icon}
-                    style={{
-                      fontSize: '2rem',
-                      color: 'var(--wa-color-brand-600)',
-                    }}
-                  />
-                  <h3 className="wa-heading-m">{feature.title}</h3>
-                  <p className="wa-caption-m">{feature.description}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
         </div>
       </div>
     </section>
