@@ -133,15 +133,21 @@ export function GettingStarted() {
               </div>
             </Card>
 
-            <p className="wa-caption-m">Use components:</p>
+            <div className="wa-stack wa-gap-m"></div>
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>4</Badge>
+            </div>
 
-            <Card appearance="outlined" style={{ '--spacing': '0' }}>
-              <div
-                className="wa-flank:end wa-align-items-start wa-gap-xs"
-                style={{ position: 'relative' }}
-              >
-                <pre>
-                  <code>{`import { Button, Input } from '@/components/ui';
+            <p className="wa-caption-m">Use components in your code:</p>
+          </div>
+
+          <Card appearance="outlined" style={{ '--spacing': '0' }}>
+            <div
+              className="wa-flank:end wa-align-items-start wa-gap-xs"
+              style={{ position: 'relative' }}
+            >
+              <pre>
+                <code>{`import { Button, Input } from '@/components/ui';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -164,19 +170,19 @@ export default function LoginForm() {
     </form>
   );
 }`}</code>
-                </pre>
-                <span
-                  style={{
-                    position: 'absolute',
-                    right: 'var(--wa-space-xs)',
-                    top: 'var(--wa-space-xs)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <CopyButton
-                    value={`import { Button, Input } from '@/components/ui';
+              </pre>
+              <span
+                style={{
+                  position: 'absolute',
+                  right: 'var(--wa-space-xs)',
+                  top: 'var(--wa-space-xs)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <CopyButton
+                  value={`import { Button, Input } from '@/components/ui';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -199,11 +205,10 @@ export default function LoginForm() {
     </form>
   );
 }`}
-                  />
-                </span>
-              </div>
-            </Card>
-          </div>
+                />
+              </span>
+            </div>
+          </Card>
         </div>
 
         {/* Why Kigumi Section */}
