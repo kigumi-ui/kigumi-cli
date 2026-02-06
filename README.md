@@ -122,7 +122,7 @@ With the included [style](https://webawesome.com/docs/utilities) and [layout](ht
 
 ## Customization
 
-Override design tokens in `src/styles/theme.css`:
+Add your custom CSS overrides in `src/styles/theme.css`:
 
 ```css
 :root {
@@ -132,8 +132,29 @@ Override design tokens in `src/styles/theme.css`:
 }
 ```
 
+**Note:** Theme selection is handled via `kigumi theme` command, which updates `src/lib/webawesome.ts`. The `theme.css` file is for your custom CSS only.
+
 [Design Tokens Reference](https://webawesome.com/docs/tokens)
 [Theming Guide](https://webawesome.com/docs/themes)
+
+## CSS Architecture
+
+Kigumi uses CSS cascade layers (`@layer`) for predictable style precedence:
+
+**Layer hierarchy:**
+
+1. **base** - Web Awesome foundation + theme styles (lowest priority)
+2. **theme** - Your custom CSS overrides in `src/styles/theme.css` (higher priority)
+
+Later layers always override earlier layers, regardless of specificity. This means your custom styles in `theme.css` will reliably override Web Awesome defaults without needing `!important`.
+
+**How it works:**
+
+- `src/styles/layers.css` (auto-generated) wraps Web Awesome imports in layers
+- `src/lib/webawesome.ts` (auto-generated) imports layers.css
+- Your custom styles in `theme.css` are imported into the `theme` layer
+
+[Learn more about CSS cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)
 
 ## Troubleshooting
 
