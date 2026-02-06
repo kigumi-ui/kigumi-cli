@@ -17,6 +17,9 @@ import type {
 } from '@awesome.me/webawesome-pro/dist/custom-elements-jsx.d.ts';
 
 declare global {
+  // CLI version injected at build time
+  const __CLI_VERSION__: string;
+
   namespace JSX {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface IntrinsicElements extends CustomElements {}
