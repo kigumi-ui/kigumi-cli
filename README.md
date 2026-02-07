@@ -66,13 +66,30 @@ Initialize Kigumi in your project. Sets up theming and installs dependencies.
 npx kigumi init
 ```
 
-**Web Awesome Pro:** Provide your token during `init` to unlock premium themes and Pro-only components:
+**Web Awesome Pro:** To unlock premium themes and Pro-only components:
 
 ```bash
-npx kigumi init --token=YOUR_PRO_TOKEN
+# Configure your token globally (once per machine)
+npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
+
+# Then just run init - Pro tier is auto-detected
+npx kigumi init
 ```
 
-This saves your token to `.env` and configures authentication automatically. To change your token later, edit `.env` or run `init` again with a new token.
+Get your token at [webawesome.com](https://https://webawesome.com/login)
+
+<details>
+<summary>CI/CD Setup</summary>
+
+For CI/CD environments, set the `WEBAWESOME_NPM_TOKEN` environment variable:
+
+```yaml
+# GitHub Actions example
+env:
+  WEBAWESOME_NPM_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+```
+
+</details>
 
 ### `add`
 
@@ -190,9 +207,19 @@ export default defineConfig({
 
 If `npm install` fails with 401 errors:
 
-1. Verify your token is in `.env`: `cat .env | grep WEBAWESOME_NPM_TOKEN`
-2. Check your token is valid at [webawesome.com/account](https://webawesome.com/account)
-3. Ensure `.npmrc` exists and references the token correctly
+1. Configure your token globally:
+
+   ```bash
+   npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
+   ```
+
+2. Verify it's configured:
+
+   ```bash
+   npm config get //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken
+   ```
+
+3. Check your token is valid at [https://webawesome.com/login](https://https://webawesome.com/login)
 
 ### Component styles not loading
 
@@ -207,6 +234,42 @@ import '@/lib/webawesome'; // Must be imported before components
 - [Web Awesome Documentation](https://webawesome.com/docs)
 - [GitHub Issues](https://github.com/giregar/kigumi-cli/issues)
 - Run `npx kigumi --help` for command reference
+
+## Deploying to Vercel
+
+The docs website (`/docs`) can be deployed to Vercel:
+
+### Prerequisites
+
+1. Web Awesome Pro token from [https://webawesome.com/login](https://https://webawesome.com/login)
+2. Vercel account and project created
+
+### Setup
+
+1. **Import the repository** to Vercel
+   - Framework Preset: Vite
+   - Root Directory: `docs`
+   - Build Command: `pnpm build`
+   - Output Directory: `dist`
+
+2. **Configure Environment Variables** in Vercel Dashboard:
+   - Go to Project Settings → Environment Variables
+   - Add `WEBAWESOME_NPM_TOKEN` with your Pro token
+   - Select all environments (Production, Preview, Development)
+
+3. **Deploy**
+   - Push to `main` branch to trigger deployment
+   - Vercel will automatically build and deploy
+
+### Local Development
+
+```bash
+cd docs
+pnpm install
+pnpm dev
+```
+
+The dev server will run at http://localhost:5173
 
 ## Resources
 
