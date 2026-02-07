@@ -8,20 +8,18 @@ on:
 
 jobs:
   test:
-    name: Test (Node ${{ matrix.node }}, ${{ matrix.pm }})
+    name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         node: [18, 20, 22]
-        pm: [npm, pnpm, yarn]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup pnpm
-        if: matrix.pm == 'pnpm'
         uses: pnpm/action-setup@v4
         with:
           version: 9
@@ -30,28 +28,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: ${{ matrix.pm }}
+          cache: pnpm
 
-      - name: Install dependencies (npm)
-        if: matrix.pm == 'npm'
-        run: npm ci
-
-      - name: Install dependencies (pnpm)
-        if: matrix.pm == 'pnpm'
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install dependencies (yarn)
-        if: matrix.pm == 'yarn'
-        run: yarn install --frozen-lockfile
-
       - name: Lint
-        run: ${{ matrix.pm }} run lint
+        run: pnpm run lint
 
       - name: Test
-        run: ${{ matrix.pm }} run test
+        run: pnpm run test
 
       - name: Build
-        run: ${{ matrix.pm }} run build
+        run: pnpm run build
 
   typecheck:
     name: TypeScript Check

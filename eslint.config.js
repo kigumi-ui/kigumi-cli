@@ -11,6 +11,7 @@ export default tseslint.config(
       'node_modules/**',
       'coverage/**',
       'templates/**',
+      'tests/.tmp-*/**',
       '*.config.js',
       '*.config.ts',
     ],
