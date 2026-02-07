@@ -31,8 +31,9 @@ describe('token detection', () => {
     // Save original env
     originalEnv = { ...process.env };
 
-    // Clear token from env
+    // Clear token from env and skip global npmrc for isolated tests
     delete process.env.WEBAWESOME_NPM_TOKEN;
+    process.env.KIGUMI_SKIP_GLOBAL_NPMRC = '1';
   });
 
   afterEach(async () => {
