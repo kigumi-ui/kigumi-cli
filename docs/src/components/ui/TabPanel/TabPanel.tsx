@@ -1,0 +1,30 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/tab-panel/tab-panel.js';
+import './TabPanel.css';
+
+export interface TabPanelProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
+  /** The tab panel's name */
+  name?: string;
+  /** When true, the tab panel will be shown */
+  active?: boolean;
+}
+
+export const TabPanel = forwardRef<HTMLElement, TabPanelProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-tab-panel
+        ref={ref}
+        class={clsx('TabPanel', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-tab-panel>
+    );
+  }
+);
+
+TabPanel.displayName = 'TabPanel';

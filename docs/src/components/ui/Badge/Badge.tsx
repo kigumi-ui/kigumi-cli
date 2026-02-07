@@ -1,0 +1,54 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/badge/badge.js';
+import './Badge.css';
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ *
+ * @example
+ * ```tsx
+ * // Basic badge
+ * <Badge>New</Badge>
+ *
+ * // Variants
+ * <Badge variant="success">Success</Badge>
+ * <Badge variant="warning">Warning</Badge>
+ * <Badge variant="danger">Error</Badge>
+ *
+ * // Pill style with attention
+ * <Badge pill attention="pulse">5</Badge>
+ *
+ * // On buttons
+ * <Button>
+ *   Notifications
+ *   <Badge pill>3</Badge>
+ * </Button>
+ * ```
+ */
+export interface BadgeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** The badge's theme variant */
+  variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  /** The badge's visual appearance */
+  appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  /** Draws a pill-style badge with rounded edges */
+  pill?: boolean;
+  /** Adds an animation to draw attention to the badge */
+  attention?: 'none' | 'pulse' | 'bounce';
+}
+
+export const Badge = forwardRef<HTMLElement, BadgeProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-badge
+        ref={ref}
+        class={clsx('Badge', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-badge>
+    );
+  }
+);
+
+Badge.displayName = 'Badge';

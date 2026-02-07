@@ -65,18 +65,43 @@ export async function generateProjectFiles(
     await fs.ensureDir(path.join(cwd, stylesDir));
     output.log(`[DEBUG] ✓ Created ${stylesDir}`);
 
-    // 2. Generate webawesome.ts
+    // 2. Generate webawesome.ts (and layers.css)
     spinner.message('Generating webawesome.ts...');
     output.log(`[DEBUG] Generating webawesome.ts in ${utilsDir}`);
-    await regenerateWebAwesomeSetup(cwd, config, utilsDir, tier);
+    const { layersPreserved } = await regenerateWebAwesomeSetup(
+      cwd,
+      config,
+      utilsDir,
+      tier,
+      { preserveLayersCSS: true }
+    );
     output.log(`[DEBUG] ✓ webawesome.ts generated`);
+    if (layersPreserved) {
+      output.log(`[DEBUG] layers.css already exists, skipping generation`);
+      output.info(
+        'ℹ️  Existing layers.css found - preserving your custom layers'
+      );
+    } else {
+      output.log(`[DEBUG] ✓ layers.css generated`);
+    }
 
-    // 3. Generate theme.css
+    // 3. Generate theme.css (only if it doesn't exist)
     spinner.message('Generating theme.css...');
-    output.log(`[DEBUG] Generating theme.css in ${stylesDir}`);
-    const themeCss = await generateThemeCSS(config, tier);
-    await fs.writeFile(path.join(cwd, stylesDir, 'theme.css'), themeCss);
-    output.log(`[DEBUG] ✓ theme.css generated`);
+    output.log(`[DEBUG] Checking for existing theme.css in ${stylesDir}`);
+
+    const themeCssPath = path.join(cwd, stylesDir, 'theme.css');
+    const themeCssExists = await fs.pathExists(themeCssPath);
+
+    if (themeCssExists) {
+      output.log(`[DEBUG] theme.css already exists, skipping generation`);
+      output.info(
+        'ℹ️  Existing theme.css found - preserving your custom styles'
+      );
+    } else {
+      const themeCss = await generateThemeCSS();
+      await fs.writeFile(themeCssPath, themeCss);
+      output.log(`[DEBUG] ✓ theme.css generated`);
+    }
 
     // 4. Generate vite-env.d.ts (TypeScript + React)
     if (config.typescript && config.framework === 'react') {
@@ -177,8 +202,11 @@ ${ENV_TOKEN_KEY}=${token}
  *
  * WHY: Both tiers need .npmrc to override potential global ~/.npmrc
  *
- * - Pro tier: Points to private Cloudsmith registry with auth
+ * - Pro tier: Points to private Cloudsmith registry (token in global ~/.npmrc)
  * - Free tier: Explicitly use public npm registry (overrides global config)
+ *
+ * NOTE: Token is NOT stored in project .npmrc - user configures it globally via:
+ *   npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken TOKEN
  *
  * @internal
  */
@@ -188,8 +216,8 @@ async function generateNpmrc(cwd: string, tier: Tier): Promise<void> {
   let npmrcContent: string;
 
   if (tier === 'pro') {
+    // Only registry URL - token is configured globally in ~/.npmrc
     npmrcContent = `${WEB_AWESOME_SCOPE}:registry=${NPM_PRO_REGISTRY}
-//${NPM_PRO_REGISTRY.replace('https://', '')}/:_authToken=\${${ENV_TOKEN_KEY}}
 `;
   } else {
     // Free tier: Explicitly point to public npm registry

@@ -1,0 +1,44 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/format-number/format-number.js';
+import './FormatNumber.css';
+
+export interface FormatNumberProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
+  /** The number to format */
+  value: number;
+  /** The formatting style to use */
+  type?: 'currency' | 'decimal' | 'percent';
+  /** ISO 4217 currency code for formatting */
+  currency?: string;
+  /** How to display the currency */
+  'currency-display'?: 'symbol' | 'narrowSymbol' | 'code' | 'name';
+  /** Minimum fraction digits */
+  'minimum-fraction-digits'?: number;
+  /** Maximum fraction digits */
+  'maximum-fraction-digits'?: number;
+  /** Minimum integer digits */
+  'minimum-integer-digits'?: number;
+  /** Minimum significant digits */
+  'minimum-significant-digits'?: number;
+  /** Maximum significant digits */
+  'maximum-significant-digits'?: number;
+  /** Disables grouping separators */
+  'without-grouping'?: boolean;
+}
+
+export const FormatNumber = forwardRef<HTMLElement, FormatNumberProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-format-number
+        ref={ref}
+        class={clsx('FormatNumber', className)}
+        {...(props as Record<string, unknown>)}
+      />
+    );
+  }
+);
+
+FormatNumber.displayName = 'FormatNumber';

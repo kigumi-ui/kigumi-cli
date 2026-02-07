@@ -1,0 +1,20 @@
+{
+  "framework": "react",
+  "typescript": true,
+  "componentsDir": "src/components/ui",
+  "utilsDir": "src/lib",
+  "stylesDir": "src/styles",
+  "theme": {
+    "selected": "tailspin",
+    "palette": "rudimentary",
+    "brandColor": "purple"
+  },
+  "aliases": {
+    "@/components": "./src/components",
+    "@/lib": "./src/lib",
+    "@/styles": "./src/styles"
+  },
+  "webAwesome": {
+    "version": "^3.1.0"
+  }
+}

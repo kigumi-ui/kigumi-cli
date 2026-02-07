@@ -1,0 +1,244 @@
+import { Badge, Card, Details } from '@/components/ui';
+import { CopyButton } from '@/components/ui';
+
+export function GettingStarted() {
+  return (
+    <section className="getting-started">
+      <div className="wa-stack wa-gap-4xl">
+        {/* Quick Start Section */}
+        <div className="wa-stack wa-gap-xl">
+          <h2 className="wa-heading-2xl">Quick Start</h2>
+
+          {/* Step 1: Initialize */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>1</Badge>
+              <h3 className="wa-heading-l">Initialize Kigumi</h3>
+            </div>
+            <p className="wa-caption-m">
+              Run the init command above to set up Kigumi in your project.
+            </p>
+
+            {/* Pro Setup Hint */}
+            <Details appearance="outlined" summary="Using Web Awesome Pro?">
+              <div className="wa-stack wa-gap-m">
+                <p>Configure your token globally first (once per machine):</p>
+                <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                  <div
+                    className="wa-flank:end wa-align-items-center wa-gap-xs"
+                    style={{ position: 'relative' }}
+                  >
+                    <pre>
+                      <code>
+                        npm config set
+                        //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken
+                        YOUR_TOKEN
+                      </code>
+                    </pre>
+                    <span
+                      style={{
+                        position: 'absolute',
+                        right: 'var(--wa-space-xs)',
+                        top: '0',
+                        bottom: '0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <CopyButton value="npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN" />
+                    </span>
+                  </div>
+                </Card>
+                <p>
+                  Get your token at{' '}
+                  <a
+                    href="https://https://webawesome.com/login"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    https://webawesome.com/login
+                  </a>
+                </p>
+                <p>
+                  Then run <code>npx kigumi init</code> — Pro tier will be
+                  auto-detected.
+                </p>
+              </div>
+            </Details>
+          </div>
+
+          {/* Step 2: Add Components */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>2</Badge>
+              <h3 className="wa-heading-l">Add components</h3>
+            </div>
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-center wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>
+                    <span
+                      style={{
+                        opacity: 0.6,
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontSize: 'inherit',
+                        zIndex: 1,
+                        userSelect: 'none',
+                      }}
+                      aria-hidden="true"
+                    >
+                      ${' '}
+                    </span>
+                    <span
+                      style={{
+                        paddingLeft: 'var(--wa-space-m)',
+                        display: 'inline-block',
+                      }}
+                    >
+                      npx kigumi add button input
+                    </span>
+                  </code>
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: '0',
+                    bottom: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton value="npx kigumi add button input" />
+                </span>
+              </div>
+            </Card>
+          </div>
+
+          {/* Step 3: Import & Use */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>3</Badge>
+              <h3 className="wa-heading-l">Import and use</h3>
+            </div>
+
+            <p className="wa-caption-m">
+              Import in your entry file (e.g. <code>src/main.tsx</code>):
+            </p>
+
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-center wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>import '@/lib/webawesome';</code>
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: '0',
+                    bottom: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton value="import '@/lib/webawesome';" />
+                </span>
+              </div>
+            </Card>
+
+            <div className="wa-stack wa-gap-m"></div>
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>4</Badge>
+              <h3 className="wa-heading-l">Build your UI</h3>
+            </div>
+
+            <p className="wa-caption-m">Use components in your code:</p>
+          </div>
+
+          <Card appearance="outlined" style={{ '--spacing': '0' }}>
+            <div
+              className="wa-flank:end wa-align-items-start wa-gap-xs"
+              style={{ position: 'relative' }}
+            >
+              <pre>
+                <code>{`import { Button, Input } from '@/components/ui';
+
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      console.log('Email:', email);
+    }}>
+      <Input
+        type="email"
+        label="Email"
+        value={email}
+        onInput={(e) => setEmail(e.target.value)}
+        required
+      />
+      <Button type="submit" variant="brand">
+        Sign In
+      </Button>
+    </form>
+  );
+}`}</code>
+              </pre>
+              <span
+                style={{
+                  position: 'absolute',
+                  right: 'var(--wa-space-xs)',
+                  top: 'var(--wa-space-xs)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <CopyButton
+                  value={`import { Button, Input } from '@/components/ui';
+
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      console.log('Email:', email);
+    }}>
+      <Input
+        type="email"
+        label="Email"
+        value={email}
+        onInput={(e) => setEmail(e.target.value)}
+        required
+      />
+      <Button type="submit" variant="brand">
+        Sign In
+      </Button>
+    </form>
+  );
+}`}
+                />
+              </span>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </section>
+  );
+}

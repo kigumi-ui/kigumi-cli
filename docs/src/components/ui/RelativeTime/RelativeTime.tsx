@@ -1,0 +1,32 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/relative-time/relative-time.js';
+import './RelativeTime.css';
+
+export interface RelativeTimeProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
+  /** The date from which to calculate time from */
+  date?: Date | string;
+  /** The formatting style to use */
+  format?: 'long' | 'short' | 'narrow';
+  /** When auto, values like 'yesterday' will be shown when possible */
+  numeric?: 'always' | 'auto';
+  /** Keep the displayed value up to date as time passes */
+  sync?: boolean;
+}
+
+export const RelativeTime = forwardRef<HTMLElement, RelativeTimeProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <wa-relative-time
+        ref={ref}
+        class={clsx('RelativeTime', className)}
+        {...(props as Record<string, unknown>)}
+      />
+    );
+  }
+);
+
+RelativeTime.displayName = 'RelativeTime';

@@ -43,6 +43,7 @@ program
   .option('--utils-dir <dir>', 'Utils directory')
   .option('--styles-dir <dir>', 'Styles directory (for theme.css)')
   .option('-y, --yes', 'Skip all prompts (non-interactive mode)')
+  .option('--no-install', 'Skip dependency installation')
   .action(initCommand);
 
 program

@@ -1,56 +1,42 @@
 /**
  * Tier Detection Utility
  *
- * PURPOSE: Determines Free vs Pro tier based on .env file presence and token validity.
+ * PURPOSE: Determines Free vs Pro tier based on token availability.
+ *
+ * Token detection uses fallback chain (see src/utils/token.ts):
+ * 1. $WEBAWESOME_NPM_TOKEN environment variable (CI/CD)
+ * 2. Global ~/.npmrc (local development)
+ * 3. Project .env file (backwards compatible)
  *
  * EXPORTS:
  * - detectTier() - Async tier detection (PREFERRED)
  * - detectTierSync() - Sync version (use only when absolutely necessary)
- * - getProToken() - Extract token from .env
+ * - getProToken() - Get token from any source
  * - getWebAwesomePackage() - Get npm package name for tier
  *
  * @see AGENTS.md Rule #8 for tier system architecture
  */
 
-import fs from 'fs-extra';
-import path from 'path';
 import {
-  ENV_FILE_NAME,
-  ENV_TOKEN_REGEX,
-  MIN_TOKEN_LENGTH,
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
+import { detectProToken, detectProTokenSync } from './token.js';
 
 export type Tier = 'free' | 'pro';
 
 /**
- * Detect tier from .env file
+ * Detect tier based on token availability
  *
- * Pro tier requires WEBAWESOME_NPM_TOKEN in .env with valid length.
+ * Pro tier requires a valid token from any source in the fallback chain.
  * Free tier is the default if no token is found.
  *
  * @param cwd - Current working directory
  * @returns 'pro' if valid token exists, 'free' otherwise
  */
 export async function detectTier(cwd: string): Promise<Tier> {
-  const envPath = path.join(cwd, ENV_FILE_NAME);
-
-  if (!(await fs.pathExists(envPath))) {
-    return 'free';
-  }
-
-  const envContent = await fs.readFile(envPath, 'utf-8');
-  const tokenMatch = envContent.match(ENV_TOKEN_REGEX);
-
-  // Token length validation: MIN_TOKEN_LENGTH chars minimum
-  // WHY: Cloudsmith tokens are typically 40+ chars, MIN_TOKEN_LENGTH is a safety threshold
-  // to avoid accepting malformed/empty values like "=" or "token"
-  if (tokenMatch && tokenMatch[1] && tokenMatch[1].length >= MIN_TOKEN_LENGTH) {
-    return 'pro';
-  }
-
-  return 'free';
+  const token = await detectProToken(cwd);
+  return token ? 'pro' : 'free';
 }
 
 /**
@@ -60,39 +46,18 @@ export async function detectTier(cwd: string): Promise<Tier> {
  * Prefer detectTier() when possible.
  */
 export function detectTierSync(cwd: string): Tier {
-  const envPath = path.join(cwd, ENV_FILE_NAME);
-
-  if (!fs.existsSync(envPath)) {
-    return 'free';
-  }
-
-  const envContent = fs.readFileSync(envPath, 'utf-8');
-  const tokenMatch = envContent.match(ENV_TOKEN_REGEX);
-
-  if (tokenMatch && tokenMatch[1] && tokenMatch[1].length >= MIN_TOKEN_LENGTH) {
-    return 'pro';
-  }
-
-  return 'free';
+  const token = detectProTokenSync(cwd);
+  return token ? 'pro' : 'free';
 }
 
 /**
- * Get Pro token from .env file
+ * Get Pro token from fallback chain
  *
  * @param cwd - Current working directory
  * @returns Token string if found, null otherwise
  */
 export async function getProToken(cwd: string): Promise<string | null> {
-  const envPath = path.join(cwd, ENV_FILE_NAME);
-
-  if (!(await fs.pathExists(envPath))) {
-    return null;
-  }
-
-  const envContent = await fs.readFile(envPath, 'utf-8');
-  const tokenMatch = envContent.match(ENV_TOKEN_REGEX);
-
-  return tokenMatch && tokenMatch[1] ? tokenMatch[1].trim() : null;
+  return detectProToken(cwd);
 }
 
 /**

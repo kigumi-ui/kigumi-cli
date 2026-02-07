@@ -1,126 +1,282 @@
 # Kigumi
 
-CLI to add [Web Awesome](https://webawesome.com) components to your React project with type-safe wrappers.
-
-> **Note:** Currently React-only. Vue, Angular, and Svelte support coming soon.
+> Build framework-agnostic UIs with ready-made components. Kigumi wraps Web Components for React (Vue, Angular, Svelte soon). Same components, any stack.
 
 ## Quick Start
 
 ```bash
 npx kigumi init
-npx kigumi add button card input
+npx kigumi add button input
 ```
 
-Import Web Awesome in your entry file:
+Import in your entry file (e.g. `src/main.tsx`):
 
 ```tsx
-// src/main.tsx
 import '@/lib/webawesome';
 ```
 
-Use the components:
+Use components:
 
 ```tsx
-import { Button, Card } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
 
-function App() {
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+
   return (
-    <Card>
-      <Button variant="brand">Click me</Button>
-    </Card>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        console.log('Email:', email);
+      }}
+    >
+      <Input
+        type="email"
+        label="Email"
+        value={email}
+        onInput={(e) => setEmail(e.target.value)}
+        required
+      />
+      <Button type="submit" variant="brand">
+        Sign In
+      </Button>
+    </form>
   );
 }
 ```
 
-## What You Get
+## Why Kigumi
 
-Kigumi generates React wrappers for Web Awesome components with:
+**Framework-agnostic by design**
+Build your UI once. Web Components work in React, Vue, Angular, Svelte, or vanilla JS.
 
-- **TypeScript support** - Full type definitions for all props
-- **React-friendly events** - Web Awesome events mapped to React conventions (`onChange`, `onInput`, etc.)
-- **Ref forwarding** - Access the underlying Web Component when needed
-- **Copied to your project** - No external dependencies, customize as needed
+**You own the code**
+Components are copied to your project. Modify, extend, or remove whatever you need.
+
+**Production-ready**
+50+ components (including Pro-only advanced components) with TypeScript support, accessibility built-in, and 11 themes included.
 
 ## Commands
 
-```bash
-npx kigumi init              # Initialize project
-npx kigumi add <component>   # Add component(s)
-npx kigumi add               # Interactive component selection
-npx kigumi add --all         # Add all components
-npx kigumi list              # List available components
-npx kigumi status            # Show current configuration
-npx kigumi theme set <name>  # Change theme
-npx kigumi palette <name>    # Change color palette
-npx kigumi brand <color>     # Change brand color
-```
+### `init`
 
-**Brand colors:** blue, indigo, purple, pink, red, orange, yellow, green, cyan, gray
-
-Non-interactive mode with `--yes`:
+Initialize Kigumi in your project. Sets up theming and installs dependencies.
 
 ```bash
-npx kigumi init --yes --framework react --typescript
-npx kigumi add button card --yes
+npx kigumi init
 ```
 
-## Configuration
+**Web Awesome Pro:** To unlock premium themes and Pro-only components:
 
-Settings in `kigumi.config.json`:
+```bash
+# Configure your token globally (once per machine)
+npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
 
-```json
-{
-  "framework": "react",
-  "typescript": true,
-  "componentsDir": "src/components/ui",
-  "stylesDir": "src/styles",
-  "theme": {
-    "selected": "default",
-    "palette": "default",
-    "brandColor": "blue"
-  }
-}
+# Then just run init - Pro tier is auto-detected
+npx kigumi init
+```
+
+Get your token at [webawesome.com](https://https://webawesome.com/login)
+
+<details>
+<summary>CI/CD Setup</summary>
+
+For CI/CD environments, set the `WEBAWESOME_NPM_TOKEN` environment variable:
+
+```yaml
+# GitHub Actions example
+env:
+  WEBAWESOME_NPM_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+```
+
+</details>
+
+### `add`
+
+Add components to your project:
+
+```bash
+npx kigumi add <components> # Add specific components (e.g., button input card)
+npx kigumi add              # Interactive component selector
+npx kigumi add --all        # Add all 80+ components at once
+```
+
+### `list`
+
+View all available components:
+
+```bash
+npx kigumi list
+```
+
+Shows component name, description, and Pro badge for Pro-only components.
+
+### `theme`
+
+Change theme, palette, or brand color:
+
+```bash
+npx kigumi theme [name]    # Change theme (shows selector if name omitted)
+npx kigumi palette [name]  # Change color palette
+npx kigumi brand [color]   # Change brand color
+```
+
+**Free themes:** `default`, `awesome`, `shoelace`
+**Pro themes:** `brutalist`, `glossy`, `matter`, `mellow`, `playful`, `premium`, `tailspin`, `active`
+**Color palettes:** `default`, `bright`, `shoelace`, `rudimentary`, `elegant`, `mild`, `natural`, `anodized`, `vogue`
+**Brand colors:** `blue`, `purple`, `green`, `red`, `orange`, `yellow`, `cyan`, `indigo`, `pink`, `gray`
+
+## Utility Classes
+
+With the included [style](https://webawesome.com/docs/utilities) and [layout](https://webawesome.com/docs/layout/) utility classes you can quickly build your UI:
+
+```tsx
+<div className="wa-stack wa-gap-md">
+  <h1 className="wa-heading-2xl">Welcome</h1>
+  <p className="wa-text-muted">Get started below</p>
+</div>
 ```
 
 ## Customization
 
-Kigumi generates `theme.css` in your configured `stylesDir` with documented examples for customizing your theme.
-
-Override any [design token](https://webawesome.com/docs/tokens) in your CSS:
+Add your custom CSS overrides in `src/styles/theme.css`:
 
 ```css
 :root {
-  /* Brand color */
   --wa-color-brand-600: #6366f1;
-
-  /* Typography */
   --wa-font-family-sans: 'Inter', system-ui, sans-serif;
-
-  /* Border radius */
   --wa-border-radius-medium: 0.5rem;
-
-  /* Spacing */
-  --wa-spacing-medium: 1rem;
 }
 ```
 
-See the full customization guide: [webawesome.com/docs/customizing](https://webawesome.com/docs/customizing)
+**Note:** Theme selection is handled via `kigumi theme` command, which updates `src/lib/webawesome.ts`. The `theme.css` file is for your custom CSS only.
 
-## Pro Tier
+[Design Tokens Reference](https://webawesome.com/docs/tokens)
+[Theming Guide](https://webawesome.com/docs/themes)
 
-Access premium themes and components with a [Web Awesome Pro](https://webawesome.com) token:
+## CSS Architecture
 
-```bash
-npx kigumi init --token=YOUR_PRO_TOKEN
-```
+Kigumi uses CSS cascade layers (`@layer`) for predictable style precedence:
+
+**Layer hierarchy:**
+
+1. **base** - Web Awesome foundation + theme styles (lowest priority)
+2. **theme** - Your custom CSS overrides in `src/styles/theme.css` (higher priority)
+
+Later layers always override earlier layers, regardless of specificity. This means your custom styles in `theme.css` will reliably override Web Awesome defaults without needing `!important`.
+
+**How it works:**
+
+- `src/styles/layers.css` (auto-generated) wraps Web Awesome imports in layers
+- `src/lib/webawesome.ts` (auto-generated) imports layers.css
+- Your custom styles in `theme.css` are imported into the `theme` layer
+
+[Learn more about CSS cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)
 
 ## Troubleshooting
 
-**Components not rendering?**
-Ensure `import '@/lib/webawesome'` is in your entry file.
+### Import errors with @ alias
 
-**Path alias errors?**
-Re-run `npx kigumi init` to reconfigure aliases.
+If you see errors like `Cannot find module '@/lib/webawesome'`, configure path aliases:
+
+**Vite (vite.config.ts):**
+
+```typescript
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+```
+
+**TypeScript (tsconfig.json):**
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+### Pro token authentication fails
+
+If `npm install` fails with 401 errors:
+
+1. Configure your token globally:
+
+   ```bash
+   npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
+   ```
+
+2. Verify it's configured:
+
+   ```bash
+   npm config get //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken
+   ```
+
+3. Check your token is valid at [https://webawesome.com/login](https://https://webawesome.com/login)
+
+### Component styles not loading
+
+Make sure you've imported the Web Awesome setup in your app entry point:
+
+```tsx
+import '@/lib/webawesome'; // Must be imported before components
+```
+
+### Need more help?
+
+- [Web Awesome Documentation](https://webawesome.com/docs)
+- [GitHub Issues](https://github.com/giregar/kigumi-cli/issues)
+- Run `npx kigumi --help` for command reference
+
+## Deploying to Vercel
+
+The docs website (`/docs`) can be deployed to Vercel:
+
+### Prerequisites
+
+1. Web Awesome Pro token from [https://webawesome.com/login](https://https://webawesome.com/login)
+2. Vercel account and project created
+
+### Setup
+
+1. **Import the repository** to Vercel
+   - Framework Preset: Vite
+   - Root Directory: `docs`
+   - Build Command: `pnpm build`
+   - Output Directory: `dist`
+
+2. **Configure Environment Variables** in Vercel Dashboard:
+   - Go to Project Settings → Environment Variables
+   - Add `WEBAWESOME_NPM_TOKEN` with your Pro token
+   - Select all environments (Production, Preview, Development)
+
+3. **Deploy**
+   - Push to `main` branch to trigger deployment
+   - Vercel will automatically build and deploy
+
+### Local Development
+
+```bash
+cd docs
+pnpm install
+pnpm dev
+```
+
+The dev server will run at http://localhost:5173
+
+## Resources
+
+- [Web Awesome Documentation](https://webawesome.com/docs)
+- [Component Gallery](https://webawesome.com/docs/components)
+- [GitHub Repository](https://github.com/giregar/kigumi-cli)
+- [Report Issues](https://github.com/giregar/kigumi-cli/issues)
 
 ## License
 

@@ -228,15 +228,16 @@ sequenceDiagram
 
 ## Debugging
 
-| Problem             | Check                       | Fix                             |
-| ------------------- | --------------------------- | ------------------------------- |
-| Components unstyled | `webawesome.ts` imports?    | Run `updateWebAwesomeImports()` |
-| TypeScript errors   | `declare module 'react'`?   | Use `declare global` instead    |
-| wa-\* type errors   | `vite-env.d.ts` exists?     | Run `generateViteEnvDts()`      |
-| Theme not applying  | CSS imported? HTML classes? | Check `theme.css`               |
-| Tier wrong          | `.env` has token?           | Use `detectTier()`              |
-| Free→Pro fails      | Migration ran?              | Check `migration.ts`            |
-| JSON parse fails    | File has comments?          | Use `readJSONWithComments()`    |
+| Problem             | Check                       | Fix                                 |
+| ------------------- | --------------------------- | ----------------------------------- |
+| Components unstyled | `webawesome.ts` imports?    | Run `updateWebAwesomeImports()`     |
+| TypeScript errors   | `declare module 'react'`?   | Use `declare global` instead        |
+| wa-\* type errors   | `vite-env.d.ts` exists?     | Run `generateViteEnvDts()`          |
+| Theme not applying  | CSS imported? HTML classes? | Check `webawesome.ts` imports       |
+| Theme conflicts     | Duplicate theme imports?    | Verify `theme.css` has no `@import` |
+| Tier wrong          | `.env` has token?           | Use `detectTier()`                  |
+| Free→Pro fails      | Migration ran?              | Check `migration.ts`                |
+| JSON parse fails    | File has comments?          | Use `readJSONWithComments()`        |
 
 ---
 
@@ -249,7 +250,28 @@ sequenceDiagram
 5. Using `fs.readJSON()` on files with comments
 6. Storing tier in config (detect from `.env`)
 7. Using `any` type (use `unknown` or proper types)
-8. Making assumptions - ask for help if unsure
+8. **Using `!important` to override Web Awesome styles** (use CSS layers - `theme.css` automatically overrides base)
+9. **Manually editing `layers.css` or `webawesome.ts`** (auto-generated - use `kigumi theme` commands)
+10. **Adding Web Awesome imports to `theme.css`** (all imports handled in `layers.css`)
+11. Making assumptions - ask for help if unsure
+
+---
+
+## Auto-Generated Files
+
+| File                    | Purpose                                                  | Regenerated When             | User-Editable      |
+| ----------------------- | -------------------------------------------------------- | ---------------------------- | ------------------ |
+| `src/lib/webawesome.ts` | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No              |
+| `src/styles/layers.css` | Wraps Web Awesome CSS in cascade layers                  | Theme/brand/palette commands | ❌ No              |
+| `src/styles/theme.css`  | User custom CSS overrides                                | Only on init (if missing)    | ✅ Yes - preserved |
+| `src/vite-env.d.ts`     | TypeScript declarations for wa-\* elements               | Only on init                 | ❌ No              |
+| `.npmrc`                | npm registry configuration                               | Init + tier changes          | ❌ No              |
+
+**Key Points:**
+
+- `layers.css` uses CSS `@layer` for cascade control (base < theme)
+- `theme.css` is preserved on re-init - existing user styles won't be overwritten
+- Theme/brand commands regenerate `webawesome.ts` + `layers.css` but preserve `theme.css`
 
 ---
 

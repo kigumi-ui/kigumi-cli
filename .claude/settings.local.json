@@ -10,7 +10,10 @@
       "Bash(kigumi init --help:*)",
       "Bash(kigumi init:*)",
       "Bash(pnpm build)",
-      "Bash(pnpm changeset:*)"
+      "Bash(pnpm changeset:*)",
+      "WebFetch(domain:webawesome.com)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }
