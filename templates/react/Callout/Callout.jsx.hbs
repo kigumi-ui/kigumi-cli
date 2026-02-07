@@ -1,0 +1,29 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './{{name}}.css';
+
+/**
+ * @typedef {Object} {{name}}Props
+ * @property {'accent' | 'filled' | 'outlined' | 'plain' | 'filled-outlined'} [appearance] - The callout's visual appearance
+ * @property {'small' | 'medium' | 'large'} [size] - The callout's size
+ * @property {'brand' | 'neutral' | 'success' | 'warning' | 'danger'} [variant] - The callout's theme variant
+ * @property {React.ReactNode} [children] - The callout's content
+ * @property {string} [className] - Additional CSS classes
+ */
+
+export const {{name}} = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-callout
+        ref={ref}
+        class={clsx('{{name}}', className)}
+        {...props}
+      >
+        {children}
+      </wa-callout>
+    );
+  }
+);
+
+{{name}}.displayName = '{{name}}';

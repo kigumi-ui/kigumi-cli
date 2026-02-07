@@ -207,10 +207,10 @@ describe('tier detection', () => {
     it('should trim whitespace from token', async () => {
       await fs.writeFile(
         path.join(testDir, '.env'),
-        'WEBAWESOME_NPM_TOKEN=my-token  \n'
+        'WEBAWESOME_NPM_TOKEN=my-secret-token  \n'
       );
       const token = await getProToken(testDir);
-      expect(token).toBe('my-token');
+      expect(token).toBe('my-secret-token');
     });
 
     it('should return null if token is empty', async () => {

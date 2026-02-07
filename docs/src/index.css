@@ -1,0 +1,20 @@
+/**
+ * Docs App CSS with Cascade Layers
+ *
+ * Layer order (earlier = lower priority):
+ * 1. wa-base (Web Awesome base)
+ * 2. wa-theme (Web Awesome theme)
+ * 3. kigumi-theme (custom theme overrides)
+ * 4. kigumi-pages (page-specific styles)
+ *
+ * Note: Layers 1-3 are defined in webawesome-layers.css
+ */
+
+/* Define page layer (imported layers come first automatically) */
+@layer kigumi-pages;
+
+/* Import page-specific styles into the pages layer */
+@import 'styles/App.css' layer(kigumi-pages);
+@import 'styles/Header.css' layer(kigumi-pages);
+@import 'styles/Hero.css' layer(kigumi-pages);
+@import 'styles/GettingStarted.css' layer(kigumi-pages);

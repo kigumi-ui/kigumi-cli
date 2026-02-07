@@ -20,7 +20,7 @@ src/
 │   ├── tier-restrictions.ts
 │   ├── config.ts         # kigumi.config.json handling
 │   ├── template.ts       # Handlebars rendering
-│   ├── regenerate.ts     # Auto-generate webawesome.ts, theme.css
+│   ├── regenerate.ts     # Auto-generate webawesome.ts (theme imports), theme.css (custom CSS template)
 │   └── json.ts           # JSON with comments support
 ├── schemas/              # Zod validation schemas
 ├── errors/               # Typed error classes
@@ -65,6 +65,28 @@ export async function detectTier(cwd: string): Promise<Tier> {
 }
 ```
 
+### Pro Authentication
+
+**Design Decision:** Pro tokens are stored in global `~/.npmrc`, not per-project.
+
+| File                | Purpose                                        |
+| ------------------- | ---------------------------------------------- |
+| `.npmrc` (project)  | Registry URL only (can be committed to git)    |
+| `~/.npmrc` (global) | Auth token (user configures once)              |
+| `.env` (project)    | `WEBAWESOME_NPM_TOKEN` for tier detection only |
+
+**Why global:**
+
+- Token not exposed in project repository
+- Configure once, works for all projects
+- Standard npm/pnpm best practice
+
+**User Setup:**
+
+```bash
+npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken TOKEN
+```
+
 ### `utils/config.ts` - Config Management
 
 Loads/saves `kigumi.config.json`. **Never stores tier** - always detected.
@@ -100,9 +122,19 @@ const tsconfig = await readJSONWithComments(tsconfigPath);
 
 ### `utils/regenerate.ts` - File Generation
 
-Generates `webawesome.ts`, `theme.css`, and `vite-env.d.ts`.
+Generates `webawesome.ts`, `layers.css`, `theme.css`, and `vite-env.d.ts`.
 
-**Critical:** `generateViteEnvDts()` must use `declare global`, not `declare module 'react'`.
+**Key Design Decisions:**
+
+- **`layers.css`** (auto-generated): Wraps all Web Awesome imports in `@layer` for cascade control. Base layer (Web Awesome CSS) < theme layer (user custom CSS). Regenerated on every theme/brand/palette change.
+- **`webawesome.ts`** (auto-generated): Imports layers.css and applies theme classes to `<html>`. Regenerated on every theme/brand/palette change.
+- **`theme.css`** (user-editable): User's custom CSS overrides ONLY. Generated only on `init` if file doesn't exist, then preserved on subsequent inits.
+- **`vite-env.d.ts`**: TypeScript declarations. Must use `declare global`, not `declare module 'react'`.
+
+**When regenerated:**
+
+- `layers.css` + `webawesome.ts`: All theme/brand/palette commands
+- `theme.css`: Only `init` (if file doesn't exist)
 
 ---
 

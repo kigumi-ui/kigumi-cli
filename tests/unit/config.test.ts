@@ -242,7 +242,7 @@ describe('config management', () => {
       expect(DEFAULT_CONFIG.theme.palette).toBe('default');
       expect(DEFAULT_CONFIG.theme.brandColor).toBe('blue');
       expect(DEFAULT_CONFIG.aliases).toBeDefined();
-      expect(DEFAULT_CONFIG.webAwesome?.version).toBe('^3.1.0');
+      expect(DEFAULT_CONFIG.webAwesome?.version).toBe('^3.2.1');
     });
   });
 

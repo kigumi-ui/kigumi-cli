@@ -23,6 +23,7 @@ export const initOptionsSchema = z.object({
   utilsDir: z.string().optional(),
   stylesDir: z.string().optional(),
   yes: z.boolean().optional(), // Non-interactive mode
+  install: z.boolean().optional(), // Skip install if false (--no-install)
   cwd: z.string().optional(),
 });
 

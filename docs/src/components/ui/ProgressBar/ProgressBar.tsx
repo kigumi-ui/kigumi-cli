@@ -1,0 +1,32 @@
+import { forwardRef, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/progress-bar/progress-bar.js';
+import './ProgressBar.css';
+
+export interface ProgressBarProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
+  /** The current progress as a percentage, 0 to 100 */
+  value?: number;
+  /** When true, shows an indeterminate state */
+  indeterminate?: boolean;
+  /** A custom label for assistive devices */
+  label?: string;
+}
+
+export const ProgressBar = forwardRef<HTMLElement, ProgressBarProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-progress-bar
+        ref={ref}
+        class={clsx('ProgressBar', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-progress-bar>
+    );
+  }
+);
+
+ProgressBar.displayName = 'ProgressBar';
