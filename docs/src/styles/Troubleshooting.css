@@ -1,0 +1,47 @@
+/* Troubleshooting Section */
+.troubleshooting {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-block: var(--wa-space-4xl);
+  padding-inline: var(--wa-space-l);
+}
+
+@media (min-width: 1024px) {
+  .troubleshooting {
+    padding-inline: var(--wa-space-4xl);
+  }
+}
+
+/* Code Block Styling */
+.troubleshooting pre {
+  margin: 0;
+  padding: var(--wa-space-m);
+  background-color: var(--wa-color-neutral-10);
+  color: var(--wa-color-neutral-95);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  border-radius: var(--wa-border-radius-m);
+}
+
+.troubleshooting code {
+  font-family: var(--wa-font-family-mono, 'Courier New', monospace);
+}
+
+/* Inline Code (not in pre) */
+.troubleshooting p code {
+  background-color: var(--wa-color-neutral-20);
+  color: var(--wa-color-neutral-95);
+  padding: var(--wa-space-3xs) var(--wa-space-2xs);
+  border-radius: var(--wa-border-radius-s);
+  font-size: 0.875em;
+}
+
+/* Links */
+.troubleshooting a {
+  color: var(--wa-color-brand-600);
+}
+
+.troubleshooting a:hover {
+  text-decoration: underline;
+}
