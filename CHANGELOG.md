@@ -1,5 +1,11 @@
 # kigumi
 
+## 0.4.2
+
+### Patch Changes
+
+- Add README.md to npm package and update homepage to kigumi.style
+
 ## 0.4.1
 
 ### Patch Changes
