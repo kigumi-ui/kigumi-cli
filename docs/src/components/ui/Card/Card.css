@@ -17,5 +17,7 @@
  * }
  */
 .Card {
-  /* Add your custom styles here */
+  & [slot='header'] {
+    border-bottom: 0;
+  }
 }

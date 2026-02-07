@@ -1,57 +1,141 @@
-import {
-  Button,
-  Checkbox,
-  Divider,
-  FormatDate,
-  Rating,
-  Textarea,
-} from '@/components/ui';
-import { Card } from '@/components/ui';
+import { Button, Card, Divider, Icon } from '@/components/ui';
 
 export function CommentsExample() {
   return (
-    <Card {...{ 'with-header': true, 'with-footer': true }}>
-      <div slot="header">
-        <h3 className="wa-heading-m">I watched...</h3>
+    <Card>
+      <div slot="header" className="wa-split">
+        <h3 className="wa-heading-l">Transactions</h3>
+        <Button appearance="plain" size="small">
+          View All
+        </Button>
       </div>
-      <div className="wa-stack">
-        <div
-          className="wa-flank"
-          style={{ '--flank-size': '3rem' } as React.CSSProperties}
-        >
-          <div className="wa-frame:portrait wa-border-radius-s">
-            <img
-              src="https://images.unsplash.com/photo-1607675742178-f616ae75044b?q=80&w=3435&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="the cover image for the film"
-            />
+      <div className="wa-stack wa-gap-m">
+        {/* Today */}
+        <div className="wa-stack wa-gap-xs">
+          <h4
+            className="wa-caption-m"
+            style={{ color: 'var(--wa-color-neutral-60)' }}
+          >
+            Today
+          </h4>
+          <div className="wa-split">
+            <div className="wa-cluster wa-gap-s">
+              <Icon name="water" />
+              <div className="wa-stack wa-gap-2xs">
+                <span className="wa-heading-s">Water Bill</span>
+                <span
+                  className="wa-caption-s"
+                  style={{ color: 'var(--wa-color-neutral-60)' }}
+                >
+                  Unsuccessfully
+                </span>
+              </div>
+            </div>
+            <span
+              className="wa-heading-m"
+              style={{ color: 'var(--wa-color-danger)' }}
+            >
+              - 140 €
+            </span>
           </div>
-          <span className="wa-heading-xl">Heretic</span>
         </div>
+
         <Divider />
-        <dl className="wa-split">
-          <dt>Date</dt>
-          <dd>
-            <FormatDate
-              date="2025-03-13T00:00:00.000-04:00"
-              weekday="long"
-              month="long"
-              day="numeric"
-              year="numeric"
-              className="wa-caption-s"
-            />
-          </dd>
-        </dl>
-        <Divider />
-        <div className="wa-split">
-          <Rating label="Rating" />
-          <Checkbox>Loved it!</Checkbox>
+
+        {/* Tomorrow */}
+        <div className="wa-stack wa-gap-xs">
+          <h4
+            className="wa-caption-m"
+            style={{ color: 'var(--wa-color-neutral-60)' }}
+          >
+            Tomorrow
+          </h4>
+          <div className="wa-stack wa-gap-s">
+            <div className="wa-split">
+              <div className="wa-cluster wa-gap-s">
+                <Icon name="coins" />
+                <div className="wa-stack wa-gap-2xs">
+                  <span className="wa-heading-s">Income: Salary</span>
+                  <span
+                    className="wa-caption-s"
+                    style={{ color: 'var(--wa-color-neutral-60)' }}
+                  >
+                    Successfully
+                  </span>
+                </div>
+              </div>
+              <span
+                className="wa-heading-m"
+                style={{ color: 'var(--wa-color-success)' }}
+              >
+                + 1450 €
+              </span>
+            </div>
+
+            <div className="wa-split">
+              <div className="wa-cluster wa-gap-s">
+                <Icon name="bolt" style={{ color: 'white' }} />
+                <div className="wa-stack wa-gap-2xs">
+                  <span className="wa-heading-s">Electric Bill</span>
+                  <span
+                    className="wa-caption-s"
+                    style={{ color: 'var(--wa-color-neutral-60)' }}
+                  >
+                    Successfully
+                  </span>
+                </div>
+              </div>
+              <span
+                className="wa-heading-m"
+                style={{ color: 'var(--wa-color-danger)' }}
+              >
+                - 78 €
+              </span>
+            </div>
+
+            <div className="wa-split">
+              <div className="wa-cluster wa-gap-s">
+                <Icon name="receipt" style={{ color: 'white' }} />
+                <div className="wa-stack wa-gap-2xs">
+                  <span className="wa-heading-s">Income: Jane transfers</span>
+                  <span
+                    className="wa-caption-s"
+                    style={{ color: 'var(--wa-color-neutral-60)' }}
+                  >
+                    Successfully
+                  </span>
+                </div>
+              </div>
+              <span
+                className="wa-heading-m"
+                style={{ color: 'var(--wa-color-success)' }}
+              >
+                + 800 €
+              </span>
+            </div>
+
+            <div className="wa-split">
+              <div className="wa-cluster wa-gap-s">
+                <Icon name="receipt" style={{ color: 'white' }} />
+                <div className="wa-stack wa-gap-2xs">
+                  <span className="wa-heading-s">Income: Jane transfers</span>
+                  <span
+                    className="wa-caption-s"
+                    style={{ color: 'var(--wa-color-neutral-60)' }}
+                  >
+                    Successfully
+                  </span>
+                </div>
+              </div>
+              <span
+                className="wa-heading-m"
+                style={{ color: 'var(--wa-color-success)' }}
+              >
+                + 4242 €
+              </span>
+            </div>
+          </div>
         </div>
-        <Divider />
-        <Textarea placeholder="Add review..." aria-label="Add review" />
-      </div>
-      <div slot="footer" className="wa-grid">
-        <Button appearance="outlined">Cancel</Button>
-        <Button variant="brand">Save</Button>
       </div>
     </Card>
   );

@@ -4,7 +4,6 @@ import { CommentsExample } from './examples/CommentsExample';
 import { DataDisplayExample } from './examples/DataDisplayExample';
 import { PaginationButtonGroupExample } from './examples/PaginationButtonGroupExample';
 import { ContactExample } from './examples/ContactExample';
-import { Scroller } from '@/components/ui';
 
 export function ExampleGrid() {
   return (
@@ -13,7 +12,7 @@ export function ExampleGrid() {
         <h2 className="wa-heading-2xl">Some examples</h2>
       </div>
 
-      <Scroller orientation="vertical" style={{ maxHeight: '80vh' }}>
+      <div>
         <div className="example-masonry">
           <div className="example-masonry-item">
             <ActionPanelExample />
@@ -34,7 +33,7 @@ export function ExampleGrid() {
             <ContactExample />
           </div>
         </div>
-      </Scroller>
+      </div>
     </section>
   );
 }
