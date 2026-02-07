@@ -1,5 +1,18 @@
 # kigumi
 
+## 0.4.4
+
+### Patch Changes
+
+- Fix Vercel deployment and TypeScript build errors
+  - Restore missing **CLI_VERSION** declaration in docs build
+  - Convert docs to pnpm lockfile for consistency with root project
+  - Pin Node.js version to 22 for Vercel compatibility
+  - Add .vercelignore to optimize deployment uploads
+  - Support npm users locally while enforcing pnpm in production
+
+  This fixes ERR_INVALID_THIS errors during pnpm install on Vercel and TypeScript compilation errors for **CLI_VERSION**.
+
 ## 0.4.3
 
 ### Patch Changes
