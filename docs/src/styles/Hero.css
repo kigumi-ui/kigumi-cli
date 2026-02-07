@@ -1,4 +1,12 @@
 [slot='main-header'] {
   max-width: 1280px;
   margin-inline: auto;
+  margin-block: var(--wa-space-4xl);
+
+  & .stacks {
+    display: none;
+    @media (min-width: 980px) {
+      display: block;
+    }
+  }
 }
