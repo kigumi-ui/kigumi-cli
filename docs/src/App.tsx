@@ -5,19 +5,11 @@ import { Troubleshooting } from '@/components/landing/Troubleshooting';
 import { Page } from '@/components/ui/Page/Page';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Footer } from '@/components/landing/Footer';
-import { useState } from 'react';
-import { useEffect } from 'react';
 
 function App() {
-  const [hideNavigation, setHideNavigation] = useState(true);
-
-  useEffect(() => {
-    setHideNavigation(true);
-  }, []);
-
   return (
     <ThemeProvider>
-      <Page disable-navigation-toggle={hideNavigation}>
+      <Page disable-navigation-toggle={true}>
         <Hero />
         <ExampleGrid />
         <GettingStarted />
