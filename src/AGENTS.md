@@ -65,6 +65,28 @@ export async function detectTier(cwd: string): Promise<Tier> {
 }
 ```
 
+### Pro Authentication
+
+**Design Decision:** Pro tokens are stored in global `~/.npmrc`, not per-project.
+
+| File                | Purpose                                        |
+| ------------------- | ---------------------------------------------- |
+| `.npmrc` (project)  | Registry URL only (can be committed to git)    |
+| `~/.npmrc` (global) | Auth token (user configures once)              |
+| `.env` (project)    | `WEBAWESOME_NPM_TOKEN` for tier detection only |
+
+**Why global:**
+
+- Token not exposed in project repository
+- Configure once, works for all projects
+- Standard npm/pnpm best practice
+
+**User Setup:**
+
+```bash
+npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken TOKEN
+```
+
 ### `utils/config.ts` - Config Management
 
 Loads/saves `kigumi.config.json`. **Never stores tier** - always detected.
