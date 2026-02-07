@@ -8,13 +8,14 @@
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "README.md"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Siregar/kigumi-cli.git"
   },
-  "homepage": "https://github.com/Siregar/kigumi-cli#readme",
+  "homepage": "https://kigumi.style",
   "bugs": {
     "url": "https://github.com/Siregar/kigumi-cli/issues"
   },
