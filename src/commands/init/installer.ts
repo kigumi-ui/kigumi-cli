@@ -33,6 +33,110 @@ export interface InstallOptions {
   output: OutputInterface;
 }
 
+type PackageManager = 'npm' | 'pnpm' | 'yarn';
+
+interface LockfileCheckResult {
+  compatible: boolean;
+  lockfilePath: string | null;
+}
+
+/**
+ * Check if lockfile is compatible with current package manager version
+ *
+ * Detects incompatible lockfiles that can cause spurious authentication
+ * errors during installation.
+ */
+async function checkLockfileCompatibility(
+  cwd: string,
+  packageManager: string
+): Promise<LockfileCheckResult> {
+  const lockfiles: Record<string, string> = {
+    npm: 'package-lock.json',
+    pnpm: 'pnpm-lock.yaml',
+    yarn: 'yarn.lock',
+  };
+
+  const lockfileName = lockfiles[packageManager as PackageManager];
+  if (!lockfileName) {
+    return { compatible: true, lockfilePath: null };
+  }
+
+  const lockfilePath = path.join(cwd, lockfileName);
+
+  if (!(await fs.pathExists(lockfilePath))) {
+    return { compatible: true, lockfilePath: null };
+  }
+
+  // Run package manager's check command with timeout
+  try {
+    const result = await execa(
+      packageManager,
+      ['install', '--frozen-lockfile'],
+      { cwd, reject: false, timeout: 5000, stdio: 'pipe' }
+    );
+
+    // Check for incompatible lockfile warnings
+    const incompatiblePatterns = [
+      /not compatible with current/i,
+      /ignoring broken lockfile/i,
+      /lockfile .* version/i,
+    ];
+
+    const output = (result.stderr || '') + (result.stdout || '');
+    const hasIncompatibility = incompatiblePatterns.some((pattern) =>
+      pattern.test(output)
+    );
+
+    return {
+      compatible: !hasIncompatibility,
+      lockfilePath: hasIncompatibility ? lockfilePath : null,
+    };
+  } catch {
+    // If command times out or fails, assume compatible
+    return { compatible: true, lockfilePath: null };
+  }
+}
+
+/**
+ * Create helpful error message for lockfile compatibility issues
+ */
+function createLockfileErrorMessage(
+  packageManager: string,
+  lockfilePath: string
+): string {
+  const commands: Record<string, string> = {
+    npm: 'rm package-lock.json && npm install',
+    pnpm: 'rm pnpm-lock.yaml && pnpm install',
+    yarn: 'rm yarn.lock && yarn install',
+  };
+
+  const command = commands[packageManager as PackageManager] || 'reinstall';
+
+  return (
+    `Your ${packageManager} lockfile is incompatible with the current ${packageManager} version.\n\n` +
+    `This can cause authentication failures during installation.\n\n` +
+    `Quick fix:\n` +
+    `  cd ${path.dirname(lockfilePath)}\n` +
+    `  ${command}\n\n` +
+    `Then run kigumi init again.`
+  );
+}
+
+/**
+ * Create helpful error message for pnpm store compatibility issues
+ */
+function createStoreErrorMessage(cwd: string): string {
+  return (
+    `Your node_modules were installed with a different pnpm version.\n\n` +
+    `The pnpm store version has changed, causing installation failures.\n\n` +
+    `Quick fix:\n` +
+    `  cd ${cwd}\n` +
+    `  rm -rf node_modules pnpm-lock.yaml\n` +
+    `  pnpm install\n\n` +
+    `Then run kigumi init again.`
+  );
+}
+
 /**
  * Install project dependencies
  *
@@ -42,6 +146,22 @@ export async function installDependencies(
   options: InstallOptions
 ): Promise<void> {
   const { cwd, config, tier, packageManager, output } = options;
+
+  // Check lockfile compatibility before installation
+  const lockfileCheck = await checkLockfileCompatibility(cwd, packageManager);
+
+  if (!lockfileCheck.compatible && lockfileCheck.lockfilePath) {
+    output.warn('Incompatible lockfile detected');
+    output.note(
+      'Lockfile compatibility issue',
+      createLockfileErrorMessage(packageManager, lockfileCheck.lockfilePath)
+    );
+
+    throw new Error(
+      `Incompatible ${packageManager} lockfile - please delete and reinstall`
+    );
+  }
+
   const spinner = output.spinner('Installing dependencies...');
 
   // Determine Web Awesome package based on tier
@@ -116,8 +236,62 @@ export async function installDependencies(
         stdout?: string;
       };
 
-      // Enhanced 401 error handling (Phase 3)
       const stderr = execaError.stderr || '';
+      const stdout = execaError.stdout || '';
+      const errorOutput = stderr + stdout;
+
+      // Check for pnpm store version mismatch
+      const isStoreIssue =
+        /ERR_PNPM_UNEXPECTED_STORE/i.test(errorOutput) ||
+        /Unexpected store location/i.test(errorOutput) ||
+        /currently linked from the store/i.test(errorOutput);
+
+      if (isStoreIssue && packageManager === 'pnpm') {
+        output.error('Installation failed due to pnpm store version mismatch');
+        output.note('Store compatibility issue', createStoreErrorMessage(cwd));
+
+        throw new DependencyInstallError(
+          dependencies.join(' '),
+          packageManager,
+          execaError as Error,
+          execaError.exitCode
+        );
+      }
+
+      // Check for lockfile compatibility issues
+      const isLockfileIssue =
+        /not compatible with current/i.test(errorOutput) ||
+        /ignoring broken lockfile/i.test(errorOutput) ||
+        /lockfile .* version/i.test(errorOutput);
+
+      if (isLockfileIssue) {
+        output.error('Installation failed due to incompatible lockfile');
+
+        // Get lockfile path
+        const lockfiles: Record<string, string> = {
+          npm: 'package-lock.json',
+          pnpm: 'pnpm-lock.yaml',
+          yarn: 'yarn.lock',
+        };
+        const lockfileName = lockfiles[packageManager as PackageManager];
+        const lockfilePath = lockfileName ? path.join(cwd, lockfileName) : null;
+
+        if (lockfilePath) {
+          output.note(
+            'Lockfile compatibility issue',
+            createLockfileErrorMessage(packageManager, lockfilePath)
+          );
+        }
+
+        throw new DependencyInstallError(
+          dependencies.join(' '),
+          packageManager,
+          execaError as Error,
+          execaError.exitCode
+        );
+      }
+
+      // Enhanced 401 error handling (Phase 3)
       const is401Error =
         stderr.includes('401') || stderr.includes('Unauthorized');
 
