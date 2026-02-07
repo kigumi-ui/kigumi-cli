@@ -13,15 +13,16 @@
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
-import {
-  ENV_FILE_NAME,
-  ENV_TOKEN_KEY,
-  ENV_TOKEN_REGEX,
-} from '../../constants.js';
+import { ENV_TOKEN_KEY } from '../../constants.js';
 import type { OutputInterface } from '../../output/types.js';
 import type { KigumiConfig } from '../../schemas/index.js';
 import type { Tier } from '../../utils/tier.js';
 import { getWebAwesomePackage } from '../../utils/tier.js';
+import {
+  describeTokenSource,
+  detectProTokenSync,
+  getTokenSourceSync,
+} from '../../utils/token.js';
 import { DependencyInstallError } from '../../errors/index.js';
 
 export interface InstallOptions {
@@ -43,34 +44,34 @@ export async function installDependencies(
   const { cwd, config, tier, packageManager, output } = options;
   const spinner = output.spinner('Installing dependencies...');
 
+  // Determine Web Awesome package based on tier
+  const waPackage = getWebAwesomePackage(tier);
+
+  // Base dependencies
+  const dependencies = [waPackage];
+
+  // Framework-specific dependencies
+  if (config.framework === 'react') {
+    dependencies.push('clsx');
+  }
+
   try {
-    // Determine Web Awesome package based on tier
-    const waPackage = getWebAwesomePackage(tier);
-
-    // Base dependencies
-    const dependencies = [waPackage];
-
-    // Framework-specific dependencies
-    if (config.framework === 'react') {
-      dependencies.push('clsx');
-    }
-
     // Dev dependencies (types)
     const devDependencies: string[] = [];
     if (config.framework === 'react' && config.typescript) {
       devDependencies.push('@types/react', '@types/react-dom');
     }
 
-    // For Pro tier, load token from .env
+    // For Pro tier, load token from fallback chain
     const env = { ...process.env };
     if (tier === 'pro') {
-      const envPath = path.join(cwd, ENV_FILE_NAME);
-      if (await fs.pathExists(envPath)) {
-        const envContent = await fs.readFile(envPath, 'utf-8');
-        const tokenMatch = envContent.match(ENV_TOKEN_REGEX);
-        if (tokenMatch && tokenMatch[1]) {
-          env[ENV_TOKEN_KEY] = tokenMatch[1].trim();
-        }
+      const token = detectProTokenSync(cwd);
+      if (token) {
+        env[ENV_TOKEN_KEY] = token;
+        const source = getTokenSourceSync(cwd);
+        output.log(
+          `[DEBUG] Pro token loaded from ${describeTokenSource(source)}`
+        );
       }
     }
 
@@ -126,17 +127,20 @@ export async function installDependencies(
         output.note(
           'Pro token required',
           'The Pro package requires a valid Web Awesome Pro token.\n\n' +
-            'To get a token:\n' +
-            '1. Visit https://webawesome.com/account/tokens\n' +
-            '2. Generate or copy your token\n' +
-            '3. Add to your .env file:\n' +
+            'Setup options (choose one):\n\n' +
+            '1. Local development (recommended):\n' +
+            '   npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN\n\n' +
+            '2. CI/CD environments:\n' +
+            `   Set ${ENV_TOKEN_KEY} environment variable\n\n` +
+            '3. Project-specific (.env file):\n' +
             `   ${ENV_TOKEN_KEY}=your_token_here\n\n` +
+            'Get your token at: https://https://webawesome.com/login\n' +
             'Then run kigumi init again.'
         );
       }
 
       throw new DependencyInstallError(
-        'dependencies',
+        dependencies.join(' '),
         packageManager,
         execaError as Error,
         execaError.exitCode
@@ -144,7 +148,7 @@ export async function installDependencies(
     }
 
     throw new DependencyInstallError(
-      'dependencies',
+      dependencies.join(' '),
       packageManager,
       error as Error
     );

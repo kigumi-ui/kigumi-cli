@@ -21,6 +21,11 @@ import type { KigumiConfig } from './config.js';
 import type { Tier } from './tier.js';
 import { detectTierSync, getWebAwesomePackage } from './tier.js';
 
+export interface RegenerateOptions {
+  /** Skip regenerating layers.css if it exists (for init command) */
+  preserveLayersCSS?: boolean;
+}
+
 /**
  * Regenerate the Web Awesome setup file with updated theme configuration
  *
@@ -31,27 +36,38 @@ import { detectTierSync, getWebAwesomePackage } from './tier.js';
  * @param config - Kigumi configuration
  * @param utilsDir - Path to utils directory (e.g., 'src/lib')
  * @param tierOverride - Optional tier override (uses .env detection if not provided)
+ * @param options - Optional regeneration options
+ * @returns Object indicating if layers.css was preserved
  */
 export async function regenerateWebAwesomeSetup(
   cwd: string,
   config: KigumiConfig,
   utilsDir: string,
-  tierOverride?: Tier
-): Promise<void> {
+  tierOverride?: Tier,
+  options?: RegenerateOptions
+): Promise<{ layersPreserved: boolean }> {
   // Detect tier from .env, or use override
   const tier = tierOverride || detectTierSync(cwd);
   const packageName = getWebAwesomePackage(tier);
   const stylesDir = config.stylesDir || 'src/styles';
   const stylesAlias = stylesDir.replace(/^src\//, '@/');
 
-  // Generate layers.css
-  const layersContent = await generateLayersCSS(
-    packageName,
-    config.theme.selected,
-    stylesDir
-  );
+  // Check if layers.css exists and should be preserved
   const layersPath = path.join(cwd, stylesDir, 'layers.css');
-  await fs.writeFile(layersPath, layersContent);
+  const layersExists = await fs.pathExists(layersPath);
+  let layersPreserved = false;
+
+  if (options?.preserveLayersCSS && layersExists) {
+    layersPreserved = true;
+  } else {
+    // Generate layers.css
+    const layersContent = await generateLayersCSS(
+      packageName,
+      config.theme.selected,
+      stylesDir
+    );
+    await fs.writeFile(layersPath, layersContent);
+  }
 
   // Generate theme classes script
   const themeClasses =
@@ -80,6 +96,8 @@ export {};
 
   const setupFilePath = path.join(cwd, utilsDir, 'webawesome.ts');
   await fs.writeFile(setupFilePath, setupFileContent);
+
+  return { layersPreserved };
 }
 
 /**
