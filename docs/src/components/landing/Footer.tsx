@@ -1,11 +1,12 @@
+import { Icon } from '../ui';
+
 export const Footer = () => {
   return (
-    <section slot="footer" className="wa-grid">
-      <div className="wa-stack wa-gap-xl">
-        <wa-divider></wa-divider>
-        <span className="wa-stack wa-gap-2xs wa-align-items-start">
-          <p style={{ textAlign: 'right' }}>
-            Kigumi is built by{' '}
+    <section slot="footer" className="wa-justify-content-center">
+      <div className="wa-stack">
+        <div className="wa-span-grid wa-gap-xs wa-justify-content-center wa-align-items-center">
+          <span>
+            Kigumi by{' '}
             <a
               href="https://mischa.dev"
               target="_blank"
@@ -13,8 +14,9 @@ export const Footer = () => {
             >
               Michael Suzuki
             </a>
-          </p>
-          <p style={{ textAlign: 'right' }}>
+          </span>
+          <Icon name="heart" />
+          <span>
             <a
               href="https://webawesome.com"
               target="_blank"
@@ -22,7 +24,7 @@ export const Footer = () => {
             >
               Web Awesome
             </a>{' '}
-            is made by{' '}
+            by{' '}
             <a
               href="https://fontawesome.com/"
               target="_blank"
@@ -30,8 +32,12 @@ export const Footer = () => {
             >
               Font Awesome
             </a>
-          </p>
-        </span>
+          </span>
+        </div>
+        <p className="wa-caption-m" style={{ textAlign: 'center' }}>
+          Kigumi was created because because I am a big fan of Web Awesome and
+          see it as the right library to make the web truly cross-platform.
+        </p>
       </div>
     </section>
   );
