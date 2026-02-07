@@ -1,5 +1,11 @@
 # kigumi
 
+## 0.4.1
+
+### Patch Changes
+
+- Update README with improved documentation
+
 ## 0.4.0
 
 ### Minor Changes

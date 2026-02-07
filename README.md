@@ -1,6 +1,8 @@
 # Kigumi
 
-> Build framework-agnostic UIs with ready-made components. Kigumi wraps Web Components for React (Vue, Angular, Svelte soon). Same components, any stack.
+> Build framework-agnostic UIs with ready-made web components. Same components, any stack.
+
+ℹ️ Available for React. Angular, Svelte and Vue are coming soon.
 
 ## Quick Start
 
@@ -45,17 +47,6 @@ export default function LoginForm() {
 }
 ```
 
-## Why Kigumi
-
-**Framework-agnostic by design**
-Build your UI once. Web Components work in React, Vue, Angular, Svelte, or vanilla JS.
-
-**You own the code**
-Components are copied to your project. Modify, extend, or remove whatever you need.
-
-**Production-ready**
-50+ components (including Pro-only advanced components) with TypeScript support, accessibility built-in, and 11 themes included.
-
 ## Commands
 
 ### `init`
@@ -66,7 +57,7 @@ Initialize Kigumi in your project. Sets up theming and installs dependencies.
 npx kigumi init
 ```
 
-**Web Awesome Pro:** To unlock premium themes and Pro-only components:
+**Web Awesome Pro:** To unlock premium themes and Pro-only components, you need a Web Awesome Pro account. [Get your token](https://https://webawesome.com/login):
 
 ```bash
 # Configure your token globally (once per machine)
@@ -75,21 +66,6 @@ npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_T
 # Then just run init - Pro tier is auto-detected
 npx kigumi init
 ```
-
-Get your token at [webawesome.com](https://https://webawesome.com/login)
-
-<details>
-<summary>CI/CD Setup</summary>
-
-For CI/CD environments, set the `WEBAWESOME_NPM_TOKEN` environment variable:
-
-```yaml
-# GitHub Actions example
-env:
-  WEBAWESOME_NPM_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
-```
-
-</details>
 
 ### `add`
 
@@ -113,7 +89,7 @@ Shows component name, description, and Pro badge for Pro-only components.
 
 ### `theme`
 
-Change theme, palette, or brand color:
+Change [theme](https://webawesome.com/docs/themes), [palette](https://webawesome.com/docs/color-palettes), or brand color:
 
 ```bash
 npx kigumi theme [name]    # Change theme (shows selector if name omitted)
@@ -121,17 +97,12 @@ npx kigumi palette [name]  # Change color palette
 npx kigumi brand [color]   # Change brand color
 ```
 
-**Free themes:** `default`, `awesome`, `shoelace`
-**Pro themes:** `brutalist`, `glossy`, `matter`, `mellow`, `playful`, `premium`, `tailspin`, `active`
-**Color palettes:** `default`, `bright`, `shoelace`, `rudimentary`, `elegant`, `mild`, `natural`, `anodized`, `vogue`
-**Brand colors:** `blue`, `purple`, `green`, `red`, `orange`, `yellow`, `cyan`, `indigo`, `pink`, `gray`
-
 ## Utility Classes
 
 With the included [style](https://webawesome.com/docs/utilities) and [layout](https://webawesome.com/docs/layout/) utility classes you can quickly build your UI:
 
 ```tsx
-<div className="wa-stack wa-gap-md">
+<div className="wa-stack wa-gap-m">
   <h1 className="wa-heading-2xl">Welcome</h1>
   <p className="wa-text-muted">Get started below</p>
 </div>
@@ -164,14 +135,6 @@ Kigumi uses CSS cascade layers (`@layer`) for predictable style precedence:
 2. **theme** - Your custom CSS overrides in `src/styles/theme.css` (higher priority)
 
 Later layers always override earlier layers, regardless of specificity. This means your custom styles in `theme.css` will reliably override Web Awesome defaults without needing `!important`.
-
-**How it works:**
-
-- `src/styles/layers.css` (auto-generated) wraps Web Awesome imports in layers
-- `src/lib/webawesome.ts` (auto-generated) imports layers.css
-- Your custom styles in `theme.css` are imported into the `theme` layer
-
-[Learn more about CSS cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)
 
 ## Troubleshooting
 
@@ -229,54 +192,10 @@ Make sure you've imported the Web Awesome setup in your app entry point:
 import '@/lib/webawesome'; // Must be imported before components
 ```
 
-### Need more help?
-
-- [Web Awesome Documentation](https://webawesome.com/docs)
-- [GitHub Issues](https://github.com/giregar/kigumi-cli/issues)
-- Run `npx kigumi --help` for command reference
-
-## Deploying to Vercel
-
-The docs website (`/docs`) can be deployed to Vercel:
-
-### Prerequisites
-
-1. Web Awesome Pro token from [https://webawesome.com/login](https://https://webawesome.com/login)
-2. Vercel account and project created
-
-### Setup
-
-1. **Import the repository** to Vercel
-   - Framework Preset: Vite
-   - Root Directory: `docs`
-   - Build Command: `pnpm build`
-   - Output Directory: `dist`
-
-2. **Configure Environment Variables** in Vercel Dashboard:
-   - Go to Project Settings → Environment Variables
-   - Add `WEBAWESOME_NPM_TOKEN` with your Pro token
-   - Select all environments (Production, Preview, Development)
-
-3. **Deploy**
-   - Push to `main` branch to trigger deployment
-   - Vercel will automatically build and deploy
-
-### Local Development
-
-```bash
-cd docs
-pnpm install
-pnpm dev
-```
-
-The dev server will run at http://localhost:5173
-
 ## Resources
 
 - [Web Awesome Documentation](https://webawesome.com/docs)
 - [Component Gallery](https://webawesome.com/docs/components)
-- [GitHub Repository](https://github.com/giregar/kigumi-cli)
-- [Report Issues](https://github.com/giregar/kigumi-cli/issues)
 
 ## License
 
