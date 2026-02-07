@@ -1,13 +1,6 @@
 /// <reference types="vite/client" />
 
 /**
- * Vite define globals
- */
-declare global {
-  const __CLI_VERSION__: string;
-}
-
-/**
  * Web Awesome JSX Types
  *
  * This extends React's JSX.IntrinsicElements with Web Awesome custom elements.

@@ -1,5 +1,11 @@
 # kigumi
 
+## 0.4.3
+
+### Patch Changes
+
+- Fix installer
+
 ## 0.4.2
 
 ### Patch Changes
