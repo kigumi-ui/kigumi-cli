@@ -8,3 +8,6 @@ coverage/
 *.tsbuildinfo
 .pnpm-store/
 tests/.tmp-*
+
+# Allow npm users to work locally, but only commit pnpm lock
+docs/package-lock.json
