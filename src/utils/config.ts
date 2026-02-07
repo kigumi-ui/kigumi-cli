@@ -54,7 +54,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
     '@/styles': './src/styles',
   },
   webAwesome: {
-    version: '^3.1.0',
+    version: '^3.2.1',
   },
 };
 
