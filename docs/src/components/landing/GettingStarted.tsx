@@ -1,4 +1,4 @@
-import { Badge, Card } from '@/components/ui';
+import { Badge, Card, Details } from '@/components/ui';
 import { CopyButton } from '@/components/ui';
 
 export function GettingStarted() {
@@ -18,6 +18,54 @@ export function GettingStarted() {
             <p className="wa-caption-m">
               Run the init command above to set up Kigumi in your project.
             </p>
+
+            {/* Pro Setup Hint */}
+            <Details appearance="outlined" summary="Using Web Awesome Pro?">
+              <div className="wa-stack wa-gap-m">
+                <p>Configure your token globally first (once per machine):</p>
+                <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                  <div
+                    className="wa-flank:end wa-align-items-center wa-gap-xs"
+                    style={{ position: 'relative' }}
+                  >
+                    <pre>
+                      <code>
+                        npm config set
+                        //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken
+                        YOUR_TOKEN
+                      </code>
+                    </pre>
+                    <span
+                      style={{
+                        position: 'absolute',
+                        right: 'var(--wa-space-xs)',
+                        top: '0',
+                        bottom: '0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <CopyButton value="npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN" />
+                    </span>
+                  </div>
+                </Card>
+                <p>
+                  Get your token at{' '}
+                  <a
+                    href="https://https://webawesome.com/login"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    https://webawesome.com/login
+                  </a>
+                </p>
+                <p>
+                  Then run <code>npx kigumi init</code> — Pro tier will be
+                  auto-detected.
+                </p>
+              </div>
+            </Details>
           </div>
 
           {/* Step 2: Add Components */}

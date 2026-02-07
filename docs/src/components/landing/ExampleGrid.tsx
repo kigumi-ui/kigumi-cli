@@ -1,6 +1,6 @@
-import { CommentsExample } from './examples/CommentsExample';
 import { ActionPanelExample } from './examples/ActionPanelExample';
 import { ActivityLogExample } from './examples/ActivityLogExample';
+import { CommentsExample } from './examples/CommentsExample';
 import { DataDisplayExample } from './examples/DataDisplayExample';
 import { PaginationButtonGroupExample } from './examples/PaginationButtonGroupExample';
 import { ContactExample } from './examples/ContactExample';
