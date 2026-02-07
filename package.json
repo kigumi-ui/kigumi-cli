@@ -3,6 +3,7 @@
   "version": "0.4.2",
   "description": "CLI tool to add Web Awesome components to your project",
   "type": "module",
+  "packageManager": "pnpm@9.0.0",
   "bin": {
     "kigumi": "./dist/index.js"
   },
