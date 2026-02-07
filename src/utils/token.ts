@@ -89,10 +89,12 @@ async function detectProTokenWithSource(cwd: string): Promise<TokenResult> {
     return { token: envToken, source: 'env' };
   }
 
-  // 2. Check global ~/.npmrc
-  const npmrcToken = await getTokenFromGlobalNpmrc();
-  if (npmrcToken) {
-    return { token: npmrcToken, source: 'npmrc' };
+  // 2. Check global ~/.npmrc (skip in tests if env var set)
+  if (!process.env.KIGUMI_SKIP_GLOBAL_NPMRC) {
+    const npmrcToken = await getTokenFromGlobalNpmrc();
+    if (npmrcToken) {
+      return { token: npmrcToken, source: 'npmrc' };
+    }
   }
 
   // 3. Check project .env file (backwards compatible)
@@ -114,10 +116,12 @@ function detectProTokenWithSourceSync(cwd: string): TokenResult {
     return { token: envToken, source: 'env' };
   }
 
-  // 2. Check global ~/.npmrc
-  const npmrcToken = getTokenFromGlobalNpmrcSync();
-  if (npmrcToken) {
-    return { token: npmrcToken, source: 'npmrc' };
+  // 2. Check global ~/.npmrc (skip in tests if env var set)
+  if (!process.env.KIGUMI_SKIP_GLOBAL_NPMRC) {
+    const npmrcToken = getTokenFromGlobalNpmrcSync();
+    if (npmrcToken) {
+      return { token: npmrcToken, source: 'npmrc' };
+    }
   }
 
   // 3. Check project .env file

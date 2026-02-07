@@ -26,15 +26,29 @@ import {
 
 describe('tier detection', () => {
   let testDir: string;
+  let originalEnv: string | undefined;
 
   beforeEach(async () => {
     // Create a unique temp directory for each test
     testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-tier-test-'));
+    // Save and clear the environment variable to isolate tests
+    originalEnv = process.env.WEBAWESOME_NPM_TOKEN;
+    delete process.env.WEBAWESOME_NPM_TOKEN;
+    // Skip global npmrc for isolated tests
+    process.env.KIGUMI_SKIP_GLOBAL_NPMRC = '1';
   });
 
   afterEach(async () => {
     // Clean up temp directory
     await fs.remove(testDir);
+    // Restore environment variable
+    if (originalEnv !== undefined) {
+      process.env.WEBAWESOME_NPM_TOKEN = originalEnv;
+    } else {
+      delete process.env.WEBAWESOME_NPM_TOKEN;
+    }
+    // Clean up skip flag
+    delete process.env.KIGUMI_SKIP_GLOBAL_NPMRC;
   });
 
   describe('detectTier', () => {
