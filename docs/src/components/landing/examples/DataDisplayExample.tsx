@@ -31,7 +31,7 @@ export function DataDisplayExample() {
             label="Go to Query"
           />
         </Button>
-        <Tooltip for="go-to-query-button">Go to Query</Tooltip>
+        <Tooltip content="Go to Query">Go to Query</Tooltip>
       </div>
       <div className="wa-stack wa-gap-xl">
         <div className="wa-split wa-align-items-stretch">

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Avatar, Button, Card, Icon } from '@/components/ui';
 
 export function ActionPanelExample() {
