@@ -172,8 +172,14 @@ export async function initCommand(options: InitOptions = {}) {
     // Phase 4: Save config and generate files
     await saveAndGenerate(context, configResult);
 
-    // Phase 5: Handle dependencies
-    await handleDependencies(context, configResult, migrationResult);
+    // Phase 5: Handle dependencies (skip if --no-install)
+    const skipInstall = options.install === false;
+    await handleDependencies(
+      context,
+      configResult,
+      migrationResult,
+      skipInstall
+    );
 
     // Phase 6: Show success
     output.outro('✓ Kigumi initialized successfully!');
@@ -181,7 +187,8 @@ export async function initCommand(options: InitOptions = {}) {
       output,
       configResult.config,
       context.projectInfo.packageManager,
-      true // Always true if we reach here without errors
+      true, // Always true if we reach here without errors
+      configResult.newTier
     );
   } catch (error) {
     handleError(error, output);
@@ -387,11 +394,18 @@ async function saveAndGenerate(
 async function handleDependencies(
   context: InitContext,
   configResult: ConfigResult,
-  migrationResult: MigrationResult
+  migrationResult: MigrationResult,
+  skipInstall = false
 ): Promise<void> {
   const { cwd, output, isNonInteractive, projectInfo } = context;
   const { config, newTier } = configResult;
   const { didMigrate } = migrationResult;
+
+  // Skip installation if --no-install flag was passed
+  if (skipInstall) {
+    output.info('Skipping dependency installation (--no-install)');
+    return;
+  }
 
   // Ask about installation
   const shouldInstall = await confirmInstallation(isNonInteractive);
@@ -450,11 +464,28 @@ function showPostInstallInstructions(
   output: import('../../output/types.js').OutputInterface,
   config: import('../../schemas/index.js').KigumiConfig,
   packageManager: string,
-  depsInstalled: boolean
+  depsInstalled: boolean,
+  tier: Tier
 ): void {
   console.log('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
   let stepNum = 1;
+
+  // Step: Configure Pro token globally (if Pro tier and token not already global)
+  // Only show this if user might need to set up global token for npm install
+  if (tier === 'pro' && !depsInstalled) {
+    console.log(
+      pc.bold(pc.cyan(`${stepNum}. Ensure Pro token is configured globally:\n`))
+    );
+    console.log(pc.dim('\tFor npm install to work, run once per machine:\n'));
+    console.log(
+      pc.green(
+        '\tnpm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN\n'
+      )
+    );
+    console.log(pc.dim('\tGet token: https://https://webawesome.com/login\n'));
+    stepNum++;
+  }
 
   // Step: Install dependencies (if not installed)
   if (!depsInstalled) {
