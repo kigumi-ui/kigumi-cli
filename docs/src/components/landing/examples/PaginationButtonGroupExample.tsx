@@ -1,30 +1,78 @@
-import { Button, ButtonGroup, Card, Divider, Icon } from '@/components/ui';
+import { Badge, Button, Card, Icon } from '@/components/ui';
 
 export function PaginationButtonGroupExample() {
+  const tasks = [
+    { title: 'Review designs for project Catalyst', attachments: 1 },
+    { title: 'Clean up icon tech debt', date: 'Jun 20' },
+    { title: 'Refactor component library', date: 'Jun 24' },
+  ];
+
   return (
     <Card>
-      <div className="wa-stack">
-        <div className="wa-placeholder" />
-        <Divider />
+      <div className="wa-stack wa-gap-m" slot="header">
         <div className="wa-split">
-          <span className="wa-caption-m">Showing 1 to 10 of 50 Results</span>
-          <ButtonGroup orientation="horizontal">
-            <Button appearance="outlined">
-              <Icon name="chevron-left" />
+          <h3 className="wa-heading-m">In progress</h3>
+          <div className="wa-cluster wa-gap-xs">
+            <Button appearance="plain" size="small">
+              <Icon name="ellipsis" />
             </Button>
-            <Button appearance="accent" variant="brand">
-              1
+          </div>
+        </div>
+
+        <div className="wa-stack wa-gap-s">
+          {tasks.map((task, index) => (
+            <Card key={index}>
+              <div className="wa-stack wa-gap-xs">
+                <span className="wa-caption-m">{task.title}</span>
+                <div className="wa-cluster wa-gap-xs">
+                  {task.attachments && (
+                    <div className="wa-grid wa-gap-xs">
+                      <div className="wa-cluster wa-gap-2xs wa-align-items-center">
+                        <Icon
+                          name="paperclip"
+                          style={{
+                            fontSize: '14px',
+                            color: 'var(--wa-color-neutral-60)',
+                          }}
+                        />
+                        <span
+                          className="wa-caption-s"
+                          style={{ color: 'var(--wa-color-neutral-60)' }}
+                        >
+                          {task.attachments}
+                        </span>
+                      </div>
+                      <Badge>Design</Badge>
+                    </div>
+                  )}
+                  {task.date && (
+                    <div className="wa-cluster wa-gap-2xs wa-align-items-center">
+                      <Icon
+                        name="clock"
+                        style={{
+                          fontSize: '14px',
+                          color: 'var(--wa-color-neutral-60)',
+                        }}
+                      />
+                      <span
+                        className="wa-caption-s"
+                        style={{ color: 'var(--wa-color-neutral-60)' }}
+                      >
+                        {task.date}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+
+          <div>
+            <Button appearance="plain" size="small">
+              <Icon name="plus" slot="start" />
+              Add a card
             </Button>
-            <Button appearance="outlined">2</Button>
-            <Button appearance="outlined">3</Button>
-            <Button appearance="outlined" disabled>
-              ...
-            </Button>
-            <Button appearance="outlined">10</Button>
-            <Button appearance="outlined">
-              <Icon name="chevron-right" />
-            </Button>
-          </ButtonGroup>
+          </div>
         </div>
       </div>
     </Card>

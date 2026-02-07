@@ -1,26 +1,41 @@
-import { Button, Card, Input, Switch, Textarea } from '@/components/ui';
+import { Button, Card, Icon, Input } from '@/components/ui';
 
 export function ContactExample() {
   return (
     <Card>
-      <div className="wa-stack">
-        <div className="wa-stack wa-gap-xs">
-          <h2 className="wa-heading-xl">Contact Us</h2>
-          <p className="wa-caption-m">We'd love to hear from you.</p>
-        </div>
-        <form className="wa-stack wa-gap-l">
-          <div className="wa-grid">
-            <Input label="First name" />
-            <Input label="Last name" />
+      <div className="wa-stack wa-gap-l">
+        <form className="wa-stack wa-gap-m">
+          <Input label="Username" type="text" />
+          <Input label="Password" type="password" />
+
+          <div>
+            <a href="#" className="wa-caption-s">
+              Forgot password?
+            </a>
           </div>
-          <Input label="Email" type="email" />
-          <Input label="Phone Number" type="tel" />
-          <Textarea label="What's on your mind?" />
-          <Switch>
-            I agree to the <a href="#">privacy policy</a>.
-          </Switch>
-          <Button>Submit</Button>
+
+          <Button variant="brand" size="medium">
+            Sign In
+          </Button>
         </form>
+
+        <div className="wa-cluster wa-justify-content-center wa-gap-2xs">
+          <span className="wa-caption-s">OR</span>
+        </div>
+
+        <div className="wa-stack wa-gap-xs">
+          <Button appearance="outlined" size="medium">
+            <Icon slot="start" name="github" family="brands" />
+            Continue with GitHub
+          </Button>
+        </div>
+
+        <div
+          className="wa-caption-s"
+          style={{ textAlign: 'center', color: 'var(--wa-color-neutral-60)' }}
+        >
+          Don't have an account? <a href="#">Sign up</a>
+        </div>
       </div>
     </Card>
   );

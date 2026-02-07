@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Avatar,
   Badge,
@@ -6,55 +5,46 @@ import {
   Callout,
   Card,
   Divider,
-  Icon,
   RelativeTime,
 } from '@/components/ui';
 
 export function ActivityLogExample() {
   return (
-    <Card
-      {...{ 'with-header': true }}
-      style={{ maxWidth: '54ch', margin: '0 auto' }}
-    >
+    <Card>
       <div slot="header" className="wa-split">
-        <div>
-          <span>Notifications</span>
-          <Badge appearance="filled" variant="success" pill>
-            2
+        <div className="wa-cluster wa-gap-2xs">
+          <span>Network activities</span>
+          <Badge appearance="filled" variant="brand" pill>
+            3
           </Badge>
         </div>
-        <Icon name="close" />
       </div>
       <div className="wa-stack">
         <article>
           <div className="wa-flank wa-align-items-start">
             <Avatar
-              image="https://images.unsplash.com/photo-1614807547811-4174d3582092?q=80&w=2932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               label="profile image"
             />
             <div className="wa-stack wa-gap-2xs">
               <div className="wa-split">
                 <span>
-                  <strong>Happy</strong> commented in{' '}
-                  <a href="#">Reporting Dashboard</a>
+                  <strong>Marcus Chen</strong> posted a new article{' '}
+                  <a href="#">
+                    5 Design Principles Every Developer Should Know
+                  </a>
                 </span>
-                <Icon
-                  name="circle"
-                  style={
-                    { color: 'var(--wa-color-green)' } as React.CSSProperties
-                  }
-                />
               </div>
               <div className="wa-split">
-                <span className="wa-caption-s">Friday 3:12PM</span>
+                <span className="wa-caption-s">Today 9:24AM</span>
                 <RelativeTime
                   className="wa-caption-s"
-                  date="2025-02-15T09:17:00-04:00"
+                  date="2025-02-07T09:24:00-04:00"
                 />
               </div>
               <Callout variant="neutral">
-                Really love this approach. I think this is the best solution for
-                the sync issue.
+                After 10 years in the industry, these principles transformed how
+                I approach UI development. #WebDesign #DeveloperTips
               </Callout>
             </div>
           </div>
@@ -63,26 +53,21 @@ export function ActivityLogExample() {
         <article>
           <div className="wa-flank wa-align-items-start">
             <Avatar
-              image="https://images.unsplash.com/photo-1613428800237-c86372070fab?q=80&w=3017&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              image="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               label="profile image"
             />
             <div className="wa-stack wa-gap-2xs">
               <div className="wa-split">
                 <span>
-                  <strong>Charlotte</strong> followed you
+                  <strong>Sarah Mitchell</strong> started a new position as
+                  Senior Product Designer at <a href="#">TechFlow Inc.</a>
                 </span>
-                <Icon
-                  name="circle"
-                  style={
-                    { color: 'var(--wa-color-green)' } as React.CSSProperties
-                  }
-                />
               </div>
               <div className="wa-split">
-                <span className="wa-caption-s">Friday 3:04PM</span>
+                <span className="wa-caption-s">Yesterday 2:15PM</span>
                 <RelativeTime
                   className="wa-caption-s"
-                  date="2025-02-15T09:17:00-04:00"
+                  date="2025-02-06T14:15:00-04:00"
                 />
               </div>
             </div>
@@ -92,26 +77,25 @@ export function ActivityLogExample() {
         <article>
           <div className="wa-flank wa-align-items-start">
             <Avatar
-              image="https://images.unsplash.com/photo-1645288059073-af3e9eb62a29?q=80&w=2936&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              image="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               label="Profile image"
             />
             <div className="wa-stack wa-gap-2xs">
               <div className="wa-split">
                 <span>
-                  <strong>Tavitian</strong> invited you to{' '}
-                  <a href="#">Homepage Redesign</a>
+                  <strong>David Rodriguez</strong> wants to connect
                 </span>
               </div>
               <div className="wa-split">
-                <span className="wa-caption-s">Friday 2:22PM</span>
+                <span className="wa-caption-s">Yesterday 4:37PM</span>
                 <RelativeTime
                   className="wa-caption-s"
-                  date="2025-02-15T09:17:00-04:00"
+                  date="2025-02-06T16:37:00-04:00"
                 />
               </div>
               <div className="wa-cluster wa-gap-xs">
                 <Button appearance="outlined" size="small">
-                  Decline
+                  Ignore
                 </Button>
                 <Button variant="brand" size="small">
                   Accept
