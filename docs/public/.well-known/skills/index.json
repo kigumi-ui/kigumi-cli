@@ -15,8 +15,7 @@
       "files": [
         "SKILL.md",
         "references/transformation-rules.md",
-        "references/event-mapping.md",
-        "references/components/*.md"
+        "references/event-mapping.md"
       ],
       "compatibility": [
         "Cursor",
