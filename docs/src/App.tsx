@@ -9,7 +9,7 @@ import { Footer } from '@/components/landing/Footer';
 function App() {
   return (
     <ThemeProvider>
-      <Page disable-navigation-toggle={true}>
+      <Page disable-navigation-toggle>
         <Hero />
         <ExampleGrid />
         <GettingStarted />
