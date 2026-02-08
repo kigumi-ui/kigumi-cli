@@ -65,6 +65,7 @@ import { Button, Card } from '@/components/ui';
 ### Available Skills
 
 - **kigumi-react**: Transform Web Awesome HTML to React components
+- **kigumi-theme**: Customize themes, CSS variables, dark mode, and design tokens
 
 Full documentation: [skills/README.md](https://github.com/Siregar/kigumi-cli/blob/main/skills/README.md)
 

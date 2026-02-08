@@ -7,6 +7,7 @@ AI-powered transformation of Web Awesome code to framework-specific Kigumi compo
 | Skill                         | Framework | Description                                                                       |
 | ----------------------------- | --------- | --------------------------------------------------------------------------------- |
 | [kigumi-react](kigumi-react/) | React     | Transform Web Awesome HTML to React components with automatic component detection |
+| [kigumi-theme](kigumi-theme/) | All       | Customize themes, CSS variables, dark mode, and design tokens                     |
 
 > **Coming Soon**: Vue, Svelte, and Angular skills will be added when templates become available.
 
@@ -103,7 +104,9 @@ export default function UserProfile() {
 
 ## Example Usage
 
-### Basic Transformation
+### kigumi-react: Code Transformation
+
+#### Basic Transformation
 
 **Input** (paste into AI chat):
 
@@ -127,7 +130,7 @@ import { Button, Icon } from '@/components/ui';
 </Button>;
 ```
 
-### With Missing Components
+#### With Missing Components
 
 **Input**:
 
@@ -154,6 +157,85 @@ import { Button, Dialog } from '@/components/ui';
   Are you sure?
   <Button slot="footer">Cancel</Button>
 </Dialog>;
+```
+
+### kigumi-theme: Theme Customization
+
+#### Change Brand Color
+
+**User**: "How do I change the brand color to blue?"
+
+**AI Response**:
+
+To change the brand color to blue:
+
+1. Update your `kigumi.config.json`:
+
+```json
+{
+  "theme": {
+    "selected": "awesome",
+    "palette": "rudimentary",
+    "brandColor": "blue"
+  }
+}
+```
+
+2. Regenerate theme files:
+
+```bash
+npx kigumi init
+```
+
+Available brand colors: red, orange, yellow, green, blue, purple, gray
+
+#### Implement Dark Mode
+
+**User**: "How do I add dark mode?"
+
+**AI Response**:
+
+Dark mode is built-in! Just toggle the `dark` class on your `<html>` element:
+
+```tsx
+import { useEffect, useState } from 'react';
+
+function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
+  return <button onClick={() => setDarkMode(!darkMode)}>Toggle Theme</button>;
+}
+```
+
+#### Override CSS Variables
+
+**User**: "Can I customize specific colors?"
+
+**AI Response**:
+
+Yes! Create a custom CSS file:
+
+```css
+/* custom-theme.css */
+:root {
+  --wa-color-brand: #0066cc;
+  --wa-border-radius-medium: 0.75rem;
+}
+
+.dark {
+  --wa-color-brand: #4d9fff;
+}
+```
+
+Import it after your theme file:
+
+```tsx
+import './lib/layers.css';
+import './custom-theme.css'; // Your overrides
 ```
 
 ## Features
