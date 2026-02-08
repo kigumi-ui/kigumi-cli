@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "updated": "2024-02-08",
+  "skills": [
+    {
+      "name": "transform-webawesome-to-react",
+      "framework": "react",
+      "description": "Transform Web Awesome HTML to Kigumi React components with automatic component detection",
+      "url": "https://kigumi.style/skills/transform-webawesome-to-react",
+      "install": {
+        "cli": "npx skills add https://kigumi.style/skills/transform-webawesome-to-react",
+        "manual": {
+          "cursor": "curl -L https://kigumi.style/skills/transform-webawesome-to-react.tar.gz | tar -xz -C ~/.cursor/skills/",
+          "claude": "curl -L https://kigumi.style/skills/transform-webawesome-to-react.tar.gz | tar -xz -C ~/.claude/skills/"
+        }
+      },
+      "compatibility": [
+        "Cursor",
+        "Claude Code",
+        "VS Code",
+        "Agent Skills Standard"
+      ]
+    }
+  ],
+  "coming_soon": [
+    {
+      "name": "transform-webawesome-to-vue",
+      "framework": "vue",
+      "status": "pending"
+    },
+    {
+      "name": "transform-webawesome-to-svelte",
+      "framework": "svelte",
+      "status": "pending"
+    },
+    {
+      "name": "transform-webawesome-to-angular",
+      "framework": "angular",
+      "status": "pending"
+    }
+  ]
+}

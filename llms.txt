@@ -1,0 +1,82 @@
+# Kigumi CLI - Web Awesome Component Library for React
+
+Kigumi provides a CLI tool to add Web Awesome components to React projects with framework-specific wrappers.
+
+## Quick Start
+
+```bash
+npx kigumi init        # Initialize project
+npx kigumi add button  # Add components
+```
+
+## Components
+
+57+ components available across categories:
+- **Actions**: Button, ButtonGroup, CopyButton, Dropdown, QrCode
+- **Form Controls**: Input, Checkbox, Radio, RadioGroup, Select, Slider, Switch, Textarea
+- **Navigation**: Breadcrumb, Tab, TabGroup, Tree
+- **Organization**: Card, Dialog, Drawer, Details, Divider
+- **Feedback**: Badge, Callout, ProgressBar, Spinner, Tag, Tooltip
+- **Imagery**: Avatar, Carousel, Icon, AnimatedImage
+- **Utilities**: Animation, FormatDate, FormatNumber, Popup, Popover
+
+**Full list**: `npx kigumi list`
+
+## AI Agent Skills
+
+For AI-assisted transformation of Web Awesome HTML to Kigumi components:
+
+### Install the Skill
+
+```bash
+# Via skills CLI (no npm package needed!)
+npx skills add https://kigumi.style/skills/transform-webawesome-to-react
+
+# Or from installed package
+npm install kigumi
+cp -r ./node_modules/kigumi/dist/skills/transform-webawesome-to-react .cursor/skills/
+```
+
+### How It Works
+
+1. Paste Web Awesome HTML to your AI assistant
+2. Ask: "Convert this to Kigumi React"
+3. Get transformed code with proper imports
+4. Detects missing components and suggests installation commands
+
+**Example**:
+
+Input (Web Awesome):
+```html
+<wa-card>
+  <wa-button variant="brand">Click me</wa-button>
+</wa-card>
+```
+
+Output (Kigumi React):
+```tsx
+import { Button, Card } from '@/components/ui';
+
+<Card>
+  <Button variant="brand">Click me</Button>
+</Card>
+```
+
+### Available Skills
+
+- **transform-webawesome-to-react**: Transform Web Awesome HTML to React components
+
+Full documentation: [skills/README.md](https://github.com/Siregar/kigumi-cli/blob/main/skills/README.md)
+
+## Documentation
+
+- **Homepage**: https://kigumi.style
+- **Repository**: https://github.com/Siregar/kigumi-cli
+- **Web Awesome Docs**: https://webawesome.com/docs
+- **Agent Skills**: https://github.com/Siregar/kigumi-cli/tree/main/skills
+
+## Frameworks
+
+Currently supports:
+- React (full support with 57+ components)
+- Vue, Svelte, Angular (coming soon)
