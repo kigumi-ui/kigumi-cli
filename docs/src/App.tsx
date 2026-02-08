@@ -5,6 +5,7 @@ import { Troubleshooting } from '@/components/landing/Troubleshooting';
 import { Page } from '@/components/ui/Page/Page';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Footer } from '@/components/landing/Footer';
+import { ThemeFab } from '@/components/landing/ThemeFab';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Troubleshooting />
         <Footer />
       </Page>
+      <ThemeFab />
     </ThemeProvider>
   );
 }
