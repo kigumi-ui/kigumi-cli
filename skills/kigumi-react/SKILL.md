@@ -1,6 +1,6 @@
 ---
 name: kigumi-react
-description: Transforms Web Awesome HTML to Kigumi React components. Detects missing components and suggests installation via npx kigumi add. Use when converting wa-button, wa-card, wa-dialog, wa-input, wa-textarea, etc. to React.
+description: Transforms Web Awesome HTML to Kigumi React components
 license: MIT
 metadata:
   author: Kigumi

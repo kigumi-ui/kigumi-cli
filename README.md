@@ -97,6 +97,14 @@ npx kigumi palette [name]  # Change color palette
 npx kigumi brand [color]   # Change brand color
 ```
 
+## AI Agent Skills
+
+Kigumi provides AI agent skills for transforming Web Awesome HTML to Kigumi components and for working with design tokens.
+
+```bash
+npx skills add https://kigumi.style/skills
+```
+
 ## Utility Classes
 
 With the included [style](https://webawesome.com/docs/utilities) and [layout](https://webawesome.com/docs/layout/) utility classes you can quickly build your UI:
