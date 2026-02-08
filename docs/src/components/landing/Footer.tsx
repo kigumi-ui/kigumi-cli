@@ -43,20 +43,20 @@ export const Footer = () => {
             Kigumi was created because because I am a big fan of Web Awesome and
             see it as the right library to make the web truly cross-platform.
           </p>
-          <div className="footer-legal-links wa-span-grid wa-gap-xs wa-justify-content-center">
-            <button
+          <div className="wa-span-grid wa-gap-xs wa-justify-content-center wa-align-items-center">
+            <a
               className="footer-legal-link"
               onClick={() => setImprintOpen(true)}
             >
               Imprint
-            </button>
-            <span>•</span>
-            <button
+            </a>
+            <Icon name="legal" />
+            <a
               className="footer-legal-link"
               onClick={() => setPrivacyOpen(true)}
             >
               Privacy Policy
-            </button>
+            </a>
           </div>
         </div>
       </section>
