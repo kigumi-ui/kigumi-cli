@@ -5,7 +5,6 @@
     {
       "id": "kigumi-react",
       "name": "kigumi-react",
-      "framework": "react",
       "description": "Transforms Web Awesome HTML to Kigumi React components. Detects missing components and suggests installation via npx kigumi add.",
       "version": "1.0.0",
       "author": "Kigumi",
@@ -13,13 +12,12 @@
       "homepage": "https://kigumi.style",
       "repository": "https://github.com/Siregar/kigumi-cli",
       "url": "https://kigumi.style/skills/kigumi-react",
-      "install": {
-        "cli": "npx skills add https://kigumi.style/skills/kigumi-react",
-        "manual": {
-          "cursor": "curl -L https://kigumi.style/skills/kigumi-react.tar.gz | tar -xz -C ~/.cursor/skills/",
-          "claude": "curl -L https://kigumi.style/skills/kigumi-react.tar.gz | tar -xz -C ~/.claude/skills/"
-        }
-      },
+      "files": [
+        "SKILL.md",
+        "references/transformation-rules.md",
+        "references/event-mapping.md",
+        "references/components/*.md"
+      ],
       "compatibility": [
         "Cursor",
         "Claude Code",
@@ -38,13 +36,12 @@
       "homepage": "https://kigumi.style",
       "repository": "https://github.com/Siregar/kigumi-cli",
       "url": "https://kigumi.style/skills/kigumi-theme",
-      "install": {
-        "cli": "npx skills add https://kigumi.style/skills/kigumi-theme",
-        "manual": {
-          "cursor": "curl -L https://kigumi.style/skills/kigumi-theme.tar.gz | tar -xz -C ~/.cursor/skills/",
-          "claude": "curl -L https://kigumi.style/skills/kigumi-theme.tar.gz | tar -xz -C ~/.claude/skills/"
-        }
-      },
+      "files": [
+        "SKILL.md",
+        "references/available-themes.md",
+        "references/customization.md",
+        "references/css-variables.md"
+      ],
       "compatibility": [
         "Cursor",
         "Claude Code",
@@ -52,23 +49,6 @@
         "Agent Skills Standard"
       ],
       "allowedTools": ["Read", "Glob"]
-    }
-  ],
-  "coming_soon": [
-    {
-      "name": "transform-webawesome-to-vue",
-      "framework": "vue",
-      "status": "pending"
-    },
-    {
-      "name": "transform-webawesome-to-svelte",
-      "framework": "svelte",
-      "status": "pending"
-    },
-    {
-      "name": "transform-webawesome-to-angular",
-      "framework": "angular",
-      "status": "pending"
     }
   ]
 }
