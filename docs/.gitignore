@@ -27,3 +27,7 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Build artifacts (copied by prebuild script)
+public/skills/
+public/llms.txt
