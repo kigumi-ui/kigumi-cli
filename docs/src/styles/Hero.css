@@ -5,8 +5,35 @@
 
   & .stacks {
     display: none;
+    opacity: 0;
+    transform: scale(0.3) rotate(-12deg);
+    transition: none;
+
     @media (min-width: 980px) {
       display: block;
     }
+
+    &.stacks--animate {
+      animation: jackInTheBox 1s ease-out forwards;
+    }
+  }
+}
+
+@keyframes jackInTheBox {
+  0% {
+    opacity: 0;
+    transform: scale(0.1) rotate(-30deg);
+    transform-origin: center bottom;
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(10deg);
+  }
+  70% {
+    transform: scale(0.95) rotate(-5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
   }
 }
