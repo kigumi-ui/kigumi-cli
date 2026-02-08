@@ -40,8 +40,8 @@ export const Footer = () => {
             </span>
           </div>
           <p className="wa-caption-m" style={{ textAlign: 'center' }}>
-            Kigumi was created because because I am a big fan of Web Awesome and
-            see it as the right library to make the web truly cross-platform.
+            Kigumi was created because I am a big fan of Web Awesome and see it
+            as the right library to make the web truly cross-platform.
           </p>
           <div className="wa-span-grid wa-gap-xs wa-justify-content-center wa-align-items-center">
             <a
