@@ -46,5 +46,9 @@
  * }
  */
 .Page {
-  /* Add your custom styles here */
+  /* Hide navigation toggle completely */
+}
+
+.Page::part(navigation-toggle) {
+  display: none !important;
 }
