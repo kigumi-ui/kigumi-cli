@@ -6,15 +6,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/.well-known/(.*)",
-      "destination": "/.well-known/$1"
-    },
-    {
-      "source": "/skills/(.*)",
-      "destination": "/skills/$1"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!skills|.well-known|assets|favicon).*)",
       "destination": "/index.html"
     }
   ]
