@@ -4,6 +4,7 @@ import { CommentsExample } from './examples/CommentsExample';
 import { DataDisplayExample } from './examples/DataDisplayExample';
 import { PaginationButtonGroupExample } from './examples/PaginationButtonGroupExample';
 import { ContactExample } from './examples/ContactExample';
+import { Button, Icon } from '@/components/ui';
 
 export function ExampleGrid() {
   return (
@@ -32,6 +33,19 @@ export function ExampleGrid() {
           <div className="example-masonry-item">
             <ContactExample />
           </div>
+        </div>
+        <div className="wa-cluster wa-justify-content-center wa-gap-2xs">
+          <Button
+            variant="brand"
+            pill
+            appearance="outlined"
+            href="https://webawesome.com/docs/components"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            More components
+            <Icon slot="end" name="external-link" />
+          </Button>
         </div>
       </div>
     </section>
