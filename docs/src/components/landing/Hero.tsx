@@ -1,8 +1,34 @@
 import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
 import { Badge, Callout, Icon } from '@/components/ui';
 import stacks from '@/assets/stacks.png';
+import { useEffect, useRef } from 'react';
 
 export function Hero() {
+  const stacksRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const stacksElement = stacksRef.current;
+    if (!stacksElement) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            stacksElement.classList.add('stacks--animate');
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(stacksElement);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div slot="main-header" className="wa-stack wa-align-items-start">
       <div className="wa-grid wa-align-items-start">
@@ -18,7 +44,7 @@ export function Hero() {
             <strong>Same components, any stack.</strong>
           </h2>
         </div>
-        <img src={stacks} alt="Stacks" className="stacks" />
+        <img ref={stacksRef} src={stacks} alt="Stacks" className="stacks" />
       </div>
       <div className="wa-stack wa-gap-m">
         <InstallCommandExample />
