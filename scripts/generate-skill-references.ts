@@ -2,25 +2,20 @@
 /**
  * Generate Agent Skill Reference Files
  *
- * This script generates markdown reference files for the transform-webawesome-to-react skill
+ * This script generates markdown reference files for the kigumi-react skill
  * by reading component definitions from the LOCAL_REGISTRY.
  *
  * Generates:
- * - skills/transform-webawesome-to-react/references/components/{component}.md (one per component)
- * - skills/transform-webawesome-to-react/references/transformation-rules.md (overview table)
- * - skills/transform-webawesome-to-react/references/event-mapping.md (event handlers)
+ * - skills/kigumi-react/references/components/{component}.md (one per component)
+ * - skills/kigumi-react/references/transformation-rules.md (overview table)
+ * - skills/kigumi-react/references/event-mapping.md (event handlers)
  */
 
 import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 
-const SKILLS_DIR = join(
-  process.cwd(),
-  'skills',
-  'transform-webawesome-to-react',
-  'references'
-);
+const SKILLS_DIR = join(process.cwd(), 'skills', 'kigumi-react', 'references');
 const COMPONENTS_DIR = join(SKILLS_DIR, 'components');
 
 /**

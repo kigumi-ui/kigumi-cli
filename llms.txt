@@ -30,11 +30,11 @@ For AI-assisted transformation of Web Awesome HTML to Kigumi components:
 
 ```bash
 # Via skills CLI (no npm package needed!)
-npx skills add https://kigumi.style/skills/transform-webawesome-to-react
+npx skills add https://kigumi.style/skills/kigumi-react
 
 # Or from installed package
 npm install kigumi
-cp -r ./node_modules/kigumi/dist/skills/transform-webawesome-to-react .cursor/skills/
+cp -r ./node_modules/kigumi/dist/skills/kigumi-react .cursor/skills/
 ```
 
 ### How It Works
@@ -64,7 +64,7 @@ import { Button, Card } from '@/components/ui';
 
 ### Available Skills
 
-- **transform-webawesome-to-react**: Transform Web Awesome HTML to React components
+- **kigumi-react**: Transform Web Awesome HTML to React components
 
 Full documentation: [skills/README.md](https://github.com/Siregar/kigumi-cli/blob/main/skills/README.md)
 

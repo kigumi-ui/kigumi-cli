@@ -4,9 +4,9 @@ AI-powered transformation of Web Awesome code to framework-specific Kigumi compo
 
 ## Available Skills
 
-| Skill                                                           | Framework | Description                                                                       |
-| --------------------------------------------------------------- | --------- | --------------------------------------------------------------------------------- |
-| [transform-webawesome-to-react](transform-webawesome-to-react/) | React     | Transform Web Awesome HTML to React components with automatic component detection |
+| Skill                         | Framework | Description                                                                       |
+| ----------------------------- | --------- | --------------------------------------------------------------------------------- |
+| [kigumi-react](kigumi-react/) | React     | Transform Web Awesome HTML to React components with automatic component detection |
 
 > **Coming Soon**: Vue, Svelte, and Angular skills will be added when templates become available.
 
@@ -16,11 +16,11 @@ AI-powered transformation of Web Awesome code to framework-specific Kigumi compo
 
 ```bash
 # Install from kigumi.style (no npm package needed!)
-npx skills add https://kigumi.style/skills/transform-webawesome-to-react
+npx skills add https://kigumi.style/skills/kigumi-react
 
 # Or from npm package (after installing kigumi)
 npm install kigumi
-npx skills add ./node_modules/kigumi/dist/skills/transform-webawesome-to-react
+npx skills add ./node_modules/kigumi/dist/skills/kigumi-react
 ```
 
 ### Option 2: Manual Installation
@@ -29,27 +29,27 @@ npx skills add ./node_modules/kigumi/dist/skills/transform-webawesome-to-react
 
 ```bash
 # Download from kigumi.style
-curl -L https://kigumi.style/skills/transform-webawesome-to-react.tar.gz | tar -xz -C ~/.cursor/skills/
+curl -L https://kigumi.style/skills/kigumi-react.tar.gz | tar -xz -C ~/.cursor/skills/
 
 # Or from installed package
-cp -r ./node_modules/kigumi/dist/skills/transform-webawesome-to-react .cursor/skills/
+cp -r ./node_modules/kigumi/dist/skills/kigumi-react .cursor/skills/
 ```
 
 **For Claude Code:**
 
 ```bash
 # Download from kigumi.style
-curl -L https://kigumi.style/skills/transform-webawesome-to-react.tar.gz | tar -xz -C ~/.claude/skills/
+curl -L https://kigumi.style/skills/kigumi-react.tar.gz | tar -xz -C ~/.claude/skills/
 
 # Or from installed package
-cp -r ./node_modules/kigumi/dist/skills/transform-webawesome-to-react .claude/skills/
+cp -r ./node_modules/kigumi/dist/skills/kigumi-react .claude/skills/
 ```
 
 **For VS Code (with supported extensions):**
 
 ```bash
 mkdir -p .vscode/skills
-cp -r ./node_modules/kigumi/dist/skills/transform-webawesome-to-react .vscode/skills/
+cp -r ./node_modules/kigumi/dist/skills/kigumi-react .vscode/skills/
 ```
 
 ## How Skills Work
@@ -228,10 +228,10 @@ These skills follow the [Agent Skills Standard](https://agentskills.io) and work
 
 ```bash
 # Cursor
-ls ~/.cursor/skills/transform-webawesome-to-react/
+ls ~/.cursor/skills/kigumi-react/
 
 # Claude Code
-ls ~/.claude/skills/transform-webawesome-to-react/
+ls ~/.claude/skills/kigumi-react/
 ```
 
 Ensure `SKILL.md` exists in the skill folder.
