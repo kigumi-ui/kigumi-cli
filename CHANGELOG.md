@@ -1,5 +1,25 @@
 # kigumi
 
+## 0.5.0
+
+### Minor Changes
+
+- **BREAKING CHANGE**: Rename agent skill from `transform-webawesome-to-react` to `kigumi-react`
+
+  Renamed the agent skill to follow new naming convention `kigumi-{purpose}`. This makes it shorter, easier to type, and scalable for multi-framework support.
+
+  **Migration:**
+  - Old URL: `npx skills add https://kigumi.style/skills/transform-webawesome-to-react`
+  - New URL: `npx skills add https://kigumi.style/skills/kigumi-react`
+
+  **New skill added:**
+  - `kigumi-theme`: Theme customization guidance (CSS variables, dark mode, design tokens)
+
+  **Changes:**
+  - Renamed `skills/transform-webawesome-to-react/` to `skills/kigumi-react/`
+  - Added `skills/kigumi-theme/` with complete theme customization documentation
+  - Updated all references in documentation (skills/README.md, llms.txt)
+
 ## 0.4.4
 
 ### Patch Changes
