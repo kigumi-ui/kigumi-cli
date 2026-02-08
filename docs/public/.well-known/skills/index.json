@@ -5,7 +5,7 @@
     {
       "id": "kigumi-react",
       "name": "kigumi-react",
-      "description": "Transforms Web Awesome HTML to Kigumi React components. Detects missing components and suggests installation via npx kigumi add.",
+      "description": "Transforms Web Awesome HTML to Kigumi React components",
       "version": "1.0.0",
       "author": "Kigumi",
       "license": "MIT",
