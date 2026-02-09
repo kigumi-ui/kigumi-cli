@@ -2,7 +2,7 @@
 
 > Build framework-agnostic UIs with ready-made web components. Same components, any stack.
 
-ℹ️ Available for React. Angular, Svelte and Vue are coming soon.
+ℹ️ Available for React and Vue. Angular and Svelte are coming soon.
 
 ## Quick Start
 
@@ -96,6 +96,17 @@ npx kigumi theme [name]    # Change theme (shows selector if name omitted)
 npx kigumi palette [name]  # Change color palette
 npx kigumi brand [color]   # Change brand color
 ```
+
+### `doctor`
+
+Diagnose and fix common issues in your project:
+
+```bash
+npx kigumi doctor           # Scan and fix import path issues
+npx kigumi doctor --dry-run # Report issues without fixing
+```
+
+The doctor command automatically detects your tier (Free/Pro) and ensures all component imports use the correct package. Useful when upgrading from Free to Pro or encountering import errors.
 
 ## AI Agent Skills
 
