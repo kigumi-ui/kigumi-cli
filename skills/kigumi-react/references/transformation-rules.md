@@ -65,6 +65,9 @@ Complete mapping of Web Awesome components to Kigumi React components.
 | `wa-tree-item`             | `<TreeItem>`             | Navigation    | free | Tree items are used inside trees to represent hierarchical items                                        |
 | `wa-zoomable-frame`        | `<ZoomableFrame>`        | Display       | free | Zoomable frames display iframe content with zoom controls                                               |
 | `wa-callout`               | `<Callout>`              | Display       | free | Callouts are used to display important messages inline                                                  |
+| `wa-file-input`            | `<FileInput>`            | Form Controls | pro  | File inputs allow users to select and upload files from their device                                    |
+| `wa-number-input`          | `<NumberInput>`          | Form Controls | pro  | Number inputs allow users to enter numeric values with optional step controls                           |
+| `wa-sparkline`             | `<Sparkline>`            | Display       | pro  | Sparklines are small inline data visualizations for showing trends                                      |
 
 ## Core Transformation Patterns
 
