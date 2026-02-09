@@ -1,0 +1,47 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Radio.css';
+
+/**
+ * Radios allow the user to select a single option from a group
+ */
+const props = defineProps({
+    value: { type: String, required: false },
+    disabled: { type: Boolean, required: false, default: false },
+    size: { type: String, required: false, default: medium }
+});
+
+const emit = defineEmits(['blur', 'focus']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+
+  onUnmounted(() => {
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-radio
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-radio>
+</template>

@@ -1,0 +1,84 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './NumberInput.css';
+
+/**
+ * Number inputs allow users to enter numeric values with optional step controls
+ */
+export interface NumberInputProps {
+  label?: string;
+  hint?: string;
+  value?: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  disabled?: boolean;
+  required?: boolean;
+  placeholder?: string;
+  size?: 'small' | 'medium' | 'large';
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  'no-spin-buttons'?: boolean;
+}
+
+const props = defineProps<NumberInputProps>();
+
+const emit = defineEmits<{
+  'input': [event: CustomEvent];
+  'change': [event: CustomEvent];
+  'blur': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleInput = (e: Event) => emit('input', e as CustomEvent);
+  el.addEventListener('input', handleInput);
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+  el.addEventListener('focus', handleFocus);
+  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  select: () => (elementRef.value as any)?.select?.(),
+  stepUp: () => (elementRef.value as any)?.stepUp?.(),
+  stepDown: () => (elementRef.value as any)?.stepDown?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-number-input
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="start" />
+    <slot name="end" />
+    <slot name="increment-icon" />
+    <slot name="decrement-icon" />
+    <slot name="hint" />
+  </wa-number-input>
+</template>

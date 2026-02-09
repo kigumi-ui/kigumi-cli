@@ -1,0 +1,47 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './ProgressBar.css';
+
+/**
+ * Progress bars are used to show the completion of a task or operation
+ */
+export interface ProgressBarProps {
+  value?: number;
+  indeterminate?: boolean;
+  label?: string;
+}
+
+const props = defineProps<ProgressBarProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-progress-bar
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-progress-bar>
+</template>

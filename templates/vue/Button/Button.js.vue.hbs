@@ -1,0 +1,63 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Button.css';
+
+/**
+ * Buttons represent actions that are available to the user
+ */
+const props = defineProps({
+    variant: { type: String, required: false, default: neutral },
+    appearance: { type: String, required: false, default: filled },
+    size: { type: String, required: false, default: medium },
+    pill: { type: Boolean, required: false, default: false },
+    disabled: { type: Boolean, required: false, default: false },
+    loading: { type: Boolean, required: false, default: false },
+    'with-caret': { type: Boolean, required: false, default: false },
+    href: { type: String, required: false },
+    target: { type: String, required: false },
+    download: { type: String, required: false },
+    rel: { type: String, required: false }
+});
+
+const emit = defineEmits(['blur', 'focus', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+  const handleWaInvalid = (e) => emit('wa-invalid', e);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  click: () => elementRef.value?.click?.(),
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-button
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="start" />
+    <slot name="end" />
+  </wa-button>
+</template>

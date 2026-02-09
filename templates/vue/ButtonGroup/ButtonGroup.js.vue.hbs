@@ -1,0 +1,42 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './ButtonGroup.css';
+
+/**
+ * Groups related buttons into organized sections, supporting both horizontal and vertical layouts
+ */
+const props = defineProps({
+    label: { type: String, required: false, default: '' },
+    orientation: { type: String, required: false, default: horizontal }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-button-group
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-button-group>
+</template>

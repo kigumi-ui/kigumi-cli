@@ -1,0 +1,54 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './DropdownItem.css';
+
+/**
+ * Dropdown items are used inside dropdowns to represent individual menu items
+ */
+const props = defineProps({
+    type: { type: String, required: false, default: normal },
+    checked: { type: Boolean, required: false, default: false },
+    value: { type: String, required: false, default: '' },
+    disabled: { type: Boolean, required: false, default: false },
+    loading: { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits(['blur', 'focus']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+
+  onUnmounted(() => {
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+  });
+});
+
+defineExpose({
+  openSubmenu: () => elementRef.value?.openSubmenu?.(),
+  closeSubmenu: () => elementRef.value?.closeSubmenu?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-dropdown-item
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="icon" />
+    <slot name="details" />
+    <slot name="submenu" />
+  </wa-dropdown-item>
+</template>

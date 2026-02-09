@@ -1,0 +1,52 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Icon.css';
+
+/**
+ * Icons are symbols that can be used to represent various options within an application
+ */
+const props = defineProps({
+    name: { type: String, required: false },
+    library: { type: String, required: false, default: default },
+    src: { type: String, required: false },
+    label: { type: String, required: false, default: '' },
+    family: { type: String, required: false },
+    variant: { type: String, required: false },
+    'auto-width': { type: Boolean, required: false, default: false },
+    'swap-opacity': { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits(['wa-load', 'wa-error']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaLoad = (e) => emit('wa-load', e);
+  el.addEventListener('wa-load', handleWaLoad);
+  const handleWaError = (e) => emit('wa-error', e);
+  el.addEventListener('wa-error', handleWaError);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-load', handleWaLoad);
+    el.removeEventListener('wa-error', handleWaError);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-icon
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-icon>
+</template>

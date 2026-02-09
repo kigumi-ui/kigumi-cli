@@ -1,0 +1,76 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Textarea.css';
+
+/**
+ * Textareas collect multi-line text data from the user
+ */
+const props = defineProps({
+    name: { type: String, required: false },
+    value: { type: String, required: false, default: '' },
+    appearance: { type: String, required: false, default: outlined },
+    size: { type: String, required: false, default: medium },
+    label: { type: String, required: false, default: '' },
+    hint: { type: String, required: false, default: '' },
+    placeholder: { type: String, required: false, default: '' },
+    rows: { type: Number, required: false, default: 4 },
+    resize: { type: String, required: false, default: vertical },
+    disabled: { type: Boolean, required: false, default: false },
+    readonly: { type: Boolean, required: false, default: false },
+    required: { type: Boolean, required: false, default: false },
+    minlength: { type: Number, required: false },
+    maxlength: { type: Number, required: false },
+    spellcheck: { type: Boolean, required: false, default: true }
+});
+
+const emit = defineEmits(['blur', 'change', 'focus', 'input', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleChange = (e) => emit('change', e);
+  el.addEventListener('change', handleChange);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+  const handleInput = (e) => emit('input', e);
+  el.addEventListener('input', handleInput);
+  const handleWaInvalid = (e) => emit('wa-invalid', e);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  select: () => elementRef.value?.select?.(),
+  scrollPosition: (position) => elementRef.value?.scrollPosition?.(position),
+  setSelectionRange: (selectionStart, selectionEnd, selectionDirection) => elementRef.value?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
+  setRangeText: (replacement, start, end, selectMode) => elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-textarea
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="hint" />
+  </wa-textarea>
+</template>

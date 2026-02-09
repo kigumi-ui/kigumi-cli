@@ -1,0 +1,53 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './TabGroup.css';
+
+/**
+ * Tab groups organize content into a container that shows one section at a time
+ */
+export interface TabGroupProps {
+  placement?: 'top' | 'bottom' | 'start' | 'end';
+  activation?: 'auto' | 'manual';
+  'without-scroll-controls'?: boolean;
+}
+
+const props = defineProps<TabGroupProps>();
+
+const emit = defineEmits<{
+  'wa-tab-show': [event: CustomEvent];
+  'wa-tab-hide': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaTabShow = (e: Event) => emit('wa-tab-show', e as CustomEvent);
+  el.addEventListener('wa-tab-show', handleWaTabShow);
+  const handleWaTabHide = (e: Event) => emit('wa-tab-hide', e as CustomEvent);
+  el.addEventListener('wa-tab-hide', handleWaTabHide);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-tab-show', handleWaTabShow);
+    el.removeEventListener('wa-tab-hide', handleWaTabHide);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tab-group
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="nav" />
+  </wa-tab-group>
+</template>

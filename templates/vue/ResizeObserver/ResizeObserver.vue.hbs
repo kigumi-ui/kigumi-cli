@@ -1,0 +1,46 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './ResizeObserver.css';
+
+/**
+ * Reports changes to the dimensions of an element
+ */
+export interface ResizeObserverProps {
+  disabled?: boolean;
+}
+
+const props = defineProps<ResizeObserverProps>();
+
+const emit = defineEmits<{
+  'wa-resize': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaResize = (e: Event) => emit('wa-resize', e as CustomEvent);
+  el.addEventListener('wa-resize', handleWaResize);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-resize', handleWaResize);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-resize-observer
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-resize-observer>
+</template>

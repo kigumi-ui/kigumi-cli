@@ -1,0 +1,94 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Select.css';
+
+/**
+ * Selects allow you to choose items from a menu of predefined options
+ */
+const props = defineProps({
+    name: { type: String, required: false, default: '' },
+    value: { type: String, required: false },
+    appearance: { type: String, required: false, default: outlined },
+    size: { type: String, required: false, default: medium },
+    placeholder: { type: String, required: false, default: '' },
+    multiple: { type: Boolean, required: false, default: false },
+    'max-options-visible': { type: Number, required: false, default: 3 },
+    disabled: { type: Boolean, required: false, default: false },
+    'with-clear': { type: Boolean, required: false, default: false },
+    open: { type: Boolean, required: false, default: false },
+    hoist: { type: Boolean, required: false, default: false },
+    placement: { type: String, required: false, default: bottom },
+    pill: { type: Boolean, required: false, default: false },
+    label: { type: String, required: false, default: '' },
+    hint: { type: String, required: false, default: '' },
+    required: { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleInput = (e) => emit('input', e);
+  el.addEventListener('input', handleInput);
+  const handleChange = (e) => emit('change', e);
+  el.addEventListener('change', handleChange);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleWaClear = (e) => emit('wa-clear', e);
+  el.addEventListener('wa-clear', handleWaClear);
+  const handleWaShow = (e) => emit('wa-show', e);
+  el.addEventListener('wa-show', handleWaShow);
+  const handleWaAfterShow = (e) => emit('wa-after-show', e);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  const handleWaHide = (e) => emit('wa-hide', e);
+  el.addEventListener('wa-hide', handleWaHide);
+  const handleWaAfterHide = (e) => emit('wa-after-hide', e);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  const handleWaInvalid = (e) => emit('wa-invalid', e);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('wa-clear', handleWaClear);
+    el.removeEventListener('wa-show', handleWaShow);
+    el.removeEventListener('wa-after-show', handleWaAfterShow);
+    el.removeEventListener('wa-hide', handleWaHide);
+    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  show: () => elementRef.value?.show?.(),
+  hide: () => elementRef.value?.hide?.(),
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-select
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="start" />
+    <slot name="end" />
+    <slot name="clear-icon" />
+    <slot name="expand-icon" />
+    <slot name="hint" />
+  </wa-select>
+</template>

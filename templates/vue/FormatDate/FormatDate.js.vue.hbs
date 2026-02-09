@@ -1,0 +1,53 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './FormatDate.css';
+
+/**
+ * Formats a date/time using the Intl.DateTimeFormat API
+ */
+const props = defineProps({
+    date: { type: String, required: false },
+    weekday: { type: String, required: false },
+    era: { type: String, required: false },
+    year: { type: String, required: false },
+    month: { type: String, required: false },
+    day: { type: String, required: false },
+    hour: { type: String, required: false },
+    minute: { type: String, required: false },
+    second: { type: String, required: false },
+    'hour-format': { type: String, required: false, default: auto },
+    'time-zone-name': { type: String, required: false },
+    'time-zone': { type: String, required: false },
+    lang: { type: String, required: false }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-format-date
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-format-date>
+</template>

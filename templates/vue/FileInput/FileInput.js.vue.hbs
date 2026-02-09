@@ -1,0 +1,69 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './FileInput.css';
+
+/**
+ * File inputs allow users to select and upload files from their device
+ */
+const props = defineProps({
+    label: { type: String, required: false },
+    hint: { type: String, required: false },
+    accept: { type: String, required: false },
+    multiple: { type: Boolean, required: false, default: false },
+    disabled: { type: Boolean, required: false, default: false },
+    required: { type: Boolean, required: false, default: false },
+    size: { type: String, required: false, default: medium },
+    appearance: { type: String, required: false, default: outlined },
+    'max-file-size': { type: Number, required: false },
+    'max-files': { type: Number, required: false }
+});
+
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleInput = (e) => emit('input', e);
+  el.addEventListener('input', handleInput);
+  const handleChange = (e) => emit('change', e);
+  el.addEventListener('change', handleChange);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleWaInvalid = (e) => emit('wa-invalid', e);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-file-input
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="hint" />
+    <slot name="dropzone" />
+    <slot name="file-icon" />
+  </wa-file-input>
+</template>

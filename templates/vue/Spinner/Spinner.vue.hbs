@@ -1,0 +1,45 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Spinner.css';
+
+/**
+ * Spinners are used to show the progress of an indeterminate operation
+ */
+export interface SpinnerProps {
+
+}
+
+const props = defineProps<SpinnerProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-spinner
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-spinner>
+</template>

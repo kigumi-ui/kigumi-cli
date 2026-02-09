@@ -1,0 +1,58 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Drawer.css';
+
+/**
+ * Drawers slide in from a container edge to expose additional options
+ */
+const props = defineProps({
+    open: { type: Boolean, required: false, default: false },
+    label: { type: String, required: false, default: '' },
+    placement: { type: String, required: false, default: end },
+    'light-dismiss': { type: Boolean, required: false, default: false },
+    'without-header': { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaShow = (e) => emit('wa-show', e);
+  el.addEventListener('wa-show', handleWaShow);
+  const handleWaAfterShow = (e) => emit('wa-after-show', e);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  const handleWaHide = (e) => emit('wa-hide', e);
+  el.addEventListener('wa-hide', handleWaHide);
+  const handleWaAfterHide = (e) => emit('wa-after-hide', e);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-show', handleWaShow);
+    el.removeEventListener('wa-after-show', handleWaAfterShow);
+    el.removeEventListener('wa-hide', handleWaHide);
+    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-drawer
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="header-actions" />
+    <slot name="footer" />
+  </wa-drawer>
+</template>

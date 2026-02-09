@@ -1,0 +1,65 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Popup.css';
+
+/**
+ * Popup is a utility component for positioning elements relative to an anchor
+ */
+export interface PopupProps {
+  active?: boolean;
+  anchor?: string;
+  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  strategy?: 'absolute' | 'fixed';
+  distance?: number;
+  skidding?: number;
+  arrow?: boolean;
+  'arrow-placement'?: 'start' | 'end' | 'center' | 'anchor';
+  'arrow-padding'?: number;
+  flip?: boolean;
+  'flip-fallback-placements'?: string;
+  'flip-fallback-strategy'?: 'best-fit' | 'initial';
+  'flip-padding'?: number;
+  shift?: boolean;
+  'shift-padding'?: number;
+  'auto-size'?: 'horizontal' | 'vertical' | 'both';
+  sync?: 'width' | 'height' | 'both';
+  'auto-size-padding'?: number;
+}
+
+const props = defineProps<PopupProps>();
+
+const emit = defineEmits<{
+  'wa-reposition': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaReposition = (e: Event) => emit('wa-reposition', e as CustomEvent);
+  el.addEventListener('wa-reposition', handleWaReposition);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-reposition', handleWaReposition);
+  });
+});
+
+defineExpose({
+  reposition: () => (elementRef.value as any)?.reposition?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-popup
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="anchor" />
+  </wa-popup>
+</template>

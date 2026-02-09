@@ -1,0 +1,49 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Comparison.css';
+
+/**
+ * Compare visual differences between similar content with a sliding panel
+ */
+export interface ComparisonProps {
+  position?: number;
+}
+
+const props = defineProps<ComparisonProps>();
+
+const emit = defineEmits<{
+  'change': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+
+  onUnmounted(() => {
+    el.removeEventListener('change', handleChange);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-comparison
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="before" />
+    <slot name="after" />
+    <slot name="handle" />
+  </wa-comparison>
+</template>

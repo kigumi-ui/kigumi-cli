@@ -1,0 +1,73 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Checkbox.css';
+
+/**
+ * Checkboxes allow the user to toggle an option on or off
+ */
+export interface CheckboxProps {
+  checked?: boolean;
+  disabled?: boolean;
+  hint?: string;
+  indeterminate?: boolean;
+  name?: string;
+  required?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  value?: string;
+}
+
+const props = defineProps<CheckboxProps>();
+
+const emit = defineEmits<{
+  'change': [event: CustomEvent];
+  'blur': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'input': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+  el.addEventListener('focus', handleFocus);
+  const handleInput = (e: Event) => emit('input', e as CustomEvent);
+  el.addEventListener('input', handleInput);
+  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  click: () => (elementRef.value as any)?.click?.(),
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-checkbox
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="hint" />
+  </wa-checkbox>
+</template>

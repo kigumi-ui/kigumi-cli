@@ -1,0 +1,46 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './BreadcrumbItem.css';
+
+/**
+ * Breadcrumb Items are used inside breadcrumbs to represent different links
+ */
+const props = defineProps({
+    href: { type: String, required: false },
+    target: { type: String, required: false },
+    rel: { type: String, required: false, default: noreferrer noopener }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-breadcrumb-item
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="start" />
+    <slot name="end" />
+    <slot name="separator" />
+  </wa-breadcrumb-item>
+</template>

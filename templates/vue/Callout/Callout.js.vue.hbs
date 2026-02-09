@@ -1,0 +1,44 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Callout.css';
+
+/**
+ * Callouts are used to display important messages inline
+ */
+const props = defineProps({
+    appearance: { type: String, required: false, default: filled-outlined },
+    size: { type: String, required: false, default: medium },
+    variant: { type: String, required: false, default: brand }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-callout
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="icon" />
+  </wa-callout>
+</template>

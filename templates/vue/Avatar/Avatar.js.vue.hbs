@@ -1,0 +1,47 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Avatar.css';
+
+/**
+ * Avatars are used to represent a person or object
+ */
+const props = defineProps({
+    image: { type: String, required: false, default: '' },
+    label: { type: String, required: true, default: '' },
+    initials: { type: String, required: false, default: '' },
+    loading: { type: String, required: false, default: eager },
+    shape: { type: String, required: false, default: circle }
+});
+
+const emit = defineEmits(['wa-error']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaError = (e) => emit('wa-error', e);
+  el.addEventListener('wa-error', handleWaError);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-error', handleWaError);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-avatar
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="icon" />
+  </wa-avatar>
+</template>

@@ -1,0 +1,63 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './ZoomableFrame.css';
+
+/**
+ * Zoomable frames display iframe content with zoom controls
+ */
+export interface ZoomableFrameProps {
+  src?: string;
+  srcdoc?: string;
+  zoom?: number;
+  'zoom-levels'?: string;
+  allowfullscreen?: boolean;
+  loading?: 'eager' | 'lazy';
+  'without-controls'?: boolean;
+  'without-interaction'?: boolean;
+  sandbox?: string;
+  referrerpolicy?: string;
+}
+
+const props = defineProps<ZoomableFrameProps>();
+
+const emit = defineEmits<{
+  'load': [event: CustomEvent];
+  'error': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleLoad = (e: Event) => emit('load', e as CustomEvent);
+  el.addEventListener('load', handleLoad);
+  const handleError = (e: Event) => emit('error', e as CustomEvent);
+  el.addEventListener('error', handleError);
+
+  onUnmounted(() => {
+    el.removeEventListener('load', handleLoad);
+    el.removeEventListener('error', handleError);
+  });
+});
+
+defineExpose({
+  zoomIn: () => (elementRef.value as any)?.zoomIn?.(),
+  zoomOut: () => (elementRef.value as any)?.zoomOut?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-zoomable-frame
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="zoom-in-icon" />
+    <slot name="zoom-out-icon" />
+  </wa-zoomable-frame>
+</template>

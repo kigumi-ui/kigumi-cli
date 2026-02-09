@@ -1,0 +1,63 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Page.css';
+
+/**
+ * Pages offer an easy way to scaffold entire page layouts using minimal markup
+ */
+const props = defineProps({
+    'disable-navigation-toggle': { type: Boolean, required: false, default: false },
+    'mobile-breakpoint': { type: String, required: false, default: 768px },
+    'navigation-placement': { type: String, required: false, default: start },
+    'nav-open': { type: Boolean, required: false, default: false },
+    view: { type: String, required: false, default: desktop }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  visiblePixelsInViewport: (element) => elementRef.value?.visiblePixelsInViewport?.(element),
+  showNavigation: () => elementRef.value?.showNavigation?.(),
+  hideNavigation: () => elementRef.value?.hideNavigation?.(),
+  toggleNavigation: () => elementRef.value?.toggleNavigation?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-page
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="banner" />
+    <slot name="header" />
+    <slot name="subheader" />
+    <slot name="menu" />
+    <slot name="navigation-header" />
+    <slot name="navigation" />
+    <slot name="navigation-footer" />
+    <slot name="navigation-toggle" />
+    <slot name="navigation-toggle-icon" />
+    <slot name="main-header" />
+    <slot name="main-footer" />
+    <slot name="aside" />
+    <slot name="skip-to-content" />
+    <slot name="footer" />
+  </wa-page>
+</template>

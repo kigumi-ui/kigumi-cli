@@ -1,0 +1,99 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './ColorPicker.css';
+
+/**
+ * Color pickers allow the user to select a color
+ */
+export interface ColorPickerProps {
+  value?: string;
+  format?: 'hex' | 'rgb' | 'hsl' | 'hsv';
+  opacity?: boolean;
+  disabled?: boolean;
+  required?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  label?: string;
+  hint?: string;
+  name?: string;
+  open?: boolean;
+  swatches?: string;
+  uppercase?: boolean;
+  'without-format-toggle'?: boolean;
+}
+
+const props = defineProps<ColorPickerProps>();
+
+const emit = defineEmits<{
+  'change': [event: CustomEvent];
+  'input': [event: CustomEvent];
+  'wa-show': [event: CustomEvent];
+  'wa-after-show': [event: CustomEvent];
+  'wa-hide': [event: CustomEvent];
+  'wa-after-hide': [event: CustomEvent];
+  'blur': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+  const handleInput = (e: Event) => emit('input', e as CustomEvent);
+  el.addEventListener('input', handleInput);
+  const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
+  el.addEventListener('wa-show', handleWaShow);
+  const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
+  el.addEventListener('wa-hide', handleWaHide);
+  const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+  el.addEventListener('focus', handleFocus);
+  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('wa-show', handleWaShow);
+    el.removeEventListener('wa-after-show', handleWaAfterShow);
+    el.removeEventListener('wa-hide', handleWaHide);
+    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  getHexString: (hue: number, saturation: number, brightness: number, alpha: any) => (elementRef.value as any)?.getHexString?.(hue, saturation, brightness, alpha),
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  getFormattedValue: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => (elementRef.value as any)?.getFormattedValue?.(format),
+  reportValidity: () => (elementRef.value as any)?.reportValidity?.(),
+  show: () => (elementRef.value as any)?.show?.(),
+  hide: () => (elementRef.value as any)?.hide?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-color-picker
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="hint" />
+  </wa-color-picker>
+</template>

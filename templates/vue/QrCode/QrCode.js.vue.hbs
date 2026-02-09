@@ -1,0 +1,47 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './QrCode.css';
+
+/**
+ * Generates QR codes for encoding text, URLs, or data
+ */
+const props = defineProps({
+    value: { type: String, required: false, default: '' },
+    label: { type: String, required: false, default: '' },
+    size: { type: Number, required: false, default: 128 },
+    fill: { type: String, required: false, default: black },
+    background: { type: String, required: false, default: white },
+    radius: { type: Number, required: false, default: 0 },
+    'error-correction': { type: String, required: false, default: H }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-qr-code
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-qr-code>
+</template>

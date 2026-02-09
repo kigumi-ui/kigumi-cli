@@ -1,0 +1,55 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './FormatNumber.css';
+
+/**
+ * Formats a number using the Intl.NumberFormat API
+ */
+export interface FormatNumberProps {
+  value?: number;
+  type?: 'currency' | 'decimal' | 'percent';
+  currency?: string;
+  'currency-display'?: 'symbol' | 'narrowSymbol' | 'code' | 'name';
+  'minimum-integer-digits'?: number;
+  'minimum-fraction-digits'?: number;
+  'maximum-fraction-digits'?: number;
+  'minimum-significant-digits'?: number;
+  'maximum-significant-digits'?: number;
+  'without-grouping'?: boolean;
+  lang?: string;
+}
+
+const props = defineProps<FormatNumberProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-format-number
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-format-number>
+</template>

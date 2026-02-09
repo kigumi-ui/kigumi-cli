@@ -1,0 +1,59 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Carousel.css';
+
+/**
+ * Displays an arbitrary number of content slides along a horizontal or vertical axis
+ */
+export interface CarouselProps {
+  autoplay?: boolean;
+  'autoplay-interval'?: number;
+  loop?: boolean;
+  'mouse-dragging'?: boolean;
+  navigation?: boolean;
+  orientation?: 'horizontal' | 'vertical';
+  pagination?: boolean;
+  'slides-per-move'?: number;
+  'slides-per-page'?: number;
+}
+
+const props = defineProps<CarouselProps>();
+
+const emit = defineEmits<{
+  'wa-slide-change': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaSlideChange = (e: Event) => emit('wa-slide-change', e as CustomEvent);
+  el.addEventListener('wa-slide-change', handleWaSlideChange);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-slide-change', handleWaSlideChange);
+  });
+});
+
+defineExpose({
+  previous: (behavior: ScrollBehavior) => (elementRef.value as any)?.previous?.(behavior),
+  next: (behavior: ScrollBehavior) => (elementRef.value as any)?.next?.(behavior),
+  goToSlide: (index: number, behavior: ScrollBehavior) => (elementRef.value as any)?.goToSlide?.(index, behavior),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-carousel
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="next-icon" />
+    <slot name="previous-icon" />
+  </wa-carousel>
+</template>

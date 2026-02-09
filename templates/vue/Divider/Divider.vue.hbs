@@ -1,0 +1,45 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Divider.css';
+
+/**
+ * Dividers are used to visually separate content
+ */
+export interface DividerProps {
+  orientation?: 'horizontal' | 'vertical';
+}
+
+const props = defineProps<DividerProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-divider
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-divider>
+</template>

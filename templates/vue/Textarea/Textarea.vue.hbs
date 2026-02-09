@@ -1,0 +1,84 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Textarea.css';
+
+/**
+ * Textareas collect multi-line text data from the user
+ */
+export interface TextareaProps {
+  name?: string;
+  value?: string;
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  size?: 'small' | 'medium' | 'large';
+  label?: string;
+  hint?: string;
+  placeholder?: string;
+  rows?: number;
+  resize?: 'none' | 'vertical' | 'horizontal' | 'both' | 'auto';
+  disabled?: boolean;
+  readonly?: boolean;
+  required?: boolean;
+  minlength?: number;
+  maxlength?: number;
+  spellcheck?: boolean;
+}
+
+const props = defineProps<TextareaProps>();
+
+const emit = defineEmits<{
+  'blur': [event: CustomEvent];
+  'change': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'input': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+  el.addEventListener('blur', handleBlur);
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+  el.addEventListener('focus', handleFocus);
+  const handleInput = (e: Event) => emit('input', e as CustomEvent);
+  el.addEventListener('input', handleInput);
+  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  select: () => (elementRef.value as any)?.select?.(),
+  scrollPosition: (position: { top?: number; left?: number }) => (elementRef.value as any)?.scrollPosition?.(position),
+  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => (elementRef.value as any)?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
+  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => (elementRef.value as any)?.setRangeText?.(replacement, start, end, selectMode),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-textarea
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="hint" />
+  </wa-textarea>
+</template>

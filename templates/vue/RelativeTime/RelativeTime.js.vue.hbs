@@ -1,0 +1,45 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './RelativeTime.css';
+
+/**
+ * Outputs a localized time phrase relative to the current date and time
+ */
+const props = defineProps({
+    date: { type: String, required: false },
+    format: { type: String, required: false, default: long },
+    numeric: { type: String, required: false, default: auto },
+    sync: { type: Boolean, required: false, default: false },
+    lang: { type: String, required: false }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-relative-time
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-relative-time>
+</template>
