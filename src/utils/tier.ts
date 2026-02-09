@@ -17,6 +17,8 @@
  * @see AGENTS.md Rule #8 for tier system architecture
  */
 
+import fs from 'fs-extra';
+import path from 'path';
 import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
@@ -26,15 +28,40 @@ import { detectProToken, detectProTokenSync } from './token.js';
 export type Tier = 'free' | 'pro';
 
 /**
- * Detect tier based on token availability
+ * Detect tier based on installed package
  *
- * Pro tier requires a valid token from any source in the fallback chain.
- * Free tier is the default if no token is found.
+ * Checks package.json to see if @awesome.me/webawesome-pro is installed.
+ * Falls back to token detection if package.json doesn't exist.
  *
  * @param cwd - Current working directory
- * @returns 'pro' if valid token exists, 'free' otherwise
+ * @returns 'pro' if webawesome-pro is installed, 'free' otherwise
  */
 export async function detectTier(cwd: string): Promise<Tier> {
+  // First check package.json for installed package
+  const packageJsonPath = path.join(cwd, 'package.json');
+  if (await fs.pathExists(packageJsonPath)) {
+    try {
+      const packageJson = await fs.readJson(packageJsonPath);
+      const deps = {
+        ...packageJson.dependencies,
+        ...packageJson.devDependencies,
+      };
+
+      // If webawesome-pro is installed, it's Pro tier
+      if (deps[WEB_AWESOME_PRO_PACKAGE]) {
+        return 'pro';
+      }
+
+      // If webawesome (free) is installed, it's Free tier
+      if (deps[WEB_AWESOME_FREE_PACKAGE]) {
+        return 'free';
+      }
+    } catch {
+      // Ignore JSON parse errors, fall through to token detection
+    }
+  }
+
+  // Fallback to token detection (for init command or if no package installed yet)
   const token = await detectProToken(cwd);
   return token ? 'pro' : 'free';
 }
@@ -46,6 +73,31 @@ export async function detectTier(cwd: string): Promise<Tier> {
  * Prefer detectTier() when possible.
  */
 export function detectTierSync(cwd: string): Tier {
+  // First check package.json for installed package
+  const packageJsonPath = path.join(cwd, 'package.json');
+  if (fs.pathExistsSync(packageJsonPath)) {
+    try {
+      const packageJson = fs.readJsonSync(packageJsonPath);
+      const deps = {
+        ...packageJson.dependencies,
+        ...packageJson.devDependencies,
+      };
+
+      // If webawesome-pro is installed, it's Pro tier
+      if (deps[WEB_AWESOME_PRO_PACKAGE]) {
+        return 'pro';
+      }
+
+      // If webawesome (free) is installed, it's Free tier
+      if (deps[WEB_AWESOME_FREE_PACKAGE]) {
+        return 'free';
+      }
+    } catch {
+      // Ignore JSON parse errors, fall through to token detection
+    }
+  }
+
+  // Fallback to token detection (for init command or if no package installed yet)
   const token = detectProTokenSync(cwd);
   return token ? 'pro' : 'free';
 }
