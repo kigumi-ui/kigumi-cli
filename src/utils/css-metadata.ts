@@ -112,6 +112,40 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
     ],
   },
+  'file-input': {
+    docsUrl: 'https://webawesome.com/docs/components/file-input',
+    parts: [
+      { name: 'base', description: "The component's base wrapper" },
+      { name: 'form-control', description: 'The form control wrapper' },
+      { name: 'form-control-label', description: 'The label' },
+      { name: 'form-control-input', description: 'The input area' },
+      { name: 'form-control-help-text', description: 'The help text' },
+      { name: 'dropzone', description: 'The file drop zone' },
+      { name: 'file-list', description: 'The list of selected files' },
+    ],
+    customProperties: [],
+  },
+  'number-input': {
+    docsUrl: 'https://webawesome.com/docs/components/number-input',
+    parts: [
+      { name: 'base', description: "The component's base wrapper" },
+      { name: 'form-control', description: 'The form control wrapper' },
+      { name: 'form-control-label', description: 'The label' },
+      { name: 'form-control-input', description: 'The input wrapper' },
+      { name: 'input', description: 'The internal input element' },
+      { name: 'decrement-button', description: 'The decrement stepper button' },
+      { name: 'increment-button', description: 'The increment stepper button' },
+    ],
+    customProperties: [],
+  },
+  sparkline: {
+    docsUrl: 'https://webawesome.com/docs/components/sparkline',
+    parts: [
+      { name: 'base', description: "The component's base wrapper" },
+      { name: 'svg', description: 'The SVG element' },
+    ],
+    customProperties: [],
+  },
 };
 
 /**

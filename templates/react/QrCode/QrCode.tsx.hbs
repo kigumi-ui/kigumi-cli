@@ -1,33 +1,73 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './QrCode.css';
 
+/**
+ * Generates QR codes for encoding text, URLs, or data
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <QrCode />
+ *
+ * // With event handlers
+ * <QrCode />
+ *
+ * ```
+ */
 export interface QrCodeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** The QR code's value */
-  value: string;
-  /** The size of the QR code, in pixels */
-  size?: number;
-  /** The fill color */
-  fill?: string;
-  /** The background color */
-  background?: string;
-  /** The edge radius of each module (0-0.5 range) */
-  radius?: number;
-  /** The level of error correction to use */
-  'error-correction'?: 'L' | 'M' | 'Q' | 'H';
-  /** The label for assistive devices */
+
+  /** The data to encode */
+  value?: string;
+
+  /** Accessible label */
   label?: string;
+
+  /** Size in pixels */
+  size?: number;
+
+  /** Fill color */
+  fill?: string;
+
+  /** Background color */
+  background?: string;
+
+  /** Corner radius */
+  radius?: number;
+
+  /** Error correction level */
+  'error-correction'?: 'L' | 'M' | 'Q' | 'H';
 }
 
-export const QrCode = forwardRef<HTMLElement, QrCodeProps>(
-  ({ className, ...props }, ref) => {
+export interface QrCodeRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
+  ({ children, className, ...props }, ref) => {
+    const qrcodeRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return qrcodeRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-qr-code
-        ref={ref}
+        ref={qrcodeRef}
         class={clsx('QrCode', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-qr-code>
     );
   }
 );

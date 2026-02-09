@@ -500,9 +500,29 @@ function showPostInstallInstructions(
       pc.cyan(`${stepNum}. Import Web Awesome in your main entry file:\n`)
     )
   );
-  console.log(pc.dim('\tAdd this import to src/main.tsx (or src/main.jsx):'));
+  const mainFile =
+    config.framework === 'vue'
+      ? 'src/main.ts'
+      : 'src/main.tsx (or src/main.jsx)';
+  console.log(pc.dim(`\tAdd this import to ${mainFile}:`));
   console.log(pc.green('\timport "@/lib/webawesome";\n'));
   stepNum++;
+
+  // Vue-specific: isCustomElement configuration
+  if (config.framework === 'vue') {
+    console.log(
+      pc.bold(
+        pc.cyan(`${stepNum}. Configure custom elements in vite.config.ts:\n`)
+      )
+    );
+    console.log(pc.dim('\tAdd to your vue() plugin options:'));
+    console.log(
+      pc.green(
+        '\tvue({ template: { compilerOptions: { isCustomElement: tag => tag.startsWith("wa-") } } })\n'
+      )
+    );
+    stepNum++;
+  }
 
   // Step: Add components
   console.log(pc.bold(pc.cyan(`${stepNum}. Add UI components:\n`)));

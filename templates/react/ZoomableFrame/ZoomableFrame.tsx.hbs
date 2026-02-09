@@ -3,70 +3,112 @@ import clsx from 'clsx';
 import '{{{importPath}}}';
 import './ZoomableFrame.css';
 
+/**
+ * Zoomable frames display iframe content with zoom controls
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <ZoomableFrame />
+ *
+ * // With event handlers
+ * <ZoomableFrame
+ *   onLoad={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<ZoomableFrameRef>(null);
+ * <button onClick={() => ref.current?.zoomIn()}>Call Method</button>
+ * <ZoomableFrame ref={ref} />
+ * ```
+ */
 export interface ZoomableFrameProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
-  /** Enables fullscreen mode */
-  allowfullscreen?: boolean;
-  /** Controls iframe loading behavior */
-  loading?: 'eager' | 'lazy';
-  /** Manages referrer information */
-  referrerpolicy?: string;
-  /** Applies security restrictions */
-  sandbox?: string;
+
   /** URL of content to display */
   src?: string;
-  /** Inline HTML to render (takes precedence over src) */
+
+  /** Inline HTML to render */
   srcdoc?: string;
-  /** Hides zoom control interface */
-  withoutControls?: boolean;
-  /** Disables frame interaction */
-  withoutInteraction?: boolean;
+
   /** Current zoom level */
   zoom?: number;
-  /** Available zoom increments */
-  zoomLevels?: string;
-  /** Fires when internal iframe completes loading */
-  onLoad?: (event: Event) => void;
-  /** Fires when internal iframe fails to load */
-  onError?: (event: Event) => void;
+
+  /** Available zoom levels */
+  'zoom-levels'?: string;
+
+  /** Enables fullscreen */
+  allowfullscreen?: boolean;
+
+  /** Loading behavior */
+  loading?: 'eager' | 'lazy';
+
+  /** Hides zoom controls */
+  'without-controls'?: boolean;
+
+  /** Disables interaction */
+  'without-interaction'?: boolean;
+
+  /** Security restrictions */
+  sandbox?: string;
+
+  /** Referrer policy */
+  referrerpolicy?: string;
+
+  /** Emitted when the internal iframe when it finishes loading. */
+  onLoad?: (event: CustomEvent) => void;
+
+  /** Emitted from the internal iframe when it fails to load. */
+  onError?: (event: CustomEvent) => void;
 }
 
 export interface ZoomableFrameRef {
+
+  /** Zooms in to the next available zoom level. */
   zoomIn: () => void;
+
+  /** Zooms out to the previous available zoom level. */
   zoomOut: () => void;
-  contentDocument: Document | null;
-  contentWindow: Window | null;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
-    const frameRef = useRef<HTMLElement & {
+    const zoomableframeRef = useRef<HTMLElement & {
       zoomIn?: () => void;
       zoomOut?: () => void;
-      contentDocument?: Document | null;
-      contentWindow?: Window | null;
     }>(null);
 
-    useImperativeHandle(ref, () => ({
-      zoomIn: () => frameRef.current?.zoomIn?.(),
-      zoomOut: () => frameRef.current?.zoomOut?.(),
-      get contentDocument() {
-        return frameRef.current?.contentDocument ?? null;
-      },
-      get contentWindow() {
-        return frameRef.current?.contentWindow ?? null;
-      },
-      get element() {
-        return frameRef.current;
-      },
-    }), []);
+    useImperativeHandle(
+      ref,
+      () => ({
+        zoomIn: () => {
+          if (zoomableframeRef.current && typeof zoomableframeRef.current.zoomIn === 'function') {
+            zoomableframeRef.current.zoomIn();
+          }
+        },
+        zoomOut: () => {
+          if (zoomableframeRef.current && typeof zoomableframeRef.current.zoomOut === 'function') {
+            zoomableframeRef.current.zoomOut();
+          }
+        },
+        get element() {
+          return zoomableframeRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = frameRef.current;
+      const el = zoomableframeRef.current;
       if (!el) return;
 
-      const handleLoad = (e: Event) => onLoad?.(e);
-      const handleError = (e: Event) => onError?.(e);
+      const handleLoad = (e: Event) => {
+        if (onLoad) onLoad(e as CustomEvent);
+      };
+
+      const handleError = (e: Event) => {
+        if (onError) onError(e as CustomEvent);
+      };
 
       el.addEventListener('load', handleLoad);
       el.addEventListener('error', handleError);
@@ -79,7 +121,7 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
 
     return (
       <wa-zoomable-frame
-        ref={frameRef}
+        ref={zoomableframeRef}
         class={clsx('ZoomableFrame', className)}
         {...(props as Record<string, unknown>)}
       >

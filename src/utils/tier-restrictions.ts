@@ -82,6 +82,8 @@ export const TIER_RESTRICTIONS: TierRestrictions = {
       'data-grid',
       'date-picker',
       'file-input',
+      'number-input',
+      'sparkline',
       'toast',
       'video',
     ],

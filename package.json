@@ -27,6 +27,8 @@
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "generate:metadata": "tsx scripts/parse-custom-elements.ts",
+    "prebuild": "pnpm generate:metadata",
     "build:skills": "tsx scripts/generate-skill-references.ts && cp -r skills dist/",
     "build": "tsup src/index.ts --format esm --dts && cp -r templates dist/ && pnpm build:skills && cp llms.txt dist/",
     "start": "node dist/index.js",

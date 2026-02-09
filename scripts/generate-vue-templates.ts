@@ -21,21 +21,6 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.join(__dirname, '..');
 const TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates', 'vue');
 
-interface _VueTemplateContext {
-  name: string;
-  tagName: string;
-  description: string;
-  importPath: string;
-  props: Array<{
-    name: string;
-    type: string;
-    values?: string[];
-    default?: string;
-    description?: string;
-    required?: boolean;
-  }>;
-}
-
 /**
  * Convert TypeScript type to Vue prop type
  */

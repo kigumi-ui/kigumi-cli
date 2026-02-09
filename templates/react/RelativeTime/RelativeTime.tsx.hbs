@@ -1,27 +1,67 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './RelativeTime.css';
 
+/**
+ * Outputs a localized time phrase relative to the current date and time
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <RelativeTime />
+ *
+ * // With event handlers
+ * <RelativeTime />
+ *
+ * ```
+ */
 export interface RelativeTimeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** The date from which to calculate time from */
-  date?: Date | string;
-  /** The formatting style to use */
+
+  /** The date/time to calculate from */
+  date?: string;
+
+  /** The formatting style */
   format?: 'long' | 'short' | 'narrow';
-  /** When auto, values like 'yesterday' will be shown when possible */
+
+  /** When to use numeric values */
   numeric?: 'always' | 'auto';
-  /** Keep the displayed value up to date as time passes */
+
+  /** Keeps time in sync */
   sync?: boolean;
+
+  /** The locale to use */
+  lang?: string;
 }
 
-export const RelativeTime = forwardRef<HTMLElement, RelativeTimeProps>(
-  ({ className, ...props }, ref) => {
+export interface RelativeTimeRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
+  ({ children, className, ...props }, ref) => {
+    const relativetimeRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return relativetimeRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-relative-time
-        ref={ref}
+        ref={relativetimeRef}
         class={clsx('RelativeTime', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-relative-time>
     );
   }
 );

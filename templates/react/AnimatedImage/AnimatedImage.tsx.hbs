@@ -4,63 +4,86 @@ import '{{{importPath}}}';
 import './AnimatedImage.css';
 
 /**
- * {{description}}
+ * A component for displaying animated GIFs and WEBPs that play and pause on interaction
  *
  * @example
  * ```tsx
- * <AnimatedImage 
- *   src="https://example.com/animation.gif" 
- *   alt="Animated illustration"
- *   play
- * />
+ * // Basic usage
+ * <AnimatedImage />
+ *
+ * // With event handlers
+ * <AnimatedImage
+ *   onWaLoad={(e) => console.log(e)} />
+ *
  * ```
  */
-export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
+export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaLoad' | 'onWaError' | 'dir'> {
+
   /** The path to the image to load */
   src: string;
+
   /** A description of the image used by assistive devices */
   alt: string;
+
   /** Plays the animation. When this attribute is removed, the animation will pause */
   play?: boolean;
-  /** Event fired when the image loads successfully */
-  onLoad?: (event: CustomEvent) => void;
-  /** Event fired when the image fails to load */
-  onError?: (event: CustomEvent) => void;
+
+  /** Emitted when the image loads successfully. */
+  onWaLoad?: (event: CustomEvent) => void;
+
+  /** Emitted when the image fails to load. */
+  onWaError?: (event: CustomEvent) => void;
 }
 
-export const AnimatedImage = forwardRef<HTMLElement, AnimatedImageProps>(
-  ({ className, onLoad, onError, ...props }, ref) => {
-    const elementRef = useRef<HTMLElement>(null);
+export interface AnimatedImageRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
 
-    useImperativeHandle(ref, () => elementRef.current as HTMLElement, []);
+export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
+  ({ children, className, onWaLoad, onWaError, ...props }, ref) => {
+    const animatedimageRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return animatedimageRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = elementRef.current;
+      const el = animatedimageRef.current;
       if (!el) return;
 
-      const handleLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+      const handleWaLoad = (e: Event) => {
+        if (onWaLoad) onWaLoad(e as CustomEvent);
       };
 
-      const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+      const handleWaError = (e: Event) => {
+        if (onWaError) onWaError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-load', handleLoad);
-      el.addEventListener('wa-error', handleError);
+      el.addEventListener('wa-load', handleWaLoad);
+      el.addEventListener('wa-error', handleWaError);
 
       return () => {
-        el.removeEventListener('wa-load', handleLoad);
-        el.removeEventListener('wa-error', handleError);
+        el.removeEventListener('wa-load', handleWaLoad);
+        el.removeEventListener('wa-error', handleWaError);
       };
-    }, [onLoad, onError]);
+    }, [onWaLoad, onWaError]);
 
     return (
       <wa-animated-image
-        ref={elementRef}
+        ref={animatedimageRef}
         class={clsx('AnimatedImage', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-animated-image>
     );
   }
 );

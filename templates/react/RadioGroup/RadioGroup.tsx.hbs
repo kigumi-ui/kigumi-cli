@@ -3,70 +3,113 @@ import clsx from 'clsx';
 import '{{{importPath}}}';
 import './RadioGroup.css';
 
-export interface RadioGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onInvalid' | 'dir'> {
-  /** Group label; required for accessibility */
+/**
+ * Radio groups are used to group multiple radios so only one can be selected
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <RadioGroup />
+ *
+ * // With event handlers
+ * <RadioGroup
+ *   onInput={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<RadioGroupRef>(null);
+ * <button onClick={() => ref.current?.focus()}>Call Method</button>
+ * <RadioGroup ref={ref} />
+ * ```
+ */
+export interface RadioGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onWaInvalid' | 'dir'> {
+
+  /** Group label */
   label?: string;
-  /** Name attribute for form submission */
-  name?: string | null;
-  /** Current selected value */
-  value?: string;
-  /** Disables the radio group */
-  disabled?: boolean;
-  /** Requires selection before form submission */
-  required?: boolean;
-  /** Layout direction for radio items */
-  orientation?: 'horizontal' | 'vertical';
-  /** Size applied to child radios */
-  size?: 'small' | 'medium' | 'large';
-  /** Descriptive hint text */
+
+  /** Hint text */
   hint?: string;
-  /** Event fired when selected value changes */
-  onChange?: (event: Event) => void;
-  /** Event fired when validation fails */
-  onInvalid?: (event: CustomEvent) => void;
+
+  /** Form field name */
+  name?: string;
+
+  /** Selected value */
+  value?: string;
+
+  /** Radio size */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Makes selection required */
+  required?: boolean;
+
+  /** Emitted when the radio group receives user input. */
+  onInput?: (event: CustomEvent) => void;
+
+  /** Emitted when the radio group's selected value changes. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onWaInvalid?: (event: CustomEvent) => void;
 }
 
 export interface RadioGroupRef {
-  focus: (options?: FocusOptions) => void;
+
+  /** Sets focus on the radio group. */
+  focus: (options: FocusOptions) => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
-  ({ children, className, onChange, onInvalid, ...props }, ref) => {
-    const groupRef = useRef<HTMLElement & {
-      focus?: (options?: FocusOptions) => void;
+  ({ children, className, onInput, onChange, onWaInvalid, ...props }, ref) => {
+    const radiogroupRef = useRef<HTMLElement & {
+      focus?: (options: FocusOptions) => void;
     }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options) => groupRef.current?.focus?.(options),
+        focus: (options: FocusOptions) => {
+          if (radiogroupRef.current && typeof radiogroupRef.current.focus === 'function') {
+            radiogroupRef.current.focus(options);
+          }
+        },
         get element() {
-          return groupRef.current;
+          return radiogroupRef.current;
         },
       }),
       []
     );
 
     useEffect(() => {
-      const el = groupRef.current;
+      const el = radiogroupRef.current;
       if (!el) return;
 
-      const handleChange = (e: Event) => onChange?.(e);
-      const handleInvalid = (e: Event) => onInvalid?.(e as CustomEvent);
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
 
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleWaInvalid = (e: Event) => {
+        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
+        el.removeEventListener('input', handleInput);
         el.removeEventListener('change', handleChange);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
-    }, [onChange, onInvalid]);
+    }, [onInput, onChange, onWaInvalid]);
 
     return (
       <wa-radio-group
-        ref={groupRef}
+        ref={radiogroupRef}
         class={clsx('RadioGroup', className)}
         {...(props as Record<string, unknown>)}
       >

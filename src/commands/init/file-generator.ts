@@ -131,7 +131,7 @@ export async function generateProjectFiles(
     output.log(`[DEBUG] ✓ .npmrc generated`);
 
     // 9. Configure path aliases and TypeScript compatibility
-    if (config.framework === 'react') {
+    if (config.framework === 'react' || config.framework === 'vue') {
       spinner.message('Configuring project...');
 
       const { configureVitePathAliases, configureTSConfig } =

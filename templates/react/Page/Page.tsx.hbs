@@ -8,67 +8,69 @@ import './Page.css';
  *
  * @example
  * ```tsx
- * import { Page } from './components/ui';
+ * // Basic usage
+ * <Page />
  *
- * function App() {
- *   return (
- *     <Page>
- *       <div slot="header">
- *         <h1>My Application</h1>
- *       </div>
- *       <nav slot="navigation">
- *         <a href="/">Home</a>
- *         <a href="/about">About</a>
- *       </nav>
- *       <div>
- *         <h2>Main Content</h2>
- *         <p>Your page content goes here</p>
- *       </div>
- *       <div slot="footer">
- *         <p>&copy; 2026 My Company</p>
- *       </div>
- *     </Page>
- *   );
- * }
+ * // With event handlers
+ * <Page />
+ *
+ * // With ref methods
+ * const ref = useRef<PageRef>(null);
+ * <button onClick={() => ref.current?.visiblePixelsInViewport()}>Call Method</button>
+ * <Page ref={ref} />
  * ```
  */
 export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** Controls visibility of default hamburger button; auto-set to true when custom toggle elements are present */
-  disableNavigationToggle?: boolean;
-  /** Viewport width threshold for hiding navigation and collapsing into hamburger; accepts numbers (px) or CSS lengths */
-  mobileBreakpoint?: string;
-  /** Drawer placement location when in mobile viewport */
-  navigationPlacement?: 'start' | 'end';
-  /** Controls mobile navigation drawer open/closed state */
-  navOpen?: boolean;
-  /** Reflects viewport relative to mobile-breakpoint; defaults to desktop for SSR compatibility */
+
+  /** Hide default hamburger button; auto-sets true if custom toggle element present */
+  'disable-navigation-toggle'?: boolean;
+
+  /** Viewport width threshold for navigation collapse; accepts numbers (px) or CSS lengths */
+  'mobile-breakpoint'?: string;
+
+  /** Navigation drawer position on mobile */
+  'navigation-placement'?: 'start' | 'end';
+
+  /** Mobile navigation drawer open state */
+  'nav-open'?: boolean;
+
+  /** Current viewport classification relative to breakpoint */
   view?: 'mobile' | 'desktop';
 }
 
 export interface PageRef {
-  hideNavigation: () => void;
+
+  /** https://stackoverflow.com/a/26831113
+This prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps. */
+  visiblePixelsInViewport: (element: HTMLElement | null) => void;
+
+  /** Shows the mobile navigation drawer */
   showNavigation: () => void;
+
+  /** Hides the mobile navigation drawer */
+  hideNavigation: () => void;
+
+  /** Toggles the mobile navigation drawer */
   toggleNavigation: () => void;
-  visiblePixelsInViewport: (element: HTMLElement | null) => number | void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Page = forwardRef<PageRef, PageProps>(
-  ({ children, className, navOpen, ...props }, ref) => {
+  ({ children, className, ...props }, ref) => {
     const pageRef = useRef<HTMLElement & {
-      hideNavigation?: () => void;
+      visiblePixelsInViewport?: (element: HTMLElement | null) => void;
       showNavigation?: () => void;
+      hideNavigation?: () => void;
       toggleNavigation?: () => void;
-      visiblePixelsInViewport?: (element: HTMLElement | null) => number | void;
-      navOpen?: boolean;
     }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        hideNavigation: () => {
-          if (pageRef.current && typeof pageRef.current.hideNavigation === 'function') {
-            pageRef.current.hideNavigation();
+        visiblePixelsInViewport: (element: HTMLElement | null) => {
+          if (pageRef.current && typeof pageRef.current.visiblePixelsInViewport === 'function') {
+            pageRef.current.visiblePixelsInViewport(element);
           }
         },
         showNavigation: () => {
@@ -76,14 +78,14 @@ export const Page = forwardRef<PageRef, PageProps>(
             pageRef.current.showNavigation();
           }
         },
+        hideNavigation: () => {
+          if (pageRef.current && typeof pageRef.current.hideNavigation === 'function') {
+            pageRef.current.hideNavigation();
+          }
+        },
         toggleNavigation: () => {
           if (pageRef.current && typeof pageRef.current.toggleNavigation === 'function') {
             pageRef.current.toggleNavigation();
-          }
-        },
-        visiblePixelsInViewport: (element: HTMLElement | null) => {
-          if (pageRef.current && typeof pageRef.current.visiblePixelsInViewport === 'function') {
-            return pageRef.current.visiblePixelsInViewport(element);
           }
         },
         get element() {
@@ -92,20 +94,6 @@ export const Page = forwardRef<PageRef, PageProps>(
       }),
       []
     );
-
-    // Sync navOpen prop with page element
-    useEffect(() => {
-      const el = pageRef.current;
-      if (!el || navOpen === undefined) return;
-
-      // Sync navOpen prop with element state
-      const isNavOpen = el.navOpen ?? false;
-      if (navOpen && !isNavOpen) {
-        el.showNavigation?.();
-      } else if (!navOpen && isNavOpen) {
-        el.hideNavigation?.();
-      }
-    }, [navOpen]);
 
     return (
       <wa-page

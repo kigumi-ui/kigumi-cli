@@ -140,6 +140,26 @@ export function buildTemplateContext(
 }
 
 /**
+ * Get file extension for component based on framework and typescript setting
+ */
+function getComponentExtension(framework: string, typescript: boolean): string {
+  if (framework === 'vue') {
+    return typescript ? 'vue' : 'js.vue';
+  }
+  return typescript ? 'tsx' : 'jsx';
+}
+
+/**
+ * Get test file extension based on framework and typescript setting
+ */
+function getTestExtension(framework: string, typescript: boolean): string {
+  if (framework === 'vue') {
+    return typescript ? 'test.ts' : 'test.js';
+  }
+  return typescript ? 'test.tsx' : 'test.jsx';
+}
+
+/**
  * Generate component file content
  *
  * @param component - Component definition from registry
@@ -171,7 +191,7 @@ export async function generateComponent(
   };
 
   // Use component-specific template if it exists
-  const fileExtension = typescript ? 'tsx' : 'jsx';
+  const fileExtension = getComponentExtension(config.framework, typescript);
   const componentTemplatePath = path.join(
     TEMPLATES_DIR,
     config.framework,
@@ -327,7 +347,13 @@ export async function updateComponentIndex(
   }
 
   // Component is now in its own directory
-  const exportStatement = `export * from './${component.name}/${component.name}';\n`;
+  // Vue uses default exports from .vue files, React uses named exports
+  const ext =
+    config.framework === 'vue' ? (config.typescript ? '.vue' : '.js.vue') : '';
+  const exportStatement =
+    config.framework === 'vue'
+      ? `export { default as ${component.name} } from './${component.name}/${component.name}${ext}';\n`
+      : `export * from './${component.name}/${component.name}';\n`;
 
   // Check if already exported
   if (content.includes(exportStatement.trim())) {
@@ -381,8 +407,8 @@ export async function generateComponentTest(
   cwd: string
 ): Promise<void> {
   const componentDir = path.join(cwd, config.componentsDir, component.name);
-  const ext = config.typescript ? 'tsx' : 'jsx';
-  const testPath = path.join(componentDir, `${component.name}.test.${ext}`);
+  const ext = getTestExtension(config.framework, config.typescript);
+  const testPath = path.join(componentDir, `${component.name}.${ext}`);
 
   await fs.ensureDir(componentDir);
 
@@ -391,7 +417,7 @@ export async function generateComponentTest(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${component.name}.test.${ext}.hbs`
+    `${component.name}.${ext}.hbs`
   );
 
   let testContent: string;
@@ -402,7 +428,21 @@ export async function generateComponentTest(
     );
   } else {
     // Fallback to generic test
-    testContent = `import { render, screen } from '@testing-library/react';
+    if (config.framework === 'vue') {
+      const vueExt = config.typescript ? '.vue' : '.js.vue';
+      testContent = `import { describe, it, expect } from 'vitest';
+import { mount } from '@testing-library/vue';
+import ${component.name} from './${component.name}${vueExt}';
+
+describe('${component.name}', () => {
+  it('renders without crashing', () => {
+    const { container } = mount(${component.name});
+    expect(container.querySelector('${component.tagName}')).toBeTruthy();
+  });
+});
+`;
+    } else {
+      testContent = `import { render, screen } from '@testing-library/react';
 import { ${component.name} } from './${component.name}';
 
 describe('${component.name}', () => {
@@ -419,6 +459,7 @@ describe('${component.name}', () => {
   });
 });
 `;
+    }
   }
 
   await fs.writeFile(testPath, testContent);

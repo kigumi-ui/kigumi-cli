@@ -4,88 +4,101 @@ import '{{{importPath}}}';
 import './Icon.css';
 
 /**
- * {{description}}
+ * Icons are symbols that can be used to represent various options within an application
  *
  * @example
  * ```tsx
  * // Basic usage
- * <Icon name="star" />
- * <Icon name="heart" variant="solid" />
- * <Icon name="github" family="brands" />
- *
- * // With label for accessibility
- * <Icon name="star" label="Favorite" />
- *
- * // Sizing (use CSS or className for sizing)
- * <Icon name="bell" className="icon-large" />
- *
- * // Custom icon
- * <Icon src="/path/to/icon.svg" label="Custom icon" />
+ * <Icon />
  *
  * // With event handlers
- * <Icon 
- *   name="image"
- *   onLoad={() => console.log('Icon loaded')}
- *   onError={() => console.log('Icon failed to load')}
- * />
+ * <Icon
+ *   onWaLoad={(e) => console.log(e)} />
+ *
  * ```
  */
-export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
+export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaLoad' | 'onWaError' | 'dir'> {
+
   /** The name of the icon to draw */
   name?: string;
+
   /** The name of a registered custom icon library */
   library?: string;
+
   /** An external URL of an SVG file */
   src?: string;
+
   /** An alternate description for assistive devices */
   label?: string;
+
   /** The family of icons (classic, brands, sharp, duotone, sharp-duotone) */
   family?: string;
+
   /** The icon's variant (thin, light, regular, solid) */
   variant?: string;
+
   /** Sets the width to match the cropped SVG viewBox */
   'auto-width'?: boolean;
+
   /** Swaps the opacity of duotone icons */
   'swap-opacity'?: boolean;
-  /** Event fired when the icon has loaded */
-  onLoad?: (event: CustomEvent) => void;
-  /** Event fired when the icon fails to load */
-  onError?: (event: CustomEvent) => void;
+
+  /** Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit. */
+  onWaLoad?: (event: CustomEvent) => void;
+
+  /** Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit. */
+  onWaError?: (event: CustomEvent) => void;
 }
 
-export const Icon = forwardRef<HTMLElement, IconProps>(
-  ({ className, onLoad, onError, ...props }, ref) => {
-    const elementRef = useRef<HTMLElement>(null);
+export interface IconRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
 
-    useImperativeHandle(ref, () => elementRef.current as HTMLElement, []);
+export const Icon = forwardRef<IconRef, IconProps>(
+  ({ children, className, onWaLoad, onWaError, ...props }, ref) => {
+    const iconRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return iconRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = elementRef.current;
+      const el = iconRef.current;
       if (!el) return;
 
-      const handleLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+      const handleWaLoad = (e: Event) => {
+        if (onWaLoad) onWaLoad(e as CustomEvent);
       };
 
-      const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+      const handleWaError = (e: Event) => {
+        if (onWaError) onWaError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-load', handleLoad);
-      el.addEventListener('wa-error', handleError);
+      el.addEventListener('wa-load', handleWaLoad);
+      el.addEventListener('wa-error', handleWaError);
 
       return () => {
-        el.removeEventListener('wa-load', handleLoad);
-        el.removeEventListener('wa-error', handleError);
+        el.removeEventListener('wa-load', handleWaLoad);
+        el.removeEventListener('wa-error', handleWaError);
       };
-    }, [onLoad, onError]);
+    }, [onWaLoad, onWaError]);
 
     return (
       <wa-icon
-        ref={elementRef}
+        ref={iconRef}
         class={clsx('Icon', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-icon>
     );
   }
 );

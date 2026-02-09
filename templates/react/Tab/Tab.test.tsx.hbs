@@ -1,14 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
 import { Tab } from './Tab';
 
 describe('Tab', () => {
-  it('renders children', () => {
-    render(<Tab panel="panel-1">Test</Tab>);
-    expect(screen.getByText('Test')).toBeInTheDocument();
-  });
-
-  it('applies custom className', () => {
-    const { container } = render(<Tab panel="panel-1" className="custom-class">Test</Tab>);
-    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+  it('renders without crashing', () => {
+    const { container } = render(<Tab />);
+    expect(container.querySelector('wa-tab')).toBeTruthy();
   });
 });

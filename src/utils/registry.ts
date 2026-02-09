@@ -25,6 +25,24 @@ export interface ComponentProp {
   required?: boolean;
 }
 
+export interface ComponentEvent {
+  name: string;
+  description: string;
+  reactName?: string;
+  eventType: string;
+}
+
+export interface ComponentSlot {
+  name: string;
+  description: string;
+}
+
+export interface ComponentMethod {
+  name: string;
+  description: string;
+  parameters?: Array<{ name: string; type: string }>;
+}
+
 export interface ComponentDefinition {
   name: string;
   tagName: string;
@@ -39,6 +57,10 @@ export interface ComponentDefinition {
   props: ComponentProp[];
   importPath: string; // e.g., '@awesome.me/webawesome-pro/dist/components/button/button.js'
   tier: 'free' | 'pro'; // Whether component requires Pro tier
+  // Metadata from custom-elements.json (optional - not stored in registry, used by template generators)
+  events?: ComponentEvent[];
+  slots?: ComponentSlot[];
+  methods?: ComponentMethod[];
 }
 
 export interface ComponentRegistry {
@@ -3147,6 +3169,239 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/callout/callout.js`,
     tier: 'free',
+  },
+  'file-input': {
+    name: 'FileInput',
+    tagName: 'wa-file-input',
+    category: 'Form Controls',
+    description:
+      'File inputs allow users to select and upload files from their device',
+    dependencies: [],
+    files: {
+      react: ['components/FileInput.tsx', 'types/file-input.d.ts'],
+      vue: ['components/FileInput.vue'],
+    },
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        description: 'Accessible label for the input',
+        required: false,
+      },
+      {
+        name: 'hint',
+        type: 'string',
+        description: 'Descriptive hint text',
+        required: false,
+      },
+      {
+        name: 'accept',
+        type: 'string',
+        description: 'Accepted file types (MIME types or extensions)',
+        required: false,
+      },
+      {
+        name: 'multiple',
+        type: 'boolean',
+        default: 'false',
+        description: 'Allow multiple file selection',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Disables the input',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        default: 'false',
+        description: 'Makes field mandatory',
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large'],
+        default: 'medium',
+        description: 'Input size',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['filled', 'outlined', 'filled-outlined'],
+        default: 'outlined',
+        description: 'Visual appearance',
+      },
+      {
+        name: 'max-file-size',
+        type: 'number',
+        description: 'Maximum file size in bytes',
+        required: false,
+      },
+      {
+        name: 'max-files',
+        type: 'number',
+        description: 'Maximum number of files',
+        required: false,
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/file-input/file-input.js`,
+    tier: 'pro',
+  },
+  'number-input': {
+    name: 'NumberInput',
+    tagName: 'wa-number-input',
+    category: 'Form Controls',
+    description:
+      'Number inputs allow users to enter numeric values with optional step controls',
+    dependencies: [],
+    files: {
+      react: ['components/NumberInput.tsx', 'types/number-input.d.ts'],
+      vue: ['components/NumberInput.vue'],
+    },
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        description: 'Accessible label',
+        required: false,
+      },
+      {
+        name: 'hint',
+        type: 'string',
+        description: 'Descriptive hint text',
+        required: false,
+      },
+      {
+        name: 'value',
+        type: 'number',
+        description: 'Current value',
+        required: false,
+      },
+      {
+        name: 'min',
+        type: 'number',
+        description: 'Minimum value',
+        required: false,
+      },
+      {
+        name: 'max',
+        type: 'number',
+        description: 'Maximum value',
+        required: false,
+      },
+      {
+        name: 'step',
+        type: 'number',
+        default: '1',
+        description: 'Step increment',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Disables the input',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        default: 'false',
+        description: 'Makes field mandatory',
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+        description: 'Placeholder text',
+        required: false,
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large'],
+        default: 'medium',
+        description: 'Input size',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['filled', 'outlined', 'filled-outlined'],
+        default: 'outlined',
+        description: 'Visual appearance',
+      },
+      {
+        name: 'no-spin-buttons',
+        type: 'boolean',
+        default: 'false',
+        description: 'Hides the spin buttons',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/number-input/number-input.js`,
+    tier: 'pro',
+  },
+  sparkline: {
+    name: 'Sparkline',
+    tagName: 'wa-sparkline',
+    category: 'Display',
+    description:
+      'Sparklines are small inline data visualizations for showing trends',
+    dependencies: [],
+    files: {
+      react: ['components/Sparkline.tsx', 'types/sparkline.d.ts'],
+      vue: ['components/Sparkline.vue'],
+    },
+    props: [
+      {
+        name: 'data',
+        type: 'string',
+        description: 'Comma-separated data points or JSON array',
+        required: false,
+      },
+      {
+        name: 'type',
+        type: 'string',
+        values: ['line', 'bar', 'area'],
+        default: 'line',
+        description: 'Chart type',
+      },
+      {
+        name: 'width',
+        type: 'number',
+        description: 'Width in pixels',
+        required: false,
+      },
+      {
+        name: 'height',
+        type: 'number',
+        description: 'Height in pixels',
+        required: false,
+      },
+      {
+        name: 'color',
+        type: 'string',
+        description: 'Line/bar color',
+        required: false,
+      },
+      {
+        name: 'fill-color',
+        type: 'string',
+        description: 'Fill color (for area type)',
+        required: false,
+      },
+      {
+        name: 'line-width',
+        type: 'number',
+        default: '2',
+        description: 'Line width in pixels',
+      },
+      {
+        name: 'show-tooltip',
+        type: 'boolean',
+        default: 'false',
+        description: 'Shows value tooltip on hover',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/sparkline/sparkline.js`,
+    tier: 'pro',
   },
 };
 

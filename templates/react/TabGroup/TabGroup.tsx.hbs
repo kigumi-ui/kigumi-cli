@@ -1,50 +1,84 @@
-import { forwardRef, useRef, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './TabGroup.css';
 
-export interface TabGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** When auto, navigating tabs will instantly show the panel */
-  activation?: 'auto' | 'manual';
-  /** Sets the currently displayed tab panel */
-  active?: string;
-  /** Determines tab position relative to panels */
+/**
+ * Tab groups organize content into a container that shows one section at a time
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <TabGroup />
+ *
+ * // With event handlers
+ * <TabGroup
+ *   onWaTabShow={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface TabGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaTabShow' | 'onWaTabHide' | 'dir'> {
+
+  /** Tab position */
   placement?: 'top' | 'bottom' | 'start' | 'end';
-  /** Disables the scroll arrows */
+
+  /** Panel activation method */
+  activation?: 'auto' | 'manual';
+
+  /** Disables scroll buttons */
   'without-scroll-controls'?: boolean;
-  /** Event fired when a tab becomes visible */
-  onTabShow?: (event: CustomEvent) => void;
-  /** Event fired when a tab becomes hidden */
-  onTabHide?: (event: CustomEvent) => void;
+
+  /** Emitted when a tab is shown. */
+  onWaTabShow?: (event: CustomEvent) => void;
+
+  /** Emitted when a tab is hidden. */
+  onWaTabHide?: (event: CustomEvent) => void;
 }
 
-export const TabGroup = forwardRef<HTMLElement, TabGroupProps>(
-  ({ children, className, onTabShow, onTabHide, ...props }, ref) => {
-    const groupRef = useRef<HTMLElement>(null);
+export interface TabGroupRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
+  ({ children, className, onWaTabShow, onWaTabHide, ...props }, ref) => {
+    const tabgroupRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return tabgroupRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = groupRef.current;
+      const el = tabgroupRef.current;
       if (!el) return;
 
-      const handleTabShow = (e: Event) => onTabShow?.(e as CustomEvent);
-      const handleTabHide = (e: Event) => onTabHide?.(e as CustomEvent);
+      const handleWaTabShow = (e: Event) => {
+        if (onWaTabShow) onWaTabShow(e as CustomEvent);
+      };
 
-      el.addEventListener('wa-tab-show', handleTabShow);
-      el.addEventListener('wa-tab-hide', handleTabHide);
+      const handleWaTabHide = (e: Event) => {
+        if (onWaTabHide) onWaTabHide(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-tab-show', handleWaTabShow);
+      el.addEventListener('wa-tab-hide', handleWaTabHide);
 
       return () => {
-        el.removeEventListener('wa-tab-show', handleTabShow);
-        el.removeEventListener('wa-tab-hide', handleTabHide);
+        el.removeEventListener('wa-tab-show', handleWaTabShow);
+        el.removeEventListener('wa-tab-hide', handleWaTabHide);
       };
-    }, [onTabShow, onTabHide]);
+    }, [onWaTabShow, onWaTabHide]);
 
     return (
       <wa-tab-group
-        ref={(node: HTMLElement | null) => {
-          (groupRef as React.MutableRefObject<HTMLElement | null>).current = node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
-        }}
+        ref={tabgroupRef}
         class={clsx('TabGroup', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -109,11 +109,24 @@ export async function addCommand(components: string[], options?: AddOptions) {
 
     if (added.length > 0) {
       output.success(`Added ${added.length} component(s)`);
-      const componentNames = added.map((r) => r.name).join(', ');
-      output.note(
-        'Import them',
-        `import { ${componentNames} } from '${config.aliases?.['@/components'] || config.componentsDir}';`
-      );
+
+      if (config.framework === 'vue') {
+        // Vue uses default exports from SFCs
+        const importList = added
+          .map(
+            (r) =>
+              `import ${r.name} from '${config.aliases?.['@/components'] || config.componentsDir}/${r.name}/${r.name}.vue';`
+          )
+          .join('\n');
+        output.note('Import them', importList);
+      } else {
+        // React uses named exports
+        const componentNames = added.map((r) => r.name).join(', ');
+        output.note(
+          'Import them',
+          `import { ${componentNames} } from '${config.aliases?.['@/components'] || config.componentsDir}';`
+        );
+      }
     }
 
     if (skipped.length > 0) {
