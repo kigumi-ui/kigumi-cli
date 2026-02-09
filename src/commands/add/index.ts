@@ -68,6 +68,8 @@ export async function addCommand(components: string[], options?: AddOptions) {
     if (!config) {
       throw new Error('Configuration not loaded despite passing checks');
     }
+    // TypeScript type narrowing: config is now guaranteed to be defined
+    const validConfig = config;
 
     // 4. Detect tier from .env
     const { detectTier } = await import('../../utils/tier.js');
@@ -85,14 +87,14 @@ export async function addCommand(components: string[], options?: AddOptions) {
     await validateComponents(componentsToAdd, tier, output);
 
     // 6. Install components
-    const installer = new ComponentInstaller(cwd, config, output);
+    const installer = new ComponentInstaller(cwd, validConfig, output);
     const results = await installer.installComponents(
       componentsToAdd,
       validatedOptions
     );
 
     // 6.5. Update vite-env.d.ts with new component types (React + TypeScript only)
-    if (config.typescript && config.framework === 'react') {
+    if (validConfig.typescript && validConfig.framework === 'react') {
       const addedComponents = results
         .filter((r) => r.success && !r.skipped)
         .map((r) => r.name);
@@ -110,12 +112,12 @@ export async function addCommand(components: string[], options?: AddOptions) {
     if (added.length > 0) {
       output.success(`Added ${added.length} component(s)`);
 
-      if (config.framework === 'vue') {
+      if (validConfig.framework === 'vue') {
         // Vue uses default exports from SFCs
         const importList = added
           .map(
             (r) =>
-              `import ${r.name} from '${config.aliases?.['@/components'] || config.componentsDir}/${r.name}/${r.name}.vue';`
+              `import ${r.name} from '${validConfig.aliases?.['@/components'] || validConfig.componentsDir}/${r.name}/${r.name}.vue';`
           )
           .join('\n');
         output.note('Import them', importList);
@@ -124,7 +126,7 @@ export async function addCommand(components: string[], options?: AddOptions) {
         const componentNames = added.map((r) => r.name).join(', ');
         output.note(
           'Import them',
-          `import { ${componentNames} } from '${config.aliases?.['@/components'] || config.componentsDir}';`
+          `import { ${componentNames} } from '${validConfig.aliases?.['@/components'] || validConfig.componentsDir}';`
         );
       }
     }
