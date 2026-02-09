@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-checkbox` element.
 
 ```tsx
 // Kigumi React
-import { Checkbox } from '@/components/ui';
+import { Checkbox } from "@/components/ui";
 
 <Checkbox checked={true} disabled={true}>
   Click me

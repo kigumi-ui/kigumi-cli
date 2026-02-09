@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-resize-observer` element.
 
 ```tsx
 // Kigumi React
-import { ResizeObserver } from '@/components/ui';
+import { ResizeObserver } from "@/components/ui";
 
 <ResizeObserver disabled={true}>Click me</ResizeObserver>;
 ```

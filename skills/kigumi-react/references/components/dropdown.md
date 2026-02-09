@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-dropdown` element.
 
 ```tsx
 // Kigumi React
-import { Dropdown } from '@/components/ui';
+import { Dropdown } from "@/components/ui";
 
 <Dropdown open={true} placement="top">
   Click me

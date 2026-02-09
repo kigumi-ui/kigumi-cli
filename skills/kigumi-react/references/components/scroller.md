@@ -18,7 +18,7 @@ React wrapper component for the Web Awesome `wa-scroller` element.
 
 ```tsx
 // Kigumi React
-import { Scroller } from '@/components/ui';
+import { Scroller } from "@/components/ui";
 
 <Scroller orientation="horizontal" with-scroll-indicator={true}>
   Click me

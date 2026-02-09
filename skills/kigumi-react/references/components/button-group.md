@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-button-group` element.
 
 ```tsx
 // Kigumi React
-import { ButtonGroup } from '@/components/ui';
+import { ButtonGroup } from "@/components/ui";
 
 <ButtonGroup label="''" orientation="horizontal">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-animated-image` element.
 
 ```tsx
 // Kigumi React
-import { AnimatedImage } from '@/components/ui';
+import { AnimatedImage } from "@/components/ui";
 
 <AnimatedImage src="value" alt="value">
   Click me

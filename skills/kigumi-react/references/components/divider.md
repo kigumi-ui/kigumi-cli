@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-divider` element.
 
 ```tsx
 // Kigumi React
-import { Divider } from '@/components/ui';
+import { Divider } from "@/components/ui";
 
 <Divider orientation="horizontal">Click me</Divider>;
 ```

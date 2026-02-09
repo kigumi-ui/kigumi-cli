@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-input` element.
 
 ```tsx
 // Kigumi React
-import { Input } from '@/components/ui';
+import { Input } from "@/components/ui";
 
 <Input type="text" label="value">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-page` element.
 
 ```tsx
 // Kigumi React
-import { Page } from '@/components/ui';
+import { Page } from "@/components/ui";
 
 <Page disable-navigation-toggle={true} mobile-breakpoint="768px">
   Click me

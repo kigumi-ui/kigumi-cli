@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-tooltip` element.
 
 ```tsx
 // Kigumi React
-import { Tooltip } from '@/components/ui';
+import { Tooltip } from "@/components/ui";
 
 <Tooltip content="''" placement="top">
   Click me

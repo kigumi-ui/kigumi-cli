@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-progress-ring` element.
 
 ```tsx
 // Kigumi React
-import { ProgressRing } from '@/components/ui';
+import { ProgressRing } from "@/components/ui";
 
 <ProgressRing value="0" label="''">
   Click me

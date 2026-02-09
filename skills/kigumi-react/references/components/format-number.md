@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-format-number` element.
 
 ```tsx
 // Kigumi React
-import { FormatNumber } from '@/components/ui';
+import { FormatNumber } from "@/components/ui";
 
 <FormatNumber value="0" type="currency">
   Click me

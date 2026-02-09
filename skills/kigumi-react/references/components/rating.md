@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-rating` element.
 
 ```tsx
 // Kigumi React
-import { Rating } from '@/components/ui';
+import { Rating } from "@/components/ui";
 
 <Rating label="''" value="0">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-file-input` element.
 
 ```tsx
 // Kigumi React
-import { FileInput } from '@/components/ui';
+import { FileInput } from "@/components/ui";
 
 <FileInput label="value" hint="value">
   Click me

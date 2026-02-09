@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-switch` element.
 
 ```tsx
 // Kigumi React
-import { Switch } from '@/components/ui';
+import { Switch } from "@/components/ui";
 
 <Switch name="value" value="value">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-avatar` element.
 
 ```tsx
 // Kigumi React
-import { Avatar } from '@/components/ui';
+import { Avatar } from "@/components/ui";
 
 <Avatar image="''" label="''">
   Click me

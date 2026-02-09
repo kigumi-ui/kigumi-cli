@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-zoomable-frame` element.
 
 ```tsx
 // Kigumi React
-import { ZoomableFrame } from '@/components/ui';
+import { ZoomableFrame } from "@/components/ui";
 
 <ZoomableFrame src="value" srcdoc="value">
   Click me

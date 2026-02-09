@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-format-date` element.
 
 ```tsx
 // Kigumi React
-import { FormatDate } from '@/components/ui';
+import { FormatDate } from "@/components/ui";
 
 <FormatDate date="value" weekday="narrow">
   Click me

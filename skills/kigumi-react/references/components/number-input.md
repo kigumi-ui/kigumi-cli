@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-number-input` element.
 
 ```tsx
 // Kigumi React
-import { NumberInput } from '@/components/ui';
+import { NumberInput } from "@/components/ui";
 
 <NumberInput label="value" hint="value">
   Click me

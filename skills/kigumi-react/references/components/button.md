@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-button` element.
 
 ```tsx
 // Kigumi React
-import { Button } from '@/components/ui';
+import { Button } from "@/components/ui";
 
 <Button variant="neutral" appearance="accent">
   Click me

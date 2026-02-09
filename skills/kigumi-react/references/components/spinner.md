@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-spinner` element.
 
 ```tsx
 // Kigumi React
-import { Spinner } from '@/components/ui';
+import { Spinner } from "@/components/ui";
 
 <Spinner>Click me</Spinner>;
 ```

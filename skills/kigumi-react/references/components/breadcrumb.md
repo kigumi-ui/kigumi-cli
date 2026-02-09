@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-breadcrumb` element.
 
 ```tsx
 // Kigumi React
-import { Breadcrumb } from '@/components/ui';
+import { Breadcrumb } from "@/components/ui";
 
 <Breadcrumb label="''">Click me</Breadcrumb>;
 ```

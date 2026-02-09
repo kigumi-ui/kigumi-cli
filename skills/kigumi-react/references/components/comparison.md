@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-comparison` element.
 
 ```tsx
 // Kigumi React
-import { Comparison } from '@/components/ui';
+import { Comparison } from "@/components/ui";
 
 <Comparison position="50">Click me</Comparison>;
 ```

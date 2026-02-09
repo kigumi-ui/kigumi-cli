@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-radio` element.
 
 ```tsx
 // Kigumi React
-import { Radio } from '@/components/ui';
+import { Radio } from "@/components/ui";
 
 <Radio value="value" disabled={true}>
   Click me

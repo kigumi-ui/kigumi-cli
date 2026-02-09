@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-icon` element.
 
 ```tsx
 // Kigumi React
-import { Icon } from '@/components/ui';
+import { Icon } from "@/components/ui";
 
 <Icon name="value" library="default">
   Click me

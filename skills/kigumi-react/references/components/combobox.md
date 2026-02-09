@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-combobox` element.
 
 ```tsx
 // Kigumi React
-import { Combobox } from '@/components/ui';
+import { Combobox } from "@/components/ui";
 
 <Combobox allow-custom-value={true} appearance="filled">
   Click me

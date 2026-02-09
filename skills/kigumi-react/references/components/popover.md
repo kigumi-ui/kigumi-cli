@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-popover` element.
 
 ```tsx
 // Kigumi React
-import { Popover } from '@/components/ui';
+import { Popover } from "@/components/ui";
 
 <Popover open={true} disabled={true}>
   Click me

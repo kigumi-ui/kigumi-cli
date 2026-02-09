@@ -19,8 +19,8 @@ Web Awesome components emit custom events prefixed with `wa-`. These are mapped 
 ## Example Usage
 
 ```tsx
-import { useState } from 'react';
-import { Dialog, Button } from '@/components/ui';
+import { useState } from "react";
+import { Dialog, Button } from "@/components/ui";
 
 function Example() {
   const [open, setOpen] = useState(false);
@@ -31,7 +31,7 @@ function Example() {
       <Dialog
         open={open}
         onHide={() => setOpen(false)}
-        onAfterShow={(e) => console.log('Dialog shown', e)}
+        onAfterShow={(e) => console.log("Dialog shown", e)}
       >
         Dialog content
       </Dialog>

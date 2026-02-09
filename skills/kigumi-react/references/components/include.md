@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-include` element.
 
 ```tsx
 // Kigumi React
-import { Include } from '@/components/ui';
+import { Include } from "@/components/ui";
 
 <Include src="value" mode="cors">
   Click me
