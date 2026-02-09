@@ -261,7 +261,7 @@ async function validateRegistry(): Promise<ValidationResult> {
   result.errors.push(...duplicateErrors);
 
   // Validate each component
-  for (const [_key, component] of Object.entries(components)) {
+  for (const [key, component] of Object.entries(components)) {
     // Count by tier
     if (component.tier === 'free') {
       result.stats.freeComponents++;
