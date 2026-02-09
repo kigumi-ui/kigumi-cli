@@ -1,0 +1,101 @@
+/**
+ * List Command Tests
+ *
+ * Tests for src/commands/list.ts
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { listCommand } from '../../src/commands/list.js';
+import * as registry from '../../src/utils/registry.js';
+
+describe('list command', () => {
+  let consoleOutput: string[];
+
+  beforeEach(() => {
+    consoleOutput = [];
+    // Mock console output to capture output
+    vi.spyOn(process.stdout, 'write').mockImplementation((str: any) => {
+      consoleOutput.push(str.toString());
+      return true;
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should list all available components', async () => {
+    await listCommand();
+
+    const output = consoleOutput.join('');
+
+    // Should show intro
+    expect(output).toContain('kigumi list');
+
+    // Should show categories
+    expect(output).toContain('Form Controls'); // Category
+    expect(output).toContain('Display'); // Category
+    expect(output).toContain('Layout'); // Category
+  });
+
+  it('should display components grouped by category', async () => {
+    const components = registry.getAllComponents();
+
+    await listCommand();
+
+    const output = consoleOutput.join('');
+
+    // Check that at least some components are listed
+    const componentNames = Object.keys(components);
+    const someComponentsListed = componentNames.some((name) =>
+      output.includes(name)
+    );
+
+    expect(someComponentsListed).toBe(true);
+  });
+
+  it('should show total component count', async () => {
+    const components = registry.getAllComponents();
+    const totalCount = Object.keys(components).length;
+
+    await listCommand();
+
+    const output = consoleOutput.join('');
+
+    // Should show total
+    expect(output).toContain('Total:');
+    expect(output).toContain(`${totalCount}`);
+  });
+
+  it('should show help text for adding components', async () => {
+    await listCommand();
+
+    const output = consoleOutput.join('');
+
+    // Should show hint about add command
+    expect(output).toContain('npx kigumi add');
+  });
+
+  it('should sort components alphabetically within categories', async () => {
+    const components = registry.getAllComponents();
+
+    await listCommand();
+
+    // Verify components in same category are sorted
+    const output = consoleOutput.join('');
+
+    // Get components from a known category
+    const displayComponents = Object.entries(components)
+      .filter(([, comp]) => comp.category === 'Display')
+      .map(([key]) => key)
+      .sort();
+
+    if (displayComponents.length >= 2) {
+      // Check order in output
+      const firstIdx = output.indexOf(displayComponents[0]);
+      const secondIdx = output.indexOf(displayComponents[1]);
+
+      expect(firstIdx).toBeLessThan(secondIdx);
+    }
+  });
+});
