@@ -34,7 +34,7 @@ const STATIC_MIGRATION_FILES = [
 ];
 
 /** File extensions to scan for migration in components directory */
-const COMPONENT_EXTENSIONS = ['.tsx', '.jsx', '.ts', '.js'];
+const COMPONENT_EXTENSIONS = ['.tsx', '.jsx', '.ts', '.js', '.vue'];
 
 /**
  * Recursively find all files matching patterns in a directory
