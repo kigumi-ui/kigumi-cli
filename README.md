@@ -1,5 +1,3 @@
-![Kigumi logo](https://kigumi.style/og-image.png)
-
 # Kigumi
 
 > Build framework-agnostic UIs with ready-made web components. Same components, any stack.
