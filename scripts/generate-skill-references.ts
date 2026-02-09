@@ -11,7 +11,8 @@
  * - skills/kigumi-react/references/event-mapping.md (event handlers)
  */
 
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, writeFile, readFile } from 'fs/promises';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 
@@ -230,6 +231,23 @@ function generateEventMapping(): string {
 }
 
 /**
+ * Write file only if content has changed
+ */
+async function writeIfChanged(
+  filePath: string,
+  newContent: string
+): Promise<boolean> {
+  if (existsSync(filePath)) {
+    const existingContent = await readFile(filePath, 'utf-8');
+    if (existingContent === newContent) {
+      return false; // No change
+    }
+  }
+  await writeFile(filePath, newContent, 'utf-8');
+  return true; // Written
+}
+
+/**
  * Main execution
  */
 async function main() {
@@ -240,30 +258,42 @@ async function main() {
 
   // Generate component reference files
   let componentCount = 0;
+  let changedCount = 0;
   for (const [key, _component] of Object.entries(LOCAL_REGISTRY)) {
     const content = generateComponentReference(key);
     const filename = `${key}.md`;
-    await writeFile(join(COMPONENTS_DIR, filename), content, 'utf-8');
-    console.log(`  ✓ Generated references/components/${filename}`);
+    const filePath = join(COMPONENTS_DIR, filename);
+    const wasWritten = await writeIfChanged(filePath, content);
+    if (wasWritten) {
+      console.log(`  ✓ Generated references/components/${filename}`);
+      changedCount++;
+    }
     componentCount++;
   }
 
   // Generate transformation rules
   const transformationRules = generateTransformationRules();
-  await writeFile(
-    join(SKILLS_DIR, 'transformation-rules.md'),
-    transformationRules,
-    'utf-8'
+  const transformPath = join(SKILLS_DIR, 'transformation-rules.md');
+  const transformWritten = await writeIfChanged(
+    transformPath,
+    transformationRules
   );
-  console.log(`  ✓ Generated references/transformation-rules.md`);
+  if (transformWritten) {
+    console.log(`  ✓ Generated references/transformation-rules.md`);
+    changedCount++;
+  }
 
   // Generate event mapping
   const eventMapping = generateEventMapping();
-  await writeFile(join(SKILLS_DIR, 'event-mapping.md'), eventMapping, 'utf-8');
-  console.log(`  ✓ Generated references/event-mapping.md`);
+  const eventPath = join(SKILLS_DIR, 'event-mapping.md');
+  const eventWritten = await writeIfChanged(eventPath, eventMapping);
+  if (eventWritten) {
+    console.log(`  ✓ Generated references/event-mapping.md`);
+    changedCount++;
+  }
 
   console.log(
-    `\n✅ Generated ${componentCount} component references + 2 reference files\n`
+    `\n✅ ${changedCount}/${componentCount + 2} files updated (${componentCount + 2 - changedCount} unchanged)\n`
   );
 }
 
