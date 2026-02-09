@@ -1,38 +1,69 @@
-import { forwardRef, useRef, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './ResizeObserver.css';
 
-export interface ResizeObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+/**
+ * Reports changes to the dimensions of an element
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <ResizeObserver />
+ *
+ * // With event handlers
+ * <ResizeObserver
+ *   onWaResize={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface ResizeObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaResize' | 'dir'> {
+
   /** Disables the observer */
   disabled?: boolean;
-  /** Event fired when the element is resized */
-  onResize?: (event: CustomEvent) => void;
+
+  /** Emitted when the element is resized. */
+  onWaResize?: (event: CustomEvent) => void;
 }
 
-export const ResizeObserver = forwardRef<HTMLElement, ResizeObserverProps>(
-  ({ children, className, onResize, ...props }, ref) => {
-    const observerRef = useRef<HTMLElement>(null);
+export interface ResizeObserverRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>(
+  ({ children, className, onWaResize, ...props }, ref) => {
+    const resizeobserverRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return resizeobserverRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = observerRef.current;
+      const el = resizeobserverRef.current;
       if (!el) return;
 
-      const handleResize = (e: Event) => onResize?.(e as CustomEvent);
-      el.addEventListener('wa-resize', handleResize);
+      const handleWaResize = (e: Event) => {
+        if (onWaResize) onWaResize(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-resize', handleWaResize);
 
       return () => {
-        el.removeEventListener('wa-resize', handleResize);
+        el.removeEventListener('wa-resize', handleWaResize);
       };
-    }, [onResize]);
+    }, [onWaResize]);
 
     return (
       <wa-resize-observer
-        ref={(node: HTMLElement | null) => {
-          (observerRef as React.MutableRefObject<HTMLElement | null>).current = node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
-        }}
+        ref={resizeobserverRef}
         class={clsx('ResizeObserver', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,0 +1,442 @@
+#!/usr/bin/env tsx
+/**
+ * React Template Generator
+ *
+ * Generates React component templates using forwardRef pattern for all components in the registry.
+ * Creates TypeScript variants with proper type safety, event handling, and ref methods.
+ */
+
+import fs from 'fs-extra';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import {
+  getAllComponents,
+  type ComponentDefinition,
+} from '../src/utils/registry.js';
+import { CSS_METADATA } from '../src/utils/css-metadata.js';
+import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = path.join(__dirname, '..');
+const TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates', 'react');
+
+/**
+ * Convert event name to React style (e.g., 'wa-show' → 'onWaShow', 'blur' → 'onBlur')
+ */
+function toReactEventName(eventName: string): string {
+  // Split by dash and capitalize each part
+  const parts = eventName.split('-');
+  const camelCase = parts
+    .map((part, index) =>
+      index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)
+    )
+    .join('');
+
+  // Add 'on' prefix and capitalize first letter
+  return 'on' + camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+}
+
+/**
+ * Map event type from custom-elements.json to React/TypeScript type
+ */
+function mapEventType(eventType: string): string {
+  // Standard DOM events
+  if (eventType === 'FocusEvent' || eventType === 'BlurEvent')
+    return 'FocusEvent';
+  if (eventType === 'MouseEvent') return 'MouseEvent';
+  if (eventType === 'KeyboardEvent') return 'KeyboardEvent';
+  if (eventType === 'InputEvent') return 'CustomEvent';
+  if (eventType === 'ChangeEvent') return 'CustomEvent';
+  if (eventType === 'LoadEvent') return 'CustomEvent';
+  if (eventType === 'ErrorEvent') return 'CustomEvent';
+
+  // All wa-* custom events are CustomEvent
+  if (eventType.startsWith('Wa')) return 'CustomEvent';
+
+  return 'CustomEvent';
+}
+
+/**
+ * Convert TypeScript type to proper format for props interface
+ */
+function convertToReactPropType(tsType: string, values?: string[]): string {
+  if (values && values.length > 0) {
+    return values.map((v) => `'${v}'`).join(' | ');
+  }
+
+  switch (tsType.toLowerCase()) {
+    case 'string':
+      return 'string';
+    case 'number':
+      return 'number';
+    case 'boolean':
+      return 'boolean';
+    case 'array':
+      return 'any[]';
+    case 'object':
+      return 'Record<string, any>';
+    default:
+      return 'string';
+  }
+}
+
+/**
+ * Generate React TypeScript component template
+ */
+function generateReactTypescriptTemplate(
+  component: ComponentDefinition
+): string {
+  const componentKey = component.tagName.replace('wa-', '');
+  const metadata = COMPONENT_METADATA[componentKey] || {
+    events: [],
+    slots: [],
+    methods: [],
+  };
+
+  // 1. Props Interface
+  const propsFromRegistry = component.props
+    .map((prop) => {
+      const quotedName = prop.name.includes('-') ? `'${prop.name}'` : prop.name;
+      const type = convertToReactPropType(prop.type, prop.values);
+      const optional = prop.required ? '' : '?';
+      const comment = prop.description ? `\n  /** ${prop.description} */` : '';
+      return `${comment}\n  ${quotedName}${optional}: ${type};`;
+    })
+    .join('\n');
+
+  // 2. Event Props from metadata
+  const eventProps = metadata.events
+    .map((event) => {
+      const reactName = toReactEventName(event.name);
+      const eventType = mapEventType(event.eventType);
+      const comment = event.description
+        ? `\n  /** ${event.description} */`
+        : '';
+      return `${comment}\n  ${reactName}?: (event: ${eventType}) => void;`;
+    })
+    .join('\n');
+
+  // Combine all props with HTMLAttributes
+  const eventsToOmit = metadata.events
+    .map((e) => `'${toReactEventName(e.name)}'`)
+    .join(' | ');
+  const propsInterfaceExtends = eventsToOmit
+    ? `Omit<HTMLAttributes<HTMLElement>, ${eventsToOmit} | 'dir'>`
+    : `Omit<HTMLAttributes<HTMLElement>, 'dir'>`;
+
+  // 3. Ref Interface
+  const refMethods = metadata.methods
+    .map((method) => {
+      if (method.parameters && method.parameters.length > 0) {
+        const params = method.parameters
+          .map((p) => `${p.name}: ${p.type}`)
+          .join(', ');
+        const comment = method.description
+          ? `\n  /** ${method.description} */`
+          : '';
+        return `${comment}\n  ${method.name}: (${params}) => void;`;
+      } else {
+        const comment = method.description
+          ? `\n  /** ${method.description} */`
+          : '';
+        return `${comment}\n  ${method.name}: () => void;`;
+      }
+    })
+    .join('\n');
+
+  const refInterface =
+    metadata.methods.length > 0
+      ? `${refMethods}\n  /** Reference to the underlying HTML element */\n  element: HTMLElement | null;`
+      : `  /** Reference to the underlying HTML element */\n  element: HTMLElement | null;`;
+
+  // 4. useRef type definition
+  const refTypeMethods = metadata.methods
+    .map((method) => {
+      if (method.parameters && method.parameters.length > 0) {
+        const params = method.parameters
+          .map((p) => `${p.name}: ${p.type}`)
+          .join(', ');
+        return `\n      ${method.name}?: (${params}) => void;`;
+      } else {
+        return `\n      ${method.name}?: () => void;`;
+      }
+    })
+    .join('');
+
+  // 5. useImperativeHandle implementation
+  const imperativeHandleMethods = metadata.methods
+    .map((method) => {
+      const methodName = method.name;
+      if (method.parameters && method.parameters.length > 0) {
+        const params = method.parameters
+          .map((p) => `${p.name}: ${p.type}`)
+          .join(', ');
+        const args = method.parameters.map((p) => p.name).join(', ');
+        return `        ${methodName}: (${params}) => {
+          if (${component.name.toLowerCase()}Ref.current && typeof ${component.name.toLowerCase()}Ref.current.${methodName} === 'function') {
+            ${component.name.toLowerCase()}Ref.current.${methodName}(${args});
+          }
+        },`;
+      } else {
+        return `        ${methodName}: () => {
+          if (${component.name.toLowerCase()}Ref.current && typeof ${component.name.toLowerCase()}Ref.current.${methodName} === 'function') {
+            ${component.name.toLowerCase()}Ref.current.${methodName}();
+          }
+        },`;
+      }
+    })
+    .join('\n');
+
+  const imperativeHandleContent =
+    metadata.methods.length > 0
+      ? `${imperativeHandleMethods}\n        get element() {
+          return ${component.name.toLowerCase()}Ref.current;
+        },`
+      : `        get element() {
+          return ${component.name.toLowerCase()}Ref.current;
+        },`;
+
+  // 6. Event listeners in useEffect
+  const eventHandlers = metadata.events
+    .map((event) => {
+      const reactName = toReactEventName(event.name);
+      const eventType = mapEventType(event.eventType);
+      return `      const handle${event.name
+        .split('-')
+        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+        .join('')} = (e: Event) => {
+        if (${reactName}) ${reactName}(e as ${eventType});
+      };`;
+    })
+    .join('\n\n');
+
+  const addEventListeners = metadata.events
+    .map((event) => {
+      const handlerName = `handle${event.name
+        .split('-')
+        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+        .join('')}`;
+      return `      el.addEventListener('${event.name}', ${handlerName});`;
+    })
+    .join('\n');
+
+  const removeEventListeners = metadata.events
+    .map((event) => {
+      const handlerName = `handle${event.name
+        .split('-')
+        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+        .join('')}`;
+      return `        el.removeEventListener('${event.name}', ${handlerName});`;
+    })
+    .join('\n');
+
+  // 7. Event prop destructuring
+  const eventPropNames = metadata.events
+    .map((e) => toReactEventName(e.name))
+    .join(', ');
+  const eventPropsDestructure = eventPropNames ? `, ${eventPropNames}` : '';
+
+  // 8. useEffect dependencies
+  const useEffectDeps =
+    metadata.events.length > 0
+      ? metadata.events.map((e) => toReactEventName(e.name)).join(', ')
+      : '';
+
+  // Template
+  return `import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './${component.name}.css';
+
+/**
+ * ${component.description}
+ *
+ * @example
+ * \`\`\`tsx
+ * // Basic usage
+ * <${component.name} />
+ *
+ * // With event handlers
+ * <${component.name}${metadata.events.length > 0 ? `\n *   ${toReactEventName(metadata.events[0].name)}={(e) => console.log(e)}` : ''} />
+ *${
+   metadata.methods.length > 0
+     ? `
+ * // With ref methods
+ * const ref = useRef<${component.name}Ref>(null);
+ * <button onClick={() => ref.current?.${metadata.methods[0].name}()}>Call Method</button>
+ * <${component.name} ref={ref} />`
+     : ''
+ }
+ * \`\`\`
+ */
+export interface ${component.name}Props extends ${propsInterfaceExtends} {
+${propsFromRegistry}${eventProps ? '\n' + eventProps : ''}
+}
+
+export interface ${component.name}Ref {
+${refInterface}
+}
+
+export const ${component.name} = forwardRef<${component.name}Ref, ${component.name}Props>(
+  ({ children, className${eventPropsDestructure}, ...props }, ref) => {
+    const ${component.name.toLowerCase()}Ref = useRef<HTMLElement & {${refTypeMethods}
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+${imperativeHandleContent}
+      }),
+      []
+    );
+${
+  metadata.events.length > 0
+    ? `
+    useEffect(() => {
+      const el = ${component.name.toLowerCase()}Ref.current;
+      if (!el) return;
+
+${eventHandlers}
+
+${addEventListeners}
+
+      return () => {
+${removeEventListeners}
+      };
+    }, [${useEffectDeps}]);
+`
+    : ''
+}
+    return (
+      <${component.tagName}
+        ref={${component.name.toLowerCase()}Ref}
+        class={clsx('${component.name}', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </${component.tagName}>
+    );
+  }
+);
+
+${component.name}.displayName = '${component.name}';
+`;
+}
+
+/**
+ * Generate CSS template
+ */
+function generateCSSTemplate(componentName: string): string {
+  const kebabName = componentName
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .toLowerCase();
+  const metadata = CSS_METADATA[kebabName];
+  const docsUrl =
+    metadata?.docsUrl || `https://webawesome.com/docs/components/${kebabName}`;
+
+  let content = `/**
+ * ${componentName} Component Styles
+ * Documentation: ${docsUrl}
+ *
+`;
+
+  if (metadata?.customProperties && metadata.customProperties.length > 0) {
+    content += ` * CSS Custom Properties:\n`;
+    metadata.customProperties.forEach((prop) => {
+      content += ` * - ${prop.name}: ${prop.description}\n`;
+    });
+  } else {
+    content += ` * CSS Custom Properties:\n * (No custom properties defined for this component)\n`;
+  }
+
+  content += ` *\n`;
+
+  if (metadata?.parts && metadata.parts.length > 0) {
+    content += ` * CSS Parts:\n`;
+    metadata.parts.forEach((part) => {
+      content += ` * - ${part.name}: ${part.description}\n`;
+    });
+  }
+
+  content += ` */\n.${componentName} {\n  /* Add your custom styles here */\n}\n`;
+
+  return content;
+}
+
+/**
+ * Generate TypeScript test template
+ */
+function generateTestTypescriptTemplate(
+  componentName: string,
+  tagName: string
+): string {
+  return `import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
+import { ${componentName} } from './${componentName}';
+
+describe('${componentName}', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<${componentName} />);
+    expect(container.querySelector('${tagName}')).toBeTruthy();
+  });
+});
+`;
+}
+
+/**
+ * Generate all templates for a component
+ */
+async function generateComponentTemplates(
+  component: ComponentDefinition
+): Promise<void> {
+  const componentDir = path.join(TEMPLATES_DIR, component.name);
+  await fs.ensureDir(componentDir);
+
+  // TypeScript component
+  const reactTs = generateReactTypescriptTemplate(component);
+  await fs.writeFile(
+    path.join(componentDir, `${component.name}.tsx.hbs`),
+    reactTs
+  );
+
+  // CSS
+  const css = generateCSSTemplate(component.name);
+  await fs.writeFile(path.join(componentDir, `${component.name}.css.hbs`), css);
+
+  // TypeScript test
+  const testTs = generateTestTypescriptTemplate(
+    component.name,
+    component.tagName
+  );
+  await fs.writeFile(
+    path.join(componentDir, `${component.name}.test.tsx.hbs`),
+    testTs
+  );
+
+  console.log(`  ✓ Generated templates for ${component.name}`);
+}
+
+/**
+ * Main execution
+ */
+async function main() {
+  console.log('🔨 Generating React templates for all components...\n');
+
+  const allComponents = getAllComponents();
+  const componentList = Object.values(allComponents);
+
+  // Ensure templates/react directory exists
+  await fs.ensureDir(TEMPLATES_DIR);
+
+  // Generate templates for all components
+  for (const component of componentList) {
+    await generateComponentTemplates(component);
+  }
+
+  console.log(
+    `\n✅ Generated React templates for ${componentList.length} components`
+  );
+}
+
+main().catch(console.error);

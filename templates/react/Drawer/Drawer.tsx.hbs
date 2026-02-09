@@ -3,46 +3,63 @@ import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Drawer.css';
 
-export interface DrawerProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'dir'> {
-  /** Indicates whether or not the drawer is open */
+/**
+ * Drawers slide in from a container edge to expose additional options
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Drawer />
+ *
+ * // With event handlers
+ * <Drawer
+ *   onWaShow={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface DrawerProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaShow' | 'onWaAfterShow' | 'onWaHide' | 'onWaAfterHide' | 'dir'> {
+
+  /** Indicates whether the drawer is open */
   open?: boolean;
+
   /** The drawer's label as displayed in the header */
   label?: string;
+
   /** The direction from which the drawer will open */
   placement?: 'top' | 'end' | 'bottom' | 'start';
-  /** When enabled, the drawer will be closed when the user clicks outside of it */
+
+  /** Closes the drawer when the user clicks outside of it */
   'light-dismiss'?: boolean;
-  /** Disables the header and removes the default close button */
+
+  /** Removes the header */
   'without-header'?: boolean;
-  /** Event fired when the drawer is shown */
-  onShow?: (event: CustomEvent) => void;
-  /** Event fired after the drawer is shown */
-  onAfterShow?: (event: CustomEvent) => void;
-  /** Event fired when the drawer is about to hide */
-  onHide?: (event: CustomEvent) => void;
-  /** Event fired after the drawer is hidden */
-  onAfterHide?: (event: CustomEvent) => void;
+
+  /** Emitted when the drawer opens. */
+  onWaShow?: (event: CustomEvent) => void;
+
+  /** Emitted after the drawer opens and all animations are complete. */
+  onWaAfterShow?: (event: CustomEvent) => void;
+
+  /** Emitted when the drawer is requesting to close. Calling `event.preventDefault()` will prevent the drawer from closing. You can inspect `event.detail.source` to see which element caused the drawer to close. If the source is the drawer element itself, the user has pressed [[Escape]] or the drawer has been closed programmatically. Avoid using this unless closing the drawer will result in destructive behavior such as data loss. */
+  onWaHide?: (event: CustomEvent) => void;
+
+  /** Emitted after the drawer closes and all animations are complete. */
+  onWaAfterHide?: (event: CustomEvent) => void;
 }
 
 export interface DrawerRef {
-  show: () => void;
-  hide: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
-  ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  ({ children, className, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, ...props }, ref) => {
     const drawerRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-      open?: boolean;
     }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        show: () => drawerRef.current?.show?.(),
-        hide: () => drawerRef.current?.hide?.(),
         get element() {
           return drawerRef.current;
         },
@@ -52,37 +69,36 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
     useEffect(() => {
       const el = drawerRef.current;
-      if (!el || open === undefined) return;
-
-      const isOpen = el.open ?? false;
-      if (open && !isOpen) {
-        el.show?.();
-      } else if (!open && isOpen) {
-        el.hide?.();
-      }
-    }, [open]);
-
-    useEffect(() => {
-      const el = drawerRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleWaShow = (e: Event) => {
+        if (onWaShow) onWaShow(e as CustomEvent);
+      };
 
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-after-show', handleAfterShow);
-      el.addEventListener('wa-hide', handleHide);
-      el.addEventListener('wa-after-hide', handleAfterHide);
+      const handleWaAfterShow = (e: Event) => {
+        if (onWaAfterShow) onWaAfterShow(e as CustomEvent);
+      };
+
+      const handleWaHide = (e: Event) => {
+        if (onWaHide) onWaHide(e as CustomEvent);
+      };
+
+      const handleWaAfterHide = (e: Event) => {
+        if (onWaAfterHide) onWaAfterHide(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
 
       return () => {
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-after-show', handleAfterShow);
-        el.removeEventListener('wa-hide', handleHide);
-        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
       };
-    }, [onShow, onAfterShow, onHide, onAfterHide]);
+    }, [onWaShow, onWaAfterShow, onWaHide, onWaAfterHide]);
 
     return (
       <wa-drawer

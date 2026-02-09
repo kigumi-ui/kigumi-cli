@@ -108,7 +108,14 @@ export class ComponentInstaller {
       this.config.typescript
     );
 
-    const ext = this.config.typescript ? 'tsx' : 'jsx';
+    const ext =
+      this.config.framework === 'vue'
+        ? this.config.typescript
+          ? 'vue'
+          : 'js.vue'
+        : this.config.typescript
+          ? 'tsx'
+          : 'jsx';
     const componentDir = path.join(
       this.cwd,
       this.config.componentsDir,
@@ -185,7 +192,9 @@ export class ComponentInstaller {
       // Check for testing-library
       const hasTestingLibrary = !!(
         packageJson.devDependencies?.['@testing-library/react'] ||
-        packageJson.dependencies?.['@testing-library/react']
+        packageJson.dependencies?.['@testing-library/react'] ||
+        packageJson.devDependencies?.['@testing-library/vue'] ||
+        packageJson.dependencies?.['@testing-library/vue']
       );
 
       return (hasVitest || hasJest) && hasTestingLibrary;

@@ -3,47 +3,75 @@ import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Tag.css';
 
-export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** The tag's visual appearance */
+/**
+ * Tags are used as labels to organize things or indicate selections
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Tag />
+ *
+ * // With event handlers
+ * <Tag
+ *   onWaRemove={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaRemove' | 'dir'> {
+
+  /** Visual appearance */
   appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
-  /** Draws a pill-style tag with rounded edges */
+
+  /** Rounded edges */
   pill?: boolean;
-  /** The tag's size */
+
+  /** Tag size */
   size?: 'small' | 'medium' | 'large';
-  /** The tag's theme variant */
+
+  /** Theme variant */
   variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
-  /** Makes the tag removable and shows a remove button */
-  withRemove?: boolean;
-  /** Emitted when the remove button is activated */
-  onRemove?: (event: CustomEvent) => void;
+
+  /** Shows remove button */
+  'with-remove'?: boolean;
+
+  /** Emitted when the remove button is activated. */
+  onWaRemove?: (event: CustomEvent) => void;
 }
 
 export interface TagRef {
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Tag = forwardRef<TagRef, TagProps>(
-  ({ children, className, onRemove, ...props }, ref) => {
-    const tagRef = useRef<HTMLElement>(null);
+  ({ children, className, onWaRemove, ...props }, ref) => {
+    const tagRef = useRef<HTMLElement & {
+    }>(null);
 
-    useImperativeHandle(ref, () => ({
-      get element() {
-        return tagRef.current;
-      },
-    }), []);
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return tagRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
       const el = tagRef.current;
       if (!el) return;
 
-      const handleRemove = (e: Event) => onRemove?.(e as CustomEvent);
+      const handleWaRemove = (e: Event) => {
+        if (onWaRemove) onWaRemove(e as CustomEvent);
+      };
 
-      el.addEventListener('wa-remove', handleRemove);
+      el.addEventListener('wa-remove', handleWaRemove);
 
       return () => {
-        el.removeEventListener('wa-remove', handleRemove);
+        el.removeEventListener('wa-remove', handleWaRemove);
       };
-    }, [onRemove]);
+    }, [onWaRemove]);
 
     return (
       <wa-tag

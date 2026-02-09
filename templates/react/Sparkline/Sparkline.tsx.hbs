@@ -1,0 +1,78 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Sparkline.css';
+
+/**
+ * Sparklines are small inline data visualizations for showing trends
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Sparkline />
+ *
+ * // With event handlers
+ * <Sparkline />
+ *
+ * ```
+ */
+export interface SparklineProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
+  /** Comma-separated data points or JSON array */
+  data?: string;
+
+  /** Chart type */
+  type?: 'line' | 'bar' | 'area';
+
+  /** Width in pixels */
+  width?: number;
+
+  /** Height in pixels */
+  height?: number;
+
+  /** Line/bar color */
+  color?: string;
+
+  /** Fill color (for area type) */
+  'fill-color'?: string;
+
+  /** Line width in pixels */
+  'line-width'?: number;
+
+  /** Shows value tooltip on hover */
+  'show-tooltip'?: boolean;
+}
+
+export interface SparklineRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
+  ({ children, className, ...props }, ref) => {
+    const sparklineRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return sparklineRef.current;
+        },
+      }),
+      []
+    );
+
+    return (
+      <wa-sparkline
+        ref={sparklineRef}
+        class={clsx('Sparkline', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-sparkline>
+    );
+  }
+);
+
+Sparkline.displayName = 'Sparkline';

@@ -4,84 +4,125 @@ import '{{{importPath}}}';
 import './Input.css';
 
 /**
- * {{description}}
+ * Inputs collect data from the user
  *
  * @example
  * ```tsx
  * // Basic usage
- * <Input label="Email" type="email" placeholder="Enter email" />
- * <Input type="password" password-toggle />
- * <Input with-clear hint="Help text" />
+ * <Input />
  *
  * // With event handlers
- * <Input 
- *   label="Name"
- *   onInput={(e) => console.log(e.detail.value)}
- *   onChange={(e) => console.log('Changed:', e.detail.value)}
- * />
+ * <Input
+ *   onInput={(e) => console.log(e)} />
  *
  * // With ref methods
- * const inputRef = useRef<InputRef>(null);
- * <button onClick={() => inputRef.current?.focus()}>Focus Input</button>
- * <Input ref={inputRef} label="Focusable" />
+ * const ref = useRef<InputRef>(null);
+ * <button onClick={() => ref.current?.focus()}>Call Method</button>
+ * <Input ref={ref} />
  * ```
  */
-export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'dir'> {
+export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onWaClear' | 'onWaInvalid' | 'dir'> {
+
   /** Input type */
   type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search';
+
   /** Accessible label for the input */
   label?: string;
+
   /** Descriptive hint text */
   hint?: string;
+
   /** Placeholder text */
   placeholder?: string;
+
   /** Input value */
   value?: string;
+
   /** Visual appearance style */
   appearance?: 'filled' | 'filled-outlined' | 'outlined';
+
   /** Input size */
   size?: 'small' | 'medium' | 'large';
+
   /** Gives the input rounded edges */
   pill?: boolean;
+
   /** Disables the input */
   disabled?: boolean;
+
   /** Adds a clear button when input has content */
   'with-clear'?: boolean;
+
   /** Adds a toggle button for password visibility */
   'password-toggle'?: boolean;
-  /** Event fired when the input loses focus */
-  onBlur?: (event: FocusEvent) => void;
-  /** Event fired when the input gains focus */
-  onFocus?: (event: FocusEvent) => void;
-  /** Event fired when the input value changes */
+
+  /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;
-  /** Event fired when the input value changes and loses focus */
+
+  /** Emitted when an alteration to the control's value is committed by the user. */
   onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the control loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when the control gains focus. */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the clear button is activated. */
+  onWaClear?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onWaInvalid?: (event: CustomEvent) => void;
 }
 
 export interface InputRef {
-  focus: () => void;
+
+  /** Sets focus on the input. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the input. */
   blur: () => void;
+
+  /** Selects all the text in the input. */
   select: () => void;
-  setSelectionRange: (start: number, end: number) => void;
+
+  /** Sets the start and end positions of the text selection (0-based). */
+  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
+
+  /** Replaces a range of text with a new string. */
+  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
+
+  /** Displays the browser picker for an input element (only works if the browser supports it for the input type). */
+  showPicker: () => void;
+
+  /** Increments the value of a numeric input type by the value of the step attribute. */
+  stepUp: () => void;
+
+  /** Decrements the value of a numeric input type by the value of the step attribute. */
+  stepDown: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Input = forwardRef<InputRef, InputProps>(
-  ({ children, className, onBlur, onFocus, onInput, onChange, ...props }, ref) => {
+  ({ children, className, onInput, onChange, onBlur, onFocus, onWaClear, onWaInvalid, ...props }, ref) => {
     const inputRef = useRef<HTMLElement & {
-      focus?: () => void;
+      focus?: (options: FocusOptions) => void;
       blur?: () => void;
       select?: () => void;
-      setSelectionRange?: (start: number, end: number) => void;
+      setSelectionRange?: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
+      setRangeText?: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
+      showPicker?: () => void;
+      stepUp?: () => void;
+      stepDown?: () => void;
     }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        focus: () => {
+        focus: (options: FocusOptions) => {
           if (inputRef.current && typeof inputRef.current.focus === 'function') {
-            inputRef.current.focus();
+            inputRef.current.focus(options);
           }
         },
         blur: () => {
@@ -94,9 +135,29 @@ export const Input = forwardRef<InputRef, InputProps>(
             inputRef.current.select();
           }
         },
-        setSelectionRange: (start: number, end: number) => {
+        setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => {
           if (inputRef.current && typeof inputRef.current.setSelectionRange === 'function') {
-            inputRef.current.setSelectionRange(start, end);
+            inputRef.current.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+          }
+        },
+        setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => {
+          if (inputRef.current && typeof inputRef.current.setRangeText === 'function') {
+            inputRef.current.setRangeText(replacement, start, end, selectMode);
+          }
+        },
+        showPicker: () => {
+          if (inputRef.current && typeof inputRef.current.showPicker === 'function') {
+            inputRef.current.showPicker();
+          }
+        },
+        stepUp: () => {
+          if (inputRef.current && typeof inputRef.current.stepUp === 'function') {
+            inputRef.current.stepUp();
+          }
+        },
+        stepDown: () => {
+          if (inputRef.current && typeof inputRef.current.stepDown === 'function') {
+            inputRef.current.stepDown();
           }
         },
         get element() {
@@ -110,14 +171,6 @@ export const Input = forwardRef<InputRef, InputProps>(
       const el = inputRef.current;
       if (!el) return;
 
-      const handleBlur = (e: Event) => {
-        if (onBlur) onBlur(e as FocusEvent);
-      };
-
-      const handleFocus = (e: Event) => {
-        if (onFocus) onFocus(e as FocusEvent);
-      };
-
       const handleInput = (e: Event) => {
         if (onInput) onInput(e as CustomEvent);
       };
@@ -126,18 +179,38 @@ export const Input = forwardRef<InputRef, InputProps>(
         if (onChange) onChange(e as CustomEvent);
       };
 
-      el.addEventListener('wa-blur', handleBlur);
-      el.addEventListener('wa-focus', handleFocus);
-      el.addEventListener('wa-input', handleInput);
-      el.addEventListener('wa-change', handleChange);
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleWaClear = (e: Event) => {
+        if (onWaClear) onWaClear(e as CustomEvent);
+      };
+
+      const handleWaInvalid = (e: Event) => {
+        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('wa-clear', handleWaClear);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
-        el.removeEventListener('wa-blur', handleBlur);
-        el.removeEventListener('wa-focus', handleFocus);
-        el.removeEventListener('wa-input', handleInput);
-        el.removeEventListener('wa-change', handleChange);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('wa-clear', handleWaClear);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
-    }, [onBlur, onFocus, onInput, onChange]);
+    }, [onInput, onChange, onBlur, onFocus, onWaClear, onWaInvalid]);
 
     return (
       <wa-input

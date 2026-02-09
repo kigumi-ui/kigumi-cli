@@ -1,0 +1,64 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Sparkline.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * ```jsx
+ * // Basic usage
+ * <Sparkline data="5,10,8,15,12" />
+ * <Sparkline data="5,10,8,15,12" type="bar" />
+ * <Sparkline data="5,10,8,15,12" type="area" fill-color="var(--wa-color-brand)" />
+ *
+ * // With dimensions
+ * <Sparkline data="1,3,2,4,3,5" width={100} height={30} />
+ *
+ * // With tooltip
+ * <Sparkline data="10,20,15,30" show-tooltip />
+ *
+ * // With ref
+ * const sparklineRef = React.useRef(null);
+ * <Sparkline ref={sparklineRef} data="5,10,15" />
+ * ```
+ *
+ * @typedef {Object} SparklineProps
+ * @property {string} [data] - Comma-separated data points or JSON array
+ * @property {string} [type] - Chart type (line, bar, area)
+ * @property {number} [width] - Width in pixels
+ * @property {number} [height] - Height in pixels
+ * @property {string} [color] - Line/bar color
+ * @property {string} [fill-color] - Fill color (for area type)
+ * @property {number} [line-width] - Line width in pixels
+ * @property {boolean} [show-tooltip] - Shows value tooltip on hover
+ */
+
+export const Sparkline = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    const sparklineRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return sparklineRef.current;
+        },
+      }),
+      []
+    );
+
+    return (
+      <wa-sparkline
+        ref={sparklineRef}
+        class={clsx('Sparkline', className)}
+        {...props}
+      >
+        {children}
+      </wa-sparkline>
+    );
+  }
+);
+
+Sparkline.displayName = 'Sparkline';

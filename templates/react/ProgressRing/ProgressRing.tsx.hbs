@@ -1,20 +1,53 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './ProgressRing.css';
 
+/**
+ * Progress rings are used to show the completion of a task in a circular format
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <ProgressRing />
+ *
+ * // With event handlers
+ * <ProgressRing />
+ *
+ * ```
+ */
 export interface ProgressRingProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** The current progress as a percentage, 0 to 100 */
+
+  /** Current progress (0-100) */
   value?: number;
-  /** A custom label for assistive devices */
+
+  /** Accessible label */
   label?: string;
 }
 
-export const ProgressRing = forwardRef<HTMLElement, ProgressRingProps>(
+export interface ProgressRingRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
   ({ children, className, ...props }, ref) => {
+    const progressringRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return progressringRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-progress-ring
-        ref={ref}
+        ref={progressringRef}
         class={clsx('ProgressRing', className)}
         {...(props as Record<string, unknown>)}
       >

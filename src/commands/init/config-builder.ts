@@ -71,14 +71,6 @@ function ensureBoolean(value: unknown): boolean {
 }
 
 /**
- * Type guard to validate framework value.
- * @internal
- */
-// function isValidFramework(value: string): value is Framework {
-//   return FRAMEWORKS.includes(value as Framework);
-// }
-
-/**
  * Build configuration non-interactively from options
  * NOTE: Tier is now detected from .env, not stored in config
  */
@@ -88,14 +80,29 @@ export async function buildConfigNonInteractive(
   cwd: string,
   output: OutputInterface
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
-  // Framework - currently only React is supported
-  // Warn if user specified a different framework
-  if (options.framework && options.framework !== 'react') {
+  // Framework selection
+  const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue'];
+  let framework: Framework;
+
+  if (options.framework && SUPPORTED_FRAMEWORKS.includes(options.framework)) {
+    framework = options.framework;
+  } else if (options.framework) {
     output.warning(
-      `Framework "${options.framework}" is not yet supported. Using React. (Vue, Angular, Svelte coming soon)`
+      `Framework "${options.framework}" is not yet supported. Supported: ${SUPPORTED_FRAMEWORKS.join(', ')}`
     );
+    framework = SUPPORTED_FRAMEWORKS.includes(
+      projectInfo.framework as Framework
+    )
+      ? (projectInfo.framework as Framework)
+      : 'react';
+  } else {
+    // Auto-detect, default to react
+    framework = SUPPORTED_FRAMEWORKS.includes(
+      projectInfo.framework as Framework
+    )
+      ? (projectInfo.framework as Framework)
+      : 'react';
   }
-  const framework: Framework = 'react';
 
   const typescript = options.typescript ?? projectInfo.typescript;
 
@@ -164,10 +171,25 @@ export async function buildConfigInteractive(
   // Detect tier from .env
   const detectedTier = detectTierSync(cwd);
 
-  // Framework - currently only React is supported
-  // Vue, Angular, and Svelte support coming soon
-  const framework: Framework = 'react';
-  output.info('Framework: React (Vue, Angular, Svelte coming soon)');
+  // Framework selection
+  const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue'];
+  const detectedFramework = SUPPORTED_FRAMEWORKS.includes(
+    projectInfo.framework as Framework
+  )
+    ? (projectInfo.framework as Framework)
+    : 'react';
+
+  const frameworkResult =
+    options.framework ||
+    (await p.select({
+      message: 'Select framework',
+      options: [
+        { value: 'react', label: 'React' },
+        { value: 'vue', label: 'Vue 3' },
+      ],
+      initialValue: existingConfig?.framework || detectedFramework,
+    }));
+  const framework = ensureString(frameworkResult) as Framework;
 
   // TypeScript
   const getInitialTypescript = (): boolean => {

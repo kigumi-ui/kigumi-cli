@@ -1,0 +1,127 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './NumberInput.css';
+
+/**
+ * {{description}}
+ *
+ * @example
+ * ```jsx
+ * // Basic usage
+ * <NumberInput label="Quantity" min={0} max={100} />
+ * <NumberInput step={0.1} value={5.5} />
+ * <NumberInput no-spin-buttons />
+ *
+ * // With event handlers
+ * <NumberInput
+ *   label="Amount"
+ *   onInput={(e) => console.log('Value:', e.detail)}
+ *   onChange={(e) => console.log('Changed:', e.detail)}
+ * />
+ *
+ * // With ref methods
+ * const numberInputRef = React.useRef(null);
+ * <button onClick={() => numberInputRef.current?.focus()}>Focus</button>
+ * <NumberInput ref={numberInputRef} label="Number" />
+ * ```
+ *
+ * @typedef {Object} NumberInputProps
+ * @property {string} [label] - Accessible label
+ * @property {string} [hint] - Descriptive hint text
+ * @property {number} [value] - Current value
+ * @property {number} [min] - Minimum value
+ * @property {number} [max] - Maximum value
+ * @property {number} [step] - Step increment
+ * @property {string} [placeholder] - Placeholder text
+ * @property {string} [appearance] - Visual appearance style
+ * @property {string} [size] - Input size
+ * @property {boolean} [disabled] - Disables the input
+ * @property {boolean} [required] - Makes field mandatory
+ * @property {boolean} [no-spin-buttons] - Hides the spin buttons
+ * @property {function} [onBlur] - Event fired when input loses focus
+ * @property {function} [onFocus] - Event fired when input gains focus
+ * @property {function} [onInput] - Event fired when value changes
+ * @property {function} [onChange] - Event fired when value changes and loses focus
+ */
+
+export const NumberInput = React.forwardRef(
+  ({ children, className, onBlur, onFocus, onInput, onChange, ...props }, ref) => {
+    const numberInputRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        focus: () => {
+          if (numberInputRef.current && typeof numberInputRef.current.focus === 'function') {
+            numberInputRef.current.focus();
+          }
+        },
+        blur: () => {
+          if (numberInputRef.current && typeof numberInputRef.current.blur === 'function') {
+            numberInputRef.current.blur();
+          }
+        },
+        select: () => {
+          if (numberInputRef.current && typeof numberInputRef.current.select === 'function') {
+            numberInputRef.current.select();
+          }
+        },
+        setSelectionRange: (start, end) => {
+          if (numberInputRef.current && typeof numberInputRef.current.setSelectionRange === 'function') {
+            numberInputRef.current.setSelectionRange(start, end);
+          }
+        },
+        get element() {
+          return numberInputRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = numberInputRef.current;
+      if (!el) return;
+
+      const handleBlur = (e) => {
+        if (onBlur) onBlur(e);
+      };
+
+      const handleFocus = (e) => {
+        if (onFocus) onFocus(e);
+      };
+
+      const handleInput = (e) => {
+        if (onInput) onInput(e);
+      };
+
+      const handleChange = (e) => {
+        if (onChange) onChange(e);
+      };
+
+      el.addEventListener('wa-blur', handleBlur);
+      el.addEventListener('wa-focus', handleFocus);
+      el.addEventListener('wa-input', handleInput);
+      el.addEventListener('wa-change', handleChange);
+
+      return () => {
+        el.removeEventListener('wa-blur', handleBlur);
+        el.removeEventListener('wa-focus', handleFocus);
+        el.removeEventListener('wa-input', handleInput);
+        el.removeEventListener('wa-change', handleChange);
+      };
+    }, [onBlur, onFocus, onInput, onChange]);
+
+    return (
+      <wa-number-input
+        ref={numberInputRef}
+        class={clsx('NumberInput', className)}
+        {...props}
+      >
+        {children}
+      </wa-number-input>
+    );
+  }
+);
+
+NumberInput.displayName = 'NumberInput';

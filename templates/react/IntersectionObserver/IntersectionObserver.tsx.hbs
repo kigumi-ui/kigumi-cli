@@ -1,48 +1,78 @@
-import { forwardRef, useRef, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './IntersectionObserver.css';
 
-export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** Deactivates the intersection observer functionality */
+/**
+ * Observes changes in the intersection of a target element with an ancestor
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <IntersectionObserver />
+ *
+ * // With event handlers
+ * <IntersectionObserver
+ *   onWaIntersect={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaIntersect' | 'dir'> {
+
+  /** Disables the observer */
   disabled?: boolean;
-  /** CSS class applied to elements during intersection */
-  'intersect-class'?: string;
-  /** If enabled, observation ceases after initial intersection */
+
+  /** Stops observing after first intersection */
   once?: boolean;
-  /** Element ID to define the viewport boundaries */
-  root?: string | null;
-  /** Offset space around the root boundary */
-  'root-margin'?: string;
-  /** Space-separated visibility percentages triggering the observer */
+
+  /** Intersection thresholds */
   threshold?: string;
-  /** Event fired when a tracked element begins or ceases intersecting */
-  onIntersect?: (event: CustomEvent) => void;
+
+  /** Root element margin */
+  'root-margin'?: string;
+
+  /** Fired when a tracked element begins or ceases intersecting. */
+  onWaIntersect?: (event: CustomEvent) => void;
 }
 
-export const IntersectionObserver = forwardRef<HTMLElement, IntersectionObserverProps>(
-  ({ children, className, onIntersect, ...props }, ref) => {
-    const observerRef = useRef<HTMLElement>(null);
+export interface IntersectionObserverRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const IntersectionObserver = forwardRef<IntersectionObserverRef, IntersectionObserverProps>(
+  ({ children, className, onWaIntersect, ...props }, ref) => {
+    const intersectionobserverRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return intersectionobserverRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = observerRef.current;
+      const el = intersectionobserverRef.current;
       if (!el) return;
 
-      const handleIntersect = (e: Event) => onIntersect?.(e as CustomEvent);
-      el.addEventListener('wa-intersect', handleIntersect);
+      const handleWaIntersect = (e: Event) => {
+        if (onWaIntersect) onWaIntersect(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-intersect', handleWaIntersect);
 
       return () => {
-        el.removeEventListener('wa-intersect', handleIntersect);
+        el.removeEventListener('wa-intersect', handleWaIntersect);
       };
-    }, [onIntersect]);
+    }, [onWaIntersect]);
 
     return (
       <wa-intersection-observer
-        ref={(node: HTMLElement | null) => {
-          (observerRef as React.MutableRefObject<HTMLElement | null>).current = node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
-        }}
+        ref={intersectionobserverRef}
         class={clsx('IntersectionObserver', className)}
         {...(props as Record<string, unknown>)}
       >

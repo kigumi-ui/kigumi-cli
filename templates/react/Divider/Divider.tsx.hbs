@@ -1,22 +1,55 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Divider.css';
 
+/**
+ * Dividers are used to visually separate content
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Divider />
+ *
+ * // With event handlers
+ * <Divider />
+ *
+ * ```
+ */
 export interface DividerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** Sets the divider's orientation */
+
+  /** Divider orientation */
   orientation?: 'horizontal' | 'vertical';
 }
 
-export const Divider = forwardRef<HTMLElement, DividerProps>(
-  ({ className, orientation, ...props }, ref) => {
+export interface DividerRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Divider = forwardRef<DividerRef, DividerProps>(
+  ({ children, className, ...props }, ref) => {
+    const dividerRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return dividerRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-divider
-        ref={ref}
+        ref={dividerRef}
         class={clsx('Divider', className)}
-        orientation={orientation}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-divider>
     );
   }
 );
