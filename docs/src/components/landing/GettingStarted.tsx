@@ -1,4 +1,4 @@
-import { Badge, Card, Details } from '@/components/ui';
+import { Badge, Card } from '@/components/ui';
 import { CopyButton } from '@/components/ui';
 
 export function GettingStarted() {
@@ -7,7 +7,7 @@ export function GettingStarted() {
       <div className="wa-stack wa-gap-4xl">
         {/* Quick Start Section */}
         <div className="wa-stack wa-gap-xl">
-          <h2 className="wa-heading-2xl">Quick Start</h2>
+          <h2 className="wa-heading-2xl">Getting started</h2>
 
           {/* Step 1: Initialize */}
           <div className="wa-stack wa-gap-m">
@@ -16,56 +16,70 @@ export function GettingStarted() {
               <h3 className="wa-heading-l">Initialize Kigumi</h3>
             </div>
             <p className="wa-caption-m">
-              Run the init command above to set up Kigumi in your project.
+              Run the <code>init</code> command to set up Kigumi in your
+              project. During that process you can add your Web Awesome Pro
+              token and choose your framework (Currently React and Vue).
             </p>
-
-            {/* Pro Setup Hint */}
-            <Details appearance="outlined" summary="Using Web Awesome Pro?">
-              <div className="wa-stack wa-gap-m">
-                <p>Configure your token globally first (once per machine):</p>
-                <Card appearance="outlined" style={{ '--spacing': '0' }}>
-                  <div
-                    className="wa-flank:end wa-align-items-center wa-gap-xs"
-                    style={{ position: 'relative' }}
-                  >
-                    <pre>
-                      <code>
-                        npm config set
-                        //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken
-                        YOUR_TOKEN
-                      </code>
-                    </pre>
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-center wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>
                     <span
                       style={{
+                        opacity: 0.6,
+                        pointerEvents: 'none',
                         position: 'absolute',
-                        right: 'var(--wa-space-xs)',
-                        top: '0',
-                        bottom: '0',
+                        top: 0,
+                        bottom: 0,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        fontSize: 'inherit',
+                        zIndex: 1,
+                        userSelect: 'none',
+                      }}
+                      aria-hidden="true"
+                    >
+                      ${' '}
+                    </span>
+                    <span
+                      style={{
+                        paddingLeft: 'var(--wa-space-m)',
+                        display: 'inline-block',
                       }}
                     >
-                      <CopyButton value="npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN" />
+                      npx kigumi init
                     </span>
-                  </div>
-                </Card>
-                <p>
-                  Get your token at{' '}
-                  <a
-                    href="https://https://webawesome.com/login"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    https://webawesome.com/login
-                  </a>
-                </p>
-                <p>
-                  Then run <code>npx kigumi init</code> — Pro tier will be
-                  auto-detected.
-                </p>
+                  </code>
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: '0',
+                    bottom: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton value="npx kigumi add button input" />
+                </span>
               </div>
-            </Details>
+            </Card>
+
+            <h4 className="wa-heading-m wa-cluster wa-gap-xs wa-align-items-center">
+              Working with AI?
+            </h4>
+            <p className="wa-caption-m">
+              Install the Kigumi skills to easily convert Web Awesome code to
+              your framework, to customize themes and much more.
+            </p>
+            <pre>
+              <code>npx skills add https://kigumi.style/skills/kigumi</code>
+            </pre>
           </div>
 
           {/* Step 2: Add Components */}
@@ -159,23 +173,23 @@ export function GettingStarted() {
                 </span>
               </div>
             </Card>
+          </div>
 
-            <div className="wa-stack wa-gap-m"></div>
+          {/* Step 4: Build your UI */}
+          <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>4</Badge>
               <h3 className="wa-heading-l">Build your UI</h3>
             </div>
 
             <p className="wa-caption-m">Use components in your code:</p>
-          </div>
-
-          <Card appearance="outlined" style={{ '--spacing': '0' }}>
-            <div
-              className="wa-flank:end wa-align-items-start wa-gap-xs"
-              style={{ position: 'relative' }}
-            >
-              <pre>
-                <code>{`import { Button, Input } from '@/components/ui';
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-start wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>{`import { Button, Input } from '@/components/ui';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -198,19 +212,19 @@ export default function LoginForm() {
     </form>
   );
 }`}</code>
-              </pre>
-              <span
-                style={{
-                  position: 'absolute',
-                  right: 'var(--wa-space-xs)',
-                  top: 'var(--wa-space-xs)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <CopyButton
-                  value={`import { Button, Input } from '@/components/ui';
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: 'var(--wa-space-xs)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton
+                    value={`import { Button, Input } from '@/components/ui';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -233,10 +247,11 @@ export default function LoginForm() {
     </form>
   );
 }`}
-                />
-              </span>
-            </div>
-          </Card>
+                  />
+                </span>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </section>
