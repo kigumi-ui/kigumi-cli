@@ -48,9 +48,9 @@ export function Hero() {
       </div>
       <div className="wa-stack wa-gap-m">
         <InstallCommandExample />
-        <Callout appearance="outlined">
+        <Callout appearance="outlined" title="Beta">
           <Icon slot="icon" name="circle-info" />
-          <strong>Available for React.</strong> Angular, Svelte and Vue are
+          <strong>React and Vue are available.</strong> Angular and Svelte are
           coming soon.
         </Callout>
       </div>
