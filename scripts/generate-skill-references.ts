@@ -14,6 +14,7 @@
 import { mkdir, writeFile, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import prettier from 'prettier';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 
 const SKILLS_DIR = join(process.cwd(), 'skills', 'kigumi-react', 'references');
@@ -231,19 +232,29 @@ function generateEventMapping(): string {
 }
 
 /**
+ * Format markdown content with prettier
+ */
+async function formatMarkdown(content: string): Promise<string> {
+  return await prettier.format(content, { parser: 'markdown' });
+}
+
+/**
  * Write file only if content has changed
  */
 async function writeIfChanged(
   filePath: string,
   newContent: string
 ): Promise<boolean> {
+  // Format content first so comparison is fair
+  const formattedContent = await formatMarkdown(newContent);
+
   if (existsSync(filePath)) {
     const existingContent = await readFile(filePath, 'utf-8');
-    if (existingContent === newContent) {
+    if (existingContent === formattedContent) {
       return false; // No change
     }
   }
-  await writeFile(filePath, newContent, 'utf-8');
+  await writeFile(filePath, formattedContent, 'utf-8');
   return true; // Written
 }
 
