@@ -12,6 +12,7 @@ import { statusCommand } from './commands/status.js';
 import { themeCommand } from './commands/theme.js';
 import { brandCommand } from './commands/brand.js';
 import { paletteCommand } from './commands/palette.js';
+import { doctorCommand } from './commands/doctor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,10 +29,7 @@ program
 program
   .command('init')
   .description('Initialize kigumi in your project')
-  .option(
-    '--framework <framework>',
-    'Framework (only react supported currently)'
-  )
+  .option('--framework <framework>', 'Framework (react, vue)')
   .option('--typescript', 'Use TypeScript')
   .option('--no-typescript', 'Use JavaScript')
   .option('--tier <tier>', 'Web Awesome tier (free|pro)')
@@ -70,6 +68,13 @@ program
 program.addCommand(themeCommand);
 program.addCommand(brandCommand);
 program.addCommand(paletteCommand);
+
+// Diagnostic command
+program
+  .command('doctor')
+  .description('Diagnose and fix common issues in your project')
+  .option('--dry-run', 'Only report issues without fixing them')
+  .action(doctorCommand);
 
 // Global error handler for uncaught exceptions
 process.on('uncaughtException', (error: Error) => {

@@ -35,7 +35,7 @@ See [repo-structure.mmd](repo-structure.mmd) for visual diagram.
 |------|---------|
 | `src/index.ts` | CLI entry point (Commander routing) |
 | `src/utils/registry.ts` | Component definitions (single source of truth) |
-| `src/utils/tier.ts` | Free/Pro tier detection from `.env` |
+| `src/utils/tier.ts` | Free/Pro tier detection from `package.json` + `.env` |
 | `src/commands/init/` | Project initialization |
 | `src/commands/add.ts` | Component installation |
 
@@ -147,19 +147,25 @@ requestClose: () => dialogRef.current?.requestClose(),
 ### Tier Detection Logic
 
 ```typescript
-// src/utils/tier.ts - Detects CURRENT tier from .env
+// src/utils/tier.ts - Detects tier with package.json priority
 async function detectTier(cwd: string): Promise<Tier> {
-  const envContent = await fs.readFile('.env', 'utf-8');
-  const hasToken = /WEBAWESOME_NPM_TOKEN\s*=\s*.{10,}/.test(envContent);
-  return hasToken ? 'pro' : 'free';
-}
-
-// src/commands/init/index.ts - Detects PREVIOUS tier from package.json
-async function detectPreviousTier(cwd: string): Promise<Tier> {
+  // 1. Check package.json first (installed package is source of truth)
   const pkg = await fs.readJSON('package.json');
-  return pkg.dependencies?.['@awesome.me/webawesome-pro'] ? 'pro' : 'free';
+  if (pkg.dependencies?.['@awesome.me/webawesome-pro']) return 'pro';
+  if (pkg.dependencies?.['@awesome.me/webawesome']) return 'free';
+
+  // 2. Fallback to token detection (.env or ~/.npmrc)
+  const token = await detectProToken(cwd);
+  return token ? 'pro' : 'free';
 }
 ```
+
+**Detection priority:**
+
+1. `package.json` dependencies (highest priority - actual installed package)
+2. `.env` file (`WEBAWESOME_NPM_TOKEN`)
+3. Global `~/.npmrc` token
+4. Default to `free` if none found
 
 ### Migration Triggers
 
@@ -237,6 +243,7 @@ sequenceDiagram
 | Theme conflicts     | Duplicate theme imports?    | Verify `theme.css` has no `@import` |
 | Tier wrong          | `.env` has token?           | Use `detectTier()`                  |
 | Free→Pro fails      | Migration ran?              | Check `migration.ts`                |
+| Wrong import paths  | Mixed free/pro imports?     | Run `kigumi doctor`                 |
 | JSON parse fails    | File has comments?          | Use `readJSONWithComments()`        |
 
 ---
@@ -297,4 +304,4 @@ sequenceDiagram
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-01-28
+**Maintained by:** AI Assistants | **Last Updated:** 2026-02-09

@@ -335,5 +335,93 @@ export const Button = () => <wa-button />;
       const content = await fs.readFile(dtsPath, 'utf-8');
       expect(content).toContain('@awesome.me/webawesome-pro/dist/types');
     });
+
+    it('should migrate .vue files from free to pro', async () => {
+      // Create components directory
+      const componentsDir = path.join(testDir, 'src/components/ui/Test');
+      await fs.ensureDir(componentsDir);
+
+      // Create a .vue file with free import
+      const vueFile = path.join(componentsDir, 'Test.vue');
+      await fs.writeFile(
+        vueFile,
+        `<script setup lang="ts">
+import '@awesome.me/webawesome/dist/components/test/test.js';
+import './Test.css';
+</script>
+
+<template>
+  <wa-test />
+</template>`
+      );
+
+      await migratePackageReferences(testDir, mockOutput);
+
+      const content = await fs.readFile(vueFile, 'utf-8');
+      expect(content).toContain(
+        '@awesome.me/webawesome-pro/dist/components/test/test.js'
+      );
+      expect(content).not.toContain('@awesome.me/webawesome/dist');
+    });
+
+    it('should migrate multiple .vue files', async () => {
+      // Create multiple Vue components
+      const components = ['Button', 'Input', 'Dialog'];
+
+      for (const comp of components) {
+        const compDir = path.join(testDir, 'src/components/ui', comp);
+        await fs.ensureDir(compDir);
+
+        const vueFile = path.join(compDir, `${comp}.vue`);
+        await fs.writeFile(
+          vueFile,
+          `import '@awesome.me/webawesome/dist/components/${comp.toLowerCase()}/${comp.toLowerCase()}.js';`
+        );
+      }
+
+      await migratePackageReferences(testDir, mockOutput);
+
+      // Verify all were migrated
+      for (const comp of components) {
+        const vueFile = path.join(
+          testDir,
+          'src/components/ui',
+          comp,
+          `${comp}.vue`
+        );
+        const content = await fs.readFile(vueFile, 'utf-8');
+        expect(content).toContain('@awesome.me/webawesome-pro/dist');
+      }
+    });
+  });
+
+  describe('reverseMigratePackageReferences - Vue support', () => {
+    it('should reverse migrate .vue files from pro to free', async () => {
+      // Create components directory
+      const componentsDir = path.join(testDir, 'src/components/ui/Test');
+      await fs.ensureDir(componentsDir);
+
+      // Create a .vue file with pro import
+      const vueFile = path.join(componentsDir, 'Test.vue');
+      await fs.writeFile(
+        vueFile,
+        `<script setup lang="ts">
+import '@awesome.me/webawesome-pro/dist/components/test/test.js';
+import './Test.css';
+</script>
+
+<template>
+  <wa-test />
+</template>`
+      );
+
+      await reverseMigratePackageReferences(testDir, mockOutput);
+
+      const content = await fs.readFile(vueFile, 'utf-8');
+      expect(content).toContain(
+        '@awesome.me/webawesome/dist/components/test/test.js'
+      );
+      expect(content).not.toContain('@awesome.me/webawesome-pro');
+    });
   });
 });

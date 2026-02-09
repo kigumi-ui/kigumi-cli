@@ -259,4 +259,100 @@ describe('tier detection', () => {
       expect(pkg).toBe('@awesome.me/webawesome-pro');
     });
   });
+
+  describe('detectTier - package.json detection', () => {
+    it('should return "pro" when webawesome-pro is in dependencies', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
+      });
+      const tier = await detectTier(testDir);
+      expect(tier).toBe('pro');
+    });
+
+    it('should return "free" when webawesome is in dependencies', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { '@awesome.me/webawesome': '^3.2.1' },
+      });
+      const tier = await detectTier(testDir);
+      expect(tier).toBe('free');
+    });
+
+    it('should detect pro in devDependencies', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        devDependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
+      });
+      const tier = await detectTier(testDir);
+      expect(tier).toBe('pro');
+    });
+
+    it('should prefer package.json over missing token', async () => {
+      // No token, but webawesome-pro installed
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
+      });
+      // No .env file
+      const tier = await detectTier(testDir);
+      expect(tier).toBe('pro');
+    });
+
+    it('should fall back to token when no WA package in package.json', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { vue: '^3.5.0' },
+      });
+      const validToken = 'x'.repeat(MIN_TOKEN_LENGTH);
+      await fs.writeFile(
+        path.join(testDir, '.env'),
+        `WEBAWESOME_NPM_TOKEN=${validToken}\n`
+      );
+      const tier = await detectTier(testDir);
+      expect(tier).toBe('pro');
+    });
+  });
+
+  describe('detectTierSync - package.json detection', () => {
+    it('should return "pro" when webawesome-pro is in dependencies', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
+      });
+      const tier = detectTierSync(testDir);
+      expect(tier).toBe('pro');
+    });
+
+    it('should return "free" when webawesome is in dependencies', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { '@awesome.me/webawesome': '^3.2.1' },
+      });
+      const tier = detectTierSync(testDir);
+      expect(tier).toBe('free');
+    });
+
+    it('should detect pro in devDependencies', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        devDependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
+      });
+      const tier = detectTierSync(testDir);
+      expect(tier).toBe('pro');
+    });
+
+    it('should prefer package.json over missing token', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
+      });
+      const tier = detectTierSync(testDir);
+      expect(tier).toBe('pro');
+    });
+
+    it('should fall back to token when no WA package in package.json', async () => {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { vue: '^3.5.0' },
+      });
+      const validToken = 'x'.repeat(MIN_TOKEN_LENGTH);
+      await fs.writeFile(
+        path.join(testDir, '.env'),
+        `WEBAWESOME_NPM_TOKEN=${validToken}\n`
+      );
+      const tier = detectTierSync(testDir);
+      expect(tier).toBe('pro');
+    });
+  });
 });
