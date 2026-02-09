@@ -282,6 +282,188 @@ sequenceDiagram
 
 ---
 
+## Decision Trees & Checklists
+
+### Decision Tree: Component Task Type
+
+```
+START: User requests component change
+│
+├─ "Add new component"
+│  ├─ Check: Component in registry? → NO
+│  │  └─ ACTION: Use generate-webawesome-component skill
+│  │     └─ Creates templates → registry entry → tests
+│  │
+│  └─ Check: Component in registry? → YES
+│     └─ ACTION: User wants to install it
+│        └─ Run: `kigumi add <component>`
+│
+├─ "Fix/improve existing component"
+│  ├─ Check: Issue in generated code?
+│  │  └─ ACTION: Edit .hbs template
+│  │     └─ Path: templates/{framework}/{ComponentName}/
+│  │     └─ Rebuild: pnpm build
+│  │     └─ Test: node dist/index.js add {component} --overwrite
+│  │
+│  └─ Check: Issue in CLI logic?
+│     └─ ACTION: Edit src/ files
+│        └─ Commands: src/commands/
+│        └─ Utils: src/utils/
+│        └─ Test: pnpm test
+│
+└─ "Update component metadata"
+   └─ ACTION: Edit src/utils/registry.ts
+      └─ Update: name, tagName, importPath, tier, category, description, props
+      └─ Validate: pnpm validate:registry
+      └─ Test: pnpm test
+```
+
+### Decision Tree: Tier-Related Changes
+
+```
+START: Change affects tier detection or packages
+│
+├─ "Detect tier for project"
+│  ├─ Priority 1: Check package.json dependencies
+│  │  └─ @awesome.me/webawesome-pro → pro tier
+│  │  └─ @awesome.me/webawesome → free tier
+│  │
+│  ├─ Priority 2: Check .env for WEBAWESOME_NPM_TOKEN
+│  │  └─ Token present → pro tier
+│  │
+│  └─ Priority 3: Check ~/.npmrc for global token
+│     └─ Token present → pro tier
+│     └─ No token → free tier (default)
+│
+├─ "Change tier logic"
+│  └─ ACTION: ONLY edit src/utils/tier.ts
+│     └─ Functions: detectTier(), detectTierSync(), getWebAwesomePackage()
+│     └─ Test: tests/unit/tier.test.ts
+│
+└─ "Add tier-restricted component"
+   └─ ACTION: Edit src/utils/registry.ts
+      └─ Set tier: 'pro' or 'free'
+      └─ Validator: src/commands/add/validator.ts checks tier
+      └─ Test: Add TierRestrictionError test
+```
+
+### Checklist: Before Committing Template Changes
+
+- [ ] **Edited .hbs file (not generated code)**
+  - Path: `templates/{framework}/{ComponentName}/*.hbs`
+  - Both frameworks: React AND Vue
+  - Both variants: TypeScript AND JavaScript
+
+- [ ] **Rebuilt CLI**
+  - `pnpm build` (compiles + copies templates)
+  - Check: `dist/templates/` updated
+
+- [ ] **Generated & tested component**
+  - `node dist/index.js add {component} --overwrite`
+  - Visual check: Component renders correctly
+  - Browser test: Events work, styles apply
+
+- [ ] **Verified template syntax**
+  - Handlebars: `{{variable}}`, `{{#if}}`, `{{#each}}`
+  - Props: Use `quoteProp` helper for keys with dashes
+  - React: `class` not `className` for `<wa-*>`
+  - TypeScript: Named imports, interfaces
+  - JavaScript: Default import, JSDoc
+
+- [ ] **Updated tests**
+  - Unit: Template rendering test
+  - Integration: Compile-check test
+  - Snapshot: Visual regression (if applicable)
+
+### Checklist: Before Adding New Component
+
+- [ ] **Component documentation ready**
+  - Web Awesome docs URL
+  - Component tag name (e.g., `wa-button`)
+  - Import path pattern
+  - Props list with types and defaults
+
+- [ ] **Registry entry complete**
+  - Name (PascalCase)
+  - tagName (kebab-case, starts with `wa-`)
+  - importPath (@awesome.me/webawesome/...)
+  - tier ('free' or 'pro')
+  - category (matches existing categories)
+  - description (concise, user-facing)
+  - props (array of objects with name, type, default, description)
+
+- [ ] **Templates created (both frameworks)**
+  - `templates/react/{ComponentName}/{ComponentName}.tsx.hbs`
+  - `templates/react/{ComponentName}/{ComponentName}.jsx.hbs`
+  - `templates/react/{ComponentName}/{ComponentName}.test.tsx.hbs`
+  - `templates/react/{ComponentName}/{ComponentName}.test.jsx.hbs`
+  - `templates/react/{ComponentName}/{ComponentName}.css.hbs`
+  - `templates/vue/{ComponentName}/{ComponentName}.vue.hbs`
+  - `templates/vue/{ComponentName}/{ComponentName}.js.vue.hbs`
+  - `templates/vue/{ComponentName}/{ComponentName}.test.ts.hbs`
+  - `templates/vue/{ComponentName}/{ComponentName}.test.js.hbs`
+  - `templates/vue/{ComponentName}/{ComponentName}.css.hbs`
+
+- [ ] **Validation passed**
+  - `pnpm validate:registry` → ✅
+  - `pnpm validate:templates` → ✅
+  - `pnpm test` → ✅
+
+### Checklist: Before Merging PR
+
+- [ ] **All tests pass**
+  - Unit tests: `pnpm test`
+  - Integration tests: `pnpm test:integration`
+  - Linting: `pnpm lint`
+  - Type-check: `pnpm type-check`
+
+- [ ] **Validation scripts pass**
+  - Registry: `pnpm validate:registry`
+  - Templates: `pnpm validate:templates`
+  - Changes: `pnpm validate:changes`
+
+- [ ] **CI pipeline green**
+  - Test job (Node 18, 20, 22)
+  - Coverage job (>50%)
+  - TypeCheck job
+  - Validate job
+  - Security job
+
+- [ ] **Documentation updated**
+  - CHANGELOG.md (if user-facing)
+  - README.md (if CLI changes)
+  - AGENTS.md (if workflow changes)
+
+- [ ] **No regressions**
+  - Existing components still generate
+  - Existing tests still pass
+  - No tier logic broken
+
+### Checklist: Debugging Failed Generation
+
+- [ ] **Check template syntax**
+  - Run: `pnpm validate:templates`
+  - Look for: Missing .hbs files, syntax errors
+
+- [ ] **Check registry consistency**
+  - Run: `pnpm validate:registry`
+  - Look for: Wrong paths, missing props, duplicates
+
+- [ ] **Check tier detection**
+  - Run: `pnpm run doctor`
+  - Look for: Wrong package imports (free vs pro)
+
+- [ ] **Check TypeScript compilation**
+  - Test: Run compile-check integration test
+  - Look for: Type errors in generated code
+
+- [ ] **Check runtime errors**
+  - Start dev server with generated component
+  - Open browser console
+  - Look for: Import errors, undefined references
+
+---
+
 ## Questions Before Changes
 
 1. Does this need `.hbs` template changes?
