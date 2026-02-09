@@ -57,14 +57,23 @@ Initialize Kigumi in your project. Sets up theming and installs dependencies.
 npx kigumi init
 ```
 
-**Web Awesome Pro:** To unlock premium themes and Pro-only components, you need a Web Awesome Pro account. [Get your token](https://https://webawesome.com/login):
+**Own Web Awesome Pro license?**
+
+To unlock premium themes and Pro-only components, you need a Web Awesome Pro account. [Get your token](https://webawesome.com/login) and choose one of the following token setup methods:
 
 ```bash
-# Configure your token globally (once per machine)
+
+# Option 1: During `init` command (recommended)
+npx kigumi init --token YOUR_TOKEN
+
+# Option 2: Global
 npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
 
-# Then just run init - Pro tier is auto-detected
-npx kigumi init
+# Option 3: In .env file
+WEBAWESOME_NPM_TOKEN=your_token
+
+# Option 4: In .npmrc file
+//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
 ```
 
 ### `add`
@@ -76,16 +85,6 @@ npx kigumi add <components> # Add specific components (e.g., button input card)
 npx kigumi add              # Interactive component selector
 npx kigumi add --all        # Add all 80+ components at once
 ```
-
-### `list`
-
-View all available components:
-
-```bash
-npx kigumi list
-```
-
-Shows component name, description, and Pro badge for Pro-only components.
 
 ### `theme`
 
@@ -108,7 +107,7 @@ npx kigumi doctor --dry-run # Report issues without fixing
 
 The doctor command automatically detects your tier (Free/Pro) and ensures all component imports use the correct package. Useful when upgrading from Free to Pro or encountering import errors.
 
-## AI Agent Skills
+## Agent Skills
 
 Kigumi provides AI agent skills for transforming Web Awesome HTML to Kigumi components and for working with design tokens.
 
