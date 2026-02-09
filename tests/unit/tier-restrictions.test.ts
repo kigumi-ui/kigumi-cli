@@ -283,14 +283,16 @@ describe('tier restrictions', () => {
       );
     });
 
-    it('should have 8 pro-only components', () => {
-      expect(TIER_RESTRICTIONS.components.pro).toHaveLength(8);
+    it('should have 10 pro-only components', () => {
+      expect(TIER_RESTRICTIONS.components.pro).toHaveLength(10);
       expect(TIER_RESTRICTIONS.components.pro).toContain('page');
       expect(TIER_RESTRICTIONS.components.pro).toContain('charts');
       expect(TIER_RESTRICTIONS.components.pro).toContain('combobox');
       expect(TIER_RESTRICTIONS.components.pro).toContain('data-grid');
       expect(TIER_RESTRICTIONS.components.pro).toContain('date-picker');
       expect(TIER_RESTRICTIONS.components.pro).toContain('file-input');
+      expect(TIER_RESTRICTIONS.components.pro).toContain('number-input');
+      expect(TIER_RESTRICTIONS.components.pro).toContain('sparkline');
       expect(TIER_RESTRICTIONS.components.pro).toContain('toast');
       expect(TIER_RESTRICTIONS.components.pro).toContain('video');
     });
