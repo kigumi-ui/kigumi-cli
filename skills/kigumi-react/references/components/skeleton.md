@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-skeleton` element.
 
 ```tsx
 // Kigumi React
-import { Skeleton } from '@/components/ui';
+import { Skeleton } from "@/components/ui";
 
 <Skeleton effect="pulse">Click me</Skeleton>;
 ```

@@ -18,7 +18,7 @@ React wrapper component for the Web Awesome `wa-mutation-observer` element.
 
 ```tsx
 // Kigumi React
-import { MutationObserver } from '@/components/ui';
+import { MutationObserver } from "@/components/ui";
 
 <MutationObserver attr="value" attr-old-value={true}>
   Click me

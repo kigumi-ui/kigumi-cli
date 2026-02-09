@@ -18,7 +18,7 @@ React wrapper component for the Web Awesome `wa-split-panel` element.
 
 ```tsx
 // Kigumi React
-import { SplitPanel } from '@/components/ui';
+import { SplitPanel } from "@/components/ui";
 
 <SplitPanel position="50" position-in-pixels="value">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-drawer` element.
 
 ```tsx
 // Kigumi React
-import { Drawer } from '@/components/ui';
+import { Drawer } from "@/components/ui";
 
 <Drawer open={true} label="''">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-tab-group` element.
 
 ```tsx
 // Kigumi React
-import { TabGroup } from '@/components/ui';
+import { TabGroup } from "@/components/ui";
 
 <TabGroup placement="top" activation="auto">
   Click me

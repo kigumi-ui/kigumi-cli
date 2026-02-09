@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-badge` element.
 
 ```tsx
 // Kigumi React
-import { Badge } from '@/components/ui';
+import { Badge } from "@/components/ui";
 
 <Badge variant="brand" appearance="accent">
   Click me

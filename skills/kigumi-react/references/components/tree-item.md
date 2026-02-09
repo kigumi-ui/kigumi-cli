@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-tree-item` element.
 
 ```tsx
 // Kigumi React
-import { TreeItem } from '@/components/ui';
+import { TreeItem } from "@/components/ui";
 
 <TreeItem expanded={true} selected={true}>
   Click me

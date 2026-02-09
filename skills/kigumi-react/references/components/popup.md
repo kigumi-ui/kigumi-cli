@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-popup` element.
 
 ```tsx
 // Kigumi React
-import { Popup } from '@/components/ui';
+import { Popup } from "@/components/ui";
 
 <Popup active={true} anchor="value">
   Click me

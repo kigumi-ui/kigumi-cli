@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-textarea` element.
 
 ```tsx
 // Kigumi React
-import { Textarea } from '@/components/ui';
+import { Textarea } from "@/components/ui";
 
 <Textarea name="value" value="''">
   Click me

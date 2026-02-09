@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-select` element.
 
 ```tsx
 // Kigumi React
-import { Select } from '@/components/ui';
+import { Select } from "@/components/ui";
 
 <Select name="''" value="value">
   Click me

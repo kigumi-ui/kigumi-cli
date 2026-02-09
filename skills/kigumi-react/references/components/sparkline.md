@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-sparkline` element.
 
 ```tsx
 // Kigumi React
-import { Sparkline } from '@/components/ui';
+import { Sparkline } from "@/components/ui";
 
 <Sparkline data="value" type="line">
   Click me

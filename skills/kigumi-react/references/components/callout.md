@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-callout` element.
 
 ```tsx
 // Kigumi React
-import { Callout } from '@/components/ui';
+import { Callout } from "@/components/ui";
 
 <Callout appearance="accent" size="small">
   Click me

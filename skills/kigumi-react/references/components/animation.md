@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-animation` element.
 
 ```tsx
 // Kigumi React
-import { Animation } from '@/components/ui';
+import { Animation } from "@/components/ui";
 
 <Animation name="none" play={true}>
   Click me

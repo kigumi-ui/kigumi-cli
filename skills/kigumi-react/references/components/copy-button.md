@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-copy-button` element.
 
 ```tsx
 // Kigumi React
-import { CopyButton } from '@/components/ui';
+import { CopyButton } from "@/components/ui";
 
 <CopyButton value="''" from="''">
   Click me

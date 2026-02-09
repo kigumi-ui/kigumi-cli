@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-carousel-item` element.
 
 ```tsx
 // Kigumi React
-import { CarouselItem } from '@/components/ui';
+import { CarouselItem } from "@/components/ui";
 
 <CarouselItem>Click me</CarouselItem>;
 ```

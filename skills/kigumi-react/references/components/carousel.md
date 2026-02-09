@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-carousel` element.
 
 ```tsx
 // Kigumi React
-import { Carousel } from '@/components/ui';
+import { Carousel } from "@/components/ui";
 
 <Carousel autoplay={true} autoplay-interval="3000">
   Click me

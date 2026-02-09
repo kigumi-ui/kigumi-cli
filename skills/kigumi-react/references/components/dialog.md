@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-dialog` element.
 
 ```tsx
 // Kigumi React
-import { Dialog } from '@/components/ui';
+import { Dialog } from "@/components/ui";
 
 <Dialog open={true} label="''">
   Click me

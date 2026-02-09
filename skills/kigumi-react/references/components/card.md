@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-card` element.
 
 ```tsx
 // Kigumi React
-import { Card } from '@/components/ui';
+import { Card } from "@/components/ui";
 
 <Card appearance="outlined" orientation="vertical">
   Click me

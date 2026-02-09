@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-tab` element.
 
 ```tsx
 // Kigumi React
-import { Tab } from '@/components/ui';
+import { Tab } from "@/components/ui";
 
 <Tab panel="value" disabled={true}>
   Click me

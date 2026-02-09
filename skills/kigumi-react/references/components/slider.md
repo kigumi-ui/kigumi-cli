@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-slider` element.
 
 ```tsx
 // Kigumi React
-import { Slider } from '@/components/ui';
+import { Slider } from "@/components/ui";
 
 <Slider name="''" value="0">
   Click me

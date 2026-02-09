@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-option` element.
 
 ```tsx
 // Kigumi React
-import { Option } from '@/components/ui';
+import { Option } from "@/components/ui";
 
 <Option value="''" disabled={true}>
   Click me

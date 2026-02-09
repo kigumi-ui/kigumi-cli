@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-progress-bar` element.
 
 ```tsx
 // Kigumi React
-import { ProgressBar } from '@/components/ui';
+import { ProgressBar } from "@/components/ui";
 
 <ProgressBar value="0" indeterminate={true}>
   Click me

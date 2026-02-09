@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-tag` element.
 
 ```tsx
 // Kigumi React
-import { Tag } from '@/components/ui';
+import { Tag } from "@/components/ui";
 
 <Tag appearance="accent" pill={true}>
   Click me

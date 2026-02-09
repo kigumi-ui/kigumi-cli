@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-intersection-observer` element.
 
 ```tsx
 // Kigumi React
-import { IntersectionObserver } from '@/components/ui';
+import { IntersectionObserver } from "@/components/ui";
 
 <IntersectionObserver disabled={true} once={true}>
   Click me

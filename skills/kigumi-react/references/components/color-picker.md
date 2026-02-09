@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-color-picker` element.
 
 ```tsx
 // Kigumi React
-import { ColorPicker } from '@/components/ui';
+import { ColorPicker } from "@/components/ui";
 
 <ColorPicker value="value" format="hex">
   Click me

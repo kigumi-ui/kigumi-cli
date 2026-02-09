@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-radio-group` element.
 
 ```tsx
 // Kigumi React
-import { RadioGroup } from '@/components/ui';
+import { RadioGroup } from "@/components/ui";
 
 <RadioGroup label="''" hint="''">
   Click me

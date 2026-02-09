@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-details` element.
 
 ```tsx
 // Kigumi React
-import { Details } from '@/components/ui';
+import { Details } from "@/components/ui";
 
 <Details open={true} summary="value">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-qr-code` element.
 
 ```tsx
 // Kigumi React
-import { QrCode } from '@/components/ui';
+import { QrCode } from "@/components/ui";
 
 <QrCode value="''" label="''">
   Click me

@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-format-bytes` element.
 
 ```tsx
 // Kigumi React
-import { FormatBytes } from '@/components/ui';
+import { FormatBytes } from "@/components/ui";
 
 <FormatBytes value="0" unit="byte">
   Click me

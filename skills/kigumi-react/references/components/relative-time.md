@@ -16,7 +16,7 @@ React wrapper component for the Web Awesome `wa-relative-time` element.
 
 ```tsx
 // Kigumi React
-import { RelativeTime } from '@/components/ui';
+import { RelativeTime } from "@/components/ui";
 
 <RelativeTime date="value" format="long">
   Click me
