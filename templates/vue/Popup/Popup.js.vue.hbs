@@ -1,0 +1,61 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Popup.css';
+
+/**
+ * Popup is a utility component for positioning elements relative to an anchor
+ */
+const props = defineProps({
+    active: { type: Boolean, required: false, default: false },
+    anchor: { type: String, required: false },
+    placement: { type: String, required: false, default: top },
+    strategy: { type: String, required: false, default: absolute },
+    distance: { type: Number, required: false, default: 0 },
+    skidding: { type: Number, required: false, default: 0 },
+    arrow: { type: Boolean, required: false, default: false },
+    'arrow-placement': { type: String, required: false, default: anchor },
+    'arrow-padding': { type: Number, required: false, default: 10 },
+    flip: { type: Boolean, required: false, default: false },
+    'flip-fallback-placements': { type: String, required: false },
+    'flip-fallback-strategy': { type: String, required: false, default: best-fit },
+    'flip-padding': { type: Number, required: false, default: 0 },
+    shift: { type: Boolean, required: false, default: false },
+    'shift-padding': { type: Number, required: false, default: 0 },
+    'auto-size': { type: String, required: false },
+    sync: { type: String, required: false },
+    'auto-size-padding': { type: Number, required: false, default: 0 }
+});
+
+const emit = defineEmits(['wa-reposition']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaReposition = (e) => emit('wa-reposition', e);
+  el.addEventListener('wa-reposition', handleWaReposition);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-reposition', handleWaReposition);
+  });
+});
+
+defineExpose({
+  reposition: () => elementRef.value?.reposition?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-popup
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="anchor" />
+  </wa-popup>
+</template>

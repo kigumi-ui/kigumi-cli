@@ -1,0 +1,48 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Option.css';
+
+/**
+ * Options define the selectable items within various form controls
+ */
+export interface OptionProps {
+  value?: string;
+  disabled?: boolean;
+}
+
+const props = defineProps<OptionProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-option
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="start" />
+    <slot name="end" />
+  </wa-option>
+</template>

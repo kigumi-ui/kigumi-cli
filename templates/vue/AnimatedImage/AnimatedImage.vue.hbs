@@ -1,0 +1,54 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './AnimatedImage.css';
+
+/**
+ * A component for displaying animated GIFs and WEBPs that play and pause on interaction
+ */
+export interface AnimatedImageProps {
+  src: string;
+  alt: string;
+  play?: boolean;
+}
+
+const props = defineProps<AnimatedImageProps>();
+
+const emit = defineEmits<{
+  'wa-load': [event: CustomEvent];
+  'wa-error': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
+  el.addEventListener('wa-load', handleWaLoad);
+  const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
+  el.addEventListener('wa-error', handleWaError);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-load', handleWaLoad);
+    el.removeEventListener('wa-error', handleWaError);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-animated-image
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="play-icon" />
+    <slot name="pause-icon" />
+  </wa-animated-image>
+</template>

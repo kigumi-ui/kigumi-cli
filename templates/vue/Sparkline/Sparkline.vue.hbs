@@ -1,0 +1,52 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Sparkline.css';
+
+/**
+ * Sparklines are small inline data visualizations for showing trends
+ */
+export interface SparklineProps {
+  data?: string;
+  type?: 'line' | 'bar' | 'area';
+  width?: number;
+  height?: number;
+  color?: string;
+  'fill-color'?: string;
+  'line-width'?: number;
+  'show-tooltip'?: boolean;
+}
+
+const props = defineProps<SparklineProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-sparkline
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-sparkline>
+</template>

@@ -1,0 +1,68 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Details.css';
+
+/**
+ * Shows a brief summary and expands to show additional content
+ */
+export interface DetailsProps {
+  open?: boolean;
+  summary?: string;
+  disabled?: boolean;
+  appearance?: 'filled' | 'outlined' | 'filled-outlined' | 'plain';
+  'icon-placement'?: 'start' | 'end';
+  name?: string;
+}
+
+const props = defineProps<DetailsProps>();
+
+const emit = defineEmits<{
+  'wa-show': [event: CustomEvent];
+  'wa-after-show': [event: CustomEvent];
+  'wa-hide': [event: CustomEvent];
+  'wa-after-hide': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
+  el.addEventListener('wa-show', handleWaShow);
+  const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
+  el.addEventListener('wa-hide', handleWaHide);
+  const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-show', handleWaShow);
+    el.removeEventListener('wa-after-show', handleWaAfterShow);
+    el.removeEventListener('wa-hide', handleWaHide);
+    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+  });
+});
+
+defineExpose({
+  show: () => (elementRef.value as any)?.show?.(),
+  hide: () => (elementRef.value as any)?.hide?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-details
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="summary" />
+    <slot name="expand-icon" />
+    <slot name="collapse-icon" />
+  </wa-details>
+</template>

@@ -1,0 +1,72 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './TreeItem.css';
+
+/**
+ * Tree items are used inside trees to represent hierarchical items
+ */
+export interface TreeItemProps {
+  expanded?: boolean;
+  selected?: boolean;
+  disabled?: boolean;
+  lazy?: boolean;
+}
+
+const props = defineProps<TreeItemProps>();
+
+const emit = defineEmits<{
+  'wa-expand': [event: CustomEvent];
+  'wa-after-expand': [event: CustomEvent];
+  'wa-collapse': [event: CustomEvent];
+  'wa-after-collapse': [event: CustomEvent];
+  'wa-lazy-change': [event: CustomEvent];
+  'wa-lazy-load': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaExpand = (e: Event) => emit('wa-expand', e as CustomEvent);
+  el.addEventListener('wa-expand', handleWaExpand);
+  const handleWaAfterExpand = (e: Event) => emit('wa-after-expand', e as CustomEvent);
+  el.addEventListener('wa-after-expand', handleWaAfterExpand);
+  const handleWaCollapse = (e: Event) => emit('wa-collapse', e as CustomEvent);
+  el.addEventListener('wa-collapse', handleWaCollapse);
+  const handleWaAfterCollapse = (e: Event) => emit('wa-after-collapse', e as CustomEvent);
+  el.addEventListener('wa-after-collapse', handleWaAfterCollapse);
+  const handleWaLazyChange = (e: Event) => emit('wa-lazy-change', e as CustomEvent);
+  el.addEventListener('wa-lazy-change', handleWaLazyChange);
+  const handleWaLazyLoad = (e: Event) => emit('wa-lazy-load', e as CustomEvent);
+  el.addEventListener('wa-lazy-load', handleWaLazyLoad);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-expand', handleWaExpand);
+    el.removeEventListener('wa-after-expand', handleWaAfterExpand);
+    el.removeEventListener('wa-collapse', handleWaCollapse);
+    el.removeEventListener('wa-after-collapse', handleWaAfterCollapse);
+    el.removeEventListener('wa-lazy-change', handleWaLazyChange);
+    el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
+  });
+});
+
+defineExpose({
+  getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => (elementRef.value as any)?.getChildrenItems?.({ includeDisabled = true }),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tree-item
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="expand-icon" />
+    <slot name="collapse-icon" />
+  </wa-tree-item>
+</template>

@@ -1,0 +1,48 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './FormatBytes.css';
+
+/**
+ * Formats a number as a human-readable byte value
+ */
+export interface FormatBytesProps {
+  value?: number;
+  unit?: 'byte' | 'bit';
+  display?: 'long' | 'short' | 'narrow';
+  lang?: string;
+}
+
+const props = defineProps<FormatBytesProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-format-bytes
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-format-bytes>
+</template>

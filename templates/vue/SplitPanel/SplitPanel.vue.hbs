@@ -1,0 +1,55 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './SplitPanel.css';
+
+/**
+ * Split panels display two adjacent panels with a divider for resizing
+ */
+export interface SplitPanelProps {
+  position?: number;
+  'position-in-pixels'?: number;
+  orientation?: 'horizontal' | 'vertical';
+  primary?: 'start' | 'end';
+  disabled?: boolean;
+  snap?: string;
+  'snap-threshold'?: number;
+}
+
+const props = defineProps<SplitPanelProps>();
+
+const emit = defineEmits<{
+  'wa-reposition': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaReposition = (e: Event) => emit('wa-reposition', e as CustomEvent);
+  el.addEventListener('wa-reposition', handleWaReposition);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-reposition', handleWaReposition);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-split-panel
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="start" />
+    <slot name="end" />
+    <slot name="divider" />
+  </wa-split-panel>
+</template>

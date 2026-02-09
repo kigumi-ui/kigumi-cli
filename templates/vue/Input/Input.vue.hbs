@@ -1,0 +1,91 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Input.css';
+
+/**
+ * Inputs collect data from the user
+ */
+export interface InputProps {
+  type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search';
+  label?: string;
+  hint?: string;
+  placeholder?: string;
+  value?: string;
+  appearance?: 'filled' | 'filled-outlined' | 'outlined';
+  size?: 'small' | 'medium' | 'large';
+  pill?: boolean;
+  disabled?: boolean;
+  'with-clear'?: boolean;
+  'password-toggle'?: boolean;
+}
+
+const props = defineProps<InputProps>();
+
+const emit = defineEmits<{
+  'input': [event: CustomEvent];
+  'change': [event: CustomEvent];
+  'blur': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'wa-clear': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleInput = (e: Event) => emit('input', e as CustomEvent);
+  el.addEventListener('input', handleInput);
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+  el.addEventListener('focus', handleFocus);
+  const handleWaClear = (e: Event) => emit('wa-clear', e as CustomEvent);
+  el.addEventListener('wa-clear', handleWaClear);
+  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('wa-clear', handleWaClear);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  select: () => (elementRef.value as any)?.select?.(),
+  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => (elementRef.value as any)?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
+  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => (elementRef.value as any)?.setRangeText?.(replacement, start, end, selectMode),
+  showPicker: () => (elementRef.value as any)?.showPicker?.(),
+  stepUp: () => (elementRef.value as any)?.stepUp?.(),
+  stepDown: () => (elementRef.value as any)?.stepDown?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-input
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="start" />
+    <slot name="end" />
+    <slot name="clear-icon" />
+    <slot name="show-password-icon" />
+    <slot name="hide-password-icon" />
+    <slot name="hint" />
+  </wa-input>
+</template>

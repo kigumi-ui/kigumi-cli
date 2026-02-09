@@ -1,0 +1,44 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './FormatBytes.css';
+
+/**
+ * Formats a number as a human-readable byte value
+ */
+const props = defineProps({
+    value: { type: Number, required: false, default: 0 },
+    unit: { type: String, required: false, default: byte },
+    display: { type: String, required: false, default: short },
+    lang: { type: String, required: false }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-format-bytes
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-format-bytes>
+</template>

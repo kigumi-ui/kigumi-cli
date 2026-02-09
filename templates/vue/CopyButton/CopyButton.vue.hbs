@@ -1,0 +1,60 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './CopyButton.css';
+
+/**
+ * Copies text data to the clipboard when clicked
+ */
+export interface CopyButtonProps {
+  value?: string;
+  from?: string;
+  disabled?: boolean;
+  'copy-label'?: string;
+  'success-label'?: string;
+  'error-label'?: string;
+  'feedback-duration'?: number;
+  'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
+}
+
+const props = defineProps<CopyButtonProps>();
+
+const emit = defineEmits<{
+  'wa-copy': [event: CustomEvent];
+  'wa-error': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaCopy = (e: Event) => emit('wa-copy', e as CustomEvent);
+  el.addEventListener('wa-copy', handleWaCopy);
+  const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
+  el.addEventListener('wa-error', handleWaError);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-copy', handleWaCopy);
+    el.removeEventListener('wa-error', handleWaError);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-copy-button
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="copy-icon" />
+    <slot name="success-icon" />
+    <slot name="error-icon" />
+  </wa-copy-button>
+</template>

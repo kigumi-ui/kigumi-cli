@@ -1,0 +1,42 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Tab.css';
+
+/**
+ * Tabs are used inside tab groups to represent selectable tabs
+ */
+const props = defineProps({
+    panel: { type: String, required: false },
+    disabled: { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tab
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-tab>
+</template>

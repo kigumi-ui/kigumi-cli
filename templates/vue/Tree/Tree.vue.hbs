@@ -1,0 +1,48 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Tree.css';
+
+/**
+ * Trees allow you to display a hierarchical list of selectable tree items
+ */
+export interface TreeProps {
+  selection?: 'single' | 'multiple' | 'leaf';
+}
+
+const props = defineProps<TreeProps>();
+
+const emit = defineEmits<{
+  'wa-selection-change': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaSelectionChange = (e: Event) => emit('wa-selection-change', e as CustomEvent);
+  el.addEventListener('wa-selection-change', handleWaSelectionChange);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-selection-change', handleWaSelectionChange);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tree
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="expand-icon" />
+    <slot name="collapse-icon" />
+  </wa-tree>
+</template>

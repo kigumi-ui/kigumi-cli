@@ -1,0 +1,107 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Combobox.css';
+
+/**
+ * Combines a text input with a listbox for filtering and selecting options
+ */
+export interface ComboboxProps {
+  'allow-custom-value'?: boolean;
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  autocomplete?: 'list' | 'none';
+  disabled?: boolean;
+  hint?: string;
+  label?: string;
+  'max-options-visible'?: number;
+  multiple?: boolean;
+  name?: string;
+  open?: boolean;
+  pill?: boolean;
+  placeholder?: string;
+  placement?: 'top' | 'bottom';
+  required?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  'with-clear'?: boolean;
+}
+
+const props = defineProps<ComboboxProps>();
+
+const emit = defineEmits<{
+  'input': [event: CustomEvent];
+  'change': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'blur': [event: CustomEvent];
+  'wa-clear': [event: CustomEvent];
+  'wa-show': [event: CustomEvent];
+  'wa-after-show': [event: CustomEvent];
+  'wa-hide': [event: CustomEvent];
+  'wa-after-hide': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleInput = (e: Event) => emit('input', e as CustomEvent);
+  el.addEventListener('input', handleInput);
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+  el.addEventListener('focus', handleFocus);
+  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+  el.addEventListener('blur', handleBlur);
+  const handleWaClear = (e: Event) => emit('wa-clear', e as CustomEvent);
+  el.addEventListener('wa-clear', handleWaClear);
+  const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
+  el.addEventListener('wa-show', handleWaShow);
+  const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
+  el.addEventListener('wa-hide', handleWaHide);
+  const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('wa-clear', handleWaClear);
+    el.removeEventListener('wa-show', handleWaShow);
+    el.removeEventListener('wa-after-show', handleWaAfterShow);
+    el.removeEventListener('wa-hide', handleWaHide);
+    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  show: () => (elementRef.value as any)?.show?.(),
+  hide: () => (elementRef.value as any)?.hide?.(),
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-combobox
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="label" />
+    <slot name="start" />
+    <slot name="end" />
+    <slot name="clear-icon" />
+    <slot name="expand-icon" />
+    <slot name="hint" />
+  </wa-combobox>
+</template>

@@ -1,0 +1,46 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Tag.css';
+
+/**
+ * Tags are used as labels to organize things or indicate selections
+ */
+const props = defineProps({
+    appearance: { type: String, required: false, default: filled-outlined },
+    pill: { type: Boolean, required: false, default: false },
+    size: { type: String, required: false, default: medium },
+    variant: { type: String, required: false, default: neutral },
+    'with-remove': { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits(['wa-remove']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaRemove = (e) => emit('wa-remove', e);
+  el.addEventListener('wa-remove', handleWaRemove);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-remove', handleWaRemove);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tag
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-tag>
+</template>

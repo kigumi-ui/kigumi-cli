@@ -1,0 +1,63 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './TreeItem.css';
+
+/**
+ * Tree items are used inside trees to represent hierarchical items
+ */
+const props = defineProps({
+    expanded: { type: Boolean, required: false, default: false },
+    selected: { type: Boolean, required: false, default: false },
+    disabled: { type: Boolean, required: false, default: false },
+    lazy: { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits(['wa-expand', 'wa-after-expand', 'wa-collapse', 'wa-after-collapse', 'wa-lazy-change', 'wa-lazy-load']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaExpand = (e) => emit('wa-expand', e);
+  el.addEventListener('wa-expand', handleWaExpand);
+  const handleWaAfterExpand = (e) => emit('wa-after-expand', e);
+  el.addEventListener('wa-after-expand', handleWaAfterExpand);
+  const handleWaCollapse = (e) => emit('wa-collapse', e);
+  el.addEventListener('wa-collapse', handleWaCollapse);
+  const handleWaAfterCollapse = (e) => emit('wa-after-collapse', e);
+  el.addEventListener('wa-after-collapse', handleWaAfterCollapse);
+  const handleWaLazyChange = (e) => emit('wa-lazy-change', e);
+  el.addEventListener('wa-lazy-change', handleWaLazyChange);
+  const handleWaLazyLoad = (e) => emit('wa-lazy-load', e);
+  el.addEventListener('wa-lazy-load', handleWaLazyLoad);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-expand', handleWaExpand);
+    el.removeEventListener('wa-after-expand', handleWaAfterExpand);
+    el.removeEventListener('wa-collapse', handleWaCollapse);
+    el.removeEventListener('wa-after-collapse', handleWaAfterCollapse);
+    el.removeEventListener('wa-lazy-change', handleWaLazyChange);
+    el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
+  });
+});
+
+defineExpose({
+  getChildrenItems: ({ includeDisabled = true }) => elementRef.value?.getChildrenItems?.({ includeDisabled = true }),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tree-item
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="expand-icon" />
+    <slot name="collapse-icon" />
+  </wa-tree-item>
+</template>

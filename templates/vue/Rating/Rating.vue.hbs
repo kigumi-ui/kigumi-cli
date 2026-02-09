@@ -1,0 +1,57 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Rating.css';
+
+/**
+ * Ratings give users a way to quickly view and provide feedback
+ */
+export interface RatingProps {
+  label?: string;
+  value?: number;
+  max?: number;
+  precision?: number;
+  readonly?: boolean;
+  disabled?: boolean;
+}
+
+const props = defineProps<RatingProps>();
+
+const emit = defineEmits<{
+  'change': [event: CustomEvent];
+  'wa-hover': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleChange = (e: Event) => emit('change', e as CustomEvent);
+  el.addEventListener('change', handleChange);
+  const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
+  el.addEventListener('wa-hover', handleWaHover);
+
+  onUnmounted(() => {
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('wa-hover', handleWaHover);
+  });
+});
+
+defineExpose({
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-rating
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-rating>
+</template>

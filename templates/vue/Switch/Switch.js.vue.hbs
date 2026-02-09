@@ -1,0 +1,64 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Switch.css';
+
+/**
+ * Switches allow the user to toggle an option on or off
+ */
+const props = defineProps({
+    name: { type: String, required: false },
+    value: { type: String, required: false },
+    size: { type: String, required: false, default: medium },
+    disabled: { type: Boolean, required: false, default: false },
+    checked: { type: Boolean, required: false, default: false },
+    required: { type: Boolean, required: false, default: false },
+    hint: { type: String, required: false, default: '' }
+});
+
+const emit = defineEmits(['change', 'input', 'blur', 'focus', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleChange = (e) => emit('change', e);
+  el.addEventListener('change', handleChange);
+  const handleInput = (e) => emit('input', e);
+  el.addEventListener('input', handleInput);
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+  const handleWaInvalid = (e) => emit('wa-invalid', e);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  click: () => elementRef.value?.click?.(),
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-switch
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="hint" />
+  </wa-switch>
+</template>

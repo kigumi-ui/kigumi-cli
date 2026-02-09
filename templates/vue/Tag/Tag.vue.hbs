@@ -1,0 +1,50 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Tag.css';
+
+/**
+ * Tags are used as labels to organize things or indicate selections
+ */
+export interface TagProps {
+  appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  pill?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  'with-remove'?: boolean;
+}
+
+const props = defineProps<TagProps>();
+
+const emit = defineEmits<{
+  'wa-remove': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaRemove = (e: Event) => emit('wa-remove', e as CustomEvent);
+  el.addEventListener('wa-remove', handleWaRemove);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-remove', handleWaRemove);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tag
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-tag>
+</template>

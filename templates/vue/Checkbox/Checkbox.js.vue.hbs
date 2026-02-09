@@ -1,0 +1,65 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Checkbox.css';
+
+/**
+ * Checkboxes allow the user to toggle an option on or off
+ */
+const props = defineProps({
+    checked: { type: Boolean, required: false, default: false },
+    disabled: { type: Boolean, required: false, default: false },
+    hint: { type: String, required: false, default: '' },
+    indeterminate: { type: Boolean, required: false, default: false },
+    name: { type: String, required: false, default: '' },
+    required: { type: Boolean, required: false, default: false },
+    size: { type: String, required: false, default: medium },
+    value: { type: String, required: false }
+});
+
+const emit = defineEmits(['change', 'blur', 'focus', 'input', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleChange = (e) => emit('change', e);
+  el.addEventListener('change', handleChange);
+  const handleBlur = (e) => emit('blur', e);
+  el.addEventListener('blur', handleBlur);
+  const handleFocus = (e) => emit('focus', e);
+  el.addEventListener('focus', handleFocus);
+  const handleInput = (e) => emit('input', e);
+  el.addEventListener('input', handleInput);
+  const handleWaInvalid = (e) => emit('wa-invalid', e);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+
+  onUnmounted(() => {
+    el.removeEventListener('change', handleChange);
+    el.removeEventListener('blur', handleBlur);
+    el.removeEventListener('focus', handleFocus);
+    el.removeEventListener('input', handleInput);
+    el.removeEventListener('wa-invalid', handleWaInvalid);
+  });
+});
+
+defineExpose({
+  click: () => elementRef.value?.click?.(),
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-checkbox
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="hint" />
+  </wa-checkbox>
+</template>

@@ -1,0 +1,42 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Breadcrumb.css';
+
+/**
+ * Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
+ */
+const props = defineProps({
+    label: { type: String, required: false, default: '' }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-breadcrumb
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="separator" />
+  </wa-breadcrumb>
+</template>

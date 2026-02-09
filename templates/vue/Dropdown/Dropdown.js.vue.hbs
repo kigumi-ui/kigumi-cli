@@ -1,0 +1,61 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Dropdown.css';
+
+/**
+ * Dropdowns expose additional content that pops up when the user interacts with a trigger
+ */
+const props = defineProps({
+    open: { type: Boolean, required: false, default: false },
+    placement: { type: String, required: false, default: bottom-start },
+    disabled: { type: Boolean, required: false, default: false },
+    'stay-open-on-select': { type: Boolean, required: false, default: false },
+    distance: { type: Number, required: false, default: 0 },
+    skidding: { type: Number, required: false, default: 0 },
+    hoist: { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-select']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaShow = (e) => emit('wa-show', e);
+  el.addEventListener('wa-show', handleWaShow);
+  const handleWaAfterShow = (e) => emit('wa-after-show', e);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  const handleWaHide = (e) => emit('wa-hide', e);
+  el.addEventListener('wa-hide', handleWaHide);
+  const handleWaAfterHide = (e) => emit('wa-after-hide', e);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  const handleWaSelect = (e) => emit('wa-select', e);
+  el.addEventListener('wa-select', handleWaSelect);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-show', handleWaShow);
+    el.removeEventListener('wa-after-show', handleWaAfterShow);
+    el.removeEventListener('wa-hide', handleWaHide);
+    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+    el.removeEventListener('wa-select', handleWaSelect);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-dropdown
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="trigger" />
+  </wa-dropdown>
+</template>

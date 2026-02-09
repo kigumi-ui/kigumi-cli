@@ -1,0 +1,52 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Include.css';
+
+/**
+ * Includes give you the power to embed external HTML files into the page
+ */
+export interface IncludeProps {
+  src?: string;
+  mode?: 'cors' | 'no-cors' | 'same-origin';
+  'allow-scripts'?: boolean;
+}
+
+const props = defineProps<IncludeProps>();
+
+const emit = defineEmits<{
+  'wa-load': [event: CustomEvent];
+  'wa-include-error': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
+  el.addEventListener('wa-load', handleWaLoad);
+  const handleWaIncludeError = (e: Event) => emit('wa-include-error', e as CustomEvent);
+  el.addEventListener('wa-include-error', handleWaIncludeError);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-load', handleWaLoad);
+    el.removeEventListener('wa-include-error', handleWaIncludeError);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-include
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-include>
+</template>

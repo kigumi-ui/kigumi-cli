@@ -1,0 +1,45 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './IntersectionObserver.css';
+
+/**
+ * Observes changes in the intersection of a target element with an ancestor
+ */
+const props = defineProps({
+    disabled: { type: Boolean, required: false, default: false },
+    once: { type: Boolean, required: false, default: false },
+    threshold: { type: String, required: false, default: 0 },
+    'root-margin': { type: String, required: false, default: 0px }
+});
+
+const emit = defineEmits(['wa-intersect']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleWaIntersect = (e) => emit('wa-intersect', e);
+  el.addEventListener('wa-intersect', handleWaIntersect);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-intersect', handleWaIntersect);
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-intersection-observer
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-intersection-observer>
+</template>

@@ -1,0 +1,51 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Card.css';
+
+/**
+ * Cards can be used to group related subjects in a container
+ */
+const props = defineProps({
+    appearance: { type: String, required: false, default: outlined },
+    orientation: { type: String, required: false, default: vertical },
+    'with-header': { type: Boolean, required: false, default: false },
+    'with-footer': { type: Boolean, required: false, default: false },
+    'with-media': { type: Boolean, required: false, default: false }
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-card
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="header" />
+    <slot name="footer" />
+    <slot name="media" />
+    <slot name="actions" />
+    <slot name="header-actions" />
+    <slot name="footer-actions" />
+  </wa-card>
+</template>

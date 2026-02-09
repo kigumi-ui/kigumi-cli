@@ -1,0 +1,48 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './Badge.css';
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ */
+export interface BadgeProps {
+  variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  pill?: boolean;
+  attention?: 'none' | 'pulse' | 'bounce';
+}
+
+const props = defineProps<BadgeProps>();
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+
+
+  onUnmounted(() => {
+
+  });
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-badge
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-badge>
+</template>
