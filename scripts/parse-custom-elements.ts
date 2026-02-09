@@ -229,6 +229,25 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = ${JSON.stri
 async function main() {
   console.log('🔨 Parsing Web Awesome custom-elements.json...\n');
 
+  // Check if metadata file exists and docs not installed - skip regeneration
+  const metadataPath = path.join(
+    PROJECT_ROOT,
+    'src/utils/component-metadata.ts'
+  );
+  const docsInstalled = await fs.pathExists(
+    path.join(PROJECT_ROOT, 'docs/node_modules')
+  );
+
+  if ((await fs.pathExists(metadataPath)) && !docsInstalled) {
+    console.log(
+      '⏭️  Skipping metadata generation (file exists, docs not installed)'
+    );
+    console.log(
+      '   Run `pnpm install` in docs/ to regenerate from custom-elements.json\n'
+    );
+    return;
+  }
+
   try {
     const metadata = await parseCustomElements();
     const componentCount = Object.keys(metadata).length;

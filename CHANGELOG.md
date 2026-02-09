@@ -1,5 +1,11 @@
 # kigumi
 
+## 0.6.1
+
+### Patch Changes
+
+- Fix CI build failure by making prebuild script skip gracefully when docs dependencies are unavailable. Update README with corrected og-image URL.
+
 ## 0.6.0
 
 ### Minor Changes
