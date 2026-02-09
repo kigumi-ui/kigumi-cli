@@ -1,5 +1,11 @@
 # kigumi
 
+## 0.6.0
+
+### Minor Changes
+
+- Vue.js support is now fully available. You can initialize a Kigumi project with Vue 3 (`npx kigumi init` and select Vue 3), and add Web Awesome components that generate Vue-friendly wrappers. Same components, React or Vue.
+
 ## 0.5.0
 
 ### Minor Changes
