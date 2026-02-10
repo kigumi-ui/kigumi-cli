@@ -69,42 +69,21 @@ jobs:
 
       - name: Check coverage thresholds
         run: |
-          # Extract coverage percentages from JSON report
-          STATEMENTS=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.statements.pct")
-          BRANCHES=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.branches.pct")
-          FUNCTIONS=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.functions.pct")
-          LINES=$(node -p "JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.lines.pct")
-          
-          # Current baseline: 33% minimum (lowest is branches at 33.85%)
-          MIN_COVERAGE=33
-          
-          echo "Coverage Report:"
-          echo "  Statements: ${STATEMENTS}%"
-          echo "  Branches:   ${BRANCHES}%"
-          echo "  Functions:  ${FUNCTIONS}%"
-          echo "  Lines:      ${LINES}%"
-          echo ""
-          echo "Minimum Required: ${MIN_COVERAGE}%"
-          
-          # Check if any metric is below threshold
-          if (( $(echo "$STATEMENTS < $MIN_COVERAGE" | bc -l) )); then
-            echo "❌ Statement coverage ${STATEMENTS}% is below ${MIN_COVERAGE}%"
-            exit 1
-          fi
-          if (( $(echo "$BRANCHES < $MIN_COVERAGE" | bc -l) )); then
-            echo "❌ Branch coverage ${BRANCHES}% is below ${MIN_COVERAGE}%"
-            exit 1
-          fi
-          if (( $(echo "$FUNCTIONS < $MIN_COVERAGE" | bc -l) )); then
-            echo "❌ Function coverage ${FUNCTIONS}% is below ${MIN_COVERAGE}%"
-            exit 1
-          fi
-          if (( $(echo "$LINES < $MIN_COVERAGE" | bc -l) )); then
-            echo "❌ Line coverage ${LINES}% is below ${MIN_COVERAGE}%"
-            exit 1
-          fi
-          
-          echo "✅ All coverage metrics meet the minimum threshold"
+          node -e "
+            const fs = require('fs');
+            const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8')).total;
+            const minCoverage = 33;
+            const metrics = { statements: coverage.statements.pct, branches: coverage.branches.pct, functions: coverage.functions.pct, lines: coverage.lines.pct };
+            
+            console.log('Coverage: ' + Object.entries(metrics).map(([k, v]) => k + ' ' + v + '%').join(', '));
+            
+            const failed = Object.entries(metrics).filter(([k, v]) => v < minCoverage);
+            if (failed.length > 0) {
+              console.log('❌ Below ' + minCoverage + '%: ' + failed.map(([k]) => k).join(', '));
+              process.exit(1);
+            }
+            console.log('✅ All coverage metrics ≥ ' + minCoverage + '%');
+          "
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v5
