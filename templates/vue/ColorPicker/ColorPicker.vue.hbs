@@ -27,13 +27,13 @@ const props = defineProps<ColorPickerProps>();
 const emit = defineEmits<{
   'change': [event: CustomEvent];
   'input': [event: CustomEvent];
-  'wa-show': [event: CustomEvent];
-  'wa-after-show': [event: CustomEvent];
-  'wa-hide': [event: CustomEvent];
-  'wa-after-hide': [event: CustomEvent];
+  'show': [event: CustomEvent];
+  'after-show': [event: CustomEvent];
+  'hide': [event: CustomEvent];
+  'after-hide': [event: CustomEvent];
   'blur': [event: CustomEvent];
   'focus': [event: FocusEvent];
-  'wa-invalid': [event: CustomEvent];
+  'invalid': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -46,31 +46,31 @@ onMounted(() => {
   el.addEventListener('change', handleChange);
   const handleInput = (e: Event) => emit('input', e as CustomEvent);
   el.addEventListener('input', handleInput);
-  const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
-  el.addEventListener('wa-show', handleWaShow);
-  const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
-  el.addEventListener('wa-after-show', handleWaAfterShow);
-  const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
-  el.addEventListener('wa-hide', handleWaHide);
-  const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
-  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  const handleShow = (e: Event) => emit('show', e as CustomEvent);
+  el.addEventListener('wa-show', handleShow);
+  const handleAfterShow = (e: Event) => emit('after-show', e as CustomEvent);
+  el.addEventListener('wa-after-show', handleAfterShow);
+  const handleHide = (e: Event) => emit('hide', e as CustomEvent);
+  el.addEventListener('wa-hide', handleHide);
+  const handleAfterHide = (e: Event) => emit('after-hide', e as CustomEvent);
+  el.addEventListener('wa-after-hide', handleAfterHide);
   const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
   el.addEventListener('blur', handleBlur);
   const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
   el.addEventListener('focus', handleFocus);
-  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e: Event) => emit('invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('change', handleChange);
     el.removeEventListener('input', handleInput);
-    el.removeEventListener('wa-show', handleWaShow);
-    el.removeEventListener('wa-after-show', handleWaAfterShow);
-    el.removeEventListener('wa-hide', handleWaHide);
-    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+    el.removeEventListener('wa-show', handleShow);
+    el.removeEventListener('wa-after-show', handleAfterShow);
+    el.removeEventListener('wa-hide', handleHide);
+    el.removeEventListener('wa-after-hide', handleAfterHide);
     el.removeEventListener('blur', handleBlur);
     el.removeEventListener('focus', handleFocus);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

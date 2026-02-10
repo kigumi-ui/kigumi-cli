@@ -13,11 +13,11 @@ import './Dropdown.css';
  *
  * // With event handlers
  * <Dropdown
- *   onWaShow={(e) => console.log(e)} />
+ *   onShow={(e) => console.log(e)} />
  *
  * ```
  */
-export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaShow' | 'onWaAfterShow' | 'onWaHide' | 'onWaAfterHide' | 'onWaSelect' | 'dir'> {
+export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onSelect' | 'dir'> {
 
   /** Indicates whether the dropdown is open */
   open?: boolean;
@@ -41,19 +41,19 @@ export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaSh
   hoist?: boolean;
 
   /** Emitted when the dropdown is about to show. */
-  onWaShow?: (event: CustomEvent) => void;
+  onShow?: (event: CustomEvent) => void;
 
   /** Emitted after the dropdown has been shown. */
-  onWaAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: CustomEvent) => void;
 
   /** Emitted when the dropdown is about to hide. */
-  onWaHide?: (event: CustomEvent) => void;
+  onHide?: (event: CustomEvent) => void;
 
   /** Emitted after the dropdown has been hidden. */
-  onWaAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: CustomEvent) => void;
 
   /** Emitted when an item in the dropdown is selected. */
-  onWaSelect?: (event: CustomEvent) => void;
+  onSelect?: (event: CustomEvent) => void;
 }
 
 export interface DropdownRef {
@@ -62,7 +62,7 @@ export interface DropdownRef {
 }
 
 export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
-  ({ children, className, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onWaSelect, ...props }, ref) => {
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, onSelect, ...props }, ref) => {
     const dropdownRef = useRef<HTMLElement & {
     }>(null);
 
@@ -80,40 +80,40 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
       const el = dropdownRef.current;
       if (!el) return;
 
-      const handleWaShow = (e: Event) => {
-        if (onWaShow) onWaShow(e as CustomEvent);
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleWaAfterShow = (e: Event) => {
-        if (onWaAfterShow) onWaAfterShow(e as CustomEvent);
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleWaHide = (e: Event) => {
-        if (onWaHide) onWaHide(e as CustomEvent);
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleWaAfterHide = (e: Event) => {
-        if (onWaAfterHide) onWaAfterHide(e as CustomEvent);
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
-      const handleWaSelect = (e: Event) => {
-        if (onWaSelect) onWaSelect(e as CustomEvent);
+      const handleSelect = (e: Event) => {
+        if (onSelect) onSelect(e as CustomEvent);
       };
 
-      el.addEventListener('wa-show', handleWaShow);
-      el.addEventListener('wa-after-show', handleWaAfterShow);
-      el.addEventListener('wa-hide', handleWaHide);
-      el.addEventListener('wa-after-hide', handleWaAfterHide);
-      el.addEventListener('wa-select', handleWaSelect);
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-select', handleSelect);
 
       return () => {
-        el.removeEventListener('wa-show', handleWaShow);
-        el.removeEventListener('wa-after-show', handleWaAfterShow);
-        el.removeEventListener('wa-hide', handleWaHide);
-        el.removeEventListener('wa-after-hide', handleWaAfterHide);
-        el.removeEventListener('wa-select', handleWaSelect);
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-select', handleSelect);
       };
-    }, [onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onWaSelect]);
+    }, [onShow, onAfterShow, onHide, onAfterHide, onSelect]);
 
     return (
       <wa-dropdown

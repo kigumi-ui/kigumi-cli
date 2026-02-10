@@ -16,7 +16,7 @@ const props = defineProps({
     'snap-threshold': { type: Number, required: false, default: 12 }
 });
 
-const emit = defineEmits(['wa-reposition']);
+const emit = defineEmits(['reposition']);
 
 const elementRef = ref(null);
 
@@ -24,11 +24,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaReposition = (e) => emit('wa-reposition', e);
-  el.addEventListener('wa-reposition', handleWaReposition);
+  const handleReposition = (e) => emit('reposition', e);
+  el.addEventListener('wa-reposition', handleReposition);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-reposition', handleWaReposition);
+    el.removeEventListener('wa-reposition', handleReposition);
   });
 });
 

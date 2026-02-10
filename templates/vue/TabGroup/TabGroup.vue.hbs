@@ -15,8 +15,8 @@ export interface TabGroupProps {
 const props = defineProps<TabGroupProps>();
 
 const emit = defineEmits<{
-  'wa-tab-show': [event: CustomEvent];
-  'wa-tab-hide': [event: CustomEvent];
+  'tab-show': [event: CustomEvent];
+  'tab-hide': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -25,14 +25,14 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaTabShow = (e: Event) => emit('wa-tab-show', e as CustomEvent);
-  el.addEventListener('wa-tab-show', handleWaTabShow);
-  const handleWaTabHide = (e: Event) => emit('wa-tab-hide', e as CustomEvent);
-  el.addEventListener('wa-tab-hide', handleWaTabHide);
+  const handleTabShow = (e: Event) => emit('tab-show', e as CustomEvent);
+  el.addEventListener('wa-tab-show', handleTabShow);
+  const handleTabHide = (e: Event) => emit('tab-hide', e as CustomEvent);
+  el.addEventListener('wa-tab-hide', handleTabHide);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-tab-show', handleWaTabShow);
-    el.removeEventListener('wa-tab-hide', handleWaTabHide);
+    el.removeEventListener('wa-tab-show', handleTabShow);
+    el.removeEventListener('wa-tab-hide', handleTabHide);
   });
 });
 

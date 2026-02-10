@@ -13,17 +13,17 @@ import './ResizeObserver.css';
  *
  * // With event handlers
  * <ResizeObserver
- *   onWaResize={(e) => console.log(e)} />
+ *   onResize={(e) => console.log(e)} />
  *
  * ```
  */
-export interface ResizeObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaResize' | 'dir'> {
+export interface ResizeObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onResize' | 'dir'> {
 
   /** Disables the observer */
   disabled?: boolean;
 
   /** Emitted when the element is resized. */
-  onWaResize?: (event: CustomEvent) => void;
+  onResize?: (event: CustomEvent) => void;
 }
 
 export interface ResizeObserverRef {
@@ -32,7 +32,7 @@ export interface ResizeObserverRef {
 }
 
 export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>(
-  ({ children, className, onWaResize, ...props }, ref) => {
+  ({ children, className, onResize, ...props }, ref) => {
     const resizeobserverRef = useRef<HTMLElement & {
     }>(null);
 
@@ -50,16 +50,16 @@ export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>
       const el = resizeobserverRef.current;
       if (!el) return;
 
-      const handleWaResize = (e: Event) => {
-        if (onWaResize) onWaResize(e as CustomEvent);
+      const handleResize = (e: Event) => {
+        if (onResize) onResize(e as CustomEvent);
       };
 
-      el.addEventListener('wa-resize', handleWaResize);
+      el.addEventListener('wa-resize', handleResize);
 
       return () => {
-        el.removeEventListener('wa-resize', handleWaResize);
+        el.removeEventListener('wa-resize', handleResize);
       };
-    }, [onWaResize]);
+    }, [onResize]);
 
     return (
       <wa-resize-observer

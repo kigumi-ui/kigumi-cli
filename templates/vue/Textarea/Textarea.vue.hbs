@@ -31,7 +31,7 @@ const emit = defineEmits<{
   'change': [event: CustomEvent];
   'focus': [event: FocusEvent];
   'input': [event: CustomEvent];
-  'wa-invalid': [event: CustomEvent];
+  'invalid': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -48,15 +48,15 @@ onMounted(() => {
   el.addEventListener('focus', handleFocus);
   const handleInput = (e: Event) => emit('input', e as CustomEvent);
   el.addEventListener('input', handleInput);
-  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e: Event) => emit('invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('blur', handleBlur);
     el.removeEventListener('change', handleChange);
     el.removeEventListener('focus', handleFocus);
     el.removeEventListener('input', handleInput);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

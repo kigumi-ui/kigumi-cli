@@ -12,7 +12,7 @@ const props = defineProps({
     'allow-scripts': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['wa-load', 'wa-include-error']);
+const emit = defineEmits(['load', 'include-error']);
 
 const elementRef = ref(null);
 
@@ -20,14 +20,14 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaLoad = (e) => emit('wa-load', e);
-  el.addEventListener('wa-load', handleWaLoad);
-  const handleWaIncludeError = (e) => emit('wa-include-error', e);
-  el.addEventListener('wa-include-error', handleWaIncludeError);
+  const handleLoad = (e) => emit('load', e);
+  el.addEventListener('wa-load', handleLoad);
+  const handleIncludeError = (e) => emit('include-error', e);
+  el.addEventListener('wa-include-error', handleIncludeError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-load', handleWaLoad);
-    el.removeEventListener('wa-include-error', handleWaIncludeError);
+    el.removeEventListener('wa-load', handleLoad);
+    el.removeEventListener('wa-include-error', handleIncludeError);
   });
 });
 

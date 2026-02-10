@@ -13,17 +13,17 @@ import './Tree.css';
  *
  * // With event handlers
  * <Tree
- *   onWaSelectionChange={(e) => console.log(e)} />
+ *   onSelectionChange={(e) => console.log(e)} />
  *
  * ```
  */
-export interface TreeProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaSelectionChange' | 'dir'> {
+export interface TreeProps extends Omit<HTMLAttributes<HTMLElement>, 'onSelectionChange' | 'dir'> {
 
   /** Selection behavior */
   selection?: 'single' | 'multiple' | 'leaf';
 
   /** Emitted when a tree item is selected or deselected. */
-  onWaSelectionChange?: (event: CustomEvent) => void;
+  onSelectionChange?: (event: CustomEvent) => void;
 }
 
 export interface TreeRef {
@@ -32,7 +32,7 @@ export interface TreeRef {
 }
 
 export const Tree = forwardRef<TreeRef, TreeProps>(
-  ({ children, className, onWaSelectionChange, ...props }, ref) => {
+  ({ children, className, onSelectionChange, ...props }, ref) => {
     const treeRef = useRef<HTMLElement & {
     }>(null);
 
@@ -50,16 +50,16 @@ export const Tree = forwardRef<TreeRef, TreeProps>(
       const el = treeRef.current;
       if (!el) return;
 
-      const handleWaSelectionChange = (e: Event) => {
-        if (onWaSelectionChange) onWaSelectionChange(e as CustomEvent);
+      const handleSelectionChange = (e: Event) => {
+        if (onSelectionChange) onSelectionChange(e as CustomEvent);
       };
 
-      el.addEventListener('wa-selection-change', handleWaSelectionChange);
+      el.addEventListener('wa-selection-change', handleSelectionChange);
 
       return () => {
-        el.removeEventListener('wa-selection-change', handleWaSelectionChange);
+        el.removeEventListener('wa-selection-change', handleSelectionChange);
       };
-    }, [onWaSelectionChange]);
+    }, [onSelectionChange]);
 
     return (
       <wa-tree

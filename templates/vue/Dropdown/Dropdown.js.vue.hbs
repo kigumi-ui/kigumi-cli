@@ -16,7 +16,7 @@ const props = defineProps({
     hoist: { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-select']);
+const emit = defineEmits(['show', 'after-show', 'hide', 'after-hide', 'select']);
 
 const elementRef = ref(null);
 
@@ -24,23 +24,23 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaShow = (e) => emit('wa-show', e);
-  el.addEventListener('wa-show', handleWaShow);
-  const handleWaAfterShow = (e) => emit('wa-after-show', e);
-  el.addEventListener('wa-after-show', handleWaAfterShow);
-  const handleWaHide = (e) => emit('wa-hide', e);
-  el.addEventListener('wa-hide', handleWaHide);
-  const handleWaAfterHide = (e) => emit('wa-after-hide', e);
-  el.addEventListener('wa-after-hide', handleWaAfterHide);
-  const handleWaSelect = (e) => emit('wa-select', e);
-  el.addEventListener('wa-select', handleWaSelect);
+  const handleShow = (e) => emit('show', e);
+  el.addEventListener('wa-show', handleShow);
+  const handleAfterShow = (e) => emit('after-show', e);
+  el.addEventListener('wa-after-show', handleAfterShow);
+  const handleHide = (e) => emit('hide', e);
+  el.addEventListener('wa-hide', handleHide);
+  const handleAfterHide = (e) => emit('after-hide', e);
+  el.addEventListener('wa-after-hide', handleAfterHide);
+  const handleSelect = (e) => emit('select', e);
+  el.addEventListener('wa-select', handleSelect);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-show', handleWaShow);
-    el.removeEventListener('wa-after-show', handleWaAfterShow);
-    el.removeEventListener('wa-hide', handleWaHide);
-    el.removeEventListener('wa-after-hide', handleWaAfterHide);
-    el.removeEventListener('wa-select', handleWaSelect);
+    el.removeEventListener('wa-show', handleShow);
+    el.removeEventListener('wa-after-show', handleAfterShow);
+    el.removeEventListener('wa-hide', handleHide);
+    el.removeEventListener('wa-after-hide', handleAfterHide);
+    el.removeEventListener('wa-select', handleSelect);
   });
 });
 

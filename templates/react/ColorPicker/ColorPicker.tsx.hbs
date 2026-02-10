@@ -21,7 +21,7 @@ import './ColorPicker.css';
  * <ColorPicker ref={ref} />
  * ```
  */
-export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onInput' | 'onWaShow' | 'onWaAfterShow' | 'onWaHide' | 'onWaAfterHide' | 'onBlur' | 'onFocus' | 'onWaInvalid' | 'dir'> {
+export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onInput' | 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
 
   /** The current color value */
   value?: string;
@@ -68,13 +68,13 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onC
   /** Emitted when the color picker receives input. */
   onInput?: (event: CustomEvent) => void;
 
-  onWaShow?: (event: CustomEvent) => void;
+  onShow?: (event: CustomEvent) => void;
 
-  onWaAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: CustomEvent) => void;
 
-  onWaHide?: (event: CustomEvent) => void;
+  onHide?: (event: CustomEvent) => void;
 
-  onWaAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: CustomEvent) => void;
 
   /** Emitted when the color picker loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -83,7 +83,7 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onC
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onWaInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface ColorPickerRef {
@@ -113,7 +113,7 @@ export interface ColorPickerRef {
 }
 
 export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
-  ({ children, className, onChange, onInput, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onBlur, onFocus, onWaInvalid, ...props }, ref) => {
+  ({ children, className, onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid, ...props }, ref) => {
     const colorpickerRef = useRef<HTMLElement & {
       getHexString?: (hue: number, saturation: number, brightness: number, alpha: any) => void;
       focus?: (options: FocusOptions) => void;
@@ -181,20 +181,20 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
         if (onInput) onInput(e as CustomEvent);
       };
 
-      const handleWaShow = (e: Event) => {
-        if (onWaShow) onWaShow(e as CustomEvent);
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleWaAfterShow = (e: Event) => {
-        if (onWaAfterShow) onWaAfterShow(e as CustomEvent);
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleWaHide = (e: Event) => {
-        if (onWaHide) onWaHide(e as CustomEvent);
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleWaAfterHide = (e: Event) => {
-        if (onWaAfterHide) onWaAfterHide(e as CustomEvent);
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
       const handleBlur = (e: Event) => {
@@ -205,32 +205,32 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      const handleWaInvalid = (e: Event) => {
-        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('change', handleChange);
       el.addEventListener('input', handleInput);
-      el.addEventListener('wa-show', handleWaShow);
-      el.addEventListener('wa-after-show', handleWaAfterShow);
-      el.addEventListener('wa-hide', handleWaHide);
-      el.addEventListener('wa-after-hide', handleWaAfterHide);
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
-      el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
         el.removeEventListener('input', handleInput);
-        el.removeEventListener('wa-show', handleWaShow);
-        el.removeEventListener('wa-after-show', handleWaAfterShow);
-        el.removeEventListener('wa-hide', handleWaHide);
-        el.removeEventListener('wa-after-hide', handleWaAfterHide);
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onChange, onInput, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onBlur, onFocus, onWaInvalid]);
+    }, [onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid]);
 
     return (
       <wa-color-picker

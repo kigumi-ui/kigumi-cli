@@ -20,7 +20,7 @@ const props = defineProps({
     rel: { type: String, required: false }
 });
 
-const emit = defineEmits(['blur', 'focus', 'wa-invalid']);
+const emit = defineEmits(['blur', 'focus', 'invalid']);
 
 const elementRef = ref(null);
 
@@ -32,13 +32,13 @@ onMounted(() => {
   el.addEventListener('blur', handleBlur);
   const handleFocus = (e) => emit('focus', e);
   el.addEventListener('focus', handleFocus);
-  const handleWaInvalid = (e) => emit('wa-invalid', e);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e) => emit('invalid', e);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('blur', handleBlur);
     el.removeEventListener('focus', handleFocus);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

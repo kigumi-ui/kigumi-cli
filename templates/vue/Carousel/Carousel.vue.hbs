@@ -21,7 +21,7 @@ export interface CarouselProps {
 const props = defineProps<CarouselProps>();
 
 const emit = defineEmits<{
-  'wa-slide-change': [event: CustomEvent];
+  'slide-change': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -30,11 +30,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaSlideChange = (e: Event) => emit('wa-slide-change', e as CustomEvent);
-  el.addEventListener('wa-slide-change', handleWaSlideChange);
+  const handleSlideChange = (e: Event) => emit('slide-change', e as CustomEvent);
+  el.addEventListener('wa-slide-change', handleSlideChange);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-slide-change', handleWaSlideChange);
+    el.removeEventListener('wa-slide-change', handleSlideChange);
   });
 });
 

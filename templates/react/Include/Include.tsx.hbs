@@ -13,11 +13,11 @@ import './Include.css';
  *
  * // With event handlers
  * <Include
- *   onWaLoad={(e) => console.log(e)} />
+ *   onLoad={(e) => console.log(e)} />
  *
  * ```
  */
-export interface IncludeProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaLoad' | 'onWaIncludeError' | 'dir'> {
+export interface IncludeProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onIncludeError' | 'dir'> {
 
   /** The location of the HTML file to include */
   src?: string;
@@ -29,10 +29,10 @@ export interface IncludeProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaLoa
   'allow-scripts'?: boolean;
 
   /** Emitted when the included file is loaded. */
-  onWaLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: CustomEvent) => void;
 
   /** Emitted when the included file fails to load due to an error. */
-  onWaIncludeError?: (event: CustomEvent) => void;
+  onIncludeError?: (event: CustomEvent) => void;
 }
 
 export interface IncludeRef {
@@ -41,7 +41,7 @@ export interface IncludeRef {
 }
 
 export const Include = forwardRef<IncludeRef, IncludeProps>(
-  ({ children, className, onWaLoad, onWaIncludeError, ...props }, ref) => {
+  ({ children, className, onLoad, onIncludeError, ...props }, ref) => {
     const includeRef = useRef<HTMLElement & {
     }>(null);
 
@@ -59,22 +59,22 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
       const el = includeRef.current;
       if (!el) return;
 
-      const handleWaLoad = (e: Event) => {
-        if (onWaLoad) onWaLoad(e as CustomEvent);
+      const handleLoad = (e: Event) => {
+        if (onLoad) onLoad(e as CustomEvent);
       };
 
-      const handleWaIncludeError = (e: Event) => {
-        if (onWaIncludeError) onWaIncludeError(e as CustomEvent);
+      const handleIncludeError = (e: Event) => {
+        if (onIncludeError) onIncludeError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-load', handleWaLoad);
-      el.addEventListener('wa-include-error', handleWaIncludeError);
+      el.addEventListener('wa-load', handleLoad);
+      el.addEventListener('wa-include-error', handleIncludeError);
 
       return () => {
-        el.removeEventListener('wa-load', handleWaLoad);
-        el.removeEventListener('wa-include-error', handleWaIncludeError);
+        el.removeEventListener('wa-load', handleLoad);
+        el.removeEventListener('wa-include-error', handleIncludeError);
       };
-    }, [onWaLoad, onWaIncludeError]);
+    }, [onLoad, onIncludeError]);
 
     return (
       <wa-include

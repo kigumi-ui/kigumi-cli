@@ -21,7 +21,7 @@ import './Textarea.css';
  * <Textarea ref={ref} />
  * ```
  */
-export interface TextareaProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onChange' | 'onFocus' | 'onInput' | 'onWaInvalid' | 'dir'> {
+export interface TextareaProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onChange' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'> {
 
   /** Form field name */
   name?: string;
@@ -81,7 +81,7 @@ export interface TextareaProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur
   onInput?: (event: CustomEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onWaInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface TextareaRef {
@@ -108,7 +108,7 @@ export interface TextareaRef {
 }
 
 export const Textarea = forwardRef<TextareaRef, TextareaProps>(
-  ({ children, className, onBlur, onChange, onFocus, onInput, onWaInvalid, ...props }, ref) => {
+  ({ children, className, onBlur, onChange, onFocus, onInput, onInvalid, ...props }, ref) => {
     const textareaRef = useRef<HTMLElement & {
       focus?: (options: FocusOptions) => void;
       blur?: () => void;
@@ -178,24 +178,24 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
         if (onInput) onInput(e as CustomEvent);
       };
 
-      const handleWaInvalid = (e: Event) => {
-        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('blur', handleBlur);
       el.addEventListener('change', handleChange);
       el.addEventListener('focus', handleFocus);
       el.addEventListener('input', handleInput);
-      el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('change', handleChange);
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('input', handleInput);
-        el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onBlur, onChange, onFocus, onInput, onWaInvalid]);
+    }, [onBlur, onChange, onFocus, onInput, onInvalid]);
 
     return (
       <wa-textarea

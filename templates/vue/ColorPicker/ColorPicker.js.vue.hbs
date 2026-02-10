@@ -22,7 +22,7 @@ const props = defineProps({
     'without-format-toggle': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['change', 'input', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'blur', 'focus', 'wa-invalid']);
+const emit = defineEmits(['change', 'input', 'show', 'after-show', 'hide', 'after-hide', 'blur', 'focus', 'invalid']);
 
 const elementRef = ref(null);
 
@@ -34,31 +34,31 @@ onMounted(() => {
   el.addEventListener('change', handleChange);
   const handleInput = (e) => emit('input', e);
   el.addEventListener('input', handleInput);
-  const handleWaShow = (e) => emit('wa-show', e);
-  el.addEventListener('wa-show', handleWaShow);
-  const handleWaAfterShow = (e) => emit('wa-after-show', e);
-  el.addEventListener('wa-after-show', handleWaAfterShow);
-  const handleWaHide = (e) => emit('wa-hide', e);
-  el.addEventListener('wa-hide', handleWaHide);
-  const handleWaAfterHide = (e) => emit('wa-after-hide', e);
-  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  const handleShow = (e) => emit('show', e);
+  el.addEventListener('wa-show', handleShow);
+  const handleAfterShow = (e) => emit('after-show', e);
+  el.addEventListener('wa-after-show', handleAfterShow);
+  const handleHide = (e) => emit('hide', e);
+  el.addEventListener('wa-hide', handleHide);
+  const handleAfterHide = (e) => emit('after-hide', e);
+  el.addEventListener('wa-after-hide', handleAfterHide);
   const handleBlur = (e) => emit('blur', e);
   el.addEventListener('blur', handleBlur);
   const handleFocus = (e) => emit('focus', e);
   el.addEventListener('focus', handleFocus);
-  const handleWaInvalid = (e) => emit('wa-invalid', e);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e) => emit('invalid', e);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('change', handleChange);
     el.removeEventListener('input', handleInput);
-    el.removeEventListener('wa-show', handleWaShow);
-    el.removeEventListener('wa-after-show', handleWaAfterShow);
-    el.removeEventListener('wa-hide', handleWaHide);
-    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+    el.removeEventListener('wa-show', handleShow);
+    el.removeEventListener('wa-after-show', handleAfterShow);
+    el.removeEventListener('wa-hide', handleHide);
+    el.removeEventListener('wa-after-hide', handleAfterHide);
     el.removeEventListener('blur', handleBlur);
     el.removeEventListener('focus', handleFocus);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

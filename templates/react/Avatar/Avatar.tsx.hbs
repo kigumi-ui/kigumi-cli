@@ -13,11 +13,11 @@ import './Avatar.css';
  *
  * // With event handlers
  * <Avatar
- *   onWaError={(e) => console.log(e)} />
+ *   onError={(e) => console.log(e)} />
  *
  * ```
  */
-export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaError' | 'dir'> {
+export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onError' | 'dir'> {
 
   /** The image source to use for the avatar */
   image?: string;
@@ -35,7 +35,7 @@ export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaErro
   shape?: 'circle' | 'square' | 'rounded';
 
   /** The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. */
-  onWaError?: (event: CustomEvent) => void;
+  onError?: (event: CustomEvent) => void;
 }
 
 export interface AvatarRef {
@@ -44,7 +44,7 @@ export interface AvatarRef {
 }
 
 export const Avatar = forwardRef<AvatarRef, AvatarProps>(
-  ({ children, className, onWaError, ...props }, ref) => {
+  ({ children, className, onError, ...props }, ref) => {
     const avatarRef = useRef<HTMLElement & {
     }>(null);
 
@@ -62,16 +62,16 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
       const el = avatarRef.current;
       if (!el) return;
 
-      const handleWaError = (e: Event) => {
-        if (onWaError) onWaError(e as CustomEvent);
+      const handleError = (e: Event) => {
+        if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-error', handleWaError);
+      el.addEventListener('wa-error', handleError);
 
       return () => {
-        el.removeEventListener('wa-error', handleWaError);
+        el.removeEventListener('wa-error', handleError);
       };
-    }, [onWaError]);
+    }, [onError]);
 
     return (
       <wa-avatar

@@ -21,7 +21,7 @@ import './FileInput.css';
  * <FileInput ref={ref} />
  * ```
  */
-export interface FileInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onWaInvalid' | 'dir'> {
+export interface FileInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onInvalid' | 'dir'> {
 
   /** Accessible label for the input */
   label?: string;
@@ -66,7 +66,7 @@ export interface FileInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInp
   onBlur?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onWaInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface FileInputRef {
@@ -81,7 +81,7 @@ export interface FileInputRef {
 }
 
 export const FileInput = forwardRef<FileInputRef, FileInputProps>(
-  ({ children, className, onInput, onChange, onFocus, onBlur, onWaInvalid, ...props }, ref) => {
+  ({ children, className, onInput, onChange, onFocus, onBlur, onInvalid, ...props }, ref) => {
     const fileinputRef = useRef<HTMLElement & {
       focus?: (options: FocusOptions) => void;
       blur?: () => void;
@@ -127,24 +127,24 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
         if (onBlur) onBlur(e as FocusEvent);
       };
 
-      const handleWaInvalid = (e: Event) => {
-        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);
       el.addEventListener('focus', handleFocus);
       el.addEventListener('blur', handleBlur);
-      el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('input', handleInput);
         el.removeEventListener('change', handleChange);
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('blur', handleBlur);
-        el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onInput, onChange, onFocus, onBlur, onWaInvalid]);
+    }, [onInput, onChange, onFocus, onBlur, onInvalid]);
 
     return (
       <wa-file-input

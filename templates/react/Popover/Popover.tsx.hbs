@@ -13,7 +13,7 @@ import './Popover.css';
  *
  * // With event handlers
  * <Popover
- *   onWaShow={(e) => console.log(e)} />
+ *   onShow={(e) => console.log(e)} />
  *
  * // With ref methods
  * const ref = useRef<PopoverRef>(null);
@@ -21,7 +21,7 @@ import './Popover.css';
  * <Popover ref={ref} />
  * ```
  */
-export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaShow' | 'onWaAfterShow' | 'onWaHide' | 'onWaAfterHide' | 'dir'> {
+export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
 
   /** Indicates whether the popover is open */
   open?: boolean;
@@ -45,16 +45,16 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaSho
   'with-arrow'?: boolean;
 
   /** Emitted when the popover begins to show. Canceling this event will stop the popover from showing. */
-  onWaShow?: (event: CustomEvent) => void;
+  onShow?: (event: CustomEvent) => void;
 
   /** Emitted after the popover has shown and all animations are complete. */
-  onWaAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: CustomEvent) => void;
 
   /** Emitted when the popover begins to hide. Canceling this event will stop the popover from hiding. */
-  onWaHide?: (event: CustomEvent) => void;
+  onHide?: (event: CustomEvent) => void;
 
   /** Emitted after the popover has hidden and all animations are complete. */
-  onWaAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: CustomEvent) => void;
 }
 
 export interface PopoverRef {
@@ -69,7 +69,7 @@ export interface PopoverRef {
 }
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
-  ({ children, className, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, ...props }, ref) => {
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
     const popoverRef = useRef<HTMLElement & {
       show?: () => void;
       hide?: () => void;
@@ -99,34 +99,34 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
       const el = popoverRef.current;
       if (!el) return;
 
-      const handleWaShow = (e: Event) => {
-        if (onWaShow) onWaShow(e as CustomEvent);
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleWaAfterShow = (e: Event) => {
-        if (onWaAfterShow) onWaAfterShow(e as CustomEvent);
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleWaHide = (e: Event) => {
-        if (onWaHide) onWaHide(e as CustomEvent);
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleWaAfterHide = (e: Event) => {
-        if (onWaAfterHide) onWaAfterHide(e as CustomEvent);
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
-      el.addEventListener('wa-show', handleWaShow);
-      el.addEventListener('wa-after-show', handleWaAfterShow);
-      el.addEventListener('wa-hide', handleWaHide);
-      el.addEventListener('wa-after-hide', handleWaAfterHide);
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
 
       return () => {
-        el.removeEventListener('wa-show', handleWaShow);
-        el.removeEventListener('wa-after-show', handleWaAfterShow);
-        el.removeEventListener('wa-hide', handleWaHide);
-        el.removeEventListener('wa-after-hide', handleWaAfterHide);
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
       };
-    }, [onWaShow, onWaAfterShow, onWaHide, onWaAfterHide]);
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
 
     return (
       <wa-popover

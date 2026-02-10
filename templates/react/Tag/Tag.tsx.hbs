@@ -13,11 +13,11 @@ import './Tag.css';
  *
  * // With event handlers
  * <Tag
- *   onWaRemove={(e) => console.log(e)} />
+ *   onRemove={(e) => console.log(e)} />
  *
  * ```
  */
-export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaRemove' | 'dir'> {
+export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'onRemove' | 'dir'> {
 
   /** Visual appearance */
   appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
@@ -35,7 +35,7 @@ export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaRemove'
   'with-remove'?: boolean;
 
   /** Emitted when the remove button is activated. */
-  onWaRemove?: (event: CustomEvent) => void;
+  onRemove?: (event: CustomEvent) => void;
 }
 
 export interface TagRef {
@@ -44,7 +44,7 @@ export interface TagRef {
 }
 
 export const Tag = forwardRef<TagRef, TagProps>(
-  ({ children, className, onWaRemove, ...props }, ref) => {
+  ({ children, className, onRemove, ...props }, ref) => {
     const tagRef = useRef<HTMLElement & {
     }>(null);
 
@@ -62,16 +62,16 @@ export const Tag = forwardRef<TagRef, TagProps>(
       const el = tagRef.current;
       if (!el) return;
 
-      const handleWaRemove = (e: Event) => {
-        if (onWaRemove) onWaRemove(e as CustomEvent);
+      const handleRemove = (e: Event) => {
+        if (onRemove) onRemove(e as CustomEvent);
       };
 
-      el.addEventListener('wa-remove', handleWaRemove);
+      el.addEventListener('wa-remove', handleRemove);
 
       return () => {
-        el.removeEventListener('wa-remove', handleWaRemove);
+        el.removeEventListener('wa-remove', handleRemove);
       };
-    }, [onWaRemove]);
+    }, [onRemove]);
 
     return (
       <wa-tag

@@ -19,7 +19,7 @@ export interface MutationObserverProps {
 const props = defineProps<MutationObserverProps>();
 
 const emit = defineEmits<{
-  'wa-mutation': [event: CustomEvent];
+  'mutation': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -28,11 +28,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaMutation = (e: Event) => emit('wa-mutation', e as CustomEvent);
-  el.addEventListener('wa-mutation', handleWaMutation);
+  const handleMutation = (e: Event) => emit('mutation', e as CustomEvent);
+  el.addEventListener('wa-mutation', handleMutation);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-mutation', handleWaMutation);
+    el.removeEventListener('wa-mutation', handleMutation);
   });
 });
 

@@ -21,7 +21,7 @@ import './NumberInput.css';
  * <NumberInput ref={ref} />
  * ```
  */
-export interface NumberInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onWaInvalid' | 'dir'> {
+export interface NumberInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
 
   /** Accessible label */
   label?: string;
@@ -72,7 +72,7 @@ export interface NumberInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onI
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onWaInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface NumberInputRef {
@@ -96,7 +96,7 @@ export interface NumberInputRef {
 }
 
 export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
-  ({ children, className, onInput, onChange, onBlur, onFocus, onWaInvalid, ...props }, ref) => {
+  ({ children, className, onInput, onChange, onBlur, onFocus, onInvalid, ...props }, ref) => {
     const numberinputRef = useRef<HTMLElement & {
       focus?: (options: FocusOptions) => void;
       blur?: () => void;
@@ -160,24 +160,24 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      const handleWaInvalid = (e: Event) => {
-        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
-      el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('input', handleInput);
         el.removeEventListener('change', handleChange);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onInput, onChange, onBlur, onFocus, onWaInvalid]);
+    }, [onInput, onChange, onBlur, onFocus, onInvalid]);
 
     return (
       <wa-number-input

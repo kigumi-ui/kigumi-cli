@@ -21,7 +21,7 @@ import './Button.css';
  * <Button ref={ref} />
  * ```
  */
-export interface ButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus' | 'onWaInvalid' | 'dir'> {
+export interface ButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
 
   /** Semantic variant of the button */
   variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
@@ -63,7 +63,7 @@ export interface ButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' 
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onWaInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface ButtonRef {
@@ -81,7 +81,7 @@ export interface ButtonRef {
 }
 
 export const Button = forwardRef<ButtonRef, ButtonProps>(
-  ({ children, className, onBlur, onFocus, onWaInvalid, ...props }, ref) => {
+  ({ children, className, onBlur, onFocus, onInvalid, ...props }, ref) => {
     const buttonRef = useRef<HTMLElement & {
       click?: () => void;
       focus?: (options: FocusOptions) => void;
@@ -125,20 +125,20 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      const handleWaInvalid = (e: Event) => {
-        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
-      el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onBlur, onFocus, onWaInvalid]);
+    }, [onBlur, onFocus, onInvalid]);
 
     return (
       <wa-button

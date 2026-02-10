@@ -13,11 +13,11 @@ import './IntersectionObserver.css';
  *
  * // With event handlers
  * <IntersectionObserver
- *   onWaIntersect={(e) => console.log(e)} />
+ *   onIntersect={(e) => console.log(e)} />
  *
  * ```
  */
-export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaIntersect' | 'dir'> {
+export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onIntersect' | 'dir'> {
 
   /** Disables the observer */
   disabled?: boolean;
@@ -32,7 +32,7 @@ export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLEleme
   'root-margin'?: string;
 
   /** Fired when a tracked element begins or ceases intersecting. */
-  onWaIntersect?: (event: CustomEvent) => void;
+  onIntersect?: (event: CustomEvent) => void;
 }
 
 export interface IntersectionObserverRef {
@@ -41,7 +41,7 @@ export interface IntersectionObserverRef {
 }
 
 export const IntersectionObserver = forwardRef<IntersectionObserverRef, IntersectionObserverProps>(
-  ({ children, className, onWaIntersect, ...props }, ref) => {
+  ({ children, className, onIntersect, ...props }, ref) => {
     const intersectionobserverRef = useRef<HTMLElement & {
     }>(null);
 
@@ -59,16 +59,16 @@ export const IntersectionObserver = forwardRef<IntersectionObserverRef, Intersec
       const el = intersectionobserverRef.current;
       if (!el) return;
 
-      const handleWaIntersect = (e: Event) => {
-        if (onWaIntersect) onWaIntersect(e as CustomEvent);
+      const handleIntersect = (e: Event) => {
+        if (onIntersect) onIntersect(e as CustomEvent);
       };
 
-      el.addEventListener('wa-intersect', handleWaIntersect);
+      el.addEventListener('wa-intersect', handleIntersect);
 
       return () => {
-        el.removeEventListener('wa-intersect', handleWaIntersect);
+        el.removeEventListener('wa-intersect', handleIntersect);
       };
-    }, [onWaIntersect]);
+    }, [onIntersect]);
 
     return (
       <wa-intersection-observer

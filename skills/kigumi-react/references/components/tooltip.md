@@ -11,32 +11,33 @@ React wrapper component for the Web Awesome `wa-tooltip` element.
 
 ```html
 <!-- Web Awesome -->
-<wa-tooltip content="''" placement="top">Click me</wa-tooltip>
+<wa-tooltip for="''" content="''">Click me</wa-tooltip>
 ```
 
 ```tsx
 // Kigumi React
-import { Tooltip } from "@/components/ui";
+import { Tooltip } from '@/components/ui';
 
-<Tooltip content="''" placement="top">
+<Tooltip for="''" content="''">
   Click me
 </Tooltip>;
 ```
 
 ## Props
 
-| Prop            | Type    | Values                                                                                                                                                             | Default       | Description                 |
-| --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | --------------------------- |
-| `content`       | string  | -                                                                                                                                                                  | `''`          | Tooltip content             |
-| `placement`     | string  | 'top' \| 'top-start' \| 'top-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'right' \| 'right-start' \| 'right-end' \| 'left' \| 'left-start' \| 'left-end' | `top`         | Tooltip placement           |
-| `disabled`      | boolean | -                                                                                                                                                                  | `false`       | Disables the tooltip        |
-| `distance`      | number  | -                                                                                                                                                                  | `8`           | Distance from target        |
-| `open`          | boolean | -                                                                                                                                                                  | `false`       | Whether the tooltip is open |
-| `skidding`      | number  | -                                                                                                                                                                  | `0`           | Offset along target         |
-| `trigger`       | string  | -                                                                                                                                                                  | `hover focus` | Activation events           |
-| `without-arrow` | boolean | -                                                                                                                                                                  | `false`       | Hides the arrow             |
-| `show-delay`    | number  | -                                                                                                                                                                  | `150`         | Show delay (ms)             |
-| `hide-delay`    | number  | -                                                                                                                                                                  | `0`           | Hide delay (ms)             |
+| Prop            | Type    | Values                                                                                                                                                             | Default       | Description                                   |
+| --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | --------------------------------------------- |
+| `for`           | string  | -                                                                                                                                                                  | `''`          | The id of the element the tooltip will target |
+| `content`       | string  | -                                                                                                                                                                  | `''`          | Tooltip content                               |
+| `placement`     | string  | 'top' \| 'top-start' \| 'top-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'right' \| 'right-start' \| 'right-end' \| 'left' \| 'left-start' \| 'left-end' | `top`         | Tooltip placement                             |
+| `disabled`      | boolean | -                                                                                                                                                                  | `false`       | Disables the tooltip                          |
+| `distance`      | number  | -                                                                                                                                                                  | `8`           | Distance from target                          |
+| `open`          | boolean | -                                                                                                                                                                  | `false`       | Whether the tooltip is open                   |
+| `skidding`      | number  | -                                                                                                                                                                  | `0`           | Offset along target                           |
+| `trigger`       | string  | -                                                                                                                                                                  | `hover focus` | Activation events                             |
+| `without-arrow` | boolean | -                                                                                                                                                                  | `false`       | Hides the arrow                               |
+| `show-delay`    | number  | -                                                                                                                                                                  | `150`         | Show delay (ms)                               |
+| `hide-delay`    | number  | -                                                                                                                                                                  | `0`           | Hide delay (ms)                               |
 
 ## Dependencies
 
