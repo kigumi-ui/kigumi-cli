@@ -19,7 +19,7 @@ const props = defineProps<RatingProps>();
 
 const emit = defineEmits<{
   'change': [event: CustomEvent];
-  'wa-hover': [event: CustomEvent];
+  'hover': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -30,12 +30,12 @@ onMounted(() => {
 
   const handleChange = (e: Event) => emit('change', e as CustomEvent);
   el.addEventListener('change', handleChange);
-  const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
-  el.addEventListener('wa-hover', handleWaHover);
+  const handleHover = (e: Event) => emit('hover', e as CustomEvent);
+  el.addEventListener('wa-hover', handleHover);
 
   onUnmounted(() => {
     el.removeEventListener('change', handleChange);
-    el.removeEventListener('wa-hover', handleWaHover);
+    el.removeEventListener('wa-hover', handleHover);
   });
 });
 

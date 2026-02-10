@@ -2896,6 +2896,13 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     },
     props: [
       {
+        name: 'for',
+        type: 'string',
+        default: "''",
+        description: 'The id of the element the tooltip will target',
+        required: false,
+      },
+      {
         name: 'content',
         type: 'string',
         default: "''",

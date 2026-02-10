@@ -13,7 +13,7 @@ const props = defineProps({
     'root-margin': { type: String, required: false, default: 0px }
 });
 
-const emit = defineEmits(['wa-intersect']);
+const emit = defineEmits(['intersect']);
 
 const elementRef = ref(null);
 
@@ -21,11 +21,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaIntersect = (e) => emit('wa-intersect', e);
-  el.addEventListener('wa-intersect', handleWaIntersect);
+  const handleIntersect = (e) => emit('intersect', e);
+  el.addEventListener('wa-intersect', handleIntersect);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-intersect', handleWaIntersect);
+    el.removeEventListener('wa-intersect', handleIntersect);
   });
 });
 

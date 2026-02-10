@@ -21,7 +21,7 @@ import './Switch.css';
  * <Switch ref={ref} />
  * ```
  */
-export interface SwitchProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onInput' | 'onBlur' | 'onFocus' | 'onWaInvalid' | 'dir'> {
+export interface SwitchProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onInput' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
 
   /** Form field name */
   name?: string;
@@ -57,7 +57,7 @@ export interface SwitchProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onWaInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface SwitchRef {
@@ -75,7 +75,7 @@ export interface SwitchRef {
 }
 
 export const Switch = forwardRef<SwitchRef, SwitchProps>(
-  ({ children, className, onChange, onInput, onBlur, onFocus, onWaInvalid, ...props }, ref) => {
+  ({ children, className, onChange, onInput, onBlur, onFocus, onInvalid, ...props }, ref) => {
     const switchRef = useRef<HTMLElement & {
       click?: () => void;
       focus?: (options: FocusOptions) => void;
@@ -127,24 +127,24 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      const handleWaInvalid = (e: Event) => {
-        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('change', handleChange);
       el.addEventListener('input', handleInput);
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
-      el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
         el.removeEventListener('input', handleInput);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onChange, onInput, onBlur, onFocus, onWaInvalid]);
+    }, [onChange, onInput, onBlur, onFocus, onInvalid]);
 
     return (
       <wa-switch

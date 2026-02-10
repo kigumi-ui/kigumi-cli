@@ -17,7 +17,7 @@ const props = defineProps({
     'tooltip-placement': { type: String, required: false, default: top }
 });
 
-const emit = defineEmits(['wa-copy', 'wa-error']);
+const emit = defineEmits(['copy', 'error']);
 
 const elementRef = ref(null);
 
@@ -25,14 +25,14 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaCopy = (e) => emit('wa-copy', e);
-  el.addEventListener('wa-copy', handleWaCopy);
-  const handleWaError = (e) => emit('wa-error', e);
-  el.addEventListener('wa-error', handleWaError);
+  const handleCopy = (e) => emit('copy', e);
+  el.addEventListener('wa-copy', handleCopy);
+  const handleError = (e) => emit('error', e);
+  el.addEventListener('wa-error', handleError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-copy', handleWaCopy);
-    el.removeEventListener('wa-error', handleWaError);
+    el.removeEventListener('wa-copy', handleCopy);
+    el.removeEventListener('wa-error', handleError);
   });
 });
 

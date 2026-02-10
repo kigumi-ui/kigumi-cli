@@ -21,7 +21,7 @@ const props = defineProps({
     'no-spin-buttons': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['input', 'change', 'blur', 'focus', 'wa-invalid']);
+const emit = defineEmits(['input', 'change', 'blur', 'focus', 'invalid']);
 
 const elementRef = ref(null);
 
@@ -37,15 +37,15 @@ onMounted(() => {
   el.addEventListener('blur', handleBlur);
   const handleFocus = (e) => emit('focus', e);
   el.addEventListener('focus', handleFocus);
-  const handleWaInvalid = (e) => emit('wa-invalid', e);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e) => emit('invalid', e);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('input', handleInput);
     el.removeEventListener('change', handleChange);
     el.removeEventListener('blur', handleBlur);
     el.removeEventListener('focus', handleFocus);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

@@ -7,6 +7,7 @@ import './Tooltip.css';
  * Tooltips display additional information based on a specific action
  */
 export interface TooltipProps {
+  for?: string;
   content?: string;
   placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
   disabled?: boolean;
@@ -22,10 +23,10 @@ export interface TooltipProps {
 const props = defineProps<TooltipProps>();
 
 const emit = defineEmits<{
-  'wa-show': [event: CustomEvent];
-  'wa-after-show': [event: CustomEvent];
-  'wa-hide': [event: CustomEvent];
-  'wa-after-hide': [event: CustomEvent];
+  'show': [event: CustomEvent];
+  'after-show': [event: CustomEvent];
+  'hide': [event: CustomEvent];
+  'after-hide': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -34,20 +35,20 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
-  el.addEventListener('wa-show', handleWaShow);
-  const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
-  el.addEventListener('wa-after-show', handleWaAfterShow);
-  const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
-  el.addEventListener('wa-hide', handleWaHide);
-  const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
-  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  const handleShow = (e: Event) => emit('show', e as CustomEvent);
+  el.addEventListener('wa-show', handleShow);
+  const handleAfterShow = (e: Event) => emit('after-show', e as CustomEvent);
+  el.addEventListener('wa-after-show', handleAfterShow);
+  const handleHide = (e: Event) => emit('hide', e as CustomEvent);
+  el.addEventListener('wa-hide', handleHide);
+  const handleAfterHide = (e: Event) => emit('after-hide', e as CustomEvent);
+  el.addEventListener('wa-after-hide', handleAfterHide);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-show', handleWaShow);
-    el.removeEventListener('wa-after-show', handleWaAfterShow);
-    el.removeEventListener('wa-hide', handleWaHide);
-    el.removeEventListener('wa-after-hide', handleWaAfterHide);
+    el.removeEventListener('wa-show', handleShow);
+    el.removeEventListener('wa-after-show', handleAfterShow);
+    el.removeEventListener('wa-hide', handleHide);
+    el.removeEventListener('wa-after-hide', handleAfterHide);
   });
 });
 

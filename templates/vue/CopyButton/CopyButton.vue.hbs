@@ -20,8 +20,8 @@ export interface CopyButtonProps {
 const props = defineProps<CopyButtonProps>();
 
 const emit = defineEmits<{
-  'wa-copy': [event: CustomEvent];
-  'wa-error': [event: CustomEvent];
+  'copy': [event: CustomEvent];
+  'error': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -30,14 +30,14 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaCopy = (e: Event) => emit('wa-copy', e as CustomEvent);
-  el.addEventListener('wa-copy', handleWaCopy);
-  const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
-  el.addEventListener('wa-error', handleWaError);
+  const handleCopy = (e: Event) => emit('copy', e as CustomEvent);
+  el.addEventListener('wa-copy', handleCopy);
+  const handleError = (e: Event) => emit('error', e as CustomEvent);
+  el.addEventListener('wa-error', handleError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-copy', handleWaCopy);
-    el.removeEventListener('wa-error', handleWaError);
+    el.removeEventListener('wa-copy', handleCopy);
+    el.removeEventListener('wa-error', handleError);
   });
 });
 

@@ -13,11 +13,11 @@ import './AnimatedImage.css';
  *
  * // With event handlers
  * <AnimatedImage
- *   onWaLoad={(e) => console.log(e)} />
+ *   onLoad={(e) => console.log(e)} />
  *
  * ```
  */
-export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaLoad' | 'onWaError' | 'dir'> {
+export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
 
   /** The path to the image to load */
   src: string;
@@ -29,10 +29,10 @@ export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'o
   play?: boolean;
 
   /** Emitted when the image loads successfully. */
-  onWaLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: CustomEvent) => void;
 
   /** Emitted when the image fails to load. */
-  onWaError?: (event: CustomEvent) => void;
+  onError?: (event: CustomEvent) => void;
 }
 
 export interface AnimatedImageRef {
@@ -41,7 +41,7 @@ export interface AnimatedImageRef {
 }
 
 export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
-  ({ children, className, onWaLoad, onWaError, ...props }, ref) => {
+  ({ children, className, onLoad, onError, ...props }, ref) => {
     const animatedimageRef = useRef<HTMLElement & {
     }>(null);
 
@@ -59,22 +59,22 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
       const el = animatedimageRef.current;
       if (!el) return;
 
-      const handleWaLoad = (e: Event) => {
-        if (onWaLoad) onWaLoad(e as CustomEvent);
+      const handleLoad = (e: Event) => {
+        if (onLoad) onLoad(e as CustomEvent);
       };
 
-      const handleWaError = (e: Event) => {
-        if (onWaError) onWaError(e as CustomEvent);
+      const handleError = (e: Event) => {
+        if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-load', handleWaLoad);
-      el.addEventListener('wa-error', handleWaError);
+      el.addEventListener('wa-load', handleLoad);
+      el.addEventListener('wa-error', handleError);
 
       return () => {
-        el.removeEventListener('wa-load', handleWaLoad);
-        el.removeEventListener('wa-error', handleWaError);
+        el.removeEventListener('wa-load', handleLoad);
+        el.removeEventListener('wa-error', handleError);
       };
-    }, [onWaLoad, onWaError]);
+    }, [onLoad, onError]);
 
     return (
       <wa-animated-image

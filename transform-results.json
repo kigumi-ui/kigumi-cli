@@ -1,0 +1,1254 @@
+[
+  {
+    "file": "templates/react/AnimatedImage/AnimatedImage.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Animation/Animation.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Avatar/Avatar.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Badge/Badge.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Breadcrumb/Breadcrumb.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/BreadcrumbItem/BreadcrumbItem.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Button/Button.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ButtonGroup/ButtonGroup.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Callout/Callout.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Card/Card.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Carousel/Carousel.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/CarouselItem/CarouselItem.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Checkbox/Checkbox.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ColorPicker/ColorPicker.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Combobox/Combobox.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Comparison/Comparison.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/CopyButton/CopyButton.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Details/Details.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Dialog/Dialog.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Divider/Divider.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Drawer/Drawer.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Dropdown/Dropdown.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/DropdownItem/DropdownItem.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FileInput/FileInput.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FormatBytes/FormatBytes.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FormatDate/FormatDate.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FormatNumber/FormatNumber.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Icon/Icon.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Include/Include.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Input/Input.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/IntersectionObserver/IntersectionObserver.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/MutationObserver/MutationObserver.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/NumberInput/NumberInput.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Option/Option.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Page/Page.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Popover/Popover.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Popup/Popup.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ProgressBar/ProgressBar.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ProgressRing/ProgressRing.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/QrCode/QrCode.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Radio/Radio.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/RadioGroup/RadioGroup.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Rating/Rating.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/RelativeTime/RelativeTime.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ResizeObserver/ResizeObserver.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Scroller/Scroller.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Select/Select.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Skeleton/Skeleton.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Slider/Slider.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Sparkline/Sparkline.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Spinner/Spinner.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/SplitPanel/SplitPanel.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Switch/Switch.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tab/Tab.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/TabGroup/TabGroup.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/TabPanel/TabPanel.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tag/Tag.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Textarea/Textarea.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tooltip/Tooltip.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tree/Tree.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/TreeItem/TreeItem.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ZoomableFrame/ZoomableFrame.tsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/AnimatedImage/AnimatedImage.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Animation/Animation.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Avatar/Avatar.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Badge/Badge.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Breadcrumb/Breadcrumb.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/BreadcrumbItem/BreadcrumbItem.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Button/Button.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ButtonGroup/ButtonGroup.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Callout/Callout.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Card/Card.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Carousel/Carousel.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/CarouselItem/CarouselItem.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Checkbox/Checkbox.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ColorPicker/ColorPicker.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Combobox/Combobox.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Comparison/Comparison.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/CopyButton/CopyButton.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Details/Details.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Dialog/Dialog.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Divider/Divider.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Drawer/Drawer.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Dropdown/Dropdown.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/DropdownItem/DropdownItem.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FileInput/FileInput.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FormatBytes/FormatBytes.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FormatDate/FormatDate.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/FormatNumber/FormatNumber.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Icon/Icon.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Include/Include.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Input/Input.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/IntersectionObserver/IntersectionObserver.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/MutationObserver/MutationObserver.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/NumberInput/NumberInput.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Option/Option.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Page/Page.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Popover/Popover.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Popup/Popup.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ProgressBar/ProgressBar.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ProgressRing/ProgressRing.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/QrCode/QrCode.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Radio/Radio.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/RadioGroup/RadioGroup.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Rating/Rating.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/RelativeTime/RelativeTime.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ResizeObserver/ResizeObserver.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Scroller/Scroller.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Select/Select.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Skeleton/Skeleton.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Slider/Slider.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Sparkline/Sparkline.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Spinner/Spinner.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/SplitPanel/SplitPanel.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Switch/Switch.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tab/Tab.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/TabGroup/TabGroup.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/TabPanel/TabPanel.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tag/Tag.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Textarea/Textarea.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tooltip/Tooltip.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/Tree/Tree.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/TreeItem/TreeItem.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/react/ZoomableFrame/ZoomableFrame.jsx.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/AnimatedImage/AnimatedImage.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Animation/Animation.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Avatar/Avatar.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Badge/Badge.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Breadcrumb/Breadcrumb.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/BreadcrumbItem/BreadcrumbItem.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Button/Button.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ButtonGroup/ButtonGroup.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Callout/Callout.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Card/Card.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Carousel/Carousel.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/CarouselItem/CarouselItem.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Checkbox/Checkbox.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ColorPicker/ColorPicker.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Combobox/Combobox.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Comparison/Comparison.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/CopyButton/CopyButton.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Details/Details.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Dialog/Dialog.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Divider/Divider.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Drawer/Drawer.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Dropdown/Dropdown.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/DropdownItem/DropdownItem.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FileInput/FileInput.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FormatBytes/FormatBytes.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FormatDate/FormatDate.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FormatNumber/FormatNumber.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Icon/Icon.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Include/Include.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Input/Input.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/IntersectionObserver/IntersectionObserver.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/MutationObserver/MutationObserver.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/NumberInput/NumberInput.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Option/Option.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Page/Page.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Popover/Popover.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Popup/Popup.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ProgressBar/ProgressBar.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ProgressRing/ProgressRing.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/QrCode/QrCode.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Radio/Radio.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/RadioGroup/RadioGroup.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Rating/Rating.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/RelativeTime/RelativeTime.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ResizeObserver/ResizeObserver.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Scroller/Scroller.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Select/Select.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Skeleton/Skeleton.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Slider/Slider.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Sparkline/Sparkline.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Spinner/Spinner.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/SplitPanel/SplitPanel.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Switch/Switch.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Tab/Tab.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/TabGroup/TabGroup.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/TabPanel/TabPanel.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Tag/Tag.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Textarea/Textarea.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Tooltip/Tooltip.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Tree/Tree.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/TreeItem/TreeItem.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ZoomableFrame/ZoomableFrame.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/AnimatedImage/AnimatedImage.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Animation/Animation.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Avatar/Avatar.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Badge/Badge.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Breadcrumb/Breadcrumb.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/BreadcrumbItem/BreadcrumbItem.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Button/Button.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ButtonGroup/ButtonGroup.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Callout/Callout.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Card/Card.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Carousel/Carousel.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/CarouselItem/CarouselItem.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Checkbox/Checkbox.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ColorPicker/ColorPicker.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Combobox/Combobox.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Comparison/Comparison.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/CopyButton/CopyButton.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Details/Details.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Dialog/Dialog.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Divider/Divider.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Drawer/Drawer.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Dropdown/Dropdown.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/DropdownItem/DropdownItem.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FileInput/FileInput.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FormatBytes/FormatBytes.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FormatDate/FormatDate.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/FormatNumber/FormatNumber.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Icon/Icon.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Include/Include.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Input/Input.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/IntersectionObserver/IntersectionObserver.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/MutationObserver/MutationObserver.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/NumberInput/NumberInput.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Option/Option.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Page/Page.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Popover/Popover.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Popup/Popup.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ProgressBar/ProgressBar.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ProgressRing/ProgressRing.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/QrCode/QrCode.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Radio/Radio.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/RadioGroup/RadioGroup.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Rating/Rating.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/RelativeTime/RelativeTime.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/ResizeObserver/ResizeObserver.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Scroller/Scroller.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Select/Select.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Skeleton/Skeleton.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Slider/Slider.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Sparkline/Sparkline.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Spinner/Spinner.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/SplitPanel/SplitPanel.js.vue.hbs",
+    "changed": true,
+    "transformations": ["Emit array: 'wa-reposition' -> 'reposition'"]
+  },
+  {
+    "file": "templates/vue/Switch/Switch.js.vue.hbs",
+    "changed": true,
+    "transformations": ["Emit array: 'wa-invalid' -> 'invalid'"]
+  },
+  {
+    "file": "templates/vue/Tab/Tab.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/TabGroup/TabGroup.js.vue.hbs",
+    "changed": true,
+    "transformations": [
+      "Emit array: 'wa-tab-show' -> 'tab-show'",
+      "Emit array: 'wa-tab-hide' -> 'tab-hide'"
+    ]
+  },
+  {
+    "file": "templates/vue/TabPanel/TabPanel.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Tag/Tag.js.vue.hbs",
+    "changed": true,
+    "transformations": ["Emit array: 'wa-remove' -> 'remove'"]
+  },
+  {
+    "file": "templates/vue/Textarea/Textarea.js.vue.hbs",
+    "changed": true,
+    "transformations": ["Emit array: 'wa-invalid' -> 'invalid'"]
+  },
+  {
+    "file": "templates/vue/Tooltip/Tooltip.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  },
+  {
+    "file": "templates/vue/Tree/Tree.js.vue.hbs",
+    "changed": true,
+    "transformations": [
+      "Emit array: 'wa-selection-change' -> 'selection-change'"
+    ]
+  },
+  {
+    "file": "templates/vue/TreeItem/TreeItem.js.vue.hbs",
+    "changed": true,
+    "transformations": [
+      "Emit array: 'wa-expand' -> 'expand'",
+      "Emit array: 'wa-after-expand' -> 'after-expand'",
+      "Emit array: 'wa-collapse' -> 'collapse'",
+      "Emit array: 'wa-after-collapse' -> 'after-collapse'",
+      "Emit array: 'wa-lazy-change' -> 'lazy-change'",
+      "Emit array: 'wa-lazy-load' -> 'lazy-load'"
+    ]
+  },
+  {
+    "file": "templates/vue/ZoomableFrame/ZoomableFrame.js.vue.hbs",
+    "changed": false,
+    "transformations": []
+  }
+]

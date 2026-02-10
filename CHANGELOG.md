@@ -1,5 +1,45 @@
 # kigumi
 
+## 0.8.0
+
+### Minor Changes
+
+- 906c610: **BREAKING CHANGE**: Simplified event handler naming across all component templates
+
+  **React (35 components affected):**
+  - Event props renamed from `onWa*` to `on*`
+  - Example: `onWaShow` → `onShow`, `onWaHide` → `onHide`
+  - Handler functions renamed: `handleWaShow` → `handleShow`
+  - DOM event names (`wa-show`, `wa-hide`) remain unchanged internally
+
+  **Vue (35 components affected):**
+  - Emitted events renamed from `wa-*` to simplified names
+  - Example: `@wa-show` → `@show`, `@wa-hide` → `@hide`
+  - DOM event listeners still use original Web Awesome event names
+
+  **Migration:**
+
+  ```tsx
+  // Before (React)
+  <Dialog onWaShow={handleOpen} onWaHide={handleClose} />
+
+  // After (React)
+  <Dialog onShow={handleOpen} onHide={handleClose} />
+  ```
+
+  ```vue
+  <!-- Before (Vue) -->
+  <Dialog @wa-show="handleOpen" @wa-hide="handleClose" />
+
+  <!-- After (Vue) -->
+  <Dialog @show="handleOpen" @hide="handleClose" />
+  ```
+
+  **Additional changes:**
+  - Added `for` property to Tooltip component (targets elements by ID)
+  - Added `scripts/validate-components.ts` for registry validation
+  - Added `scripts/transform-event-names.ts` for automated event renaming
+
 ## 0.7.0
 
 ### Minor Changes

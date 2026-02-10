@@ -21,7 +21,7 @@ import './Checkbox.css';
  * <Checkbox ref={ref} />
  * ```
  */
-export interface CheckboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onBlur' | 'onFocus' | 'onInput' | 'onWaInvalid' | 'dir'> {
+export interface CheckboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onBlur' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'> {
 
   /** Draws checkbox in checked state */
   checked?: boolean;
@@ -60,7 +60,7 @@ export interface CheckboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onChan
   onInput?: (event: CustomEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onWaInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface CheckboxRef {
@@ -78,7 +78,7 @@ export interface CheckboxRef {
 }
 
 export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
-  ({ children, className, onChange, onBlur, onFocus, onInput, onWaInvalid, ...props }, ref) => {
+  ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
     const checkboxRef = useRef<HTMLElement & {
       click?: () => void;
       focus?: (options: FocusOptions) => void;
@@ -130,24 +130,24 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
         if (onInput) onInput(e as CustomEvent);
       };
 
-      const handleWaInvalid = (e: Event) => {
-        if (onWaInvalid) onWaInvalid(e as CustomEvent);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('change', handleChange);
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
       el.addEventListener('input', handleInput);
-      el.addEventListener('wa-invalid', handleWaInvalid);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('input', handleInput);
-        el.removeEventListener('wa-invalid', handleWaInvalid);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onChange, onBlur, onFocus, onInput, onWaInvalid]);
+    }, [onChange, onBlur, onFocus, onInput, onInvalid]);
 
     return (
       <wa-checkbox

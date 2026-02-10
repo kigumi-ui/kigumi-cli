@@ -21,7 +21,7 @@ import './Rating.css';
  * <Rating ref={ref} />
  * ```
  */
-export interface RatingProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onWaHover' | 'dir'> {
+export interface RatingProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onHover' | 'dir'> {
 
   /** Accessible label */
   label?: string;
@@ -45,7 +45,7 @@ export interface RatingProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
   onChange?: (event: CustomEvent) => void;
 
   /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
-  onWaHover?: (event: CustomEvent) => void;
+  onHover?: (event: CustomEvent) => void;
 }
 
 export interface RatingRef {
@@ -60,7 +60,7 @@ export interface RatingRef {
 }
 
 export const Rating = forwardRef<RatingRef, RatingProps>(
-  ({ children, className, onChange, onWaHover, ...props }, ref) => {
+  ({ children, className, onChange, onHover, ...props }, ref) => {
     const ratingRef = useRef<HTMLElement & {
       focus?: (options: FocusOptions) => void;
       blur?: () => void;
@@ -94,18 +94,18 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
         if (onChange) onChange(e as CustomEvent);
       };
 
-      const handleWaHover = (e: Event) => {
-        if (onWaHover) onWaHover(e as CustomEvent);
+      const handleHover = (e: Event) => {
+        if (onHover) onHover(e as CustomEvent);
       };
 
       el.addEventListener('change', handleChange);
-      el.addEventListener('wa-hover', handleWaHover);
+      el.addEventListener('wa-hover', handleHover);
 
       return () => {
         el.removeEventListener('change', handleChange);
-        el.removeEventListener('wa-hover', handleWaHover);
+        el.removeEventListener('wa-hover', handleHover);
       };
-    }, [onChange, onWaHover]);
+    }, [onChange, onHover]);
 
     return (
       <wa-rating

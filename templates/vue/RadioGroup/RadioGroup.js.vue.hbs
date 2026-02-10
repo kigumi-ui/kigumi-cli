@@ -15,7 +15,7 @@ const props = defineProps({
     required: { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['input', 'change', 'wa-invalid']);
+const emit = defineEmits(['input', 'change', 'invalid']);
 
 const elementRef = ref(null);
 
@@ -27,13 +27,13 @@ onMounted(() => {
   el.addEventListener('input', handleInput);
   const handleChange = (e) => emit('change', e);
   el.addEventListener('change', handleChange);
-  const handleWaInvalid = (e) => emit('wa-invalid', e);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e) => emit('invalid', e);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('input', handleInput);
     el.removeEventListener('change', handleChange);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

@@ -16,7 +16,7 @@ const props = defineProps({
     subtree: { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['wa-mutation']);
+const emit = defineEmits(['mutation']);
 
 const elementRef = ref(null);
 
@@ -24,11 +24,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaMutation = (e) => emit('wa-mutation', e);
-  el.addEventListener('wa-mutation', handleWaMutation);
+  const handleMutation = (e) => emit('mutation', e);
+  el.addEventListener('wa-mutation', handleMutation);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-mutation', handleWaMutation);
+    el.removeEventListener('wa-mutation', handleMutation);
   });
 });
 

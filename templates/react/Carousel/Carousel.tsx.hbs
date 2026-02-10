@@ -13,7 +13,7 @@ import './Carousel.css';
  *
  * // With event handlers
  * <Carousel
- *   onWaSlideChange={(e) => console.log(e)} />
+ *   onSlideChange={(e) => console.log(e)} />
  *
  * // With ref methods
  * const ref = useRef<CarouselRef>(null);
@@ -21,7 +21,7 @@ import './Carousel.css';
  * <Carousel ref={ref} />
  * ```
  */
-export interface CarouselProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaSlideChange' | 'dir'> {
+export interface CarouselProps extends Omit<HTMLAttributes<HTMLElement>, 'onSlideChange' | 'dir'> {
 
   /** Automatically scrolls slides when user isn't interacting */
   autoplay?: boolean;
@@ -51,7 +51,7 @@ export interface CarouselProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaSl
   'slides-per-page'?: number;
 
   /** Emitted when the active slide changes. */
-  onWaSlideChange?: (event: CustomEvent) => void;
+  onSlideChange?: (event: CustomEvent) => void;
 }
 
 export interface CarouselRef {
@@ -69,7 +69,7 @@ export interface CarouselRef {
 }
 
 export const Carousel = forwardRef<CarouselRef, CarouselProps>(
-  ({ children, className, onWaSlideChange, ...props }, ref) => {
+  ({ children, className, onSlideChange, ...props }, ref) => {
     const carouselRef = useRef<HTMLElement & {
       previous?: (behavior: ScrollBehavior) => void;
       next?: (behavior: ScrollBehavior) => void;
@@ -105,16 +105,16 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       const el = carouselRef.current;
       if (!el) return;
 
-      const handleWaSlideChange = (e: Event) => {
-        if (onWaSlideChange) onWaSlideChange(e as CustomEvent);
+      const handleSlideChange = (e: Event) => {
+        if (onSlideChange) onSlideChange(e as CustomEvent);
       };
 
-      el.addEventListener('wa-slide-change', handleWaSlideChange);
+      el.addEventListener('wa-slide-change', handleSlideChange);
 
       return () => {
-        el.removeEventListener('wa-slide-change', handleWaSlideChange);
+        el.removeEventListener('wa-slide-change', handleSlideChange);
       };
-    }, [onWaSlideChange]);
+    }, [onSlideChange]);
 
     return (
       <wa-carousel

@@ -17,7 +17,7 @@ export interface AvatarProps {
 const props = defineProps<AvatarProps>();
 
 const emit = defineEmits<{
-  'wa-error': [event: CustomEvent];
+  'error': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -26,11 +26,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
-  el.addEventListener('wa-error', handleWaError);
+  const handleError = (e: Event) => emit('error', e as CustomEvent);
+  el.addEventListener('wa-error', handleError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-error', handleWaError);
+    el.removeEventListener('wa-error', handleError);
   });
 });
 

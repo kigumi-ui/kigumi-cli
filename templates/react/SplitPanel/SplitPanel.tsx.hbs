@@ -13,11 +13,11 @@ import './SplitPanel.css';
  *
  * // With event handlers
  * <SplitPanel
- *   onWaReposition={(e) => console.log(e)} />
+ *   onReposition={(e) => console.log(e)} />
  *
  * ```
  */
-export interface SplitPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaReposition' | 'dir'> {
+export interface SplitPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'onReposition' | 'dir'> {
 
   /** Divider position (%) */
   position?: number;
@@ -41,7 +41,7 @@ export interface SplitPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'onWa
   'snap-threshold'?: number;
 
   /** Emitted when the divider's position changes. */
-  onWaReposition?: (event: CustomEvent) => void;
+  onReposition?: (event: CustomEvent) => void;
 }
 
 export interface SplitPanelRef {
@@ -50,7 +50,7 @@ export interface SplitPanelRef {
 }
 
 export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
-  ({ children, className, onWaReposition, ...props }, ref) => {
+  ({ children, className, onReposition, ...props }, ref) => {
     const splitpanelRef = useRef<HTMLElement & {
     }>(null);
 
@@ -68,16 +68,16 @@ export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
       const el = splitpanelRef.current;
       if (!el) return;
 
-      const handleWaReposition = (e: Event) => {
-        if (onWaReposition) onWaReposition(e as CustomEvent);
+      const handleReposition = (e: Event) => {
+        if (onReposition) onReposition(e as CustomEvent);
       };
 
-      el.addEventListener('wa-reposition', handleWaReposition);
+      el.addEventListener('wa-reposition', handleReposition);
 
       return () => {
-        el.removeEventListener('wa-reposition', handleWaReposition);
+        el.removeEventListener('wa-reposition', handleReposition);
       };
-    }, [onWaReposition]);
+    }, [onReposition]);
 
     return (
       <wa-split-panel

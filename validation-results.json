@@ -1,0 +1,756 @@
+[
+  {
+    "component": "button",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "variant",
+      "appearance",
+      "size",
+      "pill",
+      "disabled",
+      "loading",
+      "with-caret",
+      "href",
+      "target",
+      "download",
+      "rel"
+    ]
+  },
+  {
+    "component": "button-group",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["label", "orientation"]
+  },
+  {
+    "component": "input",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "type",
+      "label",
+      "hint",
+      "placeholder",
+      "value",
+      "appearance",
+      "size",
+      "pill",
+      "disabled",
+      "with-clear",
+      "password-toggle"
+    ]
+  },
+  {
+    "component": "card",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "appearance",
+      "orientation",
+      "with-header",
+      "with-footer",
+      "with-media"
+    ]
+  },
+  {
+    "component": "dialog",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["open", "label", "without-header", "light-dismiss"]
+  },
+  {
+    "component": "animated-image",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["src", "alt", "play"]
+  },
+  {
+    "component": "animation",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "name",
+      "play",
+      "delay",
+      "direction",
+      "duration",
+      "easing",
+      "end-delay",
+      "fill",
+      "iterations",
+      "iteration-start",
+      "playback-rate"
+    ]
+  },
+  {
+    "component": "avatar",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["image", "label", "initials", "loading", "shape"]
+  },
+  {
+    "component": "badge",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["variant", "appearance", "pill", "attention"]
+  },
+  {
+    "component": "breadcrumb",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["label"]
+  },
+  {
+    "component": "breadcrumb-item",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["href", "target", "rel"]
+  },
+  {
+    "component": "icon",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "name",
+      "library",
+      "src",
+      "label",
+      "family",
+      "variant",
+      "auto-width",
+      "swap-opacity"
+    ]
+  },
+  {
+    "component": "carousel",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "autoplay",
+      "autoplay-interval",
+      "loop",
+      "mouse-dragging",
+      "navigation",
+      "orientation",
+      "pagination",
+      "slides-per-move",
+      "slides-per-page"
+    ]
+  },
+  {
+    "component": "carousel-item",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": []
+  },
+  {
+    "component": "checkbox",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "checked",
+      "disabled",
+      "hint",
+      "indeterminate",
+      "name",
+      "required",
+      "size",
+      "value"
+    ]
+  },
+  {
+    "component": "color-picker",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "value",
+      "format",
+      "opacity",
+      "disabled",
+      "required",
+      "size",
+      "label",
+      "hint",
+      "name",
+      "open",
+      "swatches",
+      "uppercase",
+      "without-format-toggle"
+    ]
+  },
+  {
+    "component": "combobox",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "allow-custom-value",
+      "appearance",
+      "autocomplete",
+      "disabled",
+      "hint",
+      "label",
+      "max-options-visible",
+      "multiple",
+      "name",
+      "open",
+      "pill",
+      "placeholder",
+      "placement",
+      "required",
+      "size",
+      "with-clear"
+    ]
+  },
+  {
+    "component": "comparison",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["position"]
+  },
+  {
+    "component": "page",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "disable-navigation-toggle",
+      "mobile-breakpoint",
+      "navigation-placement",
+      "nav-open",
+      "view"
+    ]
+  },
+  {
+    "component": "copy-button",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "value",
+      "from",
+      "disabled",
+      "copy-label",
+      "success-label",
+      "error-label",
+      "feedback-duration",
+      "tooltip-placement"
+    ]
+  },
+  {
+    "component": "details",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "open",
+      "summary",
+      "disabled",
+      "appearance",
+      "icon-placement",
+      "name"
+    ]
+  },
+  {
+    "component": "divider",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["orientation"]
+  },
+  {
+    "component": "drawer",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "open",
+      "label",
+      "placement",
+      "light-dismiss",
+      "without-header"
+    ]
+  },
+  {
+    "component": "dropdown",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "open",
+      "placement",
+      "disabled",
+      "stay-open-on-select",
+      "distance",
+      "skidding",
+      "hoist"
+    ]
+  },
+  {
+    "component": "dropdown-item",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["type", "checked", "value", "disabled", "loading"]
+  },
+  {
+    "component": "format-bytes",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["value", "unit", "display", "lang"]
+  },
+  {
+    "component": "format-date",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "date",
+      "weekday",
+      "era",
+      "year",
+      "month",
+      "day",
+      "hour",
+      "minute",
+      "second",
+      "hour-format",
+      "time-zone-name",
+      "time-zone",
+      "lang"
+    ]
+  },
+  {
+    "component": "format-number",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "value",
+      "type",
+      "currency",
+      "currency-display",
+      "minimum-integer-digits",
+      "minimum-fraction-digits",
+      "maximum-fraction-digits",
+      "minimum-significant-digits",
+      "maximum-significant-digits",
+      "without-grouping",
+      "lang"
+    ]
+  },
+  {
+    "component": "include",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["src", "mode", "allow-scripts"]
+  },
+  {
+    "component": "intersection-observer",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["disabled", "once", "threshold", "root-margin"]
+  },
+  {
+    "component": "mutation-observer",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "attr",
+      "attr-old-value",
+      "char-data",
+      "char-data-old-value",
+      "child-list",
+      "disabled",
+      "subtree"
+    ]
+  },
+  {
+    "component": "resize-observer",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["disabled"]
+  },
+  {
+    "component": "popover",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "open",
+      "disabled",
+      "placement",
+      "trigger",
+      "distance",
+      "skidding",
+      "with-arrow"
+    ]
+  },
+  {
+    "component": "popup",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "active",
+      "anchor",
+      "placement",
+      "strategy",
+      "distance",
+      "skidding",
+      "arrow",
+      "arrow-placement",
+      "arrow-padding",
+      "flip",
+      "flip-fallback-placements",
+      "flip-fallback-strategy",
+      "flip-padding",
+      "shift",
+      "shift-padding",
+      "auto-size",
+      "sync",
+      "auto-size-padding"
+    ]
+  },
+  {
+    "component": "progress-bar",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["value", "indeterminate", "label"]
+  },
+  {
+    "component": "progress-ring",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["value", "label"]
+  },
+  {
+    "component": "qr-code",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "value",
+      "label",
+      "size",
+      "fill",
+      "background",
+      "radius",
+      "error-correction"
+    ]
+  },
+  {
+    "component": "radio-group",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["label", "hint", "name", "value", "size", "required"]
+  },
+  {
+    "component": "radio",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["value", "disabled", "size"]
+  },
+  {
+    "component": "rating",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["label", "value", "max", "precision", "readonly", "disabled"]
+  },
+  {
+    "component": "relative-time",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["date", "format", "numeric", "sync", "lang"]
+  },
+  {
+    "component": "scroller",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["orientation", "with-scroll-indicator"]
+  },
+  {
+    "component": "select",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "name",
+      "value",
+      "appearance",
+      "size",
+      "placeholder",
+      "multiple",
+      "max-options-visible",
+      "disabled",
+      "with-clear",
+      "open",
+      "hoist",
+      "placement",
+      "pill",
+      "label",
+      "hint",
+      "required"
+    ]
+  },
+  {
+    "component": "option",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["value", "disabled"]
+  },
+  {
+    "component": "skeleton",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["effect"]
+  },
+  {
+    "component": "slider",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "name",
+      "value",
+      "label",
+      "hint",
+      "min",
+      "max",
+      "step",
+      "tooltip",
+      "disabled"
+    ]
+  },
+  {
+    "component": "spinner",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": []
+  },
+  {
+    "component": "split-panel",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "position",
+      "position-in-pixels",
+      "orientation",
+      "primary",
+      "disabled",
+      "snap",
+      "snap-threshold"
+    ]
+  },
+  {
+    "component": "switch",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "name",
+      "value",
+      "size",
+      "disabled",
+      "checked",
+      "required",
+      "hint"
+    ]
+  },
+  {
+    "component": "tab-group",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["placement", "activation", "without-scroll-controls"]
+  },
+  {
+    "component": "tab",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["panel", "disabled"]
+  },
+  {
+    "component": "tab-panel",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["name", "active"]
+  },
+  {
+    "component": "tag",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["appearance", "pill", "size", "variant", "with-remove"]
+  },
+  {
+    "component": "textarea",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "name",
+      "value",
+      "appearance",
+      "size",
+      "label",
+      "hint",
+      "placeholder",
+      "rows",
+      "resize",
+      "disabled",
+      "readonly",
+      "required",
+      "minlength",
+      "maxlength",
+      "spellcheck"
+    ]
+  },
+  {
+    "component": "tooltip",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "content",
+      "placement",
+      "disabled",
+      "distance",
+      "open",
+      "skidding",
+      "trigger",
+      "without-arrow",
+      "show-delay",
+      "hide-delay"
+    ]
+  },
+  {
+    "component": "tree",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["selection"]
+  },
+  {
+    "component": "tree-item",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["expanded", "selected", "disabled", "lazy"]
+  },
+  {
+    "component": "zoomable-frame",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "src",
+      "srcdoc",
+      "zoom",
+      "zoom-levels",
+      "allowfullscreen",
+      "loading",
+      "without-controls",
+      "without-interaction",
+      "sandbox",
+      "referrerpolicy"
+    ]
+  },
+  {
+    "component": "callout",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": ["appearance", "size", "variant"]
+  },
+  {
+    "component": "file-input",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "label",
+      "hint",
+      "accept",
+      "multiple",
+      "disabled",
+      "required",
+      "size",
+      "appearance",
+      "max-file-size",
+      "max-files"
+    ]
+  },
+  {
+    "component": "number-input",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "label",
+      "hint",
+      "value",
+      "min",
+      "max",
+      "step",
+      "disabled",
+      "required",
+      "placeholder",
+      "size",
+      "appearance",
+      "no-spin-buttons"
+    ]
+  },
+  {
+    "component": "sparkline",
+    "missingProps": [],
+    "missingEvents": [],
+    "missingMethods": [],
+    "extraProps": [
+      "data",
+      "type",
+      "width",
+      "height",
+      "color",
+      "fill-color",
+      "line-width",
+      "show-tooltip"
+    ]
+  }
+]

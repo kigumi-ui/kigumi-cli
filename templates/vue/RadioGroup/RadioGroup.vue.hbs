@@ -20,7 +20,7 @@ const props = defineProps<RadioGroupProps>();
 const emit = defineEmits<{
   'input': [event: CustomEvent];
   'change': [event: CustomEvent];
-  'wa-invalid': [event: CustomEvent];
+  'invalid': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -33,13 +33,13 @@ onMounted(() => {
   el.addEventListener('input', handleInput);
   const handleChange = (e: Event) => emit('change', e as CustomEvent);
   el.addEventListener('change', handleChange);
-  const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e: Event) => emit('invalid', e as CustomEvent);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('input', handleInput);
     el.removeEventListener('change', handleChange);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

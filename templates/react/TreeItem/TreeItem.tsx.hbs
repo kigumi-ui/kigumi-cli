@@ -13,7 +13,7 @@ import './TreeItem.css';
  *
  * // With event handlers
  * <TreeItem
- *   onWaExpand={(e) => console.log(e)} />
+ *   onExpand={(e) => console.log(e)} />
  *
  * // With ref methods
  * const ref = useRef<TreeItemRef>(null);
@@ -21,7 +21,7 @@ import './TreeItem.css';
  * <TreeItem ref={ref} />
  * ```
  */
-export interface TreeItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaExpand' | 'onWaAfterExpand' | 'onWaCollapse' | 'onWaAfterCollapse' | 'onWaLazyChange' | 'onWaLazyLoad' | 'dir'> {
+export interface TreeItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onExpand' | 'onAfterExpand' | 'onCollapse' | 'onAfterCollapse' | 'onLazyChange' | 'onLazyLoad' | 'dir'> {
 
   /** Expands the item */
   expanded?: boolean;
@@ -36,22 +36,22 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaEx
   lazy?: boolean;
 
   /** Emitted when the tree item expands. */
-  onWaExpand?: (event: CustomEvent) => void;
+  onExpand?: (event: CustomEvent) => void;
 
   /** Emitted after the tree item expands and all animations are complete. */
-  onWaAfterExpand?: (event: CustomEvent) => void;
+  onAfterExpand?: (event: CustomEvent) => void;
 
   /** Emitted when the tree item collapses. */
-  onWaCollapse?: (event: CustomEvent) => void;
+  onCollapse?: (event: CustomEvent) => void;
 
   /** Emitted after the tree item collapses and all animations are complete. */
-  onWaAfterCollapse?: (event: CustomEvent) => void;
+  onAfterCollapse?: (event: CustomEvent) => void;
 
   /** Emitted when the tree item's lazy state changes. */
-  onWaLazyChange?: (event: CustomEvent) => void;
+  onLazyChange?: (event: CustomEvent) => void;
 
   /** Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree. */
-  onWaLazyLoad?: (event: CustomEvent) => void;
+  onLazyLoad?: (event: CustomEvent) => void;
 }
 
 export interface TreeItemRef {
@@ -63,7 +63,7 @@ export interface TreeItemRef {
 }
 
 export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
-  ({ children, className, onWaExpand, onWaAfterExpand, onWaCollapse, onWaAfterCollapse, onWaLazyChange, onWaLazyLoad, ...props }, ref) => {
+  ({ children, className, onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad, ...props }, ref) => {
     const treeitemRef = useRef<HTMLElement & {
       getChildrenItems?: ({ includeDisabled = true }: { includeDisabled?: boolean }) => void;
     }>(null);
@@ -87,46 +87,46 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
       const el = treeitemRef.current;
       if (!el) return;
 
-      const handleWaExpand = (e: Event) => {
-        if (onWaExpand) onWaExpand(e as CustomEvent);
+      const handleExpand = (e: Event) => {
+        if (onExpand) onExpand(e as CustomEvent);
       };
 
-      const handleWaAfterExpand = (e: Event) => {
-        if (onWaAfterExpand) onWaAfterExpand(e as CustomEvent);
+      const handleAfterExpand = (e: Event) => {
+        if (onAfterExpand) onAfterExpand(e as CustomEvent);
       };
 
-      const handleWaCollapse = (e: Event) => {
-        if (onWaCollapse) onWaCollapse(e as CustomEvent);
+      const handleCollapse = (e: Event) => {
+        if (onCollapse) onCollapse(e as CustomEvent);
       };
 
-      const handleWaAfterCollapse = (e: Event) => {
-        if (onWaAfterCollapse) onWaAfterCollapse(e as CustomEvent);
+      const handleAfterCollapse = (e: Event) => {
+        if (onAfterCollapse) onAfterCollapse(e as CustomEvent);
       };
 
-      const handleWaLazyChange = (e: Event) => {
-        if (onWaLazyChange) onWaLazyChange(e as CustomEvent);
+      const handleLazyChange = (e: Event) => {
+        if (onLazyChange) onLazyChange(e as CustomEvent);
       };
 
-      const handleWaLazyLoad = (e: Event) => {
-        if (onWaLazyLoad) onWaLazyLoad(e as CustomEvent);
+      const handleLazyLoad = (e: Event) => {
+        if (onLazyLoad) onLazyLoad(e as CustomEvent);
       };
 
-      el.addEventListener('wa-expand', handleWaExpand);
-      el.addEventListener('wa-after-expand', handleWaAfterExpand);
-      el.addEventListener('wa-collapse', handleWaCollapse);
-      el.addEventListener('wa-after-collapse', handleWaAfterCollapse);
-      el.addEventListener('wa-lazy-change', handleWaLazyChange);
-      el.addEventListener('wa-lazy-load', handleWaLazyLoad);
+      el.addEventListener('wa-expand', handleExpand);
+      el.addEventListener('wa-after-expand', handleAfterExpand);
+      el.addEventListener('wa-collapse', handleCollapse);
+      el.addEventListener('wa-after-collapse', handleAfterCollapse);
+      el.addEventListener('wa-lazy-change', handleLazyChange);
+      el.addEventListener('wa-lazy-load', handleLazyLoad);
 
       return () => {
-        el.removeEventListener('wa-expand', handleWaExpand);
-        el.removeEventListener('wa-after-expand', handleWaAfterExpand);
-        el.removeEventListener('wa-collapse', handleWaCollapse);
-        el.removeEventListener('wa-after-collapse', handleWaAfterCollapse);
-        el.removeEventListener('wa-lazy-change', handleWaLazyChange);
-        el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
+        el.removeEventListener('wa-expand', handleExpand);
+        el.removeEventListener('wa-after-expand', handleAfterExpand);
+        el.removeEventListener('wa-collapse', handleCollapse);
+        el.removeEventListener('wa-after-collapse', handleAfterCollapse);
+        el.removeEventListener('wa-lazy-change', handleLazyChange);
+        el.removeEventListener('wa-lazy-load', handleLazyLoad);
       };
-    }, [onWaExpand, onWaAfterExpand, onWaCollapse, onWaAfterCollapse, onWaLazyChange, onWaLazyLoad]);
+    }, [onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad]);
 
     return (
       <wa-tree-item

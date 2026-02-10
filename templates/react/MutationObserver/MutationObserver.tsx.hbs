@@ -13,11 +13,11 @@ import './MutationObserver.css';
  *
  * // With event handlers
  * <MutationObserver
- *   onWaMutation={(e) => console.log(e)} />
+ *   onMutation={(e) => console.log(e)} />
  *
  * ```
  */
-export interface MutationObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaMutation' | 'dir'> {
+export interface MutationObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onMutation' | 'dir'> {
 
   /** Space-separated list of attributes to observe */
   attr?: string;
@@ -41,7 +41,7 @@ export interface MutationObserverProps extends Omit<HTMLAttributes<HTMLElement>,
   subtree?: boolean;
 
   /** Emitted when a mutation occurs. */
-  onWaMutation?: (event: CustomEvent) => void;
+  onMutation?: (event: CustomEvent) => void;
 }
 
 export interface MutationObserverRef {
@@ -50,7 +50,7 @@ export interface MutationObserverRef {
 }
 
 export const MutationObserver = forwardRef<MutationObserverRef, MutationObserverProps>(
-  ({ children, className, onWaMutation, ...props }, ref) => {
+  ({ children, className, onMutation, ...props }, ref) => {
     const mutationobserverRef = useRef<HTMLElement & {
     }>(null);
 
@@ -68,16 +68,16 @@ export const MutationObserver = forwardRef<MutationObserverRef, MutationObserver
       const el = mutationobserverRef.current;
       if (!el) return;
 
-      const handleWaMutation = (e: Event) => {
-        if (onWaMutation) onWaMutation(e as CustomEvent);
+      const handleMutation = (e: Event) => {
+        if (onMutation) onMutation(e as CustomEvent);
       };
 
-      el.addEventListener('wa-mutation', handleWaMutation);
+      el.addEventListener('wa-mutation', handleMutation);
 
       return () => {
-        el.removeEventListener('wa-mutation', handleWaMutation);
+        el.removeEventListener('wa-mutation', handleMutation);
       };
-    }, [onWaMutation]);
+    }, [onMutation]);
 
     return (
       <wa-mutation-observer

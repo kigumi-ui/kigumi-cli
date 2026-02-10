@@ -13,7 +13,7 @@ import './Popup.css';
  *
  * // With event handlers
  * <Popup
- *   onWaReposition={(e) => console.log(e)} />
+ *   onReposition={(e) => console.log(e)} />
  *
  * // With ref methods
  * const ref = useRef<PopupRef>(null);
@@ -21,7 +21,7 @@ import './Popup.css';
  * <Popup ref={ref} />
  * ```
  */
-export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaReposition' | 'dir'> {
+export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'onReposition' | 'dir'> {
 
   /** Activates the positioning logic */
   active?: boolean;
@@ -78,7 +78,7 @@ export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaRepos
   'auto-size-padding'?: number;
 
   /** Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it. */
-  onWaReposition?: (event: CustomEvent) => void;
+  onReposition?: (event: CustomEvent) => void;
 }
 
 export interface PopupRef {
@@ -90,7 +90,7 @@ export interface PopupRef {
 }
 
 export const Popup = forwardRef<PopupRef, PopupProps>(
-  ({ children, className, onWaReposition, ...props }, ref) => {
+  ({ children, className, onReposition, ...props }, ref) => {
     const popupRef = useRef<HTMLElement & {
       reposition?: () => void;
     }>(null);
@@ -114,16 +114,16 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       const el = popupRef.current;
       if (!el) return;
 
-      const handleWaReposition = (e: Event) => {
-        if (onWaReposition) onWaReposition(e as CustomEvent);
+      const handleReposition = (e: Event) => {
+        if (onReposition) onReposition(e as CustomEvent);
       };
 
-      el.addEventListener('wa-reposition', handleWaReposition);
+      el.addEventListener('wa-reposition', handleReposition);
 
       return () => {
-        el.removeEventListener('wa-reposition', handleWaReposition);
+        el.removeEventListener('wa-reposition', handleReposition);
       };
-    }, [onWaReposition]);
+    }, [onReposition]);
 
     return (
       <wa-popup

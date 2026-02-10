@@ -14,7 +14,7 @@ const props = defineProps({
     shape: { type: String, required: false, default: circle }
 });
 
-const emit = defineEmits(['wa-error']);
+const emit = defineEmits(['error']);
 
 const elementRef = ref(null);
 
@@ -22,11 +22,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaError = (e) => emit('wa-error', e);
-  el.addEventListener('wa-error', handleWaError);
+  const handleError = (e) => emit('error', e);
+  el.addEventListener('wa-error', handleError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-error', handleWaError);
+    el.removeEventListener('wa-error', handleError);
   });
 });
 
