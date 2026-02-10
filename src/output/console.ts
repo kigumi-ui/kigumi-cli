@@ -34,7 +34,7 @@ class ClackSpinner implements OutputSpinner {
   }
 
   error(message?: string): void {
-    this.spinner.stop(message || 'Failed', 1);
+    this.spinner.stop(message || 'Failed');
   }
 }
 
