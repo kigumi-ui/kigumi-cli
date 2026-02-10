@@ -1,5 +1,22 @@
 # kigumi
 
+## 0.8.2
+
+### Patch Changes
+
+- Dependency updates and build improvements
+
+  **Dependencies:**
+  - Update @clack/prompts from 0.11.0 to 1.0.0
+  - Update commander from 11.1.0 to 14.0.3
+  - Update execa from 8.0.1 to 9.6.1
+  - Update GitHub Actions (checkout v6, codecov v5)
+
+  **Improvements:**
+  - Fix build process to prevent unnecessary regeneration of metadata files
+  - Enable automatic GitHub release creation in CI workflow
+  - Fix @clack/prompts API compatibility
+
 ## 0.8.1
 
 ### Patch Changes
