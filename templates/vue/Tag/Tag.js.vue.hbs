@@ -14,7 +14,7 @@ const props = defineProps({
     'with-remove': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['wa-remove']);
+const emit = defineEmits(['remove']);
 
 const elementRef = ref(null);
 
@@ -22,11 +22,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaRemove = (e) => emit('wa-remove', e);
-  el.addEventListener('wa-remove', handleWaRemove);
+  const handleRemove = (e) => emit('remove', e);
+  el.addEventListener('wa-remove', handleRemove);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-remove', handleWaRemove);
+    el.removeEventListener('wa-remove', handleRemove);
   });
 });
 

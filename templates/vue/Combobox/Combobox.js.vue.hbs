@@ -25,7 +25,7 @@ const props = defineProps({
     'with-clear': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-invalid']);
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'clear', 'show', 'after-show', 'hide', 'after-hide', 'invalid']);
 
 const elementRef = ref(null);
 
@@ -41,30 +41,30 @@ onMounted(() => {
   el.addEventListener('focus', handleFocus);
   const handleBlur = (e) => emit('blur', e);
   el.addEventListener('blur', handleBlur);
-  const handleWaClear = (e) => emit('wa-clear', e);
-  el.addEventListener('wa-clear', handleWaClear);
-  const handleWaShow = (e) => emit('wa-show', e);
-  el.addEventListener('wa-show', handleWaShow);
-  const handleWaAfterShow = (e) => emit('wa-after-show', e);
-  el.addEventListener('wa-after-show', handleWaAfterShow);
-  const handleWaHide = (e) => emit('wa-hide', e);
-  el.addEventListener('wa-hide', handleWaHide);
-  const handleWaAfterHide = (e) => emit('wa-after-hide', e);
-  el.addEventListener('wa-after-hide', handleWaAfterHide);
-  const handleWaInvalid = (e) => emit('wa-invalid', e);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleClear = (e) => emit('clear', e);
+  el.addEventListener('wa-clear', handleClear);
+  const handleShow = (e) => emit('show', e);
+  el.addEventListener('wa-show', handleShow);
+  const handleAfterShow = (e) => emit('after-show', e);
+  el.addEventListener('wa-after-show', handleAfterShow);
+  const handleHide = (e) => emit('hide', e);
+  el.addEventListener('wa-hide', handleHide);
+  const handleAfterHide = (e) => emit('after-hide', e);
+  el.addEventListener('wa-after-hide', handleAfterHide);
+  const handleInvalid = (e) => emit('invalid', e);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('input', handleInput);
     el.removeEventListener('change', handleChange);
     el.removeEventListener('focus', handleFocus);
     el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('wa-clear', handleWaClear);
-    el.removeEventListener('wa-show', handleWaShow);
-    el.removeEventListener('wa-after-show', handleWaAfterShow);
-    el.removeEventListener('wa-hide', handleWaHide);
-    el.removeEventListener('wa-after-hide', handleWaAfterHide);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-clear', handleClear);
+    el.removeEventListener('wa-show', handleShow);
+    el.removeEventListener('wa-after-show', handleAfterShow);
+    el.removeEventListener('wa-hide', handleHide);
+    el.removeEventListener('wa-after-hide', handleAfterHide);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

@@ -17,7 +17,7 @@ export interface TagProps {
 const props = defineProps<TagProps>();
 
 const emit = defineEmits<{
-  'wa-remove': [event: CustomEvent];
+  'remove': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -26,11 +26,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaRemove = (e: Event) => emit('wa-remove', e as CustomEvent);
-  el.addEventListener('wa-remove', handleWaRemove);
+  const handleRemove = (e: Event) => emit('remove', e as CustomEvent);
+  el.addEventListener('wa-remove', handleRemove);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-remove', handleWaRemove);
+    el.removeEventListener('wa-remove', handleRemove);
   });
 });
 

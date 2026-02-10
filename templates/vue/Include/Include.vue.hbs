@@ -15,8 +15,8 @@ export interface IncludeProps {
 const props = defineProps<IncludeProps>();
 
 const emit = defineEmits<{
-  'wa-load': [event: CustomEvent];
-  'wa-include-error': [event: CustomEvent];
+  'load': [event: CustomEvent];
+  'include-error': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -25,14 +25,14 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
-  el.addEventListener('wa-load', handleWaLoad);
-  const handleWaIncludeError = (e: Event) => emit('wa-include-error', e as CustomEvent);
-  el.addEventListener('wa-include-error', handleWaIncludeError);
+  const handleLoad = (e: Event) => emit('load', e as CustomEvent);
+  el.addEventListener('wa-load', handleLoad);
+  const handleIncludeError = (e: Event) => emit('include-error', e as CustomEvent);
+  el.addEventListener('wa-include-error', handleIncludeError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-load', handleWaLoad);
-    el.removeEventListener('wa-include-error', handleWaIncludeError);
+    el.removeEventListener('wa-load', handleLoad);
+    el.removeEventListener('wa-include-error', handleIncludeError);
   });
 });
 

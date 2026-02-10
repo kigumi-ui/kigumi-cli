@@ -15,8 +15,8 @@ export interface AnimatedImageProps {
 const props = defineProps<AnimatedImageProps>();
 
 const emit = defineEmits<{
-  'wa-load': [event: CustomEvent];
-  'wa-error': [event: CustomEvent];
+  'load': [event: CustomEvent];
+  'error': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -25,14 +25,14 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
-  el.addEventListener('wa-load', handleWaLoad);
-  const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
-  el.addEventListener('wa-error', handleWaError);
+  const handleLoad = (e: Event) => emit('load', e as CustomEvent);
+  el.addEventListener('wa-load', handleLoad);
+  const handleError = (e: Event) => emit('error', e as CustomEvent);
+  el.addEventListener('wa-error', handleError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-load', handleWaLoad);
-    el.removeEventListener('wa-error', handleWaError);
+    el.removeEventListener('wa-load', handleLoad);
+    el.removeEventListener('wa-error', handleError);
   });
 });
 

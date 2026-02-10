@@ -10,7 +10,7 @@ const props = defineProps({
     disabled: { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['wa-resize']);
+const emit = defineEmits(['resize']);
 
 const elementRef = ref(null);
 
@@ -18,11 +18,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaResize = (e) => emit('wa-resize', e);
-  el.addEventListener('wa-resize', handleWaResize);
+  const handleResize = (e) => emit('resize', e);
+  el.addEventListener('wa-resize', handleResize);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-resize', handleWaResize);
+    el.removeEventListener('wa-resize', handleResize);
   });
 });
 

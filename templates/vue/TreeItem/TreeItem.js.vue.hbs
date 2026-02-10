@@ -13,7 +13,7 @@ const props = defineProps({
     lazy: { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['wa-expand', 'wa-after-expand', 'wa-collapse', 'wa-after-collapse', 'wa-lazy-change', 'wa-lazy-load']);
+const emit = defineEmits(['expand', 'after-expand', 'collapse', 'after-collapse', 'lazy-change', 'lazy-load']);
 
 const elementRef = ref(null);
 
@@ -21,26 +21,26 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaExpand = (e) => emit('wa-expand', e);
-  el.addEventListener('wa-expand', handleWaExpand);
-  const handleWaAfterExpand = (e) => emit('wa-after-expand', e);
-  el.addEventListener('wa-after-expand', handleWaAfterExpand);
-  const handleWaCollapse = (e) => emit('wa-collapse', e);
-  el.addEventListener('wa-collapse', handleWaCollapse);
-  const handleWaAfterCollapse = (e) => emit('wa-after-collapse', e);
-  el.addEventListener('wa-after-collapse', handleWaAfterCollapse);
-  const handleWaLazyChange = (e) => emit('wa-lazy-change', e);
-  el.addEventListener('wa-lazy-change', handleWaLazyChange);
-  const handleWaLazyLoad = (e) => emit('wa-lazy-load', e);
-  el.addEventListener('wa-lazy-load', handleWaLazyLoad);
+  const handleExpand = (e) => emit('expand', e);
+  el.addEventListener('wa-expand', handleExpand);
+  const handleAfterExpand = (e) => emit('after-expand', e);
+  el.addEventListener('wa-after-expand', handleAfterExpand);
+  const handleCollapse = (e) => emit('collapse', e);
+  el.addEventListener('wa-collapse', handleCollapse);
+  const handleAfterCollapse = (e) => emit('after-collapse', e);
+  el.addEventListener('wa-after-collapse', handleAfterCollapse);
+  const handleLazyChange = (e) => emit('lazy-change', e);
+  el.addEventListener('wa-lazy-change', handleLazyChange);
+  const handleLazyLoad = (e) => emit('lazy-load', e);
+  el.addEventListener('wa-lazy-load', handleLazyLoad);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-expand', handleWaExpand);
-    el.removeEventListener('wa-after-expand', handleWaAfterExpand);
-    el.removeEventListener('wa-collapse', handleWaCollapse);
-    el.removeEventListener('wa-after-collapse', handleWaAfterCollapse);
-    el.removeEventListener('wa-lazy-change', handleWaLazyChange);
-    el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
+    el.removeEventListener('wa-expand', handleExpand);
+    el.removeEventListener('wa-after-expand', handleAfterExpand);
+    el.removeEventListener('wa-collapse', handleCollapse);
+    el.removeEventListener('wa-after-collapse', handleAfterCollapse);
+    el.removeEventListener('wa-lazy-change', handleLazyChange);
+    el.removeEventListener('wa-lazy-load', handleLazyLoad);
   });
 });
 

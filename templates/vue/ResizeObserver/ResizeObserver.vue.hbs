@@ -13,7 +13,7 @@ export interface ResizeObserverProps {
 const props = defineProps<ResizeObserverProps>();
 
 const emit = defineEmits<{
-  'wa-resize': [event: CustomEvent];
+  'resize': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -22,11 +22,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaResize = (e: Event) => emit('wa-resize', e as CustomEvent);
-  el.addEventListener('wa-resize', handleWaResize);
+  const handleResize = (e: Event) => emit('resize', e as CustomEvent);
+  el.addEventListener('wa-resize', handleResize);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-resize', handleWaResize);
+    el.removeEventListener('wa-resize', handleResize);
   });
 });
 

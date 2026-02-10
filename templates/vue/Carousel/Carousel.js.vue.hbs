@@ -18,7 +18,7 @@ const props = defineProps({
     'slides-per-page': { type: Number, required: false, default: 1 }
 });
 
-const emit = defineEmits(['wa-slide-change']);
+const emit = defineEmits(['slide-change']);
 
 const elementRef = ref(null);
 
@@ -26,11 +26,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaSlideChange = (e) => emit('wa-slide-change', e);
-  el.addEventListener('wa-slide-change', handleWaSlideChange);
+  const handleSlideChange = (e) => emit('slide-change', e);
+  el.addEventListener('wa-slide-change', handleSlideChange);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-slide-change', handleWaSlideChange);
+    el.removeEventListener('wa-slide-change', handleSlideChange);
   });
 });
 

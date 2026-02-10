@@ -19,7 +19,7 @@ const props = defineProps({
     'max-files': { type: Number, required: false }
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-invalid']);
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'invalid']);
 
 const elementRef = ref(null);
 
@@ -35,15 +35,15 @@ onMounted(() => {
   el.addEventListener('focus', handleFocus);
   const handleBlur = (e) => emit('blur', e);
   el.addEventListener('blur', handleBlur);
-  const handleWaInvalid = (e) => emit('wa-invalid', e);
-  el.addEventListener('wa-invalid', handleWaInvalid);
+  const handleInvalid = (e) => emit('invalid', e);
+  el.addEventListener('wa-invalid', handleInvalid);
 
   onUnmounted(() => {
     el.removeEventListener('input', handleInput);
     el.removeEventListener('change', handleChange);
     el.removeEventListener('focus', handleFocus);
     el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('wa-invalid', handleWaInvalid);
+    el.removeEventListener('wa-invalid', handleInvalid);
   });
 });
 

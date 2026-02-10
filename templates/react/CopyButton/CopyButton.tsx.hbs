@@ -13,11 +13,11 @@ import './CopyButton.css';
  *
  * // With event handlers
  * <CopyButton
- *   onWaCopy={(e) => console.log(e)} />
+ *   onCopy={(e) => console.log(e)} />
  *
  * ```
  */
-export interface CopyButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onWaCopy' | 'onWaError' | 'dir'> {
+export interface CopyButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onCopy' | 'onError' | 'dir'> {
 
   /** The text to copy */
   value?: string;
@@ -44,10 +44,10 @@ export interface CopyButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onWa
   'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
 
   /** Emitted when the data has been copied. */
-  onWaCopy?: (event: CustomEvent) => void;
+  onCopy?: (event: CustomEvent) => void;
 
   /** Emitted when the data could not be copied. */
-  onWaError?: (event: CustomEvent) => void;
+  onError?: (event: CustomEvent) => void;
 }
 
 export interface CopyButtonRef {
@@ -56,7 +56,7 @@ export interface CopyButtonRef {
 }
 
 export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
-  ({ children, className, onWaCopy, onWaError, ...props }, ref) => {
+  ({ children, className, onCopy, onError, ...props }, ref) => {
     const copybuttonRef = useRef<HTMLElement & {
     }>(null);
 
@@ -74,22 +74,22 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
       const el = copybuttonRef.current;
       if (!el) return;
 
-      const handleWaCopy = (e: Event) => {
-        if (onWaCopy) onWaCopy(e as CustomEvent);
+      const handleCopy = (e: Event) => {
+        if (onCopy) onCopy(e as CustomEvent);
       };
 
-      const handleWaError = (e: Event) => {
-        if (onWaError) onWaError(e as CustomEvent);
+      const handleError = (e: Event) => {
+        if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-copy', handleWaCopy);
-      el.addEventListener('wa-error', handleWaError);
+      el.addEventListener('wa-copy', handleCopy);
+      el.addEventListener('wa-error', handleError);
 
       return () => {
-        el.removeEventListener('wa-copy', handleWaCopy);
-        el.removeEventListener('wa-error', handleWaError);
+        el.removeEventListener('wa-copy', handleCopy);
+        el.removeEventListener('wa-error', handleError);
       };
-    }, [onWaCopy, onWaError]);
+    }, [onCopy, onError]);
 
     return (
       <wa-copy-button

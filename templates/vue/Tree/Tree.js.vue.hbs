@@ -10,7 +10,7 @@ const props = defineProps({
     selection: { type: String, required: false, default: single }
 });
 
-const emit = defineEmits(['wa-selection-change']);
+const emit = defineEmits(['selection-change']);
 
 const elementRef = ref(null);
 
@@ -18,11 +18,11 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaSelectionChange = (e) => emit('wa-selection-change', e);
-  el.addEventListener('wa-selection-change', handleWaSelectionChange);
+  const handleSelectionChange = (e) => emit('selection-change', e);
+  el.addEventListener('wa-selection-change', handleSelectionChange);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-selection-change', handleWaSelectionChange);
+    el.removeEventListener('wa-selection-change', handleSelectionChange);
   });
 });
 

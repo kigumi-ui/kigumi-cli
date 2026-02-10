@@ -12,3 +12,7 @@ tests/.tmp-*
 # Allow npm users to work locally, but only commit pnpm lock
 docs/package-lock.json
 temp/
+
+# Generated validation/transformation results
+transform-results.json
+validation-results.json

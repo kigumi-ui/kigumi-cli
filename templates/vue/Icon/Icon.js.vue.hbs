@@ -17,7 +17,7 @@ const props = defineProps({
     'swap-opacity': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['wa-load', 'wa-error']);
+const emit = defineEmits(['load', 'error']);
 
 const elementRef = ref(null);
 
@@ -25,14 +25,14 @@ onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleWaLoad = (e) => emit('wa-load', e);
-  el.addEventListener('wa-load', handleWaLoad);
-  const handleWaError = (e) => emit('wa-error', e);
-  el.addEventListener('wa-error', handleWaError);
+  const handleLoad = (e) => emit('load', e);
+  el.addEventListener('wa-load', handleLoad);
+  const handleError = (e) => emit('error', e);
+  el.addEventListener('wa-error', handleError);
 
   onUnmounted(() => {
-    el.removeEventListener('wa-load', handleWaLoad);
-    el.removeEventListener('wa-error', handleWaError);
+    el.removeEventListener('wa-load', handleLoad);
+    el.removeEventListener('wa-error', handleError);
   });
 });
 
