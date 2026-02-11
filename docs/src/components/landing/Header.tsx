@@ -1,17 +1,16 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { Button } from '@/components/ui';
-import { Icon } from '@/components/ui/Icon/Icon';
+import logoImg from '@/assets/icon.svg';
 
 export function Header() {
-  const { isDark, toggleTheme } = useTheme();
-
   return (
-    <header slot="header">
-      <div className="Header__content">
-        <span className="wa-heading-xl">Kigumi</span>
-        <Button appearance="outlined" size="small" onClick={toggleTheme}>
-          <Icon name={isDark ? 'sun' : 'moon'} />
-        </Button>
+    <header slot="header" className="header">
+      <div className="wa-cluster wa-gap-xs logo">
+        <img
+          src={logoImg}
+          className="brand-logo"
+          alt="Kigumi"
+          style={{ width: '24px', height: '24px' }}
+        />
+        <span className="wa-heading-xl brand-text">Kigumi</span>
       </div>
     </header>
   );

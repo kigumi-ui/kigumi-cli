@@ -7,7 +7,9 @@ export function GettingStarted() {
       <div className="wa-stack wa-gap-4xl">
         {/* Quick Start Section */}
         <div className="wa-stack wa-gap-xl">
-          <h2 className="wa-heading-2xl">Getting started</h2>
+          <h2 className="wa-heading-2xl" id="getting-started">
+            Getting started
+          </h2>
 
           {/* Step 1: Initialize */}
           <div className="wa-stack wa-gap-m">

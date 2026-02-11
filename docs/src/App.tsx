@@ -6,11 +6,13 @@ import { Page } from '@/components/ui/Page/Page';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Footer } from '@/components/landing/Footer';
 import { ThemeFab } from '@/components/landing/ThemeFab';
+import { Header } from '@/components/landing/Header';
 
 function App() {
   return (
     <ThemeProvider>
       <Page disable-navigation-toggle>
+        <Header />
         <Hero />
         <ExampleGrid />
         <GettingStarted />

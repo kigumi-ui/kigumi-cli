@@ -1,14 +1,19 @@
+html {
+  scroll-behavior: smooth;
+}
+
 /* Example Grid */
 .example-grid {
   max-width: 1280px;
   margin: 0 auto;
+  padding-inline: var(--wa-space-l);
 }
 
-/* @media (min-width: 1024px) {
+@media (min-width: 768px) {
   .example-grid {
-    padding-inline: var(--wa-space-4xl);
+    padding-inline: var(--wa-space-3xl);
   }
-} */
+}
 
 .example-masonry {
   column-count: 1;

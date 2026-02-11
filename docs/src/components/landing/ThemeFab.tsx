@@ -10,7 +10,7 @@ export const ThemeFab = () => {
       <Button
         pill
         variant="brand"
-        size="large"
+        size="medium"
         appearance="filled"
         onClick={toggleTheme}
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
