@@ -6,9 +6,9 @@
   padding-inline: var(--wa-space-l);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .troubleshooting {
-    padding-inline: var(--wa-space-4xl);
+    padding-inline: var(--wa-space-3xl);
   }
 }
 
