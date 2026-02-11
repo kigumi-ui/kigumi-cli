@@ -480,34 +480,37 @@ START: Change affects tier detection or packages
 
 > **For AI Agents:** This section documents the release process. Follow these steps strictly for consistency.
 
-### CI/CD Overview
+### Overview
 
-Automated release pipeline using Changesets:
+Fully automated release pipeline: **merge PR to main = release** (when changesets exist).
 
 ```mermaid
 flowchart LR
-    A[Code Changes] --> B[Commit]
-    B --> C{User-facing?}
-    C -->|Yes| D[Create Changeset]
-    C -->|No| E[Push to PR]
-    D --> E
-    E --> F[CI Runs]
-    F -->|Pass| G[Merge to main]
-    F -->|Fail| H[Fix & Push]
-    H --> F
-    G --> I[Release Action]
-    I --> J{Changesets exist?}
-    J -->|Yes| K[Version PR Created]
-    K --> L[Merge Version PR]
-    L --> M[Publish to npm]
-    J -->|No| N[No Release]
+    A[Feature Branch] --> B[pnpm changeset]
+    B --> C[Push + Create PR]
+    C --> D[CI Runs]
+    D --> E{CI Green?}
+    E -->|Yes| F[Review + Merge PR]
+    E -->|No| G[Fix Issues]
+    G --> C
+    F --> H[Release Workflow]
+    H --> I[Auto: Version Bump + CHANGELOG]
+    I --> J[Auto: npm Publish + GitHub Release]
 ```
 
-### Agent Workflow: After Code Changes
+**Control points:**
 
-**Step 1: Commit Changes**
+- Review PR before merge (full control over what ships)
+- CI must pass before merge (quality gate)
+- No manual steps after merge (fully automated)
+
+### Developer Workflow
+
+**Step 1: Create feature branch and make changes**
 
 ```bash
+git checkout -b feat/my-feature
+# ... make changes ...
 git add .
 git commit -m "feat: add new component"
 ```
@@ -518,111 +521,75 @@ Rules:
 - **NEVER** use `--amend` on pushed commits
 - **NEVER** rebase after pushing
 
-**Step 2: Determine if Changeset Needed**
-
-Create changeset if changes are **user-facing**:
+**Step 2: Create changeset (if user-facing)**
 
 | Change Type           | Changeset? | Severity | Examples                   |
 | --------------------- | ---------- | -------- | -------------------------- |
-| New component         | ✅ Yes     | `minor`  | Add Dialog component       |
-| New CLI command       | ✅ Yes     | `minor`  | Add `kigumi theme` command |
-| Bug fix (user-facing) | ✅ Yes     | `patch`  | Fix Button event handler   |
-| Breaking change       | ✅ Yes     | `major`  | Remove deprecated prop     |
-| Docs only             | ❌ No      | -        | Update README              |
-| Tests only            | ❌ No      | -        | Add unit tests             |
-| Refactor (internal)   | ❌ No      | -        | Reorganize utils           |
-| CI/Build changes      | ❌ No      | -        | Update GitHub Actions      |
-
-**Step 3: Create Changeset (if needed)**
+| New component         | Yes        | `minor`  | Add Dialog component       |
+| New CLI command       | Yes        | `minor`  | Add `kigumi theme` command |
+| Bug fix (user-facing) | Yes        | `patch`  | Fix Button event handler   |
+| Breaking change       | Yes        | `major`  | Remove deprecated prop     |
+| Docs only             | No         | -        | Update README              |
+| Tests only            | No         | -        | Add unit tests             |
+| Refactor (internal)   | No         | -        | Reorganize utils           |
+| CI/Build changes      | No         | -        | Update GitHub Actions      |
 
 ```bash
 pnpm changeset
-```
-
-Answer prompts:
-
-1. **Change type:** Select `patch`, `minor`, or `major`
-2. **Summary:** Write clear, user-facing description
-
-Example:
-
-```
----
-'kigumi': minor
----
-
-Add Dialog component with accessibility support
-```
-
-Commit the changeset file:
-
-```bash
+# Select patch/minor/major, write user-facing summary
 git add .changeset/*.md
 git commit -m "chore: add changeset"
 ```
 
-**Step 4: Push & Create PR**
+**Step 3: Push and create PR**
 
 ```bash
-git push origin feature-branch
+git push -u origin HEAD
+gh pr create --title "feat: my feature" --body "Description..."
 ```
 
-Then create PR via GitHub CLI or UI:
+**Step 4: Wait for CI, review, merge**
 
-```bash
-gh pr create --title "feat: add Dialog component" --body "Adds Dialog component..."
-```
+All checks must pass before merge:
 
-**Step 5: Wait for CI**
+- Test (Node 18, 20, 22)
+- Coverage (>=33%)
+- TypeCheck
+- Validate Registry & Templates
+- Security Audit
 
-All checks must pass:
+Once CI passes and review is approved, merge via GitHub UI (squash or merge commit, no rebase).
 
-- ✅ Test (Node 18, 20, 22)
-- ✅ Coverage (≥33%)
-- ✅ TypeCheck
-- ✅ Validate Registry & Templates
-- ✅ Security Audit
+### What Happens After Merge (Fully Automated)
 
-**Step 6: Merge PR**
-
-Once CI passes and review approved, merge via GitHub UI (squash or merge commit, no rebase).
-
-### What Happens After Merge
-
-Automatically triggered:
-
-1. **Release Action runs** (`.github/workflows/release.yml`)
-2. **If changesets exist:**
-   - Creates/updates "Version Packages" PR
-   - Updates `package.json` version
-   - Updates `CHANGELOG.md`
-3. **When Version PR merged:**
-   - Publishes to npm registry
-   - Creates GitHub release with tag
+1. **Release workflow** (`.github/workflows/release.yml`) triggers on push to main
+2. **CI runs** again via reusable workflow (`.github/workflows/ci.yml`)
+3. **If changesets exist:**
+   - `changeset version` bumps `package.json` and updates `CHANGELOG.md`
+   - `pnpm build && changeset publish` builds and publishes to npm
+   - GitHub Release with git tag is created automatically
+4. **If no changesets:** Nothing happens (no release)
 
 ### Manual Release (Emergency Only)
 
 If automation fails:
 
 ```bash
-# Bump version
 pnpm changeset version
-
-# Build and publish
 pnpm release
 ```
 
-**NEVER do this** unless automation is broken. Document reason in PR.
+**NEVER do this** unless automation is broken. Document reason in a follow-up PR.
 
 ### Branch Protection
 
 **main** branch is protected:
 
-- ✅ Require PR before merging
-- ✅ Require CI status checks (all jobs must pass)
-- ✅ Require conversation resolution
-- ❌ No force push allowed
-- ❌ No direct commits
+- Require PR before merging
+- Require CI status checks (all jobs must pass)
+- Require conversation resolution
+- No force push allowed
+- No direct commits
 
 ### Troubleshooting
 
@@ -630,7 +597,7 @@ pnpm release
 | ---------------------- | ------------------------------------------------- |
 | CI fails on main       | Fix in new PR, do not force push                  |
 | Release workflow fails | Check NPM_TOKEN secret in GitHub                  |
-| Version PR not created | Ensure changeset files exist in `.changeset/`     |
+| No release after merge | Ensure `.changeset/*.md` files were in the PR     |
 | Publish fails          | Verify package.json version not already published |
 | Wrong version bumped   | Recreate changeset with correct severity          |
 
