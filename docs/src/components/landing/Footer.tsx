@@ -7,7 +7,7 @@ export const Footer = () => {
 
   return (
     <>
-      <section slot="footer" className="wa-justify-content-center">
+      <footer slot="footer" className="footer wa-justify-content-center">
         <div className="wa-stack">
           <div className="wa-span-grid wa-gap-xs wa-justify-content-center wa-align-items-center">
             <span>
@@ -59,7 +59,7 @@ export const Footer = () => {
             </a>
           </div>
         </div>
-      </section>
+      </footer>
 
       <Dialog
         open={imprintOpen}

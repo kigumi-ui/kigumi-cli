@@ -31,9 +31,9 @@ export function Hero() {
   }, []);
 
   return (
-    <div slot="main-header" className="wa-stack wa-align-items-start">
+    <div slot="main-header" className="wa-align-items-start wa-stack">
       <div className="wa-grid wa-align-items-start">
-        <div className="wa-stack wa-gap-l wa-align-items-start">
+        <div className="wa-stack wa-align-items-start">
           <div className="wa-stack wa-align-items-start wa-gap-xs">
             <Badge pill className="wa-font-size-s">
               <Icon name="tag" />v{__CLI_VERSION__}
@@ -42,10 +42,12 @@ export function Hero() {
               Build framework-agnostic UIs
             </h1>
             <h2 className="wa-caption-2xl heading-2">
-              with ready-made web components. Same components, any stack.
+              Ready-made web components for React and Vue. Same components, any
+              stack.
             </h2>
           </div>
-          <div className="wa-stack wa-gap-l wa-align-items-start">
+
+          <div className="wa-stack wa-gap-2xl wa-align-items-start">
             <div className="wa-cluster wa-gap-m">
               <Button variant="brand" size="medium" href="#getting-started">
                 Get started
@@ -62,11 +64,18 @@ export function Hero() {
                 <Icon name="external-link" slot="end" />
               </Button>
             </div>
-            <InstallCommandExample />
-            <CompatibilityInfo />
+            <div className="wa-stack wa-gap-m">
+              <InstallCommandExample />
+              <CompatibilityInfo />
+            </div>
           </div>
         </div>
-        <img ref={stacksRef} src={stacks} alt="Stacks" className="stacks" />
+        <img
+          ref={stacksRef}
+          src={stacks}
+          alt="React, Vue, and TypeScript logos connected with Web Awesome components"
+          className="stacks"
+        />
       </div>
     </div>
   );

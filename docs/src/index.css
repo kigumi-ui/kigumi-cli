@@ -18,3 +18,5 @@
 @import 'styles/Header.css' layer(kigumi-pages);
 @import 'styles/Hero.css' layer(kigumi-pages);
 @import 'styles/GettingStarted.css' layer(kigumi-pages);
+@import 'styles/Troubleshooting.css' layer(kigumi-pages);
+@import 'styles/Footer.css' layer(kigumi-pages);

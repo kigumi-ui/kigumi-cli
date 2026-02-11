@@ -2,6 +2,70 @@ html {
   scroll-behavior: smooth;
 }
 
+#root {
+  position: relative;
+  min-height: calc(100% - var(--header-height));
+}
+
+section.section {
+  padding-block: 0;
+}
+
+.start-divider,
+.end-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--wa-color-neutral-20);
+  pointer-events: none;
+  height: calc(100% - var(--header-height));
+}
+
+.start-divider {
+  left: 0;
+}
+
+.end-divider {
+  right: 0;
+}
+
+.section-divider {
+  margin-block: var(--wa-space-4xl);
+  position: relative;
+  border-image: repeating-linear-gradient(
+      to right,
+      var(--wa-color-surface-border),
+      var(--wa-color-surface-border) 10px,
+      transparent 10px,
+      transparent 14px
+    )
+    1;
+  border-top-style: dashed;
+
+  &:before {
+    left: 0;
+    transform: translateY(-50%) translateX(50%) rotate(45deg);
+  }
+  &:after {
+    right: 0;
+    transform: translateY(-50%) translateX(-50%) rotate(45deg);
+  }
+
+  &:before,
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 16.5px;
+    height: 16.5px;
+    background-color: var(--wa-color-surface-default);
+    border-radius: var(--wa-border-radius-large);
+    border: var(--wa-border-width-s) solid var(--wa-color-surface-border);
+  }
+}
+
 /* Example Grid */
 .example-grid {
   max-width: 1280px;

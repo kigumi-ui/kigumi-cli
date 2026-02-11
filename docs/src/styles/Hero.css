@@ -2,7 +2,8 @@
   max-width: 1280px;
   margin-inline: auto;
   padding-inline: var(--wa-space-l);
-  padding-block-start: var(--wa-space-xl);
+  padding-bottom: 0;
+  padding-top: var(--wa-space-3xl);
 
   & .heading-1 {
     font-size: var(--wa-font-size-2xl);

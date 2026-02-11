@@ -4,30 +4,98 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/src/assets/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6366f1" />
 
-    <title>Kigumi - Build framework-agnostic UIs with ready-made web components</title>
-    <meta name="description" content="CLI tool to add Web Awesome components to your React, Vue, or vanilla JavaScript projects. Build beautiful, accessible UIs with framework-agnostic web components." />
-    <meta name="keywords" content="web components, UI components, CLI tool, React, Vue, framework-agnostic, Web Awesome, kigumi, component library" />
+    <title>Kigumi | Build framework-agnostic UIs</title>
+    <meta
+      name="description"
+      content="Add production-ready Web Awesome components to React and Vue projects via CLI. Framework-agnostic, TypeScript-ready, and accessible by default. Start with npx kigumi init."
+    />
+    <meta
+      name="keywords"
+      content="web components, react components, vue components, CLI tool, component library, typescript, accessible UI"
+    />
     <meta name="author" content="Michael Suzuki" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://kigumi.style/" />
-    <meta property="og:title" content="Kigumi - Build framework-agnostic UIs with ready-made web components" />
-    <meta property="og:description" content="CLI tool to add Web Awesome components to your React, Vue, or vanilla JavaScript projects. Build beautiful, accessible UIs with framework-agnostic web components." />
+    <meta property="og:title" content="Kigumi | Build framework-agnostic UIs" />
+    <meta
+      property="og:description"
+      content="Add production-ready Web Awesome components to your project via CLI. Framework-agnostic, TypeScript-ready, accessible by default."
+    />
     <meta property="og:image" content="https://kigumi.style/og-image.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://kigumi.style/" />
-    <meta property="twitter:title" content="Kigumi - Build framework-agnostic UIs with ready-made web components" />
-    <meta property="twitter:description" content="CLI tool to add Web Awesome components to your React, Vue, or vanilla JavaScript projects. Build beautiful, accessible UIs with framework-agnostic web components." />
-    <meta property="twitter:image" content="https://kigumi.style/og-image.png" />
+    <meta
+      property="twitter:title"
+      content="Kigumi | Build framework-agnostic UIs"
+    />
+    <meta
+      property="twitter:description"
+      content="Add production-ready Web Awesome components to your project via CLI. Framework-agnostic, TypeScript-ready, accessible by default."
+    />
+    <meta
+      property="twitter:image"
+      content="https://kigumi.style/og-image.png"
+    />
 
     <!-- Additional SEO -->
     <meta name="robots" content="index, follow" />
     <meta name="language" content="English" />
     <link rel="canonical" href="https://kigumi.style/" />
+
+    <!-- Performance hints -->
+    <link rel="preconnect" href="https://webawesome.com" />
+    <link rel="dns-prefetch" href="https://webawesome.com" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Kigumi",
+        "url": "https://kigumi.style",
+        "description": "CLI tool for adding Web Awesome components to React and Vue projects",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://kigumi.style/?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Kigumi",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS, Windows, Linux",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Command-line tool for adding production-ready Web Awesome components to React and Vue projects. Supports TypeScript and JavaScript with accessible, framework-agnostic web components.",
+        "softwareVersion": "0.8.2",
+        "url": "https://kigumi.style",
+        "screenshot": "https://kigumi.style/og-image.png",
+        "author": {
+          "@type": "Person",
+          "name": "Michael Suzuki"
+        },
+        "programmingLanguage": ["JavaScript", "TypeScript"],
+        "keywords": "web components, react, vue, component library",
+        "installUrl": "https://www.npmjs.com/package/kigumi",
+        "codeRepository": "https://github.com/Siregar/kigumi-cli"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
