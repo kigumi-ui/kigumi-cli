@@ -1,16 +1,20 @@
 import logoImg from '@/assets/icon.svg';
+import { ThemeFab } from './ThemeFab';
 
 export function Header() {
   return (
     <header slot="header" className="header">
-      <div className="wa-cluster wa-gap-xs logo">
-        <img
-          src={logoImg}
-          className="brand-logo"
-          alt="Kigumi"
-          style={{ width: '24px', height: '24px' }}
-        />
-        <span className="wa-heading-xl brand-text">Kigumi</span>
+      <div className="header__content wa-split wa-justify-content-between wa-align-items-center">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <img
+            src={logoImg}
+            className="header__logo"
+            alt="Kigumi"
+            style={{ width: '24px', height: '24px' }}
+          />
+          <span className="wa-heading-xl header__title">Kigumi</span>
+        </div>
+        <ThemeFab />
       </div>
     </header>
   );

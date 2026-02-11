@@ -3,7 +3,10 @@ import { CopyButton } from '@/components/ui';
 
 export function GettingStarted() {
   return (
-    <section className="getting-started">
+    <section
+      className="getting-started section"
+      aria-labelledby="getting-started"
+    >
       <div className="wa-stack wa-gap-4xl">
         {/* Quick Start Section */}
         <div className="wa-stack wa-gap-xl">
@@ -15,12 +18,11 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>1</Badge>
-              <h3 className="wa-heading-l">Initialize Kigumi</h3>
+              <h3 className="wa-heading-l">Initialize your project</h3>
             </div>
             <p className="wa-caption-m">
-              Run the <code>init</code> command to set up Kigumi in your
-              project. During that process you can add your Web Awesome Pro
-              token and choose your framework (Currently React and Vue).
+              Set up Kigumi in your React or Vue project. Choose your framework
+              and optionally add your Web Awesome Pro token.
             </p>
             <Card appearance="outlined" style={{ '--spacing': '0' }}>
               <div
@@ -73,11 +75,11 @@ export function GettingStarted() {
             </Card>
 
             <h4 className="wa-heading-m wa-cluster wa-gap-xs wa-align-items-center">
-              Working with AI?
+              Using AI tools?
             </h4>
             <p className="wa-caption-m">
-              Install the Kigumi skills to easily convert Web Awesome code to
-              your framework, to customize themes and much more.
+              Install Kigumi skills for AI assistants to convert Web Awesome
+              HTML to React or Vue components and customize themes.
             </p>
             <pre>
               <code>npx skills add https://kigumi.style/skills/kigumi</code>
@@ -88,8 +90,12 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>2</Badge>
-              <h3 className="wa-heading-l">Add components</h3>
+              <h3 className="wa-heading-l">Add components to your project</h3>
             </div>
+            <p className="wa-caption-m">
+              Install individual components or add them all at once. Each
+              component includes TypeScript types and accessibility features.
+            </p>
             <Card appearance="outlined" style={{ '--spacing': '0' }}>
               <div
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
@@ -145,11 +151,11 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>3</Badge>
-              <h3 className="wa-heading-l">Import and use</h3>
+              <h3 className="wa-heading-l">Import Web Awesome</h3>
             </div>
 
             <p className="wa-caption-m">
-              Import in your entry file (e.g. <code>src/main.tsx</code>):
+              Import the Web Awesome setup in your app entry point:
             </p>
 
             <Card appearance="outlined" style={{ '--spacing': '0' }}>
@@ -181,10 +187,12 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>4</Badge>
-              <h3 className="wa-heading-l">Build your UI</h3>
+              <h3 className="wa-heading-l">Start building</h3>
             </div>
 
-            <p className="wa-caption-m">Use components in your code:</p>
+            <p className="wa-caption-m">
+              Import and use components in your React or Vue code:
+            </p>
             <Card appearance="outlined" style={{ '--spacing': '0' }}>
               <div
                 className="wa-flank:end wa-align-items-start wa-gap-xs"

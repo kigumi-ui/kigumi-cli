@@ -1,9 +1,8 @@
 import { Card, CopyButton, Details } from '@/components/ui';
-import '@/styles/Troubleshooting.css';
 
 export function Troubleshooting() {
   return (
-    <section className="troubleshooting">
+    <section className="troubleshooting section">
       <div className="wa-stack wa-gap-xl">
         <h2 className="wa-heading-2xl">Troubleshooting</h2>
 
