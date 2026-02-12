@@ -42,8 +42,8 @@ export function Hero() {
               Build framework-agnostic UIs
             </h1>
             <h2 className="wa-caption-2xl heading-2">
-              Ready-made web components for React and Vue. Same components, any
-              stack.
+              Ready-made web components for your design system via CLI.{' '}
+              <strong>Same components, any stack.</strong>
             </h2>
           </div>
 
