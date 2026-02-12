@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Footer } from '@/components/landing/Footer';
 import { Header } from '@/components/landing/Header';
 import { Divider } from '@/components/ui';
+import { Banner } from './components/landing/Banner';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Divider orientation="vertical" className="start-divider" />
       <Divider orientation="vertical" className="end-divider" />
       <Page disable-navigation-toggle>
+        <Banner />
         <Header />
         <Hero />
         <Divider className="section-divider" />
