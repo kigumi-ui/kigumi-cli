@@ -20,3 +20,4 @@
 @import 'styles/GettingStarted.css' layer(kigumi-pages);
 @import 'styles/Troubleshooting.css' layer(kigumi-pages);
 @import 'styles/Footer.css' layer(kigumi-pages);
+@import 'styles/Banner.css' layer(kigumi-pages);
