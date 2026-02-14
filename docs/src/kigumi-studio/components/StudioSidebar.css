@@ -1,0 +1,110 @@
+/* ── Sidebar Wrapper (handles collapse) ── */
+
+.studio-sidebar-wrapper {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  width: 380px;
+  overflow: visible;
+  transition: width var(--wa-transition-medium) var(--wa-transition-easing);
+}
+
+.studio-sidebar-wrapper--collapsed {
+  width: 0;
+}
+
+/* ── Sidebar Content ── */
+
+.studio-sidebar {
+  width: 380px;
+  min-width: 380px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--wa-space-m);
+  border-right: var(--wa-border-width-s) var(--wa-border-style) var(--wa-color-surface-border);
+  background: var(--wa-color-surface-default);
+}
+
+.studio-sidebar-wrapper--collapsed .studio-sidebar {
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity var(--wa-transition-fast) var(--wa-transition-easing);
+}
+
+/* ── Toggle Button ── */
+
+.studio-sidebar__toggle {
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: var(--wa-border-width-s) var(--wa-border-style) var(--wa-color-surface-border);
+  background: var(--wa-color-surface-default);
+  color: var(--wa-color-text-quiet);
+  cursor: pointer;
+  transition: all var(--wa-transition-fast) var(--wa-transition-easing);
+  box-shadow: var(--wa-shadow-s);
+}
+
+.studio-sidebar__toggle:hover {
+  background: var(--wa-color-surface-lowered);
+  color: var(--wa-color-text-normal);
+}
+
+/* Desktop: chevron-left / chevron-right */
+.studio-sidebar__toggle-icon--mobile {
+  display: none;
+}
+
+/* ── Mobile: sidebar at bottom, vertical chevrons ── */
+
+@media (max-width: 768px) {
+  .studio-sidebar-wrapper {
+    width: 100%;
+    transition: max-height var(--wa-transition-medium) var(--wa-transition-easing);
+    max-height: 50vh;
+  }
+
+  .studio-sidebar-wrapper--collapsed {
+    width: 100%;
+    max-height: 0;
+  }
+
+  .studio-sidebar-wrapper--collapsed .studio-sidebar {
+    height: 0;
+    padding: 0;
+    border-top: none;
+  }
+
+  .studio-sidebar {
+    width: 100%;
+    min-width: unset;
+    border-right: none;
+    border-top: var(--wa-border-width-s) var(--wa-border-style) var(--wa-color-surface-border);
+    max-height: 50vh;
+  }
+
+  .studio-sidebar__toggle {
+    right: 50%;
+    top: -16px;
+    bottom: auto;
+    transform: translateX(50%);
+  }
+
+  /* On mobile: show vertical icons, hide horizontal */
+  .studio-sidebar__toggle-icon--desktop {
+    display: none;
+  }
+
+  .studio-sidebar__toggle-icon--mobile {
+    display: contents;
+  }
+}

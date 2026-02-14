@@ -1,0 +1,16 @@
+.typography-font-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--wa-space-m);
+  align-items: start;
+}
+
+.typography-font-row__family {
+  flex: 1;
+  min-width: 0;
+}
+
+.typography-font-row__weight {
+  width: 180px;
+  flex-shrink: 0;
+}

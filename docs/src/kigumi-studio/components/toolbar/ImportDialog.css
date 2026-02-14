@@ -1,0 +1,36 @@
+.import-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-m);
+}
+
+.import-dialog__description {
+  margin: 0;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+  line-height: 1.5;
+}
+
+.import-dialog__description code {
+  font-family: var(--wa-font-family-code);
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background: var(--wa-color-surface-lowered);
+  border-radius: var(--wa-border-radius-s);
+}
+
+.import-dialog__warnings {
+  margin: var(--wa-space-xs) 0 0;
+  padding-left: var(--wa-space-m);
+  font-size: var(--wa-font-size-s);
+}
+
+.import-dialog__warnings li {
+  margin-bottom: var(--wa-space-2xs);
+}
+
+.import-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--wa-space-s);
+}
