@@ -83,8 +83,8 @@ function ColorControl({
   onChange: (v: string) => void;
 }) {
   const handlePicker = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(e.target.value);
+    (e: React.FormEvent<HTMLInputElement>) => {
+      onChange(e.currentTarget.value);
     },
     [onChange]
   );
@@ -145,17 +145,16 @@ function SliderInputControl({
   const sliderValue = Math.min(max, Math.max(min, numValue));
 
   const handleSlider = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      // Round to step precision to avoid floating point artifacts (e.g. 1.7999999)
-      const rounded = Number(Number(e.target.value).toFixed(precision));
+    (e: React.FormEvent<HTMLInputElement>) => {
+      const rounded = Number(Number(e.currentTarget.value).toFixed(precision));
       onChange(String(rounded));
     },
     [onChange, precision]
   );
 
   const handleInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(e.target.value);
+    (e: React.FormEvent<HTMLInputElement>) => {
+      onChange(e.currentTarget.value);
     },
     [onChange]
   );
