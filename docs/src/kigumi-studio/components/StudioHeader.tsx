@@ -9,26 +9,28 @@ export function StudioHeader() {
   const { editMode, setEditMode, previewMode, setPreviewMode } = useStudio();
 
   return (
-    <header className="studio-header wa-flank wa-align-items-center">
-      <div className="wa-gap-2xl wa-cluster">
-        <div className="wa-cluster wa-gap-xs">
-          <Link to="/" className="studio-header__back">
-            <Icon name="arrow-left" />
-          </Link>
-          <img
-            src={logoImg}
-            className="studio-header__logo"
-            alt="Kigumi"
-            style={{ width: '24px', height: '24px' }}
-          />
-          <span className="wa-heading-m studio-header__title wa-cluster wa-gap-2xs">
-            <span className="studio-header__logo-text">Kigumi</span>
-            <span className="studio-header__logo-studio">Studio</span>
-          </span>
+    <header className="studio-header wa-split wa-align-items-center">
+      {/* Logo and title*/}
+      <div className="wa-cluster wa-gap-xs">
+        <Link to="/" className="studio-header__back">
+          <Icon name="arrow-left" />
+        </Link>
+        <img
+          src={logoImg}
+          className="studio-header__logo"
+          alt="Kigumi"
+          style={{ width: '24px', height: '24px' }}
+        />
+        <span className="wa-heading-m studio-header__title wa-cluster wa-gap-2xs">
+          <span className="studio-header__logo-text">Kigumi</span>
+          <span className="studio-header__logo-studio">Studio</span>
           <Badge pill>Alpha</Badge>
-        </div>
+        </span>
+      </div>
 
-        <div className="wa-gap-m">
+      {/* Mode toggles */}
+      <div className="wa-gap-m wa-align-items-end">
+        <span className="wa-cluster wa-gap-m">
           <div className="wa-stack wa-gap-2xs">
             <span className="wa-caption-s">Design Tokens</span>
             <ButtonGroup>
@@ -72,9 +74,9 @@ export function StudioHeader() {
               </Button>
             </ButtonGroup>
           </div>
-        </div>
+        </span>
+        <ThemeFab />
       </div>
-      <ThemeFab />
     </header>
   );
 }
