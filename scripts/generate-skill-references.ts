@@ -232,10 +232,17 @@ function generateEventMapping(): string {
 }
 
 /**
- * Format markdown content with prettier
+ * Format markdown content with prettier.
+ * Pass filePath so Prettier resolves .prettierrc (singleQuote, etc.).
  */
-async function formatMarkdown(content: string): Promise<string> {
-  return await prettier.format(content, { parser: 'markdown' });
+async function formatMarkdown(
+  content: string,
+  filePath: string
+): Promise<string> {
+  return await prettier.format(content, {
+    parser: 'markdown',
+    filepath: filePath,
+  });
 }
 
 /**
@@ -245,8 +252,7 @@ async function writeIfChanged(
   filePath: string,
   newContent: string
 ): Promise<boolean> {
-  // Format content first so comparison is fair
-  const formattedContent = await formatMarkdown(newContent);
+  const formattedContent = await formatMarkdown(newContent, filePath);
 
   if (existsSync(filePath)) {
     const existingContent = await readFile(filePath, 'utf-8');

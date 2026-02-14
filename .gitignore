@@ -16,3 +16,6 @@ temp/
 # Generated validation/transformation results
 transform-results.json
 validation-results.json
+
+# Copied at docs build time (prebuild)
+docs/public/.well-known/skills/
