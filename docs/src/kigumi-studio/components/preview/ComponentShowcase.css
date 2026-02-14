@@ -1,0 +1,23 @@
+.component-showcase {
+  padding: var(--wa-space-l);
+  background: var(--wa-color-surface-default);
+  color: var(--wa-color-text-normal);
+  /* border-radius: var(--wa-border-radius-l); */
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-xl);
+}
+
+.showcase-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-s);
+}
+
+.showcase-section__title {
+  margin: 0;
+  padding-bottom: var(--wa-space-xs);
+  border-bottom: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
+}

@@ -1,0 +1,40 @@
+/**
+ * Warm Earth
+ * Orange/brown brand, generous spacing, organic feel
+ */
+
+:root {
+  --wa-color-brand: #c2410c;
+  --wa-color-surface-raised: #fffbf5;
+  --wa-color-surface-default: #fef7ed;
+  --wa-color-surface-lowered: #fde9d0;
+  --wa-color-surface-border: #d4a574;
+  --wa-color-text-normal: #431407;
+  --wa-color-text-quiet: #78350f;
+  --wa-color-text-link: #b45309;
+  --wa-font-family-body: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+  --wa-font-family-heading: 'Bitter', ui-serif, serif;
+  --wa-font-family-longform: 'Bitter', ui-serif, serif;
+  --wa-space-scale: 1.3;
+  --wa-border-radius-scale: 1.5;
+  --wa-border-width-scale: 0.8;
+  --wa-shadow-offset-y-scale: 0.8;
+  --wa-shadow-blur-scale: 1.8;
+  --wa-shadow-spread-scale: -0.4;
+  --wa-transition-normal: 200ms;
+  --wa-transition-easing: ease-out;
+  --wa-link-decoration-default: underline;
+}
+
+.wa-dark {
+  --wa-color-surface-raised: #2c1a0e;
+  --wa-color-surface-default: #1c110a;
+  --wa-color-surface-lowered: #120b06;
+  --wa-color-surface-border: #78350f;
+  --wa-color-text-normal: #fef3c7;
+  --wa-color-text-quiet: #d4a574;
+  --wa-color-text-link: #f59e0b;
+  --wa-form-control-background-color: #1c110a;
+  --wa-form-control-border-color: #78350f;
+  --wa-form-control-placeholder-color: #92400e;
+}

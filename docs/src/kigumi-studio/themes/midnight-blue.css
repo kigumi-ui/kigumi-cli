@@ -1,0 +1,35 @@
+/**
+ * Midnight Blue
+ * Blue brand, dark surfaces, elegant typography
+ */
+
+:root {
+  --wa-color-brand: #3b82f6;
+  --wa-color-surface-raised: #f8fafc;
+  --wa-color-surface-default: #f1f5f9;
+  --wa-color-surface-lowered: #e2e8f0;
+  --wa-color-surface-border: #cbd5e1;
+  --wa-color-text-normal: #0f172a;
+  --wa-color-text-quiet: #475569;
+  --wa-color-text-link: #2563eb;
+  --wa-font-family-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --wa-font-family-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --wa-border-radius-scale: 1.2;
+  --wa-border-width-scale: 0.8;
+  --wa-shadow-blur-scale: 1.5;
+  --wa-shadow-spread-scale: -0.3;
+  --wa-transition-easing: ease-in-out;
+}
+
+.wa-dark {
+  --wa-color-surface-raised: #1e293b;
+  --wa-color-surface-default: #0f172a;
+  --wa-color-surface-lowered: #020617;
+  --wa-color-surface-border: #334155;
+  --wa-color-text-normal: #f1f5f9;
+  --wa-color-text-quiet: #94a3b8;
+  --wa-color-text-link: #60a5fa;
+  --wa-form-control-background-color: #0f172a;
+  --wa-form-control-border-color: #334155;
+  --wa-form-control-placeholder-color: #64748b;
+}
