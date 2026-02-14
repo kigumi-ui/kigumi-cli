@@ -1,26 +1,10 @@
 .banner {
   padding: 0;
-  padding-block: var(--wa-space-s);
+  padding-block: var(--wa-space-2xs);
+  padding-inline: var(--wa-space-l);
   background: radial-gradient(
     circle at center,
     var(--wa-color-brand-fill-quiet),
     var(--wa-color-brand-fill-normal)
   );
-  & .banner__content {
-    display: flex;
-    justify-content: space-between;
-    max-width: 1280px;
-    margin-inline: auto;
-    width: 100%;
-    padding-inline: var(--wa-space-l);
-
-    @media (min-width: 768px) {
-      padding-inline: var(--wa-space-3xl);
-    }
-  }
-
-  & .banner__dismiss {
-    position: absolute;
-    right: var(--wa-space-m);
-  }
 }

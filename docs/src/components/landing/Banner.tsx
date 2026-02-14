@@ -20,16 +20,17 @@ export const Banner = () => {
   }
 
   return (
-    <div slot="banner" className="banner wa-gap-xs wa-justify-content-center">
-      <div className="banner__content wa-flank:end wa-align-items-baseline">
-        <span className="wa-gap-xs">
-          <Badge pill variant="neutral" appearance="accent">
-            New feature
-          </Badge>
+    <div
+      slot="banner"
+      className="banner wa-gap-xs wa-justify-content-center wa-align-items-center"
+    >
+      <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
+        <Badge pill variant="neutral" appearance="accent">
+          New feature
+        </Badge>
+        <span>
           Create your own themes with{' '}
-          <span>
-            <Link to="/kigumi-studio">Kigumi Studio</Link>!
-          </span>
+          <Link to="/kigumi-studio">Kigumi Studio</Link>!
         </span>
       </div>
       <Button
