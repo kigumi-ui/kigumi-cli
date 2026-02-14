@@ -1,5 +1,6 @@
 import { Badge, Card } from '@/components/ui';
 import { CopyButton } from '@/components/ui';
+import { Link } from 'react-router-dom';
 
 export function GettingStarted() {
   return (
@@ -261,6 +262,21 @@ export default function LoginForm() {
                 </span>
               </div>
             </Card>
+          </div>
+
+          {/* Step 5: Customize your theme */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>5</Badge>
+              <h3 className="wa-heading-l">Customize your theme</h3>
+            </div>
+
+            <p className="wa-caption-m">
+              Create your own theme with{' '}
+              <Link to="/kigumi-studio">Kigumi Studio</Link>. Edit and preview
+              your theme in real-time and export the generated CSS into your{' '}
+              <code>theme.css</code> file.
+            </p>
           </div>
         </div>
       </div>
