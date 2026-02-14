@@ -27,15 +27,15 @@ export const ThemeFab = () => {
         <Icon name={getIconName()} />
       </Button>
       <DropdownItem type="checkbox" checked={theme === 'light'} value="light">
-        <Icon name="sun" slot="prefix" />
+        <Icon name="sun" slot="start" />
         Light
       </DropdownItem>
       <DropdownItem type="checkbox" checked={theme === 'dark'} value="dark">
-        <Icon name="moon" slot="prefix" />
+        <Icon name="moon" slot="start" />
         Dark
       </DropdownItem>
       <DropdownItem type="checkbox" checked={theme === 'system'} value="system">
-        <Icon name="circle-half-stroke" slot="prefix" />
+        <Icon name="circle-half-stroke" slot="start" />
         System
       </DropdownItem>
     </Dropdown>

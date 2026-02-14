@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import logoImg from '@/assets/icon.svg';
 import { ThemeFab } from './ThemeFab';
 
@@ -14,7 +15,12 @@ export function Header() {
           />
           <span className="wa-heading-xl header__title">Kigumi</span>
         </div>
-        <ThemeFab />
+        <div className="wa-cluster wa-gap-l wa-align-items-center">
+          <Link to="/kigumi-studio" className="wa-caption-m">
+            Kigumi Studio
+          </Link>
+          <ThemeFab />
+        </div>
       </div>
     </header>
   );

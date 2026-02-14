@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Badge, Button, Icon } from '@/components/ui';
+import { Link } from 'react-router-dom';
 
 const BANNER_STORAGE_KEY = 'banner-dismissed';
 
@@ -20,12 +21,15 @@ export const Banner = () => {
 
   return (
     <div slot="banner" className="banner wa-gap-xs wa-justify-content-center">
-      <div className="banner__content wa-flank:end">
+      <div className="banner__content wa-flank:end wa-align-items-baseline">
         <span className="wa-gap-xs">
           <Badge pill variant="neutral" appearance="accent">
-            New
+            New feature
           </Badge>
-          React and Vue now available in beta.
+          Create your own themes with{' '}
+          <span>
+            <Link to="/kigumi-studio">Kigumi Studio</Link>!
+          </span>
         </span>
       </div>
       <Button
