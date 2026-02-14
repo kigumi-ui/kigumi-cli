@@ -1,70 +1,46 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   SHADOW_COMPONENTS,
   SHADOW_CATEGORIES,
 } from '../../lib/shadow-components';
 import { useStudio } from '../../contexts/StudioContext';
-import '@awesome.me/webawesome-pro/dist/components/combobox/combobox.js';
-import '@awesome.me/webawesome-pro/dist/components/option/option.js';
+import { Combobox, Option } from '@/components/ui';
+import type { ComboboxRef } from '@/components/ui';
 import './ShadowComponentEditor.css';
+
+type ComboboxElement = HTMLElement & { value?: string[] };
 
 export function ShadowComponentEditor() {
   const { shadowComponents, setShadowComponents } = useStudio();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isReady, setIsReady] = useState(false);
+  const comboboxRef = useRef<ComboboxRef>(null);
   const previousValueRef = useRef<string[]>(shadowComponents);
 
-  // Wait for the Web Component to be defined
-  useEffect(() => {
-    const checkReady = async () => {
-      await customElements.whenDefined('wa-combobox');
-      setIsReady(true);
-    };
-    checkReady();
-  }, []);
-
-  // Safety net: verify state when menu closes
   const handleMenuClose = () => {
-    // Small delay to let any pending events fire first
     setTimeout(() => {
-      const container = containerRef.current;
-      if (!container) return;
+      const el = comboboxRef.current?.element as ComboboxElement | null;
+      if (!el) return;
 
-      const combobox = container.querySelector('wa-combobox') as HTMLElement & {
-        value?: string[];
-      };
-      if (!combobox) return;
-
-      // Verify state matches combobox value
-      const currentValue = Array.isArray(combobox.value)
-        ? combobox.value.filter(Boolean)
+      const currentValue = Array.isArray(el.value)
+        ? el.value.filter(Boolean)
         : [];
 
       const prevSorted = [...shadowComponents].sort().join(',');
       const newSorted = [...currentValue].sort().join(',');
 
       if (prevSorted !== newSorted) {
-        // Missed event detected, sync state
         setShadowComponents(currentValue);
       }
     }, 50);
   };
 
-  // Attach event listener once ready
   useEffect(() => {
-    if (!isReady) return;
-
-    const container = containerRef.current;
-    if (!container) return;
-
-    const combobox = container.querySelector('wa-combobox');
-    if (!combobox) return;
+    const el = comboboxRef.current?.element;
+    if (!el) return;
 
     const handleChange = (e: Event) => {
       const target = e.target as HTMLElement & { value?: string | string[] };
       if (!target) return;
 
-      // Normalize value (handle both string and string[])
       const val = target.value;
       let newValue: string[];
 
@@ -76,61 +52,50 @@ export function ShadowComponentEditor() {
         newValue = [];
       }
 
-      // Deduplication: only update if value actually changed
       const prevSorted = [...previousValueRef.current].sort().join(',');
       const newSorted = [...newValue].sort().join(',');
 
       if (prevSorted === newSorted) {
-        return; // No actual change, skip update
+        return;
       }
 
       previousValueRef.current = newValue;
       setShadowComponents(newValue);
     };
 
-    // Attach multiple event listeners for cross-browser reliability
-    combobox.addEventListener('change', handleChange); // Native event (primary)
-    combobox.addEventListener('input', handleChange); // Immediate feedback
-    combobox.addEventListener('wa-change', handleChange); // Web Awesome custom event
-    combobox.addEventListener('wa-hide', handleMenuClose); // Safety net when menu closes
+    el.addEventListener('change', handleChange);
+    el.addEventListener('input', handleChange);
+    el.addEventListener('wa-change', handleChange);
+    el.addEventListener('wa-hide', handleMenuClose);
 
     return () => {
-      combobox.removeEventListener('change', handleChange);
-      combobox.removeEventListener('input', handleChange);
-      combobox.removeEventListener('wa-change', handleChange);
-      combobox.removeEventListener('wa-hide', handleMenuClose);
+      el.removeEventListener('change', handleChange);
+      el.removeEventListener('input', handleChange);
+      el.removeEventListener('wa-change', handleChange);
+      el.removeEventListener('wa-hide', handleMenuClose);
     };
-  }, [isReady, setShadowComponents, shadowComponents]);
+  }, [setShadowComponents, shadowComponents]);
 
-  // Sync combobox value when shadowComponents changes
   useEffect(() => {
-    if (!isReady) return;
+    const el = comboboxRef.current?.element as ComboboxElement | null;
+    if (!el) return;
 
-    const container = containerRef.current;
-    if (!container) return;
-
-    const combobox = container.querySelector('wa-combobox') as HTMLElement & {
-      value?: string[];
-    };
-    if (!combobox) return;
-
-    // Only update if different to avoid loops
-    const currentValue = combobox.value ?? [];
+    const currentValue = el.value ?? [];
     const isSame =
       Array.isArray(currentValue) &&
       currentValue.length === shadowComponents.length &&
       currentValue.every((v, i) => v === shadowComponents[i]);
 
     if (!isSame) {
-      combobox.value = shadowComponents;
-      previousValueRef.current = shadowComponents; // Keep ref in sync with React state
+      el.value = shadowComponents;
+      previousValueRef.current = shadowComponents;
     }
-  }, [isReady, shadowComponents]);
+  }, [shadowComponents]);
 
   const selectedCount = shadowComponents.length;
 
   return (
-    <div className="shadow-component-editor" ref={containerRef}>
+    <div className="shadow-component-editor">
       <div className="shadow-component-editor__header">
         <span className="shadow-component-editor__label">
           Apply shadows to components
@@ -142,11 +107,14 @@ export function ShadowComponentEditor() {
         )}
       </div>
 
-      <wa-combobox
-        class="shadow-component-editor__combobox"
+      <Combobox
+        ref={comboboxRef}
         multiple
+        value={shadowComponents}
         placeholder="Select components..."
         max-options-visible={8}
+        className="shadow-component-editor__combobox"
+        onHide={handleMenuClose}
       >
         {SHADOW_CATEGORIES.map((category) => {
           const componentsInCategory = SHADOW_COMPONENTS.filter(
@@ -154,18 +122,18 @@ export function ShadowComponentEditor() {
           );
           return (
             <React.Fragment key={category}>
-              <wa-option disabled class="shadow-component-editor__category">
+              <Option disabled className="shadow-component-editor__category">
                 {category}
-              </wa-option>
+              </Option>
               {componentsInCategory.map((comp) => (
-                <wa-option key={comp.className} value={comp.className}>
+                <Option key={comp.className} value={comp.className}>
                   {comp.name}
-                </wa-option>
+                </Option>
               ))}
             </React.Fragment>
           );
         })}
-      </wa-combobox>
+      </Combobox>
 
       <p className="shadow-component-editor__hint">
         Selected components will receive{' '}

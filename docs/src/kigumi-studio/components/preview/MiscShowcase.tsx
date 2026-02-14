@@ -6,9 +6,9 @@ export function MiscShowcase() {
       <h3 className="wa-heading-m showcase-section__title">Miscellaneous</h3>
       <div className="wa-stack wa-gap-m">
         <div className="wa-cluster wa-gap-s wa-align-items-center">
-          <Avatar initials="KS" />
-          <Avatar initials="AB" shape="rounded" />
-          <Avatar initials="CD" shape="square" />
+          <Avatar initials="KS" label="Avatar KS" />
+          <Avatar initials="AB" shape="rounded" label="Avatar AB" />
+          <Avatar initials="CD" shape="square" label="Avatar CD" />
         </div>
         <Divider />
         <ProgressBar value={65} label="Progress" />

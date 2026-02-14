@@ -24,7 +24,7 @@ export function BadgeShowcase() {
         <Tag size="small" variant="success">
           Stable
         </Tag>
-        <Tag size="small" removable>
+        <Tag size="small" withRemove>
           Removable
         </Tag>
       </div>
