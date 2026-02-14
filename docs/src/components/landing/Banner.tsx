@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Badge, Button, Icon } from '@/components/ui';
 import { Link } from 'react-router-dom';
 
-const BANNER_STORAGE_KEY = 'banner-dismissed';
+const BANNER_STORAGE_KEY = 'banner-20260214-dismissed';
 
 export const Banner = () => {
   const [isDismissed, setIsDismissed] = useState(() => {
