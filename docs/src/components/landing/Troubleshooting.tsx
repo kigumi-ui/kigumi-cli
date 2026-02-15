@@ -2,12 +2,12 @@ import { Card, CopyButton, Details } from '@/components/ui';
 
 export function Troubleshooting() {
   return (
-    <section className="troubleshooting section">
+    <section id="troubleshooting" className="troubleshooting section">
       <div className="wa-stack wa-gap-xl">
         <h2 className="wa-heading-2xl">Troubleshooting</h2>
 
         <div className="wa-stack wa-gap-m">
-          {/* Q1: Pro token 401 error */}
+          {/* Q1: Pro token 401 (CLI users) */}
           <Details
             name="faq"
             appearance="outlined"
@@ -15,20 +15,48 @@ export function Troubleshooting() {
           >
             <div className="wa-stack wa-gap-m">
               <p>
-                If <code>npm install</code> fails with 401 Unauthorized,{' '}
+                If <code>npm install</code> or <code>pnpm install</code> fails
+                with 401 when installing packages,{' '}
                 <a
-                  href="https://https://webawesome.com/login"
+                  href="https://webawesome.com/login"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   get your token here
                 </a>
-                , then choose one of these token setup methods:
+                , then choose one of the following options:
               </p>
+
               <p>
-                <strong>Option 1: Global token (recommended)</strong>
+                <strong>Option 1: Pass token during init (recommended)</strong>
               </p>
-              <p>Run once per machine, works for all projects:</p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi init --token YOUR_TOKEN</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi init --token YOUR_TOKEN" />
+                  </span>
+                </div>
+              </Card>
+
+              <p>
+                <strong>Option 2: Set globally (once per machine)</strong>
+              </p>
               <Card appearance="outlined" style={{ '--spacing': '0' }}>
                 <div
                   className="wa-flank:end wa-align-items-center wa-gap-xs"
@@ -56,8 +84,39 @@ export function Troubleshooting() {
                   </span>
                 </div>
               </Card>
+
               <p>
-                <strong>Option 2: CI/CD environments</strong>
+                <strong>Option 3: In project .env file</strong>
+              </p>
+              <p>
+                Add to your project's <code>.env</code> file:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>WEBAWESOME_NPM_TOKEN=your_token_here</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="WEBAWESOME_NPM_TOKEN=your_token_here" />
+                  </span>
+                </div>
+              </Card>
+
+              <p>
+                <strong>Option 4: CI/CD environments</strong>
               </p>
               <p>Set the environment variable in your CI/CD config:</p>
               <Card appearance="outlined" style={{ '--spacing': '0' }}>
@@ -104,35 +163,6 @@ export function Troubleshooting() {
                     }}
                   >
                     <CopyButton value="env:\n  WEBAWESOME_NPM_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}" />
-                  </span>
-                </div>
-              </Card>
-              <p>
-                <strong>Option 3: Project .env file</strong>
-              </p>
-              <p>
-                Add to your project's <code>.env</code> file:
-              </p>
-              <Card appearance="outlined" style={{ '--spacing': '0' }}>
-                <div
-                  className="wa-flank:end wa-align-items-center wa-gap-xs"
-                  style={{ position: 'relative' }}
-                >
-                  <pre>
-                    <code>WEBAWESOME_NPM_TOKEN=your_token_here</code>
-                  </pre>
-                  <span
-                    style={{
-                      position: 'absolute',
-                      right: 'var(--wa-space-xs)',
-                      top: '0',
-                      bottom: '0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <CopyButton value="WEBAWESOME_NPM_TOKEN=your_token_here" />
                   </span>
                 </div>
               </Card>

@@ -5,7 +5,7 @@ import { ThemeFab } from './ThemeFab';
 export function Header() {
   return (
     <header slot="header" className="header">
-      <div className="header__content wa-split wa-justify-content-between wa-align-items-center">
+      <div className="header__content wa-flank:end wa-gap-l wa-align-items-center">
         <div className="wa-cluster wa-gap-xs wa-align-items-center">
           <img
             src={logoImg}
@@ -19,8 +19,8 @@ export function Header() {
           <Link to="/kigumi-studio" className="wa-caption-m">
             Kigumi Studio
           </Link>
-          <ThemeFab />
         </div>
+        <ThemeFab />
       </div>
     </header>
   );
