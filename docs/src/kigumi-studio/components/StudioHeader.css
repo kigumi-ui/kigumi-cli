@@ -3,7 +3,7 @@
   align-items: center;
   gap: var(--wa-space-m);
   padding: var(--wa-space-xs);
-  padding-block: var(--wa-space-2xs);
+  padding-block: var(--wa-space-xs);
   border-bottom: var(--wa-border-width-s) var(--wa-border-style)
     var(--wa-color-surface-border);
   background: var(--wa-color-surface-default);

@@ -32,7 +32,7 @@ export function StudioHeader() {
       <div className="wa-gap-m wa-align-items-end">
         <span className="wa-cluster wa-gap-m">
           <div className="wa-stack wa-gap-2xs">
-            <span className="wa-caption-s">Design Tokens</span>
+            <span className="wa-caption-xs">Design Tokens</span>
             <ButtonGroup>
               <Button
                 size="small"
@@ -54,7 +54,7 @@ export function StudioHeader() {
           </div>
 
           <div className="wa-stack wa-gap-2xs">
-            <span className="wa-caption-s">Preview</span>
+            <span className="wa-caption-xs">Preview</span>
             <ButtonGroup>
               <Button
                 size="small"
