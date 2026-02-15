@@ -30,7 +30,7 @@ export function StudioSidebar({
     >
       <aside className="studio-sidebar wa-gap-xs wa-stack wa-justify-content-stretch">
         <PresetSelector />
-        <span className="wa-cluster wa-justify-content-start">
+        <span className="wa-split wa-justify-content-start">
           <ButtonGroup>
             <Button
               variant="neutral"
