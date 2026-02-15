@@ -59,21 +59,20 @@ npx kigumi init
 
 **Own Web Awesome Pro license?**
 
-To unlock premium themes and Pro-only components, you need a Web Awesome Pro account. [Get your token](https://webawesome.com/login) and choose one of the following token setup methods:
+To unlock premium themes and Pro-only components, you need a Web Awesome Pro account. [Get your token](https://webawesome.com/login) and configure it:
 
 ```bash
-
 # Option 1: During `init` command (recommended)
 npx kigumi init --token YOUR_TOKEN
 
-# Option 2: Global
+# Option 2: Set it globally (once per machine)
 npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
 
-# Option 3: In .env file
-WEBAWESOME_NPM_TOKEN=your_token
+# Option 3: In project .env file
+echo "WEBAWESOME_NPM_TOKEN=your_token" > .env
 
-# Option 4: In .npmrc file
-//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN
+# Option 4: Environment variable (CI/CD)
+export WEBAWESOME_NPM_TOKEN=your_token
 ```
 
 ### `add`
@@ -200,7 +199,9 @@ If `npm install` fails with 401 errors:
    npm config get //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken
    ```
 
-3. Check your token is valid at [https://webawesome.com/login](https://https://webawesome.com/login)
+3. Check your token is valid at [https://webawesome.com/login](https://webawesome.com/login)
+
+**Using pnpm?** pnpm does not use global auth for scoped registries. If 401 persists, add the token to your project `.npmrc` or use `npx kigumi init --token YOUR_TOKEN`.
 
 ### Component styles not loading
 

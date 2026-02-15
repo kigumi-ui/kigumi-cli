@@ -75,6 +75,8 @@ export async function detectTier(cwd: string): Promise<Tier> {
 | `~/.npmrc` (global) | Auth token (user configures once)              |
 | `.env` (project)    | `WEBAWESOME_NPM_TOKEN` for tier detection only |
 
+**Exception:** For `docs/` (pnpm), the token must also be in `docs/.npmrc` – pnpm does not use global auth for scoped registries. Written by `pnpm run setup:npmrc`.
+
 **Why global:**
 
 - Token not exposed in project repository

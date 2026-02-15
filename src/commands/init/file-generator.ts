@@ -190,7 +190,7 @@ async function ensureEnvFile(
 
   // Create new .env file
   const envContent = `# Web Awesome Pro authentication token
-# Get your token from https://webawesome.com/pro
+# Get your token from https://webawesome.com
 ${ENV_TOKEN_KEY}=${token}
 `;
 
