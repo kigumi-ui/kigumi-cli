@@ -23,7 +23,11 @@ export function GettingStarted() {
             </div>
             <p className="wa-caption-m">
               Set up Kigumi in your React or Vue project. Choose your framework
-              and optionally add your Web Awesome Pro token.
+              and optionally add your Web Awesome Pro token. If you have a Pro
+              token, add it to <code>.env</code> before init or use{' '}
+              <code>npx kigumi init --token YOUR_TOKEN</code>. See{' '}
+              <Link to="/#troubleshooting">Troubleshooting</Link> for 401
+              errors.
             </p>
             <Card appearance="outlined" style={{ '--spacing': '0' }}>
               <div
