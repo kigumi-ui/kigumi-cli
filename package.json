@@ -26,6 +26,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
+    "setup:npmrc": "node scripts/setup-npmrc.mjs",
     "dev": "tsx watch src/index.ts",
     "generate:metadata": "tsx scripts/parse-custom-elements.ts",
     "prebuild": "test -f src/utils/component-metadata.ts || pnpm generate:metadata",
