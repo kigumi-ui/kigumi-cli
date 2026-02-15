@@ -7,7 +7,6 @@
   "type": "module",
   "scripts": {
     "setup:npmrc": "node ../scripts/setup-npmrc.mjs",
-    "preinstall": "node ../scripts/setup-npmrc.mjs || true",
     "dev": "vite",
     "prebuild": "cp -r ../skills public/ && cp -r ../skills/kigumi-react public/.well-known/skills/ && cp -r ../skills/kigumi-theme public/.well-known/skills/ && cp ../llms.txt public/",
     "build": "tsc -b && vite build",
