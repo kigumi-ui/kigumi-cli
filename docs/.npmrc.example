@@ -1,0 +1,3 @@
+@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro
+# _authToken is added by: pnpm run setup:npmrc (reads from .env)
+//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true
