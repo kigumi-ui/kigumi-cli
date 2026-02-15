@@ -1,5 +1,13 @@
 # kigumi
 
+## 0.9.0
+
+### Minor Changes
+
+- 9a12c8f: - Fix Web Awesome Pro token URL in generated .env file
+  - Add setup:npmrc script for token configuration (dev only)
+  - Documentation site: Kigumi Studio theme editor, new landing page with announcement banner, improved Getting Started and Troubleshooting with Pro token guidance
+
 ## 0.8.2
 
 ### Patch Changes
