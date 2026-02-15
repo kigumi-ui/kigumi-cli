@@ -5,6 +5,7 @@ import {
   PROPERTY_GROUPS,
 } from '../../lib/property-definitions';
 import './TypographyEditor.css';
+import { Divider } from '@/components/ui';
 
 export function TypographyEditor() {
   const familiesGroup = PROPERTY_GROUPS.find(
@@ -34,14 +35,16 @@ export function TypographyEditor() {
       {/* Font Families + Weights combined */}
       <EditorSection group={familiesGroup}>
         {fontPairs.map((pair) => (
-          <div key={pair.family.cssVar} className="typography-font-row">
-            <div className="typography-font-row__family">
+          <>
+            <div key={pair.family.cssVar} className="wa-flank wa-gap-m">
               <PropertyRow property={pair.family} />
+              <PropertyRow
+                property={pair.weight}
+                style={{ width: 'content-fit' }}
+              />
             </div>
-            <div className="typography-font-row__weight">
-              <PropertyRow property={pair.weight} />
-            </div>
-          </div>
+            <Divider />
+          </>
         ))}
       </EditorSection>
 

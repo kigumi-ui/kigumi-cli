@@ -9,15 +9,16 @@ import './PropertyRow.css';
 
 interface PropertyRowProps {
   property: PropertyDefinition;
+  style?: React.CSSProperties;
 }
 
-export function PropertyRow({ property }: PropertyRowProps) {
+export function PropertyRow({ property, style }: PropertyRowProps) {
   const { values, editMode, setProperty, isModified } = useStudio();
   const currentValue = values[property.cssVar]?.[editMode] ?? '';
   const modified = isModified(property.cssVar);
 
   return (
-    <div className="property-row">
+    <div className="property-row" style={style}>
       <div className="property-row__header">
         <label className="property-row__label">
           {property.label}
