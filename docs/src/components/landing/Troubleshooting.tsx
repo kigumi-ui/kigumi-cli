@@ -2,9 +2,11 @@ import { Card, CopyButton, Details } from '@/components/ui';
 
 export function Troubleshooting() {
   return (
-    <section id="troubleshooting" className="troubleshooting section">
+    <section className="troubleshooting section">
       <div className="wa-stack wa-gap-xl">
-        <h2 className="wa-heading-2xl">Troubleshooting</h2>
+        <h2 className="wa-heading-2xl" id="troubleshooting">
+          Troubleshooting
+        </h2>
 
         <div className="wa-stack wa-gap-m">
           {/* Q1: Pro token 401 (CLI users) */}
