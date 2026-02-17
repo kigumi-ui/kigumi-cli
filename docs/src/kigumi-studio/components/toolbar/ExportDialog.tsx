@@ -17,13 +17,14 @@ interface ExportDialogProps {
 }
 
 export function ExportDialog({ open, onClose }: ExportDialogProps) {
-  const { getModifiedProperties, shadowComponents } = useStudio();
+  const { getModifiedProperties, shadowComponents, customCSS } = useStudio();
 
   const { css, lightCount, darkCount, shadowCount } = useMemo(() => {
     const { light, dark } = getModifiedProperties();
     const generated = generateThemeCSS(light, dark, {
       includeHeader: true,
       shadowComponents,
+      customCSS,
     });
     return {
       css: generated,
@@ -31,7 +32,7 @@ export function ExportDialog({ open, onClose }: ExportDialogProps) {
       darkCount: Object.keys(dark).length,
       shadowCount: shadowComponents.length,
     };
-  }, [getModifiedProperties, shadowComponents]);
+  }, [getModifiedProperties, shadowComponents, customCSS]);
 
   const totalCount = lightCount + darkCount + shadowCount;
   const isEmpty = totalCount === 0;
@@ -47,31 +48,6 @@ export function ExportDialog({ open, onClose }: ExportDialogProps) {
           </Callout>
         ) : (
           <>
-            <p className="export-dialog__summary">
-              {lightCount > 0 && (
-                <span>
-                  <strong>{lightCount}</strong> light{' '}
-                  {lightCount === 1 ? 'property' : 'properties'}
-                </span>
-              )}
-              {lightCount > 0 && darkCount > 0 && <span> &middot; </span>}
-              {darkCount > 0 && (
-                <span>
-                  <strong>{darkCount}</strong> dark{' '}
-                  {darkCount === 1 ? 'property' : 'properties'}
-                </span>
-              )}
-              {(lightCount > 0 || darkCount > 0) && shadowCount > 0 && (
-                <span> &middot; </span>
-              )}
-              {shadowCount > 0 && (
-                <span>
-                  <strong>{shadowCount}</strong> shadow{' '}
-                  {shadowCount === 1 ? 'rule' : 'rules'}
-                </span>
-              )}
-            </p>
-
             <div className="export-dialog__textarea-wrapper">
               <Textarea value={css} rows={14} resize="vertical" readonly />
               <div className="export-dialog__copy-wrapper">
@@ -84,9 +60,8 @@ export function ExportDialog({ open, onClose }: ExportDialogProps) {
             </div>
 
             <p className="export-dialog__hint">
-              Paste this into your project&apos;s{' '}
-              <code>src/styles/theme.css</code> file, or use{' '}
-              <code>kigumi theme import</code> to apply it.
+              Paste this into your project&apos;s <code>theme.css</code> file
+              after using <code>npx kigumi init</code>.
             </p>
           </>
         )}

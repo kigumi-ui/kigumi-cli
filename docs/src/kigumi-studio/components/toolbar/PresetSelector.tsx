@@ -1,13 +1,19 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Select, Option } from '@/components/ui';
 import { loadPresets, type ThemePreset } from '../../lib/preset-loader';
 import { useStudio } from '../../contexts/StudioContext';
 
 export function PresetSelector() {
-  const { importValues, resetAll } = useStudio();
+  const {
+    importValues,
+    resetAll,
+    setShadowComponents,
+    setCustomCSS,
+    selectedPreset,
+    setSelectedPreset,
+  } = useStudio();
   const [presets, setPresets] = useState<ThemePreset[]>([]);
   const [loading, setLoading] = useState(true);
-  const selectRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,17 +39,12 @@ export function PresetSelector() {
       const target = e.target as HTMLSelectElement;
       const value = target.value;
 
-      if (!value || value === '__none__') {
+      if (!value) {
         return;
       }
 
-      if (value === '__reset__') {
+      if (value === '__default__') {
         resetAll();
-        // Reset the select value
-        if (selectRef.current) {
-          (selectRef.current as unknown as { value: string }).value =
-            '__none__';
-        }
         return;
       }
 
@@ -60,13 +61,18 @@ export function PresetSelector() {
         merged[cssVar] = { ...merged[cssVar], dark: val };
       }
       importValues(merged);
-
-      // Reset select back to placeholder
-      if (selectRef.current) {
-        (selectRef.current as unknown as { value: string }).value = '__none__';
-      }
+      setShadowComponents(preset.shadowComponents);
+      setCustomCSS(preset.customCSS || null);
+      setSelectedPreset(preset.filename);
     },
-    [presets, importValues, resetAll]
+    [
+      presets,
+      importValues,
+      resetAll,
+      setShadowComponents,
+      setCustomCSS,
+      setSelectedPreset,
+    ]
   );
 
   if (loading || presets.length === 0) {
@@ -75,19 +81,17 @@ export function PresetSelector() {
 
   return (
     <Select
-      ref={selectRef as React.Ref<never>}
-      placeholder="Choose a preset..."
       size="small"
-      value="__none__"
+      value={selectedPreset ?? '__default__'}
       onChange={handleChange}
     >
+      <Option value="__default__">Default</Option>
+      <wa-divider />
       {presets.map((preset) => (
         <Option key={preset.filename} value={preset.filename}>
           {preset.name}
         </Option>
       ))}
-      <wa-divider />
-      <Option value="__reset__">Reset to Defaults</Option>
     </Select>
   );
 }

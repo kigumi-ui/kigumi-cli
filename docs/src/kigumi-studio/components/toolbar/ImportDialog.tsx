@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Dialog, Button, Textarea, Callout, Icon } from '@/components/ui';
-import { parseThemeCSS } from '../../lib/css-parser';
+import { parseThemeCSS, parseComponentOverrides } from '../../lib/css-parser';
 import { useStudio } from '../../contexts/StudioContext';
 import './ImportDialog.css';
 
@@ -10,7 +10,8 @@ interface ImportDialogProps {
 }
 
 export function ImportDialog({ open, onClose }: ImportDialogProps) {
-  const { importValues } = useStudio();
+  const { importValues, resetAll, setCustomCSS, setShadowComponents } =
+    useStudio();
   const [cssInput, setCssInput] = useState('');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +62,19 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         merged[cssVar] = { ...merged[cssVar], dark: value };
       }
 
+      // Reset to defaults first, then apply imported values (full replacement)
+      resetAll();
       importValues(merged);
+
+      // Extract component overrides: separate shadow rules from custom CSS
+      const overrides = parseComponentOverrides(trimmed, '.studio-preview');
+      if (overrides.shadowComponents.length > 0) {
+        setShadowComponents(overrides.shadowComponents);
+      }
+      if (overrides.customCSS) {
+        setCustomCSS(overrides.customCSS);
+      }
+
       setWarnings(result.warnings);
       setImportedCount(totalCount);
 
@@ -74,7 +87,14 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     } catch {
       setError('Failed to parse CSS. Please check your syntax.');
     }
-  }, [cssInput, importValues, handleClose]);
+  }, [
+    cssInput,
+    importValues,
+    resetAll,
+    setShadowComponents,
+    setCustomCSS,
+    handleClose,
+  ]);
 
   return (
     <Dialog open={open} label="Import Theme CSS" onHide={handleClose}>
@@ -94,7 +114,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         </p>
 
         <Textarea
-          placeholder={`:root {\n  --wa-color-brand: #8b5cf6;\n  --wa-border-radius-scale: 1.5;\n}\n\n.wa-dark {\n  --wa-color-surface-default: #1a1a2e;\n}`}
+          placeholder={`:root {\n  --wa-color-brand: #8b5cf6;\n  --wa-border-radius-scale: 1.5;\n}\n\n.wa-dark {\n  --wa-color-surface-default: #1a1a2e;\n}\n\n/* Component shadows */\n.Card {\n  box-shadow: var(--wa-shadow-m);\n}`}
           rows={10}
           resize="vertical"
           value={cssInput}
