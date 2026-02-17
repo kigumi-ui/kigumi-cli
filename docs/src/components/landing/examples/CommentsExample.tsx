@@ -74,7 +74,7 @@ export function CommentsExample() {
 
             <div className="wa-split">
               <div className="wa-cluster wa-gap-s">
-                <Icon name="bolt" style={{ color: 'white' }} />
+                <Icon name="bolt" />
                 <div className="wa-stack wa-gap-2xs">
                   <span className="wa-heading-s">Electric Bill</span>
                   <span
@@ -95,7 +95,7 @@ export function CommentsExample() {
 
             <div className="wa-split">
               <div className="wa-cluster wa-gap-s">
-                <Icon name="receipt" style={{ color: 'white' }} />
+                <Icon name="receipt" />
                 <div className="wa-stack wa-gap-2xs">
                   <span className="wa-heading-s">Income: Jane transfers</span>
                   <span
@@ -116,7 +116,7 @@ export function CommentsExample() {
 
             <div className="wa-split">
               <div className="wa-cluster wa-gap-s">
-                <Icon name="receipt" style={{ color: 'white' }} />
+                <Icon name="receipt" />
                 <div className="wa-stack wa-gap-2xs">
                   <span className="wa-heading-s">Income: Jane transfers</span>
                   <span

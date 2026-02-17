@@ -20,7 +20,7 @@ export function DataDisplayExample() {
                   position: 'absolute',
                   '--size': '150px',
                   '--track-width': '18px',
-                  '--indicator-color': '#ff3b5c',
+                  '--indicator-color': 'var(--wa-color-danger-fill-loud)',
                 } as React.CSSProperties
               }
             />
@@ -31,7 +31,7 @@ export function DataDisplayExample() {
                   position: 'absolute',
                   '--size': '110px',
                   '--track-width': '18px',
-                  '--indicator-color': '#a0ff00',
+                  '--indicator-color': 'var(--wa-color-success-fill-loud)',
                   left: '20px',
                   top: '20px',
                 } as React.CSSProperties
@@ -44,7 +44,7 @@ export function DataDisplayExample() {
                   position: 'absolute',
                   '--size': '70px',
                   '--track-width': '18px',
-                  '--indicator-color': '#00d9ff',
+                  '--indicator-color': 'var(--wa-color-brand-fill-loud)',
                   left: '40px',
                   top: '40px',
                 } as React.CSSProperties
@@ -55,12 +55,18 @@ export function DataDisplayExample() {
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Icon
                 name="running"
-                style={{ color: '#ff3b5c', fontSize: '12px' }}
+                style={{
+                  color: 'var(--wa-color-danger-fill-loud)',
+                  fontSize: '12px',
+                }}
                 label="move"
               />
               <div className="wa-stack wa-gap-2xs">
                 <span className="wa-heading-s">MOVE 65%</span>
-                <span className="wa-caption-s" style={{ color: '#ff3b5c' }}>
+                <span
+                  className="wa-caption-s"
+                  style={{ color: 'var(--wa-color-danger-fill-loud)' }}
+                >
                   338/520 CAL
                 </span>
               </div>
@@ -69,12 +75,18 @@ export function DataDisplayExample() {
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Icon
                 name="dumbbell"
-                style={{ color: '#a0ff00', fontSize: '12px' }}
+                style={{
+                  color: 'var(--wa-color-success-fill-loud)',
+                  fontSize: '12px',
+                }}
                 label="exercise"
               />
               <div className="wa-stack wa-gap-2xs">
                 <span className="wa-heading-s">EXERCISE 6%</span>
-                <span className="wa-caption-s" style={{ color: '#a0ff00' }}>
+                <span
+                  className="wa-caption-s"
+                  style={{ color: 'var(--wa-color-success-fill-loud)' }}
+                >
                   2/30 MIN
                 </span>
               </div>
@@ -83,12 +95,18 @@ export function DataDisplayExample() {
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Icon
                 name="person"
-                style={{ color: '#00d9ff', fontSize: '12px' }}
+                style={{
+                  color: 'var(--wa-color-brand-fill-loud)',
+                  fontSize: '12px',
+                }}
                 label="stand"
               />
               <div className="wa-stack wa-gap-2xs">
                 <span className="wa-heading-s">STAND 66%</span>
-                <span className="wa-caption-s" style={{ color: '#00d9ff' }}>
+                <span
+                  className="wa-caption-s"
+                  style={{ color: 'var(--wa-color-brand-fill-loud)' }}
+                >
                   8/12 HR
                 </span>
               </div>
