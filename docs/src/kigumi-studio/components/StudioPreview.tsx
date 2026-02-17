@@ -4,8 +4,7 @@ import { useStudio } from '../contexts/StudioContext';
 import './StudioPreview.css';
 
 export function StudioPreview() {
-  const { shadowComponents, customCSS, getStyleObject, previewMode } =
-    useStudio();
+  const { values, shadowComponents, customCSS, previewMode } = useStudio();
 
   // Generate dynamic CSS for shadow components
   // Use filter: drop-shadow() for Web Components since box-shadow doesn't penetrate Shadow DOM
@@ -13,17 +12,19 @@ export function StudioPreview() {
     let css = '';
     if (shadowComponents.length === 0) return css;
 
-    // Get current shadow scale values from theme
-    const styleObject = getStyleObject(previewMode);
+    // Read raw values directly from state instead of getStyleObject(),
+    // which merges shadow color+opacity into rgb() format and deletes --wa-shadow-opacity
     const offsetXScale = parseFloat(
-      styleObject['--wa-shadow-offset-x-scale'] || '0'
+      values['--wa-shadow-offset-x-scale']?.[previewMode] || '0'
     );
     const offsetYScale = parseFloat(
-      styleObject['--wa-shadow-offset-y-scale'] || '1'
+      values['--wa-shadow-offset-y-scale']?.[previewMode] || '1'
     );
-    const blurScale = parseFloat(styleObject['--wa-shadow-blur-scale'] || '1');
+    const blurScale = parseFloat(
+      values['--wa-shadow-blur-scale']?.[previewMode] || '1'
+    );
     const spreadScale = parseFloat(
-      styleObject['--wa-shadow-spread-scale'] || '-0.5'
+      values['--wa-shadow-spread-scale']?.[previewMode] || '-0.5'
     );
 
     // Web Awesome formula: scale * 0.25rem (for medium shadow)
@@ -37,10 +38,11 @@ export function StudioPreview() {
     let blur = Math.max(0, blurScale * baseMultiplier); // blur can't be negative
     const spread = spreadScale * baseMultiplier;
 
-    // Get shadow color and opacity from theme
-    const shadowColorHex = styleObject['--wa-color-shadow'] || '#000000';
+    // Get shadow color and opacity from raw state values
+    const shadowColorHex =
+      values['--wa-color-shadow']?.[previewMode] || '#000000';
     const shadowOpacity = parseFloat(
-      styleObject['--wa-shadow-opacity'] || '0.2'
+      values['--wa-shadow-opacity']?.[previewMode] || '0.2'
     );
 
     // Convert hex to rgb and add opacity
@@ -77,7 +79,7 @@ export function StudioPreview() {
       .join('\n');
 
     return css;
-  }, [shadowComponents, getStyleObject, previewMode]);
+  }, [values, shadowComponents, previewMode]);
 
   return (
     <div className="studio-preview">

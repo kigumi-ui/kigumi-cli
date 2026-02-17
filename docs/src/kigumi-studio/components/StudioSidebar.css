@@ -21,7 +21,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--wa-space-m);
-  border-right: var(--wa-border-width-s) var(--wa-border-style) var(--wa-color-surface-border);
+  border-right: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
   background: var(--wa-color-surface-default);
 }
 
@@ -30,6 +31,15 @@
   pointer-events: none;
   overflow: hidden;
   transition: opacity var(--wa-transition-fast) var(--wa-transition-easing);
+}
+
+/* ── Toolbar Row (Theme mode + Import/Export) ── */
+
+.studio-sidebar__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--wa-space-xs);
+  flex-wrap: wrap;
 }
 
 /* ── Toggle Button ── */
@@ -46,7 +56,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: var(--wa-border-width-s) var(--wa-border-style) var(--wa-color-surface-border);
+  border: var(--wa-border-width-s) var(--wa-border-style)
+    var(--wa-color-surface-border);
   background: var(--wa-color-surface-default);
   color: var(--wa-color-text-quiet);
   cursor: pointer;
@@ -69,7 +80,8 @@
 @media (max-width: 768px) {
   .studio-sidebar-wrapper {
     width: 100%;
-    transition: max-height var(--wa-transition-medium) var(--wa-transition-easing);
+    transition: max-height var(--wa-transition-medium)
+      var(--wa-transition-easing);
     max-height: 50vh;
   }
 
@@ -88,8 +100,9 @@
     width: 100%;
     min-width: unset;
     border-right: none;
-    border-top: var(--wa-border-width-s) var(--wa-border-style) var(--wa-color-surface-border);
-    max-height: 50vh;
+    border-top: var(--wa-border-width-s) var(--wa-border-style)
+      var(--wa-color-surface-border);
+    max-height: 60vh;
   }
 
   .studio-sidebar__toggle {
