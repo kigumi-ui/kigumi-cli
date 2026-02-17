@@ -1,3 +1,4 @@
+import React from 'react';
 import { EditorSection } from './EditorSection';
 import { PropertyRow } from './PropertyRow';
 import {
@@ -35,8 +36,8 @@ export function TypographyEditor() {
       {/* Font Families + Weights combined */}
       <EditorSection group={familiesGroup}>
         {fontPairs.map((pair) => (
-          <>
-            <div key={pair.family.cssVar} className="wa-flank wa-gap-m">
+          <React.Fragment key={pair.family.cssVar}>
+            <div className="wa-flank wa-gap-m">
               <PropertyRow property={pair.family} />
               <PropertyRow
                 property={pair.weight}
@@ -44,7 +45,7 @@ export function TypographyEditor() {
               />
             </div>
             <Divider />
-          </>
+          </React.Fragment>
         ))}
       </EditorSection>
 

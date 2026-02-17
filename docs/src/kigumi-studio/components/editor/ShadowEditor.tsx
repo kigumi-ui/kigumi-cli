@@ -24,27 +24,36 @@ export function ShadowEditor() {
   const comboboxRef = useRef<ComboboxRef>(null);
   const previousValueRef = useRef<string[]>(shadowComponents);
 
-  const handleMenuClose = () => {
-    setTimeout(() => {
-      const el = comboboxRef.current?.element as ComboboxElement | null;
-      if (!el) return;
-
-      const currentValue = Array.isArray(el.value)
-        ? el.value.filter(Boolean)
-        : [];
-
-      const prevSorted = [...shadowComponents].sort().join(',');
-      const newSorted = [...currentValue].sort().join(',');
-
-      if (prevSorted !== newSorted) {
-        setShadowComponents(currentValue);
-      }
-    }, 50);
-  };
-
   useEffect(() => {
-    const el = comboboxRef.current?.element;
+    const el = comboboxRef.current?.element as ComboboxElement | null;
     if (!el) return;
+
+    const syncFromElement = (delayMs = 0) => {
+      const run = () => {
+        const target = comboboxRef.current?.element as ComboboxElement | null;
+        if (!target) return;
+
+        const currentValue = Array.isArray(target.value)
+          ? target.value.filter(Boolean)
+          : [];
+
+        const prevSorted = [...shadowComponents].sort().join(',');
+        const newSorted = [...currentValue].sort().join(',');
+
+        if (prevSorted !== newSorted) {
+          setShadowComponents(currentValue);
+        }
+      };
+
+      if (delayMs > 0) {
+        setTimeout(run, delayMs);
+      } else {
+        setTimeout(run, 0);
+      }
+    };
+
+    const handleMenuClose = () => syncFromElement(50);
+    const handleBlur = () => syncFromElement(0);
 
     const handleChange = (e: Event) => {
       const target = e.target as HTMLElement & { value?: string | string[] };
@@ -76,12 +85,14 @@ export function ShadowEditor() {
     el.addEventListener('input', handleChange);
     el.addEventListener('wa-change', handleChange);
     el.addEventListener('wa-hide', handleMenuClose);
+    el.addEventListener('blur', handleBlur);
 
     return () => {
       el.removeEventListener('change', handleChange);
       el.removeEventListener('input', handleChange);
       el.removeEventListener('wa-change', handleChange);
       el.removeEventListener('wa-hide', handleMenuClose);
+      el.removeEventListener('blur', handleBlur);
     };
   }, [setShadowComponents, shadowComponents]);
 
@@ -124,7 +135,6 @@ export function ShadowEditor() {
           placeholder="Select components..."
           max-options-visible={8}
           className="shadow-component-editor__combobox"
-          onHide={handleMenuClose}
         >
           {SHADOW_CATEGORIES.map((category) => {
             const componentsInCategory = SHADOW_COMPONENTS.filter(
