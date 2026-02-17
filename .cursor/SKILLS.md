@@ -8,6 +8,7 @@
 | ------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------- |
 | Generate Web Awesome Component  | [skills/generate-webawesome-component/](skills/generate-webawesome-component/SKILL.md) | Create React wrappers from Web Awesome docs |
 | Transform Web Awesome to Kigumi | [skills/transform-wa-to-kigumi/](skills/transform-wa-to-kigumi/SKILL.md)               | Convert Web Awesome HTML to Kigumi UI React |
+| Generate Kigumi Theme Preset    | [skills/generate-kigumi-theme-preset/](skills/generate-kigumi-theme-preset/SKILL.md)   | Create theme presets for Kigumi Studio      |
 
 ---
 
@@ -86,6 +87,71 @@ User: "Convert this Web Awesome code to Kigumi"
 ```
 
 **Full documentation:** [skills/transform-wa-to-kigumi/SKILL.md](skills/transform-wa-to-kigumi/SKILL.md)
+
+---
+
+## Generate Kigumi Theme Preset
+
+**Trigger phrases:**
+
+- "Create a {description} theme preset for Kigumi Studio"
+- "Generate a new theme with {colors/mood}"
+- "Modify the {preset-name} preset"
+- "Make the ocean breeze theme warmer"
+- "Validate my theme preset"
+- "What design tokens are available?"
+
+**What it does:**
+
+1. Understands requirements (natural language mood/style OR reference preset + changes)
+2. Develops comprehensive color palette (brand → surface → text → semantic)
+3. Chooses typography from 26 Bunny Fonts
+4. Configures spacing, borders, shadows, transitions
+5. Derives dark mode variant with proper contrast
+6. Generates JSON preset file in `docs/src/kigumi-studio/themes/` (+ optional companion CSS)
+7. Validates via `preset-schema.test.ts` + WCAG contrast ratios
+8. Provides preview instructions
+
+**Token Coverage:**
+
+- **43 Studio Tokens**: All editable properties in Kigumi Studio UI
+- **Extended WA Tokens**: Additional Web Awesome tokens (via companion CSS, not in UI)
+
+**Preset Format:**
+
+Presets are **JSON files** (`themes/{name}.json`) with a `PresetJSON` schema: `version`, `name`, `light`, `dark`, and optional `shadowComponents`. Optional companion `.css` files for custom CSS overrides.
+
+**Color Palette Development:**
+
+- Brand color as foundation
+- Surface hierarchy: raised (lightest) → default → lowered (darkest)
+- Text colors with WCAG AA contrast (4.5:1 for normal, 3:1 for quiet)
+- Dark mode: inverted surface hierarchy, adjusted text colors
+
+**8 Existing Presets:**
+
+- **midnight-blue**: Blue brand, elegant typography, soft shadows
+- **ocean-breeze**: Teal/cyan, airy spacing, rounded corners
+- **neo-brutalism**: Bold orange, sharp corners (radius=0), thick borders
+- **warm-earth**: Brown/orange, generous spacing, organic feel
+- **monochrome**: Grayscale only, minimal, clean
+- **canvas**: Figma-inspired, black & white, hard shadows
+- **kanban**: Atlassian-inspired, blue brand, functional
+- **shopaholic**: Shopify-inspired, green brand, subtle shadows
+
+**Example:**
+
+```
+User: "Create a warm sunset theme preset"
+→ Skill develops orange/coral palette
+→ Chooses Source Sans 3 + Bitter fonts
+→ Configures generous spacing (1.3), rounded corners (1.5)
+→ Creates docs/src/kigumi-studio/themes/warm-sunset.json
+→ Validates via preset-schema.test.ts
+→ Theme appears in Studio dropdown automatically
+```
+
+**Full documentation:** [skills/generate-kigumi-theme-preset/SKILL.md](skills/generate-kigumi-theme-preset/SKILL.md)
 
 ---
 
