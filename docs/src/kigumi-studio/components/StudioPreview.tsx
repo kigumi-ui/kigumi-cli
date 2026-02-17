@@ -4,14 +4,13 @@ import { useStudio } from '../contexts/StudioContext';
 import './StudioPreview.css';
 
 export function StudioPreview() {
-  const { shadowComponents, getStyleObject, previewMode } = useStudio();
+  const { shadowComponents, customCSS, getStyleObject, previewMode } =
+    useStudio();
 
   // Generate dynamic CSS for shadow components
   // Use filter: drop-shadow() for Web Components since box-shadow doesn't penetrate Shadow DOM
   const shadowStyles = useMemo(() => {
-    // Always remove default box-shadows from Web Awesome components
-    let css = '.studio-preview * { box-shadow: none !important; }\n';
-
+    let css = '';
     if (shadowComponents.length === 0) return css;
 
     // Get current shadow scale values from theme
@@ -73,7 +72,7 @@ export function StudioPreview() {
     css += shadowComponents
       .map(
         (className) =>
-          `.studio-preview .${className} { filter: drop-shadow(${offsetX}px ${offsetY}px ${blur}px ${shadowColor}); }`
+          `.studio-preview .${className} { box-shadow: none; filter: drop-shadow(${offsetX}px ${offsetY}px ${blur}px ${shadowColor}); }`
       )
       .join('\n');
 
@@ -82,7 +81,8 @@ export function StudioPreview() {
 
   return (
     <div className="studio-preview">
-      {shadowStyles && <style>{shadowStyles}</style>}
+      <style>{shadowStyles}</style>
+      {customCSS && <style data-kigumi-overrides>{customCSS}</style>}
       <ComponentShowcase />
     </div>
   );

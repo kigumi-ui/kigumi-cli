@@ -9,7 +9,6 @@ import { FocusEditor } from './editor/FocusEditor';
 import { TransitionEditor } from './editor/TransitionEditor';
 import './StudioSidebar.css';
 import { PresetSelector } from './toolbar/PresetSelector';
-import { ResetButton } from './toolbar/ResetButton';
 
 interface StudioSidebarProps {
   collapsed: boolean;
@@ -30,24 +29,21 @@ export function StudioSidebar({
     >
       <aside className="studio-sidebar wa-gap-xs wa-stack wa-justify-content-stretch">
         <PresetSelector />
-        <span className="wa-split wa-justify-content-start">
-          <ButtonGroup>
-            <Button
-              variant="neutral"
-              appearance="outlined"
-              size="small"
-              onClick={onImport}
-            >
-              <Icon name="download" slot="start" />
-              Import
-            </Button>
-            <Button variant="brand" size="small" onClick={onExport}>
-              <Icon name="upload" slot="start" />
-              Export
-            </Button>
-          </ButtonGroup>
-          <ResetButton />
-        </span>
+        <ButtonGroup>
+          <Button
+            variant="neutral"
+            appearance="outlined"
+            size="small"
+            onClick={onImport}
+          >
+            <Icon name="download" slot="start" />
+            Import
+          </Button>
+          <Button variant="brand" size="small" onClick={onExport}>
+            <Icon name="upload" slot="start" />
+            Export
+          </Button>
+        </ButtonGroup>
         <Divider />
         <ColorEditor />
         <TypographyEditor />
