@@ -1,5 +1,5 @@
 import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
-import { Badge, Button, Icon } from '@/components/ui';
+import { Badge, Button, ButtonGroup, Icon } from '@/components/ui';
 import stacks from '@/assets/stacks.png';
 import { useEffect, useRef } from 'react';
 import { CompatibilityInfo } from '@/components/landing/CompatibilityInfo';
@@ -49,9 +49,19 @@ export function Hero() {
 
           <div className="wa-stack wa-gap-2xl wa-align-items-start">
             <div className="wa-cluster wa-gap-m">
-              <Button variant="brand" size="medium" href="#getting-started">
-                Get started
-              </Button>
+              <ButtonGroup>
+                <Button variant="brand" size="medium" href="#getting-started">
+                  Get started
+                </Button>
+                <Button
+                  variant="brand"
+                  appearance="outlined"
+                  size="medium"
+                  href="/kigumi-studio"
+                >
+                  Customize theme
+                </Button>
+              </ButtonGroup>
               <Button
                 variant="neutral"
                 size="medium"
