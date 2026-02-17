@@ -29,7 +29,7 @@ export const Banner = () => {
           Beta
         </Badge>
         <span>
-          Use <Link to="/kigumi-studio">Kigumi Studio</Link> latest version to
+          Use <Link to="/kigumi-studio">Kigumi Studio</Link>'s latest version to
           create stunning themes!
         </span>
       </div>
