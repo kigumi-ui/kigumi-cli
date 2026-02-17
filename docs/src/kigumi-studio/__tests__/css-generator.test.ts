@@ -33,6 +33,7 @@ describe('generateThemeCSS', () => {
     );
     expect(result).toContain('Kigumi Studio Theme');
     expect(result).toContain('kigumi.style/kigumi-studio');
+    expect(result).toContain('Base theme: Web Awesome Default');
   });
 
   it('returns empty string when no properties provided', () => {
@@ -87,5 +88,59 @@ describe('generateThemeCSS', () => {
       { includeHeader: false }
     );
     expect(result.endsWith('\n')).toBe(true);
+  });
+
+  it('generates shadow component rules', () => {
+    const result = generateThemeCSS(
+      { '--wa-color-brand': '#ff0000' },
+      {},
+      { includeHeader: false, shadowComponents: ['Card', 'Badge'] }
+    );
+    expect(result).toContain('/* Component Shadows */');
+    expect(result).toContain('.Card {\n  box-shadow: var(--wa-shadow-m);\n}');
+    expect(result).toContain('.Badge {\n  box-shadow: var(--wa-shadow-m);\n}');
+  });
+
+  it('appends custom CSS at the end', () => {
+    const result = generateThemeCSS(
+      { '--wa-color-brand': '#ff0000' },
+      {},
+      {
+        includeHeader: false,
+        customCSS: '.studio-preview .Card > .Card {\n  box-shadow: none;\n}',
+      }
+    );
+    expect(result).toContain('/* Custom Styles */');
+    expect(result).toContain('.Card > .Card {\n  box-shadow: none;\n}');
+    // Custom CSS should be unscoped (no .studio-preview prefix)
+    expect(result).not.toContain('.studio-preview');
+  });
+
+  it('outputs shadow rules before custom CSS', () => {
+    const result = generateThemeCSS(
+      { '--wa-color-brand': '#ff0000' },
+      {},
+      {
+        includeHeader: false,
+        shadowComponents: ['Card'],
+        customCSS: '.studio-preview .Card > .Card { box-shadow: none; }',
+      }
+    );
+    const shadowIndex = result.indexOf('/* Component Shadows */');
+    const customIndex = result.indexOf('/* Custom Styles */');
+    expect(shadowIndex).toBeLessThan(customIndex);
+  });
+
+  it('combines shadow color and opacity into rgb()', () => {
+    const result = generateThemeCSS(
+      {
+        '--wa-color-shadow': '#000000',
+        '--wa-shadow-opacity': '0.2',
+      },
+      {},
+      { includeHeader: false }
+    );
+    expect(result).toContain('--wa-color-shadow: rgb(0 0 0 / 0.2)');
+    expect(result).not.toContain('--wa-shadow-opacity');
   });
 });

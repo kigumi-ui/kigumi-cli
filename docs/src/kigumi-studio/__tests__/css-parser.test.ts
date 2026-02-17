@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { parseThemeCSS } from '../lib/css-parser';
+import {
+  parseThemeCSS,
+  extractComponentOverrides,
+  parseComponentOverrides,
+} from '../lib/css-parser';
 
 describe('parseThemeCSS', () => {
   it('parses :root block with a single property', () => {
@@ -156,5 +160,111 @@ describe('parseThemeCSS', () => {
     const result = parseThemeCSS(css);
     expect(Object.keys(result.light)).toHaveLength(0);
     expect(Object.keys(result.dark)).toHaveLength(0);
+  });
+});
+
+describe('extractComponentOverrides', () => {
+  it('extracts component rules and skips :root and .wa-dark', () => {
+    const css = `:root { --wa-color-brand: #000; }
+.Card {
+  box-shadow: var(--wa-shadow-m);
+}
+.wa-dark { --wa-color-surface-default: #1e1e1e; }`;
+    const result = extractComponentOverrides(css, '.studio-preview');
+    expect(result).toContain('.studio-preview .Card');
+    expect(result).toContain('box-shadow: var(--wa-shadow-m)');
+    expect(result).not.toContain(':root');
+    expect(result).not.toContain('.wa-dark');
+  });
+
+  it('returns empty string when only :root and .wa-dark exist', () => {
+    const css = `:root { --wa-color-brand: #000; }
+.wa-dark { --wa-color-surface-default: #111; }`;
+    const result = extractComponentOverrides(css, '.studio-preview');
+    expect(result).toBe('');
+  });
+
+  it('scopes multiple selectors', () => {
+    const css = `.Card, .Button {
+  box-shadow: var(--wa-shadow-m);
+}`;
+    const result = extractComponentOverrides(css, '.studio-preview');
+    expect(result).toContain('.studio-preview .Card');
+    expect(result).toContain('.studio-preview .Button');
+  });
+});
+
+describe('parseComponentOverrides', () => {
+  it('detects simple shadow rules as shadowComponents', () => {
+    const css = `:root { --wa-color-brand: #000; }
+.Card {
+  box-shadow: var(--wa-shadow-m);
+}`;
+    const result = parseComponentOverrides(css, '.studio-preview');
+    expect(result.shadowComponents).toEqual(['Card']);
+    expect(result.customCSS).toBe('');
+  });
+
+  it('separates shadow rules from custom CSS', () => {
+    const css = `.Card {
+  box-shadow: var(--wa-shadow-m);
+}
+.Card > .Card {
+  box-shadow: none;
+}`;
+    const result = parseComponentOverrides(css, '.studio-preview');
+    expect(result.shadowComponents).toEqual(['Card']);
+    expect(result.customCSS).toContain('.studio-preview .Card > .Card');
+    expect(result.customCSS).toContain('box-shadow: none');
+  });
+
+  it('detects multiple shadow components', () => {
+    const css = `.Card {
+  box-shadow: var(--wa-shadow-m);
+}
+.Badge {
+  box-shadow: var(--wa-shadow-s);
+}`;
+    const result = parseComponentOverrides(css, '.studio-preview');
+    expect(result.shadowComponents).toEqual(['Card', 'Badge']);
+    expect(result.customCSS).toBe('');
+  });
+
+  it('treats non-shadow single-property rules as custom CSS', () => {
+    const css = `.Card {
+  border-radius: 0;
+}`;
+    const result = parseComponentOverrides(css, '.studio-preview');
+    expect(result.shadowComponents).toEqual([]);
+    expect(result.customCSS).toContain('.studio-preview .Card');
+    expect(result.customCSS).toContain('border-radius: 0');
+  });
+
+  it('treats multi-property blocks with box-shadow as custom CSS', () => {
+    const css = `.Card {
+  box-shadow: var(--wa-shadow-m);
+  border: 1px solid red;
+}`;
+    const result = parseComponentOverrides(css, '.studio-preview');
+    expect(result.shadowComponents).toEqual([]);
+    expect(result.customCSS).toContain('.studio-preview .Card');
+  });
+
+  it('returns empty results when only :root and .wa-dark exist', () => {
+    const css = `:root { --wa-color-brand: #000; }
+.wa-dark { --wa-color-surface-default: #111; }`;
+    const result = parseComponentOverrides(css, '.studio-preview');
+    expect(result.shadowComponents).toEqual([]);
+    expect(result.customCSS).toBe('');
+  });
+
+  it('ignores @import statements', () => {
+    const css = `@import url('https://fonts.bunny.net/css?family=inter:400,500');
+.Card {
+  box-shadow: var(--wa-shadow-m);
+}`;
+    const result = parseComponentOverrides(css, '.studio-preview');
+    expect(result.shadowComponents).toEqual(['Card']);
+    expect(result.customCSS).toBe('');
   });
 });
