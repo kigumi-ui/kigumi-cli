@@ -51,31 +51,3 @@
 .studio-header__title {
   white-space: nowrap;
 }
-
-.studio-header__center {
-  display: flex;
-  align-items: start;
-  justify-content: start;
-  gap: var(--wa-space-xl);
-}
-
-.studio-header__right {
-  display: flex;
-  align-items: center;
-  gap: var(--wa-space-xs);
-}
-
-@media (max-width: 768px) {
-  .studio-header {
-    flex-wrap: wrap;
-  }
-
-  .studio-header__center {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    padding-top: var(--wa-space-xs);
-    border-top: var(--wa-border-width-s) var(--wa-border-style)
-      var(--wa-color-surface-border);
-  }
-}
