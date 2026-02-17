@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "name": "Ocean Breeze",
+  "light": {
+    "--wa-color-brand": "#0891b2",
+    "--wa-color-surface-raised": "#ffffff",
+    "--wa-color-surface-default": "#f0fdfa",
+    "--wa-color-surface-lowered": "#ccfbf1",
+    "--wa-color-surface-border": "#99f6e4",
+    "--wa-color-text-normal": "#134e4a",
+    "--wa-color-text-quiet": "#3b8a80",
+    "--wa-color-text-link": "#0e7490",
+    "--wa-font-family-body": "'Nunito Sans', ui-sans-serif, system-ui, sans-serif",
+    "--wa-font-size-scale": "1.05",
+    "--wa-space-scale": "1.1",
+    "--wa-border-radius-scale": "2",
+    "--wa-border-width-scale": "0.7",
+    "--wa-shadow-offset-y-scale": "0.6",
+    "--wa-shadow-blur-scale": "2",
+    "--wa-shadow-spread-scale": "-0.3",
+    "--wa-transition-fast": "100ms",
+    "--wa-transition-normal": "200ms",
+    "--wa-transition-slow": "400ms",
+    "--wa-transition-easing": "ease-in-out"
+  },
+  "dark": {
+    "--wa-color-surface-raised": "#1a2e35",
+    "--wa-color-surface-default": "#0f1f26",
+    "--wa-color-surface-lowered": "#081418",
+    "--wa-color-surface-border": "#164e63",
+    "--wa-color-text-normal": "#e0f7fa",
+    "--wa-color-text-quiet": "#80cbc4",
+    "--wa-color-text-link": "#22d3ee",
+    "--wa-form-control-background-color": "#0f1f26",
+    "--wa-form-control-border-color": "#164e63",
+    "--wa-form-control-placeholder-color": "#3b8a80"
+  }
+}

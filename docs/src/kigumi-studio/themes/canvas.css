@@ -1,0 +1,4 @@
+/* Nested cards should not have additional shadows */
+.Card > .Card {
+  box-shadow: none;
+}

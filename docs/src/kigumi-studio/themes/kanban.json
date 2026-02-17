@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "name": "Kanban",
+  "light": {
+    "--wa-color-brand": "#1868db",
+    "--wa-color-surface-raised": "#ffffff",
+    "--wa-color-surface-default": "#f7f8f9",
+    "--wa-color-surface-lowered": "#ebecf0",
+    "--wa-color-surface-border": "#dfe1e6",
+    "--wa-color-text-normal": "#172b4d",
+    "--wa-color-text-quiet": "#5e6c84",
+    "--wa-color-text-link": "#0052cc",
+    "--wa-font-family-body": "'Inter', ui-sans-serif, system-ui, sans-serif",
+    "--wa-font-family-heading": "'Inter', ui-sans-serif, system-ui, sans-serif",
+    "--wa-font-weight-normal": "400",
+    "--wa-font-weight-semibold": "500",
+    "--wa-font-weight-bold": "600",
+    "--wa-space-scale": "1.15",
+    "--wa-border-radius-scale": "0.8",
+    "--wa-border-width-scale": "1",
+    "--wa-transition-fast": "100ms",
+    "--wa-transition-normal": "200ms",
+    "--wa-transition-slow": "300ms",
+    "--wa-transition-easing": "ease-in-out"
+  },
+  "dark": {
+    "--wa-color-surface-raised": "#22272b",
+    "--wa-color-surface-default": "#1d2125",
+    "--wa-color-surface-lowered": "#161a1d",
+    "--wa-color-surface-border": "#2c333a",
+    "--wa-color-text-normal": "#b6c2cf",
+    "--wa-color-text-quiet": "#8c9bab",
+    "--wa-color-text-link": "#579dff",
+    "--wa-form-control-background-color": "#22272b",
+    "--wa-form-control-border-color": "#38414a",
+    "--wa-form-control-placeholder-color": "#626f86"
+  }
+}
