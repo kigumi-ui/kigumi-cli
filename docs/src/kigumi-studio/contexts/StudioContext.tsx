@@ -23,7 +23,7 @@ import {
 } from '../lib/color-utils';
 
 const STORAGE_KEY = 'kigumi-studio-state';
-const STORAGE_VERSION = '1.0';
+const STORAGE_VERSION = '2.0';
 
 interface PersistedState {
   version: string;
@@ -34,6 +34,8 @@ interface PersistedState {
     dark: Record<string, string>;
   };
   shadowComponents: string[];
+  customCSS: string | null;
+  selectedPreset: string | null;
   timestamp: number;
 }
 
@@ -44,11 +46,15 @@ interface StudioContextType {
   editMode: ThemeMode;
   previewMode: ThemeMode;
   shadowComponents: string[];
+  customCSS: string | null;
+  selectedPreset: string | null;
 
   setProperty: (cssVar: string, value: string) => void;
   setEditMode: (mode: ThemeMode) => void;
   setPreviewMode: (mode: ThemeMode) => void;
   setShadowComponents: (components: string[]) => void;
+  setCustomCSS: (css: string | null) => void;
+  setSelectedPreset: (preset: string | null) => void;
   resetAll: () => void;
   resetGroup: (group: PropertyGroup) => void;
   importValues: (
@@ -76,9 +82,11 @@ function cloneDefaults(): Record<string, ThemeValue> {
 export function StudioProvider({ children }: { children: ReactNode }) {
   const [values, setValues] =
     useState<Record<string, ThemeValue>>(cloneDefaults);
-  const [editMode, setEditMode] = useState<ThemeMode>('light');
-  const [previewMode, setPreviewMode] = useState<ThemeMode>('light');
+  const [editMode, setEditMode] = useState<ThemeMode>('dark');
+  const [previewMode, setPreviewMode] = useState<ThemeMode>('dark');
   const [shadowComponents, setShadowComponents] = useState<string[]>([]);
+  const [customCSS, setCustomCSS] = useState<string | null>(null);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const hasLoadedFromStorage = useRef(false);
 
   const setProperty = useCallback(
@@ -101,6 +109,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const resetAll = useCallback(() => {
     setValues(cloneDefaults());
     setShadowComponents([]);
+    setCustomCSS(null);
+    setSelectedPreset(null);
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch {
@@ -136,9 +146,19 @@ export function StudioProvider({ children }: { children: ReactNode }) {
             if (!v || !suffix) return v;
             return v.endsWith(suffix) ? v.slice(0, -suffix.length) : v;
           };
+          const strippedLight = strip(modes.light);
+          const strippedDark = strip(modes.dark);
+
+          // For mode-independent tokens: if only light value is provided,
+          // use it for dark too (structural tokens should be identical in both modes)
+          const effectiveDark =
+            !prop?.modeDependent && strippedLight && !strippedDark
+              ? strippedLight
+              : strippedDark;
+
           next[cssVar] = {
-            light: strip(modes.light) ?? next[cssVar].light,
-            dark: strip(modes.dark) ?? next[cssVar].dark,
+            light: strippedLight ?? next[cssVar].light,
+            dark: effectiveDark ?? next[cssVar].dark,
           };
         }
         return next;
@@ -187,6 +207,33 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           }
         }
       }
+
+      // Post-processing: combine shadow color + opacity into a single value.
+      // WA expects --wa-color-shadow as a full color (e.g. rgb(0 0 0 / 0.2)),
+      // not a bare hex. --wa-shadow-opacity is a Studio abstraction, not a real WA var.
+      const shadowHex = style['--wa-color-shadow'];
+      const shadowOpacity = style['--wa-shadow-opacity'];
+      if (shadowHex && shadowOpacity) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+          shadowHex
+        );
+        if (result) {
+          const r = parseInt(result[1], 16);
+          const g = parseInt(result[2], 16);
+          const b = parseInt(result[3], 16);
+          style['--wa-color-shadow'] = `rgb(${r} ${g} ${b} / ${shadowOpacity})`;
+        }
+        delete style['--wa-shadow-opacity'];
+      }
+
+      // Neutralize WA built-in shadows — shadows are opt-in via shadowComponents only.
+      // Components like Card have box-shadow: var(--wa-shadow-m) in their Shadow DOM.
+      // Setting these to 'none' disables all native shadows; the shadowComponents system
+      // uses filter: drop-shadow() independently and is NOT affected.
+      style['--wa-shadow-s'] = 'none';
+      style['--wa-shadow-m'] = 'none';
+      style['--wa-shadow-l'] = 'none';
+      style['--wa-shadow-xl'] = 'none';
 
       return style;
     },
@@ -239,6 +286,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setEditMode(parsed.editMode);
       setPreviewMode(parsed.previewMode);
       setShadowComponents(parsed.shadowComponents ?? []);
+      setCustomCSS(parsed.customCSS ?? null);
+      setSelectedPreset(parsed.selectedPreset ?? null);
 
       // Import modified properties
       if (parsed.modifiedProperties) {
@@ -288,7 +337,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         const hasModifications =
           Object.keys(modified.light).length > 0 ||
           Object.keys(modified.dark).length > 0 ||
-          shadowComponents.length > 0;
+          shadowComponents.length > 0 ||
+          customCSS !== null;
 
         if (!hasModifications) {
           localStorage.removeItem(STORAGE_KEY);
@@ -301,16 +351,26 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           previewMode,
           modifiedProperties: modified,
           shadowComponents,
+          customCSS,
+          selectedPreset,
           timestamp: Date.now(),
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch (err) {
         console.warn('Failed to save theme to localStorage:', err);
       }
-    }, 500);
+    }, 1500);
 
     return () => clearTimeout(timeoutId);
-  }, [values, editMode, previewMode, shadowComponents, getModifiedProperties]);
+  }, [
+    values,
+    editMode,
+    previewMode,
+    shadowComponents,
+    customCSS,
+    selectedPreset,
+    getModifiedProperties,
+  ]);
 
   // Dynamically load Bunny Fonts when font family values change
   useEffect(() => {
@@ -363,10 +423,14 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       editMode,
       previewMode,
       shadowComponents,
+      customCSS,
+      selectedPreset,
       setProperty,
       setEditMode,
       setPreviewMode,
       setShadowComponents,
+      setCustomCSS,
+      setSelectedPreset,
       resetAll,
       resetGroup,
       importValues,
@@ -379,6 +443,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       editMode,
       previewMode,
       shadowComponents,
+      customCSS,
+      selectedPreset,
       setProperty,
       resetAll,
       resetGroup,
