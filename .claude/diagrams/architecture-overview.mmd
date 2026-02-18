@@ -1,0 +1,86 @@
+flowchart TD
+    subgraph Entry["CLI Entry"]
+        CLI["src/index.ts\nCommander routing"]
+    end
+
+    subgraph Commands["commands/"]
+        init["init/\nconfig-builder, file-generator\nmigration, installer"]
+        add["add/\ncomponent-selector, validator\ninstaller"]
+        theme["theme/\nlist, set, show"]
+        doctor["doctor.ts"]
+        brand["brand.ts"]
+        palette["palette.ts"]
+        list["list.ts"]
+        status["status.ts"]
+    end
+
+    subgraph Frameworks["frameworks/"]
+        FW_INDEX["index.ts\nFrameworkRegistry\nlazy-loaded Map"]
+        react["react/ReactPlugin"]
+        vue["vue/VuePlugin"]
+        angular["angular/AngularPlugin (stub)"]
+        svelte["svelte/SveltePlugin (stub)"]
+    end
+
+    subgraph Utils["utils/"]
+        registry["registry.ts\n62+ ComponentDefinitions\nprops, events, slots, methods"]
+        template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
+        tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
+        config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
+        css_meta["css-metadata.ts"]
+        detect_fw["detect-framework.ts\ngetProjectInfo"]
+        token_mgr["token-manager.ts"]
+        regenerate["regenerate.ts"]
+    end
+
+    subgraph Schemas["schemas/"]
+        schema_config["config.ts — Zod KigumiConfig"]
+        schema_options["options.ts — Zod command options"]
+        schema_tier["tier.ts — Zod tier types"]
+    end
+
+    subgraph Errors["errors/"]
+        err_base["base.ts — KigumiError"]
+        err_config["config.ts"]
+        err_fs["filesystem.ts"]
+        err_net["network.ts"]
+    end
+
+    subgraph Checks["checks/"]
+        check_runner["runner.ts — CheckRunner"]
+        check_config["config-checks.ts"]
+        check_deps["dependency-checks.ts"]
+    end
+
+    subgraph Templates["templates/"]
+        tpl_react["react/ — 62 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
+        tpl_vue["vue/ — 62 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
+    end
+
+    CLI --> Commands
+    init --> FW_INDEX
+    init --> config
+    init --> tier
+    init --> template
+    init --> detect_fw
+    add --> FW_INDEX
+    add --> registry
+    add --> tier
+    add --> template
+    add --> check_runner
+    theme --> config
+    doctor --> config
+    doctor --> tier
+
+    FW_INDEX --> react & vue & angular & svelte
+    react --> template
+    vue --> template
+    template --> tpl_react & tpl_vue
+    template --> registry
+    template --> css_meta
+
+    config --> schema_config
+    add --> schema_options
+    tier --> schema_tier
+    check_runner --> check_config & check_deps
+    Commands --> Errors
