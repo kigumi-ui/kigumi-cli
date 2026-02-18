@@ -21,7 +21,7 @@ node dist/index.js add button --overwrite
 
 ## Repository Structure
 
-See [repo-structure.mmd](repo-structure.mmd) for visual diagram.
+See [CLAUDE.md](CLAUDE.md) for architecture diagrams (module dependencies, command flows, template pipeline, plugin system). Standalone `.mmd` files are in `.claude/diagrams/`.
 
 | Directory    | Purpose              | Local AGENTS.md                            |
 | ------------ | -------------------- | ------------------------------------------ |
