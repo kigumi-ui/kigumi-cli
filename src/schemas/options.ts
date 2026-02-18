@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod';
+import type { ZodIssue } from 'zod';
 import { frameworkSchema, tierSchema } from './config.js';
 
 /**
@@ -99,7 +100,7 @@ export function validateOptions<T extends z.ZodType>(
 
   if (!result.success) {
     // We'll throw proper InvalidOptionsError in integration phase
-    const errors = result.error.errors.map((err) => {
+    const errors = result.error.issues.map((err: ZodIssue) => {
       const path = err.path.join('.');
       return path ? `${path}: ${err.message}` : err.message;
     });

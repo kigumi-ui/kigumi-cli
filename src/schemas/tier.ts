@@ -87,18 +87,15 @@ export function createThemeSchema(tier: Tier) {
  * Palette schema (all tiers)
  */
 export const paletteSchema = z.enum(AVAILABLE_PALETTES, {
-  errorMap: () => ({
-    message: `Palette must be one of: ${AVAILABLE_PALETTES.join(', ')}`,
-  }),
+  error: () => `Palette must be one of: ${AVAILABLE_PALETTES.join(', ')}`,
 });
 
 /**
  * Brand color schema
  */
 export const brandColorSchema = z.enum(AVAILABLE_BRAND_COLORS, {
-  errorMap: () => ({
-    message: `Brand color must be one of: ${AVAILABLE_BRAND_COLORS.join(', ')}`,
-  }),
+  error: () =>
+    `Brand color must be one of: ${AVAILABLE_BRAND_COLORS.join(', ')}`,
 });
 
 /**

@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod';
+import type { ZodIssue } from 'zod';
 
 /**
  * Supported frameworks constant - single source of truth
@@ -15,14 +16,14 @@ export const FRAMEWORKS = ['react', 'vue', 'svelte', 'angular'] as const;
  * Framework schema - must be one of the supported frameworks
  */
 export const frameworkSchema = z.enum(FRAMEWORKS, {
-  errorMap: () => ({ message: `Must be one of: ${FRAMEWORKS.join(', ')}` }),
+  error: () => `Must be one of: ${FRAMEWORKS.join(', ')}`,
 });
 
 /**
  * Tier schema - free or pro
  */
 export const tierSchema = z.enum(['free', 'pro'], {
-  errorMap: () => ({ message: 'Must be either "free" or "pro"' }),
+  error: () => 'Must be either "free" or "pro"',
 });
 
 /**
@@ -49,7 +50,7 @@ export const webAwesomeConfigSchema = z.object({
 export const kigumiConfigSchema = z.object({
   framework: frameworkSchema,
   typescript: z.boolean({
-    errorMap: () => ({ message: 'Must be a boolean (true or false)' }),
+    error: () => 'Must be a boolean (true or false)',
   }),
   componentsDir: z.string().min(1, 'Components directory cannot be empty'),
   utilsDir: z.string().min(1, 'Utils directory cannot be empty').optional(),
@@ -104,10 +105,10 @@ export function validateConfig(data: unknown): KigumiConfig {
 
   if (!result.success) {
     // Format validation errors
-    const errorList = result.error.errors || [];
+    const errorList = result.error.issues || [];
     const errors =
       errorList.length > 0
-        ? errorList.map((err) => {
+        ? errorList.map((err: ZodIssue) => {
             const path = err.path.join('.');
             return path ? `${path}: ${err.message}` : err.message;
           })
@@ -131,10 +132,10 @@ export function validatePartialConfig(data: unknown): Partial<KigumiConfig> {
   const result = kigumiConfigSchema.partial().safeParse(data);
 
   if (!result.success) {
-    const errorList = result.error.errors || [];
+    const errorList = result.error.issues || [];
     const errors =
       errorList.length > 0
-        ? errorList.map((err) => {
+        ? errorList.map((err: ZodIssue) => {
             const path = err.path.join('.');
             return path ? `${path}: ${err.message}` : err.message;
           })
