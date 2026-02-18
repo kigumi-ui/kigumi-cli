@@ -1,5 +1,11 @@
 # kigumi
 
+## 0.9.1
+
+### Patch Changes
+
+- 50ff06b: Enhance Dialog and Drawer components with data attributes for declarative usage, improve open/close handling, and update examples for better clarity.
+
 ## 0.9.0
 
 ### Minor Changes
