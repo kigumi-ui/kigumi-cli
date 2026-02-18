@@ -5,19 +5,29 @@ import {
   useEffect,
   type HTMLAttributes,
 } from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/dialog/dialog.js';
 import './Dialog.css';
 
 /**
+ * // Using data-dialog attribute (recommended)
+ * import { Dialog } from './components/ui';
+ * import { Button } from './components/ui';
+ *
+ * <Button data-dialog="open dialog">Open FAQ</Button>
+ * <Dialog id="dialog" label="FAQ">
+ *   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+ *   <Button slot="footer" variant="brand" data-dialog="close">
+ *     Close
+ *   </Button>
+ * </Dialog>
  * Dialogs display important prompts and information
  *
  * @example
  * ```tsx
  * // Using open prop (recommended)
  * import { useState } from 'react';
- * import { Dialog } from './components/ui';
- * import { Button } from './components/ui';
  *
  * function App() {
  *   const [open, setOpen] = useState(false);
@@ -26,7 +36,7 @@ import './Dialog.css';
  *     <>
  *       <Button onClick={() => setOpen(true)}>Open Dialog</Button>
  *       <Dialog open={open} label="Dialog Title" onHide={() => setOpen(false)}>
- *         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+ *         <p>Dialog content</p>
  *         <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
  *           Close
  *         </Button>
@@ -50,30 +60,41 @@ import './Dialog.css';
  */
 export interface DialogProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onLoad' | 'dir'
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
 > {
   /** Indicates whether or not the dialog is open */
   open?: boolean;
+
   /** The dialog's label as displayed in the header */
   label: string;
+
   /** Disables the header and removes the default close button */
   'without-header'?: boolean;
+
   /** When enabled, the dialog will be closed when the user clicks outside of it */
   'light-dismiss'?: boolean;
-  /** Event fired when the dialog is shown */
+
+  /** Emitted when the dialog opens. */
   onShow?: (event: CustomEvent) => void;
-  /** Event fired after the dialog is shown */
+
+  /** Emitted after the dialog opens and all animations are complete. */
   onAfterShow?: (event: CustomEvent) => void;
-  /** Event fired when the dialog is about to hide */
+
+  /** Emitted when the dialog is requested to close. Calling `event.preventDefault()` will prevent the dialog from closing. You can inspect `event.detail.source` to see which element caused the dialog to close. If the source is the dialog element itself, the user has pressed [[Escape]] or the dialog has been closed programmatically. Avoid using this unless closing the dialog will result in destructive behavior such as data loss. */
   onHide?: (event: CustomEvent) => void;
-  /** Event fired after the dialog is hidden */
+
+  /** Emitted after the dialog closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
+
+  /** Data attribute for opening and closing declaratively. */
+  'data-dialog'?: string | string[];
 }
 
 export interface DialogRef {
   show: () => void;
   hide: () => void;
   requestClose: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
@@ -102,31 +123,9 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     useImperativeHandle(
       ref,
       () => ({
-        show: () => {
-          if (
-            dialogRef.current &&
-            typeof dialogRef.current.show === 'function'
-          ) {
-            dialogRef.current.show();
-          }
-        },
-        hide: () => {
-          // hide is an alias for requestClose for consistency with other components
-          if (
-            dialogRef.current &&
-            typeof dialogRef.current.requestClose === 'function'
-          ) {
-            dialogRef.current.requestClose();
-          }
-        },
-        requestClose: () => {
-          if (
-            dialogRef.current &&
-            typeof dialogRef.current.requestClose === 'function'
-          ) {
-            dialogRef.current.requestClose();
-          }
-        },
+        show: () => dialogRef.current?.show?.(),
+        hide: () => dialogRef.current?.requestClose?.(),
+        requestClose: () => dialogRef.current?.requestClose?.(),
         get element() {
           return dialogRef.current;
         },
@@ -139,7 +138,6 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       const el = dialogRef.current;
       if (!el || open === undefined) return;
 
-      // Sync open prop with element state
       const isOpen = el.open ?? false;
       if (open && !isOpen) {
         el.show?.();
@@ -153,21 +151,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       const el = dialogRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
-      };
-
-      const handleAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
-      };
-
-      const handleHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
-      };
-
-      const handleAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
-      };
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);
@@ -182,14 +169,15 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
-    return (
+    return createPortal(
       <wa-dialog
         ref={dialogRef}
         class={clsx('Dialog', className)}
         {...(props as Record<string, unknown>)}
       >
         {children}
-      </wa-dialog>
+      </wa-dialog>,
+      document.body
     );
   }
 );
