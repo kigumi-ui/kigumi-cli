@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Drawer.css';
 
 /**
  * Drawers slide in from a container edge to expose additional options
+ *
+ * @example
+ * // Using data-drawer attribute (recommended)
+ * <template>
+ *   <Button data-drawer="open drawer">Open Drawer</Button>
+ *   <Drawer id="drawer" label="Drawer Title">
+ *     <p>Drawer content</p>
+ *     <Button slot="footer" variant="brand" data-drawer="close">Close</Button>
+ *   </Drawer>
+ * </template>
  */
 export interface DrawerProps {
   open?: boolean;
@@ -12,6 +22,7 @@ export interface DrawerProps {
   placement?: 'top' | 'end' | 'bottom' | 'start';
   'light-dismiss'?: boolean;
   'without-header'?: boolean;
+  'data-drawer'?: string | string[];
 }
 
 const props = defineProps<DrawerProps>();
@@ -23,7 +34,24 @@ const emit = defineEmits<{
   'after-hide': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<HTMLElement & {
+  show?: () => void;
+  hide?: () => void;
+  open?: boolean;
+} | null>(null);
+
+// Sync open prop with drawer element
+watch(() => props.open, (newOpen) => {
+  const el = elementRef.value;
+  if (!el || newOpen === undefined) return;
+
+  const isOpen = el.open ?? false;
+  if (newOpen && !isOpen) {
+    el.show?.();
+  } else if (!newOpen && isOpen) {
+    el.hide?.();
+  }
+});
 
 onMounted(() => {
   const el = elementRef.value;
@@ -46,20 +74,27 @@ onMounted(() => {
   });
 });
 
+const show = () => elementRef.value?.show?.();
+const hide = () => elementRef.value?.hide?.();
+
 defineExpose({
+  show,
+  hide,
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-drawer
-    ref="elementRef"
-    v-bind="props"
-    :class="$attrs.class"
-  >
-    <slot />
-    <slot name="label" />
-    <slot name="header-actions" />
-    <slot name="footer" />
-  </wa-drawer>
+  <Teleport to="body">
+    <wa-drawer
+      ref="elementRef"
+      v-bind="props"
+      :class="$attrs.class"
+    >
+      <slot />
+      <slot name="label" />
+      <slot name="header-actions" />
+      <slot name="footer" />
+    </wa-drawer>
+  </Teleport>
 </template>

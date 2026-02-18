@@ -1,16 +1,27 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Dialog.css';
 
 /**
  * Dialogs display important prompts and information
+ *
+ * @example
+ * // Using data-dialog attribute (recommended)
+ * <template>
+ *   <Button data-dialog="open dialog">Open FAQ</Button>
+ *   <Dialog id="dialog" label="FAQ">
+ *     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+ *     <Button slot="footer" variant="brand" data-dialog="close">Close</Button>
+ *   </Dialog>
+ * </template>
  */
 export interface DialogProps {
   open?: boolean;
   label: string;
   'without-header'?: boolean;
   'light-dismiss'?: boolean;
+  'data-dialog'?: string | string[];
 }
 
 const props = defineProps<DialogProps>();
@@ -22,7 +33,25 @@ const emit = defineEmits<{
   'after-hide': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<HTMLElement & {
+  show?: () => void;
+  requestClose?: () => void;
+  hide?: () => void;
+  open?: boolean;
+} | null>(null);
+
+// Sync open prop with dialog element
+watch(() => props.open, (newOpen) => {
+  const el = elementRef.value;
+  if (!el || newOpen === undefined) return;
+
+  const isOpen = el.open ?? false;
+  if (newOpen && !isOpen) {
+    el.show?.();
+  } else if (!newOpen && isOpen) {
+    el.requestClose?.();
+  }
+});
 
 onMounted(() => {
   const el = elementRef.value;
@@ -45,20 +74,29 @@ onMounted(() => {
   });
 });
 
+const show = () => elementRef.value?.show?.();
+const hide = () => elementRef.value?.requestClose?.();
+const requestClose = () => elementRef.value?.requestClose?.();
+
 defineExpose({
+  show,
+  hide,
+  requestClose,
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-dialog
-    ref="elementRef"
-    v-bind="props"
-    :class="$attrs.class"
-  >
-    <slot />
-    <slot name="label" />
-    <slot name="header-actions" />
-    <slot name="footer" />
-  </wa-dialog>
+  <Teleport to="body">
+    <wa-dialog
+      ref="elementRef"
+      v-bind="props"
+      :class="$attrs.class"
+    >
+      <slot />
+      <slot name="label" />
+      <slot name="header-actions" />
+      <slot name="footer" />
+    </wa-dialog>
+  </Teleport>
 </template>

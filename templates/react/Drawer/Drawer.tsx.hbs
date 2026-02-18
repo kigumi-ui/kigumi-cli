@@ -1,20 +1,47 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Drawer.css';
 
 /**
+ * // Using data-drawer attribute (recommended)
+ * import { Drawer } from './components/ui';
+ * import { Button } from './components/ui';
+ *
+ * <Button data-drawer="open drawer">Open Drawer</Button>
+ * <Drawer id="drawer" label="Drawer Title">
+ *   <p>Drawer content</p>
+ *   <Button slot="footer" variant="brand" data-drawer="close">Close</Button>
+ * </Drawer>
  * Drawers slide in from a container edge to expose additional options
  *
  * @example
  * ```tsx
- * // Basic usage
- * <Drawer />
+ * // Using open prop (recommended)
+ * import { useState } from 'react';
  *
- * // With event handlers
- * <Drawer
- *   onShow={(e) => console.log(e)} />
+ * function App() {
+ *   const [open, setOpen] = useState(false);
  *
+ *   return (
+ *     <>
+ *       <Button onClick={() => setOpen(true)}>Open Drawer</Button>
+ *       <Drawer open={open} label="Drawer Title" onHide={() => setOpen(false)}>
+ *         <p>Drawer content</p>
+ *       </Drawer>
+ *     </>
+ *   );
+ * }
+ *
+ * // Using ref methods (alternative)
+ * import { useRef } from 'react';
+ * const drawerRef = useRef<DrawerRef>(null);
+ *
+ * <Button onClick={() => drawerRef.current?.show()}>Open Drawer</Button>
+ * <Drawer ref={drawerRef} label="Drawer Title">
+ *   <p>Drawer content</p>
+ * </Drawer>
  * ```
  */
 export interface DrawerProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
@@ -45,21 +72,31 @@ export interface DrawerProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' 
 
   /** Emitted after the drawer closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
+
+  /** Data attribute for opening and closing declaratively. */
+  'data-drawer'?: string | string[];
 }
 
 export interface DrawerRef {
+  show: () => void;
+  hide: () => void;
   /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
     const drawerRef = useRef<HTMLElement & {
+      show?: () => void;
+      hide?: () => void;
+      open?: boolean;
     }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
+        show: () => drawerRef.current?.show?.(),
+        hide: () => drawerRef.current?.hide?.(),
         get element() {
           return drawerRef.current;
         },
@@ -67,25 +104,28 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       []
     );
 
+    // Sync open prop with drawer element
+    useEffect(() => {
+      const el = drawerRef.current;
+      if (!el || open === undefined) return;
+
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.hide?.();
+      }
+    }, [open]);
+
+    // Setup event listeners
     useEffect(() => {
       const el = drawerRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
-      };
-
-      const handleAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
-      };
-
-      const handleHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
-      };
-
-      const handleAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
-      };
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);
@@ -100,14 +140,15 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
-    return (
+    return createPortal(
       <wa-drawer
         ref={drawerRef}
         class={clsx('Drawer', className)}
         {...(props as Record<string, unknown>)}
       >
         {children}
-      </wa-drawer>
+      </wa-drawer>,
+      document.body
     );
   }
 );
