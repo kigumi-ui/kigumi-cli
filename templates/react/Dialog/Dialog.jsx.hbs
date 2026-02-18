@@ -1,27 +1,39 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Dialog.css';
 
 /**
+ * // Using data-dialog attribute (recommended)
+ * import { Dialog } from './components/ui';
+ * import { Button } from './components/ui';
+ *
+ * <Button data-dialog="open dialog">Open FAQ</Button>
+ * <Dialog id="dialog" label="FAQ">
+ *   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+ *   <Button slot="footer" variant="brand" data-dialog="close">
+ *     Close
+ *   </Button>
+ * </Dialog>
  * Dialogs display important prompts and information
  *
  * @example
- * // Using ref methods
- * const dialogRef = React.useRef(null);
- * <Dialog ref={dialogRef} label="Dialog Title">
- *   <p>Dialog content</p>
- *   <div slot="footer">
- *     <Button data-dialog="close">Close</Button>
- *   </div>
- * </Dialog>
- * dialogRef.current?.show();
- *
  * // Using open prop (recommended)
  * const [open, setOpen] = React.useState(false);
  * <Dialog open={open} label="Dialog Title" onHide={() => setOpen(false)}>
  *   <p>Dialog content</p>
+ *   <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+ *     Close
+ *   </Button>
  * </Dialog>
+ *
+ * // Using ref methods (alternative)
+ * const dialogRef = React.useRef(null);
+ * <Dialog ref={dialogRef} label="Dialog Title">
+ *   <p>Dialog content</p>
+ * </Dialog>
+ * dialogRef.current?.show();
  *
  * @param {Object} props
  * @param {boolean} [props.open] - Indicates whether or not the dialog is open
@@ -32,33 +44,21 @@ import './Dialog.css';
  * @param {function} [props.onAfterShow] - Event fired after the dialog is shown
  * @param {function} [props.onHide] - Event fired when the dialog is about to hide
  * @param {function} [props.onAfterHide] - Event fired after the dialog is hidden
+ * @param {string | string[]} [props['data-dialog']] - Data attribute for opening and closing declaratively
  * @param {string} [props.className] - Additional CSS classes
  * @param {React.ReactNode} [props.children] - Dialog content
  * @param {React.Ref} ref - Ref with methods: show(), hide(), requestClose()
  */
 export const Dialog = React.forwardRef(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
     const dialogRef = React.useRef(null);
 
     React.useImperativeHandle(
       ref,
       () => ({
-        show: () => {
-          if (dialogRef.current && typeof dialogRef.current.show === 'function') {
-            dialogRef.current.show();
-          }
-        },
-        hide: () => {
-          // hide is an alias for requestClose for consistency with other components
-          if (dialogRef.current && typeof dialogRef.current.requestClose === 'function') {
-            dialogRef.current.requestClose();
-          }
-        },
-        requestClose: () => {
-          if (dialogRef.current && typeof dialogRef.current.requestClose === 'function') {
-            dialogRef.current.requestClose();
-          }
-        },
+        show: () => dialogRef.current?.show?.(),
+        hide: () => dialogRef.current?.requestClose?.(),
+        requestClose: () => dialogRef.current?.requestClose?.(),
         get element() {
           return dialogRef.current;
         },
@@ -66,26 +66,28 @@ export const Dialog = React.forwardRef(
       []
     );
 
+    // Sync open prop with dialog element
+    React.useEffect(() => {
+      const el = dialogRef.current;
+      if (!el || open === undefined) return;
+
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.requestClose?.();
+      }
+    }, [open]);
+
     // Setup event listeners
     React.useEffect(() => {
       const el = dialogRef.current;
       if (!el) return;
 
-      const handleShow = (e) => {
-        if (onShow) onShow(e);
-      };
-
-      const handleAfterShow = (e) => {
-        if (onAfterShow) onAfterShow(e);
-      };
-
-      const handleHide = (e) => {
-        if (onHide) onHide(e);
-      };
-
-      const handleAfterHide = (e) => {
-        if (onAfterHide) onAfterHide(e);
-      };
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);
@@ -100,14 +102,15 @@ export const Dialog = React.forwardRef(
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
-    return (
+    return createPortal(
       <wa-dialog
         ref={dialogRef}
         class={clsx('Dialog', className)}
         {...props}
       >
         {children}
-      </wa-dialog>
+      </wa-dialog>,
+      document.body
     );
   }
 );

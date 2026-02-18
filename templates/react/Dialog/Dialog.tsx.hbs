@@ -1,20 +1,55 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Dialog.css';
 
 /**
+ * // Using data-dialog attribute (recommended)
+ * import { Dialog } from './components/ui';
+ * import { Button } from './components/ui';
+ *
+ * <Button data-dialog="open dialog">Open FAQ</Button>
+ * <Dialog id="dialog" label="FAQ">
+ *   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+ *   <Button slot="footer" variant="brand" data-dialog="close">
+ *     Close
+ *   </Button>
+ * </Dialog>
  * Dialogs display important prompts and information
  *
  * @example
  * ```tsx
- * // Basic usage
- * <Dialog />
+ * // Using open prop (recommended)
+ * import { useState } from 'react';
  *
- * // With event handlers
- * <Dialog
- *   onShow={(e) => console.log(e)} />
+ * function App() {
+ *   const [open, setOpen] = useState(false);
  *
+ *   return (
+ *     <>
+ *       <Button onClick={() => setOpen(true)}>Open Dialog</Button>
+ *       <Dialog open={open} label="Dialog Title" onHide={() => setOpen(false)}>
+ *         <p>Dialog content</p>
+ *         <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+ *           Close
+ *         </Button>
+ *       </Dialog>
+ *     </>
+ *   );
+ * }
+ *
+ * // Using ref methods (alternative)
+ * import { useRef } from 'react';
+ * const dialogRef = useRef<DialogRef>(null);
+ *
+ * <Button onClick={() => dialogRef.current?.show()}>Open Dialog</Button>
+ * <Dialog ref={dialogRef} label="Dialog Title">
+ *   <p>Dialog content</p>
+ *   <Button slot="footer" variant="brand" onClick={() => dialogRef.current?.hide()}>
+ *     Close
+ *   </Button>
+ * </Dialog>
  * ```
  */
 export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
@@ -42,21 +77,33 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' 
 
   /** Emitted after the dialog closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
+
+  /** Data attribute for opening and closing declaratively. */
+  'data-dialog'?: string | string[];
 }
 
 export interface DialogRef {
+  show: () => void;
+  hide: () => void;
+  requestClose: () => void;
   /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
     const dialogRef = useRef<HTMLElement & {
+      show?: () => void;
+      requestClose?: () => void;
+      open?: boolean;
     }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
+        show: () => dialogRef.current?.show?.(),
+        hide: () => dialogRef.current?.requestClose?.(),
+        requestClose: () => dialogRef.current?.requestClose?.(),
         get element() {
           return dialogRef.current;
         },
@@ -64,25 +111,28 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       []
     );
 
+    // Sync open prop with dialog element
+    useEffect(() => {
+      const el = dialogRef.current;
+      if (!el || open === undefined) return;
+
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.requestClose?.();
+      }
+    }, [open]);
+
+    // Setup event listeners
     useEffect(() => {
       const el = dialogRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
-      };
-
-      const handleAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
-      };
-
-      const handleHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
-      };
-
-      const handleAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
-      };
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);
@@ -97,14 +147,15 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
-    return (
+    return createPortal(
       <wa-dialog
         ref={dialogRef}
         class={clsx('Dialog', className)}
         {...(props as Record<string, unknown>)}
       >
         {children}
-      </wa-dialog>
+      </wa-dialog>,
+      document.body
     );
   }
 );
