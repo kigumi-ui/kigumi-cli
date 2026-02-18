@@ -5,7 +5,7 @@
  */
 
 import { KigumiError, ErrorCode, type ErrorSuggestion } from './base.js';
-import type { ZodError } from 'zod';
+import type { ZodError, ZodIssue } from 'zod';
 
 /**
  * Generic validation error
@@ -18,7 +18,7 @@ export class ValidationError extends KigumiError {
     zodError?: ZodError
   ) {
     const errorMessages =
-      zodError?.errors.map((err) => {
+      zodError?.issues.map((err: ZodIssue) => {
         return `${err.path.join('.')}: ${err.message}`;
       }) || [];
 
@@ -32,7 +32,7 @@ export class ValidationError extends KigumiError {
                 `Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`,
               ]
             : []),
-          ...errorMessages.map((msg) => `Error: ${msg}`),
+          ...errorMessages.map((msg: string) => `Error: ${msg}`),
           'Check the command documentation for valid options',
         ],
       },
@@ -178,7 +178,7 @@ export class InvalidPaletteError extends KigumiError {
  */
 export class InvalidOptionsError extends KigumiError {
   constructor(zodError: ZodError) {
-    const errorMessages = zodError.errors.map((err) => {
+    const errorMessages = zodError.issues.map((err: ZodIssue) => {
       return `${err.path.join('.')}: ${err.message}`;
     });
 
@@ -186,7 +186,7 @@ export class InvalidOptionsError extends KigumiError {
       {
         title: 'Fix the invalid options',
         steps: [
-          ...errorMessages.map((msg) => `- ${msg}`),
+          ...errorMessages.map((msg: string) => `- ${msg}`),
           'Check the command documentation for correct usage',
           'Run: kigumi <command> --help',
         ],
