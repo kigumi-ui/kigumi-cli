@@ -1,0 +1,42 @@
+flowchart LR
+    subgraph Input
+        HBS["templates/{framework}/{Component}/\n{Component}.tsx.hbs"]
+        REG["registry.ts\nComponentDefinition\nname, tagName, props,\nevents, slots, methods"]
+        CFG["KigumiConfig\nframework, tier, typescript"]
+    end
+
+    subgraph TierResolution["Import Path Resolution"]
+        DETECT["detectTierSync(cwd)\nreads .env + package.json"]
+        PKG["getWebAwesomePackage(tier)\nfree → @awesome.me/webawesome\npro → @awesome.me/webawesome-pro"]
+        REPLACE["importPath.replace(\npackageName pattern,\ncorrect package)"]
+    end
+
+    subgraph Processing
+        CTX["buildTemplateContext()\n→ { name, tagName,\ndescription, importPath, props }"]
+        CACHE["templateCache Map\nkey: absolute path\nvalue: compiled template"]
+        COMPILE["Handlebars.compile()\ncached via getCompiledTemplate()"]
+        RENDER["template(context)\n→ rendered string"]
+    end
+
+    subgraph Helpers["Handlebars Helpers"]
+        QP["quoteProp\nhyphenated → 'prop-name'\nnormal → propName"]
+    end
+
+    subgraph Output
+        COMP[".tsx / .jsx / .vue / .js.vue"]
+        TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
+        CSS[".css — from css-metadata.ts\nor component-specific .css.hbs"]
+        TYPES["web-awesome.d.ts\nupdateTypeDeclarations\n(React + TS only)"]
+        INDEX["index.ts barrel export\nupdateComponentIndex"]
+    end
+
+    REG --> CTX
+    CFG --> TierResolution
+    DETECT --> PKG --> REPLACE
+    REPLACE --> CTX
+    CTX --> RENDER
+    HBS --> COMPILE --> RENDER
+    Helpers -.-> COMPILE
+    COMPILE --> CACHE
+    RENDER --> COMP & TEST & CSS
+    COMP --> TYPES & INDEX
