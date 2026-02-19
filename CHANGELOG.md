@@ -1,5 +1,11 @@
 # kigumi
 
+## 0.9.2
+
+### Patch Changes
+
+- f5ebe00: Replace wa- events with native events in react.
+
 ## 0.9.1
 
 ### Patch Changes
