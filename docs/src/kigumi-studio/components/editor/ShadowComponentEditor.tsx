@@ -65,13 +65,11 @@ export function ShadowComponentEditor() {
 
     el.addEventListener('change', handleChange);
     el.addEventListener('input', handleChange);
-    el.addEventListener('wa-change', handleChange);
     el.addEventListener('wa-hide', handleMenuClose);
 
     return () => {
       el.removeEventListener('change', handleChange);
       el.removeEventListener('input', handleChange);
-      el.removeEventListener('wa-change', handleChange);
       el.removeEventListener('wa-hide', handleMenuClose);
     };
   }, [setShadowComponents, shadowComponents]);

@@ -90,20 +90,15 @@ export function StudioSidebar({
         <FocusEditor />
         <TransitionEditor />
       </aside>
-      <button
+      <Button
         className="studio-sidebar__toggle"
         onClick={onToggle}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        appearance="filled"
+        size="small"
       >
-        {/* Desktop: horizontal chevrons */}
-        <span className="studio-sidebar__toggle-icon--desktop">
-          <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} />
-        </span>
-        {/* Mobile: vertical chevrons (sidebar is at bottom) */}
-        <span className="studio-sidebar__toggle-icon--mobile">
-          <Icon name={collapsed ? 'chevron-up' : 'chevron-down'} />
-        </span>
-      </button>
+        <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} />
+      </Button>
     </div>
   );
 }
