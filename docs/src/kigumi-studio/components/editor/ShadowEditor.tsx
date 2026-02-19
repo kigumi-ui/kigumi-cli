@@ -83,14 +83,12 @@ export function ShadowEditor() {
 
     el.addEventListener('change', handleChange);
     el.addEventListener('input', handleChange);
-    el.addEventListener('wa-change', handleChange);
     el.addEventListener('wa-hide', handleMenuClose);
     el.addEventListener('blur', handleBlur);
 
     return () => {
       el.removeEventListener('change', handleChange);
       el.removeEventListener('input', handleChange);
-      el.removeEventListener('wa-change', handleChange);
       el.removeEventListener('wa-hide', handleMenuClose);
       el.removeEventListener('blur', handleBlur);
     };

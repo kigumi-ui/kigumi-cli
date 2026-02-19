@@ -3,6 +3,7 @@ import { Icon, Badge } from '@/components/ui';
 import { ThemeFab } from '@/components/landing/ThemeFab';
 import logoImg from '@/assets/icon.svg';
 import './StudioHeader.css';
+import { StudioKnowledgeBase } from './knowledgebase/StudioKnowledgeBase';
 
 export function StudioHeader() {
   return (
@@ -26,8 +27,10 @@ export function StudioHeader() {
           <Badge pill>Beta</Badge>
         </span>
       </div>
-
-      <ThemeFab />
+      <div className="wa-cluster wa-gap-s">
+        <ThemeFab />
+        <StudioKnowledgeBase />
+      </div>
     </header>
   );
 }

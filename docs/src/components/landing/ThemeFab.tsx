@@ -1,5 +1,5 @@
 import { useTheme } from '@/contexts/ThemeContext';
-import { Button, Icon, Dropdown, DropdownItem } from '@/components/ui';
+import { Button, Icon, Dropdown, DropdownItem, Tooltip } from '@/components/ui';
 
 export const ThemeFab = () => {
   const { theme, setTheme, isDark } = useTheme();
@@ -15,29 +15,41 @@ export const ThemeFab = () => {
   };
 
   return (
-    <Dropdown size="small" placement="bottom-end" onSelect={handleThemeSelect}>
-      <Button
-        slot="trigger"
-        pill
-        variant="neutral"
+    <>
+      <Tooltip for="button-theme">Change color scheme</Tooltip>
+      <Dropdown
         size="small"
-        appearance="outlined"
-        aria-label="Theme menu"
+        placement="bottom-end"
+        onSelect={handleThemeSelect}
       >
-        <Icon name={getIconName()} />
-      </Button>
-      <DropdownItem type="checkbox" checked={theme === 'light'} value="light">
-        <Icon name="sun" slot="start" />
-        Light
-      </DropdownItem>
-      <DropdownItem type="checkbox" checked={theme === 'dark'} value="dark">
-        <Icon name="moon" slot="start" />
-        Dark
-      </DropdownItem>
-      <DropdownItem type="checkbox" checked={theme === 'system'} value="system">
-        <Icon name="circle-half-stroke" slot="start" />
-        System
-      </DropdownItem>
-    </Dropdown>
+        <Button
+          id="button-theme"
+          slot="trigger"
+          pill
+          variant="neutral"
+          size="small"
+          appearance="outlined"
+          aria-label="Theme menu"
+        >
+          <Icon name={getIconName()} />
+        </Button>
+        <DropdownItem type="checkbox" checked={theme === 'light'} value="light">
+          <Icon name="sun" slot="start" />
+          Light
+        </DropdownItem>
+        <DropdownItem type="checkbox" checked={theme === 'dark'} value="dark">
+          <Icon name="moon" slot="start" />
+          Dark
+        </DropdownItem>
+        <DropdownItem
+          type="checkbox"
+          checked={theme === 'system'}
+          value="system"
+        >
+          <Icon name="circle-half-stroke" slot="start" />
+          System
+        </DropdownItem>
+      </Dropdown>
+    </>
   );
 };

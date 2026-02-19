@@ -14,82 +14,106 @@ import './Button.css';
  *
  * @example
  * ```tsx
- * <Button variant="brand">Click me</Button>
- * <Button appearance="outlined" size="large">Large Button</Button>
- * <Button loading>Loading...</Button>
- * <Button data-dialog="close">Close Dialog</Button>
+ * // Basic usage
+ * <Button />
  *
  * // With event handlers
- * <Button onBlur={() => console.log('Lost focus')}>
- *   Button
- * </Button>
+ * <Button
+ *   onBlur={(e) => console.log(e)} />
  *
  * // With ref methods
- * const buttonRef = useRef<ButtonRef>(null);
- * <button onClick={() => buttonRef.current?.focus()}>Focus Button</button>
- * <Button ref={buttonRef}>Focusable</Button>
+ * const ref = useRef<ButtonRef>(null);
+ * <button onClick={() => ref.current?.click()}>Call Method</button>
+ * <Button ref={ref} />
  * ```
  */
 export interface ButtonProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onBlur' | 'onFocus' | 'dir'
+  'onBlur' | 'onFocus' | 'onInvalid' | 'dir'
 > {
   /** Semantic variant of the button */
   variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
+
   /** Visual appearance style */
   appearance?: 'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain';
+
   /** Button size */
   size?: 'small' | 'medium' | 'large';
+
   /** Gives the button rounded edges */
   pill?: boolean;
+
   /** Disables the button */
   disabled?: boolean;
+
   /** Shows a loading indicator */
   loading?: boolean;
+
   /** Adds a dropdown indicator caret */
   'with-caret'?: boolean;
+
   /** Makes the button work like a link */
   href?: string;
+
   /** Link target (when href is set) */
   target?: '_blank' | '_self' | '_parent' | '_top';
+
   /** Download filename (when href is set) */
   download?: string;
+
   /** Link relationship (when href is set) */
   rel?: string;
-  /** Dialog control attribute (e.g., "close" to close parent dialog) */
-  'data-dialog'?: string;
-  /** Event fired when the button loses focus */
+
+  /** Emitted when the button loses focus. */
   onBlur?: (event: FocusEvent) => void;
-  /** Event fired when the button gains focus */
+
+  /** Emitted when the button gains focus. */
   onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface ButtonRef {
-  focus: () => void;
-  blur: () => void;
+  /** Simulates a click on the button. */
   click: () => void;
+
+  /** Sets focus on the button. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the button. */
+  blur: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Button = forwardRef<ButtonRef, ButtonProps>(
-  ({ children, className, onBlur, onFocus, ...props }, ref) => {
+  ({ children, className, onBlur, onFocus, onInvalid, ...props }, ref) => {
     const buttonRef = useRef<
       HTMLElement & {
-        focus?: () => void;
-        blur?: () => void;
         click?: () => void;
+        focus?: (options: FocusOptions) => void;
+        blur?: () => void;
       }
     >(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        focus: () => {
+        click: () => {
+          if (
+            buttonRef.current &&
+            typeof buttonRef.current.click === 'function'
+          ) {
+            buttonRef.current.click();
+          }
+        },
+        focus: (options: FocusOptions) => {
           if (
             buttonRef.current &&
             typeof buttonRef.current.focus === 'function'
           ) {
-            buttonRef.current.focus();
+            buttonRef.current.focus(options);
           }
         },
         blur: () => {
@@ -98,14 +122,6 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
             typeof buttonRef.current.blur === 'function'
           ) {
             buttonRef.current.blur();
-          }
-        },
-        click: () => {
-          if (
-            buttonRef.current &&
-            typeof buttonRef.current.click === 'function'
-          ) {
-            buttonRef.current.click();
           }
         },
         get element() {
@@ -127,14 +143,20 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      el.addEventListener('wa-blur', handleBlur);
-      el.addEventListener('wa-focus', handleFocus);
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
-        el.removeEventListener('wa-blur', handleBlur);
-        el.removeEventListener('wa-focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onBlur, onFocus]);
+    }, [onBlur, onFocus, onInvalid]);
 
     return (
       <wa-button

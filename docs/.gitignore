@@ -33,4 +33,5 @@ dist-ssr
 
 # Build artifacts (copied by prebuild script)
 public/skills/
+public/.well-known/
 public/llms.txt
