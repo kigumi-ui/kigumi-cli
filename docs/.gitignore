@@ -35,3 +35,6 @@ dist-ssr
 public/skills/
 public/.well-known/
 public/llms.txt
+
+*storybook.log
+storybook-static
