@@ -82,12 +82,12 @@ export const Button = React.forwardRef(
         if (onFocus) onFocus(e);
       };
 
-      el.addEventListener('wa-blur', handleBlur);
-      el.addEventListener('wa-focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
 
       return () => {
-        el.removeEventListener('wa-blur', handleBlur);
-        el.removeEventListener('wa-focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
       };
     }, [onBlur, onFocus]);
 

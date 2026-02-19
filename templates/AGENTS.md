@@ -141,14 +141,25 @@ const { forwardRef, useRef, useEffect } = React;
 
 ### 3. Event Naming Convention
 
-| Web Awesome     | React Prop    |
-| --------------- | ------------- |
-| `wa-show`       | `onShow`      |
-| `wa-hide`       | `onHide`      |
-| `wa-after-show` | `onAfterShow` |
-| `wa-blur`       | `onBlur`      |
-| `wa-focus`      | `onFocus`     |
-| `wa-change`     | `onChange`    |
+**Form controls** (wa-button, wa-input, wa-number-input, wa-file-input, wa-textarea, wa-select, wa-checkbox, wa-switch) emit **native DOM events** — no `wa-` prefix:
+
+| Native Event | React Prop |
+| ------------ | ---------- |
+| `blur`       | `onBlur`   |
+| `focus`      | `onFocus`  |
+| `input`      | `onInput`  |
+| `change`     | `onChange` |
+
+**Overlay/complex components** (wa-dialog, wa-drawer, wa-dropdown, wa-popup, etc.) emit **custom `wa-` events**:
+
+| Web Awesome Event | React Prop    |
+| ----------------- | ------------- |
+| `wa-show`         | `onShow`      |
+| `wa-hide`         | `onHide`      |
+| `wa-after-show`   | `onAfterShow` |
+| `wa-after-hide`   | `onAfterHide` |
+| `wa-clear`        | `onClear`     |
+| `wa-invalid`      | `onInvalid`   |
 
 ### 4. Always Cleanup Event Listeners
 

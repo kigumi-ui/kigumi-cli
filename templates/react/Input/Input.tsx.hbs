@@ -56,11 +56,11 @@ export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' 
   /** Adds a toggle button for password visibility */
   'password-toggle'?: boolean;
 
-  /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  /** Emitted when the control receives input (native input event). */
+  onInput?: (event: Event) => void;
 
-  /** Emitted when an alteration to the control's value is committed by the user. */
-  onChange?: (event: CustomEvent) => void;
+  /** Emitted when an alteration to the control's value is committed by the user (native change event). */
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -172,11 +172,11 @@ export const Input = forwardRef<InputRef, InputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {

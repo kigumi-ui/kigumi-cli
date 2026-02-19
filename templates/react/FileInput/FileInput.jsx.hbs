@@ -16,7 +16,7 @@ import './FileInput.css';
  * // With event handlers
  * <FileInput
  *   label="Upload files"
- *   onChange={(e) => console.log('Files selected:', e.detail)}
+ *   onChange={(e) => console.log('Files selected:', e.target.files)}
  * />
  *
  * // With ref methods
@@ -38,11 +38,12 @@ import './FileInput.css';
  * @property {number} [max-files] - Maximum number of files
  * @property {function} [onBlur] - Event fired when input loses focus
  * @property {function} [onFocus] - Event fired when input gains focus
+ * @property {function} [onInput] - Event fired when file selection changes
  * @property {function} [onChange] - Event fired when files are selected
  */
 
 export const FileInput = React.forwardRef(
-  ({ children, className, onBlur, onFocus, onChange, ...props }, ref) => {
+  ({ children, className, onBlur, onFocus, onInput, onChange, ...props }, ref) => {
     const fileInputRef = React.useRef(null);
 
     React.useImperativeHandle(
@@ -77,20 +78,26 @@ export const FileInput = React.forwardRef(
         if (onFocus) onFocus(e);
       };
 
+      const handleInput = (e) => {
+        if (onInput) onInput(e);
+      };
+
       const handleChange = (e) => {
         if (onChange) onChange(e);
       };
 
-      el.addEventListener('wa-blur', handleBlur);
-      el.addEventListener('wa-focus', handleFocus);
-      el.addEventListener('wa-change', handleChange);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
 
       return () => {
-        el.removeEventListener('wa-blur', handleBlur);
-        el.removeEventListener('wa-focus', handleFocus);
-        el.removeEventListener('wa-change', handleChange);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
       };
-    }, [onBlur, onFocus, onChange]);
+    }, [onBlur, onFocus, onInput, onChange]);
 
     return (
       <wa-file-input
