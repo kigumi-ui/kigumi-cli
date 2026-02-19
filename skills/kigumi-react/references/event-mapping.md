@@ -1,26 +1,45 @@
 # Event Mapping
 
-Web Awesome components emit custom events prefixed with `wa-`. These are mapped to React event handlers.
+Web Awesome components use two different event systems depending on the component type.
 
-## Standard Events
+## Form Controls — Native DOM Events
 
-| Web Awesome Event | React Handler         | Type                           |
-| ----------------- | --------------------- | ------------------------------ |
-| `wa-change`       | `onChange`            | `(event: CustomEvent) => void` |
-| `wa-input`        | `onInput`             | `(event: CustomEvent) => void` |
-| `wa-show`         | `onShow`              | `(event: CustomEvent) => void` |
-| `wa-hide`         | `onHide`              | `(event: CustomEvent) => void` |
-| `wa-after-show`   | `onAfterShow`         | `(event: CustomEvent) => void` |
-| `wa-after-hide`   | `onAfterHide`         | `(event: CustomEvent) => void` |
-| `wa-blur`         | `onBlur`              | `(event: FocusEvent) => void`  |
-| `wa-focus`        | `onFocus`             | `(event: FocusEvent) => void`  |
-| Standard events   | Standard React events | Native types                   |
+`wa-button`, `wa-input`, `wa-number-input`, `wa-file-input`, `wa-textarea`, `wa-select`, `wa-checkbox`, `wa-switch` emit **native browser events** (no `wa-` prefix). Event handlers receive standard `Event` / `FocusEvent` objects — use `e.target.value`, `e.target.files`, etc.
 
-## Example Usage
+| Native Event | React Handler | Type         |
+| ------------ | ------------- | ------------ |
+| `blur`       | `onBlur`      | `FocusEvent` |
+| `focus`      | `onFocus`     | `FocusEvent` |
+| `input`      | `onInput`     | `Event`      |
+| `change`     | `onChange`    | `Event`      |
 
 ```tsx
-import { useState } from "react";
-import { Dialog, Button } from "@/components/ui";
+// Correct: native events
+<Input
+  onInput={(e) => console.log((e.target as HTMLInputElement).value)}
+  onChange={(e) => console.log((e.target as HTMLInputElement).value)}
+/>
+
+// Wrong: these events don't fire on form controls
+<Input onInput={(e: CustomEvent) => console.log(e.detail.value)} />
+```
+
+## Overlay / Complex Components — Custom `wa-` Events
+
+`wa-dialog`, `wa-drawer`, `wa-dropdown`, `wa-popup`, `wa-tooltip`, etc. emit **custom events** prefixed with `wa-`. Event handlers receive `CustomEvent` objects.
+
+| Web Awesome Event | React Handler | Type          |
+| ----------------- | ------------- | ------------- |
+| `wa-show`         | `onShow`      | `CustomEvent` |
+| `wa-hide`         | `onHide`      | `CustomEvent` |
+| `wa-after-show`   | `onAfterShow` | `CustomEvent` |
+| `wa-after-hide`   | `onAfterHide` | `CustomEvent` |
+| `wa-clear`        | `onClear`     | `CustomEvent` |
+| `wa-invalid`      | `onInvalid`   | `CustomEvent` |
+
+```tsx
+import { useState } from 'react';
+import { Dialog, Button } from '@/components/ui';
 
 function Example() {
   const [open, setOpen] = useState(false);
@@ -31,7 +50,7 @@ function Example() {
       <Dialog
         open={open}
         onHide={() => setOpen(false)}
-        onAfterShow={(e) => console.log("Dialog shown", e)}
+        onAfterShow={(e) => console.log('Dialog shown', e)}
       >
         Dialog content
       </Dialog>

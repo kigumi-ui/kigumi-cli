@@ -16,8 +16,8 @@ import './Input.css';
  * // With event handlers
  * <Input 
  *   label="Name"
- *   onInput={(e) => console.log(e.detail.value)}
- *   onChange={(e) => console.log('Changed:', e.detail.value)}
+ *   onInput={(e) => console.log(e.target.value)}
+ *   onChange={(e) => console.log('Changed:', e.target.value)}
  * />
  *
  * // With ref methods
@@ -98,16 +98,16 @@ export const Input = React.forwardRef(
         if (onChange) onChange(e);
       };
 
-      el.addEventListener('wa-blur', handleBlur);
-      el.addEventListener('wa-focus', handleFocus);
-      el.addEventListener('wa-input', handleInput);
-      el.addEventListener('wa-change', handleChange);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
 
       return () => {
-        el.removeEventListener('wa-blur', handleBlur);
-        el.removeEventListener('wa-focus', handleFocus);
-        el.removeEventListener('wa-input', handleInput);
-        el.removeEventListener('wa-change', handleChange);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
       };
     }, [onBlur, onFocus, onInput, onChange]);
 
