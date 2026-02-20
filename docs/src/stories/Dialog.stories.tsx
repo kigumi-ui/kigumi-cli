@@ -1,0 +1,212 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { fn } from 'storybook/test';
+import { useState } from 'react';
+import { Dialog, Button } from '@/components/ui';
+
+const meta = {
+  title: 'Overlay/Dialog',
+  component: Dialog,
+  tags: ['autodocs'],
+  argTypes: {
+    label: {
+      control: 'text',
+      description: 'Dialog title shown in the header (required)',
+    },
+    'without-header': {
+      control: 'boolean',
+      description: 'Removes the header and close button',
+    },
+    'light-dismiss': {
+      control: 'boolean',
+      description: 'Close when clicking the backdrop',
+    },
+    onShow: { action: 'show' },
+    onAfterShow: { action: 'after-show' },
+    onHide: { action: 'hide' },
+    onAfterHide: { action: 'after-hide' },
+    // open is managed by useState in each story
+    open: { table: { disable: true } },
+  },
+  args: {
+    label: 'Dialog Title',
+    onShow: fn(),
+    onAfterShow: fn(),
+    onHide: fn(),
+    onAfterHide: fn(),
+  },
+} satisfies Meta<typeof Dialog>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  args: { label: 'Confirm Action' },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button variant="brand" onClick={() => setOpen(true)}>
+          Open Dialog
+        </Button>
+        <Dialog
+          {...args}
+          open={open}
+          onHide={() => {
+            setOpen(false);
+            args.onHide?.({} as CustomEvent);
+          }}
+          onAfterHide={() => args.onAfterHide?.({} as CustomEvent)}
+        >
+          <p>This is the dialog body. You can place any content here.</p>
+          <Button
+            slot="footer"
+            appearance="outlined"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+            Confirm
+          </Button>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const WithFooter: Story = {
+  args: { label: 'Save Changes' },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button variant="brand" onClick={() => setOpen(true)}>
+          Open with Footer
+        </Button>
+        <Dialog {...args} open={open} onHide={() => setOpen(false)}>
+          <p>
+            Your changes will be saved permanently. This action cannot be
+            undone.
+          </p>
+          <Button
+            slot="footer"
+            appearance="plain"
+            onClick={() => setOpen(false)}
+          >
+            Discard
+          </Button>
+          <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+            Save
+          </Button>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const LightDismiss: Story = {
+  args: { label: 'Click Outside to Close', 'light-dismiss': true },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>
+          Open (click backdrop to close)
+        </Button>
+        <Dialog {...args} open={open} onHide={() => setOpen(false)}>
+          <p>Click anywhere outside this dialog to close it.</p>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const WithoutHeader: Story = {
+  args: { label: 'Hidden Header', 'without-header': true },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Open (no header)</Button>
+        <Dialog {...args} open={open} onHide={() => setOpen(false)}>
+          <p>This dialog has no title bar or default close button.</p>
+          <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+            Done
+          </Button>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const DestructiveConfirm: Story = {
+  args: { label: 'Delete Account' },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button variant="danger" onClick={() => setOpen(true)}>
+          Delete Account
+        </Button>
+        <Dialog {...args} open={open} onHide={() => setOpen(false)}>
+          <p>
+            Are you sure you want to delete your account?{' '}
+            <strong>This action is permanent and cannot be undone.</strong>
+          </p>
+          <Button
+            slot="footer"
+            appearance="outlined"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button slot="footer" variant="danger" onClick={() => setOpen(false)}>
+            Delete permanently
+          </Button>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const ScrollingContent: Story = {
+  args: { label: 'Terms of Service' },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Read Terms</Button>
+        <Dialog {...args} open={open} onHide={() => setOpen(false)}>
+          {Array.from({ length: 20 }, (_, i) => (
+            <p key={i}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+          ))}
+          <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+            I Accept
+          </Button>
+        </Dialog>
+      </>
+    );
+  },
+};
+
+export const ChromaticOnly: Story = {
+  // tags: ['!dev', '!autodocs'],
+  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  render: () => (
+    <div style={{ padding: '1.5rem' }}>
+      <p
+        style={{
+          color: 'var(--wa-color-neutral-text-subtle)',
+          fontSize: '0.875rem',
+        }}
+      >
+        Dialog requires user interaction to open. Use the individual stories to
+        test dialog states.
+      </p>
+      <Button>Open Dialog (interactive only)</Button>
+    </div>
+  ),
+};
