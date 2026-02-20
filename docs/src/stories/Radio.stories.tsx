@@ -1,0 +1,164 @@
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Radio, RadioGroup } from '@/components/ui';
+
+const meta = {
+  title: 'Inputs/Radio',
+  component: Radio,
+  tags: ['autodocs'],
+  argTypes: {
+    value: { control: 'text', description: 'The value of the radio button' },
+    appearance: {
+      control: 'select',
+      options: ['default', 'button'],
+      table: { defaultValue: { summary: 'default' } },
+    },
+    disabled: { control: 'boolean' },
+    size: {
+      control: 'select',
+      options: ['small', 'medium', 'large'],
+      table: { defaultValue: { summary: 'medium' } },
+    },
+  },
+  args: { value: 'option', appearance: 'default' },
+} satisfies Meta<typeof Radio>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  render: (args) => (
+    <RadioGroup label="Choose an option">
+      <Radio {...args}>Radio Button</Radio>
+      <Radio value="b">Option B</Radio>
+      <Radio value="c">Option C</Radio>
+    </RadioGroup>
+  ),
+};
+
+export const ButtonAppearance: Story = {
+  args: { appearance: 'button' },
+  render: () => (
+    <RadioGroup label="View mode">
+      <Radio value="list" appearance="button">
+        List
+      </Radio>
+      <Radio value="grid" appearance="button">
+        Grid
+      </Radio>
+      <Radio value="table" appearance="button">
+        Table
+      </Radio>
+    </RadioGroup>
+  ),
+};
+
+export const Sizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {(['small', 'medium', 'large'] as const).map((size) => (
+        <RadioGroup key={size} label={`Size: ${size}`}>
+          <Radio value="a" size={size}>
+            Option A
+          </Radio>
+          <Radio value="b" size={size}>
+            Option B
+          </Radio>
+          <Radio value="c" size={size}>
+            Option C
+          </Radio>
+        </RadioGroup>
+      ))}
+    </div>
+  ),
+};
+
+export const Disabled: Story = {
+  render: () => (
+    <RadioGroup label="Subscription" value="monthly">
+      <Radio value="monthly">Monthly</Radio>
+      <Radio value="yearly">Yearly (save 20%)</Radio>
+      <Radio value="enterprise" disabled>
+        Enterprise (contact sales)
+      </Radio>
+    </RadioGroup>
+  ),
+};
+
+export const ButtonSizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {(['small', 'medium', 'large'] as const).map((size) => (
+        <RadioGroup key={size} label={`Button size: ${size}`}>
+          <Radio value="a" appearance="button" size={size}>
+            Alpha
+          </Radio>
+          <Radio value="b" appearance="button" size={size}>
+            Beta
+          </Radio>
+          <Radio value="c" appearance="button" size={size}>
+            Gamma
+          </Radio>
+        </RadioGroup>
+      ))}
+    </div>
+  ),
+};
+
+export const PlanSelector: Story = {
+  render: () => (
+    <RadioGroup label="Select Plan" value="pro">
+      {[
+        { value: 'free', label: 'Free', desc: '$0 / month' },
+        { value: 'pro', label: 'Pro', desc: '$12 / month' },
+        { value: 'team', label: 'Team', desc: '$49 / month' },
+      ].map(({ value, label, desc }) => (
+        <Radio key={value} value={value}>
+          <span>{label}</span>
+          <span
+            style={{
+              display: 'block',
+              fontSize: '0.75rem',
+              color: 'var(--wa-color-neutral-500)',
+            }}
+          >
+            {desc}
+          </span>
+        </Radio>
+      ))}
+    </RadioGroup>
+  ),
+};
+
+export const ChromaticOnly: Story = {
+  // tags: ['!dev', '!autodocs'],
+  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  render: () => (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2rem',
+        padding: '1.5rem',
+      }}
+    >
+      <RadioGroup label="Basic" value="a">
+        <Radio value="a">Option A</Radio>
+        <Radio value="b">Option B</Radio>
+        <Radio value="c" disabled>
+          Option C (disabled)
+        </Radio>
+      </RadioGroup>
+      <RadioGroup label="Sizes" value="medium">
+        <Radio value="small" size="small">
+          Small
+        </Radio>
+        <Radio value="medium" size="medium">
+          Medium
+        </Radio>
+        <Radio value="large" size="large">
+          Large
+        </Radio>
+      </RadioGroup>
+    </div>
+  ),
+};
