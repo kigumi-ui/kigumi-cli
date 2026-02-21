@@ -10,8 +10,14 @@ const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 const inHour = new Date(now.getTime() + 60 * 60 * 1000);
 const inDay = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
+/**
+ * Relative Time formats a date-time value as a human-readable relative string — "3 minutes
+ * ago", "in 2 days" — using the browser's `Intl.RelativeTimeFormat` API. It can
+ * automatically pick the best time unit, update live as time passes, and switch between
+ * "auto" and "always-numeric" styles.
+ */
 const meta = {
-  title: 'Data/RelativeTime',
+  title: 'Components/Relative Time',
   component: RelativeTime,
   tags: ['autodocs'],
   argTypes: {
@@ -36,8 +42,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Shows a timestamp relative to the current time. */
 export const Default: Story = {};
 
+/** Compares long and short relative time formats. */
 export const Formats: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -56,6 +64,7 @@ export const Formats: Story = {
   ),
 };
 
+/** Shows both past (negative) and future (positive) relative times. */
 export const PastAndFuture: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -81,14 +90,17 @@ export const PastAndFuture: Story = {
   ),
 };
 
+/** Switches between numeric ("1 day ago") and auto ("yesterday") styles. */
 export const NumericAuto: Story = {
   args: { date: dayAgo, numeric: 'auto' },
 };
 
+/** Updates the displayed value every second as time passes. */
 export const LiveSync: Story = {
   args: { date: minuteAgo, sync: true },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

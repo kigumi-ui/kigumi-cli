@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Textarea } from '@/components/ui';
 
+/**
+ * Textarea is a multi-line text entry field with configurable row count and resize modes —
+ * none, vertical, horizontal, both, or auto-grow. It supports the same appearance styles
+ * and sizes as Input, plus a character count via `maxlength`, a hint line, read-only and
+ * disabled states, and native form participation.
+ */
 const meta = {
-  title: 'Inputs/Textarea',
+  title: 'Components/Textarea',
   component: Textarea,
   tags: ['autodocs'],
   argTypes: {
@@ -51,10 +57,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A multi-line textarea with a label and placeholder. */
 export const Default: Story = {
   args: { label: 'Bio', placeholder: 'Tell us about yourself...' },
 };
 
+/** Compares filled, outlined, and filled-outlined styles. */
 export const Appearances: Story = {
   render: () => (
     <div
@@ -76,6 +84,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Shows small, medium, and large textarea sizes. */
 export const Sizes: Story = {
   render: () => (
     <div
@@ -93,6 +102,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Demonstrates auto-grow, vertical-only, and fixed resize modes. */
 export const ResizeModes: Story = {
   render: () => (
     <div
@@ -119,6 +129,7 @@ export const ResizeModes: Story = {
   ),
 };
 
+/** Adds a character counter when maxlength is set. */
 export const WithCharacterCount: Story = {
   args: {
     label: 'Tweet',
@@ -129,6 +140,7 @@ export const WithCharacterCount: Story = {
   },
 };
 
+/** A non-interactive disabled textarea. */
 export const Disabled: Story = {
   args: {
     label: 'Read-only note',
@@ -137,6 +149,7 @@ export const Disabled: Story = {
   },
 };
 
+/** Shows a hint line below the textarea for user guidance. */
 export const WithHint: Story = {
   args: {
     label: 'Cover letter',
@@ -146,6 +159,7 @@ export const WithHint: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

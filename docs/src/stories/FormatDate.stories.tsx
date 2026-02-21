@@ -3,8 +3,14 @@ import { FormatDate } from '@/components/ui';
 
 const now = new Date();
 
+/**
+ * Format Date displays a machine-readable date-time string in a locale-aware, human-friendly
+ * format using the browser's `Intl.DateTimeFormat` API. Control which parts (date, time,
+ * weekday, era, etc.) are shown and in which style — numeric, long, short, or narrow —
+ * without writing any formatting code.
+ */
 const meta = {
-  title: 'Data/FormatDate',
+  title: 'Components/Format Date',
   component: FormatDate,
   tags: ['autodocs'],
   argTypes: {
@@ -31,8 +37,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Formats today's date in the default locale-aware style. */
 export const Default: Story = {};
 
+/** Shows both date and time parts together. */
 export const DateAndTime: Story = {
   args: {
     date: now,
@@ -45,6 +53,7 @@ export const DateAndTime: Story = {
   },
 };
 
+/** Renders a compact date-only string. */
 export const ShortDate: Story = {
   args: {
     date: now,
@@ -54,6 +63,7 @@ export const ShortDate: Story = {
   },
 };
 
+/** Displays only the time portion. */
 export const TimeOnly: Story = {
   args: {
     date: now,
@@ -64,6 +74,7 @@ export const TimeOnly: Story = {
   },
 };
 
+/** Compares long, short, and numeric date display formats. */
 export const Formats: Story = {
   render: () => {
     const date = new Date('2024-06-15T14:30:00');
@@ -117,6 +128,7 @@ export const Formats: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

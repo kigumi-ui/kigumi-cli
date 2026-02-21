@@ -21,8 +21,14 @@ const PanelContent = ({ label, color }: { label: string; color: string }) => (
   </div>
 );
 
+/**
+ * Split Panel divides a container into two resizable panes separated by a draggable divider.
+ * The `position` prop sets the initial split as a percentage (or absolute pixels when using
+ * a primary pane), and the divider can snap to predefined positions. Supports horizontal
+ * and vertical orientations and can be locked with `disabled`.
+ */
 const meta = {
-  title: 'Layout/SplitPanel',
+  title: 'Components/Split Panel',
   component: SplitPanel,
   tags: ['autodocs'],
   argTypes: {
@@ -48,6 +54,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A horizontal split panel starting at 50 %. */
 export const Default: Story = {
   render: (args) => (
     <SplitPanel {...args} style={{ height: '200px' }}>
@@ -57,6 +64,7 @@ export const Default: Story = {
   ),
 };
 
+/** Splits the container vertically into top and bottom panes. */
 export const Vertical: Story = {
   args: { orientation: 'vertical' },
   render: (args) => (
@@ -67,6 +75,7 @@ export const Vertical: Story = {
   ),
 };
 
+/** Locks the divider so the panels cannot be resized. */
 export const Disabled: Story = {
   args: { disabled: true },
   render: (args) => (
@@ -77,6 +86,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** The divider snaps to 25 %, 50 %, and 75 % positions. */
 export const WithSnapping: Story = {
   args: { snap: '25% 50% 75%', 'snap-threshold': 10 },
   render: (args) => (
@@ -98,6 +108,7 @@ export const WithSnapping: Story = {
   ),
 };
 
+/** The end panel has a fixed pixel width; the start panel fills remaining space. */
 export const PrimaryEnd: Story = {
   args: { primary: 'end', position: 300 },
   render: (args) => (
@@ -111,6 +122,7 @@ export const PrimaryEnd: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

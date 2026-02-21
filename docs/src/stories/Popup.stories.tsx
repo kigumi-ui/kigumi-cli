@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Popup, Button } from '@/components/ui';
 
+/**
+ * Popup is a low-level positioning primitive that anchors an element relative to another
+ * using Floating UI. It exposes fine-grained control over placement, offset, flip/shift
+ * behavior, and arrow rendering. Higher-level components such as Tooltip, Popover, and
+ * Dropdown are built on top of Popup.
+ */
 const meta = {
-  title: 'Overlay/Popup',
+  title: 'Components/Popup',
   component: Popup,
   tags: ['autodocs'],
   argTypes: {
@@ -44,6 +50,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic popup positioned above its anchor. */
 export const Default: Story = {
   render: (args) => (
     <div style={{ padding: '6rem', display: 'flex', justifyContent: 'center' }}>
@@ -65,6 +72,7 @@ export const Default: Story = {
   ),
 };
 
+/** Adds a directional arrow pointing at the anchor element. */
 export const WithArrow: Story = {
   args: { arrow: true, placement: 'bottom' },
   render: (args) => (
@@ -89,6 +97,7 @@ export const WithArrow: Story = {
   ),
 };
 
+/** Shows all twelve supported placement positions. */
 export const Placements: Story = {
   render: () => {
     const placements = ['top', 'bottom', 'left', 'right'] as const;
@@ -134,6 +143,7 @@ export const Placements: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

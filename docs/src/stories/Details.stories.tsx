@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Details, Icon } from '@/components/ui';
 
+/**
+ * Details is a collapsible disclosure widget with a summary trigger and an expandable body.
+ * It can start open or closed, supports multiple appearance styles, and allows a custom
+ * summary element to replace the plain-text trigger. Ideal for FAQs, advanced options, and
+ * any content that benefits from progressive disclosure.
+ */
 const meta = {
-  title: 'Display/Details',
+  title: 'Components/Details',
   component: Details,
   tags: ['autodocs'],
   argTypes: {
@@ -35,6 +41,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A collapsed details panel with a summary trigger. */
 export const Default: Story = {
   args: {
     summary: 'What is Kigumi?',
@@ -43,6 +50,7 @@ export const Default: Story = {
   },
 };
 
+/** The panel starts in the open/expanded state. */
 export const DefaultOpen: Story = {
   args: {
     summary: 'Already open',
@@ -51,6 +59,7 @@ export const DefaultOpen: Story = {
   },
 };
 
+/** Compares available visual appearance styles. */
 export const Appearances: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -65,6 +74,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Moves the expand/collapse icon to the start of the summary. */
 export const IconStart: Story = {
   args: {
     summary: 'Icon at start',
@@ -73,6 +83,7 @@ export const IconStart: Story = {
   },
 };
 
+/** Multiple details items arranged as a FAQ accordion. */
 export const FAQ: Story = {
   render: () => (
     <div
@@ -104,6 +115,7 @@ export const FAQ: Story = {
   ),
 };
 
+/** Replaces the default summary text with a rich custom element. */
 export const WithCustomSummary: Story = {
   render: () => (
     <Details summary="Advanced Settings" appearance="outlined">
@@ -119,6 +131,7 @@ export const WithCustomSummary: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

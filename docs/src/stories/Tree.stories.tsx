@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Tree, TreeItem, Icon } from '@/components/ui';
 
+/**
+ * Tree renders a hierarchical list of Tree Item nodes that users can expand, collapse, and
+ * select. Three selection modes are available: single (default), multiple (checkboxes on all
+ * items), and leaf (checkboxes on leaf nodes only). Fires a `wa-selection-change` event
+ * whenever the selection changes.
+ */
 const meta = {
-  title: 'Navigation/Tree',
+  title: 'Components/Tree',
   component: Tree,
   tags: ['autodocs'],
   argTypes: {
@@ -20,6 +26,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A file-system-style tree with nested folders and files. */
 export const Default: Story = {
   render: (args) => (
     <Tree {...args}>
@@ -51,6 +58,7 @@ export const Default: Story = {
   ),
 };
 
+/** Enables multi-select with checkboxes on all items. */
 export const MultipleSelection: Story = {
   args: { selection: 'multiple' },
   render: (args) => (
@@ -70,6 +78,7 @@ export const MultipleSelection: Story = {
   ),
 };
 
+/** Restricts selection to leaf nodes only. */
 export const LeafSelection: Story = {
   args: { selection: 'leaf' },
   render: (args) => (
@@ -89,6 +98,7 @@ export const LeafSelection: Story = {
   ),
 };
 
+/** Some tree items are disabled and cannot be selected. */
 export const WithDisabledItems: Story = {
   render: (args) => (
     <Tree {...args}>
@@ -103,6 +113,7 @@ export const WithDisabledItems: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

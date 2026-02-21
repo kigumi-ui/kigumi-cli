@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { IntersectionObserver } from '@/components/ui';
 
+/**
+ * Intersection Observer wraps the browser's `IntersectionObserver` API as a declarative
+ * component. Attach it to any element and it fires `intersect` events when the element
+ * enters or leaves the viewport (or a custom root). Useful for lazy-loading, infinite
+ * scroll triggers, and analytics visibility tracking.
+ */
 const meta = {
-  title: 'Utilities/IntersectionObserver',
+  title: 'Components/Intersection Observer',
   component: IntersectionObserver,
   tags: ['autodocs'],
   argTypes: {
@@ -27,6 +33,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Fires an event when the observed element enters the viewport. */
 export const Default: Story = {
   render: (args) => {
     const [intersecting, setIntersecting] = useState(false);
@@ -95,6 +102,7 @@ export const Default: Story = {
   },
 };
 
+/** A practical example that loads an image only when it scrolls into view. */
 export const LazyLoad: Story = {
   args: { once: true, threshold: '0.5' },
   render: (args) => {
@@ -144,6 +152,7 @@ export const LazyLoad: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

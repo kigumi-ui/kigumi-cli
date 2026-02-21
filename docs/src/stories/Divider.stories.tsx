@@ -1,8 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Divider, Button } from '@/components/ui';
 
+/**
+ * Divider renders a thin horizontal or vertical rule to visually separate sections of
+ * content. It is purely decorative, carries the appropriate ARIA role, and inherits its
+ * color from the current text color so it adapts automatically to light and dark themes.
+ */
 const meta = {
-  title: 'Display/Divider',
+  title: 'Components/Divider',
   component: Divider,
   tags: ['autodocs'],
   argTypes: {
@@ -17,6 +22,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A full-width horizontal divider. */
 export const Default: Story = {
   render: (args) => (
     <div style={{ maxWidth: '400px' }}>
@@ -27,6 +33,7 @@ export const Default: Story = {
   ),
 };
 
+/** Renders as a vertical rule for use in flex row layouts. */
 export const Vertical: Story = {
   render: () => (
     <div
@@ -48,6 +55,7 @@ export const Vertical: Story = {
   ),
 };
 
+/** Separates items in a stacked list. */
 export const InList: Story = {
   render: () => (
     <div
@@ -73,6 +81,7 @@ export const InList: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

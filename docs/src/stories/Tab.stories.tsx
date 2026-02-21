@@ -1,8 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tab, TabGroup, TabPanel, Icon } from '@/components/ui';
 
+/**
+ * Tab is an individual navigation trigger within a Tab Group. It is placed in the `nav`
+ * slot and linked to a Tab Panel via the `panel` attribute. Tabs support optional prefix
+ * icons and can be individually disabled to prevent navigation to their associated panel.
+ */
 const meta = {
-  title: 'Navigation/Tab',
+  title: 'Components/Tab',
   component: Tab,
   tags: ['autodocs'],
   argTypes: {
@@ -18,6 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single tab linked to a tab panel inside a tab group. */
 export const Default: Story = {
   render: (args) => (
     <TabGroup>
@@ -31,6 +37,7 @@ export const Default: Story = {
   ),
 };
 
+/** One tab is disabled and cannot be activated. */
 export const Disabled: Story = {
   render: () => (
     <TabGroup>
@@ -58,6 +65,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Tabs decorated with prefix icons. */
 export const WithIcons: Story = {
   render: () => (
     <TabGroup>
@@ -86,6 +94,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** A tab group with many tabs to test overflow and scroll behavior. */
 export const ManyTabs: Story = {
   render: () => (
     <TabGroup>
@@ -105,6 +114,7 @@ export const ManyTabs: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Skeleton } from '@/components/ui';
 
+/**
+ * Skeleton renders a placeholder shape that mimics the layout of content while it loads.
+ * Use it to reduce perceived wait time and avoid layout shift. Three animation effects are
+ * available — sheen (default), pulse, and none — and the shape is fully configurable via
+ * CSS (width, height, border-radius).
+ */
 const meta = {
-  title: 'Display/Skeleton',
+  title: 'Components/Skeleton',
   component: Skeleton,
   tags: ['autodocs'],
   argTypes: {
@@ -19,12 +25,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single inline skeleton placeholder. */
 export const Default: Story = {
   render: (args) => (
     <Skeleton {...args} style={{ width: '200px', height: '1rem' }} />
   ),
 };
 
+/** Compares the three animation effects: sheen, pulse, and none. */
 export const Effects: Story = {
   render: () => (
     <div
@@ -63,6 +71,7 @@ export const Effects: Story = {
   ),
 };
 
+/** Mimics a paragraph of text with multiple skeleton lines. */
 export const TextLines: Story = {
   render: (args) => (
     <div
@@ -81,6 +90,7 @@ export const TextLines: Story = {
   ),
 };
 
+/** A complete card layout skeleton with image, avatar, and text placeholders. */
 export const CardSkeleton: Story = {
   render: (args) => (
     <div
@@ -128,6 +138,7 @@ export const CardSkeleton: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

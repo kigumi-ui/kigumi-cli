@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Scroller } from '@/components/ui';
 
+/**
+ * Scroller provides a scrollable container with optional scrollbar visibility control and
+ * shadow indicators that appear at the edges to signal additional content. It supports
+ * both horizontal and vertical scroll directions and makes long content areas feel polished
+ * without custom CSS.
+ */
 const meta = {
-  title: 'Layout/Scroller',
+  title: 'Components/Scroller',
   component: Scroller,
   tags: ['autodocs'],
   argTypes: {
@@ -19,6 +25,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A vertical scroller with overflow content and edge shadows. */
 export const Default: Story = {
   render: (args) => (
     <Scroller
@@ -44,6 +51,7 @@ export const Default: Story = {
   ),
 };
 
+/** Scrolls content horizontally with side shadows. */
 export const Horizontal: Story = {
   args: { orientation: 'horizontal' },
   render: (args) => (
@@ -84,6 +92,7 @@ export const Horizontal: Story = {
   ),
 };
 
+/** Hides the scrollbar while keeping content scrollable. */
 export const WithoutScrollbar: Story = {
   args: { 'without-scrollbar': true },
   render: (args) => (
@@ -110,6 +119,7 @@ export const WithoutScrollbar: Story = {
   ),
 };
 
+/** Removes the edge shadows for a flat appearance. */
 export const WithoutShadow: Story = {
   args: { 'without-shadow': true },
   render: (args) => (
@@ -136,6 +146,7 @@ export const WithoutShadow: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

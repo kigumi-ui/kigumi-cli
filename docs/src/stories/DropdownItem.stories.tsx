@@ -1,8 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DropdownItem, Dropdown, Button, Icon, Divider } from '@/components/ui';
 
+/**
+ * Dropdown Item is a single menu entry inside a Dropdown. It can act as a plain action,
+ * a checkbox toggle, or a radio choice, and supports prefix/suffix slots for icons and
+ * keyboard shortcut labels. Items can be individually disabled without affecting others.
+ */
 const meta = {
-  title: 'Inputs/DropdownItem',
+  title: 'Components/Dropdown Item',
   component: DropdownItem,
   tags: ['autodocs'],
   argTypes: {
@@ -26,6 +31,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A plain text dropdown item. */
 export const Default: Story = {
   render: (args) => (
     <Dropdown>
@@ -39,6 +45,7 @@ export const Default: Story = {
   ),
 };
 
+/** Shows action, checkbox, and radio item types. */
 export const Variants: Story = {
   render: () => (
     <Dropdown>
@@ -66,6 +73,7 @@ export const Variants: Story = {
   ),
 };
 
+/** A checkbox item that toggles its checked state. */
 export const Checkbox: Story = {
   render: () => (
     <Dropdown>
@@ -89,6 +97,7 @@ export const Checkbox: Story = {
   ),
 };
 
+/** A non-interactive disabled dropdown item. */
 export const Disabled: Story = {
   render: () => (
     <Dropdown>
@@ -106,6 +115,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Adds a keyboard shortcut hint in the suffix slot. */
 export const WithSuffixSlot: Story = {
   render: () => (
     <Dropdown>
@@ -143,6 +153,7 @@ export const WithSuffixSlot: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

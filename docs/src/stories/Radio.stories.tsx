@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Radio, RadioGroup } from '@/components/ui';
 
+/**
+ * Radio is a single option in a mutually exclusive selection group. On its own it renders
+ * a labeled radio input; when placed inside a Radio Group it participates in shared
+ * selection state. It supports a button appearance for segmented-control patterns and
+ * three sizes.
+ */
 const meta = {
-  title: 'Inputs/Radio',
+  title: 'Components/Radio',
   component: Radio,
   tags: ['autodocs'],
   argTypes: {
@@ -25,6 +31,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A standalone radio button with a label. */
 export const Default: Story = {
   render: (args) => (
     <RadioGroup label="Choose an option">
@@ -35,6 +42,7 @@ export const Default: Story = {
   ),
 };
 
+/** Renders the radio as a filled button for segmented-control usage. */
 export const ButtonAppearance: Story = {
   args: { appearance: 'button' },
   render: () => (
@@ -52,6 +60,7 @@ export const ButtonAppearance: Story = {
   ),
 };
 
+/** Shows small, medium, and large radio sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -72,6 +81,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** A non-interactive disabled radio option. */
 export const Disabled: Story = {
   render: () => (
     <RadioGroup label="Subscription" value="monthly">
@@ -84,6 +94,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Button-appearance radios at all three sizes. */
 export const ButtonSizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -104,6 +115,7 @@ export const ButtonSizes: Story = {
   ),
 };
 
+/** A practical pricing plan selector built with button-appearance radios. */
 export const PlanSelector: Story = {
   render: () => (
     <RadioGroup label="Select Plan" value="pro">
@@ -129,6 +141,7 @@ export const PlanSelector: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

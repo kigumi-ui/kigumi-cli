@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Animation, Button, Badge } from '@/components/ui';
 
+/**
+ * Animation wraps any element and plays a named keyframe animation from the Web Animations API.
+ * Choose from dozens of built-in presets (fade, bounce, spin, slide, etc.) or supply custom
+ * keyframes. Control duration, delay, easing, iteration count, and direction — all without
+ * writing a single line of CSS.
+ */
 const meta = {
-  title: 'Display/Animation',
+  title: 'Components/Animation',
   component: Animation,
   tags: ['autodocs'],
   argTypes: {
@@ -67,6 +73,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Plays the default "bounce" animation on the wrapped element. */
 export const Default: Story = {
   render: (args) => {
     const [play, setPlay] = useState(false);
@@ -100,6 +107,7 @@ export const Default: Story = {
   },
 };
 
+/** Demonstrates the pulse animation preset. */
 export const Pulse: Story = {
   args: { name: 'pulse', iterations: Infinity, play: true },
   render: (args) => (
@@ -109,6 +117,7 @@ export const Pulse: Story = {
   ),
 };
 
+/** Fades the element in from transparent on load. */
 export const FadeIn: Story = {
   args: { name: 'fadeIn', play: true, duration: 800 },
   render: (args) => {
@@ -139,6 +148,7 @@ export const FadeIn: Story = {
   },
 };
 
+/** Renders a grid of common presets side-by-side for quick comparison. */
 export const AnimationShowcase: Story = {
   render: () => {
     const animations = [
@@ -163,6 +173,7 @@ export const AnimationShowcase: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { delay: 500, pauseAnimationAtEnd: true } },

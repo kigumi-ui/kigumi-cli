@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Slider } from '@/components/ui';
 
+/**
+ * Slider lets users select a numeric value along a track by dragging a thumb. It supports
+ * configurable min, max, and step values, a value tooltip above the thumb, step markers
+ * along the track, horizontal and vertical orientations, and three sizes. Native form
+ * participation means the value is included automatically on form submit.
+ */
 const meta = {
-  title: 'Inputs/Slider',
+  title: 'Components/Slider',
   component: Slider,
   tags: ['autodocs'],
   argTypes: {
@@ -51,14 +57,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A horizontal slider with default range (0–100) at 50. */
 export const Default: Story = {
   args: { label: 'Volume', value: 50 },
 };
 
+/** Shows the current value in a tooltip above the thumb. */
 export const WithTooltip: Story = {
   args: { label: 'Brightness', value: 70, 'with-tooltip': true },
 };
 
+/** Renders step markers along the track for discrete increments. */
 export const WithMarkers: Story = {
   args: {
     label: 'Quality',
@@ -71,10 +80,12 @@ export const WithMarkers: Story = {
   },
 };
 
+/** A non-interactive disabled slider. */
 export const Disabled: Story = {
   args: { label: 'Locked setting', value: 30, disabled: true },
 };
 
+/** Configures min, max, and step to fit a temperature control. */
 export const CustomRange: Story = {
   args: {
     label: 'Temperature (°C)',
@@ -87,6 +98,7 @@ export const CustomRange: Story = {
   },
 };
 
+/** Compares small, medium, and large slider sizes. */
 export const Sizes: Story = {
   render: () => (
     <div
@@ -104,6 +116,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Rotates the slider to a vertical orientation. */
 export const Vertical: Story = {
   args: {
     label: 'Level',
@@ -118,6 +131,7 @@ export const Vertical: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

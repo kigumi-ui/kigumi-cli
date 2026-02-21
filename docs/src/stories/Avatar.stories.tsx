@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Avatar } from '@/components/ui';
 
+/**
+ * Avatar represents a person or entity with an image, initials, or icon fallback.
+ * When an image is provided it is displayed; if it fails to load (or no src is given)
+ * the component falls back to initials derived from the `label` prop, and finally to
+ * a generic person icon. Supports circle and square shapes and multiple sizes.
+ */
 const meta = {
-  title: 'Display/Avatar',
+  title: 'Components/Avatar',
   component: Avatar,
   tags: ['autodocs'],
   argTypes: {
@@ -34,6 +40,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Displays an avatar with a photo URL. */
 export const WithImage: Story = {
   args: {
     image: 'https://i.pravatar.cc/150?img=1',
@@ -41,6 +48,7 @@ export const WithImage: Story = {
   },
 };
 
+/** Shows the initials fallback when no image src is provided. */
 export const WithInitials: Story = {
   args: {
     initials: 'JD',
@@ -48,6 +56,7 @@ export const WithInitials: Story = {
   },
 };
 
+/** Compares the circle (default) and square shape variants. */
 export const Shapes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -70,6 +79,7 @@ export const Shapes: Story = {
   ),
 };
 
+/** Demonstrates automatic fallback to initials when the image src is missing. */
 export const InitialsFallback: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -80,6 +90,7 @@ export const InitialsFallback: Story = {
   ),
 };
 
+/** Shows all built-in sizes from small to extra-large. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -102,6 +113,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Renders overlapping avatars in a group using negative margin. */
 export const Group: Story = {
   render: () => (
     <div style={{ display: 'flex' }}>
@@ -117,6 +129,7 @@ export const Group: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

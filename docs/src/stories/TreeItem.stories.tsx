@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { TreeItem, Tree, Icon } from '@/components/ui';
 
+/**
+ * Tree Item is a node in a Tree component. It can contain text, icons, and nested Tree Item
+ * children. Items support expanded/collapsed state (with animated transitions), selected
+ * state, disabled state, and lazy-loading for children that are fetched asynchronously.
+ * Custom expand/collapse icons can be provided via named slots.
+ */
 const meta = {
-  title: 'Navigation/TreeItem',
+  title: 'Components/Tree Item',
   component: TreeItem,
   tags: ['autodocs'],
   argTypes: {
@@ -27,6 +33,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A parent tree item with three child items. */
 export const Default: Story = {
   render: (args) => (
     <Tree>
@@ -40,6 +47,7 @@ export const Default: Story = {
   ),
 };
 
+/** The item starts in the expanded state showing all children. */
 export const Expanded: Story = {
   args: { expanded: true },
   render: (args) => (
@@ -53,6 +61,7 @@ export const Expanded: Story = {
   ),
 };
 
+/** One item in the tree is pre-selected. */
 export const Selected: Story = {
   args: { selected: true },
   render: (args) => (
@@ -64,6 +73,7 @@ export const Selected: Story = {
   ),
 };
 
+/** Some items are disabled and cannot be interacted with. */
 export const Disabled: Story = {
   render: () => (
     <Tree>
@@ -78,6 +88,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Custom folder/file icons in the expand-icon and prefix slots. */
 export const WithIcons: Story = {
   args: { expanded: true },
   render: (args) => (
@@ -110,6 +121,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** Three levels of nesting showing deep tree structures. */
 export const Nested: Story = {
   render: () => (
     <Tree selection="multiple">
@@ -125,6 +137,7 @@ export const Nested: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

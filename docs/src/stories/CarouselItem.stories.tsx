@@ -1,8 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CarouselItem, Carousel } from '@/components/ui';
 
+/**
+ * Carousel Item is a single slide within a Carousel component. It acts as a content
+ * container and can hold images, cards, or arbitrary markup. Items are identified by
+ * their position and can carry an `aria-label` for accessibility.
+ */
 const meta = {
-  title: 'Display/CarouselItem',
+  title: 'Components/Carousel Item',
   component: CarouselItem,
   tags: ['autodocs'],
 } satisfies Meta<typeof CarouselItem>;
@@ -10,6 +15,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single carousel item with placeholder text content. */
 export const Default: Story = {
   render: (args) => (
     <Carousel>
@@ -62,6 +68,7 @@ export const Default: Story = {
   ),
 };
 
+/** Items containing full-bleed images. */
 export const WithImages: Story = {
   render: () => (
     <Carousel pagination navigation>
@@ -88,6 +95,7 @@ export const WithImages: Story = {
   ),
 };
 
+/** Items that wrap Card components for a rich slide layout. */
 export const WithCards: Story = {
   render: () => (
     <Carousel slides-per-page={3} pagination>
@@ -122,6 +130,7 @@ export const WithCards: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

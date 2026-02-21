@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Badge, Button } from '@/components/ui';
 
+/**
+ * Badge is a small status indicator that attaches to another element to convey counts,
+ * states, or labels. It supports five semantic color variants, four appearance styles,
+ * and an optional pulsating attention animation — useful for live notification counts
+ * or highlighting new activity.
+ */
 const meta = {
-  title: 'Display/Badge',
+  title: 'Components/Badge',
   component: Badge,
   tags: ['autodocs'],
   argTypes: {
@@ -31,10 +37,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Shows a badge in its default neutral/accent state. */
 export const Default: Story = {
   args: { variant: 'brand', children: 'New' },
 };
 
+/** Demonstrates all five color variants: neutral, brand, success, warning, and danger. */
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -47,6 +55,7 @@ export const Variants: Story = {
   ),
 };
 
+/** Shows all four visual styles: accent, filled, outlined, and filled-outlined. */
 export const Appearances: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -58,6 +67,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Adds the pulsating animation to draw the user's eye to urgent indicators. */
 export const Attention: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -74,6 +84,7 @@ export const Attention: Story = {
   ),
 };
 
+/** Renders the badge with fully rounded pill corners. */
 export const Pill: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -90,6 +101,7 @@ export const Pill: Story = {
   ),
 };
 
+/** Positions a badge over a button to mimic a notification counter. */
 export const OnButton: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem' }}>
@@ -109,6 +121,7 @@ export const OnButton: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

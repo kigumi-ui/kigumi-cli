@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Spinner } from '@/components/ui';
 
+/**
+ * Spinner indicates ongoing activity with a rotating animation. Its size is controlled
+ * entirely by `font-size`, so it scales proportionally wherever it is used. Color can
+ * be overridden to match the surrounding context, making it suitable both as a full-page
+ * loader and as an inline button indicator.
+ */
 const meta = {
-  title: 'Display/Spinner',
+  title: 'Components/Spinner',
   component: Spinner,
   tags: ['autodocs'],
 } satisfies Meta<typeof Spinner>;
@@ -10,8 +16,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A spinner at the default inherited size. */
 export const Default: Story = {};
 
+/** Shows spinners at 1 rem, 2 rem, 3 rem, and 5 rem. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -23,6 +31,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Overrides the spinner color with semantic palette tokens. */
 export const CustomColors: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -42,6 +51,7 @@ export const CustomColors: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

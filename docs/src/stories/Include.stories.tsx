@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Include } from '@/components/ui';
 
+/**
+ * Include fetches and injects external HTML content directly into the page at render time,
+ * similar to a server-side include but handled in the browser. Useful for loading shared
+ * partials, SVG sprites, or any static HTML fragment without a build step. Fires load/error
+ * events so you can react when the content arrives.
+ */
 const meta = {
-  title: 'Utilities/Include',
+  title: 'Components/Include',
   component: Include,
   tags: ['autodocs'],
   argTypes: {
@@ -29,6 +35,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Fetches and renders an external HTML snippet. */
 export const Default: Story = {
   args: {
     src: 'https://www.w3schools.com/html/html_intro.asp',
@@ -60,6 +67,7 @@ export const Default: Story = {
   ),
 };
 
+/** Shows the error state when the requested file cannot be loaded. */
 export const ErrorState: Story = {
   args: {
     src: 'https://non-existent-domain-12345.invalid/page.html',
@@ -81,6 +89,7 @@ export const ErrorState: Story = {
   ),
 };
 
+/** Demonstrates including content from the same origin. */
 export const SameOrigin: Story = {
   args: {
     mode: 'same-origin',
@@ -96,6 +105,7 @@ export const SameOrigin: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

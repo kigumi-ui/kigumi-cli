@@ -22,8 +22,14 @@ const fruits = [
   'Watermelon',
 ];
 
+/**
+ * Combobox combines a text input with a filterable dropdown list, letting users either
+ * pick from predefined options or (optionally) enter a custom value. It supports single
+ * and multiple selection, clearable values, various appearances, sizes, and a hint line for
+ * additional guidance.
+ */
 const meta = {
-  title: 'Inputs/Combobox',
+  title: 'Components/Combobox',
   component: Combobox,
   tags: ['autodocs'],
   argTypes: {
@@ -73,6 +79,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic single-select combobox with filterable options. */
 export const Default: Story = {
   render: (args) => (
     <div style={{ maxWidth: '300px' }}>
@@ -87,6 +94,7 @@ export const Default: Story = {
   ),
 };
 
+/** Adds a clear button to reset the selection. */
 export const WithClear: Story = {
   args: { 'with-clear': true, value: 'apple' },
   render: (args) => (
@@ -102,6 +110,7 @@ export const WithClear: Story = {
   ),
 };
 
+/** Enables free-text entry when no matching option exists. */
 export const AllowCustomValue: Story = {
   args: { 'allow-custom-value': true, placeholder: 'Type or select...' },
   render: (args) => (
@@ -117,6 +126,7 @@ export const AllowCustomValue: Story = {
   ),
 };
 
+/** Allows selecting more than one option at a time. */
 export const Multiple: Story = {
   args: { multiple: true, placeholder: 'Select multiple fruits...' },
   render: (args) => (
@@ -132,6 +142,7 @@ export const Multiple: Story = {
   ),
 };
 
+/** Compares filled, outlined, and filled-outlined styles. */
 export const Appearances: Story = {
   render: () => (
     <div
@@ -155,6 +166,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Shows small, medium, and large combobox sizes. */
 export const Sizes: Story = {
   render: () => (
     <div
@@ -178,6 +190,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Displays hint text beneath the control for user guidance. */
 export const WithHint: Story = {
   args: { hint: 'Start typing to filter the list', label: 'Favorite Fruit' },
   render: (args) => (
@@ -193,6 +206,7 @@ export const WithHint: Story = {
   ),
 };
 
+/** A non-interactive disabled combobox. */
 export const Disabled: Story = {
   args: { disabled: true, value: 'apple', label: 'Fruit (disabled)' },
   render: (args) => (
@@ -208,6 +222,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

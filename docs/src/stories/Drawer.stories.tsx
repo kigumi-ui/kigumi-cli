@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Drawer, Button } from '@/components/ui';
 
+/**
+ * Drawer slides a panel in from any edge of the viewport — top, end, bottom, or start —
+ * and overlays the rest of the page. Like Dialog it traps focus and fires lifecycle events.
+ * Use it for navigation menus, filter panels, detail views, or any contextual content that
+ * should not replace the current page.
+ */
 const meta = {
-  title: 'Overlay/Drawer',
+  title: 'Components/Drawer',
   component: Drawer,
   tags: ['autodocs'],
   argTypes: {
@@ -38,6 +44,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A drawer that slides in from the end (right) side. */
 export const Default: Story = {
   args: { label: 'Menu', placement: 'end' },
   render: (args) => {
@@ -67,6 +74,7 @@ export const Default: Story = {
   },
 };
 
+/** Demonstrates all four placement options: top, end, bottom, and start. */
 export const Placements: Story = {
   render: () => {
     const [placement, setPlacement] = useState<
@@ -102,6 +110,7 @@ export const Placements: Story = {
   },
 };
 
+/** A practical navigation drawer with a list of links. */
 export const WithNavigation: Story = {
   args: { label: 'Navigation', placement: 'start' },
   render: (args) => {
@@ -131,6 +140,7 @@ export const WithNavigation: Story = {
   },
 };
 
+/** Closes the drawer when clicking the backdrop. */
 export const LightDismiss: Story = {
   args: { label: 'Filters', placement: 'end', 'light-dismiss': true },
   render: (args) => {
@@ -148,6 +158,7 @@ export const LightDismiss: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

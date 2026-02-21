@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Popover, Button, Icon } from '@/components/ui';
 
+/**
+ * Popover displays rich content in a floating panel anchored to a trigger element. Unlike
+ * Tooltip it is not limited to plain text — any markup can go inside — and it stays open
+ * until explicitly dismissed. It positions itself automatically using Floating UI and
+ * supports a directional arrow pointing at the trigger.
+ */
 const meta = {
-  title: 'Overlay/Popover',
+  title: 'Components/Popover',
   component: Popover,
   tags: ['autodocs'],
   argTypes: {
@@ -44,6 +50,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A popover with a text paragraph opened by a button trigger. */
 export const Default: Story = {
   render: (args) => {
     const [open, setOpen] = useState(false);
@@ -67,6 +74,7 @@ export const Default: Story = {
   },
 };
 
+/** Shows all supported placement positions around the trigger. */
 export const Placements: Story = {
   render: () => {
     const [active, setActive] = useState<string | null>(null);
@@ -100,6 +108,7 @@ export const Placements: Story = {
   },
 };
 
+/** Inserts a form or complex layout inside the popover body. */
 export const WithRichContent: Story = {
   render: (args) => {
     const [open, setOpen] = useState(false);
@@ -132,6 +141,7 @@ export const WithRichContent: Story = {
   },
 };
 
+/** Hides the directional arrow for a floating-panel style. */
 export const WithoutArrow: Story = {
   render: (args) => {
     const [open, setOpen] = useState(false);
@@ -157,6 +167,7 @@ export const WithoutArrow: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

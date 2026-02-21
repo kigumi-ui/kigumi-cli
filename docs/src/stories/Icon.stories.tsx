@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Icon } from '@/components/ui';
 
+/**
+ * Icon renders a scalable vector symbol from the built-in Font Awesome icon set. Pass the
+ * icon `name` to select a glyph; size is inherited from the surrounding `font-size` so
+ * it scales naturally with text. A `src` prop lets you load custom SVG icons from a URL,
+ * and a `library` prop selects from registered icon libraries.
+ */
 const meta = {
-  title: 'Display/Icon',
+  title: 'Components/Icon',
   component: Icon,
   tags: ['autodocs'],
   argTypes: {
@@ -35,10 +41,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single icon rendered at the default (inherited) size. */
 export const Default: Story = {
   args: { name: 'star', style: { fontSize: '2rem' } },
 };
 
+/** Shows regular, solid, and brand icon style variants. */
 export const Variants: Story = {
   render: () => (
     <div
@@ -69,6 +77,7 @@ export const Variants: Story = {
   ),
 };
 
+/** A gallery of frequently used interface icons. */
 export const CommonIcons: Story = {
   render: () => {
     const icons = [
@@ -116,6 +125,7 @@ export const CommonIcons: Story = {
   },
 };
 
+/** Demonstrates icon size scaling via font-size. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -128,6 +138,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Shows brand/logo icons such as GitHub and Twitter. */
 export const BrandIcons: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1.5rem', fontSize: '2rem' }}>
@@ -139,6 +150,7 @@ export const BrandIcons: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

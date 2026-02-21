@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Tag } from '@/components/ui';
 
+/**
+ * Tag is a compact label used to categorise, filter, or annotate content. It supports five
+ * semantic color variants, four appearance styles, three sizes, pill corners, and an
+ * optional remove button — making it suitable for both read-only labels and interactive
+ * tag-input patterns.
+ */
 const meta = {
-  title: 'Display/Tag',
+  title: 'Components/Tag',
   component: Tag,
   tags: ['autodocs'],
   argTypes: {
@@ -37,10 +43,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single tag in the default neutral/filled-outlined style. */
 export const Default: Story = {
   args: { children: 'Design System' },
 };
 
+/** Shows all five semantic color variants. */
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -53,6 +61,7 @@ export const Variants: Story = {
   ),
 };
 
+/** Compares accent, filled, outlined, and filled-outlined styles. */
 export const Appearances: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -64,6 +73,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Shows small, medium, and large tag sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -74,14 +84,10 @@ export const Sizes: Story = {
   ),
 };
 
+/** Interactive tags with a remove button that deletes them from the list. */
 export const Removable: Story = {
   render: () => {
-    const [tags, setTags] = useState([
-      'React',
-      'TypeScript',
-      'Web Awesome',
-      'Storybook',
-    ]);
+    const [tags, setTags] = useState(['React', 'TypeScript', 'Storybook']);
     return (
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         {tags.map((tag) => (
@@ -99,6 +105,7 @@ export const Removable: Story = {
   },
 };
 
+/** Tags with fully rounded pill corners. */
 export const Pill: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -115,6 +122,7 @@ export const Pill: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },
