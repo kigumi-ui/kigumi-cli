@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Callout, Icon } from '@/components/ui';
 
+/**
+ * Callout highlights important information, warnings, or contextual messages inline within
+ * content. It supports five semantic color variants and multiple appearance styles so it can
+ * communicate different levels of urgency — from a soft tip to a hard error. An optional
+ * icon slot reinforces meaning visually.
+ */
 const meta = {
-  title: 'Display/Callout',
+  title: 'Components/Callout',
   component: Callout,
   tags: ['autodocs'],
   argTypes: {
@@ -29,10 +35,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A neutral informational callout in the default appearance. */
 export const Default: Story = {
   args: { variant: 'neutral', children: 'This is a neutral callout message.' },
 };
 
+/** Shows all five semantic color variants side by side. */
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -60,6 +68,7 @@ export const Variants: Story = {
   ),
 };
 
+/** Compares the available visual appearance styles. */
 export const Appearances: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -82,6 +91,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Adds an icon to reinforce the callout's intent. */
 export const WithIcon: Story = {
   render: () => (
     <Callout variant="success">
@@ -91,6 +101,7 @@ export const WithIcon: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

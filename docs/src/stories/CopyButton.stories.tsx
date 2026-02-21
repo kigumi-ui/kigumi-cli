@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { CopyButton } from '@/components/ui';
 
+/**
+ * Copy Button copies a given string to the clipboard when clicked and provides visual
+ * feedback — swapping from a copy icon to a check icon — to confirm the action. The
+ * value to copy, copy labels, and error labels can all be customised. Useful for code
+ * snippets, API keys, and shareable URLs.
+ */
 const meta = {
-  title: 'Inputs/CopyButton',
+  title: 'Components/Copy Button',
   component: CopyButton,
   tags: ['autodocs'],
   argTypes: {
@@ -47,10 +53,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic copy button with a simple text value. */
 export const Default: Story = {
   args: { value: 'Hello, World!' },
 };
 
+/** Presents a copy button alongside a styled code block. */
 export const CodeSnippet: Story = {
   render: () => (
     <div
@@ -70,6 +78,7 @@ export const CodeSnippet: Story = {
   ),
 };
 
+/** Shows a masked API key with a copy button for easy retrieval. */
 export const ApiKey: Story = {
   render: () => (
     <div
@@ -100,6 +109,7 @@ export const ApiKey: Story = {
   ),
 };
 
+/** Overrides the default copy/copied/error tooltip labels. */
 export const CustomLabels: Story = {
   args: {
     value: 'Custom copy text',
@@ -109,10 +119,12 @@ export const CustomLabels: Story = {
   },
 };
 
+/** A non-interactive disabled copy button. */
 export const Disabled: Story = {
   args: { value: 'Cannot copy', disabled: true },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },
@@ -127,7 +139,7 @@ export const ChromaticOnly: Story = {
     >
       <CopyButton value="Hello, World!" />
       <CopyButton
-        value="npm install @web-awesome/core"
+        value="npx kigumi init"
         copy-label="Copy install command"
         success-label="Copied!"
       />

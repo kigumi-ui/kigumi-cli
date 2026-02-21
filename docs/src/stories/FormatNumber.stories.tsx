@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormatNumber } from '@/components/ui';
 
+/**
+ * Format Number renders any numeric value in a locale-aware format using the browser's
+ * `Intl.NumberFormat` API. It handles decimal, currency, and percentage types and lets
+ * you control minimum/maximum fraction digits, grouping separators, and notation style
+ * (standard, compact, scientific) declaratively in markup.
+ */
 const meta = {
-  title: 'Data/FormatNumber',
+  title: 'Components/Format Number',
   component: FormatNumber,
   tags: ['autodocs'],
   argTypes: {
@@ -25,8 +31,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Formats a plain decimal number with locale-aware separators. */
 export const Default: Story = {};
 
+/** Displays a value as a currency amount with symbol. */
 export const Currency: Story = {
   args: {
     value: 9.99,
@@ -35,6 +43,7 @@ export const Currency: Story = {
   },
 };
 
+/** Formats a fraction as a percentage. */
 export const Percent: Story = {
   args: {
     value: 0.753,
@@ -42,6 +51,7 @@ export const Percent: Story = {
   },
 };
 
+/** Compares symbol, code, and name currency display formats. */
 export const CurrencyFormats: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -73,6 +83,7 @@ export const CurrencyFormats: Story = {
   ),
 };
 
+/** Controls minimum and maximum fraction digit counts. */
 export const Precision: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -100,6 +111,7 @@ export const Precision: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { TabGroup, Tab, TabPanel, Icon } from '@/components/ui';
 
+/**
+ * Tab Group is the container that orchestrates a set of Tab and Tab Panel components.
+ * It manages the active-tab state, fires `wa-tab-show` and `wa-tab-hide` events, and
+ * supports four placement positions (top, bottom, start, end) as well as manual activation
+ * mode where arrow keys focus tabs but Enter is required to activate them.
+ */
 const meta = {
-  title: 'Navigation/TabGroup',
+  title: 'Components/Tab Group',
   component: TabGroup,
   tags: ['autodocs'],
   argTypes: {
@@ -32,6 +38,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A standard tab group with four tabs and matching panels. */
 export const Default: Story = {
   render: (args) => (
     <TabGroup {...args}>
@@ -63,6 +70,7 @@ export const Default: Story = {
   ),
 };
 
+/** Shows all four tab-strip placement positions. */
 export const Placements: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -97,6 +105,7 @@ export const Placements: Story = {
   ),
 };
 
+/** Tabs decorated with icons for visual identification. */
 export const WithIcons: Story = {
   render: (args) => (
     <TabGroup {...args}>
@@ -122,6 +131,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** Arrow keys move focus without activating; Enter activates. */
 export const ManualActivation: Story = {
   args: { activation: 'manual' },
   render: (args) => (
@@ -148,6 +158,7 @@ export const ManualActivation: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

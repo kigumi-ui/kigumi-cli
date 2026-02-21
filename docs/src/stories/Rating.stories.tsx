@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Rating } from '@/components/ui';
 
+/**
+ * Rating captures a numeric score by letting users select from a row of star (or custom)
+ * symbols. It supports half-star precision, a read-only display mode, a customisable
+ * maximum value, and three sizes. The active and inactive symbol colors are CSS-customizable
+ * to match any brand palette.
+ */
 const meta = {
-  title: 'Inputs/Rating',
+  title: 'Components/Rating',
   component: Rating,
   tags: ['autodocs'],
   argTypes: {
@@ -38,22 +44,27 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A five-star rating input at zero stars. */
 export const Default: Story = {
   args: { value: 3, label: 'Product rating' },
 };
 
+/** Allows selecting half-star increments. */
 export const HalfPrecision: Story = {
   args: { value: 3.5, precision: 0.5, label: 'Half-star rating' },
 };
 
+/** Displays a fixed rating without allowing interaction. */
 export const ReadOnly: Story = {
   args: { value: 4, readonly: true, label: 'Average rating' },
 };
 
+/** A non-interactive disabled rating field. */
 export const Disabled: Story = {
   args: { value: 2, disabled: true, label: 'Disabled rating' },
 };
 
+/** Compares small, medium, and large star sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -64,10 +75,12 @@ export const Sizes: Story = {
   ),
 };
 
+/** Changes the total number of stars (e.g., out of 10). */
 export const WithMaxStars: Story = {
   args: { max: 10, value: 7, label: '10-star rating' },
 };
 
+/** A real-world product review widget composing ratings with labels. */
 export const ProductReview: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -90,6 +103,7 @@ export const ProductReview: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

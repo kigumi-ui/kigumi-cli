@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { RadioGroup, Radio } from '@/components/ui';
 
+/**
+ * Radio Group manages a set of mutually exclusive Radio options, handling selection state
+ * and accessibility roles (radiogroup, radio) automatically. It supports horizontal and
+ * vertical layouts, button-appearance children for segmented controls, a pre-selected
+ * default value, and a disabled state that locks the entire group.
+ */
 const meta = {
-  title: 'Inputs/RadioGroup',
+  title: 'Components/Radio Group',
   component: RadioGroup,
   tags: ['autodocs'],
   argTypes: {
@@ -35,6 +41,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A horizontal group of three radio options. */
 export const Default: Story = {
   args: { label: 'Preferred contact method' },
   render: (args) => (
@@ -46,6 +53,7 @@ export const Default: Story = {
   ),
 };
 
+/** Stacks radio options vertically. */
 export const Vertical: Story = {
   args: { label: 'Subscription plan', orientation: 'vertical' },
   render: (args) => (
@@ -57,6 +65,7 @@ export const Vertical: Story = {
   ),
 };
 
+/** One option is checked by default via the value prop. */
 export const WithPreselected: Story = {
   args: { label: 'Delivery speed', value: 'standard' },
   render: (args) => (
@@ -68,6 +77,7 @@ export const WithPreselected: Story = {
   ),
 };
 
+/** Renders all options as buttons for a segmented control. */
 export const ButtonAppearance: Story = {
   args: { label: 'View mode' },
   render: (args) => (
@@ -85,6 +95,7 @@ export const ButtonAppearance: Story = {
   ),
 };
 
+/** Locks the entire group in a non-interactive state. */
 export const Disabled: Story = {
   args: { label: 'Locked option', disabled: true, value: 'standard' },
   render: (args) => (
@@ -96,6 +107,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Shows the group at small, medium, and large sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -115,6 +127,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

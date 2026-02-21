@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Tooltip, Button, Icon } from '@/components/ui';
 
+/**
+ * Tooltip displays a brief text label near a trigger element when the user hovers, focuses,
+ * or clicks it. Positioning is automatic via Floating UI; a small directional arrow
+ * (optional) points at the trigger. Show and hide delays, the trigger type, and all twelve
+ * placement positions are configurable.
+ */
 const meta = {
-  title: 'Overlay/Tooltip',
+  title: 'Components/Tooltip',
   component: Tooltip,
   tags: ['autodocs'],
   argTypes: {
@@ -58,6 +64,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A tooltip that appears on hover over a button. */
 export const Default: Story = {
   args: { content: 'Click to copy' },
   render: (args) => (
@@ -69,6 +76,7 @@ export const Default: Story = {
   ),
 };
 
+/** Shows tooltips at top, bottom, left, and right positions. */
 export const Placements: Story = {
   render: () => (
     <div
@@ -101,6 +109,7 @@ export const Placements: Story = {
   ),
 };
 
+/** Opens the tooltip on click instead of hover. */
 export const ClickTrigger: Story = {
   args: { content: 'Click triggered tooltip', trigger: 'click' },
   render: (args) => (
@@ -112,6 +121,7 @@ export const ClickTrigger: Story = {
   ),
 };
 
+/** Hides the directional arrow pointer. */
 export const WithoutArrow: Story = {
   args: { content: 'No arrow tooltip', 'without-arrow': true },
   render: (args) => (
@@ -123,6 +133,7 @@ export const WithoutArrow: Story = {
   ),
 };
 
+/** Delays tooltip appearance by 500 ms after hovering. */
 export const WithDelay: Story = {
   args: { content: 'Appears after 500ms', 'show-delay': 500 },
   render: (args) => (
@@ -134,6 +145,7 @@ export const WithDelay: Story = {
   ),
 };
 
+/** Tooltips on icon-only buttons to clarify their action. */
 export const OnIcon: Story = {
   render: () => (
     <div
@@ -163,6 +175,7 @@ export const OnIcon: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

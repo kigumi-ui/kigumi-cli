@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Card, Button, Badge, Avatar, Icon } from '@/components/ui';
 
+/**
+ * Card is a versatile container that groups related content into a distinct visual unit.
+ * It exposes slots for a header, body, footer, and media image, and supports horizontal
+ * orientation for side-by-side layouts. Multiple appearance styles — from a plain surface
+ * to a shadowed or outlined box — let it adapt to any design context.
+ */
 const meta = {
-  title: 'Display/Card',
+  title: 'Components/Card',
   component: Card,
   tags: ['autodocs'],
   argTypes: {
@@ -24,6 +30,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic card with body content only. */
 export const Default: Story = {
   render: (args) => (
     <Card {...args} style={{ maxWidth: '320px' }}>
@@ -35,6 +42,7 @@ export const Default: Story = {
   ),
 };
 
+/** Adds a header slot with a title above the body. */
 export const WithHeader: Story = {
   render: (args) => (
     <Card {...args} style={{ maxWidth: '320px' }}>
@@ -54,6 +62,7 @@ export const WithHeader: Story = {
   ),
 };
 
+/** Shows header, body, and footer sections together. */
 export const WithHeaderAndFooter: Story = {
   render: (args) => (
     <Card {...args} style={{ maxWidth: '320px' }}>
@@ -75,6 +84,7 @@ export const WithHeaderAndFooter: Story = {
   ),
 };
 
+/** Inserts an image into the media slot at the top of the card. */
 export const WithMedia: Story = {
   render: (args) => (
     <Card {...args} style={{ maxWidth: '320px' }}>
@@ -99,6 +109,7 @@ export const WithMedia: Story = {
   ),
 };
 
+/** Compares all available visual appearance styles. */
 export const Appearances: Story = {
   render: () => (
     <div
@@ -127,6 +138,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Places media and content side by side in horizontal orientation. */
 export const HorizontalOrientation: Story = {
   render: (args) => (
     <Card {...args} orientation="horizontal" style={{ maxWidth: '500px' }}>
@@ -151,6 +163,7 @@ export const HorizontalOrientation: Story = {
   ),
 };
 
+/** A real-world example composing a user profile card. */
 export const ProfileCard: Story = {
   render: () => (
     <Card appearance="outlined" style={{ maxWidth: '280px' }}>
@@ -181,6 +194,7 @@ export const ProfileCard: Story = {
   ),
 };
 
+/** Arranges multiple cards in a responsive grid layout. */
 export const Grid: Story = {
   render: () => (
     <div
@@ -239,6 +253,7 @@ export const Grid: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

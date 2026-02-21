@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Select, Option, Icon } from '@/components/ui';
 
+/**
+ * Select presents a dropdown list of Option children and returns the selected value(s) to
+ * a form. It supports single and multiple selection, clearable values, prefix icons, three
+ * appearance styles, three sizes, a placeholder, and a hint line. The dropdown positions
+ * itself automatically and supports keyboard navigation.
+ */
 const meta = {
-  title: 'Inputs/Select',
+  title: 'Components/Select',
   component: Select,
   tags: ['autodocs'],
   argTypes: {
@@ -51,6 +57,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic single-select dropdown with three options. */
 export const Default: Story = {
   args: { label: 'Country', placeholder: 'Choose a country' },
   render: (args) => (
@@ -64,6 +71,7 @@ export const Default: Story = {
   ),
 };
 
+/** Compares filled, outlined, and filled-outlined visual styles. */
 export const Appearances: Story = {
   render: () => (
     <div
@@ -94,6 +102,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Shows small, medium, and large select sizes. */
 export const Sizes: Story = {
   render: () => (
     <div
@@ -120,6 +129,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Adds a clear button to reset the selected value. */
 export const WithClear: Story = {
   args: { label: 'Framework', 'with-clear': true, value: 'react' },
   render: (args) => (
@@ -132,6 +142,7 @@ export const WithClear: Story = {
   ),
 };
 
+/** Allows selecting more than one option, shown as tag pills. */
 export const Multiple: Story = {
   args: {
     label: 'Frameworks',
@@ -149,6 +160,7 @@ export const Multiple: Story = {
   ),
 };
 
+/** Adds prefix icons to each option for visual identification. */
 export const WithIcons: Story = {
   args: { label: 'Status', placeholder: 'Select status' },
   render: (args) => (
@@ -181,6 +193,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** Some options are disabled and cannot be selected. */
 export const WithDisabledOptions: Story = {
   args: { label: 'Plan', placeholder: 'Choose plan' },
   render: (args) => (
@@ -194,6 +207,7 @@ export const WithDisabledOptions: Story = {
   ),
 };
 
+/** The entire select control in a non-interactive disabled state. */
 export const Disabled: Story = {
   args: { label: 'Disabled', disabled: true, value: 'react' },
   render: (args) => (
@@ -204,6 +218,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

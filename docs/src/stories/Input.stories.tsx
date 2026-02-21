@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Input, Icon } from '@/components/ui';
 
+/**
+ * Input is a single-line text entry field that supports all standard HTML input types
+ * (text, email, password, search, tel, URL, date, etc.). It exposes prefix/suffix icon
+ * slots, a clearable option, password visibility toggle, pill corners, three appearance
+ * styles, three sizes, and a hint line — all without additional wrapper components.
+ */
 const meta = {
-  title: 'Inputs/Input',
+  title: 'Components/Input',
   component: Input,
   tags: ['autodocs'],
   argTypes: {
@@ -67,10 +73,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic text input with a label. */
 export const Default: Story = {
   args: { label: 'Full name', placeholder: 'Jane Doe' },
 };
 
+/** Shows email, tel, URL, and date input types. */
 export const Types: Story = {
   render: () => (
     <div
@@ -92,6 +100,7 @@ export const Types: Story = {
   ),
 };
 
+/** An input with a show/hide password toggle button. */
 export const Password: Story = {
   args: {
     type: 'password',
@@ -101,6 +110,7 @@ export const Password: Story = {
   },
 };
 
+/** Adds a clear button that resets the field value. */
 export const WithClear: Story = {
   args: {
     label: 'Search',
@@ -110,6 +120,7 @@ export const WithClear: Story = {
   },
 };
 
+/** Compares filled, outlined, and filled-outlined visual styles. */
 export const Appearances: Story = {
   render: () => (
     <div
@@ -131,6 +142,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Shows small, medium, and large input sizes. */
 export const Sizes: Story = {
   render: () => (
     <div
@@ -148,6 +160,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Renders the input with fully rounded pill corners. */
 export const Pill: Story = {
   args: {
     label: 'Search',
@@ -157,10 +170,12 @@ export const Pill: Story = {
   },
 };
 
+/** A non-interactive disabled input field. */
 export const Disabled: Story = {
   args: { label: 'Disabled field', value: 'Read-only value', disabled: true },
 };
 
+/** Displays hint text below the input for guidance. */
 export const WithHint: Story = {
   args: {
     label: 'Username',
@@ -169,6 +184,7 @@ export const WithHint: Story = {
   },
 };
 
+/** Shows prefix and suffix icon usage. */
 export const WithIcons: Story = {
   render: () => (
     <div
@@ -194,6 +210,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

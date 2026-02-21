@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Option, Select, Icon } from '@/components/ui';
 
+/**
+ * Option is the individual selectable item used inside Select, Combobox, and other list
+ * controls. Each option carries a `value`, a human-readable label, and optional prefix/suffix
+ * slots for icons, badges, or any decorative content. Options can be individually disabled
+ * to prevent selection without hiding them from the list.
+ */
 const meta = {
-  title: 'Inputs/Option',
+  title: 'Components/Option',
   component: Option,
   tags: ['autodocs'],
   argTypes: {
@@ -18,6 +24,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single option item with a text label and value. */
 export const Default: Story = {
   render: (args) => (
     <Select label="Select an option">
@@ -28,6 +35,7 @@ export const Default: Story = {
   ),
 };
 
+/** An option that is visible but not selectable. */
 export const Disabled: Story = {
   render: () => (
     <Select label="Status">
@@ -43,6 +51,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Adds icons in the prefix slot to visually identify options. */
 export const WithIcons: Story = {
   render: () => (
     <Select label="Priority">
@@ -82,6 +91,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** Places supplementary content (e.g., a badge) in the suffix slot. */
 export const WithSuffix: Story = {
   render: () => (
     <Select label="Team Member">
@@ -107,6 +117,7 @@ export const WithSuffix: Story = {
   ),
 };
 
+/** A long list demonstrating scroll behavior inside a Select. */
 export const ManyOptions: Story = {
   render: () => {
     const countries = [
@@ -138,6 +149,7 @@ export const ManyOptions: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

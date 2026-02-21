@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Button } from '@/components/ui';
 
+/**
+ * Button triggers actions that users can initiate — submitting forms, navigating to a URL,
+ * or calling any handler. It supports five semantic color variants, four visual appearances,
+ * three sizes, pill corners, loading state, and can render as a native anchor element when
+ * given an `href`.
+ */
 const meta = {
-  title: 'Components/Actions/Button',
+  title: 'Components/Button',
   component: Button,
   tags: ['autodocs'],
   argTypes: {
@@ -45,6 +51,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Shows the button in its default neutral/accent state. */
 export const Default: Story = {
   args: {
     variant: 'brand',
@@ -53,6 +60,7 @@ export const Default: Story = {
   },
 };
 
+/** Demonstrates all five color variants: neutral, brand, success, warning, and danger. */
 export const Variants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -65,6 +73,7 @@ export const Variants: Story = {
   ),
 };
 
+/** Shows all four visual styles: accent, filled, outlined, and plain. */
 export const Appearances: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -77,6 +86,7 @@ export const Appearances: Story = {
   ),
 };
 
+/** Compares small, medium, and large sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -87,6 +97,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Matrix showing every combination of variant and appearance. */
 export const AllVariantsAndAppearances: Story = {
   render: () => {
     const variants = [
@@ -122,31 +133,37 @@ export const AllVariantsAndAppearances: Story = {
   },
 };
 
+/** Displays the loading spinner state while an async action is in progress. */
 export const Loading: Story = {
   args: { loading: true, children: 'Saving...' },
 };
 
+/** Shows the button in a non-interactive disabled state. */
 export const Disabled: Story = {
   args: { disabled: true, children: 'Disabled' },
 };
 
+/** Renders the button with fully rounded pill-shaped corners. */
 export const Pill: Story = {
   args: { pill: true, variant: 'brand', children: 'Pill Button' },
 };
 
+/** Adds a dropdown caret to signal that a menu will open. */
 export const WithCaret: Story = {
   args: { 'with-caret': true, children: 'Open Menu' },
 };
 
+/** Uses the href prop to render the button as a native anchor element. */
 export const AsLink: Story = {
   args: {
-    href: 'https://webawesome.com',
+    href: 'https://kigumi.style',
     target: '_blank',
     variant: 'brand',
     children: 'Visit Docs →',
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

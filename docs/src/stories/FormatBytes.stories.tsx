@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormatBytes } from '@/components/ui';
 
+/**
+ * Format Bytes converts a raw byte count into a human-readable string using either metric
+ * (SI) or binary (IEC) units. It auto-selects the appropriate unit (KB, MB, GB, …) and
+ * respects the active locale for number formatting, making storage sizes easy to read
+ * without any JavaScript helper functions.
+ */
 const meta = {
-  title: 'Data/FormatBytes',
+  title: 'Components/Format Bytes',
   component: FormatBytes,
   tags: ['autodocs'],
   argTypes: {
@@ -24,10 +30,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Formats a typical file size in metric units. */
 export const Default: Story = {
   args: { value: 1024 },
 };
 
+/** Shows gigabyte- and terabyte-range values. */
 export const LargeValues: Story = {
   render: () => (
     <div
@@ -56,6 +64,7 @@ export const LargeValues: Story = {
   ),
 };
 
+/** Compares long and short display formats. */
 export const DisplayFormats: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -74,10 +83,12 @@ export const DisplayFormats: Story = {
   ),
 };
 
+/** Switches units to bits instead of bytes. */
 export const Bits: Story = {
   args: { value: 8192, unit: 'bit' },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

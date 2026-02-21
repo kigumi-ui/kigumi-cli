@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Comparison } from '@/components/ui';
 
+/**
+ * Comparison renders two images overlaid with a draggable divider so users can slide
+ * between a "before" and "after" view. Useful for showcasing design changes, photo edits,
+ * or any two-state visual comparison. The divider position can be set programmatically via
+ * the `position` prop.
+ */
 const meta = {
-  title: 'Display/Comparison',
+  title: 'Components/Comparison',
   component: Comparison,
   tags: ['autodocs'],
   argTypes: {
@@ -18,6 +24,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A before/after comparison with a centered starting position. */
 export const Default: Story = {
   render: (args) => (
     <Comparison {...args} style={{ maxWidth: '600px' }}>
@@ -37,6 +44,7 @@ export const Default: Story = {
   ),
 };
 
+/** Sets the initial divider position to 25 % to emphasize the "after" side. */
 export const StartPosition: Story = {
   args: { position: 25 },
   render: (args) => (
@@ -57,6 +65,7 @@ export const StartPosition: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

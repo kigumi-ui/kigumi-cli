@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ProgressBar } from '@/components/ui';
 
+/**
+ * Progress Bar visualises the completion of a task as a filled horizontal track. The
+ * `value` (0–100) and `max` props control the fill; an optional label slot lets you
+ * overlay text such as a percentage. An indeterminate mode animates the bar when the
+ * total duration is unknown.
+ */
 const meta = {
-  title: 'Display/ProgressBar',
+  title: 'Components/Progress Bar',
   component: ProgressBar,
   tags: ['autodocs'],
   argTypes: {
@@ -24,18 +30,22 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A progress bar at 50 % completion. */
 export const Default: Story = {
   args: { value: 50 },
 };
 
+/** Shows the percentage value overlaid on the bar. */
 export const WithLabel: Story = {
   args: { value: 75, children: '75%' },
 };
 
+/** Animates continuously when progress cannot be determined. */
 export const Indeterminate: Story = {
   args: { indeterminate: true },
 };
 
+/** Demonstrates 0 %, 25 %, 50 %, 75 %, and 100 % states. */
 export const Values: Story = {
   render: () => (
     <div
@@ -65,6 +75,7 @@ export const Values: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

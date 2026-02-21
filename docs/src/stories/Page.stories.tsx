@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Page, Button, Icon } from '@/components/ui';
 
+/**
+ * Page is an application shell layout component that provides a consistent structure with
+ * a header, optional side navigation, main content area, and footer. It handles responsive
+ * behavior and the navigation drawer toggle automatically, letting you focus on page content
+ * rather than layout boilerplate.
+ */
 const meta = {
-  title: 'Layout/Page',
+  title: 'Components/Page',
   component: Page,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
@@ -27,6 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 const navItems = ['Dashboard', 'Projects', 'Team', 'Reports', 'Settings'];
 
+/** A full page shell with header, navigation, and content area. */
 export const Default: Story = {
   render: (args) => (
     <Page {...args} style={{ height: '500px' }}>
@@ -68,6 +75,7 @@ export const Default: Story = {
   ),
 };
 
+/** Positions the side navigation on the end (right) side. */
 export const NavigationEnd: Story = {
   args: { 'navigation-placement': 'end' },
   render: (args) => (
@@ -99,6 +107,7 @@ export const NavigationEnd: Story = {
   ),
 };
 
+/** Shows the responsive collapsed navigation on a narrow viewport. */
 export const MobileView: Story = {
   args: { view: 'mobile' },
   render: (args) => (
@@ -132,6 +141,7 @@ export const MobileView: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

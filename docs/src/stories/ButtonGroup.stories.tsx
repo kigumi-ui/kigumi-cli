@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ButtonGroup, Button, Icon } from '@/components/ui';
 
+/**
+ * Button Group visually connects related buttons into a single cohesive control by removing
+ * the gap between them and merging their borders. Useful for toolbars, segmented controls,
+ * and sets of mutually exclusive actions. Supports horizontal (default) and vertical
+ * orientations, and works with any button variant or size.
+ */
 const meta = {
-  title: 'Inputs/ButtonGroup',
+  title: 'Components/Button Group',
   component: ButtonGroup,
   tags: ['autodocs'],
   argTypes: {
@@ -23,6 +29,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Three buttons joined in a horizontal group. */
 export const Default: Story = {
   render: (args) => (
     <ButtonGroup {...args} label="Actions">
@@ -33,6 +40,7 @@ export const Default: Story = {
   ),
 };
 
+/** Stacks buttons vertically inside the group. */
 export const Vertical: Story = {
   render: (args) => (
     <ButtonGroup {...args} orientation="vertical" label="Vertical actions">
@@ -43,6 +51,7 @@ export const Vertical: Story = {
   ),
 };
 
+/** Aligns button labels to start, center, or end within the group. */
 export const TextAlignment: Story = {
   render: () => (
     <ButtonGroup label="Text alignment">
@@ -62,6 +71,7 @@ export const TextAlignment: Story = {
   ),
 };
 
+/** Groups buttons that carry different color variants. */
 export const MixedVariants: Story = {
   render: () => (
     <ButtonGroup label="Page navigation">
@@ -78,6 +88,7 @@ export const MixedVariants: Story = {
   ),
 };
 
+/** Shows groups at small, medium, and large sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -100,6 +111,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

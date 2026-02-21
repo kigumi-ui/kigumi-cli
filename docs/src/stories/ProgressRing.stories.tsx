@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ProgressRing } from '@/components/ui';
 
+/**
+ * Progress Ring renders progress as a circular arc — ideal for dashboards, metric cards,
+ * and compact status indicators. The track and indicator colors are CSS-customizable, and
+ * an optional label slot places any content at the center of the ring, such as a percentage
+ * or an icon.
+ */
 const meta = {
-  title: 'Display/ProgressRing',
+  title: 'Components/Progress Ring',
   component: ProgressRing,
   tags: ['autodocs'],
   argTypes: {
@@ -23,14 +29,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A ring at 25 % with no center label. */
 export const Default: Story = {
   args: { value: 75 },
 };
 
+/** Places a percentage value inside the ring. */
 export const WithLabel: Story = {
   args: { value: 75, children: '75%' },
 };
 
+/** Shows the ring at 0 %, 25 %, 50 %, 75 %, and 100 %. */
 export const Values: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
@@ -43,6 +52,7 @@ export const Values: Story = {
   ),
 };
 
+/** Compares ring sizes by adjusting the width/height and stroke. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
@@ -65,6 +75,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Uses multiple rings as a metrics dashboard widget. */
 export const Metrics: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
@@ -98,6 +109,7 @@ export const Metrics: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { BreadcrumbItem, Breadcrumb, Icon } from '@/components/ui';
 
+/**
+ * Breadcrumb Item is the individual link or label inside a Breadcrumb component.
+ * When given an `href` it renders as an anchor; without one it renders as plain text,
+ * making it suitable for the current (non-clickable) page segment. Prefix and suffix
+ * icon slots allow decorating each item.
+ */
 const meta = {
-  title: 'Navigation/BreadcrumbItem',
+  title: 'Components/Breadcrumb Item',
   component: BreadcrumbItem,
   tags: ['autodocs'],
   argTypes: {
@@ -18,6 +24,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single breadcrumb item without a link (current page). */
 export const Default: Story = {
   render: (args) => (
     <Breadcrumb>
@@ -28,6 +35,7 @@ export const Default: Story = {
   ),
 };
 
+/** Renders the item as a clickable anchor when given an href. */
 export const WithLink: Story = {
   args: { href: '#', target: '_self' },
   render: (args) => (
@@ -38,6 +46,7 @@ export const WithLink: Story = {
   ),
 };
 
+/** Shows an item linking to an external URL, opening in a new tab. */
 export const ExternalLink: Story = {
   args: {
     href: 'https://example.com',
@@ -59,6 +68,7 @@ export const ExternalLink: Story = {
   ),
 };
 
+/** Adds prefix and suffix icons to a breadcrumb item. */
 export const WithIcons: Story = {
   render: () => (
     <Breadcrumb>
@@ -78,6 +88,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** Demonstrates wrapping behavior with many nested segments. */
 export const LongPath: Story = {
   render: () => (
     <Breadcrumb>
@@ -97,6 +108,7 @@ export const LongPath: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

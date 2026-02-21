@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Carousel, CarouselItem } from '@/components/ui';
 
+/**
+ * Carousel presents a sequence of slides — images, cards, or any content — in a scrollable
+ * strip with optional navigation arrows and pagination dots. It supports looping, autoplay
+ * with a configurable interval, multiple visible slides per page, and mouse/touch dragging.
+ * Individual slides are provided as Carousel Item children.
+ */
 const meta = {
-  title: 'Display/Carousel',
+  title: 'Components/Carousel',
   component: Carousel,
   tags: ['autodocs'],
   argTypes: {
@@ -44,6 +50,7 @@ const SLIDES = [
   { bg: 'var(--wa-color-danger-fill-loud)', label: 'Slide 4' },
 ];
 
+/** A carousel with three slides and default navigation controls. */
 export const Default: Story = {
   args: { navigation: true, pagination: true },
   render: (args) => (
@@ -70,6 +77,7 @@ export const Default: Story = {
   ),
 };
 
+/** Shows image slides with cover-fit photos. */
 export const WithImages: Story = {
   args: { navigation: true, pagination: true, loop: true },
   render: (args) => (
@@ -87,6 +95,7 @@ export const WithImages: Story = {
   ),
 };
 
+/** Displays more than one slide at a time using the slides-per-page prop. */
 export const MultiplePerPage: Story = {
   args: { navigation: true, 'slides-per-page': 2, 'slides-per-move': 1 },
   render: (args) => (
@@ -113,6 +122,7 @@ export const MultiplePerPage: Story = {
   ),
 };
 
+/** Advances slides automatically on a set interval. */
 export const Autoplay: Story = {
   args: {
     autoplay: true,
@@ -144,6 +154,7 @@ export const Autoplay: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { MutationObserver, Button } from '@/components/ui';
 
+/**
+ * Mutation Observer wraps the browser's `MutationObserver` API declaratively. Place it
+ * around any subtree to receive `mutation` events whenever child nodes are added/removed
+ * or attributes change. Handy for reacting to third-party DOM mutations without polling
+ * or patching global APIs.
+ */
 const meta = {
-  title: 'Utilities/MutationObserver',
+  title: 'Components/Mutation Observer',
   component: MutationObserver,
   tags: ['autodocs'],
   argTypes: {
@@ -31,6 +37,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Reports child-list mutations as nodes are added to the observed subtree. */
 export const Default: Story = {
   args: { 'child-list': true },
   render: (args) => {
@@ -88,6 +95,7 @@ export const Default: Story = {
   },
 };
 
+/** Watches for attribute changes on the observed element. */
 export const AttributeObserver: Story = {
   args: { attr: 'class,style', 'attr-old-value': true },
   render: (args) => {
@@ -131,6 +139,7 @@ export const AttributeObserver: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

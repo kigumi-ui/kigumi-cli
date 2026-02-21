@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ZoomableFrame } from '@/components/ui';
 
+/**
+ * Zoomable Frame embeds content in an iframe with built-in zoom controls — zoom in, zoom
+ * out, and reset. The zoom level can be set programmatically or constrained to a custom set
+ * of discrete levels. Use it to preview responsive designs at different scales or display
+ * content that benefits from independent zooming.
+ */
 const meta = {
-  title: 'Display/ZoomableFrame',
+  title: 'Components/Zoomable Frame',
   component: ZoomableFrame,
   tags: ['autodocs'],
   argTypes: {
@@ -21,6 +27,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** An iframe with the default zoom controls and an HTML page. */
 export const Default: Story = {
   args: {
     srcdoc: `
@@ -39,6 +46,7 @@ export const Default: Story = {
   },
 };
 
+/** Hides the UI controls; zoom is set programmatically via the zoom prop. */
 export const WithoutControls: Story = {
   args: {
     withoutControls: true,
@@ -55,6 +63,7 @@ export const WithoutControls: Story = {
   },
 };
 
+/** Restricts zoom to a custom set of discrete scale values. */
 export const CustomZoomLevels: Story = {
   args: {
     zoomLevels: '0.25,0.5,0.75,1,1.5,2',
@@ -70,6 +79,7 @@ export const CustomZoomLevels: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

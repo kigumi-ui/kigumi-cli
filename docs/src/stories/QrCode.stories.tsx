@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QrCode } from '@/components/ui';
 
+/**
+ * QR Code generates a scannable QR code image from any string value — URLs, contact cards,
+ * Wi-Fi credentials, etc. You can control the error-correction level, foreground and
+ * background colors, module radius for rounded corners, and the label displayed below
+ * the code.
+ */
 const meta = {
-  title: 'Display/QrCode',
+  title: 'Components/QR Code',
   component: QrCode,
   tags: ['autodocs'],
   argTypes: {
@@ -35,16 +41,18 @@ const meta = {
     },
     label: { control: 'text', description: 'Accessibility label' },
   },
-  args: { value: 'https://webawesome.com', label: 'QR code' },
+  args: { value: 'https://kigumi.style', label: 'QR code' },
 } satisfies Meta<typeof QrCode>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A QR code encoding a simple URL. */
 export const Default: Story = {
-  args: { value: 'https://webawesome.com', size: 200 },
+  args: { value: 'https://kigumi.style', size: 200 },
 };
 
+/** Adds a descriptive label beneath the QR code. */
 export const WithText: Story = {
   render: () => (
     <div
@@ -55,40 +63,37 @@ export const WithText: Story = {
         gap: '0.75rem',
       }}
     >
-      <QrCode
-        value="https://webawesome.com"
-        size={180}
-        label="Web Awesome QR code"
-      />
+      <QrCode value="https://kigumi.style" size={180} label="Kigumi QR code" />
       <p
         style={{
           fontSize: '0.875rem',
           color: 'var(--wa-color-neutral-text-muted)',
         }}
       >
-        Scan to visit webawesome.com
+        Scan to visit kigumi.style
       </p>
     </div>
   ),
 };
 
+/** Changes foreground and background colors. */
 export const CustomColors: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
       <QrCode
-        value="https://webawesome.com"
+        value="https://kigumi.style"
         fill="#6366f1"
         size={140}
         label="Purple QR"
       />
       <QrCode
-        value="https://webawesome.com"
+        value="https://kigumi.style"
         fill="#22c55e"
         size={140}
         label="Green QR"
       />
       <QrCode
-        value="https://webawesome.com"
+        value="https://kigumi.style"
         fill="#ef4444"
         size={140}
         label="Red QR"
@@ -97,10 +102,12 @@ export const CustomColors: Story = {
   ),
 };
 
+/** Increases module radius for rounded-corner QR aesthetics. */
 export const Rounded: Story = {
-  args: { value: 'https://webawesome.com', size: 200, radius: 0.5 },
+  args: { value: 'https://kigumi.style', size: 200, radius: 0.5 },
 };
 
+/** Compares the four error-correction levels (L, M, Q, H). */
 export const ErrorCorrection: Story = {
   render: () => (
     <div
@@ -114,7 +121,7 @@ export const ErrorCorrection: Story = {
       {(['L', 'M', 'Q', 'H'] as const).map((level) => (
         <div key={level} style={{ textAlign: 'center' }}>
           <QrCode
-            value="https://webawesome.com"
+            value="https://kigumi.style"
             size={120}
             error-correction={level}
             label={`Level ${level}`}
@@ -130,6 +137,7 @@ export const ErrorCorrection: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

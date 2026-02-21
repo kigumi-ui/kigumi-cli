@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Dropdown, DropdownItem, Button, Icon } from '@/components/ui';
 
+/**
+ * Dropdown attaches a contextual menu to a trigger element — typically a button — and
+ * displays a list of actions or options when activated. It positions itself automatically
+ * to stay within the viewport, supports nested items, and can carry checkbox items for
+ * multi-select scenarios.
+ */
 const meta = {
-  title: 'Overlay/Dropdown',
+  title: 'Components/Dropdown',
   component: Dropdown,
   tags: ['autodocs'],
   argTypes: {
@@ -41,6 +47,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic dropdown with three text action items. */
 export const Default: Story = {
   render: (args) => (
     <Dropdown {...args}>
@@ -60,6 +67,7 @@ export const Default: Story = {
   ),
 };
 
+/** Uses checkbox-type items to build a multi-select menu. */
 export const WithCheckboxItems: Story = {
   render: (args) => (
     <Dropdown {...args}>
@@ -82,6 +90,7 @@ export const WithCheckboxItems: Story = {
   ),
 };
 
+/** Compares small, medium, and large dropdown sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '1rem' }}>
@@ -99,6 +108,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Shows one menu item in a non-interactive disabled state. */
 export const WithDisabledItem: Story = {
   render: (args) => (
     <Dropdown {...args}>
@@ -117,6 +127,7 @@ export const WithDisabledItem: Story = {
   ),
 };
 
+/** Triggers the dropdown on right-click as a context menu. */
 export const ContextMenu: Story = {
   render: (args) => (
     <div style={{ display: 'flex', gap: '1rem' }}>
@@ -135,6 +146,7 @@ export const ContextMenu: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

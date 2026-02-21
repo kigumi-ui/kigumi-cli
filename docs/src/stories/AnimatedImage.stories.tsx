@@ -7,8 +7,14 @@ import {
   type AnimatedImageProps,
 } from '@/components/ui';
 
+/**
+ * Animated Image displays animated GIFs and WebPs and gives users control over playback.
+ * By default playback is paused until the user interacts, saving bandwidth and reducing
+ * motion for those who prefer reduced-motion environments. Supports play, pause, and
+ * keyboard-accessible controls.
+ */
 const meta = {
-  title: 'Display/AnimatedImage',
+  title: 'Components/Animated Image',
   component: AnimatedImage,
   tags: ['autodocs'],
   argTypes: {
@@ -30,12 +36,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Shows an animated image with default playback controls. */
 export const Default: Story = {};
 
+/** Starts the animation in the playing state on load. */
 export const Playing: Story = {
   args: { play: true },
 };
 
+/** Demonstrates external control of play/pause state via the `play` prop. */
 export const Controlled: Story = {
   render: (args: AnimatedImageProps) => {
     const [play, setPlay] = useState(false);
@@ -57,6 +66,7 @@ export const Controlled: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { delay: 300, pauseAnimationAtEnd: true } },

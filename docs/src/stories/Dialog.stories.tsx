@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Dialog, Button } from '@/components/ui';
 
+/**
+ * Dialog presents content in a modal overlay that blocks interaction with the rest of the
+ * page until dismissed. It traps focus, supports keyboard navigation, and fires lifecycle
+ * events for show, hide, and close-request. Optional header and footer slots, a light-dismiss
+ * mode, and scrollable body make it suitable for everything from confirmations to full forms.
+ */
 const meta = {
-  title: 'Overlay/Dialog',
+  title: 'Components/Dialog',
   component: Dialog,
   tags: ['autodocs'],
   argTypes: {
@@ -39,6 +45,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A basic dialog with a title and body text. */
 export const Default: Story = {
   args: { label: 'Confirm Action' },
   render: (args) => {
@@ -74,6 +81,7 @@ export const Default: Story = {
   },
 };
 
+/** Adds action buttons inside the footer slot. */
 export const WithFooter: Story = {
   args: { label: 'Save Changes' },
   render: (args) => {
@@ -104,6 +112,7 @@ export const WithFooter: Story = {
   },
 };
 
+/** Closes the dialog when clicking the backdrop outside it. */
 export const LightDismiss: Story = {
   args: { label: 'Click Outside to Close', 'light-dismiss': true },
   render: (args) => {
@@ -121,6 +130,7 @@ export const LightDismiss: Story = {
   },
 };
 
+/** Hides the header bar for a bare, content-only dialog. */
 export const WithoutHeader: Story = {
   args: { label: 'Hidden Header', 'without-header': true },
   render: (args) => {
@@ -139,6 +149,7 @@ export const WithoutHeader: Story = {
   },
 };
 
+/** A confirmation dialog for irreversible destructive actions. */
 export const DestructiveConfirm: Story = {
   args: { label: 'Delete Account' },
   render: (args) => {
@@ -169,6 +180,7 @@ export const DestructiveConfirm: Story = {
   },
 };
 
+/** Shows the dialog with content that scrolls inside the body. */
 export const ScrollingContent: Story = {
   args: { label: 'Terms of Service' },
   render: (args) => {
@@ -192,6 +204,7 @@ export const ScrollingContent: Story = {
   },
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

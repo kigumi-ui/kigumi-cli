@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Breadcrumb, BreadcrumbItem, Icon } from '@/components/ui';
 
+/**
+ * Breadcrumb renders a trail of navigational links that shows the user's current location
+ * within a site hierarchy. The last item is treated as the current page and rendered without
+ * a link. Supports custom separators, prefix icons on items, and accessible labeling via
+ * `aria-label`.
+ */
 const meta = {
-  title: 'Navigation/Breadcrumb',
+  title: 'Components/Breadcrumb',
   component: Breadcrumb,
   tags: ['autodocs'],
   argTypes: {
@@ -17,6 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Shows a standard three-level breadcrumb trail. */
 export const Default: Story = {
   render: (args) => (
     <Breadcrumb {...args}>
@@ -28,6 +35,7 @@ export const Default: Story = {
   ),
 };
 
+/** Adds icons to breadcrumb items for a richer visual hierarchy. */
 export const WithIcons: Story = {
   render: (args) => (
     <Breadcrumb {...args}>
@@ -47,6 +55,7 @@ export const WithIcons: Story = {
   ),
 };
 
+/** Replaces the default separator with a custom character or element. */
 export const CustomSeparator: Story = {
   render: (args) => (
     <Breadcrumb {...args}>
@@ -58,6 +67,7 @@ export const CustomSeparator: Story = {
   ),
 };
 
+/** Demonstrates breadcrumb items that link to external URLs. */
 export const WithExternalLinks: Story = {
   render: (args) => (
     <Breadcrumb {...args}>
@@ -70,6 +80,7 @@ export const WithExternalLinks: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

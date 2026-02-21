@@ -3,8 +3,14 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { ResizeObserver } from '@/components/ui';
 
+/**
+ * Resize Observer wraps the browser's `ResizeObserver` API as a declarative component.
+ * Attach it to any element and it fires `resize` events with the new content box dimensions
+ * whenever the element's size changes. Useful for responsive component logic that depends
+ * on element size rather than viewport size.
+ */
 const meta = {
-  title: 'Utilities/ResizeObserver',
+  title: 'Components/Resize Observer',
   component: ResizeObserver,
   tags: ['autodocs'],
   argTypes: {
@@ -19,6 +25,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Logs resize events as the observed element's size changes. */
 export const Default: Story = {
   render: (args) => {
     const [size, setSize] = useState({ width: 0, height: 0 });
@@ -79,6 +86,7 @@ export const Default: Story = {
   },
 };
 
+/** Shows the observer in a paused/disabled state. */
 export const Disabled: Story = {
   args: { disabled: true },
   render: (args) => (
@@ -115,6 +123,7 @@ export const Disabled: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

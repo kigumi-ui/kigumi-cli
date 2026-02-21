@@ -2,8 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Checkbox } from '@/components/ui';
 
+/**
+ * Checkbox is a binary form control for toggling a boolean value. It supports three visual
+ * states (unchecked, checked, indeterminate), three sizes, an optional hint line, and a
+ * disabled state. Native form participation means it submits its value automatically without
+ * additional wiring.
+ */
 const meta = {
-  title: 'Inputs/Checkbox',
+  title: 'Components/Checkbox',
   component: Checkbox,
   tags: ['autodocs'],
   argTypes: {
@@ -32,14 +38,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** An unchecked checkbox with a label. */
 export const Default: Story = {
   args: { children: 'Remember me' },
 };
 
+/** Shows the checkbox in the checked state. */
 export const Checked: Story = {
   args: { checked: true, children: 'Already checked' },
 };
 
+/** Demonstrates the indeterminate state used for "select all" patterns. */
 export const Indeterminate: Story = {
   args: {
     indeterminate: true,
@@ -47,14 +56,17 @@ export const Indeterminate: Story = {
   },
 };
 
+/** A non-interactive disabled checkbox. */
 export const Disabled: Story = {
   args: { disabled: true, children: 'Disabled option' },
 };
 
+/** A checked checkbox that cannot be changed. */
 export const DisabledChecked: Story = {
   args: { disabled: true, checked: true, children: 'Disabled and checked' },
 };
 
+/** Compares small, medium, and large checkbox sizes. */
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -65,6 +77,7 @@ export const Sizes: Story = {
   ),
 };
 
+/** Shows a hint line below the checkbox label for additional context. */
 export const WithHint: Story = {
   args: {
     children: 'Enable notifications',
@@ -72,6 +85,7 @@ export const WithHint: Story = {
   },
 };
 
+/** A "select all / none" pattern using the indeterminate state. */
 export const SelectAllPattern: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -94,6 +108,7 @@ export const SelectAllPattern: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },

@@ -1,8 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { TabPanel, TabGroup, Tab } from '@/components/ui';
 
+/**
+ * Tab Panel holds the content associated with a Tab. It is displayed when its linked tab
+ * is active and hidden otherwise. Panels are matched to tabs via the `name` attribute
+ * (which must equal the tab's `panel` attribute). They can contain any markup, including
+ * forms, images, and nested components.
+ */
 const meta = {
-  title: 'Navigation/TabPanel',
+  title: 'Components/Tab Panel',
   component: TabPanel,
   tags: ['autodocs'],
   argTypes: {
@@ -21,6 +27,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** A single active tab panel inside a minimal tab group. */
 export const Default: Story = {
   render: (args) => (
     <TabGroup>
@@ -37,6 +44,7 @@ export const Default: Story = {
   ),
 };
 
+/** Three panels in a tab group, each with distinct content. */
 export const MultiplePanels: Story = {
   render: () => (
     <TabGroup>
@@ -74,6 +82,7 @@ export const MultiplePanels: Story = {
   ),
 };
 
+/** A panel containing multiple styled sections. */
 export const WithRichContent: Story = {
   render: () => (
     <TabGroup>
@@ -122,6 +131,7 @@ export const WithRichContent: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   // tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },
