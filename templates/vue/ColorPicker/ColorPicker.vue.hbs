@@ -75,7 +75,7 @@ onMounted(() => {
 });
 
 defineExpose({
-  getHexString: (hue: number, saturation: number, brightness: number, alpha: any) => (elementRef.value as any)?.getHexString?.(hue, saturation, brightness, alpha),
+  getHexString: (hue: number, saturation: number, brightness: number, alpha: number) => (elementRef.value as any)?.getHexString?.(hue, saturation, brightness, alpha),
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
   blur: () => (elementRef.value as any)?.blur?.(),
   getFormattedValue: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => (elementRef.value as any)?.getFormattedValue?.(format),

@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './CarouselItem.css';
@@ -16,9 +16,7 @@ import './CarouselItem.css';
  *
  * ```
  */
-export interface CarouselItemProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
-}
+export type CarouselItemProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
 
 export interface CarouselItemRef {
   /** Reference to the underlying HTML element */
