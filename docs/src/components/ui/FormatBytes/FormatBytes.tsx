@@ -1,28 +1,70 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/format-bytes/format-bytes.js';
 import './FormatBytes.css';
 
+/**
+ * Formats a number as a human-readable byte value
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <FormatBytes />
+ *
+ * // With event handlers
+ * <FormatBytes />
+ *
+ * ```
+ */
 export interface FormatBytesProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'dir'
 > {
   /** The number to format in bytes */
-  value: number;
-  /** The type of unit to display */
+  value?: number;
+
+  /** The unit to format the value in */
   unit?: 'byte' | 'bit';
+
   /** Determines how to display the result */
   display?: 'long' | 'short' | 'narrow';
+
+  /** The locale to use when formatting */
+  lang?: string;
 }
 
-export const FormatBytes = forwardRef<HTMLElement, FormatBytesProps>(
-  ({ className, ...props }, ref) => {
+export interface FormatBytesRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
+  ({ children, className, ...props }, ref) => {
+    const formatbytesRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return formatbytesRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-format-bytes
-        ref={ref}
+        ref={formatbytesRef}
         class={clsx('FormatBytes', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-format-bytes>
     );
   }
 );

@@ -3,25 +3,20 @@
  * Documentation: https://webawesome.com/docs/components/drawer
  *
  * CSS Custom Properties:
- * - --spacing: The amount of space around and between the drawer's content
- * - --size: The preferred size of the drawer
- * - --show-duration: The animation duration when showing the drawer (Default: 200ms)
- * - --hide-duration: The animation duration when hiding the drawer (Default: 200ms)
+ * --spacing: Internal padding of the drawer sections
+ * --size: Width (or height for top/bottom placement) of the drawer panel
+ * --show-duration: Duration of the open animation
+ * --hide-duration: Duration of the close animation
  *
  * CSS Parts:
- * - dialog: The drawer's internal <dialog> element
- * - header: The drawer's header. This element wraps the title and header actions
- * - header-actions: Optional actions to add to the header
- * - title: The drawer's title
- * - close-button: The close button, a <wa-button>
- * - close-button__base: The close button's exported base part
- * - body: The drawer's body
- * - footer: The drawer's footer
- *
- * @example
- * .Drawer::part(dialog) {
- *   // Custom styles
- * }
+ * dialog — Drawer panel element
+ * header — Header section containing the title and actions
+ * header-actions — Action buttons area in the header
+ * title — Drawer title text
+ * close-button — Header close button
+ * close-button__base — Close button's inner base element
+ * body — Drawer body content area
+ * footer — Drawer footer section
  */
 .Drawer {
   /* Add your custom styles here */

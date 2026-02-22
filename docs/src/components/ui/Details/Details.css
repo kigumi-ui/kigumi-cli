@@ -3,21 +3,16 @@
  * Documentation: https://webawesome.com/docs/components/details
  *
  * CSS Custom Properties:
- * - --spacing: The amount of space around and between the details' content
- * - --show-duration: The show duration to use when applying built-in animation classes (Default: 200ms)
- * - --hide-duration: The hide duration to use when applying built-in animation classes (Default: 200ms)
+ * --spacing: Internal padding of the details body
+ * --show-duration: Duration of the expand animation
+ * --hide-duration: Duration of the collapse animation
  *
  * CSS Parts:
- * - base: The inner <details> element used to render the component
- * - header: The header that wraps both the summary and the expand/collapse icon
- * - summary: The container that wraps the summary
- * - icon: The container that wraps the expand/collapse icons
- * - content: The details content
- *
- * @example
- * .Details::part(header) {
- *   // Custom styles
- * }
+ * base — Root wrapper element
+ * header — Clickable header row containing the summary and icon
+ * summary — Summary text in the header
+ * icon — Expand/collapse indicator icon
+ * content — Body content revealed when open
  */
 .Details {
   /* Add your custom styles here */

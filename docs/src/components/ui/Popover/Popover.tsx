@@ -9,74 +9,115 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/popover/popover.js';
 import './Popover.css';
 
-export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** Shows or hides the popover */
+/**
+ * Popovers display additional content when users interact with a trigger element
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Popover />
+ *
+ * // With event handlers
+ * <Popover
+ *   onShow={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<PopoverRef>(null);
+ * <button onClick={() => ref.current?.show()}>Call Method</button>
+ * <Popover ref={ref} />
+ * ```
+ */
+export interface PopoverProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
+  /** Indicates whether the popover is open */
   open?: boolean;
-  /** The ID of the popover's anchor element */
-  for?: string | null;
-  /** The preferred placement of the popover */
+
+  /** Disables the popover */
+  disabled?: boolean;
+
+  /** Preferred placement */
   placement?:
     | 'top'
     | 'top-start'
     | 'top-end'
-    | 'right'
-    | 'right-start'
-    | 'right-end'
     | 'bottom'
     | 'bottom-start'
     | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
     | 'left'
     | 'left-start'
     | 'left-end';
-  /** The distance in pixels from the target element */
+
+  /** Activation events (click, hover, focus) */
+  trigger?: string;
+
+  /** Distance from trigger */
   distance?: number;
-  /** The offset distance in pixels along the target edge */
+
+  /** Offset along trigger */
   skidding?: number;
-  /** Removes the arrow from the popover */
-  'without-arrow'?: boolean;
-  /** Event fired when the popover is shown */
+
+  /** Shows an arrow */
+  'with-arrow'?: boolean;
+
+  /** Emitted when the popover begins to show. Canceling this event will stop the popover from showing. */
   onShow?: (event: CustomEvent) => void;
-  /** Event fired after the popover is shown */
+
+  /** Emitted after the popover has shown and all animations are complete. */
   onAfterShow?: (event: CustomEvent) => void;
-  /** Event fired when the popover is about to hide */
+
+  /** Emitted when the popover begins to hide. Canceling this event will stop the popover from hiding. */
   onHide?: (event: CustomEvent) => void;
-  /** Event fired after the popover is hidden */
+
+  /** Emitted after the popover has hidden and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
 }
 
 export interface PopoverRef {
+  /** Shows the popover. */
   show: () => void;
+
+  /** Hides the popover. */
   hide: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
   (
-    {
-      children,
-      className,
-      open,
-      onShow,
-      onAfterShow,
-      onHide,
-      onAfterHide,
-      ...props
-    },
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
     ref
   ) => {
     const popoverRef = useRef<
       HTMLElement & {
         show?: () => void;
         hide?: () => void;
-        open?: boolean;
       }
     >(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        show: () => popoverRef.current?.show?.(),
-        hide: () => popoverRef.current?.hide?.(),
+        show: () => {
+          if (
+            popoverRef.current &&
+            typeof popoverRef.current.show === 'function'
+          ) {
+            popoverRef.current.show();
+          }
+        },
+        hide: () => {
+          if (
+            popoverRef.current &&
+            typeof popoverRef.current.hide === 'function'
+          ) {
+            popoverRef.current.hide();
+          }
+        },
         get element() {
           return popoverRef.current;
         },
@@ -86,24 +127,23 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
 
     useEffect(() => {
       const el = popoverRef.current;
-      if (!el || open === undefined) return;
-
-      const isOpen = el.open ?? false;
-      if (open && !isOpen) {
-        el.show?.();
-      } else if (!open && isOpen) {
-        el.hide?.();
-      }
-    }, [open]);
-
-    useEffect(() => {
-      const el = popoverRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

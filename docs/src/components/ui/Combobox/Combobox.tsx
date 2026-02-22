@@ -14,70 +14,125 @@ import './Combobox.css';
  *
  * @example
  * ```tsx
- * <Combobox label="Select a fruit" placeholder="Search...">
- *   <wa-option value="apple">Apple</wa-option>
- *   <wa-option value="banana">Banana</wa-option>
- *   <wa-option value="cherry">Cherry</wa-option>
- * </Combobox>
+ * // Basic usage
+ * <Combobox />
+ *
+ * // With event handlers
+ * <Combobox
+ *   onInput={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<ComboboxRef>(null);
+ * <button onClick={() => ref.current?.show()}>Call Method</button>
+ * <Combobox ref={ref} />
  * ```
  */
 export interface ComboboxProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onInvalid' | 'dir'
+  | 'onInput'
+  | 'onChange'
+  | 'onFocus'
+  | 'onBlur'
+  | 'onClear'
+  | 'onShow'
+  | 'onAfterShow'
+  | 'onHide'
+  | 'onAfterHide'
+  | 'onInvalid'
+  | 'dir'
 > {
   /** Allows entering custom values */
   'allow-custom-value'?: boolean;
+
   /** Visual appearance style */
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
+
   /** Autocomplete behavior */
   autocomplete?: 'list' | 'none';
+
   /** Disables the combobox */
   disabled?: boolean;
+
   /** Hint text */
   hint?: string;
+
   /** Label text */
   label?: string;
-  /** Maximum visible options */
+
+  /** Maximum visible options before scrolling */
   'max-options-visible'?: number;
+
   /** Allows multiple selections */
   multiple?: boolean;
+
   /** Form field name */
   name?: string;
+
   /** Whether the listbox is open */
   open?: boolean;
+
   /** Rounded edges style */
   pill?: boolean;
+
   /** Placeholder text */
   placeholder?: string;
+
   /** Listbox placement */
   placement?: 'top' | 'bottom';
+
   /** Makes field mandatory */
   required?: boolean;
+
   /** Combobox size */
   size?: 'small' | 'medium' | 'large';
-  /** Current value */
-  value?: string | string[];
+
   /** Shows clear button */
   'with-clear'?: boolean;
-  /** Event fired when listbox opens */
-  onShow?: (event: CustomEvent) => void;
-  /** Event fired after listbox opens */
-  onAfterShow?: (event: CustomEvent) => void;
-  /** Event fired when listbox closes */
-  onHide?: (event: CustomEvent) => void;
-  /** Event fired after listbox closes */
-  onAfterHide?: (event: CustomEvent) => void;
-  /** Event fired when value is cleared */
+
+  /** Emitted when the control receives input. */
+  onInput?: (event: CustomEvent) => void;
+
+  /** Emitted when the control's value changes. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the control gains focus. */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the control loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when the control's value is cleared. */
   onClear?: (event: CustomEvent) => void;
-  /** Event fired when validation fails */
+
+  /** Emitted when the combobox's menu opens. */
+  onShow?: (event: CustomEvent) => void;
+
+  /** Emitted after the combobox's menu opens and all animations are complete. */
+  onAfterShow?: (event: CustomEvent) => void;
+
+  /** Emitted when the combobox's menu closes. */
+  onHide?: (event: CustomEvent) => void;
+
+  /** Emitted after the combobox's menu closes and all animations are complete. */
+  onAfterHide?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface ComboboxRef {
+  /** Shows the listbox. */
   show: () => void;
+
+  /** Hides the listbox. */
   hide: () => void;
-  focus: (options?: FocusOptions) => void;
+
+  /** Sets focus on the control. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the control. */
   blur: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
@@ -86,11 +141,15 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
     {
       children,
       className,
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onClear,
       onShow,
       onAfterShow,
       onHide,
       onAfterHide,
-      onClear,
       onInvalid,
       ...props
     },
@@ -100,7 +159,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       HTMLElement & {
         show?: () => void;
         hide?: () => void;
-        focus?: (options?: FocusOptions) => void;
+        focus?: (options: FocusOptions) => void;
         blur?: () => void;
       }
     >(null);
@@ -124,7 +183,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
             comboboxRef.current.hide();
           }
         },
-        focus: (options?: FocusOptions) => {
+        focus: (options: FocusOptions) => {
           if (
             comboboxRef.current &&
             typeof comboboxRef.current.focus === 'function'
@@ -151,29 +210,81 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       const el = comboboxRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
-      const handleClear = (e: Event) => onClear?.(e as CustomEvent);
-      const handleInvalid = (e: Event) => onInvalid?.(e as CustomEvent);
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
 
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleClear = (e: Event) => {
+        if (onClear) onClear(e as CustomEvent);
+      };
+
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
+
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('wa-clear', handleClear);
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);
       el.addEventListener('wa-hide', handleHide);
       el.addEventListener('wa-after-hide', handleAfterHide);
-      el.addEventListener('wa-clear', handleClear);
       el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('wa-clear', handleClear);
         el.removeEventListener('wa-show', handleShow);
         el.removeEventListener('wa-after-show', handleAfterShow);
         el.removeEventListener('wa-hide', handleHide);
         el.removeEventListener('wa-after-hide', handleAfterHide);
-        el.removeEventListener('wa-clear', handleClear);
         el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onShow, onAfterShow, onHide, onAfterHide, onClear, onInvalid]);
+    }, [
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onClear,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onInvalid,
+    ]);
 
     return (
       <wa-combobox

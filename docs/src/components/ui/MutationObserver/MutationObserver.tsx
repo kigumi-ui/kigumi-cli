@@ -1,59 +1,102 @@
-import { forwardRef, useRef, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/mutation-observer/mutation-observer.js';
 import './MutationObserver.css';
 
+/**
+ * Observes changes to a target element and emits events when they occur
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <MutationObserver />
+ *
+ * // With event handlers
+ * <MutationObserver
+ *   onMutation={(e) => console.log(e)} />
+ *
+ * ```
+ */
 export interface MutationObserverProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'dir'
+  'onMutation' | 'dir'
 > {
-  /** Watches for changes to attributes. Use '*' to watch all */
+  /** Space-separated list of attributes to observe */
   attr?: string;
-  /** Records attribute's previous value */
+
+  /** Records previous attribute values */
   'attr-old-value'?: boolean;
-  /** Watches for changes to character data */
+
+  /** Observes character data changes */
   'char-data'?: boolean;
-  /** Records previous text value */
+
+  /** Records previous character data */
   'char-data-old-value'?: boolean;
-  /** Watches for addition or removal of child nodes */
+
+  /** Observes child node changes */
   'child-list'?: boolean;
+
   /** Disables the observer */
   disabled?: boolean;
-  /** Event fired when a mutation occurs */
+
+  /** Observes changes in subtree */
+  subtree?: boolean;
+
+  /** Emitted when a mutation occurs. */
   onMutation?: (event: CustomEvent) => void;
 }
 
-export const MutationObserver = forwardRef<HTMLElement, MutationObserverProps>(
-  ({ children, className, onMutation, ...props }, ref) => {
-    const observerRef = useRef<HTMLElement>(null);
+export interface MutationObserverRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
 
-    useEffect(() => {
-      const el = observerRef.current;
-      if (!el) return;
+export const MutationObserver = forwardRef<
+  MutationObserverRef,
+  MutationObserverProps
+>(({ children, className, onMutation, ...props }, ref) => {
+  const mutationobserverRef = useRef<HTMLElement & {}>(null);
 
-      const handleMutation = (e: Event) => onMutation?.(e as CustomEvent);
-      el.addEventListener('wa-mutation', handleMutation);
+  useImperativeHandle(
+    ref,
+    () => ({
+      get element() {
+        return mutationobserverRef.current;
+      },
+    }),
+    []
+  );
 
-      return () => {
-        el.removeEventListener('wa-mutation', handleMutation);
-      };
-    }, [onMutation]);
+  useEffect(() => {
+    const el = mutationobserverRef.current;
+    if (!el) return;
 
-    return (
-      <wa-mutation-observer
-        ref={(node: HTMLElement | null) => {
-          (observerRef as React.MutableRefObject<HTMLElement | null>).current =
-            node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
-        }}
-        class={clsx('MutationObserver', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-mutation-observer>
-    );
-  }
-);
+    const handleMutation = (e: Event) => {
+      if (onMutation) onMutation(e as CustomEvent);
+    };
+
+    el.addEventListener('wa-mutation', handleMutation);
+
+    return () => {
+      el.removeEventListener('wa-mutation', handleMutation);
+    };
+  }, [onMutation]);
+
+  return (
+    <wa-mutation-observer
+      ref={mutationobserverRef}
+      class={clsx('MutationObserver', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-mutation-observer>
+  );
+});
 
 MutationObserver.displayName = 'MutationObserver';

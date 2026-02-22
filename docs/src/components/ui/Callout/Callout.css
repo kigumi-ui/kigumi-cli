@@ -1,17 +1,11 @@
-/* Callout Component Styles
- * CSS Parts: https://webawesome.com/docs/components/callout#css-parts
+/**
+ * Callout Component Styles
+ * Documentation: https://webawesome.com/docs/components/callout
  *
- * Available parts:
- * - icon: The container that wraps the optional icon
- * - message: The container that wraps the callout's main content
+ * CSS Parts:
+ * icon — Wrapper for the callout's icon slot
+ * message — Wrapper for the callout's message content
  */
-
-/* .Callout {
-  &::part(icon) {
-    // Style the icon container
-  }
-
-  &::part(message) {
-    // Style the message container
-  }
-} */
+.Callout {
+  /* Add your custom styles here */
+}

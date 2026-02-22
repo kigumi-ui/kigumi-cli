@@ -2,37 +2,70 @@ import {
   forwardRef,
   useRef,
   useImperativeHandle,
+  useEffect,
   type HTMLAttributes,
 } from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/dropdown-item/dropdown-item.js';
 import './DropdownItem.css';
 
+/**
+ * Dropdown items are used inside dropdowns to represent individual menu items
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <DropdownItem />
+ *
+ * // With event handlers
+ * <DropdownItem
+ *   onBlur={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<DropdownItemRef>(null);
+ * <button onClick={() => ref.current?.openSubmenu()}>Call Method</button>
+ * <DropdownItem ref={ref} />
+ * ```
+ */
 export interface DropdownItemProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'dir'
+  'onBlur' | 'onFocus' | 'dir'
 > {
-  /** The dropdown item's type */
+  /** The type of menu item */
   type?: 'normal' | 'checkbox';
-  /** Set to true to check the dropdown item (only valid when type is checkbox) */
+
+  /** Draws the item in a checked state (checkbox type) */
   checked?: boolean;
-  /** Disables the dropdown item */
-  disabled?: boolean;
-  /** An optional value for the menu item */
+
+  /** A unique value for the menu item */
   value?: string;
-  /** The type of menu item to render */
-  variant?: 'default' | 'danger';
+
+  /** Disables the menu item */
+  disabled?: boolean;
+
+  /** Draws the item in a loading state */
+  loading?: boolean;
+
+  /** Emitted when the dropdown item loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when the dropdown item gains focus. */
+  onFocus?: (event: FocusEvent) => void;
 }
 
 export interface DropdownItemRef {
+  /** Opens the submenu. */
   openSubmenu: () => void;
+
+  /** Closes the submenu. */
   closeSubmenu: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
-  ({ children, className, ...props }, ref) => {
-    const itemRef = useRef<
+  ({ children, className, onBlur, onFocus, ...props }, ref) => {
+    const dropdownitemRef = useRef<
       HTMLElement & {
         openSubmenu?: () => void;
         closeSubmenu?: () => void;
@@ -42,18 +75,53 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
     useImperativeHandle(
       ref,
       () => ({
-        openSubmenu: () => itemRef.current?.openSubmenu?.(),
-        closeSubmenu: () => itemRef.current?.closeSubmenu?.(),
+        openSubmenu: () => {
+          if (
+            dropdownitemRef.current &&
+            typeof dropdownitemRef.current.openSubmenu === 'function'
+          ) {
+            dropdownitemRef.current.openSubmenu();
+          }
+        },
+        closeSubmenu: () => {
+          if (
+            dropdownitemRef.current &&
+            typeof dropdownitemRef.current.closeSubmenu === 'function'
+          ) {
+            dropdownitemRef.current.closeSubmenu();
+          }
+        },
         get element() {
-          return itemRef.current;
+          return dropdownitemRef.current;
         },
       }),
       []
     );
 
+    useEffect(() => {
+      const el = dropdownitemRef.current;
+      if (!el) return;
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
+
+      return () => {
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
+      };
+    }, [onBlur, onFocus]);
+
     return (
       <wa-dropdown-item
-        ref={itemRef}
+        ref={dropdownitemRef}
         class={clsx('DropdownItem', className)}
         {...(props as Record<string, unknown>)}
       >

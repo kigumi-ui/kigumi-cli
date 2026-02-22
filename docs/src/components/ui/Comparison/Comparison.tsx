@@ -1,4 +1,10 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/comparison/comparison.js';
 import './Comparison.css';
@@ -8,25 +14,63 @@ import './Comparison.css';
  *
  * @example
  * ```tsx
- * <Comparison position={50}>
- *   <img slot="before" src="before.jpg" alt="Before" />
- *   <img slot="after" src="after.jpg" alt="After" />
- * </Comparison>
+ * // Basic usage
+ * <Comparison />
+ *
+ * // With event handlers
+ * <Comparison
+ *   onChange={(e) => console.log(e)} />
+ *
  * ```
  */
 export interface ComparisonProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'dir'
+  'onChange' | 'dir'
 > {
   /** Divider location as percentage (0-100) */
   position?: number;
+
+  /** Emitted when the position changes. */
+  onChange?: (event: CustomEvent) => void;
 }
 
-export const Comparison = forwardRef<HTMLElement, ComparisonProps>(
-  ({ children, className, ...props }, ref) => {
+export interface ComparisonRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
+  ({ children, className, onChange, ...props }, ref) => {
+    const comparisonRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return comparisonRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = comparisonRef.current;
+      if (!el) return;
+
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      el.addEventListener('change', handleChange);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+      };
+    }, [onChange]);
+
     return (
       <wa-comparison
-        ref={ref}
+        ref={comparisonRef}
         class={clsx('Comparison', className)}
         {...(props as Record<string, unknown>)}
       >

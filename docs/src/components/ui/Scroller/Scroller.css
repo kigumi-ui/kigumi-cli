@@ -3,16 +3,11 @@
  * Documentation: https://webawesome.com/docs/components/scroller
  *
  * CSS Custom Properties:
- * - --shadow-color: The color used to derive the shadow
- * - --shadow-size: The size of the shadow (Default: 2rem)
+ * --shadow-color: Color of the scroll fade shadow
+ * --shadow-size: Size of the scroll fade shadow
  *
  * CSS Parts:
- * - content: The container that wraps the slotted content
- *
- * @example
- * .Scroller::part(content) {
- *   // Custom styles
- * }
+ * content — Scrollable content container
  */
 .Scroller {
   /* Add your custom styles here */

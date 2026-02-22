@@ -3,21 +3,16 @@
  * Documentation: https://webawesome.com/docs/components/checkbox
  *
  * CSS Custom Properties:
- * - --checked-icon-color: The color of the checked and indeterminate icons
- * - --checked-icon-scale: The size of the checked and indeterminate icons relative to the checkbox
+ * --checked-icon-color: Color of the checked state icon
+ * --checked-icon-scale: Scale of the checked state icon
  *
  * CSS Parts:
- * - base: The component's label
- * - control: The square container that wraps the checkbox's checked state
- * - checked-icon: The checked icon, a <wa-icon> element
- * - indeterminate-icon: The indeterminate icon, a <wa-icon> element
- * - label: The container that wraps the checkbox's label
- * - hint: The hint's wrapper
- *
- * @example
- * .Checkbox::part(control) {
- *   // Custom styles
- * }
+ * base — Root wrapper element
+ * control — Checkbox control element (the visual square)
+ * checked-icon — Icon shown in the checked state
+ * indeterminate-icon — Icon shown in the indeterminate state
+ * label — Checkbox label text
+ * hint — Hint text below the checkbox
  */
 .Checkbox {
   /* Add your custom styles here */

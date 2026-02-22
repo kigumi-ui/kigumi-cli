@@ -1,4 +1,9 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/carousel-item/carousel-item.js';
 import './CarouselItem.css';
@@ -8,23 +13,38 @@ import './CarouselItem.css';
  *
  * @example
  * ```tsx
- * <Carousel>
- *   <CarouselItem>
- *     <img src="slide1.jpg" alt="Slide 1" />
- *   </CarouselItem>
- *   <CarouselItem>
- *     <img src="slide2.jpg" alt="Slide 2" />
- *   </CarouselItem>
- * </Carousel>
+ * // Basic usage
+ * <CarouselItem />
+ *
+ * // With event handlers
+ * <CarouselItem />
+ *
  * ```
  */
 export type CarouselItemProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
 
-export const CarouselItem = forwardRef<HTMLElement, CarouselItemProps>(
+export interface CarouselItemRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const CarouselItem = forwardRef<CarouselItemRef, CarouselItemProps>(
   ({ children, className, ...props }, ref) => {
+    const carouselitemRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return carouselitemRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-carousel-item
-        ref={ref}
+        ref={carouselitemRef}
         class={clsx('CarouselItem', className)}
         {...(props as Record<string, unknown>)}
       >

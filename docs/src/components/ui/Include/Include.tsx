@@ -1,55 +1,96 @@
-import { forwardRef, useRef, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/include/include.js';
 import './Include.css';
 
+/**
+ * Includes give you the power to embed external HTML files into the page
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Include />
+ *
+ * // With event handlers
+ * <Include
+ *   onLoad={(e) => console.log(e)} />
+ *
+ * ```
+ */
 export interface IncludeProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onLoad' | 'dir'
+  'onLoad' | 'onIncludeError' | 'dir'
 > {
   /** The location of the HTML file to include */
   src?: string;
+
+  /** The fetch mode */
+  mode?: 'cors' | 'no-cors' | 'same-origin';
+
   /** Allows included scripts to be executed */
   'allow-scripts'?: boolean;
-  /** The fetch mode to use */
-  mode?: 'cors' | 'no-cors' | 'same-origin';
-  /** Event fired when the included file is loaded */
+
+  /** Emitted when the included file is loaded. */
   onLoad?: (event: CustomEvent) => void;
-  /** Event fired when the included file fails to load */
+
+  /** Emitted when the included file fails to load due to an error. */
   onIncludeError?: (event: CustomEvent) => void;
 }
 
-export const Include = forwardRef<HTMLElement, IncludeProps>(
-  ({ className, onLoad, onIncludeError, ...props }, ref) => {
-    const includeRef = useRef<HTMLElement>(null);
+export interface IncludeRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Include = forwardRef<IncludeRef, IncludeProps>(
+  ({ children, className, onLoad, onIncludeError, ...props }, ref) => {
+    const includeRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return includeRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
       const el = includeRef.current;
       if (!el) return;
 
-      const handleLoad = (e: Event) => onLoad?.(e as CustomEvent);
-      const handleError = (e: Event) => onIncludeError?.(e as CustomEvent);
+      const handleLoad = (e: Event) => {
+        if (onLoad) onLoad(e as CustomEvent);
+      };
+
+      const handleIncludeError = (e: Event) => {
+        if (onIncludeError) onIncludeError(e as CustomEvent);
+      };
 
       el.addEventListener('wa-load', handleLoad);
-      el.addEventListener('wa-include-error', handleError);
+      el.addEventListener('wa-include-error', handleIncludeError);
 
       return () => {
         el.removeEventListener('wa-load', handleLoad);
-        el.removeEventListener('wa-include-error', handleError);
+        el.removeEventListener('wa-include-error', handleIncludeError);
       };
     }, [onLoad, onIncludeError]);
 
     return (
       <wa-include
-        ref={(node: HTMLElement | null) => {
-          (includeRef as React.MutableRefObject<HTMLElement | null>).current =
-            node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
-        }}
+        ref={includeRef}
         class={clsx('Include', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-include>
     );
   }
 );

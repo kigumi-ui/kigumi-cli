@@ -9,53 +9,127 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/switch/switch.js';
 import './Switch.css';
 
+/**
+ * Switches allow the user to toggle an option on or off
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Switch />
+ *
+ * // With event handlers
+ * <Switch
+ *   onChange={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<SwitchRef>(null);
+ * <button onClick={() => ref.current?.click()}>Call Method</button>
+ * <Switch ref={ref} />
+ * ```
+ */
 export interface SwitchProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onChange' | 'onInvalid' | 'dir'
+  'onChange' | 'onInput' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'
 > {
-  /** Draws the switch in a checked state */
-  checked?: boolean;
+  /** Form field name */
+  name?: string;
+
+  /** Form value when checked */
+  value?: string;
+
+  /** Switch size */
+  size?: 'small' | 'medium' | 'large';
+
   /** Disables the switch */
   disabled?: boolean;
+
+  /** Whether the switch is on */
+  checked?: boolean;
+
   /** Makes the switch required */
   required?: boolean;
-  /** Visual size variant */
-  size?: 'small' | 'medium' | 'large';
-  /** Name for form submission */
-  name?: string | null;
-  /** Form submission value */
-  value?: string | null;
-  /** Descriptive hint text */
+
+  /** Hint text */
   hint?: string;
-  /** Event fired when checked state changes */
-  onChange?: (event: Event) => void;
-  /** Event fired when validation fails */
+
+  /** Emitted when the control's checked state changes. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the control receives input. */
+  onInput?: (event: CustomEvent) => void;
+
+  /** Emitted when the control loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when the control gains focus. */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface SwitchRef {
-  focus: (options?: FocusOptions) => void;
-  blur: () => void;
+  /** Simulates a click on the switch. */
   click: () => void;
+
+  /** Sets focus on the switch. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the switch. */
+  blur: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Switch = forwardRef<SwitchRef, SwitchProps>(
-  ({ children, className, onChange, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onChange,
+      onInput,
+      onBlur,
+      onFocus,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const switchRef = useRef<
       HTMLElement & {
-        focus?: (options?: FocusOptions) => void;
-        blur?: () => void;
         click?: () => void;
+        focus?: (options: FocusOptions) => void;
+        blur?: () => void;
       }
     >(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options) => switchRef.current?.focus?.(options),
-        blur: () => switchRef.current?.blur?.(),
-        click: () => switchRef.current?.click?.(),
+        click: () => {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.click === 'function'
+          ) {
+            switchRef.current.click();
+          }
+        },
+        focus: (options: FocusOptions) => {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.focus === 'function'
+          ) {
+            switchRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.blur === 'function'
+          ) {
+            switchRef.current.blur();
+          }
+        },
         get element() {
           return switchRef.current;
         },
@@ -67,17 +141,40 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       const el = switchRef.current;
       if (!el) return;
 
-      const handleChange = (e: Event) => onChange?.(e);
-      const handleInvalid = (e: Event) => onInvalid?.(e as CustomEvent);
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
 
       el.addEventListener('change', handleChange);
+      el.addEventListener('input', handleInput);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
       el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
         el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onChange, onInvalid]);
+    }, [onChange, onInput, onBlur, onFocus, onInvalid]);
 
     return (
       <wa-switch

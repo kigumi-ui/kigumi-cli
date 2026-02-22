@@ -3,15 +3,10 @@
  * Documentation: https://webawesome.com/docs/components/tab-panel
  *
  * CSS Custom Properties:
- * - --padding: The tab panel's padding
+ * --padding: Internal padding of the panel content
  *
  * CSS Parts:
- * - base: The component's base wrapper
- *
- * @example
- * .TabPanel::part(base) {
- *   // Custom styles
- * }
+ * base — Root panel wrapper element
  */
 .TabPanel {
   /* Add your custom styles here */

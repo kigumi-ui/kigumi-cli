@@ -14,16 +14,13 @@ import './Avatar.css';
  *
  * @example
  * ```tsx
- * // With image
- * <Avatar image="https://example.com/avatar.jpg" label="User avatar" />
+ * // Basic usage
+ * <Avatar />
  *
- * // With initials
- * <Avatar initials="JD" label="John Doe" />
+ * // With event handlers
+ * <Avatar
+ *   onError={(e) => console.log(e)} />
  *
- * // With custom icon
- * <Avatar label="Settings">
- *   <wa-icon slot="icon" name="gear" />
- * </Avatar>
  * ```
  */
 export interface AvatarProps extends Omit<
@@ -32,30 +29,48 @@ export interface AvatarProps extends Omit<
 > {
   /** The image source to use for the avatar */
   image?: string;
+
   /** A label to use to describe the avatar to assistive devices */
   label: string;
+
   /** Initials to use as a fallback when no image is available */
   initials?: string;
+
   /** Indicates how the browser should load the image */
   loading?: 'eager' | 'lazy';
+
   /** The shape of the avatar */
   shape?: 'circle' | 'square' | 'rounded';
-  /** Event fired when the image could not be loaded */
+
+  /** The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. */
   onError?: (event: CustomEvent) => void;
 }
 
-export const Avatar = forwardRef<HTMLElement, AvatarProps>(
-  ({ children, className, onError, ...props }, ref) => {
-    const elementRef = useRef<HTMLElement>(null);
+export interface AvatarRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
 
-    useImperativeHandle(ref, () => elementRef.current as HTMLElement, []);
+export const Avatar = forwardRef<AvatarRef, AvatarProps>(
+  ({ children, className, onError, ...props }, ref) => {
+    const avatarRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return avatarRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = elementRef.current;
-      if (!el || !onError) return;
+      const el = avatarRef.current;
+      if (!el) return;
 
       const handleError = (e: Event) => {
-        onError(e as CustomEvent);
+        if (onError) onError(e as CustomEvent);
       };
 
       el.addEventListener('wa-error', handleError);
@@ -67,7 +82,7 @@ export const Avatar = forwardRef<HTMLElement, AvatarProps>(
 
     return (
       <wa-avatar
-        ref={elementRef}
+        ref={avatarRef}
         class={clsx('Avatar', className)}
         {...(props as Record<string, unknown>)}
       >

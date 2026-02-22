@@ -57,3 +57,6 @@ export * from './ZoomableFrame/ZoomableFrame';
 export * from './Callout/Callout';
 export * from './ButtonGroup/ButtonGroup';
 export * from './Page/Page';
+export * from './FileInput/FileInput';
+export * from './NumberInput/NumberInput';
+export * from './Sparkline/Sparkline';

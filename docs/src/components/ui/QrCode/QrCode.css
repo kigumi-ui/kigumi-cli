@@ -2,16 +2,8 @@
  * QrCode Component Styles
  * Documentation: https://webawesome.com/docs/components/qr-code
  *
- * CSS Custom Properties:
- * - --size: The size of the QR code
- *
  * CSS Parts:
- * - base: The component's base wrapper
- *
- * @example
- * .QrCode::part(base) {
- *   // Custom styles
- * }
+ * base — Root wrapper element containing the QR code SVG
  */
 .QrCode {
   /* Add your custom styles here */

@@ -3,17 +3,12 @@
  * Documentation: https://webawesome.com/docs/components/rating
  *
  * CSS Custom Properties:
- * - --symbol-color: The inactive color for rating symbols
- * - --symbol-color-active: The active color for rating symbols
- * - --symbol-spacing: The spacing to use around symbols
+ * --symbol-color: Color of unselected rating symbols
+ * --symbol-color-active: Color of selected (active) rating symbols
+ * --symbol-spacing: Spacing between rating symbols
  *
  * CSS Parts:
- * - base: The component's base wrapper
- *
- * @example
- * .Rating::part(base) {
- *   // Custom styles
- * }
+ * base — Root wrapper element
  */
 .Rating {
   /* Add your custom styles here */

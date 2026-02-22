@@ -14,11 +14,13 @@ import './AnimatedImage.css';
  *
  * @example
  * ```tsx
+ * // Basic usage
+ * <AnimatedImage />
+ *
+ * // With event handlers
  * <AnimatedImage
- *   src="https://example.com/animation.gif"
- *   alt="Animated illustration"
- *   play
- * />
+ *   onLoad={(e) => console.log(e)} />
+ *
  * ```
  */
 export interface AnimatedImageProps extends Omit<
@@ -27,24 +29,41 @@ export interface AnimatedImageProps extends Omit<
 > {
   /** The path to the image to load */
   src: string;
+
   /** A description of the image used by assistive devices */
   alt: string;
+
   /** Plays the animation. When this attribute is removed, the animation will pause */
   play?: boolean;
-  /** Event fired when the image loads successfully */
+
+  /** Emitted when the image loads successfully. */
   onLoad?: (event: CustomEvent) => void;
-  /** Event fired when the image fails to load */
+
+  /** Emitted when the image fails to load. */
   onError?: (event: CustomEvent) => void;
 }
 
-export const AnimatedImage = forwardRef<HTMLElement, AnimatedImageProps>(
-  ({ className, onLoad, onError, ...props }, ref) => {
-    const elementRef = useRef<HTMLElement>(null);
+export interface AnimatedImageRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
 
-    useImperativeHandle(ref, () => elementRef.current as HTMLElement, []);
+export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
+  ({ children, className, onLoad, onError, ...props }, ref) => {
+    const animatedimageRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return animatedimageRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = elementRef.current;
+      const el = animatedimageRef.current;
       if (!el) return;
 
       const handleLoad = (e: Event) => {
@@ -66,10 +85,12 @@ export const AnimatedImage = forwardRef<HTMLElement, AnimatedImageProps>(
 
     return (
       <wa-animated-image
-        ref={elementRef}
+        ref={animatedimageRef}
         class={clsx('AnimatedImage', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-animated-image>
     );
   }
 );

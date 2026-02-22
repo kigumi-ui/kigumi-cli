@@ -9,61 +9,130 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/select/select.js';
 import './Select.css';
 
+/**
+ * Selects allow you to choose items from a menu of predefined options
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Select />
+ *
+ * // With event handlers
+ * <Select
+ *   onInput={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<SelectRef>(null);
+ * <button onClick={() => ref.current?.show()}>Call Method</button>
+ * <Select ref={ref} />
+ * ```
+ */
 export interface SelectProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onChange' | 'onInvalid' | 'dir'
+  | 'onInput'
+  | 'onChange'
+  | 'onFocus'
+  | 'onBlur'
+  | 'onClear'
+  | 'onShow'
+  | 'onAfterShow'
+  | 'onHide'
+  | 'onAfterHide'
+  | 'onInvalid'
+  | 'dir'
 > {
-  /** The select's label */
-  label?: string;
-  /** Name for form submission */
+  /** Form field name */
   name?: string;
-  /** The select's value */
-  value?: string | string[];
+
+  /** Selected value(s) */
+  value?: string;
+
+  /** Visual appearance */
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+
+  /** Select size */
+  size?: 'small' | 'medium' | 'large';
+
   /** Placeholder text */
   placeholder?: string;
-  /** The select's visual appearance */
-  appearance?: 'filled' | 'outlined' | 'filled-outlined';
-  /** The select's size */
-  size?: 'small' | 'medium' | 'large';
+
   /** Allows multiple selections */
   multiple?: boolean;
-  /** Whether the select is open */
-  open?: boolean;
+
+  /** Max visible tags (multiple) */
+  'max-options-visible'?: number;
+
   /** Disables the select */
   disabled?: boolean;
-  /** Makes the field required */
-  required?: boolean;
-  /** Pill style with rounded edges */
-  pill?: boolean;
+
   /** Shows clear button */
   'with-clear'?: boolean;
-  /** Preferred placement of the menu */
+
+  /** Whether listbox is open */
+  open?: boolean;
+
+  /** Hoists to body */
+  hoist?: boolean;
+
+  /** Listbox placement */
   placement?: 'top' | 'bottom';
-  /** Max visible options in multi-select */
-  'max-options-visible'?: number;
+
+  /** Rounded edges */
+  pill?: boolean;
+
+  /** Label text */
+  label?: string;
+
   /** Hint text */
   hint?: string;
-  /** Event fired when value changes */
-  onChange?: (event: Event) => void;
-  /** Event fired when the menu opens */
-  onShow?: (event: CustomEvent) => void;
-  /** Event fired after the menu opens */
-  onAfterShow?: (event: CustomEvent) => void;
-  /** Event fired when the menu closes */
-  onHide?: (event: CustomEvent) => void;
-  /** Event fired after the menu closes */
-  onAfterHide?: (event: CustomEvent) => void;
-  /** Event fired when value is cleared */
+
+  /** Makes selection required */
+  required?: boolean;
+
+  /** Emitted when the control receives input. */
+  onInput?: (event: CustomEvent) => void;
+
+  /** Emitted when the control's value changes. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the control gains focus. */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the control loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when the control's value is cleared. */
   onClear?: (event: CustomEvent) => void;
-  /** Event fired when validation fails */
+
+  /** Emitted when the select's menu opens. */
+  onShow?: (event: CustomEvent) => void;
+
+  /** Emitted after the select's menu opens and all animations are complete. */
+  onAfterShow?: (event: CustomEvent) => void;
+
+  /** Emitted when the select's menu closes. */
+  onHide?: (event: CustomEvent) => void;
+
+  /** Emitted after the select's menu closes and all animations are complete. */
+  onAfterHide?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface SelectRef {
+  /** Shows the listbox. */
   show: () => void;
+
+  /** Hides the listbox. */
   hide: () => void;
-  focus: (options?: FocusOptions) => void;
+
+  /** Sets focus on the control. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the control. */
   blur: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
@@ -72,13 +141,15 @@ export const Select = forwardRef<SelectRef, SelectProps>(
     {
       children,
       className,
-      open,
+      onInput,
       onChange,
+      onFocus,
+      onBlur,
+      onClear,
       onShow,
       onAfterShow,
       onHide,
       onAfterHide,
-      onClear,
       onInvalid,
       ...props
     },
@@ -88,19 +159,46 @@ export const Select = forwardRef<SelectRef, SelectProps>(
       HTMLElement & {
         show?: () => void;
         hide?: () => void;
-        focus?: (options?: FocusOptions) => void;
+        focus?: (options: FocusOptions) => void;
         blur?: () => void;
-        open?: boolean;
       }
     >(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        show: () => selectRef.current?.show?.(),
-        hide: () => selectRef.current?.hide?.(),
-        focus: (options) => selectRef.current?.focus?.(options),
-        blur: () => selectRef.current?.blur?.(),
+        show: () => {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.show === 'function'
+          ) {
+            selectRef.current.show();
+          }
+        },
+        hide: () => {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.hide === 'function'
+          ) {
+            selectRef.current.hide();
+          }
+        },
+        focus: (options: FocusOptions) => {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.focus === 'function'
+          ) {
+            selectRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.blur === 'function'
+          ) {
+            selectRef.current.blur();
+          }
+        },
         get element() {
           return selectRef.current;
         },
@@ -110,52 +208,81 @@ export const Select = forwardRef<SelectRef, SelectProps>(
 
     useEffect(() => {
       const el = selectRef.current;
-      if (!el || open === undefined) return;
-
-      const isOpen = el.open ?? false;
-      if (open && !isOpen) {
-        el.show?.();
-      } else if (!open && isOpen) {
-        el.hide?.();
-      }
-    }, [open]);
-
-    useEffect(() => {
-      const el = selectRef.current;
       if (!el) return;
 
-      const handleChange = (e: Event) => onChange?.(e);
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
-      const handleClear = (e: Event) => onClear?.(e as CustomEvent);
-      const handleInvalid = (e: Event) => onInvalid?.(e as CustomEvent);
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
 
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleClear = (e: Event) => {
+        if (onClear) onClear(e as CustomEvent);
+      };
+
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
+
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('wa-clear', handleClear);
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);
       el.addEventListener('wa-hide', handleHide);
       el.addEventListener('wa-after-hide', handleAfterHide);
-      el.addEventListener('wa-clear', handleClear);
       el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
+        el.removeEventListener('input', handleInput);
         el.removeEventListener('change', handleChange);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('wa-clear', handleClear);
         el.removeEventListener('wa-show', handleShow);
         el.removeEventListener('wa-after-show', handleAfterShow);
         el.removeEventListener('wa-hide', handleHide);
         el.removeEventListener('wa-after-hide', handleAfterHide);
-        el.removeEventListener('wa-clear', handleClear);
         el.removeEventListener('wa-invalid', handleInvalid);
       };
     }, [
+      onInput,
       onChange,
+      onFocus,
+      onBlur,
+      onClear,
       onShow,
       onAfterShow,
       onHide,
       onAfterHide,
-      onClear,
       onInvalid,
     ]);
 

@@ -64,6 +64,30 @@ export interface ButtonProps extends Omit<
   /** Link relationship (when href is set) */
   rel?: string;
 
+  /** The button's type for form submission */
+  type?: 'button' | 'submit' | 'reset';
+
+  /** The name of the button for form submission */
+  name?: string;
+
+  /** The value of the button for form submission */
+  value?: string;
+
+  /** Override the form's action attribute */
+  formaction?: string;
+
+  /** Override the form's enctype attribute */
+  formenctype?: string;
+
+  /** Override the form's method attribute */
+  formmethod?: string;
+
+  /** Bypass form validation when this button submits */
+  formnovalidate?: boolean;
+
+  /** Override the form's target attribute */
+  formtarget?: string;
+
   /** Emitted when the button loses focus. */
   onBlur?: (event: FocusEvent) => void;
 

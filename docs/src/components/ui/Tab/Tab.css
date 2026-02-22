@@ -2,16 +2,8 @@
  * Tab Component Styles
  * Documentation: https://webawesome.com/docs/components/tab
  *
- * CSS Custom Properties:
- * (No custom properties defined for this component)
- *
  * CSS Parts:
- * - base: The component's base wrapper
- *
- * @example
- * .Tab::part(base) {
- *   // Custom styles
- * }
+ * base — Root tab element
  */
 .Tab {
   /* Add your custom styles here */

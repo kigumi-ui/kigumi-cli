@@ -1,23 +1,59 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/tab-panel/tab-panel.js';
 import './TabPanel.css';
 
+/**
+ * Tab panels are used inside tab groups to display content for each tab
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <TabPanel />
+ *
+ * // With event handlers
+ * <TabPanel />
+ *
+ * ```
+ */
 export interface TabPanelProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'dir'
 > {
-  /** The tab panel's name */
+  /** The panel name */
   name?: string;
-  /** When true, the tab panel will be shown */
+
+  /** Whether the panel is shown */
   active?: boolean;
 }
 
-export const TabPanel = forwardRef<HTMLElement, TabPanelProps>(
+export interface TabPanelRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const TabPanel = forwardRef<TabPanelRef, TabPanelProps>(
   ({ children, className, ...props }, ref) => {
+    const tabpanelRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return tabpanelRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-tab-panel
-        ref={ref}
+        ref={tabpanelRef}
         class={clsx('TabPanel', className)}
         {...(props as Record<string, unknown>)}
       >

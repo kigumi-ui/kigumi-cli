@@ -9,12 +9,35 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/popup/popup.js';
 import './Popup.css';
 
-export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** Activates positioning logic and displays the popup */
+/**
+ * Popup is a utility component for positioning elements relative to an anchor
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Popup />
+ *
+ * // With event handlers
+ * <Popup
+ *   onReposition={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<PopupRef>(null);
+ * <button onClick={() => ref.current?.reposition()}>Call Method</button>
+ * <Popup ref={ref} />
+ * ```
+ */
+export interface PopupProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onReposition' | 'dir'
+> {
+  /** Activates the positioning logic */
   active?: boolean;
-  /** Element to anchor to (id, reference, or VirtualElement) */
+
+  /** Anchor element ID or reference */
   anchor?: string;
-  /** The preferred placement of the popup */
+
+  /** Preferred placement */
   placement?:
     | 'top'
     | 'top-start'
@@ -28,32 +51,60 @@ export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
     | 'left'
     | 'left-start'
     | 'left-end';
-  /** Offset distance from anchor in pixels */
+
+  /** Positioning strategy */
+  strategy?: 'absolute' | 'fixed';
+
+  /** Distance from anchor */
   distance?: number;
-  /** Offset along anchor's axis in pixels */
+
+  /** Offset along anchor */
   skidding?: number;
-  /** Attaches an arrow to the popup */
+
+  /** Shows an arrow */
   arrow?: boolean;
-  /** Padding between arrow and popup edges */
-  'arrow-padding'?: number;
-  /** Arrow alignment behavior */
+
+  /** Arrow position */
   'arrow-placement'?: 'start' | 'end' | 'center' | 'anchor';
-  /** Flip placement when insufficient space */
+
+  /** Arrow edge padding */
+  'arrow-padding'?: number;
+
+  /** Flips when constrained */
   flip?: boolean;
-  /** Move along axis to keep in view */
+
+  /** Fallback placements */
+  'flip-fallback-placements'?: string;
+
+  /** Fallback strategy */
+  'flip-fallback-strategy'?: 'best-fit' | 'initial';
+
+  /** Flip boundary padding */
+  'flip-padding'?: number;
+
+  /** Shifts to stay visible */
   shift?: boolean;
-  /** Auto-resize to prevent overflow */
+
+  /** Shift boundary padding */
+  'shift-padding'?: number;
+
+  /** Auto-resize behavior */
   'auto-size'?: 'horizontal' | 'vertical' | 'both';
-  /** Sync dimension(s) with anchor */
+
+  /** Syncs dimensions with anchor */
   sync?: 'width' | 'height' | 'both';
-  /** Invisible bridge for hover continuity */
-  'hover-bridge'?: boolean;
-  /** Event fired when popup recalculates position */
+
+  /** Auto-size boundary padding */
+  'auto-size-padding'?: number;
+
+  /** Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it. */
   onReposition?: (event: CustomEvent) => void;
 }
 
 export interface PopupRef {
+  /** Forces the popup to recalculate and reposition itself. */
   reposition: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
@@ -68,7 +119,14 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
     useImperativeHandle(
       ref,
       () => ({
-        reposition: () => popupRef.current?.reposition?.(),
+        reposition: () => {
+          if (
+            popupRef.current &&
+            typeof popupRef.current.reposition === 'function'
+          ) {
+            popupRef.current.reposition();
+          }
+        },
         get element() {
           return popupRef.current;
         },
@@ -80,7 +138,10 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       const el = popupRef.current;
       if (!el) return;
 
-      const handleReposition = (e: Event) => onReposition?.(e as CustomEvent);
+      const handleReposition = (e: Event) => {
+        if (onReposition) onReposition(e as CustomEvent);
+      };
+
       el.addEventListener('wa-reposition', handleReposition);
 
       return () => {

@@ -11,17 +11,6 @@ import '@awesome.me/webawesome-pro/dist/components/dialog/dialog.js';
 import './Dialog.css';
 
 /**
- * // Using data-dialog attribute (recommended)
- * import { Dialog } from './components/ui';
- * import { Button } from './components/ui';
- *
- * <Button data-dialog="open dialog">Open FAQ</Button>
- * <Dialog id="dialog" label="FAQ">
- *   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
- *   <Button slot="footer" variant="brand" data-dialog="close">
- *     Close
- *   </Button>
- * </Dialog>
  * Dialogs display important prompts and information
  *
  * @example
@@ -85,9 +74,6 @@ export interface DialogProps extends Omit<
 
   /** Emitted after the dialog closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
-
-  /** Data attribute for opening and closing declaratively. */
-  'data-dialog'?: string | string[];
 }
 
 export interface DialogRef {

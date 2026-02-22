@@ -1,24 +1,61 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/skeleton/skeleton.js';
 import './Skeleton.css';
 
+/**
+ * Skeletons are used to provide a visual representation of where content will eventually load
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Skeleton />
+ *
+ * // With event handlers
+ * <Skeleton />
+ *
+ * ```
+ */
 export interface SkeletonProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'dir'
 > {
-  /** Determines which effect the skeleton will use */
+  /** Animation effect */
   effect?: 'pulse' | 'sheen' | 'none';
 }
 
-export const Skeleton = forwardRef<HTMLElement, SkeletonProps>(
-  ({ className, ...props }, ref) => {
+export interface SkeletonRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
+  ({ children, className, ...props }, ref) => {
+    const skeletonRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return skeletonRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-skeleton
-        ref={ref}
+        ref={skeletonRef}
         class={clsx('Skeleton', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-skeleton>
     );
   }
 );
