@@ -67,7 +67,7 @@ export const Footer = () => {
         onHide={() => setImprintOpen(false)}
       >
         <h3 className="wa-heading-m">Information pursuant to § 5 DDG</h3>
-        <p className="wa-body-s">
+        <div className="wa-body-s">
           <ul className="wa-list-plain">
             <li>Michael Suzuki</li>
             <li>c/o flexdienst – #20266</li>
@@ -75,7 +75,7 @@ export const Footer = () => {
             <li>67663 Kaiserslautern</li>
             <li>Deutschland</li>
           </ul>
-        </p>
+        </div>
 
         <h3 className="wa-heading-m">Contact</h3>
         <p className="wa-body-s">
@@ -109,7 +109,7 @@ export const Footer = () => {
           <p className="wa-body-s">
             The controller responsible for data processing on this website is:
           </p>
-          <p className="wa-body-s">
+          <div className="wa-body-s">
             <ul className="wa-list-plain">
               <li>Michael Suzuki</li>
               <li>c/o flexdienst – #20266</li>
@@ -118,7 +118,7 @@ export const Footer = () => {
               <li>Deutschland</li>
             </ul>
             E-Mail: <a href="mailto:legal@mischa.dev">legal@mischa.dev</a>
-          </p>
+          </div>
 
           <h3 className="wa-heading-m">2. Hosting and Server Logs</h3>
           <p className="wa-body-s">
