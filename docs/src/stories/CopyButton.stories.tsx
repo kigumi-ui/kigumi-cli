@@ -4,7 +4,7 @@ import { CopyButton } from '@/components/ui';
 
 /**
  * Copy Button copies a given string to the clipboard when clicked and provides visual
- * feedback — swapping from a copy icon to a check icon — to confirm the action. The
+ * feedback by swapping from a copy icon to a check icon to confirm the action. The
  * value to copy, copy labels, and error labels can all be customised. Useful for code
  * snippets, API keys, and shareable URLs.
  */

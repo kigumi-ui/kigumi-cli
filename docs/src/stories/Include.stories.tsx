@@ -117,7 +117,7 @@ export const ChromaticOnly: Story = {
           fontSize: '0.875rem',
         }}
       >
-        Include fetches external HTML content — not testable in a static
+        Include fetches external HTML content and is not testable in a static
         Chromatic snapshot.
       </p>
       <Include src="https://non-existent.invalid/page.html" />

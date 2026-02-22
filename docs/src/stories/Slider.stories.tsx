@@ -57,7 +57,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A horizontal slider with default range (0–100) at 50. */
+/** A horizontal slider with default range (0 to 100) at 50. */
 export const Default: Story = {
   args: { label: 'Volume', value: 50 },
 };

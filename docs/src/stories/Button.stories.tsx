@@ -3,7 +3,7 @@ import { fn } from 'storybook/test';
 import { Button } from '@/components/ui';
 
 /**
- * Button triggers actions that users can initiate — submitting forms, navigating to a URL,
+ * Button triggers actions: submitting forms, navigating to a URL,
  * or calling any handler. It supports five semantic color variants, four visual appearances,
  * three sizes, pill corners, loading state, and can render as a native anchor element when
  * given an `href`.

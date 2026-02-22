@@ -4,7 +4,7 @@ import { Callout, Icon } from '@/components/ui';
 /**
  * Callout highlights important information, warnings, or contextual messages inline within
  * content. It supports five semantic color variants and multiple appearance styles so it can
- * communicate different levels of urgency — from a soft tip to a hard error. An optional
+ * communicate different levels of urgency, from a soft tip to a hard error. An optional
  * icon slot reinforces meaning visually.
  */
 const meta = {
@@ -116,16 +116,16 @@ export const ChromaticOnly: Story = {
     >
       {(['neutral', 'brand', 'success', 'warning', 'danger'] as const).map(
         (variant) => (
-          <Callout key={variant} variant={variant} open>
+          <Callout key={variant} variant={variant}>
             <Icon name="info-circle" slot="icon" />
             <strong>
               {variant.charAt(0).toUpperCase() + variant.slice(1)}
             </strong>{' '}
-            — This is a {variant} callout message.
+            This is a {variant} callout message.
           </Callout>
         )
       )}
-      <Callout variant="brand" open>
+      <Callout variant="brand">
         <Icon name="star" slot="icon" />
         <strong>With header</strong>
         <span slot="header">Header Text</span>

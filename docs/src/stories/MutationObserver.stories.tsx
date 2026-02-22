@@ -128,7 +128,7 @@ export const AttributeObserver: Story = {
               marginBottom: '0.75rem',
             }}
           >
-            Observed element — style changes trigger mutation events
+            Observed element: style changes trigger mutation events
           </div>
         </MutationObserver>
         <Button size="small" onClick={() => setHighlighted((h) => !h)}>
@@ -152,7 +152,7 @@ export const ChromaticOnly: Story = {
           fontSize: '0.875rem',
         }}
       >
-        MutationObserver observes DOM changes — not directly visual.
+        MutationObserver observes DOM changes and is not directly visual.
       </p>
       <MutationObserver attr="class">
         <div

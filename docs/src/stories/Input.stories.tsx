@@ -6,7 +6,7 @@ import { Input, Icon } from '@/components/ui';
  * Input is a single-line text entry field that supports all standard HTML input types
  * (text, email, password, search, tel, URL, date, etc.). It exposes prefix/suffix icon
  * slots, a clearable option, password visibility toggle, pill corners, three appearance
- * styles, three sizes, and a hint line — all without additional wrapper components.
+ * styles, three sizes, and a hint line, all without additional wrapper components.
  */
 const meta = {
   title: 'Components/Input',
@@ -180,7 +180,7 @@ export const WithHint: Story = {
   args: {
     label: 'Username',
     placeholder: 'Choose a username',
-    hint: 'Must be 3–20 characters, letters and numbers only',
+    hint: 'Must be 3 to 20 characters, letters and numbers only',
   },
 };
 
@@ -227,22 +227,22 @@ export const ChromaticOnly: Story = {
       <Input label="Default" placeholder="Enter text" />
       <Input
         label="With Help"
-        help-text="This is help text"
+        hint="This is help text"
         placeholder="Enter email"
         type="email"
       />
       <Input label="With Value" value="Prefilled value" />
       <Input label="Required" required />
       <Input label="Disabled" disabled value="Disabled input" />
-      <Input label="Invalid" invalid help-text="This field is required" />
+      <Input label="Invalid" hint="This field is required" />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <Input size="small" placeholder="Small" />
         <Input size="medium" placeholder="Medium" />
         <Input size="large" placeholder="Large" />
       </div>
       <Input label="With Icons" placeholder="Search...">
-        <Icon name="search" slot="prefix" />
-        <Icon name="xmark" slot="suffix" />
+        <Icon name="magnifying-glass" slot="start" />
+        <Icon name="xmark" slot="end" />
       </Input>
       <Input label="Password" type="password" value="secret" password-toggle />
     </div>

@@ -6,7 +6,7 @@ import { Tag } from '@/components/ui';
 /**
  * Tag is a compact label used to categorise, filter, or annotate content. It supports five
  * semantic color variants, four appearance styles, three sizes, pill corners, and an
- * optional remove button — making it suitable for both read-only labels and interactive
+ * optional remove button, making it suitable for both read-only labels and interactive
  * tag-input patterns.
  */
 const meta = {
@@ -152,8 +152,8 @@ export const ChromaticOnly: Story = {
         <Tag variant="brand" appearance="outlined">
           Outlined
         </Tag>
-        <Tag variant="brand" appearance="tinted">
-          Tinted
+        <Tag variant="brand" appearance="filled-outlined">
+          Filled Outlined
         </Tag>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -165,7 +165,7 @@ export const ChromaticOnly: Story = {
         <Tag pill variant="brand">
           Pill
         </Tag>
-        <Tag removable variant="success">
+        <Tag withRemove variant="success">
           Removable
         </Tag>
       </div>

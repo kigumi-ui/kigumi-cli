@@ -3,7 +3,7 @@ import { fn } from 'storybook/test';
 import { Textarea } from '@/components/ui';
 
 /**
- * Textarea is a multi-line text entry field with configurable row count and resize modes —
+ * Textarea is a multi-line text entry field with configurable row count and resize modes:
  * none, vertical, horizontal, both, or auto-grow. It supports the same appearance styles
  * and sizes as Input, plus a character count via `maxlength`, a hint line, read-only and
  * disabled states, and native form participation.
@@ -154,7 +154,7 @@ export const WithHint: Story = {
   args: {
     label: 'Cover letter',
     placeholder: 'Describe your experience...',
-    hint: 'Keep it concise — 3 to 5 paragraphs recommended',
+    hint: 'Keep it concise, 3 to 5 paragraphs recommended',
     rows: 6,
   },
 };
@@ -177,11 +177,11 @@ export const ChromaticOnly: Story = {
       <Textarea label="With Value" value="Some existing text content." />
       <Textarea
         label="Help Text"
-        help-text="Max 500 characters"
+        hint="Max 500 characters"
         placeholder="Enter description..."
       />
       <Textarea label="Disabled" disabled value="Disabled textarea" />
-      <Textarea label="Invalid" invalid help-text="This field is required." />
+      <Textarea label="Invalid" hint="This field is required." />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <Textarea size="small" placeholder="Small" rows={2} />
         <Textarea size="medium" placeholder="Medium" rows={3} />

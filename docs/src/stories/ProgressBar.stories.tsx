@@ -3,7 +3,7 @@ import { ProgressBar } from '@/components/ui';
 
 /**
  * Progress Bar visualises the completion of a task as a filled horizontal track. The
- * `value` (0–100) and `max` props control the fill; an optional label slot lets you
+ * `value` (0 to 100) and `max` props control the fill; an optional label slot lets you
  * overlay text such as a percentage. An indeterminate mode animates the bar when the
  * total duration is unknown.
  */
@@ -14,7 +14,7 @@ const meta = {
   argTypes: {
     value: {
       control: { type: 'range', min: 0, max: 100, step: 1 },
-      description: 'Progress percentage (0–100)',
+      description: 'Progress percentage (0 to 100)',
       table: { defaultValue: { summary: '0' } },
     },
     indeterminate: {

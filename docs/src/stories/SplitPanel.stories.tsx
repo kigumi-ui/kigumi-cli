@@ -98,7 +98,7 @@ export const WithSnapping: Story = {
           fontSize: '0.875rem',
         }}
       >
-        Drag divider — snaps at 25%, 50%, and 75%
+        Drag the divider, snaps at 25%, 50%, and 75%
       </p>
       <SplitPanel {...args} style={{ height: '200px' }}>
         <PanelContent label="Start" color="var(--wa-color-danger-600)" />
@@ -164,7 +164,7 @@ export const ChromaticOnly: Story = {
         </div>
       </SplitPanel>
       <SplitPanel
-        vertical
+        orientation="vertical"
         style={{
           height: '300px',
           border: '1px solid var(--wa-color-neutral-border-normal)',

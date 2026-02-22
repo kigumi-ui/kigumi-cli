@@ -165,8 +165,8 @@ export const ChromaticOnly: Story = {
           fontSize: '0.875rem',
         }}
       >
-        IntersectionObserver triggers events based on element visibility — not
-        directly visual.
+        IntersectionObserver triggers events based on element visibility and is
+        not directly visual.
       </p>
       <IntersectionObserver>
         <div

@@ -98,7 +98,7 @@ export const Disabled: Story = {
           color: 'var(--wa-color-neutral-600)',
         }}
       >
-        Observer is disabled — resize events will not fire.
+        Observer is disabled, resize events will not fire.
       </p>
       <ResizeObserver {...args}>
         <div
@@ -136,7 +136,8 @@ export const ChromaticOnly: Story = {
           fontSize: '0.875rem',
         }}
       >
-        ResizeObserver triggers events on element resize — not directly visual.
+        ResizeObserver triggers events on element resize and is not directly
+        visual.
       </p>
       <ResizeObserver>
         <div

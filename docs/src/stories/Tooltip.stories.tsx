@@ -3,17 +3,21 @@ import { fn } from 'storybook/test';
 import { Tooltip, Button, Icon } from '@/components/ui';
 
 /**
- * Tooltip displays a brief text label near a trigger element when the user hovers, focuses,
- * or clicks it. Positioning is automatic via Floating UI; a small directional arrow
- * (optional) points at the trigger. Show and hide delays, the trigger type, and all twelve
- * placement positions are configurable.
+ * Tooltip displays a brief text label near a target element when the user hovers,
+ * focuses, or clicks it. Use the `for` prop to point to a target element by its `id`.
+ * The tooltip text is the component's children. Positioning is automatic via Floating UI;
+ * a small directional arrow (optional) points at the trigger. Show and hide delays,
+ * the trigger type, and all twelve placement positions are configurable.
  */
 const meta = {
   title: 'Components/Tooltip',
   component: Tooltip,
   tags: ['autodocs'],
   argTypes: {
-    content: { control: 'text', description: 'Tooltip text content' },
+    for: {
+      control: 'text',
+      description: 'ID of the target element the tooltip is attached to',
+    },
     placement: {
       control: 'select',
       options: [
@@ -55,7 +59,6 @@ const meta = {
     onAfterHide: { action: 'after-hide' },
   },
   args: {
-    content: 'This is a tooltip',
     onShow: fn(),
     onHide: fn(),
   },
@@ -66,12 +69,12 @@ type Story = StoryObj<typeof meta>;
 
 /** A tooltip that appears on hover over a button. */
 export const Default: Story = {
-  args: { content: 'Click to copy' },
   render: (args) => (
     <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-      <Tooltip {...args}>
-        <Button>Hover me</Button>
+      <Tooltip {...args} for="default-btn">
+        Click to copy
       </Tooltip>
+      <Button id="default-btn">Hover me</Button>
     </div>
   ),
 };
@@ -89,21 +92,41 @@ export const Placements: Story = {
       }}
     >
       <div />
-      <Tooltip content="Top" placement="top">
-        <Button size="small">Top</Button>
-      </Tooltip>
+      <span>
+        <Tooltip for="placement-top" placement="top">
+          Top
+        </Tooltip>
+        <Button id="placement-top" size="small">
+          Top
+        </Button>
+      </span>
       <div />
-      <Tooltip content="Left" placement="left">
-        <Button size="small">Left</Button>
-      </Tooltip>
+      <span>
+        <Tooltip for="placement-left" placement="left">
+          Left
+        </Tooltip>
+        <Button id="placement-left" size="small">
+          Left
+        </Button>
+      </span>
       <div />
-      <Tooltip content="Right" placement="right">
-        <Button size="small">Right</Button>
-      </Tooltip>
+      <span>
+        <Tooltip for="placement-right" placement="right">
+          Right
+        </Tooltip>
+        <Button id="placement-right" size="small">
+          Right
+        </Button>
+      </span>
       <div />
-      <Tooltip content="Bottom" placement="bottom">
-        <Button size="small">Bottom</Button>
-      </Tooltip>
+      <span>
+        <Tooltip for="placement-bottom" placement="bottom">
+          Bottom
+        </Tooltip>
+        <Button id="placement-bottom" size="small">
+          Bottom
+        </Button>
+      </span>
       <div />
     </div>
   ),
@@ -111,36 +134,36 @@ export const Placements: Story = {
 
 /** Opens the tooltip on click instead of hover. */
 export const ClickTrigger: Story = {
-  args: { content: 'Click triggered tooltip', trigger: 'click' },
   render: (args) => (
     <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-      <Tooltip {...args}>
-        <Button>Click me</Button>
+      <Tooltip {...args} for="click-btn" trigger="click">
+        Click triggered tooltip
       </Tooltip>
+      <Button id="click-btn">Click me</Button>
     </div>
   ),
 };
 
 /** Hides the directional arrow pointer. */
 export const WithoutArrow: Story = {
-  args: { content: 'No arrow tooltip', 'without-arrow': true },
   render: (args) => (
     <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-      <Tooltip {...args}>
-        <Button>Hover me</Button>
+      <Tooltip {...args} for="no-arrow-btn" without-arrow>
+        No arrow tooltip
       </Tooltip>
+      <Button id="no-arrow-btn">Hover me</Button>
     </div>
   ),
 };
 
 /** Delays tooltip appearance by 500 ms after hovering. */
 export const WithDelay: Story = {
-  args: { content: 'Appears after 500ms', 'show-delay': 500 },
   render: (args) => (
     <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
-      <Tooltip {...args}>
-        <Button>Delayed tooltip</Button>
+      <Tooltip {...args} for="delayed-btn" show-delay={500}>
+        Appears after 500ms
       </Tooltip>
+      <Button id="delayed-btn">Delayed tooltip</Button>
     </div>
   ),
 };
@@ -156,21 +179,20 @@ export const OnIcon: Story = {
         justifyContent: 'center',
       }}
     >
-      <Tooltip content="Add new item">
-        <Button appearance="plain">
-          <Icon name="plus" />
-        </Button>
-      </Tooltip>
-      <Tooltip content="Delete selected">
-        <Button appearance="plain" variant="danger">
-          <Icon name="trash" />
-        </Button>
-      </Tooltip>
-      <Tooltip content="Edit details">
-        <Button appearance="plain">
-          <Icon name="pencil" />
-        </Button>
-      </Tooltip>
+      <Tooltip for="icon-add">Add new item</Tooltip>
+      <Button id="icon-add" appearance="plain">
+        <Icon name="plus" />
+      </Button>
+
+      <Tooltip for="icon-delete">Delete selected</Tooltip>
+      <Button id="icon-delete" appearance="plain" variant="danger">
+        <Icon name="trash" />
+      </Button>
+
+      <Tooltip for="icon-edit">Edit details</Tooltip>
+      <Button id="icon-edit" appearance="plain">
+        <Icon name="pencil" />
+      </Button>
     </div>
   ),
 };
@@ -190,21 +212,24 @@ export const ChromaticOnly: Story = {
     >
       <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         {(['top', 'bottom', 'left', 'right'] as const).map((placement) => (
-          <Tooltip
-            key={placement}
-            content={`${placement} tooltip`}
-            placement={placement}
-            open
-          >
-            <Button>{placement}</Button>
-          </Tooltip>
+          <span key={placement}>
+            <Tooltip for={`chromatic-${placement}`} placement={placement} open>
+              {placement} tooltip
+            </Tooltip>
+            <Button id={`chromatic-${placement}`}>{placement}</Button>
+          </span>
         ))}
       </div>
-      <Tooltip content="Disabled button tooltip" open>
+      <span>
+        <Tooltip for="chromatic-disabled" open>
+          Disabled button tooltip
+        </Tooltip>
         <span>
-          <Button disabled>Disabled</Button>
+          <Button id="chromatic-disabled" disabled>
+            Disabled
+          </Button>
         </span>
-      </Tooltip>
+      </span>
     </div>
   ),
 };
