@@ -41,7 +41,7 @@ const meta = {
     onHide: { action: 'hide' },
     onClear: { action: 'clear' },
     onInvalid: { action: 'invalid' },
-    // hide open — managed internally
+    // hide open - managed internally
     open: { table: { disable: true } },
   },
   args: {

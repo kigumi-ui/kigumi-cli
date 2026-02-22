@@ -6,7 +6,7 @@ import { Animation, Button, Badge } from '@/components/ui';
 /**
  * Animation wraps any element and plays a named keyframe animation from the Web Animations API.
  * Choose from dozens of built-in presets (fade, bounce, spin, slide, etc.) or supply custom
- * keyframes. Control duration, delay, easing, iteration count, and direction — all without
+ * keyframes. Control duration, delay, easing, iteration count, and direction, all without
  * writing a single line of CSS.
  */
 const meta = {

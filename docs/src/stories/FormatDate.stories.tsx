@@ -6,7 +6,7 @@ const now = new Date();
 /**
  * Format Date displays a machine-readable date-time string in a locale-aware, human-friendly
  * format using the browser's `Intl.DateTimeFormat` API. Control which parts (date, time,
- * weekday, era, etc.) are shown and in which style — numeric, long, short, or narrow —
+ * weekday, era, etc.) are shown and in which style (numeric, long, short, or narrow)
  * without writing any formatting code.
  */
 const meta = {

@@ -58,9 +58,9 @@ export const Vertical: Story = {
   args: { label: 'Subscription plan', orientation: 'vertical' },
   render: (args) => (
     <RadioGroup {...args}>
-      <Radio value="free">Free – Basic features</Radio>
-      <Radio value="pro">Pro – Advanced features</Radio>
-      <Radio value="enterprise">Enterprise – Full access</Radio>
+      <Radio value="free">Free: Basic features</Radio>
+      <Radio value="pro">Pro: Advanced features</Radio>
+      <Radio value="enterprise">Enterprise: Full access</Radio>
     </RadioGroup>
   ),
 };

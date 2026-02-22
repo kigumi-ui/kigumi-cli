@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Drawer, Button } from '@/components/ui';
 
 /**
- * Drawer slides a panel in from any edge of the viewport — top, end, bottom, or start —
+ * Drawer slides a panel in from any edge of the viewport (top, end, bottom, or start)
  * and overlays the rest of the page. Like Dialog it traps focus and fires lifecycle events.
  * Use it for navigation menus, filter panels, detail views, or any contextual content that
  * should not replace the current page.

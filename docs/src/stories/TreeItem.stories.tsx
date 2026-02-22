@@ -128,10 +128,10 @@ export const Nested: Story = {
       <TreeItem expanded>
         Level 1
         <TreeItem expanded>
-          Level 2<TreeItem>Level 3 — Leaf A</TreeItem>
-          <TreeItem>Level 3 — Leaf B</TreeItem>
+          Level 2<TreeItem>Level 3 Leaf A</TreeItem>
+          <TreeItem>Level 3 Leaf B</TreeItem>
         </TreeItem>
-        <TreeItem>Level 2 — Leaf</TreeItem>
+        <TreeItem>Level 2 Leaf</TreeItem>
       </TreeItem>
     </Tree>
   ),

@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui';
 /**
  * Skeleton renders a placeholder shape that mimics the layout of content while it loads.
  * Use it to reduce perceived wait time and avoid layout shift. Three animation effects are
- * available — sheen (default), pulse, and none — and the shape is fully configurable via
+ * available (sheen by default, pulse, and none), and the shape is fully configurable via
  * CSS (width, height, border-radius).
  */
 const meta = {

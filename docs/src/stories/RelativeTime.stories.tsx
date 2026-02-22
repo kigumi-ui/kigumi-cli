@@ -11,8 +11,8 @@ const inHour = new Date(now.getTime() + 60 * 60 * 1000);
 const inDay = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
 /**
- * Relative Time formats a date-time value as a human-readable relative string — "3 minutes
- * ago", "in 2 days" — using the browser's `Intl.RelativeTimeFormat` API. It can
+ * Relative Time formats a date-time value as a human-readable relative string like "3 minutes
+ * ago" or "in 2 days", using the browser's `Intl.RelativeTimeFormat` API. It can
  * automatically pick the best time unit, update live as time passes, and switch between
  * "auto" and "always-numeric" styles.
  */

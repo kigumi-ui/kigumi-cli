@@ -4,7 +4,7 @@ import { Badge, Button } from '@/components/ui';
 /**
  * Badge is a small status indicator that attaches to another element to convey counts,
  * states, or labels. It supports five semantic color variants, four appearance styles,
- * and an optional pulsating attention animation — useful for live notification counts
+ * and an optional pulsating attention animation, useful for live notification counts
  * or highlighting new activity.
  */
 const meta = {
@@ -151,8 +151,8 @@ export const ChromaticOnly: Story = {
         <Badge variant="brand" appearance="outlined">
           Outlined
         </Badge>
-        <Badge variant="brand" appearance="tinted">
-          Tinted
+        <Badge variant="brand" appearance="filled-outlined">
+          Filled Outlined
         </Badge>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>

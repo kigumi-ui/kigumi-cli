@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QrCode } from '@/components/ui';
 
 /**
- * QR Code generates a scannable QR code image from any string value — URLs, contact cards,
+ * QR Code generates a scannable QR code image from any string value: URLs, contact cards,
  * Wi-Fi credentials, etc. You can control the error-correction level, foreground and
  * background colors, module radius for rounded corners, and the label displayed below
  * the code.

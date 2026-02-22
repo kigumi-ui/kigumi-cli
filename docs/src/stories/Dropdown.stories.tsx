@@ -3,7 +3,7 @@ import { fn } from 'storybook/test';
 import { Dropdown, DropdownItem, Button, Icon } from '@/components/ui';
 
 /**
- * Dropdown attaches a contextual menu to a trigger element — typically a button — and
+ * Dropdown attaches a contextual menu to a trigger element, typically a button, and
  * displays a list of actions or options when activated. It positions itself automatically
  * to stay within the viewport, supports nested items, and can carry checkbox items for
  * multi-select scenarios.

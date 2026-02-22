@@ -4,8 +4,8 @@ import { Card, Button, Badge, Avatar, Icon } from '@/components/ui';
 /**
  * Card is a versatile container that groups related content into a distinct visual unit.
  * It exposes slots for a header, body, footer, and media image, and supports horizontal
- * orientation for side-by-side layouts. Multiple appearance styles — from a plain surface
- * to a shadowed or outlined box — let it adapt to any design context.
+ * orientation for side-by-side layouts. Multiple appearance styles, from a plain surface
+ * to a shadowed or outlined box, so it adapts to any design context.
  */
 const meta = {
   title: 'Components/Card',
@@ -272,7 +272,7 @@ export const ChromaticOnly: Story = {
       </Card>
       <Card style={{ maxWidth: '340px' }}>
         <img
-          slot="image"
+          slot="media"
           src="https://images.unsplash.com/photo-1559209172-0ff8f6d49ff7?w=500&h=300&fit=crop"
           alt="Cat"
         />

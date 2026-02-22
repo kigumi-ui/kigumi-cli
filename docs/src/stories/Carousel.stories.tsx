@@ -3,7 +3,7 @@ import { fn } from 'storybook/test';
 import { Carousel, CarouselItem } from '@/components/ui';
 
 /**
- * Carousel presents a sequence of slides — images, cards, or any content — in a scrollable
+ * Carousel presents a sequence of slides (images, cards, or any content) in a scrollable
  * strip with optional navigation arrows and pagination dots. It supports looping, autoplay
  * with a configurable interval, multiple visible slides per page, and mouse/touch dragging.
  * Individual slides are provided as Carousel Item children.

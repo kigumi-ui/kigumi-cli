@@ -14,7 +14,7 @@ const meta = {
   argTypes: {
     position: {
       control: { type: 'range', min: 0, max: 100, step: 1 },
-      description: 'Initial divider position (0–100)',
+      description: 'Initial divider position (0 to 100)',
       table: { defaultValue: { summary: '50' } },
     },
   },

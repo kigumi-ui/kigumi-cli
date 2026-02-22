@@ -5,7 +5,7 @@ import { Popover, Button, Icon } from '@/components/ui';
 
 /**
  * Popover displays rich content in a floating panel anchored to a trigger element. Unlike
- * Tooltip it is not limited to plain text — any markup can go inside — and it stays open
+ * Tooltip it is not limited to plain text: any markup can go inside, and it stays open
  * until explicitly dismissed. It positions itself automatically using Floating UI and
  * supports a directional arrow pointing at the trigger.
  */

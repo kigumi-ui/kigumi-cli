@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ZoomableFrame } from '@/components/ui';
 
 /**
- * Zoomable Frame embeds content in an iframe with built-in zoom controls — zoom in, zoom
+ * Zoomable Frame embeds content in an iframe with built-in zoom controls to zoom in, zoom
  * out, and reset. The zoom level can be set programmatically or constrained to a custom set
  * of discrete levels. Use it to preview responsive designs at different scales or display
  * content that benefits from independent zooming.
