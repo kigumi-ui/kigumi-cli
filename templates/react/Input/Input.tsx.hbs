@@ -56,6 +56,57 @@ export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' 
   /** Adds a toggle button for password visibility */
   'password-toggle'?: boolean;
 
+  /** Shows the password as plain text when set */
+  'password-visible'?: boolean;
+
+  /** Makes the input readonly */
+  readonly?: boolean;
+
+  /** Makes the input required */
+  required?: boolean;
+
+  /** The name of the input for form submission */
+  name?: string;
+
+  /** A regular expression pattern the value must match */
+  pattern?: string;
+
+  /** Minimum string length */
+  minlength?: number;
+
+  /** Maximum string length */
+  maxlength?: number;
+
+  /** Minimum value for numeric and date types */
+  min?: number | string;
+
+  /** Maximum value for numeric and date types */
+  max?: number | string;
+
+  /** Step increment for numeric types */
+  step?: number | string;
+
+  /** Hides the browser's built-in spin buttons for number inputs */
+  'without-spin-buttons'?: boolean;
+
+  /** Hint for autocomplete behavior */
+  autocomplete?: string;
+
+  /** Controls automatic capitalization */
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+
+  /** Hint for autocorrect behavior */
+  autocorrect?: 'off' | 'on';
+
+  /** Automatically focuses the input on page load */
+  autofocus?: boolean;
+
+  /** Hint for virtual keyboard type */
+  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+
+  /** Hint for Enter key label on virtual keyboards */
+  enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
   /** Emitted when the control receives input (native input event). */
   onInput?: (event: Event) => void;
 

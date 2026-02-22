@@ -44,11 +44,26 @@ export interface SliderProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
   /** Step increment */
   step?: number;
 
-  /** Tooltip position */
-  tooltip?: 'top' | 'bottom' | 'none';
+  /** The orientation of the slider */
+  orientation?: 'horizontal' | 'vertical';
 
   /** Disables the slider */
   disabled?: boolean;
+
+  /** Makes the slider readonly */
+  readonly?: boolean;
+
+  /** Makes the slider required */
+  required?: boolean;
+
+  /** Converts to a range slider with two thumbs */
+  range?: boolean;
+
+  /** Draws markers at each step */
+  'with-markers'?: boolean;
+
+  /** Draws a tooltip above the thumb */
+  'with-tooltip'?: boolean;
 
   /** Emitted when an alteration to the control's value is committed by the user. */
   onChange?: (event: CustomEvent) => void;

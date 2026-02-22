@@ -11,7 +11,7 @@ import './Button.css';
  * <Button variant="brand">Click me</Button>
  * <Button appearance="outlined" size="large">Large Button</Button>
  * <Button loading>Loading...</Button>
- * <Button data-dialog="close">Close Dialog</Button>
+ * <Button type="submit" form="myForm">Submit</Button>
  *
  * // With event handlers
  * <Button onBlur={() => console.log('Lost focus')}>
@@ -25,18 +25,25 @@ import './Button.css';
  * ```
  *
  * @typedef {Object} ButtonProps
- * @property {string} [variant] - Semantic variant
- * @property {string} [appearance] - Visual appearance
- * @property {string} [size] - Button size
+ * @property {string} [variant] - Semantic variant: neutral | brand | success | warning | danger
+ * @property {string} [appearance] - Visual appearance: accent | filled | outlined | filled-outlined | plain
+ * @property {string} [size] - Button size: small | medium | large
  * @property {boolean} [pill] - Rounded edges
  * @property {boolean} [disabled] - Disables button
  * @property {boolean} [loading] - Shows loading indicator
  * @property {boolean} [with-caret] - Adds dropdown caret
  * @property {string} [href] - Makes button work like link
- * @property {string} [target] - Link target
+ * @property {string} [target] - Link target: _blank | _self | _parent | _top
  * @property {string} [download] - Download filename
  * @property {string} [rel] - Link relationship
- * @property {string} [data-dialog] - Dialog control attribute
+ * @property {string} [type] - Button type for form submission: button | submit | reset
+ * @property {string} [name] - Name for form submission
+ * @property {string} [value] - Value for form submission
+ * @property {string} [formaction] - Override form action
+ * @property {string} [formenctype] - Override form enctype
+ * @property {string} [formmethod] - Override form method
+ * @property {boolean} [formnovalidate] - Bypass form validation
+ * @property {string} [formtarget] - Override form target
  * @property {function} [onBlur] - Event fired when button loses focus
  * @property {function} [onFocus] - Event fired when button gains focus
  */

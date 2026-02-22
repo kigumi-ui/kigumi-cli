@@ -11,13 +11,13 @@ import './NumberInput.css';
  * // Basic usage
  * <NumberInput label="Quantity" min={0} max={100} />
  * <NumberInput step={0.1} value={5.5} />
- * <NumberInput no-spin-buttons />
+ * <NumberInput without-steppers />
  *
  * // With event handlers
  * <NumberInput
  *   label="Amount"
- *   onInput={(e) => console.log('Value:', e.target.value)}
- *   onChange={(e) => console.log('Changed:', e.target.value)}
+ *   onInput={(e) => console.log('Value changed')}
+ *   onChange={(e) => console.log('Value committed')}
  * />
  *
  * // With ref methods
@@ -34,15 +34,15 @@ import './NumberInput.css';
  * @property {number} [max] - Maximum value
  * @property {number} [step] - Step increment
  * @property {string} [placeholder] - Placeholder text
- * @property {string} [appearance] - Visual appearance style
- * @property {string} [size] - Input size
+ * @property {string} [appearance] - Visual appearance: filled | outlined | filled-outlined
+ * @property {string} [size] - Input size: small | medium | large
  * @property {boolean} [disabled] - Disables the input
  * @property {boolean} [required] - Makes field mandatory
- * @property {boolean} [no-spin-buttons] - Hides the spin buttons
+ * @property {boolean} [without-steppers] - Hides the stepper buttons
  * @property {function} [onBlur] - Event fired when input loses focus
  * @property {function} [onFocus] - Event fired when input gains focus
  * @property {function} [onInput] - Event fired when value changes
- * @property {function} [onChange] - Event fired when value changes and loses focus
+ * @property {function} [onChange] - Event fired when value is committed
  */
 
 export const NumberInput = React.forwardRef(
