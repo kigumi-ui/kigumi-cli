@@ -9,41 +9,68 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/rating/rating.js';
 import './Rating.css';
 
+/**
+ * Ratings give users a way to quickly view and provide feedback
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Rating />
+ *
+ * // With event handlers
+ * <Rating
+ *   onChange={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<RatingRef>(null);
+ * <button onClick={() => ref.current?.focus()}>Call Method</button>
+ * <Rating ref={ref} />
+ * ```
+ */
 export interface RatingProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onChange' | 'dir'
+  'onChange' | 'onHover' | 'dir'
 > {
-  /** The current rating */
+  /** Accessible label */
+  label?: string;
+
+  /** Current rating value */
   value?: number;
-  /** The highest rating to show */
+
+  /** Maximum rating value */
   max?: number;
-  /** Allows fractional ratings */
+
+  /** Rating precision (e.g., 0.5) */
   precision?: number;
+
   /** Makes the rating readonly */
   readonly?: boolean;
+
   /** Disables the rating */
   disabled?: boolean;
-  /** A label for assistive devices */
-  label?: string;
-  /** The component's size */
-  size?: 'small' | 'medium' | 'large';
-  /** Event fired when the rating's value changes */
-  onChange?: (event: Event) => void;
-  /** Event fired during user interaction */
+
+  /** Emitted when the rating's value changes. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
   onHover?: (event: CustomEvent) => void;
 }
 
 export interface RatingRef {
-  focus: (options?: FocusOptions) => void;
+  /** Sets focus on the rating. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the rating. */
   blur: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Rating = forwardRef<RatingRef, RatingProps>(
-  ({ className, onChange, onHover, ...props }, ref) => {
+  ({ children, className, onChange, onHover, ...props }, ref) => {
     const ratingRef = useRef<
       HTMLElement & {
-        focus?: (options?: FocusOptions) => void;
+        focus?: (options: FocusOptions) => void;
         blur?: () => void;
       }
     >(null);
@@ -51,8 +78,22 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
     useImperativeHandle(
       ref,
       () => ({
-        focus: (options) => ratingRef.current?.focus?.(options),
-        blur: () => ratingRef.current?.blur?.(),
+        focus: (options: FocusOptions) => {
+          if (
+            ratingRef.current &&
+            typeof ratingRef.current.focus === 'function'
+          ) {
+            ratingRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (
+            ratingRef.current &&
+            typeof ratingRef.current.blur === 'function'
+          ) {
+            ratingRef.current.blur();
+          }
+        },
         get element() {
           return ratingRef.current;
         },
@@ -64,8 +105,13 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       const el = ratingRef.current;
       if (!el) return;
 
-      const handleChange = (e: Event) => onChange?.(e);
-      const handleHover = (e: Event) => onHover?.(e as CustomEvent);
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleHover = (e: Event) => {
+        if (onHover) onHover(e as CustomEvent);
+      };
 
       el.addEventListener('change', handleChange);
       el.addEventListener('wa-hover', handleHover);
@@ -81,7 +127,9 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
         ref={ratingRef}
         class={clsx('Rating', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-rating>
     );
   }
 );

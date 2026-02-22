@@ -1,0 +1,19 @@
+/**
+ * NumberInput Component Styles
+ * Documentation: https://webawesome.com/docs/components/number-input
+ *
+ * CSS Parts:
+ * label — Label text above the input
+ * form-control-label — Form control label wrapper
+ * hint — Hint text below the input
+ * base — Root wrapper element
+ * input — Native number input element
+ * start — Wrapper for start slot content
+ * end — Wrapper for end slot content
+ * stepper — Stepper buttons container
+ * stepper-increment — Increment stepper button
+ * stepper-decrement — Decrement stepper button
+ */
+.NumberInput {
+  /* Add your custom styles here */
+}

@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/copy-button/copy-button.js';
 import './CopyButton.css';
@@ -8,8 +14,13 @@ import './CopyButton.css';
  *
  * @example
  * ```tsx
- * <CopyButton value="Text to copy" />
- * <CopyButton from=".code-block" copy-label="Copy code" success-label="Copied!" />
+ * // Basic usage
+ * <CopyButton />
+ *
+ * // With event handlers
+ * <CopyButton
+ *   onCopy={(e) => console.log(e)} />
+ *
  * ```
  */
 export interface CopyButtonProps extends Omit<
@@ -18,33 +29,56 @@ export interface CopyButtonProps extends Omit<
 > {
   /** The text to copy */
   value?: string;
+
   /** Element selector to copy text from */
   from?: string;
+
   /** Disables the button */
   disabled?: boolean;
+
   /** Tooltip label for copy state */
   'copy-label'?: string;
+
   /** Tooltip label for success state */
   'success-label'?: string;
+
   /** Tooltip label for error state */
   'error-label'?: string;
+
   /** Duration of feedback state in milliseconds */
   'feedback-duration'?: number;
+
   /** Tooltip position */
   'tooltip-placement'?: 'top' | 'right' | 'bottom' | 'left';
-  /** Event fired when copy succeeds */
+
+  /** Emitted when the data has been copied. */
   onCopy?: (event: CustomEvent) => void;
-  /** Event fired when copy fails */
+
+  /** Emitted when the data could not be copied. */
   onError?: (event: CustomEvent) => void;
 }
 
-export const CopyButton = forwardRef<HTMLElement, CopyButtonProps>(
+export interface CopyButtonRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
   ({ children, className, onCopy, onError, ...props }, ref) => {
-    const internalRef = ref as React.RefObject<HTMLElement>;
+    const copybuttonRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return copybuttonRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el =
-        internalRef && 'current' in internalRef ? internalRef.current : null;
+      const el = copybuttonRef.current;
       if (!el) return;
 
       const handleCopy = (e: Event) => {
@@ -62,11 +96,11 @@ export const CopyButton = forwardRef<HTMLElement, CopyButtonProps>(
         el.removeEventListener('wa-copy', handleCopy);
         el.removeEventListener('wa-error', handleError);
       };
-    }, [internalRef, onCopy, onError]);
+    }, [onCopy, onError]);
 
     return (
       <wa-copy-button
-        ref={ref}
+        ref={copybuttonRef}
         class={clsx('CopyButton', className)}
         {...(props as Record<string, unknown>)}
       >

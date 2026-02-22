@@ -14,43 +14,64 @@ import './Carousel.css';
  *
  * @example
  * ```tsx
- * <Carousel navigation pagination loop>
- *   <CarouselItem>Slide 1</CarouselItem>
- *   <CarouselItem>Slide 2</CarouselItem>
- *   <CarouselItem>Slide 3</CarouselItem>
- * </Carousel>
+ * // Basic usage
+ * <Carousel />
+ *
+ * // With event handlers
+ * <Carousel
+ *   onSlideChange={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<CarouselRef>(null);
+ * <button onClick={() => ref.current?.previous()}>Call Method</button>
+ * <Carousel ref={ref} />
  * ```
  */
 export interface CarouselProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'dir'
+  'onSlideChange' | 'dir'
 > {
   /** Automatically scrolls slides when user isn't interacting */
   autoplay?: boolean;
+
   /** Milliseconds between automatic scrolls */
   'autoplay-interval'?: number;
+
   /** Allows infinite navigation in same direction */
   loop?: boolean;
+
   /** Enables dragging slides with mouse */
   'mouse-dragging'?: boolean;
+
   /** Shows previous/next buttons */
   navigation?: boolean;
+
   /** Carousel layout direction */
   orientation?: 'horizontal' | 'vertical';
+
   /** Shows slide indicator dots */
   pagination?: boolean;
+
   /** Number of slides to advance per scroll */
   'slides-per-move'?: number;
+
   /** Number of slides visible at once */
   'slides-per-page'?: number;
-  /** Event fired when the active slide changes */
+
+  /** Emitted when the active slide changes. */
   onSlideChange?: (event: CustomEvent) => void;
 }
 
 export interface CarouselRef {
-  goToSlide: (index: number, behavior?: ScrollBehavior) => void;
-  next: (behavior?: ScrollBehavior) => void;
-  previous: (behavior?: ScrollBehavior) => void;
+  /** Move the carousel backward by `slides-per-move` slides. */
+  previous: (behavior: ScrollBehavior) => void;
+
+  /** Move the carousel forward by `slides-per-move` slides. */
+  next: (behavior: ScrollBehavior) => void;
+
+  /** Scrolls the carousel to the slide specified by `index`. */
+  goToSlide: (index: number, behavior: ScrollBehavior) => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
@@ -58,24 +79,24 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
   ({ children, className, onSlideChange, ...props }, ref) => {
     const carouselRef = useRef<
       HTMLElement & {
-        goToSlide?: (index: number, behavior?: ScrollBehavior) => void;
-        next?: (behavior?: ScrollBehavior) => void;
-        previous?: (behavior?: ScrollBehavior) => void;
+        previous?: (behavior: ScrollBehavior) => void;
+        next?: (behavior: ScrollBehavior) => void;
+        goToSlide?: (index: number, behavior: ScrollBehavior) => void;
       }
     >(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        goToSlide: (index: number, behavior?: ScrollBehavior) => {
+        previous: (behavior: ScrollBehavior) => {
           if (
             carouselRef.current &&
-            typeof carouselRef.current.goToSlide === 'function'
+            typeof carouselRef.current.previous === 'function'
           ) {
-            carouselRef.current.goToSlide(index, behavior);
+            carouselRef.current.previous(behavior);
           }
         },
-        next: (behavior?: ScrollBehavior) => {
+        next: (behavior: ScrollBehavior) => {
           if (
             carouselRef.current &&
             typeof carouselRef.current.next === 'function'
@@ -83,12 +104,12 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
             carouselRef.current.next(behavior);
           }
         },
-        previous: (behavior?: ScrollBehavior) => {
+        goToSlide: (index: number, behavior: ScrollBehavior) => {
           if (
             carouselRef.current &&
-            typeof carouselRef.current.previous === 'function'
+            typeof carouselRef.current.goToSlide === 'function'
           ) {
-            carouselRef.current.previous(behavior);
+            carouselRef.current.goToSlide(index, behavior);
           }
         },
         get element() {

@@ -757,7 +757,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           },
           {
             name: 'alpha',
-            type: 'any',
+            type: 'number',
           },
         ],
       },

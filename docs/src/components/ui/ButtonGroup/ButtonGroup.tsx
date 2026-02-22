@@ -1,4 +1,9 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/button-group/button-group.js';
 import './ButtonGroup.css';
@@ -8,26 +13,12 @@ import './ButtonGroup.css';
  *
  * @example
  * ```tsx
- * // Basic horizontal button group
- * <ButtonGroup>
- *   <Button>Left</Button>
- *   <Button>Middle</Button>
- *   <Button>Right</Button>
- * </ButtonGroup>
+ * // Basic usage
+ * <ButtonGroup />
  *
- * // Vertical orientation
- * <ButtonGroup orientation="vertical">
- *   <Button>Top</Button>
- *   <Button>Middle</Button>
- *   <Button>Bottom</Button>
- * </ButtonGroup>
+ * // With event handlers
+ * <ButtonGroup />
  *
- * // With accessibility label
- * <ButtonGroup label="Text alignment">
- *   <Button><Icon name="align-left" /></Button>
- *   <Button><Icon name="align-center" /></Button>
- *   <Button><Icon name="align-right" /></Button>
- * </ButtonGroup>
  * ```
  */
 export interface ButtonGroupProps extends Omit<
@@ -36,15 +27,33 @@ export interface ButtonGroupProps extends Omit<
 > {
   /** A label to use for the button group. This won't be displayed on the screen, but it will be announced by assistive devices */
   label?: string;
+
   /** Controls the button group's layout direction */
   orientation?: 'horizontal' | 'vertical';
 }
 
-export const ButtonGroup = forwardRef<HTMLElement, ButtonGroupProps>(
+export interface ButtonGroupRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
   ({ children, className, ...props }, ref) => {
+    const buttongroupRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return buttongroupRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-button-group
-        ref={ref}
+        ref={buttongroupRef}
         class={clsx('ButtonGroup', className)}
         {...(props as Record<string, unknown>)}
       >

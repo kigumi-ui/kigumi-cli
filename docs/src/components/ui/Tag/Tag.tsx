@@ -9,28 +9,51 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/tag/tag.js';
 import './Tag.css';
 
-export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  /** The tag's visual appearance */
+/**
+ * Tags are used as labels to organize things or indicate selections
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Tag />
+ *
+ * // With event handlers
+ * <Tag
+ *   onRemove={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface TagProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onRemove' | 'dir'
+> {
+  /** Visual appearance */
   appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
-  /** Draws a pill-style tag with rounded edges */
+
+  /** Rounded edges */
   pill?: boolean;
-  /** The tag's size */
+
+  /** Tag size */
   size?: 'small' | 'medium' | 'large';
-  /** The tag's theme variant */
+
+  /** Theme variant */
   variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
-  /** Makes the tag removable and shows a remove button */
-  withRemove?: boolean;
-  /** Emitted when the remove button is activated */
+
+  /** Shows remove button */
+  'with-remove'?: boolean;
+
+  /** Emitted when the remove button is activated. */
   onRemove?: (event: CustomEvent) => void;
 }
 
 export interface TagRef {
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
 export const Tag = forwardRef<TagRef, TagProps>(
   ({ children, className, onRemove, ...props }, ref) => {
-    const tagRef = useRef<HTMLElement>(null);
+    const tagRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
       ref,
@@ -46,7 +69,9 @@ export const Tag = forwardRef<TagRef, TagProps>(
       const el = tagRef.current;
       if (!el) return;
 
-      const handleRemove = (e: Event) => onRemove?.(e as CustomEvent);
+      const handleRemove = (e: Event) => {
+        if (onRemove) onRemove(e as CustomEvent);
+      };
 
       el.addEventListener('wa-remove', handleRemove);
 

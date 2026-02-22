@@ -1,0 +1,230 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/number-input/number-input.js';
+import './NumberInput.css';
+
+/**
+ * Number inputs allow users to enter numeric values with optional step controls
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <NumberInput />
+ *
+ * // With event handlers
+ * <NumberInput
+ *   onInput={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<NumberInputRef>(null);
+ * <button onClick={() => ref.current?.focus()}>Call Method</button>
+ * <NumberInput ref={ref} />
+ * ```
+ */
+export interface NumberInputProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'
+> {
+  /** Accessible label */
+  label?: string;
+
+  /** Descriptive hint text */
+  hint?: string;
+
+  /** Current value */
+  value?: number;
+
+  /** Minimum value */
+  min?: number;
+
+  /** Maximum value */
+  max?: number;
+
+  /** Step increment */
+  step?: number;
+
+  /** Disables the input */
+  disabled?: boolean;
+
+  /** Makes field mandatory */
+  required?: boolean;
+
+  /** Placeholder text */
+  placeholder?: string;
+
+  /** Input size */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Visual appearance */
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+
+  /** Hides the stepper buttons */
+  'without-steppers'?: boolean;
+
+  /** Emitted when the control receives input. */
+  onInput?: (event: CustomEvent) => void;
+
+  /** Emitted when an alteration to the control's value is committed by the user. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the control loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when the control gains focus. */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface NumberInputRef {
+  /** Sets focus on the input. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the input. */
+  blur: () => void;
+
+  /** Selects all the text in the input. */
+  select: () => void;
+
+  /** Increments the value by the step amount. */
+  stepUp: () => void;
+
+  /** Decrements the value by the step amount. */
+  stepDown: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
+  (
+    {
+      children,
+      className,
+      onInput,
+      onChange,
+      onBlur,
+      onFocus,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
+    const numberinputRef = useRef<
+      HTMLElement & {
+        focus?: (options: FocusOptions) => void;
+        blur?: () => void;
+        select?: () => void;
+        stepUp?: () => void;
+        stepDown?: () => void;
+      }
+    >(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options: FocusOptions) => {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.focus === 'function'
+          ) {
+            numberinputRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.blur === 'function'
+          ) {
+            numberinputRef.current.blur();
+          }
+        },
+        select: () => {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.select === 'function'
+          ) {
+            numberinputRef.current.select();
+          }
+        },
+        stepUp: () => {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.stepUp === 'function'
+          ) {
+            numberinputRef.current.stepUp();
+          }
+        },
+        stepDown: () => {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.stepDown === 'function'
+          ) {
+            numberinputRef.current.stepDown();
+          }
+        },
+        get element() {
+          return numberinputRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = numberinputRef.current;
+      if (!el) return;
+
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
+
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onInput, onChange, onBlur, onFocus, onInvalid]);
+
+    return (
+      <wa-number-input
+        ref={numberinputRef}
+        class={clsx('NumberInput', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-number-input>
+    );
+  }
+);
+
+NumberInput.displayName = 'NumberInput';

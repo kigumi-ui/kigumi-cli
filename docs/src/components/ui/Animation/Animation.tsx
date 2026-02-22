@@ -14,56 +14,73 @@ import './Animation.css';
  *
  * @example
  * ```tsx
- * // Using built-in animations
- * <Animation name="bounce" duration={2000} play>
- *   <div className="box">Bouncing!</div>
- * </Animation>
+ * // Basic usage
+ * <Animation />
  *
- * // Using ref methods
- * const animRef = useRef<AnimationRef>(null);
- * <button onClick={() => animRef.current?.cancel()}>Cancel</button>
- * <Animation ref={animRef} name="pulse" iterations={3}>
- *   <div>Content</div>
- * </Animation>
+ * // With event handlers
+ * <Animation
+ *   onCancel={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<AnimationRef>(null);
+ * <button onClick={() => ref.current?.cancel()}>Call Method</button>
+ * <Animation ref={ref} />
  * ```
  */
 export interface AnimationProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'dir'
+  'onCancel' | 'onFinish' | 'onStart' | 'dir'
 > {
   /** The name of the built-in animation to use */
   name?: string;
+
   /** Plays the animation. When omitted, the animation will be paused */
   play?: boolean;
+
   /** The number of milliseconds to delay the start of the animation */
   delay?: number;
+
   /** Determines the direction of playback */
   direction?: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse';
+
   /** The number of milliseconds each iteration takes to complete */
   duration?: number;
+
   /** The easing function to use */
   easing?: string;
+
   /** The number of milliseconds to delay after the active period */
   'end-delay'?: number;
+
   /** Sets how the animation applies styles before and after execution */
   fill?: 'auto' | 'backwards' | 'both' | 'forwards' | 'none';
+
   /** The number of iterations to run before completing */
   iterations?: number;
+
   /** The offset at which to start the animation */
   'iteration-start'?: number;
+
   /** Sets the animation's playback rate */
   'playback-rate'?: number;
-  /** Event fired when the animation is canceled */
+
+  /** Emitted when the animation is canceled. */
   onCancel?: (event: CustomEvent) => void;
-  /** Event fired when the animation finishes */
+
+  /** Emitted when the animation finishes. */
   onFinish?: (event: CustomEvent) => void;
-  /** Event fired when the animation starts or restarts */
+
+  /** Emitted when the animation starts or restarts. */
   onStart?: (event: CustomEvent) => void;
 }
 
 export interface AnimationRef {
+  /** Clears all keyframe effects caused by this animation and aborts its playback. */
   cancel: () => void;
+
+  /** Sets the playback time to the end of the animation corresponding to the current playback direction. */
   finish: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 

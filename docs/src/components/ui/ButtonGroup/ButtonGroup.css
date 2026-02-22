@@ -3,12 +3,7 @@
  * Documentation: https://webawesome.com/docs/components/button-group
  *
  * CSS Parts:
- * - base: The component's base wrapper
- *
- * @example
- * .ButtonGroup::part(base) {
- *   // Custom styles for the base wrapper
- * }
+ * base — Root wrapper element
  */
 .ButtonGroup {
   /* Add your custom styles here */

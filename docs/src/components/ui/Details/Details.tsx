@@ -14,42 +14,61 @@ import './Details.css';
  *
  * @example
  * ```tsx
- * <Details summary="Click to expand">
- *   <p>Hidden content that reveals when expanded.</p>
- * </Details>
+ * // Basic usage
+ * <Details />
  *
- * // Controlled
- * <Details open summary="Already open">
- *   <p>This is expanded by default.</p>
- * </Details>
+ * // With event handlers
+ * <Details
+ *   onShow={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<DetailsRef>(null);
+ * <button onClick={() => ref.current?.show()}>Call Method</button>
+ * <Details ref={ref} />
  * ```
  */
-export interface DetailsProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+export interface DetailsProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
   /** Whether the details are expanded */
   open?: boolean;
+
   /** Summary text shown in header */
   summary?: string;
+
   /** Disables the details */
   disabled?: boolean;
+
   /** Visual appearance style */
   appearance?: 'filled' | 'outlined' | 'filled-outlined' | 'plain';
+
   /** Position of the expand icon */
   'icon-placement'?: 'start' | 'end';
+
   /** Name for accordion grouping */
   name?: string;
-  /** Event fired when details opens */
+
+  /** Emitted when the details opens. */
   onShow?: (event: CustomEvent) => void;
-  /** Event fired after details opens */
+
+  /** Emitted after the details opens and all animations are complete. */
   onAfterShow?: (event: CustomEvent) => void;
-  /** Event fired when details closes */
+
+  /** Emitted when the details closes. */
   onHide?: (event: CustomEvent) => void;
-  /** Event fired after details closes */
+
+  /** Emitted after the details closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
 }
 
 export interface DetailsRef {
+  /** Shows the details. */
   show: () => void;
+
+  /** Hides the details */
   hide: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
@@ -95,10 +114,21 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
       const el = detailsRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

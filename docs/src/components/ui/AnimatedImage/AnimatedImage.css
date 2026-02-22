@@ -3,16 +3,11 @@
  * Documentation: https://webawesome.com/docs/components/animated-image
  *
  * CSS Custom Properties:
- * - --control-box-size: The size of the icon box
- * - --icon-size: The size of the play/pause icons
+ * --control-box-size: Size of the icon box that holds the play/pause controls
+ * --icon-size: Size of the play/pause icons inside the control box
  *
  * CSS Parts:
- * - control-box: The container that surrounds the pause/play icons and provides their background
- *
- * @example
- * .AnimatedImage::part(control-box) {
- *   // Custom styles
- * }
+ * control-box — Container surrounding the pause/play icons and their background
  */
 .AnimatedImage {
   /* Add your custom styles here */

@@ -3,22 +3,17 @@
  * Documentation: https://webawesome.com/docs/components/popup
  *
  * CSS Custom Properties:
- * - --arrow-size: The size of the arrow (Default: 6px)
- * - --arrow-color: The color of the arrow (Default: black)
- * - --auto-size-available-width: A read-only custom property for available width when using auto-size
- * - --auto-size-available-height: A read-only custom property for available height when using auto-size
- * - --show-duration: The show duration to use when applying built-in animation classes (Default: 100ms)
- * - --hide-duration: The hide duration to use when applying built-in animation classes (Default: 100ms)
+ * --arrow-size: Size of the popup's arrow
+ * --arrow-color: Color of the popup's arrow
+ * --auto-size-available-width: Available width exposed when auto-size is active
+ * --auto-size-available-height: Available height exposed when auto-size is active
+ * --show-duration: Duration of the show transition
+ * --hide-duration: Duration of the hide transition
  *
  * CSS Parts:
- * - arrow: The arrow's container
- * - popup: The popup's container
- * - hover-bridge: The hover bridge element
- *
- * @example
- * .Popup::part(popup) {
- *   // Custom styles
- * }
+ * arrow — Arrow element pointing toward the anchor
+ * popup — Popup panel container
+ * hover-bridge — Invisible bridge preventing pointer gaps between anchor and popup
  */
 .Popup {
   /* Add your custom styles here */

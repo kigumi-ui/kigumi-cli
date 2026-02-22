@@ -1,18 +1,55 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/spinner/spinner.js';
 import './Spinner.css';
 
+/**
+ * Spinners are used to show the progress of an indeterminate operation
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Spinner />
+ *
+ * // With event handlers
+ * <Spinner />
+ *
+ * ```
+ */
 export type SpinnerProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
 
-export const Spinner = forwardRef<HTMLElement, SpinnerProps>(
-  ({ className, ...props }, ref) => {
+export interface SpinnerRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
+  ({ children, className, ...props }, ref) => {
+    const spinnerRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return spinnerRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-spinner
-        ref={ref}
+        ref={spinnerRef}
         class={clsx('Spinner', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-spinner>
     );
   }
 );

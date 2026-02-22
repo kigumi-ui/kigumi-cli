@@ -3,17 +3,12 @@
  * Documentation: https://webawesome.com/docs/components/dropdown
  *
  * CSS Custom Properties:
- * - --show-duration: The duration of the show animation
- * - --hide-duration: The duration of the hide animation
+ * --show-duration: Duration of the open animation
+ * --hide-duration: Duration of the close animation
  *
  * CSS Parts:
- * - base: The component's host element
- * - menu: The dropdown menu container
- *
- * @example
- * .Dropdown::part(menu) {
- *   // Custom styles
- * }
+ * base — Root wrapper element
+ * menu — Dropdown menu panel
  */
 .Dropdown {
   /* Add your custom styles here */

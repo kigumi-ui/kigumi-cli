@@ -1,46 +1,97 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/format-date/format-date.js';
 import './FormatDate.css';
 
+/**
+ * Formats a date/time using the Intl.DateTimeFormat API
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <FormatDate />
+ *
+ * // With event handlers
+ * <FormatDate />
+ *
+ * ```
+ */
 export interface FormatDateProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'dir'
 > {
   /** The date/time to format */
-  date?: Date | string;
-  /** Format for displaying the weekday */
+  date?: string;
+
+  /** How to display the weekday */
   weekday?: 'narrow' | 'short' | 'long';
-  /** Format for displaying the era */
+
+  /** How to display the era */
   era?: 'narrow' | 'short' | 'long';
-  /** Format for displaying the year */
+
+  /** How to display the year */
   year?: 'numeric' | '2-digit';
-  /** Format for displaying the month */
+
+  /** How to display the month */
   month?: 'numeric' | '2-digit' | 'narrow' | 'short' | 'long';
-  /** Format for displaying the day */
+
+  /** How to display the day */
   day?: 'numeric' | '2-digit';
-  /** Format for displaying the hour */
+
+  /** How to display the hour */
   hour?: 'numeric' | '2-digit';
-  /** Format for displaying the minute */
+
+  /** How to display the minute */
   minute?: 'numeric' | '2-digit';
-  /** Format for displaying the second */
+
+  /** How to display the second */
   second?: 'numeric' | '2-digit';
-  /** Format for 12 or 24-hour time */
+
+  /** 12 or 24 hour format */
   'hour-format'?: 'auto' | '12' | '24';
-  /** Time zone to express the time in */
-  'time-zone'?: string;
-  /** Format for displaying the time zone */
+
+  /** How to display the time zone */
   'time-zone-name'?: 'short' | 'long';
+
+  /** The time zone to use */
+  'time-zone'?: string;
+
+  /** The locale to use when formatting */
+  lang?: string;
 }
 
-export const FormatDate = forwardRef<HTMLElement, FormatDateProps>(
-  ({ className, ...props }, ref) => {
+export interface FormatDateRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
+  ({ children, className, ...props }, ref) => {
+    const formatdateRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return formatdateRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-format-date
-        ref={ref}
+        ref={formatdateRef}
         class={clsx('FormatDate', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-format-date>
     );
   }
 );

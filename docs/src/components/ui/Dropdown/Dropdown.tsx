@@ -9,13 +9,28 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/dropdown/dropdown.js';
 import './Dropdown.css';
 
+/**
+ * Dropdowns expose additional content that pops up when the user interacts with a trigger
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Dropdown />
+ *
+ * // With event handlers
+ * <Dropdown
+ *   onShow={(e) => console.log(e)} />
+ *
+ * ```
+ */
 export interface DropdownProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'dir' | 'onSelect'
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onSelect' | 'dir'
 > {
-  /** Opens or closes the dropdown */
+  /** Indicates whether the dropdown is open */
   open?: boolean;
-  /** The placement of the dropdown menu */
+
+  /** Preferred placement of the dropdown panel */
   placement?:
     | 'top'
     | 'top-start'
@@ -29,27 +44,40 @@ export interface DropdownProps extends Omit<
     | 'left'
     | 'left-start'
     | 'left-end';
-  /** The dropdown's size */
-  size?: 'small' | 'medium' | 'large';
-  /** The distance of the dropdown menu from its trigger */
+
+  /** Disables the dropdown */
+  disabled?: boolean;
+
+  /** Keeps the dropdown open when an item is selected */
+  'stay-open-on-select'?: boolean;
+
+  /** Distance from the panel to the trigger */
   distance?: number;
-  /** The offset of the dropdown menu along its trigger */
+
+  /** Offset along the trigger */
   skidding?: number;
-  /** Event fired when the dropdown is shown */
+
+  /** Hoists the dropdown panel to the body */
+  hoist?: boolean;
+
+  /** Emitted when the dropdown is about to show. */
   onShow?: (event: CustomEvent) => void;
-  /** Event fired after the dropdown is shown */
+
+  /** Emitted after the dropdown has been shown. */
   onAfterShow?: (event: CustomEvent) => void;
-  /** Event fired when the dropdown is about to hide */
+
+  /** Emitted when the dropdown is about to hide. */
   onHide?: (event: CustomEvent) => void;
-  /** Event fired after the dropdown is hidden */
+
+  /** Emitted after the dropdown has been hidden. */
   onAfterHide?: (event: CustomEvent) => void;
-  /** Event fired when an item is selected */
+
+  /** Emitted when an item in the dropdown is selected. */
   onSelect?: (event: CustomEvent) => void;
 }
 
 export interface DropdownRef {
-  show: () => void;
-  hide: () => void;
+  /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
 
@@ -58,7 +86,6 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
     {
       children,
       className,
-      open,
       onShow,
       onAfterShow,
       onHide,
@@ -68,19 +95,11 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
     },
     ref
   ) => {
-    const dropdownRef = useRef<
-      HTMLElement & {
-        show?: () => void;
-        hide?: () => void;
-        open?: boolean;
-      }
-    >(null);
+    const dropdownRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        show: () => dropdownRef.current?.show?.(),
-        hide: () => dropdownRef.current?.hide?.(),
         get element() {
           return dropdownRef.current;
         },
@@ -90,25 +109,27 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
 
     useEffect(() => {
       const el = dropdownRef.current;
-      if (!el || open === undefined) return;
-
-      const isOpen = el.open ?? false;
-      if (open && !isOpen) {
-        el.show?.();
-      } else if (!open && isOpen) {
-        el.hide?.();
-      }
-    }, [open]);
-
-    useEffect(() => {
-      const el = dropdownRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
-      const handleSelect = (e: Event) => onSelect?.(e as CustomEvent);
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
+
+      const handleSelect = (e: Event) => {
+        if (onSelect) onSelect(e as CustomEvent);
+      };
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

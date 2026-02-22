@@ -2,23 +2,15 @@
  * CopyButton Component Styles
  * Documentation: https://webawesome.com/docs/components/copy-button
  *
- * CSS Custom Properties:
- * (No custom properties defined for this component)
- *
  * CSS Parts:
- * - button: The internal <button> element
- * - copy-icon: The container that holds the copy icon
- * - success-icon: The container that holds the success icon
- * - error-icon: The container that holds the error icon
- * - tooltip__base: The tooltip's exported base part
- * - tooltip__base__popup: The tooltip's exported popup part
- * - tooltip__base__arrow: The tooltip's exported arrow part
- * - tooltip__body: The tooltip's exported body part
- *
- * @example
- * .CopyButton::part(button) {
- *   // Custom styles
- * }
+ * button — Trigger button element
+ * copy-icon — Icon shown in idle state
+ * success-icon — Icon shown after a successful copy
+ * error-icon — Icon shown when copying fails
+ * tooltip__base — Tooltip's base wrapper
+ * tooltip__base__popup — Tooltip popup container
+ * tooltip__base__arrow — Tooltip arrow element
+ * tooltip__body — Tooltip body text
  */
 .CopyButton {
   /* Add your custom styles here */

@@ -2,19 +2,9 @@
  * ZoomableFrame Component Styles
  * Documentation: https://webawesome.com/docs/components/zoomable-frame
  *
- * CSS Custom Properties:
- * (No custom properties defined for this component)
- *
  * CSS Parts:
- * - iframe: The internal <iframe> element
- * - controls: The container that surrounds zoom control buttons
- * - zoom-in-button: The zoom in button
- * - zoom-out-button: The zoom out button
- *
- * @example
- * .ZoomableFrame::part(iframe) {
- *   // Custom styles
- * }
+ * iframe — Embedded iframe element
+ * controls — Zoom controls overlay
  */
 .ZoomableFrame {
   /* Add your custom styles here */

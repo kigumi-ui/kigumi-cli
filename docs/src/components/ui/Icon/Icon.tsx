@@ -15,25 +15,12 @@ import './Icon.css';
  * @example
  * ```tsx
  * // Basic usage
- * <Icon name="star" />
- * <Icon name="heart" variant="solid" />
- * <Icon name="github" family="brands" />
- *
- * // With label for accessibility
- * <Icon name="star" label="Favorite" />
- *
- * // Sizing (use CSS or className for sizing)
- * <Icon name="bell" className="icon-large" />
- *
- * // Custom icon
- * <Icon src="/path/to/icon.svg" label="Custom icon" />
+ * <Icon />
  *
  * // With event handlers
  * <Icon
- *   name="image"
- *   onLoad={() => console.log('Icon loaded')}
- *   onError={() => console.log('Icon failed to load')}
- * />
+ *   onLoad={(e) => console.log(e)} />
+ *
  * ```
  */
 export interface IconProps extends Omit<
@@ -42,34 +29,65 @@ export interface IconProps extends Omit<
 > {
   /** The name of the icon to draw */
   name?: string;
+
   /** The name of a registered custom icon library */
   library?: string;
+
   /** An external URL of an SVG file */
   src?: string;
+
   /** An alternate description for assistive devices */
   label?: string;
+
   /** The family of icons (classic, brands, sharp, duotone, sharp-duotone) */
   family?: string;
+
   /** The icon's variant (thin, light, regular, solid) */
   variant?: string;
+
   /** Sets the width to match the cropped SVG viewBox */
   'auto-width'?: boolean;
+
   /** Swaps the opacity of duotone icons */
   'swap-opacity'?: boolean;
-  /** Event fired when the icon has loaded */
+
+  /** Rotate the icon by this many degrees */
+  rotate?: number;
+
+  /** Flip the icon horizontally, vertically, or both */
+  flip?: 'horizontal' | 'vertical' | 'both';
+
+  /** The name of a built-in animation to apply */
+  animation?: string;
+
+  /** Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit. */
   onLoad?: (event: CustomEvent) => void;
-  /** Event fired when the icon fails to load */
+
+  /** Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit. */
   onError?: (event: CustomEvent) => void;
 }
 
-export const Icon = forwardRef<HTMLElement, IconProps>(
-  ({ className, onLoad, onError, ...props }, ref) => {
-    const elementRef = useRef<HTMLElement>(null);
+export interface IconRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
 
-    useImperativeHandle(ref, () => elementRef.current as HTMLElement, []);
+export const Icon = forwardRef<IconRef, IconProps>(
+  ({ children, className, onLoad, onError, ...props }, ref) => {
+    const iconRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return iconRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
-      const el = elementRef.current;
+      const el = iconRef.current;
       if (!el) return;
 
       const handleLoad = (e: Event) => {
@@ -91,10 +109,12 @@ export const Icon = forwardRef<HTMLElement, IconProps>(
 
     return (
       <wa-icon
-        ref={elementRef}
+        ref={iconRef}
         class={clsx('Icon', className)}
         {...(props as Record<string, unknown>)}
-      />
+      >
+        {children}
+      </wa-icon>
     );
   }
 );

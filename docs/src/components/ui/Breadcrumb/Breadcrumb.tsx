@@ -1,4 +1,9 @@
-import { forwardRef, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/breadcrumb/breadcrumb.js';
 import './Breadcrumb.css';
@@ -8,27 +13,12 @@ import './Breadcrumb.css';
  *
  * @example
  * ```tsx
- * import { Breadcrumb, BreadcrumbItem } from './components/ui';
+ * // Basic usage
+ * <Breadcrumb />
  *
- * <Breadcrumb>
- *   <BreadcrumbItem>Home</BreadcrumbItem>
- *   <BreadcrumbItem>Category</BreadcrumbItem>
- *   <BreadcrumbItem>Product</BreadcrumbItem>
- * </Breadcrumb>
+ * // With event handlers
+ * <Breadcrumb />
  *
- * // With links
- * <Breadcrumb>
- *   <BreadcrumbItem href="/">Home</BreadcrumbItem>
- *   <BreadcrumbItem href="/products">Products</BreadcrumbItem>
- *   <BreadcrumbItem>Current Page</BreadcrumbItem>
- * </Breadcrumb>
- *
- * // With custom separator
- * <Breadcrumb>
- *   <wa-icon slot="separator" name="angle-right" />
- *   <BreadcrumbItem>First</BreadcrumbItem>
- *   <BreadcrumbItem>Second</BreadcrumbItem>
- * </Breadcrumb>
  * ```
  */
 export interface BreadcrumbProps extends Omit<
@@ -39,11 +29,28 @@ export interface BreadcrumbProps extends Omit<
   label?: string;
 }
 
-export const Breadcrumb = forwardRef<HTMLElement, BreadcrumbProps>(
+export interface BreadcrumbRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Breadcrumb = forwardRef<BreadcrumbRef, BreadcrumbProps>(
   ({ children, className, ...props }, ref) => {
+    const breadcrumbRef = useRef<HTMLElement & {}>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return breadcrumbRef.current;
+        },
+      }),
+      []
+    );
+
     return (
       <wa-breadcrumb
-        ref={ref}
+        ref={breadcrumbRef}
         class={clsx('Breadcrumb', className)}
         {...(props as Record<string, unknown>)}
       >

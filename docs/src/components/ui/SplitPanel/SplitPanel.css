@@ -3,21 +3,16 @@
  * Documentation: https://webawesome.com/docs/components/split-panel
  *
  * CSS Custom Properties:
- * - --min: The minimum allowed size of the primary panel (Default: 0)
- * - --max: The maximum allowed size of the primary panel (Default: 100%)
- * - --divider-width: The width of the visible divider (Default: 4px)
- * - --divider-hit-area: The invisible region around the divider where dragging can occur (Default: 12px)
+ * --divider-width: Visible width of the divider line
+ * --divider-hit-area: Clickable and draggable area around the divider
+ * --min: Minimum size of the primary panel
+ * --max: Maximum size of the primary panel
  *
  * CSS Parts:
- * - panel: Targets both the start and end panels
- * - start: The start panel
- * - end: The end panel
- * - divider: The divider that separates the start and end panels
- *
- * @example
- * .SplitPanel::part(divider) {
- *   // Custom styles
- * }
+ * start — Start (first) panel
+ * end — End (second) panel
+ * panel — Generic panel element used for both panels
+ * divider — Draggable divider between panels
  */
 .SplitPanel {
   /* Add your custom styles here */

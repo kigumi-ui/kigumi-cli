@@ -11,15 +11,6 @@ import '@awesome.me/webawesome-pro/dist/components/drawer/drawer.js';
 import './Drawer.css';
 
 /**
- * // Using data-drawer attribute (recommended)
- * import { Drawer } from './components/ui';
- * import { Button } from './components/ui';
- *
- * <Button data-drawer="open drawer">Open Drawer</Button>
- * <Drawer id="drawer" label="Drawer Title">
- *   <p>Drawer content</p>
- *   <Button slot="footer" variant="brand" data-drawer="close">Close</Button>
- * </Drawer>
  * Drawers slide in from a container edge to expose additional options
  *
  * @example
@@ -80,9 +71,6 @@ export interface DrawerProps extends Omit<
 
   /** Emitted after the drawer closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
-
-  /** Data attribute for opening and closing declaratively. */
-  'data-drawer'?: string | string[];
 }
 
 export interface DrawerRef {
