@@ -56,8 +56,8 @@ export interface NumberInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onI
   /** Visual appearance */
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
 
-  /** Hides the spin buttons */
-  'no-spin-buttons'?: boolean;
+  /** Hides the stepper buttons */
+  'without-steppers'?: boolean;
 
   /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;

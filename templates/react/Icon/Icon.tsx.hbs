@@ -43,6 +43,15 @@ export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 
   /** Swaps the opacity of duotone icons */
   'swap-opacity'?: boolean;
 
+  /** Rotate the icon by this many degrees */
+  rotate?: number;
+
+  /** Flip the icon horizontally, vertically, or both */
+  flip?: 'horizontal' | 'vertical' | 'both';
+
+  /** The name of a built-in animation to apply */
+  animation?: string;
+
   /** Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit. */
   onLoad?: (event: CustomEvent) => void;
 

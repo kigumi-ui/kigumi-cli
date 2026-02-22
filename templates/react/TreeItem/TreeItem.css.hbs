@@ -3,8 +3,24 @@
  * Documentation: https://webawesome.com/docs/components/tree-item
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * --show-duration: Duration of the expand animation
+ * --hide-duration: Duration of the collapse animation
  *
+ * CSS Parts:
+ * base — Root wrapper element
+ * item — Item row containing indentation, button, and label
+ * indentation — Indentation spacer element
+ * expand-button — Button to expand or collapse children
+ * spinner — Loading spinner shown in lazy-load state
+ * spinner__base — Spinner's inner base element
+ * label — Item's text label slot
+ * children — Container for nested child items
+ * checkbox — Checkbox shown in multiple-selection mode
+ * checkbox__base — Checkbox inner base element
+ * checkbox__control — Checkbox control (the visual square)
+ * checkbox__checked-icon — Checkbox checked state icon
+ * checkbox__indeterminate-icon — Checkbox indeterminate state icon
+ * checkbox__label — Checkbox label (not typically visible)
  */
 .TreeItem {
   /* Add your custom styles here */

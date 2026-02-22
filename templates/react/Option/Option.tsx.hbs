@@ -23,6 +23,12 @@ export interface OptionProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
   /** Disables the option */
   disabled?: boolean;
+
+  /** Draws the option in a selected state */
+  selected?: boolean;
+
+  /** A custom label for the option (used by select's display input) */
+  label?: string;
 }
 
 export interface OptionRef {

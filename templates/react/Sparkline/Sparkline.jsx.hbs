@@ -4,35 +4,32 @@ import '{{{importPath}}}';
 import './Sparkline.css';
 
 /**
- * {{description}}
+ * Sparklines are small inline data visualizations for showing trends
+ *
+ * CSS Custom Properties:
+ * - --fill-color: Fill color for the area below the line
+ * - --line-color: Color of the sparkline
+ * - --line-width: Width of the sparkline in pixels
  *
  * @example
  * ```jsx
  * // Basic usage
- * <Sparkline data="5,10,8,15,12" />
- * <Sparkline data="5,10,8,15,12" type="bar" />
- * <Sparkline data="5,10,8,15,12" type="area" fill-color="var(--wa-color-brand)" />
+ * <Sparkline data="1 4 2 8 5 3 7" appearance="line" />
  *
- * // With dimensions
- * <Sparkline data="1,3,2,4,3,5" width={100} height={30} />
- *
- * // With tooltip
- * <Sparkline data="10,20,15,30" show-tooltip />
+ * // With trend indicator
+ * <Sparkline data="1 4 2 8 5 3 7" appearance="area" trend="positive" />
  *
  * // With ref
  * const sparklineRef = React.useRef(null);
- * <Sparkline ref={sparklineRef} data="5,10,15" />
+ * <Sparkline ref={sparklineRef} data="10 20 15 30" appearance="gradient" />
  * ```
  *
  * @typedef {Object} SparklineProps
- * @property {string} [data] - Comma-separated data points or JSON array
- * @property {string} [type] - Chart type (line, bar, area)
- * @property {number} [width] - Width in pixels
- * @property {number} [height] - Height in pixels
- * @property {string} [color] - Line/bar color
- * @property {string} [fill-color] - Fill color (for area type)
- * @property {number} [line-width] - Line width in pixels
- * @property {boolean} [show-tooltip] - Shows value tooltip on hover
+ * @property {string} [data] - Space-separated numeric data points
+ * @property {string} [label] - An accessible label for assistive devices
+ * @property {string} [appearance] - Visual style: gradient | line | solid
+ * @property {string} [trend] - Trend direction for coloring: positive | negative | neutral
+ * @property {string} [curve] - Interpolation curve: linear | natural | step
  */
 
 export const Sparkline = React.forwardRef(

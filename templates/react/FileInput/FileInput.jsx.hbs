@@ -10,13 +10,13 @@ import './FileInput.css';
  * ```jsx
  * // Basic usage
  * <FileInput label="Upload document" accept=".pdf,.doc" />
- * <FileInput multiple max-files={5} />
- * <FileInput hint="Max file size: 10MB" max-file-size={10485760} />
+ * <FileInput multiple />
+ * <FileInput hint="Select up to 5 files" required />
  *
  * // With event handlers
  * <FileInput
  *   label="Upload files"
- *   onChange={(e) => console.log('Files selected:', e.target.files)}
+ *   onChange={(e) => console.log('Files changed')}
  * />
  *
  * // With ref methods
@@ -28,18 +28,15 @@ import './FileInput.css';
  * @typedef {Object} FileInputProps
  * @property {string} [label] - Accessible label
  * @property {string} [hint] - Descriptive hint text
- * @property {string} [accept] - Accepted file types
- * @property {boolean} [multiple] - Allow multiple files
- * @property {string} [appearance] - Visual appearance style
- * @property {string} [size] - Input size
+ * @property {string} [accept] - Accepted file types (MIME types or extensions)
+ * @property {boolean} [multiple] - Allow multiple file selection
+ * @property {string} [size] - Input size: small | medium | large
  * @property {boolean} [disabled] - Disables the input
  * @property {boolean} [required] - Makes field mandatory
- * @property {number} [max-file-size] - Maximum file size in bytes
- * @property {number} [max-files] - Maximum number of files
  * @property {function} [onBlur] - Event fired when input loses focus
  * @property {function} [onFocus] - Event fired when input gains focus
  * @property {function} [onInput] - Event fired when file selection changes
- * @property {function} [onChange] - Event fired when files are selected
+ * @property {function} [onChange] - Event fired when files are added or removed
  */
 
 export const FileInput = React.forwardRef(

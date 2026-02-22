@@ -6,41 +6,36 @@ import './Sparkline.css';
 /**
  * Sparklines are small inline data visualizations for showing trends
  *
+ * @cssvar --fill-color - Fill color for the area below the line
+ * @cssvar --line-color - Color of the sparkline
+ * @cssvar --line-width - Width of the sparkline in pixels
+ *
  * @example
  * ```tsx
  * // Basic usage
- * <Sparkline />
+ * <Sparkline data="1 4 2 8 5 3 7" appearance="line" />
  *
- * // With event handlers
- * <Sparkline />
+ * // With trend indicator
+ * <Sparkline data="1 4 2 8 5 3 7" appearance="area" trend="positive" />
  *
  * ```
  */
 export interface SparklineProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
-  /** Comma-separated data points or JSON array */
+  /** Space-separated numeric data points */
   data?: string;
 
-  /** Chart type */
-  type?: 'line' | 'bar' | 'area';
+  /** An accessible label for assistive devices */
+  label?: string;
 
-  /** Width in pixels */
-  width?: number;
+  /** Visual style of the sparkline */
+  appearance?: 'gradient' | 'line' | 'solid';
 
-  /** Height in pixels */
-  height?: number;
+  /** Trend direction, used for coloring */
+  trend?: 'positive' | 'negative' | 'neutral';
 
-  /** Line/bar color */
-  color?: string;
-
-  /** Fill color (for area type) */
-  'fill-color'?: string;
-
-  /** Line width in pixels */
-  'line-width'?: number;
-
-  /** Shows value tooltip on hover */
-  'show-tooltip'?: boolean;
+  /** Interpolation curve style */
+  curve?: 'linear' | 'natural' | 'step';
 }
 
 export interface SparklineRef {

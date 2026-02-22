@@ -27,21 +27,39 @@ import './Input.css';
  * ```
  *
  * @typedef {Object} InputProps
- * @property {string} [type] - Input type
+ * @property {string} [type] - Input type: text | email | password | number | date | tel | url | search
  * @property {string} [label] - Accessible label
  * @property {string} [hint] - Descriptive hint text
  * @property {string} [placeholder] - Placeholder text
  * @property {string} [value] - Input value
- * @property {string} [appearance] - Visual appearance style
- * @property {string} [size] - Input size
+ * @property {string} [appearance] - Visual appearance: filled | filled-outlined | outlined
+ * @property {string} [size] - Input size: small | medium | large
  * @property {boolean} [pill] - Rounded edges
  * @property {boolean} [disabled] - Disables the input
  * @property {boolean} [with-clear] - Adds clear button
  * @property {boolean} [password-toggle] - Adds password toggle
+ * @property {boolean} [password-visible] - Shows password as plain text
+ * @property {boolean} [readonly] - Makes the input readonly
+ * @property {boolean} [required] - Makes the input required
+ * @property {string} [name] - Name for form submission
+ * @property {string} [pattern] - Regular expression pattern
+ * @property {number} [minlength] - Minimum string length
+ * @property {number} [maxlength] - Maximum string length
+ * @property {string} [min] - Minimum value (numeric/date types)
+ * @property {string} [max] - Maximum value (numeric/date types)
+ * @property {string} [step] - Step increment
+ * @property {boolean} [without-spin-buttons] - Hides spin buttons
+ * @property {string} [autocomplete] - Hint for autocomplete
+ * @property {string} [autocapitalize] - Capitalization hint
+ * @property {string} [autocorrect] - Autocorrect hint: off | on
+ * @property {boolean} [autofocus] - Auto-focus on page load
+ * @property {string} [inputmode] - Virtual keyboard hint
+ * @property {string} [enterkeyhint] - Enter key label hint
  * @property {function} [onBlur] - Event fired when input loses focus
  * @property {function} [onFocus] - Event fired when input gains focus
  * @property {function} [onInput] - Event fired when value changes
- * @property {function} [onChange] - Event fired when value changes and loses focus
+ * @property {function} [onChange] - Event fired when value is committed
+ * @property {function} [onClear] - Event fired when clear button is activated
  */
 
 export const Input = React.forwardRef(

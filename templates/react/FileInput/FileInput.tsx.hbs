@@ -44,15 +44,6 @@ export interface FileInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInp
   /** Input size */
   size?: 'small' | 'medium' | 'large';
 
-  /** Visual appearance */
-  appearance?: 'filled' | 'outlined' | 'filled-outlined';
-
-  /** Maximum file size in bytes */
-  'max-file-size'?: number;
-
-  /** Maximum number of files */
-  'max-files'?: number;
-
   /** Emitted when file selection changes. */
   onInput?: (event: CustomEvent) => void;
 
