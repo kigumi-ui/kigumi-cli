@@ -43,7 +43,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     importPath: '@awesome.me/webawesome/dist/components/button/button.js',
     tier: 'free',
   },
-  // ... 40+ components
+  // ... 62+ components
 };
 ```
 

@@ -6,13 +6,20 @@
 
 ```
 templates/
-└── react/
+├── react/
+│   └── {Component}/
+│       ├── {Component}.tsx.hbs    # TypeScript (with interfaces)
+│       ├── {Component}.jsx.hbs    # JavaScript (with JSDoc)
+│       ├── {Component}.test.tsx.hbs
+│       ├── {Component}.test.jsx.hbs
+│       └── {Component}.css.hbs
+└── vue/
     └── {Component}/
-        ├── {Component}.tsx.hbs    # TypeScript (with interfaces)
-        ├── {Component}.jsx.hbs    # JavaScript (with JSDoc)
-        ├── {Component}.test.tsx.hbs
-        ├── {Component}.test.jsx.hbs
-        └── {Component}.css.hbs
+        ├── {Component}.vue.hbs      # TypeScript (Options API + defineExpose)
+        ├── {Component}.js.vue.hbs   # JavaScript (no types)
+        ├── {Component}.test.ts.hbs
+        ├── {Component}.test.js.hbs
+        └── {Component}.css.hbs      # Identical content to react CSS template
 ```
 
 ## Template Variables
@@ -196,13 +203,23 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 1. **Check Web Awesome docs** at `https://webawesome.com/docs/components/{name}`
 2. **Update registry** in `src/utils/registry.ts`
-3. **Create template folder** in `templates/react/{Name}/`
-4. **Create all files:**
+3. **Create template folders** in `templates/react/{Name}/` and `templates/vue/{Name}/`
+4. **Create all files — both frameworks:**
+
+   React (`templates/react/{Name}/`):
    - `{Name}.tsx.hbs` (TypeScript)
    - `{Name}.jsx.hbs` (JavaScript)
    - `{Name}.test.tsx.hbs`
    - `{Name}.test.jsx.hbs`
    - `{Name}.css.hbs`
+
+   Vue (`templates/vue/{Name}/`):
+   - `{Name}.vue.hbs` (TypeScript)
+   - `{Name}.js.vue.hbs` (JavaScript)
+   - `{Name}.test.ts.hbs`
+   - `{Name}.test.js.hbs`
+   - `{Name}.css.hbs` (same content as React CSS template)
+
 5. **Build and test:**
    ```bash
    pnpm build
@@ -213,12 +230,12 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 ## Reference Templates
 
-| Pattern                   | Example                          |
-| ------------------------- | -------------------------------- |
-| Simple                    | `Button/Button.tsx.hbs`          |
-| Complex (events)          | `Dialog/Dialog.tsx.hbs`          |
-| Complex (two-way binding) | `Input/Input.tsx.hbs`            |
-| Sub-components            | `Breadcrumb/`, `BreadcrumbItem/` |
+| Pattern                   | React                            | Vue                              |
+| ------------------------- | -------------------------------- | -------------------------------- |
+| Simple                    | `Button/Button.tsx.hbs`          | `Button/Button.vue.hbs`          |
+| Complex (events)          | `Dialog/Dialog.tsx.hbs`          | `Dialog/Dialog.vue.hbs`          |
+| Complex (two-way binding) | `Input/Input.tsx.hbs`            | `Input/Input.vue.hbs`            |
+| Sub-components            | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` |
 
 ---
 
