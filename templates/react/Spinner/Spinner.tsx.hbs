@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import './Spinner.css';
@@ -16,9 +16,7 @@ import './Spinner.css';
  *
  * ```
  */
-export interface SpinnerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
-}
+export type SpinnerProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
 
 export interface SpinnerRef {
   /** Reference to the underlying HTML element */

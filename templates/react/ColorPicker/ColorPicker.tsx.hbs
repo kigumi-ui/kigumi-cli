@@ -89,7 +89,7 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onC
 export interface ColorPickerRef {
 
   /** Generates a hex string from HSV values. Hue must be 0-360. All other arguments must be 0-100. */
-  getHexString: (hue: number, saturation: number, brightness: number, alpha: any) => void;
+  getHexString: (hue: number, saturation: number, brightness: number, alpha: number) => void;
 
   /** Sets focus on the color picker. */
   focus: (options: FocusOptions) => void;
@@ -115,7 +115,7 @@ export interface ColorPickerRef {
 export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
   ({ children, className, onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid, ...props }, ref) => {
     const colorpickerRef = useRef<HTMLElement & {
-      getHexString?: (hue: number, saturation: number, brightness: number, alpha: any) => void;
+      getHexString?: (hue: number, saturation: number, brightness: number, alpha: number) => void;
       focus?: (options: FocusOptions) => void;
       blur?: () => void;
       getFormattedValue?: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => void;
@@ -127,7 +127,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
     useImperativeHandle(
       ref,
       () => ({
-        getHexString: (hue: number, saturation: number, brightness: number, alpha: any) => {
+        getHexString: (hue: number, saturation: number, brightness: number, alpha: number) => {
           if (colorpickerRef.current && typeof colorpickerRef.current.getHexString === 'function') {
             colorpickerRef.current.getHexString(hue, saturation, brightness, alpha);
           }
