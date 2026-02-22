@@ -780,6 +780,54 @@ declare global {
         },
         HTMLElement
       >;
+
+      'wa-file-input': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          label?: string;
+          hint?: string;
+          accept?: string;
+          multiple?: boolean;
+          disabled?: boolean;
+          required?: boolean;
+          size?: 'small' | 'medium' | 'large';
+          appearance?: 'filled' | 'outlined' | 'filled-outlined';
+          'max-file-size'?: number;
+          'max-files'?: number;
+        },
+        HTMLElement
+      >;
+
+      'wa-number-input': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          label?: string;
+          hint?: string;
+          value?: number;
+          min?: number;
+          max?: number;
+          step?: number;
+          disabled?: boolean;
+          required?: boolean;
+          placeholder?: string;
+          size?: 'small' | 'medium' | 'large';
+          appearance?: 'filled' | 'outlined' | 'filled-outlined';
+          'no-spin-buttons'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-sparkline': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          data?: string;
+          type?: 'line' | 'bar' | 'area';
+          width?: number;
+          height?: number;
+          color?: string;
+          'fill-color'?: string;
+          'line-width'?: number;
+          'show-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
     }
   }
 }
