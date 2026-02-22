@@ -75,14 +75,12 @@ const ITEMS: KnowledgeItem[] = [
           </a>
           .
         </p>
-        <p>
-          You can also add component overrides, for instance: <br />
-          <pre>
-            <code>
-              .Card {'{ '}box-shadow: var(--wa-shadow-l);{' }'}
-            </code>
-          </pre>
-        </p>
+        <p>You can also add component overrides, for instance:</p>
+        <pre>
+          <code>
+            .Card {'{ '}box-shadow: var(--wa-shadow-l);{' }'}
+          </code>
+        </pre>
       </div>
     ),
   },
@@ -138,22 +136,22 @@ const ITEMS: KnowledgeItem[] = [
             color properties
           </a>{' '}
           yourself in the <code>:root</code> and <code>.wa-dark</code> blocks:
-          <pre>
-            <code>
-              :root {'{'}
-              <br />
-              --wa-color-brand: #0071ec;
-              <br />
-              --wa-color-brand-05: #e6f0ff;
-              <br />
-              {'...'}
-              <br />
-              --wa-color-brand-95: #002e80;
-              <br />
-              {'}'}
-            </code>
-          </pre>
         </p>
+        <pre>
+          <code>
+            :root {'{'}
+            <br />
+            --wa-color-brand: #0071ec;
+            <br />
+            --wa-color-brand-05: #e6f0ff;
+            <br />
+            {'...'}
+            <br />
+            --wa-color-brand-95: #002e80;
+            <br />
+            {'}'}
+          </code>
+        </pre>
       </div>
     ),
   },
