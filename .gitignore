@@ -19,3 +19,6 @@ validation-results.json
 
 # Copied at docs build time (prebuild)
 docs/public/.well-known/skills/
+
+# Maintenance-only audit utilities (not for distribution)
+audit/
