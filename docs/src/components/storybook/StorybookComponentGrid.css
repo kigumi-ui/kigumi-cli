@@ -1,0 +1,21 @@
+.component-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--wa-space-s);
+}
+
+.component-grid > * {
+  max-width: 400px;
+}
+
+@media (min-width: 768px) {
+  .component-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .component-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
