@@ -46,17 +46,12 @@ export const Default: Story = {
 export const WithHeader: Story = {
   render: (args) => (
     <Card {...args} style={{ maxWidth: '320px' }}>
-      <div
-        slot="header"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <strong>Card Title</strong>
-        <Badge variant="success">Active</Badge>
-      </div>
+      <h3 slot="header" style={{ margin: 0 }} className="wa-heading-l">
+        Card Title
+      </h3>
+      <Badge variant="success" slot="header-actions">
+        Active
+      </Badge>
       <p>Card body content with a custom header slot.</p>
     </Card>
   ),
