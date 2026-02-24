@@ -1,5 +1,5 @@
 import LinkTo from '@storybook/addon-links/react';
-import { Card } from '@/components/ui';
+import { Card, Icon } from '@/components/ui';
 import './StorybookComponentGrid.css';
 
 type ComponentEntry = {
@@ -10,7 +10,7 @@ type ComponentEntry = {
 };
 
 const componentsByCategory: Record<string, ComponentEntry[]> = {
-  'Actions:': [
+  Actions: [
     {
       name: 'Button',
       description:
@@ -50,7 +50,7 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       icon: './components/qr-code.png',
     },
   ],
-  'Feedback & Status:': [
+  'Feedback & Status': [
     {
       name: 'Badge',
       description: 'Small status indicator for counts, states, or labels.',
@@ -93,7 +93,7 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Tooltip',
     },
   ],
-  'Form Controls:': [
+  'Form Controls': [
     {
       name: 'Checkbox',
       description:
@@ -172,7 +172,7 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Textarea',
     },
   ],
-  'Imagery:': [
+  Imagery: [
     {
       name: 'Animated Image',
       description:
@@ -213,7 +213,7 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Zoomable Frame',
     },
   ],
-  'Navigation:': [
+  Navigation: [
     {
       name: 'Breadcrumb',
       description:
@@ -255,7 +255,7 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Tree Item',
     },
   ],
-  'Organization:': [
+  Organization: [
     {
       name: 'Card',
       description:
@@ -303,7 +303,7 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Split Panel',
     },
   ],
-  'Other:': [
+  Other: [
     {
       name: 'Sparkline',
       description:
@@ -311,7 +311,7 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Sparkline',
     },
   ],
-  'Utilities:': [
+  Utilities: [
     {
       name: 'Animation',
       description:
@@ -377,27 +377,29 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
 };
 
 const categoryOrder = [
-  'Actions:',
-  'Feedback & Status:',
-  'Form Controls:',
-  'Imagery:',
-  'Navigation:',
-  'Organization:',
-  'Other:',
-  'Utilities:',
+  'Actions',
+  'Feedback & Status',
+  'Form Controls',
+  'Imagery',
+  'Navigation',
+  'Organization',
+  'Other',
+  'Utilities',
 ];
 
 export function StorybookComponentGrid() {
   return (
-    <div className="wa-stack wa-grid">
+    <div className="wa-stack wa-gap-4xl">
       {categoryOrder.map((category) => (
         <div key={category}>
-          <h2 className="wa-heading-xl">{category}</h2>
+          <h2 className="wa-heading-l wa-gap-s wa-cluster wa-align-items-center">
+            <Icon name="tag" />
+            {category}
+          </h2>
           <div className="component-grid wa-gap-m">
             {(componentsByCategory[category] || []).map((c) => {
               const card = (
-                <Card key={c.name}>
-                  {c.icon && <img src={c.icon} alt={c.name} slot="media" />}
+                <Card key={c.name} appearance="filled-outlined">
                   <h3
                     slot="header"
                     style={{ margin: 0 }}
@@ -405,7 +407,7 @@ export function StorybookComponentGrid() {
                   >
                     {c.name}
                   </h3>
-                  <p className="wa-body-m">{c.description}</p>
+                  <p className="wa-caption-m">{c.description}</p>
                 </Card>
               );
               return c.kind ? (
