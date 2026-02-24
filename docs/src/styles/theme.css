@@ -5,7 +5,7 @@
  * It's imported after Web Awesome's base styles, so your values take precedence.
  *
  * Current config:
- *   Theme: brutalist
+ *   Theme: tailspin
  *   Palette: rudimentary
  *   Brand: purple
  *
@@ -14,9 +14,6 @@
  *   Design Tokens: https://webawesome.com/docs/tokens
  *   Color System: https://webawesome.com/docs/tokens/color
  */
-
-/* Import Web Awesome theme */
-@import '@awesome.me/webawesome-pro/dist/styles/themes/brutalist.css';
 
 /*
  * =============================================================================
