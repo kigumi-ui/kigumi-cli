@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@awesome.me/webawesome-pro": "^3.2.1",
+    "@storybook/addon-themes": "^10.2.11",
     "clsx": "^2.1.1",
     "fuse.js": "^7.1.0",
     "react": "^19.2.0",

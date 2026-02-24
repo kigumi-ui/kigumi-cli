@@ -1,4 +1,5 @@
-import type { Preview } from '@storybook/react-vite';
+import type { Preview, ReactRenderer } from '@storybook/react-vite';
+import { withThemeByClassName } from '@storybook/addon-themes';
 import '@/styles/layers.css';
 
 // Apply WA theme classes to <html> (mirrors src/lib/webawesome.ts)
@@ -29,6 +30,15 @@ const preview: Preview = {
       test: 'todo',
     },
   },
+  decorators: [
+    withThemeByClassName<ReactRenderer>({
+      themes: {
+        light: '',
+        dark: 'wa-dark',
+      },
+      defaultTheme: 'dark',
+    }),
+  ],
 };
 
 export default preview;
