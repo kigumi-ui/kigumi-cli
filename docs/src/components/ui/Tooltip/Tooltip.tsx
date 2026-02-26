@@ -31,6 +31,9 @@ export interface TooltipProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
 > {
+  /** ID of the target element the tooltip is attached to */
+  for?: string;
+
   /** Tooltip placement */
   placement?:
     | 'top'

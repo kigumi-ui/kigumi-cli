@@ -23,6 +23,9 @@ import './Tooltip.css';
  */
 export interface TooltipProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
 
+  /** ID of the target element the tooltip is attached to */
+  for?: string;
+
   /** Tooltip placement */
   placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
 
