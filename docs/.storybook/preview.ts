@@ -1,6 +1,6 @@
-import type { Preview, ReactRenderer } from '@storybook/react-vite';
-import { withThemeByClassName } from '@storybook/addon-themes';
+import type { Preview } from '@storybook/react-vite';
 import '@/styles/layers.css';
+import { DocsContainer } from './DocsContainer';
 
 // Apply WA theme classes to <html> (mirrors src/lib/webawesome.ts)
 if (typeof document !== 'undefined') {
@@ -15,8 +15,25 @@ if (typeof document !== 'undefined') {
 }
 
 const preview: Preview = {
+  globalTypes: {
+    theme: {
+      toolbar: {
+        icon: 'circlehollow',
+        items: ['light', 'dark', 'system'],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: {
+    theme: 'system',
+  },
   parameters: {
     layout: 'padded',
+    options: {
+      storySort: {
+        order: ['Kigumi', ['Welcome', 'Getting Started'], 'Components'],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -24,20 +41,24 @@ const preview: Preview = {
       },
     },
     a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
-      // 'off' - skip a11y checks entirely
       test: 'todo',
+    },
+    docs: {
+      container: DocsContainer,
     },
   },
   decorators: [
-    withThemeByClassName<ReactRenderer>({
-      themes: {
-        light: '',
-        dark: 'wa-dark',
-      },
-      defaultTheme: 'dark',
-    }),
+    (Story, ctx) => {
+      const theme = (ctx.globals?.theme as string) ?? 'system';
+      const resolved =
+        theme === 'system'
+          ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+          : theme;
+      document.documentElement.classList.toggle('wa-dark', resolved === 'dark');
+      return Story();
+    },
   ],
 };
 
