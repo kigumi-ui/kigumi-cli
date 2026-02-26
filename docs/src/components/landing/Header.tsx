@@ -16,9 +16,12 @@ export function Header() {
           <span className="wa-heading-xl header__title">Kigumi</span>
         </div>
         <div className="wa-cluster wa-gap-l wa-align-items-center">
-          {/* <a href={import.meta.env.DEV ? 'http://localhost:6006' : '/docs'} className="wa-caption-m">
+          <a
+            href={import.meta.env.DEV ? 'http://localhost:6006' : '/docs'}
+            className="wa-caption-m"
+          >
             Docs
-          </a> */}
+          </a>
           <Link to="/kigumi-studio" className="wa-caption-m">
             Kigumi Studio
           </Link>
