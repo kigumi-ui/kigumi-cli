@@ -26,7 +26,7 @@ export interface RelativeTimeProps extends Omit<
   'dir'
 > {
   /** The date/time to calculate from */
-  date?: string;
+  date?: string | Date;
 
   /** The formatting style */
   format?: 'long' | 'short' | 'narrow';
@@ -47,7 +47,12 @@ export interface RelativeTimeRef {
 }
 
 export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, date, ...props }, ref) => {
+    const dateStr = date instanceof Date ? date.toISOString() : date;
+    const passThrough = {
+      ...props,
+      ...(dateStr !== undefined && { date: dateStr }),
+    };
     const relativetimeRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
@@ -64,7 +69,7 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
       <wa-relative-time
         ref={relativetimeRef}
         class={clsx('RelativeTime', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-relative-time>

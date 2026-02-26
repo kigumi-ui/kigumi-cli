@@ -46,6 +46,18 @@ export interface RadioGroupProps extends Omit<
   /** Radio size */
   size?: 'small' | 'medium' | 'large';
 
+  /** Layout direction */
+  orientation?: 'horizontal' | 'vertical';
+
+  /** Disables the group */
+  disabled?: boolean;
+
+  /** Shows invalid/error state */
+  invalid?: boolean;
+
+  /** Help text below the group */
+  'help-text'?: string;
+
   /** Makes selection required */
   required?: boolean;
 

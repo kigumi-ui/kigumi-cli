@@ -31,6 +31,9 @@ export interface PopoverProps extends Omit<
   HTMLAttributes<HTMLElement>,
   'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
 > {
+  /** ID of the target element the popover is attached to */
+  for?: string;
+
   /** Indicates whether the popover is open */
   open?: boolean;
 
@@ -64,6 +67,9 @@ export interface PopoverProps extends Omit<
   /** Shows an arrow */
   'with-arrow'?: boolean;
 
+  /** Hides the arrow (alias: sets with-arrow to false) */
+  'without-arrow'?: boolean;
+
   /** Emitted when the popover begins to show. Canceling this event will stop the popover from showing. */
   onShow?: (event: CustomEvent) => void;
 
@@ -89,9 +95,22 @@ export interface PopoverRef {
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
   (
-    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    {
+      children,
+      className,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      'without-arrow': withoutArrow,
+      ...props
+    },
     ref
   ) => {
+    const passThrough = {
+      ...props,
+      ...(withoutArrow !== undefined && { 'with-arrow': !withoutArrow }),
+    };
     const popoverRef = useRef<
       HTMLElement & {
         show?: () => void;
@@ -162,7 +181,7 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
       <wa-popover
         ref={popoverRef}
         class={clsx('Popover', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-popover>

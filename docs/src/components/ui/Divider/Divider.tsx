@@ -24,6 +24,9 @@ import './Divider.css';
 export interface DividerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   /** Divider orientation */
   orientation?: 'horizontal' | 'vertical';
+
+  /** Alias for orientation="vertical" */
+  vertical?: boolean;
 }
 
 export interface DividerRef {
@@ -32,7 +35,13 @@ export interface DividerRef {
 }
 
 export const Divider = forwardRef<DividerRef, DividerProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, vertical, ...props }, ref) => {
+    const passThrough = {
+      ...props,
+      ...(vertical !== undefined && {
+        orientation: vertical ? 'vertical' : 'horizontal',
+      }),
+    };
     const dividerRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
@@ -49,7 +58,7 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
       <wa-divider
         ref={dividerRef}
         class={clsx('Divider', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-divider>

@@ -54,7 +54,10 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onC
   open?: boolean;
 
   /** Predefined color swatches */
-  swatches?: string;
+  swatches?: string | string[];
+
+  /** Inline display (always visible) */
+  inline?: boolean;
 
   /** Displays hex values in uppercase */
   uppercase?: boolean;
@@ -113,7 +116,13 @@ export interface ColorPickerRef {
 }
 
 export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
-  ({ children, className, onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid, ...props }, ref) => {
+  ({ children, className, onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid, swatches, ...props }, ref) => {
+    const passThrough = {
+      ...props,
+      ...(swatches !== undefined && {
+        swatches: Array.isArray(swatches) ? swatches.join(',') : swatches,
+      }),
+    };
     const colorpickerRef = useRef<HTMLElement & {
       getHexString?: (hue: number, saturation: number, brightness: number, alpha: number) => void;
       focus?: (options: FocusOptions) => void;
@@ -236,7 +245,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
       <wa-color-picker
         ref={colorpickerRef}
         class={clsx('ColorPicker', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-color-picker>

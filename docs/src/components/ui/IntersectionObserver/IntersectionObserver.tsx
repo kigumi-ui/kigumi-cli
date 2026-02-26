@@ -39,6 +39,9 @@ export interface IntersectionObserverProps extends Omit<
   /** Root element margin */
   'root-margin'?: string;
 
+  /** Class added when element is intersecting */
+  'intersect-class'?: string;
+
   /** Fired when a tracked element begins or ceases intersecting. */
   onIntersect?: (event: CustomEvent) => void;
 }

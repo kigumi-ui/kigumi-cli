@@ -30,6 +30,9 @@ export interface RadioProps extends Omit<
   /** The radio value */
   value?: string;
 
+  /** Visual appearance */
+  appearance?: string;
+
   /** Disables the radio */
   disabled?: boolean;
 

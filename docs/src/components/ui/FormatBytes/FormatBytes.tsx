@@ -36,6 +36,9 @@ export interface FormatBytesProps extends Omit<
 
   /** The locale to use when formatting */
   lang?: string;
+
+  /** Alias for lang */
+  locale?: string;
 }
 
 export interface FormatBytesRef {
@@ -44,7 +47,11 @@ export interface FormatBytesRef {
 }
 
 export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, locale, ...props }, ref) => {
+    const passThrough = {
+      ...props,
+      ...(locale !== undefined && { lang: locale }),
+    };
     const formatbytesRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
@@ -61,7 +68,7 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
       <wa-format-bytes
         ref={formatbytesRef}
         class={clsx('FormatBytes', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-format-bytes>
