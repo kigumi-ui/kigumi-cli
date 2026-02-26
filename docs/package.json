@@ -9,7 +9,7 @@
     "setup:npmrc": "node ../scripts/setup-npmrc.mjs",
     "dev": "vite",
     "prebuild": "mkdir -p public/.well-known/skills && cp -r ../skills public/ && cp -r ../skills/kigumi-react public/.well-known/skills/ && cp -r ../skills/kigumi-theme public/.well-known/skills/ && cp ../llms.txt public/",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && storybook build --output-dir dist/docs",
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",

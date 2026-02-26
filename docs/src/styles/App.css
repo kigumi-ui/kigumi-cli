@@ -44,11 +44,11 @@ section.section {
   border-top-style: dashed;
 
   &:before {
-    left: 0;
+    left: -2px;
     transform: translateY(-50%) translateX(50%) rotate(45deg);
   }
   &:after {
-    right: 0;
+    right: -2px;
     transform: translateY(-50%) translateX(-50%) rotate(45deg);
   }
 

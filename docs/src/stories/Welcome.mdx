@@ -1,15 +1,74 @@
 import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
 import { StorybookComponentGrid } from '@/components/storybook/StorybookComponentGrid';
-import { Button } from '@/components/ui';
+import LinkTo from '@storybook/addon-links/react';
+import {
+  Card,
+  Divider,
+  Button,
+  Icon,
+  Badge,
+  ButtonGroup,
+} from '@/components/ui';
+import { Hero } from '@/components/landing/Hero';
+import { CompatibilityInfo } from '@/components/landing/CompatibilityInfo';
+import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
+import stacks from '@/assets/stacks.png';
 
-<Meta title="Getting Started / Welcome" />
+<Meta title="Kigumi / Welcome" />
 
 <Unstyled>
-  <img src="/icon.svg" alt="Kigumi Logo" />
-
-# Welcome to Kigumi
-
-Build framework-agnostic UIs with Kigumi. It provides ready-made web components for your design system via CLI. **Same components, any stack.**
-
-  <StorybookComponentGrid />
+  <div slot="main-header" className="wa-stack wa-gap-4xl">
+    <div className="wa-stack wa-align-items-start">
+      <div className="wa-stack wa-align-items-stretch wa-gap-4xl">
+        <div className="wa-stack wa-align-items-start wa-gap-xs">
+          <h1 className="wa-heading-4xl heading-1">Welcome to Kigumi</h1>
+          <h2 className="wa-caption-2xl heading-2">
+            The CLI that provides you ready-made web components for your design
+            system. <strong>Same components, any stack.</strong>
+          </h2>
+        </div>
+        <div className="wa-stack wa-align-items-stretch wa-gap-l">
+          <h3 className="wa-heading-xl">Topics</h3>
+          <div className="wa-grid wa-grid-cols-3 wa-gap-l">
+            <LinkTo kind="Kigumi / Getting Started" story="docs">
+              <Card>
+                <h3
+                  className="wa-heading-l"
+                  style={{ margin: 0 }}
+                  slot="header"
+                >
+                  Getting started
+                </h3>
+                Learn how to set up your first project with Kigumi.
+              </Card>
+            </LinkTo>
+            <a href="/kigumi-studio" target="_blank" rel="noopener noreferrer">
+              <Card>
+                <h3
+                  className="wa-heading-l"
+                  style={{ margin: 0 }}
+                  slot="header"
+                >
+                  Kigumi Studio
+                </h3>
+                Customize your theme and components with Kigumi Studio.
+              </Card>
+            </a>
+            <LinkTo kind="Components / Overview" story="docs">
+              <Card>
+                <h3
+                  className="wa-heading-l"
+                  style={{ margin: 0 }}
+                  slot="header"
+                >
+                  Components
+                </h3>
+                Learn about the components available in Kigumi.
+              </Card>
+            </LinkTo>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </Unstyled>

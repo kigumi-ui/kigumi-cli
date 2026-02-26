@@ -1,0 +1,298 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { StorybookComponentGrid } from '@/components/storybook/StorybookComponentGrid';
+import {
+  Card,
+  Divider,
+  Button,
+  Icon,
+  Badge,
+  ButtonGroup,
+  CopyButton,
+} from '@/components/ui';
+import { Hero } from '@/components/landing/Hero';
+import { CompatibilityInfo } from '@/components/landing/CompatibilityInfo';
+import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
+import { GettingStarted } from '@/components/landing/GettingStarted';
+
+<Meta title="Kigumi / Getting Started" />
+
+<Unstyled>
+      <div className="wa-stack wa-gap-4xl">
+        {/* Quick Start Section */}
+        <div className="wa-stack wa-gap-xl">
+          <h2 className="wa-heading-2xl" id="getting-started">
+            Getting started
+          </h2>
+
+          {/* Step 1: Initialize */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>1</Badge>
+              <h3 className="wa-heading-l">Initialize your project</h3>
+            </div>
+            <p className="wa-caption-m">
+              Set up Kigumi in your React or Vue project. Choose your framework
+              and optionally add your Web Awesome Pro token. If you have a Pro
+              token, add it to <code>.env</code> before init or use{' '}
+              <code>npx kigumi init --token YOUR_TOKEN</code>. See{' '}
+              <a href="/#troubleshooting">Troubleshooting</a> for 401 errors.
+            </p>
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-center wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>
+                    <span
+                      style={{
+                        opacity: 0.6,
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontSize: 'inherit',
+                        zIndex: 1,
+                        userSelect: 'none',
+                      }}
+                      aria-hidden="true"
+                    >
+                      ${' '}
+                    </span>
+                    <span
+                      style={{
+                        paddingLeft: 'var(--wa-space-m)',
+                        display: 'inline-block',
+                      }}
+                    >
+                      npx kigumi init
+                    </span>
+                  </code>
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: '0',
+                    bottom: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton value="npx kigumi add button input" />
+                </span>
+              </div>
+            </Card>
+
+            <h4 className="wa-heading-m wa-cluster wa-gap-xs wa-align-items-center">
+              Using AI tools?
+            </h4>
+            <p className="wa-caption-m">
+              Install Kigumi skills for AI assistants to convert Web Awesome
+              HTML to React or Vue components and customize themes.
+            </p>
+            <pre>
+              <code>npx skills add https://kigumi.style/skills/kigumi</code>
+            </pre>
+          </div>
+
+          {/* Step 2: Add Components */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>2</Badge>
+              <h3 className="wa-heading-l">Add components to your project</h3>
+            </div>
+            <p className="wa-caption-m">
+              Install individual components or add them all at once. Each
+              component includes TypeScript types and accessibility features.
+            </p>
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-center wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>
+                    <span
+                      style={{
+                        opacity: 0.6,
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontSize: 'inherit',
+                        zIndex: 1,
+                        userSelect: 'none',
+                      }}
+                      aria-hidden="true"
+                    >
+                      ${' '}
+                    </span>
+                    <span
+                      style={{
+                        paddingLeft: 'var(--wa-space-m)',
+                        display: 'inline-block',
+                      }}
+                    >
+                      npx kigumi add button input
+                    </span>
+                  </code>
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: '0',
+                    bottom: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton value="npx kigumi add button input" />
+                </span>
+              </div>
+            </Card>
+          </div>
+
+          {/* Step 3: Import & Use */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>3</Badge>
+              <h3 className="wa-heading-l">Import Web Awesome</h3>
+            </div>
+
+            <p className="wa-caption-m">
+              Import the Web Awesome setup in your app entry point:
+            </p>
+
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-center wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>import '@/lib/webawesome';</code>
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: '0',
+                    bottom: '0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton value="import '@/lib/webawesome';" />
+                </span>
+              </div>
+            </Card>
+          </div>
+
+          {/* Step 4: Build your UI */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>4</Badge>
+              <h3 className="wa-heading-l">Start building</h3>
+            </div>
+
+            <p className="wa-caption-m">
+              Import and use components in your React or Vue code:
+            </p>
+            <Card appearance="outlined" style={{ '--spacing': '0' }}>
+              <div
+                className="wa-flank:end wa-align-items-start wa-gap-xs"
+                style={{ position: 'relative' }}
+              >
+                <pre>
+                  <code>{`import { Button, Input } from '@/components/ui';
+
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+
+return (
+
+<form onSubmit={(e) => {
+e.preventDefault();
+console.log('Email:', email);
+}}>
+<Input
+type="email"
+label="Email"
+value={email}
+onInput={(e) => setEmail(e.target.value)}
+required
+/>
+<Button type="submit" variant="brand">
+Sign In
+</Button>
+</form>
+);
+}`}</code>
+                </pre>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 'var(--wa-space-xs)',
+                    top: 'var(--wa-space-xs)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CopyButton
+                    value={`import { Button, Input } from '@/components/ui';
+
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+
+return (
+
+<form onSubmit={(e) => {
+e.preventDefault();
+console.log('Email:', email);
+}}>
+<Input
+type="email"
+label="Email"
+value={email}
+onInput={(e) => setEmail(e.target.value)}
+required
+/>
+<Button type="submit" variant="brand">
+Sign In
+</Button>
+</form>
+);
+}`}
+/>
+</span>
+</div>
+</Card>
+</div>
+
+          {/* Step 5: Customize your theme */}
+          <div className="wa-stack wa-gap-m">
+            <div className="wa-cluster wa-gap-xs wa-align-items-center">
+              <Badge pill>5</Badge>
+              <h3 className="wa-heading-l">Customize your theme</h3>
+            </div>
+
+            <p className="wa-caption-m">
+              Create your own theme with{' '}
+              <a href="/kigumi-studio">Kigumi Studio</a>. Edit and preview
+              your theme in real-time and export the generated CSS into your{' '}
+              <code>theme.css</code> file.
+            </p>
+          </div>
+        </div>
+      </div>
+
+</Unstyled>
