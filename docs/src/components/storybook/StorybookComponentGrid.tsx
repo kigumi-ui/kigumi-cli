@@ -1,5 +1,7 @@
+import { useState, useMemo, useEffect } from 'react';
+import Fuse, { type FuseResult } from 'fuse.js';
 import LinkTo from '@storybook/addon-links/react';
-import { Card, Icon } from '@/components/ui';
+import { Card, Icon, Input } from '@/components/ui';
 import './StorybookComponentGrid.css';
 
 type ComponentEntry = {
@@ -387,40 +389,108 @@ const categoryOrder = [
   'Utilities',
 ];
 
+type FlatComponentEntry = ComponentEntry & { category: string };
+
+const allComponents: FlatComponentEntry[] = Object.entries(
+  componentsByCategory
+).flatMap(([category, components]) =>
+  components.map((c) => ({ ...c, category }))
+);
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(id);
+  }, [value, delayMs]);
+  return debounced;
+}
+
 export function StorybookComponentGrid() {
+  const [query, setQuery] = useState('');
+  const debouncedQuery = useDebouncedValue(query, 150);
+
+  const fuse = useMemo(
+    () =>
+      new Fuse(allComponents, {
+        keys: [
+          { name: 'name', weight: 2 },
+          { name: 'description', weight: 1 },
+        ],
+        threshold: 0.35,
+        includeScore: false,
+        minMatchCharLength: 2,
+      }),
+    []
+  );
+
+  const searchResults = useMemo<FlatComponentEntry[]>(() => {
+    const q = debouncedQuery.trim();
+    if (q.length < 2) return [];
+    return fuse.search(q).map((r: FuseResult<FlatComponentEntry>) => r.item);
+  }, [debouncedQuery, fuse]);
+
+  const isSearching = debouncedQuery.trim().length >= 2;
+  const showEmpty = isSearching && searchResults.length === 0;
+
+  const renderCard = (c: ComponentEntry) => {
+    const card = (
+      <Card key={c.name} appearance="filled-outlined">
+        <h3 slot="header" style={{ margin: 0 }} className="wa-heading-l">
+          {c.name}
+        </h3>
+        <p className="wa-caption-m">{c.description}</p>
+      </Card>
+    );
+    return c.kind ? (
+      <LinkTo key={c.name} kind={c.kind} story="docs">
+        {card}
+      </LinkTo>
+    ) : (
+      card
+    );
+  };
+
   return (
     <div className="wa-stack wa-gap-4xl">
-      {categoryOrder.map((category) => (
-        <div key={category}>
-          <h2 className="wa-heading-l wa-gap-s wa-cluster wa-align-items-center">
-            <Icon name="tag" />
-            {category}
-          </h2>
+      <div className="component-search-wrap">
+        <Input
+          type="search"
+          placeholder="Search components..."
+          value={query}
+          onInput={(e) =>
+            setQuery((e.target as HTMLElement & { value: string }).value)
+          }
+          with-clear
+          onClear={() => setQuery('')}
+        >
+          <Icon slot="start" name="magnifying-glass" />
+        </Input>
+      </div>
+
+      {isSearching ? (
+        showEmpty ? (
+          <p className="wa-body-m component-search-empty">
+            No components match &quot;{debouncedQuery.trim()}&quot;
+          </p>
+        ) : (
           <div className="component-grid wa-gap-m">
-            {(componentsByCategory[category] || []).map((c) => {
-              const card = (
-                <Card key={c.name} appearance="filled-outlined">
-                  <h3
-                    slot="header"
-                    style={{ margin: 0 }}
-                    className="wa-heading-l"
-                  >
-                    {c.name}
-                  </h3>
-                  <p className="wa-caption-m">{c.description}</p>
-                </Card>
-              );
-              return c.kind ? (
-                <LinkTo key={c.name} kind={c.kind} story="docs">
-                  {card}
-                </LinkTo>
-              ) : (
-                card
-              );
-            })}
+            {searchResults.map(renderCard)}
           </div>
-        </div>
-      ))}
+        )
+      ) : (
+        categoryOrder.map((category) => (
+          <div key={category}>
+            <h2 className="wa-heading-l wa-gap-s wa-cluster wa-align-items-center">
+              <Icon name="tag" />
+              {category}
+            </h2>
+            <div className="component-grid wa-gap-m">
+              {(componentsByCategory[category] || []).map(renderCard)}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }
