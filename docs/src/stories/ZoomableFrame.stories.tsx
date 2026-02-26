@@ -13,12 +13,12 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     zoom: { control: { type: 'range', min: 0.25, max: 4, step: 0.25 } },
-    zoomLevels: {
+    'zoom-levels': {
       control: 'text',
       description: 'Comma-separated zoom levels (e.g. "0.5,1,1.5,2")',
     },
-    withoutControls: { control: 'boolean' },
-    withoutInteraction: { control: 'boolean' },
+    'without-controls': { control: 'boolean' },
+    'without-interaction': { control: 'boolean' },
     loading: { control: 'select', options: ['eager', 'lazy'] },
   },
   args: { zoom: 1 },
@@ -66,7 +66,7 @@ export const WithoutControls: Story = {
 /** Restricts zoom to a custom set of discrete scale values. */
 export const CustomZoomLevels: Story = {
   args: {
-    zoomLevels: '0.25,0.5,0.75,1,1.5,2',
+    'zoom-levels': '0.25,0.5,0.75,1,1.5,2',
     srcdoc: `
       <html>
         <body style="font-family: sans-serif; padding: 2rem;">

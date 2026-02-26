@@ -43,6 +43,9 @@ export interface ZoomableFrameProps extends Omit<
   /** Available zoom levels */
   'zoom-levels'?: string;
 
+  /** Alias for zoom-levels (camelCase) */
+  zoomLevels?: string;
+
   /** Enables fullscreen */
   allowfullscreen?: boolean;
 
@@ -52,8 +55,14 @@ export interface ZoomableFrameProps extends Omit<
   /** Hides zoom controls */
   'without-controls'?: boolean;
 
+  /** Alias for without-controls (camelCase) */
+  withoutControls?: boolean;
+
   /** Disables interaction */
   'without-interaction'?: boolean;
+
+  /** Alias for without-interaction (camelCase) */
+  withoutInteraction?: boolean;
 
   /** Security restrictions */
   sandbox?: string;
@@ -79,7 +88,29 @@ export interface ZoomableFrameRef {
 }
 
 export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
-  ({ children, className, onLoad, onError, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onLoad,
+      onError,
+      zoomLevels,
+      withoutControls,
+      withoutInteraction,
+      ...props
+    },
+    ref
+  ) => {
+    const passThrough = {
+      ...props,
+      ...(zoomLevels !== undefined && { 'zoom-levels': zoomLevels }),
+      ...(withoutControls !== undefined && {
+        'without-controls': withoutControls,
+      }),
+      ...(withoutInteraction !== undefined && {
+        'without-interaction': withoutInteraction,
+      }),
+    };
     const zoomableframeRef = useRef<
       HTMLElement & {
         zoomIn?: () => void;
@@ -138,7 +169,7 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       <wa-zoomable-frame
         ref={zoomableframeRef}
         class={clsx('ZoomableFrame', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-zoomable-frame>
