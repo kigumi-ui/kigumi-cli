@@ -19,3 +19,12 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.component-search-wrap {
+  width: 100%;
+  max-width: 480px;
+}
+
+.component-search-empty {
+  color: var(--wa-color-neutral-text-subtle);
+}
