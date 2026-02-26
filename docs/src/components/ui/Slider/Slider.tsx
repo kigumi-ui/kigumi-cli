@@ -43,6 +43,9 @@ export interface SliderProps extends Omit<
   /** Hint text */
   hint?: string;
 
+  /** Slider size */
+  size?: 'small' | 'medium' | 'large';
+
   /** Minimum value */
   min?: number;
 

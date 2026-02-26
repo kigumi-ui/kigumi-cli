@@ -2742,6 +2742,13 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: 'Draws a tooltip above the thumb',
       },
       {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large'],
+        default: 'medium',
+        description: 'Slider size',
+      },
+      {
         name: 'autofocus',
         type: 'boolean',
         default: 'false',
