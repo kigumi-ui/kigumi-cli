@@ -1,0 +1,27 @@
+<link rel="icon" type="image/svg+xml" href="/icon.svg" />
+<style>
+  /* Create a new story (+) button — force white icon on purple background */
+  [aria-label='Create a new story'] {
+    color: #ffffff !important;
+  }
+
+  [data-nodetype='component'],
+  [data-nodetype='story'],
+  [data-nodetype='document'] {
+    align-items: center !important;
+  }
+
+  /* Hide the built-in ⊞ component type SVG — replaced by ❖ in renderLabel */
+  [data-nodetype='component'] button > div > svg,
+  [data-nodetype='story'] a > div > svg,
+  [data-nodetype='document'] a > div > svg {
+    display: none;
+  }
+
+  /* Fix category chevron misalignment */
+  [data-nodetype='component'] > button,
+  [data-nodetype='story'] > a,
+  [data-nodetype='document'] > a {
+    align-items: center;
+  }
+</style>
