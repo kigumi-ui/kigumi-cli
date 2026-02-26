@@ -43,6 +43,9 @@ export interface DropdownItemProps extends Omit<
   /** Disables the menu item */
   disabled?: boolean;
 
+  /** Visual variant */
+  variant?: string;
+
   /** Draws the item in a loading state */
   loading?: boolean;
 

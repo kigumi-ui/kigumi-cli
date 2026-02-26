@@ -89,6 +89,12 @@ export interface SelectProps extends Omit<
   /** Makes selection required */
   required?: boolean;
 
+  /** Shows invalid/error state */
+  invalid?: boolean;
+
+  /** Help text below the control */
+  'help-text'?: string;
+
   /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;
 

@@ -57,6 +57,9 @@ export interface FormatNumberProps extends Omit<
 
   /** The locale to use when formatting */
   lang?: string;
+
+  /** Alias for lang */
+  locale?: string;
 }
 
 export interface FormatNumberRef {
@@ -65,7 +68,11 @@ export interface FormatNumberRef {
 }
 
 export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, locale, ...props }, ref) => {
+    const passThrough = {
+      ...props,
+      ...(locale !== undefined && { lang: locale }),
+    };
     const formatnumberRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
@@ -82,7 +89,7 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
       <wa-format-number
         ref={formatnumberRef}
         class={clsx('FormatNumber', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-format-number>

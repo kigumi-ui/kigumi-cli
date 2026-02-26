@@ -77,6 +77,9 @@ export interface ComboboxProps extends Omit<
   /** Placeholder text */
   placeholder?: string;
 
+  /** Selected value(s) */
+  value?: string | string[];
+
   /** Listbox placement */
   placement?: 'top' | 'bottom';
 

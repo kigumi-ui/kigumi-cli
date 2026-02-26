@@ -26,7 +26,7 @@ export interface FormatDateProps extends Omit<
   'dir'
 > {
   /** The date/time to format */
-  date?: string;
+  date?: string | Date;
 
   /** How to display the weekday */
   weekday?: 'narrow' | 'short' | 'long';
@@ -63,6 +63,9 @@ export interface FormatDateProps extends Omit<
 
   /** The locale to use when formatting */
   lang?: string;
+
+  /** Alias for lang */
+  locale?: string;
 }
 
 export interface FormatDateRef {
@@ -71,7 +74,13 @@ export interface FormatDateRef {
 }
 
 export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, date, locale, ...props }, ref) => {
+    const dateStr = date instanceof Date ? date.toISOString() : date;
+    const passThrough = {
+      ...props,
+      ...(dateStr !== undefined && { date: dateStr }),
+      ...(locale !== undefined && { lang: locale }),
+    };
     const formatdateRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
@@ -88,7 +97,7 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
       <wa-format-date
         ref={formatdateRef}
         class={clsx('FormatDate', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-format-date>

@@ -36,6 +36,9 @@ export interface TabGroupProps extends Omit<
   /** Disables scroll buttons */
   'without-scroll-controls'?: boolean;
 
+  /** Active tab value (controlled) */
+  active?: string;
+
   /** Emitted when a tab is shown. */
   onTabShow?: (event: CustomEvent) => void;
 

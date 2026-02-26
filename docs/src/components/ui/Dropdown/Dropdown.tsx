@@ -30,6 +30,9 @@ export interface DropdownProps extends Omit<
   /** Indicates whether the dropdown is open */
   open?: boolean;
 
+  /** Dropdown size */
+  size?: 'small' | 'medium' | 'large';
+
   /** Preferred placement of the dropdown panel */
   placement?:
     | 'top'

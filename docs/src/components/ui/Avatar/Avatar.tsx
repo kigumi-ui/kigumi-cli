@@ -31,7 +31,7 @@ export interface AvatarProps extends Omit<
   image?: string;
 
   /** A label to use to describe the avatar to assistive devices */
-  label: string;
+  label?: string;
 
   /** Initials to use as a fallback when no image is available */
   initials?: string;

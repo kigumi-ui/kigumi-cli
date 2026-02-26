@@ -30,6 +30,12 @@ export interface ScrollerProps extends Omit<
 
   /** Shows shadow indicators */
   'with-scroll-indicator'?: boolean;
+
+  /** Hides the scrollbar */
+  'without-scrollbar'?: boolean;
+
+  /** Hides shadow indicators */
+  'without-shadow'?: boolean;
 }
 
 export interface ScrollerRef {
