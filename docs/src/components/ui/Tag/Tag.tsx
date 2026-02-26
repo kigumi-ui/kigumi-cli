@@ -42,6 +42,9 @@ export interface TagProps extends Omit<
   /** Shows remove button */
   'with-remove'?: boolean;
 
+  /** Alias for with-remove (camelCase) */
+  withRemove?: boolean;
+
   /** Emitted when the remove button is activated. */
   onRemove?: (event: CustomEvent) => void;
 }
@@ -52,7 +55,11 @@ export interface TagRef {
 }
 
 export const Tag = forwardRef<TagRef, TagProps>(
-  ({ children, className, onRemove, ...props }, ref) => {
+  ({ children, className, onRemove, withRemove, ...props }, ref) => {
+    const passThrough = {
+      ...props,
+      ...(withRemove !== undefined && { 'with-remove': withRemove }),
+    };
     const tagRef = useRef<HTMLElement & {}>(null);
 
     useImperativeHandle(
@@ -84,7 +91,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
       <wa-tag
         ref={tagRef}
         class={clsx('Tag', className)}
-        {...(props as Record<string, unknown>)}
+        {...(passThrough as Record<string, unknown>)}
       >
         {children}
       </wa-tag>
