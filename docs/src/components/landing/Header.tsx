@@ -17,7 +17,11 @@ export function Header() {
         </div>
         <div className="wa-cluster wa-gap-l wa-align-items-center">
           <a
-            href={import.meta.env.DEV ? 'http://localhost:6006' : '/docs'}
+            href={
+              import.meta.env.DEV
+                ? 'http://localhost:6006'
+                : 'https://main--69a204e7d6ac98a065978aa3.chromatic.com'
+            }
             className="wa-caption-m"
           >
             Docs
