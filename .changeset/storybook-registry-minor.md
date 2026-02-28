@@ -1,5 +1,5 @@
 ---
-'kigumi-cli': minor
+'kigumi': minor
 ---
 
 Add Storybook integration and extend component registry with new props
