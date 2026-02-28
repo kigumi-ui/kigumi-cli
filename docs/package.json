@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "build-storybook:vercel": "storybook build --output-dir storybook/dist"
   },
   "dependencies": {
     "@awesome.me/webawesome-pro": "^3.2.1",
