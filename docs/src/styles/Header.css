@@ -8,6 +8,12 @@
     margin-inline: auto;
     width: 100%;
     padding-inline: var(--wa-space-l);
+    flex-wrap: nowrap;
+
+    & > * {
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
 
     @media (min-width: 768px) {
       padding-inline: var(--wa-space-3xl);
@@ -16,5 +22,9 @@
 
   & .header__title {
     font-weight: 800;
+
+    @media (max-width: 360px) {
+      display: none;
+    }
   }
 }

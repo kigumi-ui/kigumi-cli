@@ -34,3 +34,7 @@
 .Page {
   /* Add your custom styles here */
 }
+
+.Page::part(navigation-toggle) {
+  display: none;
+}
