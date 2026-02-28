@@ -20,7 +20,7 @@ export function Header() {
             href={
               import.meta.env.DEV
                 ? 'http://localhost:6006'
-                : 'https://kigumi-storybook.vercel.app'
+                : 'https://docs.kigumi.style'
             }
             className="wa-caption-m"
           >
