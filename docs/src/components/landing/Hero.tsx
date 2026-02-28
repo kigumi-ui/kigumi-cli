@@ -66,7 +66,11 @@ export function Hero() {
                 variant="neutral"
                 size="medium"
                 appearance="plain"
-                href="https://webawesome.com"
+                href={
+                  import.meta.env.DEV
+                    ? 'http://localhost:6006'
+                    : 'https://docs.kigumi.style'
+                }
                 target="_blank"
                 rel="noopener noreferrer"
               >
