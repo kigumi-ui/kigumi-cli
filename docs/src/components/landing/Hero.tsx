@@ -75,7 +75,6 @@ export function Hero() {
                 rel="noopener noreferrer"
               >
                 Read docs
-                <Icon name="external-link" slot="end" />
               </Button>
             </div>
             <div className="wa-stack wa-gap-m">
