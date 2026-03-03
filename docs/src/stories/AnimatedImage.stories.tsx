@@ -7,27 +7,47 @@ import {
   type AnimatedImageProps,
 } from '@/components/ui';
 
-/**
- * Animated Image displays animated GIFs and WebPs and gives users control over playback.
- * By default playback is paused until the user interacts, saving bandwidth and reducing
- * motion for those who prefer reduced-motion environments. Supports play, pause, and
- * keyboard-accessible controls.
- */
+/** A component for displaying animated GIFs and WEBPs that play and pause on interaction */
 const meta = {
   title: 'Components/Animated Image',
   component: AnimatedImage,
   tags: ['autodocs'],
   argTypes: {
-    src: { control: 'text' },
-    alt: { control: 'text' },
-    play: { control: 'boolean' },
-    onLoad: { action: 'load' },
-    onError: { action: 'error' },
+    src: { control: 'text', description: 'The path to the image to load' },
+    alt: {
+      control: 'text',
+      description: 'A description of the image used by assistive devices',
+    },
+    play: {
+      control: 'boolean',
+      description:
+        'Plays the animation. When this attribute is removed, the animation will pause',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onLoad: {
+      action: 'load',
+      description: 'Emitted when the image loads successfully.',
+      table: { category: 'Events' },
+    },
+    onError: {
+      action: 'error',
+      description: 'Emitted when the image fails to load.',
+      table: { category: 'Events' },
+    },
+    'slot:play-icon': {
+      control: false,
+      description:
+        'Optional play icon to use instead of the default. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:pause-icon': {
+      control: false,
+      description:
+        'Optional pause icon to use instead of the default. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
   },
   args: {
-    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Rotating_earth_%28large%29.gif/200px-Rotating_earth_%28large%29.gif',
-    alt: 'Rotating Earth',
-    play: false,
     onLoad: fn(),
     onError: fn(),
   },

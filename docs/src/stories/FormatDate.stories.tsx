@@ -3,34 +3,66 @@ import { FormatDate } from '@/components/ui';
 
 const now = new Date();
 
-/**
- * Format Date displays a machine-readable date-time string in a locale-aware, human-friendly
- * format using the browser's `Intl.DateTimeFormat` API. Control which parts (date, time,
- * weekday, era, etc.) are shown and in which style (numeric, long, short, or narrow)
- * without writing any formatting code.
- */
+/** Formats a date/time using the Intl.DateTimeFormat API */
 const meta = {
   title: 'Components/Format Date',
   component: FormatDate,
   tags: ['autodocs'],
   argTypes: {
-    weekday: { control: 'select', options: ['narrow', 'short', 'long'] },
-    year: { control: 'select', options: ['numeric', '2-digit'] },
+    date: { control: 'text', description: 'The date/time to format' },
+    weekday: {
+      control: 'select',
+      options: ['narrow', 'short', 'long'],
+      description: 'How to display the weekday',
+    },
+    era: {
+      control: 'select',
+      options: ['narrow', 'short', 'long'],
+      description: 'How to display the era',
+    },
+    year: {
+      control: 'select',
+      options: ['numeric', '2-digit'],
+      description: 'How to display the year',
+    },
     month: {
       control: 'select',
       options: ['numeric', '2-digit', 'narrow', 'short', 'long'],
+      description: 'How to display the month',
     },
-    day: { control: 'select', options: ['numeric', '2-digit'] },
-    hour: { control: 'select', options: ['numeric', '2-digit'] },
-    minute: { control: 'select', options: ['numeric', '2-digit'] },
-    second: { control: 'select', options: ['numeric', '2-digit'] },
-    'hour-format': { control: 'select', options: ['auto', '12', '24'] },
-  },
-  args: {
-    date: now,
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+    day: {
+      control: 'select',
+      options: ['numeric', '2-digit'],
+      description: 'How to display the day',
+    },
+    hour: {
+      control: 'select',
+      options: ['numeric', '2-digit'],
+      description: 'How to display the hour',
+    },
+    minute: {
+      control: 'select',
+      options: ['numeric', '2-digit'],
+      description: 'How to display the minute',
+    },
+    second: {
+      control: 'select',
+      options: ['numeric', '2-digit'],
+      description: 'How to display the second',
+    },
+    'hour-format': {
+      control: 'select',
+      options: ['auto', '12', '24'],
+      description: '12 or 24 hour format',
+      table: { defaultValue: { summary: 'auto' } },
+    },
+    'time-zone-name': {
+      control: 'select',
+      options: ['short', 'long'],
+      description: 'How to display the time zone',
+    },
+    'time-zone': { control: 'text', description: 'The time zone to use' },
+    lang: { control: 'text', description: 'The locale to use when formatting' },
   },
 } satisfies Meta<typeof FormatDate>;
 

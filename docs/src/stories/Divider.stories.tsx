@@ -1,11 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Divider, Button } from '@/components/ui';
 
-/**
- * Divider renders a thin horizontal or vertical rule to visually separate sections of
- * content. It is purely decorative, carries the appropriate ARIA role, and inherits its
- * color from the current text color so it adapts automatically to light and dark themes.
- */
+/** Dividers are used to visually separate content */
 const meta = {
   title: 'Components/Divider',
   component: Divider,
@@ -14,6 +10,7 @@ const meta = {
     orientation: {
       control: 'select',
       options: ['horizontal', 'vertical'],
+      description: 'Divider orientation',
       table: { defaultValue: { summary: 'horizontal' } },
     },
   },

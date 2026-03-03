@@ -3,35 +3,55 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { MutationObserver, Button } from '@/components/ui';
 
-/**
- * Mutation Observer wraps the browser's `MutationObserver` API declaratively. Place it
- * around any subtree to receive `mutation` events whenever child nodes are added/removed
- * or attributes change. Handy for reacting to third-party DOM mutations without polling
- * or patching global APIs.
- */
+/** Observes changes to a target element and emits events when they occur */
 const meta = {
   title: 'Components/Mutation Observer',
   component: MutationObserver,
   tags: ['autodocs'],
   argTypes: {
-    disabled: { control: 'boolean' },
-    'child-list': {
+    attr: {
+      control: 'text',
+      description: 'Space-separated list of attributes to observe',
+    },
+    'attr-old-value': {
       control: 'boolean',
-      description: 'Observe child list changes',
+      description: 'Records previous attribute values',
+      table: { defaultValue: { summary: 'false' } },
     },
     'char-data': {
       control: 'boolean',
-      description: 'Observe character data changes',
+      description: 'Observes character data changes',
+      table: { defaultValue: { summary: 'false' } },
     },
-    'char-data-old-value': { control: 'boolean' },
-    attr: {
-      control: 'text',
-      description: 'Comma-separated attributes to observe',
+    'char-data-old-value': {
+      control: 'boolean',
+      description: 'Records previous character data',
+      table: { defaultValue: { summary: 'false' } },
     },
-    'attr-old-value': { control: 'boolean' },
-    onMutation: { action: 'mutation' },
+    'child-list': {
+      control: 'boolean',
+      description: 'Observes child node changes',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the observer',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    subtree: {
+      control: 'boolean',
+      description: 'Observes changes in subtree',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onMutation: {
+      action: 'mutation',
+      description: 'Emitted when a mutation occurs.',
+      table: { category: 'Events' },
+    },
   },
-  args: { onMutation: fn() },
+  args: {
+    onMutation: fn(),
+  },
 } satisfies Meta<typeof MutationObserver>;
 
 export default meta;

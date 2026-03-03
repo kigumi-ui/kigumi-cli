@@ -1,27 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { TabPanel, TabGroup, Tab } from '@/components/ui';
 
-/**
- * Tab Panel holds the content associated with a Tab. It is displayed when its linked tab
- * is active and hidden otherwise. Panels are matched to tabs via the `name` attribute
- * (which must equal the tab's `panel` attribute). They can contain any markup, including
- * forms, images, and nested components.
- */
+/** Tab panels are used inside tab groups to display content for each tab */
 const meta = {
   title: 'Components/Tab Panel',
   component: TabPanel,
   tags: ['autodocs'],
   argTypes: {
-    name: {
-      control: 'text',
-      description: 'The name that associates the panel with a Tab',
-    },
+    name: { control: 'text', description: 'The panel name' },
     active: {
       control: 'boolean',
-      description: 'When true, the panel is shown',
+      description: 'Whether the panel is shown',
+      table: { defaultValue: { summary: 'false' } },
     },
   },
-  args: { name: 'panel', active: true },
 } satisfies Meta<typeof TabPanel>;
 
 export default meta;

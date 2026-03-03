@@ -2,33 +2,91 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Switch } from '@/components/ui';
 
-/**
- * Switch is a toggle control that represents an on/off boolean state. It is semantically
- * equivalent to a checkbox but communicates immediate effect (like enabling a feature)
- * rather than selection within a list. Supports three sizes, a hint line, and a disabled
- * state. Works with native form submission via the `name` and `value` attributes.
- */
+/** Switches allow the user to toggle an option on or off */
 const meta = {
   title: 'Components/Switch',
   component: Switch,
   tags: ['autodocs'],
   argTypes: {
-    checked: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    required: { control: 'boolean' },
+    name: { control: 'text', description: 'Form field name' },
+    value: { control: 'text', description: 'Form value when checked' },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Switch size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    hint: { control: 'text' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the switch',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    checked: {
+      control: 'boolean',
+      description: 'Whether the switch is on',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes the switch required',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    hint: { control: 'text', description: 'Hint text' },
     children: { control: 'text' },
-    onChange: { action: 'changed' },
-    onInvalid: { action: 'invalid' },
+    onChange: {
+      action: 'change',
+      description: "Emitted when the control's checked state changes.",
+      table: { category: 'Events' },
+    },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the switch. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:click': {
+      control: false,
+      description: 'Simulates a click on the switch.',
+      table: { category: 'Methods' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the switch.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the switch.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
     children: 'Enable feature',
     onChange: fn(),
+    onInput: fn(),
+    onBlur: fn(),
+    onFocus: fn(),
     onInvalid: fn(),
   },
 } satisfies Meta<typeof Switch>;

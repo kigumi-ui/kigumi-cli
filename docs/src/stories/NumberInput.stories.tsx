@@ -2,50 +2,143 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { NumberInput } from '@/components/ui';
 
-/**
- * Number Input is a text field for entering numeric values with built-in stepper
- * buttons for incrementing and decrementing. Set `min`, `max`, and `step` to
- * constrain input, or hide the steppers with `no-spin-buttons` for a plain numeric
- * field. Supports the same sizes and appearance styles as Input.
- */
+/** Number inputs allow users to enter numeric values with optional step controls */
 const meta = {
   title: 'Components/Number Input',
   component: NumberInput,
   tags: ['autodocs'],
   argTypes: {
+    label: { control: 'text', description: 'Accessible label' },
+    hint: { control: 'text', description: 'Descriptive hint text' },
+    value: { control: 'number', description: 'Current value' },
+    min: { control: 'number', description: 'Minimum value' },
+    max: { control: 'number', description: 'Maximum value' },
+    step: {
+      control: 'number',
+      description: 'Step increment',
+      table: { defaultValue: { summary: '1' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the input',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes field mandatory',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    placeholder: { control: 'text', description: 'Placeholder text' },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Input size',
       table: { defaultValue: { summary: 'medium' } },
     },
     appearance: {
       control: 'select',
       options: ['filled', 'outlined', 'filled-outlined'],
+      description: 'Visual appearance',
       table: { defaultValue: { summary: 'outlined' } },
     },
     'without-steppers': {
       control: 'boolean',
-      description: 'Hides the increment and decrement stepper buttons',
+      description: 'Hides the stepper buttons',
+      table: { defaultValue: { summary: 'false' } },
     },
-    disabled: { control: 'boolean' },
-    required: { control: 'boolean' },
-    min: { control: 'number', description: 'Minimum allowed value' },
-    max: { control: 'number', description: 'Maximum allowed value' },
-    step: {
-      control: 'number',
-      description: 'Step increment for stepper buttons',
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
     },
-    placeholder: { control: 'text' },
-    onInput: { action: 'input' },
-    onChange: { action: 'change' },
-    onBlur: { action: 'blur' },
-    onFocus: { action: 'focus' },
+    onChange: {
+      action: 'change',
+      description:
+        "Emitted when an alteration to the control's value is committed by the user.",
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The input's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:start': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the start of the input control.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the end of the input control (before steppers).',
+      table: { category: 'Slots' },
+    },
+    'slot:increment-icon': {
+      control: false,
+      description: 'An icon to use in lieu of the default increment icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:decrement-icon': {
+      control: false,
+      description: 'An icon to use in lieu of the default decrement icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the input.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the input.',
+      table: { category: 'Methods' },
+    },
+    'method:select': {
+      control: false,
+      description: 'Selects all the text in the input.',
+      table: { category: 'Methods' },
+    },
+    'method:stepUp': {
+      control: false,
+      description: 'Increments the value by the step amount.',
+      table: { category: 'Methods' },
+    },
+    'method:stepDown': {
+      control: false,
+      description: 'Decrements the value by the step amount.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Quantity',
-    value: 1,
     onInput: fn(),
     onChange: fn(),
+    onBlur: fn(),
+    onFocus: fn(),
+    onInvalid: fn(),
   },
 } satisfies Meta<typeof NumberInput>;
 

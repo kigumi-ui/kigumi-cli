@@ -10,33 +10,32 @@ const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 const inHour = new Date(now.getTime() + 60 * 60 * 1000);
 const inDay = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-/**
- * Relative Time formats a date-time value as a human-readable relative string like "3 minutes
- * ago" or "in 2 days", using the browser's `Intl.RelativeTimeFormat` API. It can
- * automatically pick the best time unit, update live as time passes, and switch between
- * "auto" and "always-numeric" styles.
- */
+/** Outputs a localized time phrase relative to the current date and time */
 const meta = {
   title: 'Components/Relative Time',
   component: RelativeTime,
   tags: ['autodocs'],
   argTypes: {
+    date: { control: 'text', description: 'The date/time to calculate from' },
     format: {
       control: 'select',
       options: ['long', 'short', 'narrow'],
+      description: 'The formatting style',
       table: { defaultValue: { summary: 'long' } },
     },
     numeric: {
       control: 'select',
       options: ['always', 'auto'],
-      table: { defaultValue: { summary: 'always' } },
+      description: 'When to use numeric values',
+      table: { defaultValue: { summary: 'auto' } },
     },
     sync: {
       control: 'boolean',
-      description: 'Automatically update as time passes',
+      description: 'Keeps time in sync',
+      table: { defaultValue: { summary: 'false' } },
     },
+    lang: { control: 'text', description: 'The locale to use' },
   },
-  args: { date: minuteAgo },
 } satisfies Meta<typeof RelativeTime>;
 
 export default meta;

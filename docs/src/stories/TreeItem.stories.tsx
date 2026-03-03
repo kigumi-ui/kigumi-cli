@@ -2,31 +2,88 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { TreeItem, Tree, Icon } from '@/components/ui';
 
-/**
- * Tree Item is a node in a Tree component. It can contain text, icons, and nested Tree Item
- * children. Items support expanded/collapsed state (with animated transitions), selected
- * state, disabled state, and lazy-loading for children that are fetched asynchronously.
- * Custom expand/collapse icons can be provided via named slots.
- */
+/** Tree items are used inside trees to represent hierarchical items */
 const meta = {
   title: 'Components/Tree Item',
   component: TreeItem,
   tags: ['autodocs'],
   argTypes: {
-    disabled: { control: 'boolean' },
-    expanded: { control: 'boolean' },
-    selected: { control: 'boolean' },
+    expanded: {
+      control: 'boolean',
+      description: 'Expands the item',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    selected: {
+      control: 'boolean',
+      description: 'Selects the item',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the item',
+      table: { defaultValue: { summary: 'false' } },
+    },
     lazy: {
       control: 'boolean',
-      description: 'Indicates this item has children that load lazily',
+      description: 'Enables lazy loading',
+      table: { defaultValue: { summary: 'false' } },
     },
-    onExpand: { action: 'expand' },
-    onCollapse: { action: 'collapse' },
-    onLazyLoad: { action: 'lazy-load' },
+    onExpand: {
+      action: 'expand',
+      description: 'Emitted when the tree item expands.',
+      table: { category: 'Events' },
+    },
+    onAfterExpand: {
+      action: 'after-expand',
+      description:
+        'Emitted after the tree item expands and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    onCollapse: {
+      action: 'collapse',
+      description: 'Emitted when the tree item collapses.',
+      table: { category: 'Events' },
+    },
+    onAfterCollapse: {
+      action: 'after-collapse',
+      description:
+        'Emitted after the tree item collapses and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    onLazyChange: {
+      action: 'lazy-change',
+      description: "Emitted when the tree item's lazy state changes.",
+      table: { category: 'Events' },
+    },
+    onLazyLoad: {
+      action: 'lazy-load',
+      description:
+        'Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree.',
+      table: { category: 'Events' },
+    },
+    'slot:expand-icon': {
+      control: false,
+      description: 'The icon to show when the tree item is expanded.',
+      table: { category: 'Slots' },
+    },
+    'slot:collapse-icon': {
+      control: false,
+      description: 'The icon to show when the tree item is collapsed.',
+      table: { category: 'Slots' },
+    },
+    'method:getChildrenItems': {
+      control: false,
+      description: 'Gets all the nested tree items in this node.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
     onExpand: fn(),
+    onAfterExpand: fn(),
     onCollapse: fn(),
+    onAfterCollapse: fn(),
+    onLazyChange: fn(),
+    onLazyLoad: fn(),
   },
 } satisfies Meta<typeof TreeItem>;
 

@@ -1,23 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tab, TabGroup, TabPanel, Icon } from '@/components/ui';
 
-/**
- * Tab is an individual navigation trigger within a Tab Group. It is placed in the `nav`
- * slot and linked to a Tab Panel via the `panel` attribute. Tabs support optional prefix
- * icons and can be individually disabled to prevent navigation to their associated panel.
- */
+/** Tabs are used inside tab groups to represent selectable tabs */
 const meta = {
   title: 'Components/Tab',
   component: Tab,
   tags: ['autodocs'],
   argTypes: {
-    panel: {
-      control: 'text',
-      description: 'The name of the tab panel this tab is associated with',
+    panel: { control: 'text', description: 'Associated panel name' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the tab',
+      table: { defaultValue: { summary: 'false' } },
     },
-    disabled: { control: 'boolean' },
   },
-  args: { panel: 'example' },
 } satisfies Meta<typeof Tab>;
 
 export default meta;

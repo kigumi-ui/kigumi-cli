@@ -2,10 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ButtonGroup, Button, Icon } from '@/components/ui';
 
 /**
- * Button Group visually connects related buttons into a single cohesive control by removing
- * the gap between them and merging their borders. Useful for toolbars, segmented controls,
- * and sets of mutually exclusive actions. Supports horizontal (default) and vertical
- * orientations, and works with any button variant or size.
+ * Groups related buttons into organized sections, supporting both horizontal and vertical
+ * layouts
  */
 const meta = {
   title: 'Components/Button Group',
@@ -15,11 +13,12 @@ const meta = {
     label: {
       control: 'text',
       description:
-        'Accessibility label (not visible, announced by screen readers)',
+        "A label to use for the button group. This won't be displayed on the screen, but it will be announced by assistive devices",
     },
     orientation: {
       control: 'select',
       options: ['horizontal', 'vertical'],
+      description: "Controls the button group's layout direction",
       table: { defaultValue: { summary: 'horizontal' } },
     },
     children: { table: { disable: true } },

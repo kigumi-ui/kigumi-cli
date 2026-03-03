@@ -2,10 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Skeleton } from '@/components/ui';
 
 /**
- * Skeleton renders a placeholder shape that mimics the layout of content while it loads.
- * Use it to reduce perceived wait time and avoid layout shift. Three animation effects are
- * available (sheen by default, pulse, and none), and the shape is fully configurable via
- * CSS (width, height, border-radius).
+ * Skeletons are used to provide a visual representation of where content will eventually
+ * load
  */
 const meta = {
   title: 'Components/Skeleton',
@@ -15,11 +13,10 @@ const meta = {
     effect: {
       control: 'select',
       options: ['pulse', 'sheen', 'none'],
-      description: 'Loading animation style',
-      table: { defaultValue: { summary: 'sheen' } },
+      description: 'Animation effect',
+      table: { defaultValue: { summary: 'none' } },
     },
   },
-  args: { effect: 'sheen' },
 } satisfies Meta<typeof Skeleton>;
 
 export default meta;

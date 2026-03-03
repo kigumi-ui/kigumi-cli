@@ -1,30 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ProgressBar } from '@/components/ui';
 
-/**
- * Progress Bar visualises the completion of a task as a filled horizontal track. The
- * `value` (0 to 100) and `max` props control the fill; an optional label slot lets you
- * overlay text such as a percentage. An indeterminate mode animates the bar when the
- * total duration is unknown.
- */
+/** Progress bars are used to show the completion of a task or operation */
 const meta = {
   title: 'Components/Progress Bar',
   component: ProgressBar,
   tags: ['autodocs'],
   argTypes: {
     value: {
-      control: { type: 'range', min: 0, max: 100, step: 1 },
-      description: 'Progress percentage (0 to 100)',
+      control: 'number',
+      description: 'Current progress (0-100)',
       table: { defaultValue: { summary: '0' } },
     },
     indeterminate: {
       control: 'boolean',
-      description: 'Shows an animated indeterminate state',
+      description: 'Shows indeterminate state',
+      table: { defaultValue: { summary: 'false' } },
     },
-    label: { control: 'text', description: 'Label for assistive devices' },
-    children: { control: 'text', description: 'Content shown inside the bar' },
+    label: { control: 'text', description: 'Accessible label' },
   },
-  args: { value: 50 },
 } satisfies Meta<typeof ProgressBar>;
 
 export default meta;

@@ -2,37 +2,69 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Icon } from '@/components/ui';
 
-/**
- * Icon renders a scalable vector symbol from the built-in Font Awesome icon set. Pass the
- * icon `name` to select a glyph; size is inherited from the surrounding `font-size` so
- * it scales naturally with text. A `src` prop lets you load custom SVG icons from a URL,
- * and a `library` prop selects from registered icon libraries.
- */
+/** Icons are symbols that can be used to represent various options within an application */
 const meta = {
   title: 'Components/Icon',
   component: Icon,
   tags: ['autodocs'],
   argTypes: {
-    name: { control: 'text', description: 'Font Awesome icon name' },
+    name: { control: 'text', description: 'The name of the icon to draw' },
+    library: {
+      control: 'text',
+      description: 'The name of a registered custom icon library',
+      table: { defaultValue: { summary: 'default' } },
+    },
+    src: { control: 'text', description: 'An external URL of an SVG file' },
+    label: {
+      control: 'text',
+      description: 'An alternate description for assistive devices',
+    },
     family: {
-      control: 'select',
-      options: ['classic', 'brands', 'sharp', 'duotone', 'sharp-duotone'],
-      description: 'Icon family',
-      table: { defaultValue: { summary: 'classic' } },
+      control: 'text',
+      description:
+        'The family of icons (classic, brands, sharp, duotone, sharp-duotone)',
     },
     variant: {
-      control: 'select',
-      options: ['thin', 'light', 'regular', 'solid'],
-      description: 'Icon weight/style',
-      table: { defaultValue: { summary: 'regular' } },
+      control: 'text',
+      description: "The icon's variant (thin, light, regular, solid)",
     },
-    label: { control: 'text', description: 'Accessibility label' },
-    'auto-width': { control: 'boolean' },
-    onLoad: { action: 'loaded' },
-    onError: { action: 'error' },
+    'auto-width': {
+      control: 'boolean',
+      description: 'Sets the width to match the cropped SVG viewBox',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'swap-opacity': {
+      control: 'boolean',
+      description: 'Swaps the opacity of duotone icons',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    rotate: {
+      control: 'number',
+      description: 'Rotate the icon by this many degrees',
+    },
+    flip: {
+      control: 'select',
+      options: ['horizontal', 'vertical', 'both'],
+      description: 'Flip the icon horizontally, vertically, or both',
+    },
+    animation: {
+      control: 'text',
+      description: 'The name of a built-in animation to apply',
+    },
+    onLoad: {
+      action: 'load',
+      description:
+        'Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit.',
+      table: { category: 'Events' },
+    },
+    onError: {
+      action: 'error',
+      description:
+        'Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit.',
+      table: { category: 'Events' },
+    },
   },
   args: {
-    name: 'star',
     onLoad: fn(),
     onError: fn(),
   },

@@ -3,36 +3,46 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Tag } from '@/components/ui';
 
-/**
- * Tag is a compact label used to categorise, filter, or annotate content. It supports five
- * semantic color variants, four appearance styles, three sizes, pill corners, and an
- * optional remove button, making it suitable for both read-only labels and interactive
- * tag-input patterns.
- */
+/** Tags are used as labels to organize things or indicate selections */
 const meta = {
   title: 'Components/Tag',
   component: Tag,
   tags: ['autodocs'],
   argTypes: {
-    variant: {
-      control: 'select',
-      options: ['brand', 'neutral', 'success', 'warning', 'danger'],
-      table: { defaultValue: { summary: 'neutral' } },
-    },
     appearance: {
       control: 'select',
       options: ['accent', 'filled', 'outlined', 'filled-outlined'],
+      description: 'Visual appearance',
       table: { defaultValue: { summary: 'filled-outlined' } },
+    },
+    pill: {
+      control: 'boolean',
+      description: 'Rounded edges',
+      table: { defaultValue: { summary: 'false' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Tag size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    pill: { control: 'boolean' },
-    withRemove: { control: 'boolean', description: 'Shows a remove button' },
+    variant: {
+      control: 'select',
+      options: ['brand', 'neutral', 'success', 'warning', 'danger'],
+      description: 'Theme variant',
+      table: { defaultValue: { summary: 'neutral' } },
+    },
+    'with-remove': {
+      control: 'boolean',
+      description: 'Shows remove button',
+      table: { defaultValue: { summary: 'false' } },
+    },
     children: { control: 'text' },
-    onRemove: { action: 'removed' },
+    onRemove: {
+      action: 'remove',
+      description: 'Emitted when the remove button is activated.',
+      table: { category: 'Events' },
+    },
   },
   args: {
     children: 'Tag',

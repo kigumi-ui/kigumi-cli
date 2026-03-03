@@ -1,46 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Sparkline } from '@/components/ui';
 
-/**
- * Sparkline renders a compact inline chart for showing data trends at a glance.
- * Pass space-separated numbers via the `data` prop and choose between gradient,
- * line, and solid appearance styles. Use the `trend` prop for semantic coloring
- * and `curve` to control the line interpolation. Colors are set via CSS custom
- * properties `--line-color` and `--fill-color`.
- */
+/** Sparklines are small inline data visualizations for showing trends */
 const meta = {
   title: 'Components/Sparkline',
   component: Sparkline,
   tags: ['autodocs'],
   argTypes: {
+    data: {
+      control: 'text',
+      description: 'Space-separated numeric data points',
+    },
+    label: {
+      control: 'text',
+      description: 'An accessible label for assistive devices',
+    },
     appearance: {
       control: 'select',
       options: ['gradient', 'line', 'solid'],
       description: 'Visual style of the sparkline',
-      table: { defaultValue: { summary: 'gradient' } },
+      table: { defaultValue: { summary: 'line' } },
     },
     trend: {
       control: 'select',
       options: ['positive', 'negative', 'neutral'],
-      description: 'Trend direction, used for semantic coloring',
+      description: 'Trend direction, used for coloring',
     },
     curve: {
       control: 'select',
       options: ['linear', 'natural', 'step'],
-      description: 'Line interpolation style',
+      description: 'Interpolation curve style',
       table: { defaultValue: { summary: 'natural' } },
     },
-    data: {
-      control: 'text',
-      description: 'Space-separated numeric values to plot',
-    },
-    label: {
-      control: 'text',
-      description: 'Accessible label for assistive devices',
-    },
-  },
-  args: {
-    data: '10 20 30 25 40 15 35 45 30 20',
   },
 } satisfies Meta<typeof Sparkline>;
 

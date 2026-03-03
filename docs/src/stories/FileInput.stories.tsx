@@ -2,39 +2,104 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { FileInput } from '@/components/ui';
 
-/**
- * File Input provides a drag-and-drop dropzone for selecting files from a device.
- * It supports single and multiple file selection, file type filtering via the `accept`
- * prop, and optional limits on file count and size. Visual feedback updates as files
- * are added, removed, or dragged over the dropzone.
- */
+/** File inputs allow users to select and upload files from their device */
 const meta = {
   title: 'Components/File Input',
   component: FileInput,
   tags: ['autodocs'],
   argTypes: {
+    label: { control: 'text', description: 'Accessible label for the input' },
+    hint: { control: 'text', description: 'Descriptive hint text' },
+    accept: {
+      control: 'text',
+      description: 'Accepted file types (MIME types or extensions)',
+    },
+    multiple: {
+      control: 'boolean',
+      description: 'Allow multiple file selection',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the input',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes field mandatory',
+      table: { defaultValue: { summary: 'false' } },
+    },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Input size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    multiple: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    required: { control: 'boolean' },
-    accept: {
-      control: 'text',
-      description:
-        'Comma-separated list of accepted MIME types or file extensions',
+    onInput: {
+      action: 'input',
+      description: 'Emitted when file selection changes.',
+      table: { category: 'Events' },
     },
-    onInput: { action: 'input' },
-    onChange: { action: 'change' },
-    onFocus: { action: 'focus' },
-    onBlur: { action: 'blur' },
+    onChange: {
+      action: 'change',
+      description: 'Emitted when files are added or removed.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the dropzone gains focus.',
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the dropzone loses focus.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The file input's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the file input. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'slot:dropzone': {
+      control: false,
+      description: 'Custom content to show in the dropzone.',
+      table: { category: 'Slots' },
+    },
+    'slot:file-icon': {
+      control: false,
+      description: 'Custom icon for non-image files.',
+      table: { category: 'Slots' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the file input.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the file input.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Upload a file',
     onInput: fn(),
     onChange: fn(),
+    onFocus: fn(),
+    onBlur: fn(),
+    onInvalid: fn(),
   },
 } satisfies Meta<typeof FileInput>;
 

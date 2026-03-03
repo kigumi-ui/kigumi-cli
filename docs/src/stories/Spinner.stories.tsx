@@ -1,16 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Spinner } from '@/components/ui';
 
-/**
- * Spinner indicates ongoing activity with a rotating animation. Its size is controlled
- * entirely by `font-size`, so it scales proportionally wherever it is used. Color can
- * be overridden to match the surrounding context, making it suitable both as a full-page
- * loader and as an inline button indicator.
- */
+/** Spinners are used to show the progress of an indeterminate operation */
 const meta = {
   title: 'Components/Spinner',
   component: Spinner,
   tags: ['autodocs'],
+  argTypes: {},
 } satisfies Meta<typeof Spinner>;
 
 export default meta;

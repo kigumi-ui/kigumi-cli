@@ -2,12 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Tree, TreeItem, Icon } from '@/components/ui';
 
-/**
- * Tree renders a hierarchical list of Tree Item nodes that users can expand, collapse, and
- * select. Three selection modes are available: single (default), multiple (checkboxes on all
- * items), and leaf (checkboxes on leaf nodes only). Fires a `wa-selection-change` event
- * whenever the selection changes.
- */
+/** Trees allow you to display a hierarchical list of selectable tree items */
 const meta = {
   title: 'Components/Tree',
   component: Tree,
@@ -16,11 +11,30 @@ const meta = {
     selection: {
       control: 'select',
       options: ['single', 'multiple', 'leaf'],
+      description: 'Selection behavior',
       table: { defaultValue: { summary: 'single' } },
     },
-    onSelectionChange: { action: 'selection-change' },
+    onSelectionChange: {
+      action: 'selection-change',
+      description: 'Emitted when a tree item is selected or deselected.',
+      table: { category: 'Events' },
+    },
+    'slot:expand-icon': {
+      control: false,
+      description:
+        'The icon to show when the tree item is expanded. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:collapse-icon': {
+      control: false,
+      description:
+        'The icon to show when the tree item is collapsed. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
   },
-  args: { onSelectionChange: fn() },
+  args: {
+    onSelectionChange: fn(),
+  },
 } satisfies Meta<typeof Tree>;
 
 export default meta;

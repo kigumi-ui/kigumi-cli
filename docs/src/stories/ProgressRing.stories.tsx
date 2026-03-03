@@ -1,29 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ProgressRing } from '@/components/ui';
 
-/**
- * Progress Ring renders progress as a circular arc, ideal for dashboards, metric cards,
- * and compact status indicators. The track and indicator colors are CSS-customizable, and
- * an optional label slot places any content at the center of the ring, such as a percentage
- * or an icon.
- */
+/** Progress rings are used to show the completion of a task in a circular format */
 const meta = {
   title: 'Components/Progress Ring',
   component: ProgressRing,
   tags: ['autodocs'],
   argTypes: {
     value: {
-      control: { type: 'range', min: 0, max: 100, step: 1 },
-      description: 'Progress percentage (0 to 100)',
+      control: 'number',
+      description: 'Current progress (0-100)',
       table: { defaultValue: { summary: '0' } },
     },
-    label: { control: 'text', description: 'Accessibility label' },
-    children: {
-      control: 'text',
-      description: 'Content displayed inside the ring',
-    },
+    label: { control: 'text', description: 'Accessible label' },
   },
-  args: { value: 50, label: 'Progress' },
 } satisfies Meta<typeof ProgressRing>;
 
 export default meta;

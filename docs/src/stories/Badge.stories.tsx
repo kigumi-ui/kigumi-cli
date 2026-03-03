@@ -1,12 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Badge, Button } from '@/components/ui';
 
-/**
- * Badge is a small status indicator that attaches to another element to convey counts,
- * states, or labels. It supports five semantic color variants, four appearance styles,
- * and an optional pulsating attention animation, useful for live notification counts
- * or highlighting new activity.
- */
+/** Badges are used to draw attention and display statuses or counts */
 const meta = {
   title: 'Components/Badge',
   component: Badge,
@@ -15,23 +10,31 @@ const meta = {
     variant: {
       control: 'select',
       options: ['brand', 'neutral', 'success', 'warning', 'danger'],
+      description: "The badge's theme variant",
       table: { defaultValue: { summary: 'brand' } },
     },
     appearance: {
       control: 'select',
       options: ['accent', 'filled', 'outlined', 'filled-outlined'],
+      description: "The badge's visual appearance",
       table: { defaultValue: { summary: 'accent' } },
     },
-    pill: { control: 'boolean' },
+    pill: {
+      control: 'boolean',
+      description: 'Draws a pill-style badge with rounded edges',
+      table: { defaultValue: { summary: 'false' } },
+    },
     attention: {
       control: 'select',
       options: ['none', 'pulse', 'bounce'],
-      description: 'Adds an animation to draw attention',
+      description: 'Adds an animation to draw attention to the badge',
       table: { defaultValue: { summary: 'none' } },
     },
     children: { control: 'text' },
   },
-  args: { children: 'New' },
+  args: {
+    children: 'New',
+  },
 } satisfies Meta<typeof Badge>;
 
 export default meta;

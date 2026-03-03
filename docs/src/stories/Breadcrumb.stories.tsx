@@ -1,12 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Breadcrumb, BreadcrumbItem, Icon } from '@/components/ui';
 
-/**
- * Breadcrumb renders a trail of navigational links that shows the user's current location
- * within a site hierarchy. The last item is treated as the current page and rendered without
- * a link. Supports custom separators, prefix icons on items, and accessible labeling via
- * `aria-label`.
- */
+/** Breadcrumbs provide a group of links so users can easily navigate a website hierarchy */
 const meta = {
   title: 'Components/Breadcrumb',
   component: Breadcrumb,
@@ -14,8 +9,14 @@ const meta = {
   argTypes: {
     label: {
       control: 'text',
-      description: 'Accessibility label',
-      table: { defaultValue: { summary: 'Breadcrumb' } },
+      description:
+        'The label to use for the breadcrumb control for assistive devices',
+    },
+    'slot:separator': {
+      control: false,
+      description:
+        'The separator to use between breadcrumb items. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
     },
   },
 } satisfies Meta<typeof Breadcrumb>;

@@ -21,32 +21,67 @@ const PanelContent = ({ label, color }: { label: string; color: string }) => (
   </div>
 );
 
-/**
- * Split Panel divides a container into two resizable panes separated by a draggable divider.
- * The `position` prop sets the initial split as a percentage (or absolute pixels when using
- * a primary pane), and the divider can snap to predefined positions. Supports horizontal
- * and vertical orientations and can be locked with `disabled`.
- */
+/** Split panels display two adjacent panels with a divider for resizing */
 const meta = {
   title: 'Components/Split Panel',
   component: SplitPanel,
   tags: ['autodocs'],
   argTypes: {
+    position: {
+      control: 'number',
+      description: 'Divider position (%)',
+      table: { defaultValue: { summary: '50' } },
+    },
+    'position-in-pixels': {
+      control: 'number',
+      description: 'Divider position (px)',
+    },
     orientation: {
       control: 'select',
       options: ['horizontal', 'vertical'],
+      description: 'Panel orientation',
       table: { defaultValue: { summary: 'horizontal' } },
     },
-    position: {
-      control: { type: 'range', min: 0, max: 100, step: 1 },
-      table: { defaultValue: { summary: '50' } },
+    primary: {
+      control: 'select',
+      options: ['start', 'end'],
+      description: 'Primary panel',
+      table: { defaultValue: { summary: 'start' } },
     },
-    disabled: { control: 'boolean' },
-    primary: { control: 'select', options: ['start', 'end'] },
-    onReposition: { action: 'reposition' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables resizing',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    snap: { control: 'text', description: 'Snap points' },
+    'snap-threshold': {
+      control: 'number',
+      description: 'Snap threshold (px)',
+      table: { defaultValue: { summary: '12' } },
+    },
+    onReposition: {
+      action: 'reposition',
+      description: "Emitted when the divider's position changes.",
+      table: { category: 'Events' },
+    },
+    'slot:start': {
+      control: false,
+      description: 'Content to place in the start panel.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description: 'Content to place in the end panel.',
+      table: { category: 'Slots' },
+    },
+    'slot:divider': {
+      control: false,
+      description:
+        'The divider. Useful for slotting in a custom icon that renders as a handle.',
+      table: { category: 'Slots' },
+    },
   },
   args: {
-    position: 50,
     onReposition: fn(),
   },
 } satisfies Meta<typeof SplitPanel>;

@@ -2,12 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Input, Icon } from '@/components/ui';
 
-/**
- * Input is a single-line text entry field that supports all standard HTML input types
- * (text, email, password, search, tel, URL, date, etc.). It exposes prefix/suffix icon
- * slots, a clearable option, password visibility toggle, pill corners, three appearance
- * styles, three sizes, and a hint line, all without additional wrapper components.
- */
+/** Inputs collect data from the user */
 const meta = {
   title: 'Components/Input',
   component: Input,
@@ -25,42 +20,239 @@ const meta = {
         'url',
         'search',
       ],
+      description: 'Input type',
       table: { defaultValue: { summary: 'text' } },
     },
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    placeholder: { control: 'text' },
-    value: { control: 'text' },
+    label: { control: 'text', description: 'Accessible label for the input' },
+    hint: { control: 'text', description: 'Descriptive hint text' },
+    placeholder: { control: 'text', description: 'Placeholder text' },
+    value: { control: 'text', description: 'Input value' },
     appearance: {
       control: 'select',
       options: ['filled', 'filled-outlined', 'outlined'],
+      description: 'Visual appearance style',
       table: { defaultValue: { summary: 'outlined' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Input size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    pill: { control: 'boolean' },
-    disabled: { control: 'boolean' },
+    pill: {
+      control: 'boolean',
+      description: 'Gives the input rounded edges',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the input',
+      table: { defaultValue: { summary: 'false' } },
+    },
     'with-clear': {
       control: 'boolean',
       description: 'Adds a clear button when input has content',
+      table: { defaultValue: { summary: 'false' } },
     },
     'password-toggle': {
       control: 'boolean',
-      description: 'Adds visibility toggle for password type',
+      description: 'Adds a toggle button for password visibility',
+      table: { defaultValue: { summary: 'false' } },
     },
-    onInput: { action: 'input' },
-    onChange: { action: 'change' },
-    onBlur: { action: 'blur' },
-    onFocus: { action: 'focus' },
-    onClear: { action: 'clear' },
-    onInvalid: { action: 'invalid' },
+    'password-visible': {
+      control: 'boolean',
+      description: 'Shows the password as plain text when set',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    readonly: {
+      control: 'boolean',
+      description: 'Makes the input readonly',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes the input required',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    name: {
+      control: 'text',
+      description: 'The name of the input for form submission',
+    },
+    pattern: {
+      control: 'text',
+      description: 'A regular expression pattern the value must match',
+    },
+    minlength: { control: 'number', description: 'Minimum string length' },
+    maxlength: { control: 'number', description: 'Maximum string length' },
+    min: {
+      control: 'text',
+      description: 'Minimum value for numeric and date types',
+    },
+    max: {
+      control: 'text',
+      description: 'Maximum value for numeric and date types',
+    },
+    step: { control: 'text', description: 'Step increment for numeric types' },
+    'without-spin-buttons': {
+      control: 'boolean',
+      description: "Hides the browser's built-in spin buttons",
+      table: { defaultValue: { summary: 'false' } },
+    },
+    autocomplete: {
+      control: 'text',
+      description: 'Hint for autocomplete behavior',
+    },
+    autocapitalize: {
+      control: 'select',
+      options: ['off', 'none', 'on', 'sentences', 'words', 'characters'],
+      description: 'Controls automatic capitalization',
+    },
+    autocorrect: {
+      control: 'select',
+      options: ['off', 'on'],
+      description: 'Hint for autocorrect behavior',
+    },
+    autofocus: {
+      control: 'boolean',
+      description: 'Automatically focuses the input on page load',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    inputmode: {
+      control: 'select',
+      options: [
+        'none',
+        'text',
+        'decimal',
+        'numeric',
+        'tel',
+        'search',
+        'email',
+        'url',
+      ],
+      description: 'Hint for virtual keyboard type',
+    },
+    enterkeyhint: {
+      control: 'select',
+      options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+      description: 'Hint for Enter key label on virtual keyboards',
+    },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
+    },
+    onChange: {
+      action: 'change',
+      description:
+        "Emitted when an alteration to the control's value is committed by the user.",
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
+    onClear: {
+      action: 'clear',
+      description: 'Emitted when the clear button is activated.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The input's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:start': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the start of the input control.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the end of the input control.',
+      table: { category: 'Slots' },
+    },
+    'slot:clear-icon': {
+      control: false,
+      description: 'An icon to use in lieu of the default clear icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:show-password-icon': {
+      control: false,
+      description: 'An icon to use in lieu of the default show password icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:hide-password-icon': {
+      control: false,
+      description: 'An icon to use in lieu of the default hide password icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the input.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the input.',
+      table: { category: 'Methods' },
+    },
+    'method:select': {
+      control: false,
+      description: 'Selects all the text in the input.',
+      table: { category: 'Methods' },
+    },
+    'method:setSelectionRange': {
+      control: false,
+      description:
+        'Sets the start and end positions of the text selection (0-based).',
+      table: { category: 'Methods' },
+    },
+    'method:setRangeText': {
+      control: false,
+      description: 'Replaces a range of text with a new string.',
+      table: { category: 'Methods' },
+    },
+    'method:showPicker': {
+      control: false,
+      description:
+        'Displays the browser picker for an input element (only works if the browser supports it for the input type).',
+      table: { category: 'Methods' },
+    },
+    'method:stepUp': {
+      control: false,
+      description:
+        'Increments the value of a numeric input type by the value of the step attribute.',
+      table: { category: 'Methods' },
+    },
+    'method:stepDown': {
+      control: false,
+      description:
+        'Decrements the value of a numeric input type by the value of the step attribute.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Label',
-    placeholder: 'Enter text...',
     onInput: fn(),
     onChange: fn(),
     onBlur: fn(),

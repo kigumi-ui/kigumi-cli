@@ -3,38 +3,75 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Dialog, Button } from '@/components/ui';
 
-/**
- * Dialog presents content in a modal overlay that blocks interaction with the rest of the
- * page until dismissed. It traps focus, supports keyboard navigation, and fires lifecycle
- * events for show, hide, and close-request. Optional header and footer slots, a light-dismiss
- * mode, and scrollable body make it suitable for everything from confirmations to full forms.
- */
+/** Dialogs display important prompts and information */
 const meta = {
   title: 'Components/Dialog',
   component: Dialog,
   tags: ['autodocs'],
   argTypes: {
+    open: {
+      control: 'boolean',
+      description: 'Indicates whether or not the dialog is open',
+      table: { disable: true, defaultValue: { summary: 'false' } },
+    },
     label: {
       control: 'text',
-      description: 'Dialog title shown in the header (required)',
+      description: "The dialog's label as displayed in the header",
     },
     'without-header': {
       control: 'boolean',
-      description: 'Removes the header and close button',
+      description: 'Disables the header and removes the default close button',
+      table: { defaultValue: { summary: 'false' } },
     },
     'light-dismiss': {
       control: 'boolean',
-      description: 'Close when clicking the backdrop',
+      description:
+        'When enabled, the dialog will be closed when the user clicks outside of it',
+      table: { defaultValue: { summary: 'false' } },
     },
-    onShow: { action: 'show' },
-    onAfterShow: { action: 'after-show' },
-    onHide: { action: 'hide' },
-    onAfterHide: { action: 'after-hide' },
-    // open is managed by useState in each story
-    open: { table: { disable: true } },
+    onShow: {
+      action: 'show',
+      description: 'Emitted when the dialog opens.',
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description:
+        'Emitted after the dialog opens and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description:
+        'Emitted when the dialog is requested to close. Calling `event.preventDefault()` will prevent the dialog from closing. You can inspect `event.detail.source` to see which element caused the dialog to close. If the source is the dialog element itself, the user has pressed [[Escape]] or the dialog has been closed programmatically. Avoid using this unless closing the dialog will result in destructive behavior such as data loss.',
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description:
+        'Emitted after the dialog closes and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The dialog's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:header-actions': {
+      control: false,
+      description:
+        'Optional actions to add to the header. Works best with `<wa-button>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:footer': {
+      control: false,
+      description:
+        "The dialog's footer, usually one or more buttons representing various options.",
+      table: { category: 'Slots' },
+    },
   },
   args: {
-    label: 'Dialog Title',
     onShow: fn(),
     onAfterShow: fn(),
     onHide: fn(),

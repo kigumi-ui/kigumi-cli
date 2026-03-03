@@ -2,37 +2,84 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { RadioGroup, Radio } from '@/components/ui';
 
-/**
- * Radio Group manages a set of mutually exclusive Radio options, handling selection state
- * and accessibility roles (radiogroup, radio) automatically. It supports horizontal and
- * vertical layouts, button-appearance children for segmented controls, a pre-selected
- * default value, and a disabled state that locks the entire group.
- */
+/** Radio groups are used to group multiple radios so only one can be selected */
 const meta = {
   title: 'Components/Radio Group',
   component: RadioGroup,
   tags: ['autodocs'],
   argTypes: {
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    value: { control: 'text', description: 'Currently selected value' },
-    orientation: {
-      control: 'select',
-      options: ['horizontal', 'vertical'],
-      table: { defaultValue: { summary: 'horizontal' } },
+    label: { control: 'text', description: 'Group label' },
+    hint: { control: 'text', description: 'Hint text' },
+    name: {
+      control: 'text',
+      description: 'Form field name',
+      table: { defaultValue: { summary: 'option' } },
     },
+    value: { control: 'text', description: 'Selected value' },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Radio size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    disabled: { control: 'boolean' },
-    required: { control: 'boolean' },
-    onChange: { action: 'changed' },
-    onInvalid: { action: 'invalid' },
+    required: {
+      control: 'boolean',
+      description: 'Makes selection required',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    orientation: {
+      control: 'select',
+      options: ['horizontal', 'vertical'],
+      description: 'Layout direction',
+      table: { defaultValue: { summary: 'vertical' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the group',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    invalid: {
+      control: 'boolean',
+      description: 'Shows invalid/error state',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'help-text': { control: 'text', description: 'Help text below the group' },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the radio group receives user input.',
+      table: { category: 'Events' },
+    },
+    onChange: {
+      action: 'change',
+      description: "Emitted when the radio group's selected value changes.",
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The radio group's label. Required for proper accessibility. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the radio group. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the radio group.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Select an option',
+    onInput: fn(),
     onChange: fn(),
     onInvalid: fn(),
   },

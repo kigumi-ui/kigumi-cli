@@ -1,27 +1,84 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ZoomableFrame } from '@/components/ui';
 
-/**
- * Zoomable Frame embeds content in an iframe with built-in zoom controls to zoom in, zoom
- * out, and reset. The zoom level can be set programmatically or constrained to a custom set
- * of discrete levels. Use it to preview responsive designs at different scales or display
- * content that benefits from independent zooming.
- */
+/** Zoomable frames display iframe content with zoom controls */
 const meta = {
   title: 'Components/Zoomable Frame',
   component: ZoomableFrame,
   tags: ['autodocs'],
   argTypes: {
-    zoom: { control: { type: 'range', min: 0.25, max: 4, step: 0.25 } },
+    src: { control: 'text', description: 'URL of content to display' },
+    srcdoc: { control: 'text', description: 'Inline HTML to render' },
+    zoom: {
+      control: 'number',
+      description: 'Current zoom level',
+      table: { defaultValue: { summary: '1' } },
+    },
     'zoom-levels': {
       control: 'text',
-      description: 'Comma-separated zoom levels (e.g. "0.5,1,1.5,2")',
+      description: 'Available zoom levels',
+      table: {
+        defaultValue: { summary: '25% 50% 75% 100% 125% 150% 175% 200%' },
+      },
     },
-    'without-controls': { control: 'boolean' },
-    'without-interaction': { control: 'boolean' },
-    loading: { control: 'select', options: ['eager', 'lazy'] },
+    allowfullscreen: {
+      control: 'boolean',
+      description: 'Enables fullscreen',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    loading: {
+      control: 'select',
+      options: ['eager', 'lazy'],
+      description: 'Loading behavior',
+      table: { defaultValue: { summary: 'eager' } },
+    },
+    'without-controls': {
+      control: 'boolean',
+      description: 'Hides zoom controls',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'without-interaction': {
+      control: 'boolean',
+      description: 'Disables interaction',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    sandbox: { control: 'text', description: 'Security restrictions' },
+    referrerpolicy: { control: 'text', description: 'Referrer policy' },
+    onLoad: {
+      action: 'load',
+      description: 'Emitted when the internal iframe when it finishes loading.',
+      table: { category: 'Events' },
+    },
+    onError: {
+      action: 'error',
+      description: 'Emitted from the internal iframe when it fails to load.',
+      table: { category: 'Events' },
+    },
+    'slot:zoom-in-icon': {
+      control: false,
+      description: 'The slot that contains the zoom in icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:zoom-out-icon': {
+      control: false,
+      description: 'The slot that contains the zoom out icon.',
+      table: { category: 'Slots' },
+    },
+    'method:zoomIn': {
+      control: false,
+      description: 'Zooms in to the next available zoom level.',
+      table: { category: 'Methods' },
+    },
+    'method:zoomOut': {
+      control: false,
+      description: 'Zooms out to the previous available zoom level.',
+      table: { category: 'Methods' },
+    },
   },
-  args: { zoom: 1 },
+  args: {
+    onLoad: fn(),
+    onError: fn(),
+  },
 } satisfies Meta<typeof ZoomableFrame>;
 
 export default meta;

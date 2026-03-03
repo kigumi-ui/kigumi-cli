@@ -2,17 +2,17 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Dropdown, DropdownItem, Button, Icon } from '@/components/ui';
 
-/**
- * Dropdown attaches a contextual menu to a trigger element, typically a button, and
- * displays a list of actions or options when activated. It positions itself automatically
- * to stay within the viewport, supports nested items, and can carry checkbox items for
- * multi-select scenarios.
- */
+/** Dropdowns expose additional content that pops up when the user interacts with a trigger */
 const meta = {
   title: 'Components/Dropdown',
   component: Dropdown,
   tags: ['autodocs'],
   argTypes: {
+    open: {
+      control: 'boolean',
+      description: 'Indicates whether the dropdown is open',
+      table: { disable: true, defaultValue: { summary: 'false' } },
+    },
     placement: {
       control: 'select',
       options: [
@@ -23,23 +23,83 @@ const meta = {
         'bottom-start',
         'bottom-end',
         'right',
+        'right-start',
+        'right-end',
         'left',
+        'left-start',
+        'left-end',
       ],
+      description: 'Preferred placement of the dropdown panel',
       table: { defaultValue: { summary: 'bottom-start' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the dropdown',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'stay-open-on-select': {
+      control: 'boolean',
+      description: 'Keeps the dropdown open when an item is selected',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    distance: {
+      control: 'number',
+      description: 'Distance from the panel to the trigger',
+      table: { defaultValue: { summary: '0' } },
+    },
+    skidding: {
+      control: 'number',
+      description: 'Offset along the trigger',
+      table: { defaultValue: { summary: '0' } },
+    },
+    hoist: {
+      control: 'boolean',
+      description: 'Hoists the dropdown panel to the body',
+      table: { defaultValue: { summary: 'false' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Dropdown size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    onShow: { action: 'show' },
-    onHide: { action: 'hide' },
-    onSelect: { action: 'select' },
-    open: { table: { disable: true } },
+    onShow: {
+      action: 'show',
+      description: 'Emitted when the dropdown is about to show.',
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description: 'Emitted after the dropdown has been shown.',
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description: 'Emitted when the dropdown is about to hide.',
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description: 'Emitted after the dropdown has been hidden.',
+      table: { category: 'Events' },
+    },
+    onSelect: {
+      action: 'select',
+      description: 'Emitted when an item in the dropdown is selected.',
+      table: { category: 'Events' },
+    },
+    'slot:trigger': {
+      control: false,
+      description:
+        'The element that triggers the dropdown, such as a `<wa-button>` or `<button>`.',
+      table: { category: 'Slots' },
+    },
   },
   args: {
     onShow: fn(),
+    onAfterShow: fn(),
     onHide: fn(),
+    onAfterHide: fn(),
     onSelect: fn(),
   },
 } satisfies Meta<typeof Dropdown>;

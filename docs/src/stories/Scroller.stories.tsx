@@ -1,12 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Scroller } from '@/components/ui';
 
-/**
- * Scroller provides a scrollable container with optional scrollbar visibility control and
- * shadow indicators that appear at the edges to signal additional content. It supports
- * both horizontal and vertical scroll directions and makes long content areas feel polished
- * without custom CSS.
- */
+/** Adds a scrollable container with optional shadow indicators */
 const meta = {
   title: 'Components/Scroller',
   component: Scroller,
@@ -14,11 +9,25 @@ const meta = {
   argTypes: {
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical'],
-      table: { defaultValue: { summary: 'vertical' } },
+      options: ['horizontal', 'vertical', 'both'],
+      description: 'Scroll direction',
+      table: { defaultValue: { summary: 'both' } },
     },
-    'without-scrollbar': { control: 'boolean' },
-    'without-shadow': { control: 'boolean' },
+    'with-scroll-indicator': {
+      control: 'boolean',
+      description: 'Shows shadow indicators',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'without-scrollbar': {
+      control: 'boolean',
+      description: 'Hides the scrollbar',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'without-shadow': {
+      control: 'boolean',
+      description: 'Hides shadow indicators',
+      table: { defaultValue: { summary: 'false' } },
+    },
   },
 } satisfies Meta<typeof Scroller>;
 

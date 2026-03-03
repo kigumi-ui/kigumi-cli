@@ -3,17 +3,22 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Popover, Button, Icon } from '@/components/ui';
 
-/**
- * Popover displays rich content in a floating panel anchored to a trigger element. Unlike
- * Tooltip it is not limited to plain text: any markup can go inside, and it stays open
- * until explicitly dismissed. It positions itself automatically using Floating UI and
- * supports a directional arrow pointing at the trigger.
- */
+/** Popovers display additional content when users interact with a trigger element */
 const meta = {
   title: 'Components/Popover',
   component: Popover,
   tags: ['autodocs'],
   argTypes: {
+    open: {
+      control: 'boolean',
+      description: 'Indicates whether the popover is open',
+      table: { disable: true, defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the popover',
+      table: { defaultValue: { summary: 'false' } },
+    },
     placement: {
       control: 'select',
       options: [
@@ -30,20 +35,79 @@ const meta = {
         'left-start',
         'left-end',
       ],
+      description: 'Preferred placement',
       table: { defaultValue: { summary: 'top' } },
     },
-    distance: { control: 'number', table: { defaultValue: { summary: '8' } } },
-    'without-arrow': { control: 'boolean' },
-    onShow: { action: 'show' },
-    onAfterShow: { action: 'after-show' },
-    onHide: { action: 'hide' },
-    onAfterHide: { action: 'after-hide' },
-    open: { table: { disable: true } },
-    for: { table: { disable: true } },
+    trigger: {
+      control: 'text',
+      description: 'Activation events (click, hover, focus)',
+      table: { defaultValue: { summary: 'click' } },
+    },
+    distance: {
+      control: 'number',
+      description: 'Distance from trigger',
+      table: { defaultValue: { summary: '8' } },
+    },
+    skidding: {
+      control: 'number',
+      description: 'Offset along trigger',
+      table: { defaultValue: { summary: '0' } },
+    },
+    'with-arrow': {
+      control: 'boolean',
+      description: 'Shows an arrow',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'without-arrow': {
+      control: 'boolean',
+      description: 'Hides the arrow',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    for: {
+      control: 'text',
+      description: 'The ID of the element the popover is anchored to',
+      table: { disable: true },
+    },
+    onShow: {
+      action: 'show',
+      description:
+        'Emitted when the popover begins to show. Canceling this event will stop the popover from showing.',
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description:
+        'Emitted after the popover has shown and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description:
+        'Emitted when the popover begins to hide. Canceling this event will stop the popover from hiding.',
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description:
+        'Emitted after the popover has hidden and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    'method:show': {
+      control: false,
+      description: 'Shows the popover.',
+      table: { category: 'Methods' },
+    },
+    'method:hide': {
+      control: false,
+      description: 'Hides the popover.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
     onShow: fn(),
+    onAfterShow: fn(),
     onHide: fn(),
+    onAfterHide: fn(),
   },
 } satisfies Meta<typeof Popover>;
 
