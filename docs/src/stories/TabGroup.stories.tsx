@@ -36,12 +36,6 @@ const meta = {
       description: 'Emitted when a tab is hidden.',
       table: { category: 'Events' },
     },
-    'slot:nav': {
-      control: false,
-      description:
-        'Used for grouping tabs in the tab group. Must be `<wa-tab>` elements. Note that `<wa-tab>` will set this slot on itself automatically.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
     onTabShow: fn(),

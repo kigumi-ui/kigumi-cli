@@ -92,16 +92,6 @@ const meta = {
         'Emitted after the popover has hidden and all animations are complete.',
       table: { category: 'Events' },
     },
-    'method:show': {
-      control: false,
-      description: 'Shows the popover.',
-      table: { category: 'Methods' },
-    },
-    'method:hide': {
-      control: false,
-      description: 'Hides the popover.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onShow: fn(),

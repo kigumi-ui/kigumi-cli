@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Comparison } from '@/components/ui';
+import { fn } from 'storybook/test';
 
 /** Compare visual differences between similar content with a sliding panel */
 const meta = {
@@ -16,21 +17,6 @@ const meta = {
       action: 'change',
       description: 'Emitted when the position changes.',
       table: { category: 'Events' },
-    },
-    'slot:before': {
-      control: false,
-      description: 'The before content, often an `<img>` or `<svg>` element.',
-      table: { category: 'Slots' },
-    },
-    'slot:after': {
-      control: false,
-      description: 'The after content, often an `<img>` or `<svg>` element.',
-      table: { category: 'Slots' },
-    },
-    'slot:handle': {
-      control: false,
-      description: 'The icon used inside the handle.',
-      table: { category: 'Slots' },
     },
   },
   args: {

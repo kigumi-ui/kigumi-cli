@@ -65,15 +65,8 @@ function validateStories(): ValidationError[] {
 
     // 3. Check that registry props are in argTypes
     for (const [argName, argType] of Object.entries(storyData.argTypes)) {
-      // Skip slot/method docs and hidden args
-      if (argName.startsWith('slot:') || argName.startsWith('method:'))
-        continue;
+      // Skip hidden args
       if (argType.table?.disable) continue;
-      if (
-        argType.table?.category === 'Slots' ||
-        argType.table?.category === 'Methods'
-      )
-        continue;
 
       // Check if argType key appears in the file's argTypes section
       const escapedName = argName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

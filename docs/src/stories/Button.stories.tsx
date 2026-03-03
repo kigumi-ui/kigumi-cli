@@ -112,31 +112,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:start': {
-      control: false,
-      description: 'An element, such as `<wa-icon>`, placed before the label.',
-      table: { category: 'Slots' },
-    },
-    'slot:end': {
-      control: false,
-      description: 'An element, such as `<wa-icon>`, placed after the label.',
-      table: { category: 'Slots' },
-    },
-    'method:click': {
-      control: false,
-      description: 'Simulates a click on the button.',
-      table: { category: 'Methods' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the button.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the button.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     children: 'Button',

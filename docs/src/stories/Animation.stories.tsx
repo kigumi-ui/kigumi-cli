@@ -89,18 +89,6 @@ const meta = {
       description: 'Emitted when the animation starts or restarts.',
       table: { category: 'Events' },
     },
-    'method:cancel': {
-      control: false,
-      description:
-        'Clears all keyframe effects caused by this animation and aborts its playback.',
-      table: { category: 'Methods' },
-    },
-    'method:finish': {
-      control: false,
-      description:
-        'Sets the playback time to the end of the animation corresponding to the current playback direction.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onCancel: fn(),

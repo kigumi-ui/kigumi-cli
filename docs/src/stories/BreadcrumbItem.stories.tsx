@@ -21,22 +21,6 @@ const meta = {
       description: 'The rel attribute to use on the link',
       table: { defaultValue: { summary: 'noreferrer noopener' } },
     },
-    'slot:start': {
-      control: false,
-      description: 'An element, such as `<wa-icon>`, placed before the label.',
-      table: { category: 'Slots' },
-    },
-    'slot:end': {
-      control: false,
-      description: 'An element, such as `<wa-icon>`, placed after the label.',
-      table: { category: 'Slots' },
-    },
-    'slot:separator': {
-      control: false,
-      description:
-        'The separator to use for the breadcrumb item. This will only change the separator for this item. If you want to change it for all items in the group, set the separator on `<wa-breadcrumb>` instead.',
-      table: { category: 'Slots' },
-    },
   },
 } satisfies Meta<typeof BreadcrumbItem>;
 

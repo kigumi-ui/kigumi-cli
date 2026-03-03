@@ -90,56 +90,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        "The color picker's form label. Alternatively, you can use the `label` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:hint': {
-      control: false,
-      description:
-        "The color picker's form hint. Alternatively, you can use the `hint` attribute.",
-      table: { category: 'Slots' },
-    },
-    'method:getHexString': {
-      control: false,
-      description:
-        'Generates a hex string from HSV values. Hue must be 0-360. All other arguments must be 0-100.',
-      table: { category: 'Methods' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the color picker.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the color picker.',
-      table: { category: 'Methods' },
-    },
-    'method:getFormattedValue': {
-      control: false,
-      description:
-        'Returns the current value as a string in the specified format.',
-      table: { category: 'Methods' },
-    },
-    'method:reportValidity': {
-      control: false,
-      description:
-        "Checks for validity and shows the browser's validation message if the control is invalid.",
-      table: { category: 'Methods' },
-    },
-    'method:show': {
-      control: false,
-      description: 'Shows the color picker panel.',
-      table: { category: 'Methods' },
-    },
-    'method:hide': {
-      control: false,
-      description: 'Hides the color picker panel',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onChange: fn(),

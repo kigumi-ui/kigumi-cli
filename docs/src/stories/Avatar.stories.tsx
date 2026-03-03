@@ -38,12 +38,6 @@ const meta = {
         'The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause.',
       table: { category: 'Events' },
     },
-    'slot:icon': {
-      control: false,
-      description:
-        'The default icon to use when no image or initials are present. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
     onError: fn(),

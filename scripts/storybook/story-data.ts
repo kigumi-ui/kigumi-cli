@@ -114,6 +114,19 @@ export function buildStoryData(componentKey: string): StoryData | null {
   // 1. Props from registry
   for (const prop of definition.props) {
     argTypes[prop.name] = propToArgType(prop);
+
+    // Required props need default args to satisfy Meta<typeof X>
+    if (prop.required) {
+      const defaultVal =
+        prop.default && prop.default !== "''"
+          ? prop.default
+          : prop.type === 'boolean'
+            ? 'false'
+            : '';
+      if (defaultVal) {
+        args[prop.name] = `'${defaultVal}'`;
+      }
+    }
   }
 
   // 2. Events from metadata
@@ -136,30 +149,9 @@ export function buildStoryData(componentKey: string): StoryData | null {
     }
   }
 
-  // 3. Slots from metadata (docs-only, no control)
-  if (metadata?.slots) {
-    for (const slot of metadata.slots) {
-      // Only add named slots as argTypes (default slot is implicit via children)
-      if (slot.name) {
-        argTypes[`slot:${slot.name}`] = {
-          control: false,
-          description: slot.description,
-          table: { category: 'Slots' },
-        };
-      }
-    }
-  }
-
-  // 4. Methods from metadata (docs-only, no control)
-  if (metadata?.methods) {
-    for (const method of metadata.methods) {
-      argTypes[`method:${method.name}`] = {
-        control: false,
-        description: method.description,
-        table: { category: 'Methods' },
-      };
-    }
-  }
+  // Note: Slots and Methods are NOT added as argTypes because Storybook's
+  // Meta<typeof X> type only accepts known prop names. Slot/method documentation
+  // is handled by Storybook's autodocs via the component's TypeScript types.
 
   // 5. Apply overrides
   if (overrides) {

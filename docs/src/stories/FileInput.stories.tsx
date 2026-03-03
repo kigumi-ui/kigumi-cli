@@ -61,38 +61,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        "The file input's label. Alternatively, you can use the `label` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:hint': {
-      control: false,
-      description:
-        'Text that describes how to use the file input. Alternatively, you can use the `hint` attribute.',
-      table: { category: 'Slots' },
-    },
-    'slot:dropzone': {
-      control: false,
-      description: 'Custom content to show in the dropzone.',
-      table: { category: 'Slots' },
-    },
-    'slot:file-icon': {
-      control: false,
-      description: 'Custom icon for non-image files.',
-      table: { category: 'Slots' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the file input.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the file input.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onInput: fn(),

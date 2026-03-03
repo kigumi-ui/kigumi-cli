@@ -34,20 +34,10 @@ const meta = {
       description: 'Emitted when the image fails to load.',
       table: { category: 'Events' },
     },
-    'slot:play-icon': {
-      control: false,
-      description:
-        'Optional play icon to use instead of the default. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'slot:pause-icon': {
-      control: false,
-      description:
-        'Optional pause icon to use instead of the default. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
+    src: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnkwcmtjdjByZHloZXUzcmoyb2s4Z2I0N2NtZDdmaGlsMGM5NXF1NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKSjRrfIPjeiVyM/giphy.gif',
+    alt: 'Animated example',
     onLoad: fn(),
     onError: fn(),
   },

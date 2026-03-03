@@ -60,23 +60,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        "The radio group's label. Required for proper accessibility. Alternatively, you can use the `label` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:hint': {
-      control: false,
-      description:
-        'Text that describes how to use the radio group. Alternatively, you can use the `hint` attribute.',
-      table: { category: 'Slots' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the radio group.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onInput: fn(),

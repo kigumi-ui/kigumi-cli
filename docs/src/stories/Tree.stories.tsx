@@ -19,18 +19,6 @@ const meta = {
       description: 'Emitted when a tree item is selected or deselected.',
       table: { category: 'Events' },
     },
-    'slot:expand-icon': {
-      control: false,
-      description:
-        'The icon to show when the tree item is expanded. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'slot:collapse-icon': {
-      control: false,
-      description:
-        'The icon to show when the tree item is collapsed. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
     onSelectionChange: fn(),

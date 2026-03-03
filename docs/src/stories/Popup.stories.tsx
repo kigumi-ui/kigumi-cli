@@ -120,17 +120,6 @@ const meta = {
         'Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it.',
       table: { category: 'Events' },
     },
-    'slot:anchor': {
-      control: false,
-      description:
-        'The element the popup will be anchored to. If the anchor lives outside of the popup, you can use the `anchor` attribute or property instead.',
-      table: { category: 'Slots' },
-    },
-    'method:reposition': {
-      control: false,
-      description: 'Forces the popup to recalculate and reposition itself.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onReposition: fn(),

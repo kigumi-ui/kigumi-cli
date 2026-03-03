@@ -73,65 +73,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        "The input's label. Alternatively, you can use the `label` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:start': {
-      control: false,
-      description:
-        'An element, such as `<wa-icon>`, placed at the start of the input control.',
-      table: { category: 'Slots' },
-    },
-    'slot:end': {
-      control: false,
-      description:
-        'An element, such as `<wa-icon>`, placed at the end of the input control (before steppers).',
-      table: { category: 'Slots' },
-    },
-    'slot:increment-icon': {
-      control: false,
-      description: 'An icon to use in lieu of the default increment icon.',
-      table: { category: 'Slots' },
-    },
-    'slot:decrement-icon': {
-      control: false,
-      description: 'An icon to use in lieu of the default decrement icon.',
-      table: { category: 'Slots' },
-    },
-    'slot:hint': {
-      control: false,
-      description:
-        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
-      table: { category: 'Slots' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the input.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the input.',
-      table: { category: 'Methods' },
-    },
-    'method:select': {
-      control: false,
-      description: 'Selects all the text in the input.',
-      table: { category: 'Methods' },
-    },
-    'method:stepUp': {
-      control: false,
-      description: 'Increments the value by the step amount.',
-      table: { category: 'Methods' },
-    },
-    'method:stepDown': {
-      control: false,
-      description: 'Decrements the value by the step amount.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onInput: fn(),

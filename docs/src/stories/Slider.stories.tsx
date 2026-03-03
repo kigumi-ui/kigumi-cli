@@ -105,46 +105,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        'The slider label. Alternatively, you can use the `label` attribute.',
-      table: { category: 'Slots' },
-    },
-    'slot:hint': {
-      control: false,
-      description:
-        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute. instead.',
-      table: { category: 'Slots' },
-    },
-    'slot:reference': {
-      control: false,
-      description:
-        'One or more reference labels to show visually below the slider.',
-      table: { category: 'Slots' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus to the slider.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the slider.',
-      table: { category: 'Methods' },
-    },
-    'method:stepDown': {
-      control: false,
-      description:
-        "Decreases the slider's value by `step`. This is a programmatic change, so `input` and `change` events will not be emitted when this is called.",
-      table: { category: 'Methods' },
-    },
-    'method:stepUp': {
-      control: false,
-      description:
-        "Increases the slider's value by `step`. This is a programmatic change, so `input` and `change` events will not be emitted when this is called.",
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onChange: fn(),

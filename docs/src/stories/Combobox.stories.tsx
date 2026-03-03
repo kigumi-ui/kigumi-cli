@@ -150,61 +150,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        "The input's label. Alternatively, you can use the `label` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:start': {
-      control: false,
-      description:
-        'An element, such as `<wa-icon>`, placed at the start of the combobox.',
-      table: { category: 'Slots' },
-    },
-    'slot:end': {
-      control: false,
-      description:
-        'An element, such as `<wa-icon>`, placed at the end of the combobox.',
-      table: { category: 'Slots' },
-    },
-    'slot:clear-icon': {
-      control: false,
-      description: 'An icon to use in lieu of the default clear icon.',
-      table: { category: 'Slots' },
-    },
-    'slot:expand-icon': {
-      control: false,
-      description:
-        'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
-      table: { category: 'Slots' },
-    },
-    'slot:hint': {
-      control: false,
-      description:
-        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
-      table: { category: 'Slots' },
-    },
-    'method:show': {
-      control: false,
-      description: 'Shows the listbox.',
-      table: { category: 'Methods' },
-    },
-    'method:hide': {
-      control: false,
-      description: 'Hides the listbox.',
-      table: { category: 'Methods' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the control.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the control.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onInput: fn(),

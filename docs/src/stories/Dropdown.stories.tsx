@@ -88,12 +88,6 @@ const meta = {
       description: 'Emitted when an item in the dropdown is selected.',
       table: { category: 'Events' },
     },
-    'slot:trigger': {
-      control: false,
-      description:
-        'The element that triggers the dropdown, such as a `<wa-button>` or `<button>`.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
     onShow: fn(),

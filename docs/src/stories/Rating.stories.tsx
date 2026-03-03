@@ -51,16 +51,6 @@ const meta = {
         "Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value.",
       table: { category: 'Events' },
     },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the rating.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the rating.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onChange: fn(),

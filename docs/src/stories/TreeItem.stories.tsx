@@ -61,21 +61,6 @@ const meta = {
         'Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree.',
       table: { category: 'Events' },
     },
-    'slot:expand-icon': {
-      control: false,
-      description: 'The icon to show when the tree item is expanded.',
-      table: { category: 'Slots' },
-    },
-    'slot:collapse-icon': {
-      control: false,
-      description: 'The icon to show when the tree item is collapsed.',
-      table: { category: 'Slots' },
-    },
-    'method:getChildrenItems': {
-      control: false,
-      description: 'Gets all the nested tree items in this node.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onExpand: fn(),
