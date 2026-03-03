@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ZoomableFrame } from '@/components/ui';
+import { fn } from 'storybook/test';
 
 /** Zoomable frames display iframe content with zoom controls */
 const meta = {
@@ -53,26 +54,6 @@ const meta = {
       action: 'error',
       description: 'Emitted from the internal iframe when it fails to load.',
       table: { category: 'Events' },
-    },
-    'slot:zoom-in-icon': {
-      control: false,
-      description: 'The slot that contains the zoom in icon.',
-      table: { category: 'Slots' },
-    },
-    'slot:zoom-out-icon': {
-      control: false,
-      description: 'The slot that contains the zoom out icon.',
-      table: { category: 'Slots' },
-    },
-    'method:zoomIn': {
-      control: false,
-      description: 'Zooms in to the next available zoom level.',
-      table: { category: 'Methods' },
-    },
-    'method:zoomOut': {
-      control: false,
-      description: 'Zooms out to the previous available zoom level.',
-      table: { category: 'Methods' },
     },
   },
   args: {

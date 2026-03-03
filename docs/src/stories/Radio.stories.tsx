@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Radio, RadioGroup } from '@/components/ui';
+import { fn } from 'storybook/test';
 
 /** Radios allow the user to select a single option from a group */
 const meta = {

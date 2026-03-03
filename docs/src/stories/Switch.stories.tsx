@@ -59,27 +59,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:hint': {
-      control: false,
-      description:
-        'Text that describes how to use the switch. Alternatively, you can use the `hint` attribute.',
-      table: { category: 'Slots' },
-    },
-    'method:click': {
-      control: false,
-      description: 'Simulates a click on the switch.',
-      table: { category: 'Methods' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the switch.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the switch.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     children: 'Enable feature',

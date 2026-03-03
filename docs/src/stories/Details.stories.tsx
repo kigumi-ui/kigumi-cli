@@ -55,34 +55,6 @@ const meta = {
         'Emitted after the details closes and all animations are complete.',
       table: { category: 'Events' },
     },
-    'slot:summary': {
-      control: false,
-      description:
-        "The details' summary. Alternatively, you can use the `summary` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:expand-icon': {
-      control: false,
-      description:
-        'Optional expand icon to use instead of the default. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'slot:collapse-icon': {
-      control: false,
-      description:
-        'Optional collapse icon to use instead of the default. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'method:show': {
-      control: false,
-      description: 'Shows the details.',
-      table: { category: 'Methods' },
-    },
-    'method:hide': {
-      control: false,
-      description: 'Hides the details',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     children: 'This is the expanded content.',

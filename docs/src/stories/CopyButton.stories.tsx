@@ -51,24 +51,6 @@ const meta = {
       description: 'Emitted when the data could not be copied.',
       table: { category: 'Events' },
     },
-    'slot:copy-icon': {
-      control: false,
-      description:
-        'The icon to show in the default copy state. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'slot:success-icon': {
-      control: false,
-      description:
-        'The icon to show when the content is copied. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'slot:error-icon': {
-      control: false,
-      description:
-        'The icon to show when a copy error occurs. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
     onCopy: fn(),

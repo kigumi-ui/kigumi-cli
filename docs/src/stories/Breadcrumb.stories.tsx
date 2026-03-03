@@ -12,12 +12,6 @@ const meta = {
       description:
         'The label to use for the breadcrumb control for assistive devices',
     },
-    'slot:separator': {
-      control: false,
-      description:
-        'The separator to use between breadcrumb items. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
   },
 } satisfies Meta<typeof Breadcrumb>;
 

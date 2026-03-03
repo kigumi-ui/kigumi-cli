@@ -35,40 +35,6 @@ const meta = {
       table: { defaultValue: { summary: 'false' } },
     },
     children: { table: { disable: true } },
-    'slot:header': {
-      control: false,
-      description: 'An optional header for the card.',
-      table: { category: 'Slots' },
-    },
-    'slot:footer': {
-      control: false,
-      description: 'An optional footer for the card.',
-      table: { category: 'Slots' },
-    },
-    'slot:media': {
-      control: false,
-      description:
-        'An optional media section to render at the start of the card.',
-      table: { category: 'Slots' },
-    },
-    'slot:actions': {
-      control: false,
-      description:
-        'An optional actions section to render at the end for the horizontal card.',
-      table: { category: 'Slots' },
-    },
-    'slot:header-actions': {
-      control: false,
-      description:
-        'An optional actions section to render in the header of the vertical card.',
-      table: { category: 'Slots' },
-    },
-    'slot:footer-actions': {
-      control: false,
-      description:
-        'An optional actions section to render in the footer of the vertical card.',
-      table: { category: 'Slots' },
-    },
   },
 } satisfies Meta<typeof Card>;
 

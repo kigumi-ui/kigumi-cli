@@ -26,12 +26,6 @@ const meta = {
       table: { defaultValue: { summary: 'brand' } },
     },
     children: { control: 'text' },
-    'slot:icon': {
-      control: false,
-      description:
-        'An icon to show in the callout. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
     children: 'This is a callout message.',

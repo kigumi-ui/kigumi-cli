@@ -31,6 +31,10 @@ export const STORY_OVERRIDES: Record<string, StoryOverride> = {
   // ── Multi-word component titles ──────────────────────────────────────────
   'animated-image': {
     title: 'Components/Animated Image',
+    extraArgs: {
+      src: "'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnkwcmtjdjByZHloZXUzcmoyb2s4Z2I0N2NtZDdmaGlsMGM5NXF1NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKSjRrfIPjeiVyM/giphy.gif'",
+      alt: "'Animated example'",
+    },
   },
   'breadcrumb-item': {
     title: 'Components/Breadcrumb Item',

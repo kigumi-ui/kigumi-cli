@@ -64,22 +64,6 @@ const meta = {
       description: "Emitted when the divider's position changes.",
       table: { category: 'Events' },
     },
-    'slot:start': {
-      control: false,
-      description: 'Content to place in the start panel.',
-      table: { category: 'Slots' },
-    },
-    'slot:end': {
-      control: false,
-      description: 'Content to place in the end panel.',
-      table: { category: 'Slots' },
-    },
-    'slot:divider': {
-      control: false,
-      description:
-        'The divider. Useful for slotting in a custom icon that renders as a handle.',
-      table: { category: 'Slots' },
-    },
   },
   args: {
     onReposition: fn(),

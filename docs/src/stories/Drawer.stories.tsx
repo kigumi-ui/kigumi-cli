@@ -57,24 +57,6 @@ const meta = {
         'Emitted after the drawer closes and all animations are complete.',
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        "The drawer's label. Alternatively, you can use the `label` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:header-actions': {
-      control: false,
-      description:
-        'Optional actions to add to the header. Works best with `<wa-button>`.',
-      table: { category: 'Slots' },
-    },
-    'slot:footer': {
-      control: false,
-      description:
-        "The drawer's footer, usually one or more buttons representing various options.",
-      table: { category: 'Slots' },
-    },
   },
   args: {
     onShow: fn(),

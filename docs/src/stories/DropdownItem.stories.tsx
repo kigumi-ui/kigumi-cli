@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DropdownItem, Dropdown, Button, Icon, Divider } from '@/components/ui';
+import { fn } from 'storybook/test';
 
 /** Dropdown items are used inside dropdowns to represent individual menu items */
 const meta = {
@@ -44,32 +45,6 @@ const meta = {
       action: 'focus',
       description: 'Emitted when the dropdown item gains focus.',
       table: { category: 'Events' },
-    },
-    'slot:icon': {
-      control: false,
-      description: 'An optional icon to display before the label.',
-      table: { category: 'Slots' },
-    },
-    'slot:details': {
-      control: false,
-      description: 'Additional content or details to display after the label.',
-      table: { category: 'Slots' },
-    },
-    'slot:submenu': {
-      control: false,
-      description:
-        'Submenu items, typically `<wa-dropdown-item>` elements, to create a nested menu.',
-      table: { category: 'Slots' },
-    },
-    'method:openSubmenu': {
-      control: false,
-      description: 'Opens the submenu.',
-      table: { category: 'Methods' },
-    },
-    'method:closeSubmenu': {
-      control: false,
-      description: 'Closes the submenu.',
-      table: { category: 'Methods' },
     },
   },
   args: {

@@ -85,49 +85,6 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
-    'slot:label': {
-      control: false,
-      description:
-        "The textarea's label. Alternatively, you can use the `label` attribute.",
-      table: { category: 'Slots' },
-    },
-    'slot:hint': {
-      control: false,
-      description:
-        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
-      table: { category: 'Slots' },
-    },
-    'method:focus': {
-      control: false,
-      description: 'Sets focus on the textarea.',
-      table: { category: 'Methods' },
-    },
-    'method:blur': {
-      control: false,
-      description: 'Removes focus from the textarea.',
-      table: { category: 'Methods' },
-    },
-    'method:select': {
-      control: false,
-      description: 'Selects all the text in the textarea.',
-      table: { category: 'Methods' },
-    },
-    'method:scrollPosition': {
-      control: false,
-      description: "Gets or sets the textarea's scroll position.",
-      table: { category: 'Methods' },
-    },
-    'method:setSelectionRange': {
-      control: false,
-      description:
-        'Sets the start and end positions of the text selection (0-based).',
-      table: { category: 'Methods' },
-    },
-    'method:setRangeText': {
-      control: false,
-      description: 'Replaces a range of text with a new string.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onBlur: fn(),

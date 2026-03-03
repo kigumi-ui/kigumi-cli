@@ -116,10 +116,10 @@ describe('storybook story-data pipeline', () => {
       expect(data!.argTypes.onWaShow).toBeUndefined();
       expect(data!.argTypes.onWaHide).toBeUndefined();
 
-      // Slots
-      expect(data!.argTypes['slot:label']).toBeDefined();
-      expect(data!.argTypes['slot:footer']).toBeDefined();
-      expect(data!.argTypes['slot:header-actions']).toBeDefined();
+      // Slots are NOT in argTypes (Storybook Meta<typeof X> rejects them)
+      expect(data!.argTypes['slot:label']).toBeUndefined();
+      expect(data!.argTypes['slot:footer']).toBeUndefined();
+      expect(data!.argTypes['slot:header-actions']).toBeUndefined();
     });
 
     it('should build correct data for TabGroup', () => {

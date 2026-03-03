@@ -232,7 +232,25 @@ function patchStoryFile(storyFile: string, storyData: StoryData): PatchResult {
   }
 
   const newMetaBlock = generateMetaBlock(storyData);
-  const newContent = content.replace(metaBlockRegex, newMetaBlock);
+  let newContent = content.replace(metaBlockRegex, newMetaBlock);
+
+  // Ensure fn() import exists if events are present
+  const hasFnInArgs = storyData.eventPropNames.length > 0;
+  const hasFnImport =
+    /import\s*\{[^}]*\bfn\b[^}]*\}\s*from\s*['"]storybook\/test['"]/.test(
+      newContent
+    );
+  if (hasFnInArgs && !hasFnImport) {
+    // Add fn import after the last import line
+    const lastImportIdx = newContent.lastIndexOf('\nimport ');
+    if (lastImportIdx !== -1) {
+      const endOfLine = newContent.indexOf('\n', lastImportIdx + 1);
+      newContent =
+        newContent.slice(0, endOfLine + 1) +
+        "import { fn } from 'storybook/test';\n" +
+        newContent.slice(endOfLine + 1);
+    }
+  }
 
   if (newContent === content) {
     return result; // No changes needed

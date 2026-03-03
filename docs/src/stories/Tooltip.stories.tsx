@@ -93,16 +93,6 @@ const meta = {
         'Emitted after the tooltip has hidden and all animations are complete.',
       table: { category: 'Events' },
     },
-    'method:show': {
-      control: false,
-      description: 'Shows the tooltip.',
-      table: { category: 'Methods' },
-    },
-    'method:hide': {
-      control: false,
-      description: 'Hides the tooltip',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onShow: fn(),

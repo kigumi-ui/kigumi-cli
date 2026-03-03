@@ -23,16 +23,6 @@ const meta = {
       description:
         "A custom label for the option (used by select's display input)",
     },
-    'slot:start': {
-      control: false,
-      description: 'An element, such as `<wa-icon>`, placed before the label.',
-      table: { category: 'Slots' },
-    },
-    'slot:end': {
-      control: false,
-      description: 'An element, such as `<wa-icon>`, placed after the label.',
-      table: { category: 'Slots' },
-    },
   },
 } satisfies Meta<typeof Option>;
 

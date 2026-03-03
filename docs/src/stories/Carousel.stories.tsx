@@ -59,33 +59,6 @@ const meta = {
       description: 'Emitted when the active slide changes.',
       table: { category: 'Events' },
     },
-    'slot:next-icon': {
-      control: false,
-      description:
-        'Optional next icon to use instead of the default. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'slot:previous-icon': {
-      control: false,
-      description:
-        'Optional previous icon to use instead of the default. Works best with `<wa-icon>`.',
-      table: { category: 'Slots' },
-    },
-    'method:previous': {
-      control: false,
-      description: 'Move the carousel backward by `slides-per-move` slides.',
-      table: { category: 'Methods' },
-    },
-    'method:next': {
-      control: false,
-      description: 'Move the carousel forward by `slides-per-move` slides.',
-      table: { category: 'Methods' },
-    },
-    'method:goToSlide': {
-      control: false,
-      description: 'Scrolls the carousel to the slide specified by `index`.',
-      table: { category: 'Methods' },
-    },
   },
   args: {
     onSlideChange: fn(),
