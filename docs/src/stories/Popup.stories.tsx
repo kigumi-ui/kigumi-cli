@@ -2,18 +2,22 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Popup, Button } from '@/components/ui';
 
-/**
- * Popup is a low-level positioning primitive that anchors an element relative to another
- * using Floating UI. It exposes fine-grained control over placement, offset, flip/shift
- * behavior, and arrow rendering. Higher-level components such as Tooltip, Popover, and
- * Dropdown are built on top of Popup.
- */
+/** Popup is a utility component for positioning elements relative to an anchor */
 const meta = {
   title: 'Components/Popup',
   component: Popup,
   tags: ['autodocs'],
   argTypes: {
-    active: { control: 'boolean' },
+    active: {
+      control: 'boolean',
+      description: 'Activates the positioning logic',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    anchor: {
+      control: 'text',
+      description: 'Anchor element ID or reference',
+      table: { disable: true },
+    },
     placement: {
       control: 'select',
       options: [
@@ -30,19 +34,105 @@ const meta = {
         'left-start',
         'left-end',
       ],
+      description: 'Preferred placement',
       table: { defaultValue: { summary: 'top' } },
     },
-    distance: { control: 'number' },
-    skidding: { control: 'number' },
-    arrow: { control: 'boolean' },
-    flip: { control: 'boolean' },
-    shift: { control: 'boolean' },
-    onReposition: { action: 'reposition' },
-    anchor: { table: { disable: true } },
+    strategy: {
+      control: 'select',
+      options: ['absolute', 'fixed'],
+      description: 'Positioning strategy',
+      table: { defaultValue: { summary: 'absolute' } },
+    },
+    distance: {
+      control: 'number',
+      description: 'Distance from anchor',
+      table: { defaultValue: { summary: '0' } },
+    },
+    skidding: {
+      control: 'number',
+      description: 'Offset along anchor',
+      table: { defaultValue: { summary: '0' } },
+    },
+    arrow: {
+      control: 'boolean',
+      description: 'Shows an arrow',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'arrow-placement': {
+      control: 'select',
+      options: ['start', 'end', 'center', 'anchor'],
+      description: 'Arrow position',
+      table: { defaultValue: { summary: 'anchor' } },
+    },
+    'arrow-padding': {
+      control: 'number',
+      description: 'Arrow edge padding',
+      table: { defaultValue: { summary: '10' } },
+    },
+    flip: {
+      control: 'boolean',
+      description: 'Flips when constrained',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'flip-fallback-placements': {
+      control: 'text',
+      description: 'Fallback placements',
+    },
+    'flip-fallback-strategy': {
+      control: 'select',
+      options: ['best-fit', 'initial'],
+      description: 'Fallback strategy',
+      table: { defaultValue: { summary: 'best-fit' } },
+    },
+    'flip-padding': {
+      control: 'number',
+      description: 'Flip boundary padding',
+      table: { defaultValue: { summary: '0' } },
+    },
+    shift: {
+      control: 'boolean',
+      description: 'Shifts to stay visible',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'shift-padding': {
+      control: 'number',
+      description: 'Shift boundary padding',
+      table: { defaultValue: { summary: '0' } },
+    },
+    'auto-size': {
+      control: 'select',
+      options: ['horizontal', 'vertical', 'both'],
+      description: 'Auto-resize behavior',
+    },
+    sync: {
+      control: 'select',
+      options: ['width', 'height', 'both'],
+      description: 'Syncs dimensions with anchor',
+    },
+    'auto-size-padding': {
+      control: 'number',
+      description: 'Auto-size boundary padding',
+      table: { defaultValue: { summary: '0' } },
+    },
+    onReposition: {
+      action: 'reposition',
+      description:
+        'Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it.',
+      table: { category: 'Events' },
+    },
+    'slot:anchor': {
+      control: false,
+      description:
+        'The element the popup will be anchored to. If the anchor lives outside of the popup, you can use the `anchor` attribute or property instead.',
+      table: { category: 'Slots' },
+    },
+    'method:reposition': {
+      control: false,
+      description: 'Forces the popup to recalculate and reposition itself.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    active: true,
-    placement: 'top',
     onReposition: fn(),
   },
 } satisfies Meta<typeof Popup>;

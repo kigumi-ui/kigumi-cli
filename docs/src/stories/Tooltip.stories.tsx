@@ -2,22 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Tooltip, Button, Icon } from '@/components/ui';
 
-/**
- * Tooltip displays a brief text label near a target element when the user hovers,
- * focuses, or clicks it. Use the `for` prop to point to a target element by its `id`.
- * The tooltip text is the component's children. Positioning is automatic via Floating UI;
- * a small directional arrow (optional) points at the trigger. Show and hide delays,
- * the trigger type, and all twelve placement positions are configurable.
- */
+/** Tooltips display additional information based on a specific action */
 const meta = {
   title: 'Components/Tooltip',
   component: Tooltip,
   tags: ['autodocs'],
   argTypes: {
-    for: {
-      control: 'text',
-      description: 'ID of the target element the tooltip is attached to',
-    },
     placement: {
       control: 'select',
       options: [
@@ -34,33 +24,91 @@ const meta = {
         'left-start',
         'left-end',
       ],
+      description: 'Tooltip placement',
       table: { defaultValue: { summary: 'top' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the tooltip',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    distance: {
+      control: 'number',
+      description: 'Distance from target',
+      table: { defaultValue: { summary: '8' } },
+    },
+    open: {
+      control: 'boolean',
+      description: 'Whether the tooltip is open',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    skidding: {
+      control: 'number',
+      description: 'Offset along target',
+      table: { defaultValue: { summary: '0' } },
     },
     trigger: {
       control: 'text',
-      description: 'Space-separated list of triggers: hover focus click manual',
+      description: 'Activation events',
       table: { defaultValue: { summary: 'hover focus' } },
     },
-    disabled: { control: 'boolean' },
-    'without-arrow': { control: 'boolean' },
+    'without-arrow': {
+      control: 'boolean',
+      description: 'Hides the arrow',
+      table: { defaultValue: { summary: 'false' } },
+    },
     'show-delay': {
       control: 'number',
-      description: 'Show delay in ms',
+      description: 'Show delay (ms)',
       table: { defaultValue: { summary: '150' } },
     },
     'hide-delay': {
       control: 'number',
-      description: 'Hide delay in ms',
+      description: 'Hide delay (ms)',
       table: { defaultValue: { summary: '0' } },
     },
-    onShow: { action: 'show' },
-    onAfterShow: { action: 'after-show' },
-    onHide: { action: 'hide' },
-    onAfterHide: { action: 'after-hide' },
+    for: {
+      control: 'text',
+      description: 'The ID of the element the tooltip is anchored to',
+    },
+    onShow: {
+      action: 'show',
+      description: 'Emitted when the tooltip begins to show.',
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description:
+        'Emitted after the tooltip has shown and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description: 'Emitted when the tooltip begins to hide.',
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description:
+        'Emitted after the tooltip has hidden and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    'method:show': {
+      control: false,
+      description: 'Shows the tooltip.',
+      table: { category: 'Methods' },
+    },
+    'method:hide': {
+      control: false,
+      description: 'Hides the tooltip',
+      table: { category: 'Methods' },
+    },
   },
   args: {
     onShow: fn(),
+    onAfterShow: fn(),
     onHide: fn(),
+    onAfterHide: fn(),
   },
 } satisfies Meta<typeof Tooltip>;
 

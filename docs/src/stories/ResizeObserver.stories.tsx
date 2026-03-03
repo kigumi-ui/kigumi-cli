@@ -3,19 +3,22 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { ResizeObserver } from '@/components/ui';
 
-/**
- * Resize Observer wraps the browser's `ResizeObserver` API as a declarative component.
- * Attach it to any element and it fires `resize` events with the new content box dimensions
- * whenever the element's size changes. Useful for responsive component logic that depends
- * on element size rather than viewport size.
- */
+/** Reports changes to the dimensions of an element */
 const meta = {
   title: 'Components/Resize Observer',
   component: ResizeObserver,
   tags: ['autodocs'],
   argTypes: {
-    disabled: { control: 'boolean' },
-    onResize: { action: 'resize' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the observer',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onResize: {
+      action: 'resize',
+      description: 'Emitted when the element is resized.',
+      table: { category: 'Events' },
+    },
   },
   args: {
     onResize: fn(),

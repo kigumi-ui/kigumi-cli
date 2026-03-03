@@ -2,35 +2,96 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Checkbox } from '@/components/ui';
 
-/**
- * Checkbox is a binary form control for toggling a boolean value. It supports three visual
- * states (unchecked, checked, indeterminate), three sizes, an optional hint line, and a
- * disabled state. Native form participation means it submits its value automatically without
- * additional wiring.
- */
+/** Checkboxes allow the user to toggle an option on or off */
 const meta = {
   title: 'Components/Checkbox',
   component: Checkbox,
   tags: ['autodocs'],
   argTypes: {
-    checked: { control: 'boolean' },
+    checked: {
+      control: 'boolean',
+      description: 'Draws checkbox in checked state',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the checkbox',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    hint: { control: 'text', description: 'Descriptive helper text' },
     indeterminate: {
       control: 'boolean',
-      description: 'Mixed/partial selection state',
+      description: 'Mixed/parent selection state',
+      table: { defaultValue: { summary: 'false' } },
     },
-    disabled: { control: 'boolean' },
-    required: { control: 'boolean' },
+    name: { control: 'text', description: 'Form submission identifier' },
+    required: {
+      control: 'boolean',
+      description: 'Makes field mandatory',
+      table: { defaultValue: { summary: 'false' } },
+    },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Adjusts checkbox dimensions',
       table: { defaultValue: { summary: 'medium' } },
     },
-    hint: { control: 'text' },
+    value: { control: 'text', description: 'Form submission value' },
     children: { control: 'text' },
-    onInvalid: { action: 'invalid' },
+    onChange: {
+      action: 'change',
+      description: 'Emitted when the checked state changes.',
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the checkbox loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the checkbox gains focus.',
+      table: { category: 'Events' },
+    },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the checkbox receives input.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the checkbox. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:click': {
+      control: false,
+      description: 'Simulates a click on the checkbox.',
+      table: { category: 'Methods' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the checkbox.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the checkbox.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
     children: 'Accept terms and conditions',
+    onChange: fn(),
+    onBlur: fn(),
+    onFocus: fn(),
+    onInput: fn(),
     onInvalid: fn(),
   },
 } satisfies Meta<typeof Checkbox>;

@@ -2,44 +2,154 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { ColorPicker } from '@/components/ui';
 
-/**
- * Color Picker provides a comprehensive color selection UI with a hue/saturation canvas,
- * hue and optional opacity sliders, a hex/RGB/HSL input, and a swatch grid for preset
- * colors. It can operate inline (always visible) or as a dropdown triggered by a preview
- * swatch.
- */
+/** Color pickers allow the user to select a color */
 const meta = {
   title: 'Components/Color Picker',
   component: ColorPicker,
   tags: ['autodocs'],
   argTypes: {
-    value: { control: 'color' },
+    value: { control: 'text', description: 'The current color value' },
     format: {
       control: 'select',
       options: ['hex', 'rgb', 'hsl', 'hsv'],
+      description: 'Color format',
       table: { defaultValue: { summary: 'hex' } },
+    },
+    opacity: {
+      control: 'boolean',
+      description: 'Enables opacity slider',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the color picker',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes field mandatory',
+      table: { defaultValue: { summary: 'false' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Color picker size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    opacity: { control: 'boolean', description: 'Enables alpha channel' },
-    disabled: { control: 'boolean' },
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    uppercase: { control: 'boolean' },
-    'without-format-toggle': { control: 'boolean' },
-    onShow: { action: 'show' },
-    onHide: { action: 'hide' },
-    onInvalid: { action: 'invalid' },
-    open: { table: { disable: true } },
+    label: { control: 'text', description: 'Label text' },
+    hint: { control: 'text', description: 'Hint text' },
+    name: { control: 'text', description: 'Form field name' },
+    open: {
+      control: 'boolean',
+      description: 'Whether the panel is open',
+      table: { disable: true, defaultValue: { summary: 'false' } },
+    },
+    swatches: { control: 'text', description: 'Predefined color swatches' },
+    uppercase: {
+      control: 'boolean',
+      description: 'Displays hex values in uppercase',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'without-format-toggle': {
+      control: 'boolean',
+      description: 'Hides the format toggle button',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    inline: {
+      control: 'boolean',
+      description: 'Renders the color picker inline instead of in a dropdown',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onChange: {
+      action: 'change',
+      description: "Emitted when the color picker's value changes.",
+      table: { category: 'Events' },
+    },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the color picker receives input.',
+      table: { category: 'Events' },
+    },
+    onShow: { action: 'show', table: { category: 'Events' } },
+    onAfterShow: { action: 'after-show', table: { category: 'Events' } },
+    onHide: { action: 'hide', table: { category: 'Events' } },
+    onAfterHide: { action: 'after-hide', table: { category: 'Events' } },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the color picker loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the color picker receives focus.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The color picker's form label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        "The color picker's form hint. Alternatively, you can use the `hint` attribute.",
+      table: { category: 'Slots' },
+    },
+    'method:getHexString': {
+      control: false,
+      description:
+        'Generates a hex string from HSV values. Hue must be 0-360. All other arguments must be 0-100.',
+      table: { category: 'Methods' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the color picker.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the color picker.',
+      table: { category: 'Methods' },
+    },
+    'method:getFormattedValue': {
+      control: false,
+      description:
+        'Returns the current value as a string in the specified format.',
+      table: { category: 'Methods' },
+    },
+    'method:reportValidity': {
+      control: false,
+      description:
+        "Checks for validity and shows the browser's validation message if the control is invalid.",
+      table: { category: 'Methods' },
+    },
+    'method:show': {
+      control: false,
+      description: 'Shows the color picker panel.',
+      table: { category: 'Methods' },
+    },
+    'method:hide': {
+      control: false,
+      description: 'Hides the color picker panel',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Pick a color',
-    value: '#0066cc',
+    onChange: fn(),
+    onInput: fn(),
     onShow: fn(),
+    onAfterShow: fn(),
     onHide: fn(),
+    onAfterHide: fn(),
+    onBlur: fn(),
+    onFocus: fn(),
     onInvalid: fn(),
   },
 } satisfies Meta<typeof ColorPicker>;

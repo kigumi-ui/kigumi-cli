@@ -4,10 +4,8 @@ import { useState } from 'react';
 import { Animation, Button, Badge } from '@/components/ui';
 
 /**
- * Animation wraps any element and plays a named keyframe animation from the Web Animations API.
- * Choose from dozens of built-in presets (fade, bounce, spin, slide, etc.) or supply custom
- * keyframes. Control duration, delay, easing, iteration count, and direction, all without
- * writing a single line of CSS.
+ * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with
+ * custom keyframes
  */
 const meta = {
   title: 'Components/Animation',
@@ -15,58 +13,99 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     name: {
-      control: 'select',
-      options: [
-        'bounce',
-        'flash',
-        'pulse',
-        'rubberBand',
-        'shakeX',
-        'shakeY',
-        'headShake',
-        'swing',
-        'tada',
-        'wobble',
-        'jello',
-        'heartBeat',
-        'fadeIn',
-        'fadeOut',
-        'slideInDown',
-        'slideInLeft',
-        'slideInRight',
-        'slideInUp',
-        'zoomIn',
-        'zoomOut',
-        'rotateIn',
-        'rotateOut',
-        'flipInX',
-        'flipInY',
-      ],
+      control: 'text',
+      description: 'The name of the built-in animation to use',
+      table: { defaultValue: { summary: 'none' } },
     },
-    play: { control: 'boolean' },
-    duration: { control: 'number' },
-    iterations: { control: 'number' },
-    delay: { control: 'number' },
+    play: {
+      control: 'boolean',
+      description:
+        'Plays the animation. When omitted, the animation will be paused',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    delay: {
+      control: 'number',
+      description:
+        'The number of milliseconds to delay the start of the animation',
+      table: { defaultValue: { summary: '0' } },
+    },
     direction: {
       control: 'select',
       options: ['normal', 'reverse', 'alternate', 'alternate-reverse'],
+      description: 'Determines the direction of playback',
+      table: { defaultValue: { summary: 'normal' } },
+    },
+    duration: {
+      control: 'number',
+      description:
+        'The number of milliseconds each iteration takes to complete',
+      table: { defaultValue: { summary: '1000' } },
+    },
+    easing: {
+      control: 'text',
+      description: 'The easing function to use',
+      table: { defaultValue: { summary: 'linear' } },
+    },
+    'end-delay': {
+      control: 'number',
+      description:
+        'The number of milliseconds to delay after the active period',
+      table: { defaultValue: { summary: '0' } },
     },
     fill: {
       control: 'select',
       options: ['auto', 'backwards', 'both', 'forwards', 'none'],
+      description:
+        'Sets how the animation applies styles before and after execution',
+      table: { defaultValue: { summary: 'auto' } },
     },
-    onStart: { action: 'start' },
-    onFinish: { action: 'finish' },
-    onCancel: { action: 'cancel' },
+    iterations: {
+      control: 'number',
+      description: 'The number of iterations to run before completing',
+      table: { defaultValue: { summary: 'Infinity' } },
+    },
+    'iteration-start': {
+      control: 'number',
+      description: 'The offset at which to start the animation',
+      table: { defaultValue: { summary: '0' } },
+    },
+    'playback-rate': {
+      control: 'number',
+      description: "Sets the animation's playback rate",
+      table: { defaultValue: { summary: '1' } },
+    },
+    onCancel: {
+      action: 'cancel',
+      description: 'Emitted when the animation is canceled.',
+      table: { category: 'Events' },
+    },
+    onFinish: {
+      action: 'finish',
+      description: 'Emitted when the animation finishes.',
+      table: { category: 'Events' },
+    },
+    onStart: {
+      action: 'start',
+      description: 'Emitted when the animation starts or restarts.',
+      table: { category: 'Events' },
+    },
+    'method:cancel': {
+      control: false,
+      description:
+        'Clears all keyframe effects caused by this animation and aborts its playback.',
+      table: { category: 'Methods' },
+    },
+    'method:finish': {
+      control: false,
+      description:
+        'Sets the playback time to the end of the animation corresponding to the current playback direction.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    name: 'bounce',
-    play: false,
-    duration: 1000,
-    iterations: 1,
-    onStart: fn(),
-    onFinish: fn(),
     onCancel: fn(),
+    onFinish: fn(),
+    onStart: fn(),
   },
 } satisfies Meta<typeof Animation>;
 
@@ -90,7 +129,7 @@ export const Default: Story = {
           {...args}
           play={play}
           onFinish={() => {
-            args.onFinish?.(new CustomEvent('wa-finish'));
+            args.onFinish?.(new CustomEvent('finish'));
             setPlay(false);
           }}
         >

@@ -1,47 +1,41 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QrCode } from '@/components/ui';
 
-/**
- * QR Code generates a scannable QR code image from any string value: URLs, contact cards,
- * Wi-Fi credentials, etc. You can control the error-correction level, foreground and
- * background colors, module radius for rounded corners, and the label displayed below
- * the code.
- */
+/** Generates QR codes for encoding text, URLs, or data */
 const meta = {
   title: 'Components/QR Code',
   component: QrCode,
   tags: ['autodocs'],
   argTypes: {
-    value: { control: 'text', description: 'The data to encode (required)' },
+    value: { control: 'text', description: 'The data to encode' },
+    label: { control: 'text', description: 'Accessible label' },
     size: {
       control: 'number',
       description: 'Size in pixels',
       table: { defaultValue: { summary: '128' } },
     },
     fill: {
-      control: 'color',
-      description: 'Foreground color',
-      table: { defaultValue: { summary: '#000' } },
+      control: 'text',
+      description: 'Fill color',
+      table: { defaultValue: { summary: 'black' } },
     },
     background: {
-      control: 'color',
+      control: 'text',
       description: 'Background color',
-      table: { defaultValue: { summary: 'transparent' } },
+      table: { defaultValue: { summary: 'white' } },
     },
     radius: {
-      control: { type: 'range', min: 0, max: 0.5, step: 0.1 },
-      description: 'Corner radius of QR code cells',
+      control: 'number',
+      description: 'Corner radius',
       table: { defaultValue: { summary: '0' } },
     },
     'error-correction': {
       control: 'select',
       options: ['L', 'M', 'Q', 'H'],
-      description: 'Error correction level (L=7%, M=15%, Q=25%, H=30%)',
+      description: 'Error correction level',
       table: { defaultValue: { summary: 'H' } },
     },
-    label: { control: 'text', description: 'Accessibility label' },
   },
-  args: { value: 'https://kigumi.style', label: 'QR code' },
 } satisfies Meta<typeof QrCode>;
 
 export default meta;

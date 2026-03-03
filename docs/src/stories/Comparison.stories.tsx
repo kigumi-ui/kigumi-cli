@@ -1,24 +1,41 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Comparison } from '@/components/ui';
 
-/**
- * Comparison renders two images overlaid with a draggable divider so users can slide
- * between a "before" and "after" view. Useful for showcasing design changes, photo edits,
- * or any two-state visual comparison. The divider position can be set programmatically via
- * the `position` prop.
- */
+/** Compare visual differences between similar content with a sliding panel */
 const meta = {
   title: 'Components/Comparison',
   component: Comparison,
   tags: ['autodocs'],
   argTypes: {
     position: {
-      control: { type: 'range', min: 0, max: 100, step: 1 },
-      description: 'Initial divider position (0 to 100)',
+      control: 'number',
+      description: 'Divider location as percentage (0-100)',
       table: { defaultValue: { summary: '50' } },
     },
+    onChange: {
+      action: 'change',
+      description: 'Emitted when the position changes.',
+      table: { category: 'Events' },
+    },
+    'slot:before': {
+      control: false,
+      description: 'The before content, often an `<img>` or `<svg>` element.',
+      table: { category: 'Slots' },
+    },
+    'slot:after': {
+      control: false,
+      description: 'The after content, often an `<img>` or `<svg>` element.',
+      table: { category: 'Slots' },
+    },
+    'slot:handle': {
+      control: false,
+      description: 'The icon used inside the handle.',
+      table: { category: 'Slots' },
+    },
   },
-  args: { position: 50 },
+  args: {
+    onChange: fn(),
+  },
 } satisfies Meta<typeof Comparison>;
 
 export default meta;

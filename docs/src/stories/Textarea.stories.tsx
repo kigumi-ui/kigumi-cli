@@ -2,54 +2,138 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Textarea } from '@/components/ui';
 
-/**
- * Textarea is a multi-line text entry field with configurable row count and resize modes:
- * none, vertical, horizontal, both, or auto-grow. It supports the same appearance styles
- * and sizes as Input, plus a character count via `maxlength`, a hint line, read-only and
- * disabled states, and native form participation.
- */
+/** Textareas collect multi-line text data from the user */
 const meta = {
   title: 'Components/Textarea',
   component: Textarea,
   tags: ['autodocs'],
   argTypes: {
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    placeholder: { control: 'text' },
-    value: { control: 'text' },
+    name: { control: 'text', description: 'Form field name' },
+    value: { control: 'text', description: 'Current value' },
     appearance: {
       control: 'select',
       options: ['filled', 'outlined', 'filled-outlined'],
+      description: 'Visual appearance',
       table: { defaultValue: { summary: 'outlined' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Textarea size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    rows: { control: 'number', table: { defaultValue: { summary: '4' } } },
+    label: { control: 'text', description: 'Label text' },
+    hint: { control: 'text', description: 'Hint text' },
+    placeholder: { control: 'text', description: 'Placeholder text' },
+    rows: {
+      control: 'number',
+      description: 'Visible rows',
+      table: { defaultValue: { summary: '4' } },
+    },
     resize: {
       control: 'select',
       options: ['none', 'vertical', 'horizontal', 'both', 'auto'],
+      description: 'Resize behavior',
       table: { defaultValue: { summary: 'vertical' } },
     },
-    disabled: { control: 'boolean' },
-    readonly: { control: 'boolean' },
-    required: { control: 'boolean' },
-    maxlength: { control: 'number' },
-    onInput: { action: 'input' },
-    onChange: { action: 'change' },
-    onBlur: { action: 'blur' },
-    onFocus: { action: 'focus' },
-    onInvalid: { action: 'invalid' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the textarea',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    readonly: {
+      control: 'boolean',
+      description: 'Makes it readonly',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes it required',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    minlength: { control: 'number', description: 'Minimum length' },
+    maxlength: { control: 'number', description: 'Maximum length' },
+    spellcheck: {
+      control: 'boolean',
+      description: 'Enable spell checking',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onChange: {
+      action: 'change',
+      description:
+        "Emitted when an alteration to the control's value is committed by the user.",
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The textarea's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the textarea.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the textarea.',
+      table: { category: 'Methods' },
+    },
+    'method:select': {
+      control: false,
+      description: 'Selects all the text in the textarea.',
+      table: { category: 'Methods' },
+    },
+    'method:scrollPosition': {
+      control: false,
+      description: "Gets or sets the textarea's scroll position.",
+      table: { category: 'Methods' },
+    },
+    'method:setSelectionRange': {
+      control: false,
+      description:
+        'Sets the start and end positions of the text selection (0-based).',
+      table: { category: 'Methods' },
+    },
+    'method:setRangeText': {
+      control: false,
+      description: 'Replaces a range of text with a new string.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Message',
-    placeholder: 'Enter your message...',
-    onInput: fn(),
-    onChange: fn(),
     onBlur: fn(),
+    onChange: fn(),
     onFocus: fn(),
+    onInput: fn(),
     onInvalid: fn(),
   },
 } satisfies Meta<typeof Textarea>;

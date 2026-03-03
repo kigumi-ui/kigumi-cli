@@ -2,12 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Button } from '@/components/ui';
 
-/**
- * Button triggers actions: submitting forms, navigating to a URL,
- * or calling any handler. It supports five semantic color variants, four visual appearances,
- * three sizes, pill corners, loading state, and can render as a native anchor element when
- * given an `href`.
- */
+/** Buttons represent actions that are available to the user */
 const meta = {
   title: 'Components/Button',
   component: Button,
@@ -16,29 +11,132 @@ const meta = {
     variant: {
       control: 'select',
       options: ['neutral', 'brand', 'success', 'warning', 'danger'],
-      description: 'Semantic color variant',
+      description: 'Semantic variant of the button',
       table: { defaultValue: { summary: 'neutral' } },
     },
     appearance: {
       control: 'select',
       options: ['accent', 'filled-outlined', 'filled', 'outlined', 'plain'],
-      description: 'Visual style',
+      description: 'Visual appearance style',
       table: { defaultValue: { summary: 'filled' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Button size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    pill: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    loading: { control: 'boolean' },
-    'with-caret': { control: 'boolean' },
-    href: { control: 'text', description: 'Makes the button render as a link' },
+    pill: {
+      control: 'boolean',
+      description: 'Gives the button rounded edges',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the button',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    loading: {
+      control: 'boolean',
+      description: 'Shows a loading indicator',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'with-caret': {
+      control: 'boolean',
+      description: 'Adds a dropdown indicator caret',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    href: { control: 'text', description: 'Makes the button work like a link' },
+    target: {
+      control: 'select',
+      options: ['_blank', '_self', '_parent', '_top'],
+      description: 'Link target (when href is set)',
+    },
+    download: {
+      control: 'text',
+      description: 'Download filename (when href is set)',
+    },
+    rel: {
+      control: 'text',
+      description: 'Link relationship (when href is set)',
+    },
+    type: {
+      control: 'select',
+      options: ['button', 'submit', 'reset'],
+      description: "The button's type for form submission",
+      table: { defaultValue: { summary: 'button' } },
+    },
+    name: {
+      control: 'text',
+      description: 'The name of the button for form submission',
+    },
+    value: {
+      control: 'text',
+      description: 'The value of the button for form submission',
+    },
+    formaction: {
+      control: 'text',
+      description: "Override the form's action attribute",
+    },
+    formenctype: {
+      control: 'text',
+      description: "Override the form's enctype attribute",
+    },
+    formmethod: {
+      control: 'text',
+      description: "Override the form's method attribute",
+    },
+    formnovalidate: {
+      control: 'boolean',
+      description: 'Bypass form validation when this button submits',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    formtarget: {
+      control: 'text',
+      description: "Override the form's target attribute",
+    },
     children: { control: 'text' },
-    onBlur: { action: 'blurred' },
-    onFocus: { action: 'focused' },
-    onInvalid: { action: 'invalid' },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the button loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the button gains focus.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:start': {
+      control: false,
+      description: 'An element, such as `<wa-icon>`, placed before the label.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description: 'An element, such as `<wa-icon>`, placed after the label.',
+      table: { category: 'Slots' },
+    },
+    'method:click': {
+      control: false,
+      description: 'Simulates a click on the button.',
+      table: { category: 'Methods' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the button.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the button.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
     children: 'Button',

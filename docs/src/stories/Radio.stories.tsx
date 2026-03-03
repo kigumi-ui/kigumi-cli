@@ -1,31 +1,45 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Radio, RadioGroup } from '@/components/ui';
 
-/**
- * Radio is a single option in a mutually exclusive selection group. On its own it renders
- * a labeled radio input; when placed inside a Radio Group it participates in shared
- * selection state. It supports a button appearance for segmented-control patterns and
- * three sizes.
- */
+/** Radios allow the user to select a single option from a group */
 const meta = {
   title: 'Components/Radio',
   component: Radio,
   tags: ['autodocs'],
   argTypes: {
-    value: { control: 'text', description: 'The value of the radio button' },
-    appearance: {
-      control: 'select',
-      options: ['default', 'button'],
-      table: { defaultValue: { summary: 'default' } },
+    value: { control: 'text', description: 'The radio value' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the radio',
+      table: { defaultValue: { summary: 'false' } },
     },
-    disabled: { control: 'boolean' },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Radio size',
       table: { defaultValue: { summary: 'medium' } },
     },
+    appearance: {
+      control: 'select',
+      options: ['default', 'button'],
+      description: 'Radio appearance style',
+      table: { defaultValue: { summary: 'default' } },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
   },
-  args: { value: 'option', appearance: 'default' },
+  args: {
+    onBlur: fn(),
+    onFocus: fn(),
+  },
 } satisfies Meta<typeof Radio>;
 
 export default meta;

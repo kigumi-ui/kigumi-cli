@@ -1,23 +1,42 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { BreadcrumbItem, Breadcrumb, Icon } from '@/components/ui';
 
-/**
- * Breadcrumb Item is the individual link or label inside a Breadcrumb component.
- * When given an `href` it renders as an anchor; without one it renders as plain text,
- * making it suitable for the current (non-clickable) page segment. Prefix and suffix
- * icon slots allow decorating each item.
- */
+/** Breadcrumb Items are used inside breadcrumbs to represent different links */
 const meta = {
   title: 'Components/Breadcrumb Item',
   component: BreadcrumbItem,
   tags: ['autodocs'],
   argTypes: {
-    href: { control: 'text', description: 'URL for the breadcrumb link' },
+    href: {
+      control: 'text',
+      description: 'Optional URL to direct the user to when activated',
+    },
     target: {
       control: 'select',
       options: ['_blank', '_parent', '_self', '_top'],
+      description: 'Tells the browser where to open the link',
     },
-    rel: { control: 'text' },
+    rel: {
+      control: 'text',
+      description: 'The rel attribute to use on the link',
+      table: { defaultValue: { summary: 'noreferrer noopener' } },
+    },
+    'slot:start': {
+      control: false,
+      description: 'An element, such as `<wa-icon>`, placed before the label.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description: 'An element, such as `<wa-icon>`, placed after the label.',
+      table: { category: 'Slots' },
+    },
+    'slot:separator': {
+      control: false,
+      description:
+        'The separator to use for the breadcrumb item. This will only change the separator for this item. If you want to change it for all items in the group, set the separator on `<wa-breadcrumb>` instead.',
+      table: { category: 'Slots' },
+    },
   },
 } satisfies Meta<typeof BreadcrumbItem>;
 

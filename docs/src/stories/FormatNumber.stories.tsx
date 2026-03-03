@@ -1,31 +1,61 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormatNumber } from '@/components/ui';
 
-/**
- * Format Number renders any numeric value in a locale-aware format using the browser's
- * `Intl.NumberFormat` API. It handles decimal, currency, and percentage types and lets
- * you control minimum/maximum fraction digits, grouping separators, and notation style
- * (standard, compact, scientific) declaratively in markup.
- */
+/** Formats a number using the Intl.NumberFormat API */
 const meta = {
   title: 'Components/Format Number',
   component: FormatNumber,
   tags: ['autodocs'],
   argTypes: {
-    value: { control: 'number' },
+    value: {
+      control: 'number',
+      description: 'The number to format',
+      table: { defaultValue: { summary: '0' } },
+    },
     type: {
       control: 'select',
       options: ['currency', 'decimal', 'percent'],
+      description: 'The formatting style',
       table: { defaultValue: { summary: 'decimal' } },
     },
-    currency: { control: 'text' },
+    currency: {
+      control: 'text',
+      description: 'The currency to use (ISO 4217)',
+      table: { defaultValue: { summary: 'USD' } },
+    },
     'currency-display': {
       control: 'select',
       options: ['symbol', 'narrowSymbol', 'code', 'name'],
+      description: 'How to display the currency',
+      table: { defaultValue: { summary: 'symbol' } },
     },
-    'without-grouping': { control: 'boolean' },
+    'minimum-integer-digits': {
+      control: 'number',
+      description: 'Minimum integer digits',
+    },
+    'minimum-fraction-digits': {
+      control: 'number',
+      description: 'Minimum fraction digits',
+    },
+    'maximum-fraction-digits': {
+      control: 'number',
+      description: 'Maximum fraction digits',
+    },
+    'minimum-significant-digits': {
+      control: 'number',
+      description: 'Minimum significant digits',
+    },
+    'maximum-significant-digits': {
+      control: 'number',
+      description: 'Maximum significant digits',
+    },
+    'without-grouping': {
+      control: 'boolean',
+      description: 'Disables grouping separators',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    lang: { control: 'text', description: 'The locale to use when formatting' },
   },
-  args: { value: 1234567.89 },
 } satisfies Meta<typeof FormatNumber>;
 
 export default meta;

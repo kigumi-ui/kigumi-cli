@@ -2,54 +2,203 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Select, Option, Icon } from '@/components/ui';
 
-/**
- * Select presents a dropdown list of Option children and returns the selected value(s) to
- * a form. It supports single and multiple selection, clearable values, prefix icons, three
- * appearance styles, three sizes, a placeholder, and a hint line. The dropdown positions
- * itself automatically and supports keyboard navigation.
- */
+/** Selects allow you to choose items from a menu of predefined options */
 const meta = {
   title: 'Components/Select',
   component: Select,
   tags: ['autodocs'],
   argTypes: {
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    placeholder: { control: 'text' },
+    name: { control: 'text', description: 'Form field name' },
+    value: { control: 'text', description: 'Selected value(s)' },
     appearance: {
       control: 'select',
       options: ['filled', 'outlined', 'filled-outlined'],
+      description: 'Visual appearance',
       table: { defaultValue: { summary: 'outlined' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Select size',
       table: { defaultValue: { summary: 'medium' } },
+    },
+    placeholder: { control: 'text', description: 'Placeholder text' },
+    multiple: {
+      control: 'boolean',
+      description: 'Allows multiple selections',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'max-options-visible': {
+      control: 'number',
+      description: 'Max visible tags (multiple)',
+      table: { defaultValue: { summary: '3' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the select',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'with-clear': {
+      control: 'boolean',
+      description: 'Shows clear button',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    open: {
+      control: 'boolean',
+      description: 'Whether listbox is open',
+      table: { disable: true, defaultValue: { summary: 'false' } },
+    },
+    hoist: {
+      control: 'boolean',
+      description: 'Hoists to body',
+      table: { defaultValue: { summary: 'false' } },
     },
     placement: {
       control: 'select',
       options: ['top', 'bottom'],
+      description: 'Listbox placement',
       table: { defaultValue: { summary: 'bottom' } },
     },
-    pill: { control: 'boolean' },
-    multiple: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    required: { control: 'boolean' },
-    'with-clear': { control: 'boolean' },
-    onChange: { action: 'change' },
-    onShow: { action: 'show' },
-    onHide: { action: 'hide' },
-    onClear: { action: 'clear' },
-    onInvalid: { action: 'invalid' },
-    // hide open - managed internally
-    open: { table: { disable: true } },
+    pill: {
+      control: 'boolean',
+      description: 'Rounded edges',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    label: { control: 'text', description: 'Label text' },
+    hint: { control: 'text', description: 'Hint text' },
+    required: {
+      control: 'boolean',
+      description: 'Makes selection required',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    invalid: {
+      control: 'boolean',
+      description: 'Shows invalid/error state',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'help-text': {
+      control: 'text',
+      description: 'Help text below the control',
+    },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
+    },
+    onChange: {
+      action: 'change',
+      description: "Emitted when the control's value changes.",
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onClear: {
+      action: 'clear',
+      description: "Emitted when the control's value is cleared.",
+      table: { category: 'Events' },
+    },
+    onShow: {
+      action: 'show',
+      description: "Emitted when the select's menu opens.",
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description:
+        "Emitted after the select's menu opens and all animations are complete.",
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description: "Emitted when the select's menu closes.",
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description:
+        "Emitted after the select's menu closes and all animations are complete.",
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The input's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:start': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the start of the combobox.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the end of the combobox.',
+      table: { category: 'Slots' },
+    },
+    'slot:clear-icon': {
+      control: false,
+      description: 'An icon to use in lieu of the default clear icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:expand-icon': {
+      control: false,
+      description:
+        'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:show': {
+      control: false,
+      description: 'Shows the listbox.',
+      table: { category: 'Methods' },
+    },
+    'method:hide': {
+      control: false,
+      description: 'Hides the listbox.',
+      table: { category: 'Methods' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the control.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the control.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Select an option',
+    onInput: fn(),
     onChange: fn(),
-    onShow: fn(),
-    onHide: fn(),
+    onFocus: fn(),
+    onBlur: fn(),
     onClear: fn(),
+    onShow: fn(),
+    onAfterShow: fn(),
+    onHide: fn(),
+    onAfterHide: fn(),
     onInvalid: fn(),
   },
 } satisfies Meta<typeof Select>;

@@ -2,37 +2,50 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Avatar } from '@/components/ui';
 
-/**
- * Avatar represents a person or entity with an image, initials, or icon fallback.
- * When an image is provided it is displayed; if it fails to load (or no src is given)
- * the component falls back to initials derived from the `label` prop, and finally to
- * a generic person icon. Supports circle and square shapes and multiple sizes.
- */
+/** Avatars are used to represent a person or object */
 const meta = {
   title: 'Components/Avatar',
   component: Avatar,
   tags: ['autodocs'],
   argTypes: {
-    image: { control: 'text', description: 'Image URL' },
-    label: { control: 'text', description: 'Accessibility label (required)' },
+    image: {
+      control: 'text',
+      description: 'The image source to use for the avatar',
+    },
+    label: {
+      control: 'text',
+      description: 'A label to use to describe the avatar to assistive devices',
+    },
     initials: {
       control: 'text',
-      description: 'Fallback initials when no image',
+      description: 'Initials to use as a fallback when no image is available',
     },
     loading: {
       control: 'select',
       options: ['eager', 'lazy'],
+      description: 'Indicates how the browser should load the image',
       table: { defaultValue: { summary: 'eager' } },
     },
     shape: {
       control: 'select',
       options: ['circle', 'square', 'rounded'],
+      description: 'The shape of the avatar',
       table: { defaultValue: { summary: 'circle' } },
     },
-    onError: { action: 'error' },
+    onError: {
+      action: 'error',
+      description:
+        'The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause.',
+      table: { category: 'Events' },
+    },
+    'slot:icon': {
+      control: false,
+      description:
+        'The default icon to use when no image or initials are present. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
   },
   args: {
-    label: 'User avatar',
     onError: fn(),
   },
 } satisfies Meta<typeof Avatar>;

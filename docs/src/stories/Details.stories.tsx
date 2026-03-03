@@ -2,39 +2,94 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Details, Icon } from '@/components/ui';
 
-/**
- * Details is a collapsible disclosure widget with a summary trigger and an expandable body.
- * It can start open or closed, supports multiple appearance styles, and allows a custom
- * summary element to replace the plain-text trigger. Ideal for FAQs, advanced options, and
- * any content that benefits from progressive disclosure.
- */
+/** Shows a brief summary and expands to show additional content */
 const meta = {
   title: 'Components/Details',
   component: Details,
   tags: ['autodocs'],
   argTypes: {
-    summary: { control: 'text' },
-    open: { control: 'boolean' },
-    disabled: { control: 'boolean' },
+    open: {
+      control: 'boolean',
+      description: 'Whether the details are expanded',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    summary: { control: 'text', description: 'Summary text shown in header' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the details',
+      table: { defaultValue: { summary: 'false' } },
+    },
     appearance: {
       control: 'select',
       options: ['filled', 'outlined', 'filled-outlined', 'plain'],
+      description: 'Visual appearance style',
       table: { defaultValue: { summary: 'outlined' } },
     },
     'icon-placement': {
       control: 'select',
       options: ['start', 'end'],
+      description: 'Position of the expand icon',
       table: { defaultValue: { summary: 'end' } },
     },
+    name: { control: 'text', description: 'Name for accordion grouping' },
     children: { control: 'text' },
-    onShow: { action: 'show' },
-    onHide: { action: 'hide' },
+    onShow: {
+      action: 'show',
+      description: 'Emitted when the details opens.',
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description:
+        'Emitted after the details opens and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description: 'Emitted when the details closes.',
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description:
+        'Emitted after the details closes and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    'slot:summary': {
+      control: false,
+      description:
+        "The details' summary. Alternatively, you can use the `summary` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:expand-icon': {
+      control: false,
+      description:
+        'Optional expand icon to use instead of the default. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:collapse-icon': {
+      control: false,
+      description:
+        'Optional collapse icon to use instead of the default. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'method:show': {
+      control: false,
+      description: 'Shows the details.',
+      table: { category: 'Methods' },
+    },
+    'method:hide': {
+      control: false,
+      description: 'Hides the details',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    summary: 'Click to expand',
     children: 'This is the expanded content.',
     onShow: fn(),
+    onAfterShow: fn(),
     onHide: fn(),
+    onAfterHide: fn(),
   },
 } satisfies Meta<typeof Details>;
 

@@ -1,30 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { FormatBytes } from '@/components/ui';
 
-/**
- * Format Bytes converts a raw byte count into a human-readable string using either metric
- * (SI) or binary (IEC) units. It auto-selects the appropriate unit (KB, MB, GB, …) and
- * respects the active locale for number formatting, making storage sizes easy to read
- * without any JavaScript helper functions.
- */
+/** Formats a number as a human-readable byte value */
 const meta = {
   title: 'Components/Format Bytes',
   component: FormatBytes,
   tags: ['autodocs'],
   argTypes: {
-    value: { control: 'number', description: 'The number in bytes to format' },
+    value: {
+      control: 'number',
+      description: 'The number to format in bytes',
+      table: { defaultValue: { summary: '0' } },
+    },
     unit: {
       control: 'select',
       options: ['byte', 'bit'],
+      description: 'The unit to format the value in',
       table: { defaultValue: { summary: 'byte' } },
     },
     display: {
       control: 'select',
       options: ['long', 'short', 'narrow'],
+      description: 'Determines how to display the result',
       table: { defaultValue: { summary: 'short' } },
     },
+    lang: { control: 'text', description: 'The locale to use when formatting' },
   },
-  args: { value: 1024 },
 } satisfies Meta<typeof FormatBytes>;
 
 export default meta;

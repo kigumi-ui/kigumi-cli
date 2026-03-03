@@ -3,31 +3,46 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { IntersectionObserver } from '@/components/ui';
 
-/**
- * Intersection Observer wraps the browser's `IntersectionObserver` API as a declarative
- * component. Attach it to any element and it fires `intersect` events when the element
- * enters or leaves the viewport (or a custom root). Useful for lazy-loading, infinite
- * scroll triggers, and analytics visibility tracking.
- */
+/** Observes changes in the intersection of a target element with an ancestor */
 const meta = {
   title: 'Components/Intersection Observer',
   component: IntersectionObserver,
   tags: ['autodocs'],
   argTypes: {
-    disabled: { control: 'boolean' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the observer',
+      table: { defaultValue: { summary: 'false' } },
+    },
     once: {
       control: 'boolean',
-      description: 'Only fire once when intersecting',
+      description: 'Stops observing after first intersection',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    threshold: {
+      control: 'text',
+      description: 'Intersection thresholds',
+      table: { defaultValue: { summary: '0' } },
+    },
+    'root-margin': {
+      control: 'text',
+      description: 'Root element margin',
+      table: { defaultValue: { summary: '0px' } },
     },
     'intersect-class': {
       control: 'text',
-      description: 'Class added when element is intersecting',
+      description: 'CSS class to apply when intersecting',
     },
-    'root-margin': { control: 'text' },
-    threshold: { control: 'text' },
-    onIntersect: { action: 'intersect' },
+    onIntersect: {
+      action: 'intersect',
+      description:
+        'Fired when a tracked element begins or ceases intersecting.',
+      table: { category: 'Events' },
+    },
   },
-  args: { onIntersect: fn() },
+  args: {
+    onIntersect: fn(),
+  },
 } satisfies Meta<typeof IntersectionObserver>;
 
 export default meta;

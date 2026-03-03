@@ -1,15 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CarouselItem, Carousel } from '@/components/ui';
 
-/**
- * Carousel Item is a single slide within a Carousel component. It acts as a content
- * container and can hold images, cards, or arbitrary markup. Items are identified by
- * their position and can carry an `aria-label` for accessibility.
- */
+/** Represents an individual slide within a carousel component */
 const meta = {
   title: 'Components/Carousel Item',
   component: CarouselItem,
   tags: ['autodocs'],
+  argTypes: {},
 } satisfies Meta<typeof CarouselItem>;
 
 export default meta;

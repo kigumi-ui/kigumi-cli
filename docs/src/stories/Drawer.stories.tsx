@@ -3,37 +3,80 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Drawer, Button } from '@/components/ui';
 
-/**
- * Drawer slides a panel in from any edge of the viewport (top, end, bottom, or start)
- * and overlays the rest of the page. Like Dialog it traps focus and fires lifecycle events.
- * Use it for navigation menus, filter panels, detail views, or any contextual content that
- * should not replace the current page.
- */
+/** Drawers slide in from a container edge to expose additional options */
 const meta = {
   title: 'Components/Drawer',
   component: Drawer,
   tags: ['autodocs'],
   argTypes: {
-    label: { control: 'text', description: 'Drawer title shown in the header' },
+    open: {
+      control: 'boolean',
+      description: 'Indicates whether the drawer is open',
+      table: { disable: true, defaultValue: { summary: 'false' } },
+    },
+    label: {
+      control: 'text',
+      description: "The drawer's label as displayed in the header",
+    },
     placement: {
       control: 'select',
       options: ['top', 'end', 'bottom', 'start'],
-      description: 'Side from which the drawer slides in',
+      description: 'The direction from which the drawer will open',
       table: { defaultValue: { summary: 'end' } },
     },
     'light-dismiss': {
       control: 'boolean',
-      description: 'Close when clicking outside',
+      description: 'Closes the drawer when the user clicks outside of it',
+      table: { defaultValue: { summary: 'false' } },
     },
-    'without-header': { control: 'boolean', description: 'Removes the header' },
-    onShow: { action: 'show' },
-    onAfterShow: { action: 'after-show' },
-    onHide: { action: 'hide' },
-    onAfterHide: { action: 'after-hide' },
-    open: { table: { disable: true } },
+    'without-header': {
+      control: 'boolean',
+      description: 'Removes the header',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onShow: {
+      action: 'show',
+      description: 'Emitted when the drawer opens.',
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description:
+        'Emitted after the drawer opens and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description:
+        'Emitted when the drawer is requesting to close. Calling `event.preventDefault()` will prevent the drawer from closing. You can inspect `event.detail.source` to see which element caused the drawer to close. If the source is the drawer element itself, the user has pressed [[Escape]] or the drawer has been closed programmatically. Avoid using this unless closing the drawer will result in destructive behavior such as data loss.',
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description:
+        'Emitted after the drawer closes and all animations are complete.',
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The drawer's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:header-actions': {
+      control: false,
+      description:
+        'Optional actions to add to the header. Works best with `<wa-button>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:footer': {
+      control: false,
+      description:
+        "The drawer's footer, usually one or more buttons representing various options.",
+      table: { category: 'Slots' },
+    },
   },
   args: {
-    label: 'Drawer Title',
     onShow: fn(),
     onAfterShow: fn(),
     onHide: fn(),

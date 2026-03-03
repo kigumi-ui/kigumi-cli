@@ -1,11 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DropdownItem, Dropdown, Button, Icon, Divider } from '@/components/ui';
 
-/**
- * Dropdown Item is a single menu entry inside a Dropdown. It can act as a plain action,
- * a checkbox toggle, or a radio choice, and supports prefix/suffix slots for icons and
- * keyboard shortcut labels. Items can be individually disabled without affecting others.
- */
+/** Dropdown items are used inside dropdowns to represent individual menu items */
 const meta = {
   title: 'Components/Dropdown Item',
   component: DropdownItem,
@@ -14,18 +10,72 @@ const meta = {
     type: {
       control: 'select',
       options: ['normal', 'checkbox'],
+      description: 'The type of menu item',
       table: { defaultValue: { summary: 'normal' } },
     },
-    checked: { control: 'boolean', description: 'Used with type="checkbox"' },
-    disabled: { control: 'boolean' },
+    checked: {
+      control: 'boolean',
+      description: 'Draws the item in a checked state (checkbox type)',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    value: { control: 'text', description: 'A unique value for the menu item' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the menu item',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    loading: {
+      control: 'boolean',
+      description: 'Draws the item in a loading state',
+      table: { defaultValue: { summary: 'false' } },
+    },
     variant: {
       control: 'select',
-      options: ['default', 'danger'],
-      table: { defaultValue: { summary: 'default' } },
+      options: ['neutral', 'danger'],
+      description: 'The dropdown item variant',
+      table: { defaultValue: { summary: 'neutral' } },
     },
-    value: { control: 'text' },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the dropdown item loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the dropdown item gains focus.',
+      table: { category: 'Events' },
+    },
+    'slot:icon': {
+      control: false,
+      description: 'An optional icon to display before the label.',
+      table: { category: 'Slots' },
+    },
+    'slot:details': {
+      control: false,
+      description: 'Additional content or details to display after the label.',
+      table: { category: 'Slots' },
+    },
+    'slot:submenu': {
+      control: false,
+      description:
+        'Submenu items, typically `<wa-dropdown-item>` elements, to create a nested menu.',
+      table: { category: 'Slots' },
+    },
+    'method:openSubmenu': {
+      control: false,
+      description: 'Opens the submenu.',
+      table: { category: 'Methods' },
+    },
+    'method:closeSubmenu': {
+      control: false,
+      description: 'Closes the submenu.',
+      table: { category: 'Methods' },
+    },
   },
-  args: { value: 'item', type: 'normal' },
+  args: {
+    onBlur: fn(),
+    onFocus: fn(),
+  },
 } satisfies Meta<typeof DropdownItem>;
 
 export default meta;

@@ -1,35 +1,41 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Callout, Icon } from '@/components/ui';
 
-/**
- * Callout highlights important information, warnings, or contextual messages inline within
- * content. It supports five semantic color variants and multiple appearance styles so it can
- * communicate different levels of urgency, from a soft tip to a hard error. An optional
- * icon slot reinforces meaning visually.
- */
+/** Callouts are used to display important messages inline */
 const meta = {
   title: 'Components/Callout',
   component: Callout,
   tags: ['autodocs'],
   argTypes: {
-    variant: {
-      control: 'select',
-      options: ['brand', 'neutral', 'success', 'warning', 'danger'],
-      table: { defaultValue: { summary: 'neutral' } },
-    },
     appearance: {
       control: 'select',
       options: ['accent', 'filled', 'outlined', 'plain', 'filled-outlined'],
+      description: "The callout's visual appearance",
       table: { defaultValue: { summary: 'filled-outlined' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: "The callout's size",
       table: { defaultValue: { summary: 'medium' } },
     },
+    variant: {
+      control: 'select',
+      options: ['brand', 'neutral', 'success', 'warning', 'danger'],
+      description: "The callout's theme variant",
+      table: { defaultValue: { summary: 'brand' } },
+    },
     children: { control: 'text' },
+    'slot:icon': {
+      control: false,
+      description:
+        'An icon to show in the callout. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
   },
-  args: { children: 'This is a callout message.' },
+  args: {
+    children: 'This is a callout message.',
+  },
 } satisfies Meta<typeof Callout>;
 
 export default meta;

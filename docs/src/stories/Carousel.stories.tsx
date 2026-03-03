@@ -2,42 +2,94 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Carousel, CarouselItem } from '@/components/ui';
 
-/**
- * Carousel presents a sequence of slides (images, cards, or any content) in a scrollable
- * strip with optional navigation arrows and pagination dots. It supports looping, autoplay
- * with a configurable interval, multiple visible slides per page, and mouse/touch dragging.
- * Individual slides are provided as Carousel Item children.
- */
+/** Displays an arbitrary number of content slides along a horizontal or vertical axis */
 const meta = {
   title: 'Components/Carousel',
   component: Carousel,
   tags: ['autodocs'],
   argTypes: {
-    autoplay: { control: 'boolean' },
+    autoplay: {
+      control: 'boolean',
+      description: "Automatically scrolls slides when user isn't interacting",
+      table: { defaultValue: { summary: 'false' } },
+    },
     'autoplay-interval': {
       control: 'number',
+      description: 'Milliseconds between automatic scrolls',
       table: { defaultValue: { summary: '3000' } },
     },
-    loop: { control: 'boolean' },
-    navigation: { control: 'boolean', description: 'Shows prev/next arrows' },
-    pagination: { control: 'boolean', description: 'Shows dot indicators' },
-    'mouse-dragging': { control: 'boolean' },
+    loop: {
+      control: 'boolean',
+      description: 'Allows infinite navigation in same direction',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'mouse-dragging': {
+      control: 'boolean',
+      description: 'Enables dragging slides with mouse',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    navigation: {
+      control: 'boolean',
+      description: 'Shows previous/next buttons',
+      table: { defaultValue: { summary: 'false' } },
+    },
     orientation: {
       control: 'select',
       options: ['horizontal', 'vertical'],
+      description: 'Carousel layout direction',
       table: { defaultValue: { summary: 'horizontal' } },
     },
-    'slides-per-page': {
-      control: 'number',
-      table: { defaultValue: { summary: '1' } },
+    pagination: {
+      control: 'boolean',
+      description: 'Shows slide indicator dots',
+      table: { defaultValue: { summary: 'false' } },
     },
     'slides-per-move': {
       control: 'number',
+      description: 'Number of slides to advance per scroll',
       table: { defaultValue: { summary: '1' } },
     },
-    onSlideChange: { action: 'slide-change' },
+    'slides-per-page': {
+      control: 'number',
+      description: 'Number of slides visible at once',
+      table: { defaultValue: { summary: '1' } },
+    },
+    onSlideChange: {
+      action: 'slide-change',
+      description: 'Emitted when the active slide changes.',
+      table: { category: 'Events' },
+    },
+    'slot:next-icon': {
+      control: false,
+      description:
+        'Optional next icon to use instead of the default. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:previous-icon': {
+      control: false,
+      description:
+        'Optional previous icon to use instead of the default. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'method:previous': {
+      control: false,
+      description: 'Move the carousel backward by `slides-per-move` slides.',
+      table: { category: 'Methods' },
+    },
+    'method:next': {
+      control: false,
+      description: 'Move the carousel forward by `slides-per-move` slides.',
+      table: { category: 'Methods' },
+    },
+    'method:goToSlide': {
+      control: false,
+      description: 'Scrolls the carousel to the slide specified by `index`.',
+      table: { category: 'Methods' },
+    },
   },
-  args: { onSlideChange: fn() },
+  args: {
+    onSlideChange: fn(),
+  },
 } satisfies Meta<typeof Carousel>;
 
 export default meta;

@@ -2,12 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { TabGroup, Tab, TabPanel, Icon } from '@/components/ui';
 
-/**
- * Tab Group is the container that orchestrates a set of Tab and Tab Panel components.
- * It manages the active-tab state, fires `wa-tab-show` and `wa-tab-hide` events, and
- * supports four placement positions (top, bottom, start, end) as well as manual activation
- * mode where arrow keys focus tabs but Enter is required to activate them.
- */
+/** Tab groups organize content into a container that shows one section at a time */
 const meta = {
   title: 'Components/Tab Group',
   component: TabGroup,
@@ -16,18 +11,37 @@ const meta = {
     placement: {
       control: 'select',
       options: ['top', 'bottom', 'start', 'end'],
+      description: 'Tab position',
       table: { defaultValue: { summary: 'top' } },
     },
     activation: {
       control: 'select',
       options: ['auto', 'manual'],
-      description:
-        'auto = navigate instantly; manual = press Enter to activate',
+      description: 'Panel activation method',
       table: { defaultValue: { summary: 'auto' } },
     },
-    'without-scroll-controls': { control: 'boolean' },
-    onTabShow: { action: 'tab-show' },
-    onTabHide: { action: 'tab-hide' },
+    'without-scroll-controls': {
+      control: 'boolean',
+      description: 'Disables scroll buttons',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    active: { control: 'text', description: 'The name of the active tab' },
+    onTabShow: {
+      action: 'tab-show',
+      description: 'Emitted when a tab is shown.',
+      table: { category: 'Events' },
+    },
+    onTabHide: {
+      action: 'tab-hide',
+      description: 'Emitted when a tab is hidden.',
+      table: { category: 'Events' },
+    },
+    'slot:nav': {
+      control: false,
+      description:
+        'Used for grouping tabs in the tab group. Must be `<wa-tab>` elements. Note that `<wa-tab>` will set this slot on itself automatically.',
+      table: { category: 'Slots' },
+    },
   },
   args: {
     onTabShow: fn(),

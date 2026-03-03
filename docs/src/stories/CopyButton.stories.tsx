@@ -2,49 +2,75 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { CopyButton } from '@/components/ui';
 
-/**
- * Copy Button copies a given string to the clipboard when clicked and provides visual
- * feedback by swapping from a copy icon to a check icon to confirm the action. The
- * value to copy, copy labels, and error labels can all be customised. Useful for code
- * snippets, API keys, and shareable URLs.
- */
+/** Copies text data to the clipboard when clicked */
 const meta = {
   title: 'Components/Copy Button',
   component: CopyButton,
   tags: ['autodocs'],
   argTypes: {
-    value: { control: 'text', description: 'The text to copy to clipboard' },
+    value: { control: 'text', description: 'The text to copy' },
+    from: {
+      control: 'text',
+      description: 'Element selector to copy text from',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the button',
+      table: { defaultValue: { summary: 'false' } },
+    },
     'copy-label': {
       control: 'text',
-      description: 'Tooltip shown before copying',
-      table: { defaultValue: { summary: 'Copy' } },
+      description: 'Tooltip label for copy state',
     },
     'success-label': {
       control: 'text',
-      description: 'Tooltip shown after copying',
-      table: { defaultValue: { summary: 'Copied!' } },
+      description: 'Tooltip label for success state',
     },
     'error-label': {
       control: 'text',
-      description: 'Tooltip shown on copy failure',
-      table: { defaultValue: { summary: 'Error' } },
+      description: 'Tooltip label for error state',
     },
     'feedback-duration': {
       control: 'number',
-      description: 'Duration to show success feedback (ms)',
+      description: 'Duration of feedback state in milliseconds',
       table: { defaultValue: { summary: '1000' } },
     },
     'tooltip-placement': {
       control: 'select',
       options: ['top', 'right', 'bottom', 'left'],
+      description: 'Tooltip position',
       table: { defaultValue: { summary: 'top' } },
     },
-    disabled: { control: 'boolean' },
-    onCopy: { action: 'copy' },
-    onError: { action: 'error' },
+    onCopy: {
+      action: 'copy',
+      description: 'Emitted when the data has been copied.',
+      table: { category: 'Events' },
+    },
+    onError: {
+      action: 'error',
+      description: 'Emitted when the data could not be copied.',
+      table: { category: 'Events' },
+    },
+    'slot:copy-icon': {
+      control: false,
+      description:
+        'The icon to show in the default copy state. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:success-icon': {
+      control: false,
+      description:
+        'The icon to show when the content is copied. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
+    'slot:error-icon': {
+      control: false,
+      description:
+        'The icon to show when a copy error occurs. Works best with `<wa-icon>`.',
+      table: { category: 'Slots' },
+    },
   },
   args: {
-    value: 'Hello, World!',
     onCopy: fn(),
     onError: fn(),
   },

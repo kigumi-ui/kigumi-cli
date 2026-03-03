@@ -2,40 +2,67 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Rating } from '@/components/ui';
 
-/**
- * Rating captures a numeric score by letting users select from a row of star (or custom)
- * symbols. It supports half-star precision, a read-only display mode, a customisable
- * maximum value, and three sizes. The active and inactive symbol colors are CSS-customizable
- * to match any brand palette.
- */
+/** Ratings give users a way to quickly view and provide feedback */
 const meta = {
   title: 'Components/Rating',
   component: Rating,
   tags: ['autodocs'],
   argTypes: {
+    label: { control: 'text', description: 'Accessible label' },
     value: {
-      control: { type: 'range', min: 0, max: 5, step: 0.5 },
+      control: 'number',
+      description: 'Current rating value',
       table: { defaultValue: { summary: '0' } },
     },
-    max: { control: 'number', table: { defaultValue: { summary: '5' } } },
+    max: {
+      control: 'number',
+      description: 'Maximum rating value',
+      table: { defaultValue: { summary: '5' } },
+    },
     precision: {
-      control: { type: 'range', min: 0, max: 1, step: 0.25 },
-      description: 'Precision of each rating segment',
+      control: 'number',
+      description: 'Rating precision (e.g., 0.5)',
       table: { defaultValue: { summary: '1' } },
+    },
+    readonly: {
+      control: 'boolean',
+      description: 'Makes the rating readonly',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the rating',
+      table: { defaultValue: { summary: 'false' } },
     },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
+      description: 'Rating size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    readonly: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    label: { control: 'text', description: 'Accessibility label' },
-    onChange: { action: 'change' },
-    onHover: { action: 'hover' },
+    onChange: {
+      action: 'change',
+      description: "Emitted when the rating's value changes.",
+      table: { category: 'Events' },
+    },
+    onHover: {
+      action: 'hover',
+      description:
+        "Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value.",
+      table: { category: 'Events' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the rating.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the rating.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Rating',
     onChange: fn(),
     onHover: fn(),
   },

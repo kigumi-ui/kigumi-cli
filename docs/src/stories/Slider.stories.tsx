@@ -2,54 +2,155 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Slider } from '@/components/ui';
 
-/**
- * Slider lets users select a numeric value along a track by dragging a thumb. It supports
- * configurable min, max, and step values, a value tooltip above the thumb, step markers
- * along the track, horizontal and vertical orientations, and three sizes. Native form
- * participation means the value is included automatically on form submit.
- */
+/** Sliders allow the user to select a value within a range */
 const meta = {
   title: 'Components/Slider',
   component: Slider,
   tags: ['autodocs'],
   argTypes: {
-    label: { control: 'text' },
-    hint: { control: 'text' },
+    name: { control: 'text', description: 'Form field name' },
     value: {
-      control: { type: 'range', min: 0, max: 100, step: 1 },
-      table: { defaultValue: { summary: '50' } },
+      control: 'number',
+      description: 'Current value',
+      table: { defaultValue: { summary: '0' } },
     },
-    min: { control: 'number', table: { defaultValue: { summary: '0' } } },
-    max: { control: 'number', table: { defaultValue: { summary: '100' } } },
-    step: { control: 'number', table: { defaultValue: { summary: '1' } } },
-    size: {
-      control: 'select',
-      options: ['small', 'medium', 'large'],
-      table: { defaultValue: { summary: 'medium' } },
+    label: { control: 'text', description: 'Accessible label' },
+    hint: { control: 'text', description: 'Hint text' },
+    min: {
+      control: 'number',
+      description: 'Minimum value',
+      table: { defaultValue: { summary: '0' } },
+    },
+    max: {
+      control: 'number',
+      description: 'Maximum value',
+      table: { defaultValue: { summary: '100' } },
+    },
+    step: {
+      control: 'number',
+      description: 'Step increment',
+      table: { defaultValue: { summary: '1' } },
     },
     orientation: {
       control: 'select',
       options: ['horizontal', 'vertical'],
+      description: 'The orientation of the slider',
       table: { defaultValue: { summary: 'horizontal' } },
     },
-    disabled: { control: 'boolean' },
-    'with-tooltip': {
+    disabled: {
       control: 'boolean',
-      description: 'Shows value in a tooltip above the thumb',
+      description: 'Disables the slider',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    readonly: {
+      control: 'boolean',
+      description: 'Makes the slider readonly',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes the slider required',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    range: {
+      control: 'boolean',
+      description: 'Converts to a range slider with two thumbs',
+      table: { defaultValue: { summary: 'false' } },
     },
     'with-markers': {
       control: 'boolean',
-      description: 'Shows step markers along the track',
+      description: 'Draws markers at each step',
+      table: { defaultValue: { summary: 'false' } },
     },
-    onChange: { action: 'changed' },
-    onInvalid: { action: 'invalid' },
+    'with-tooltip': {
+      control: 'boolean',
+      description: 'Draws a tooltip above the thumb',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    size: {
+      control: 'select',
+      options: ['small', 'medium', 'large'],
+      description: 'Slider size',
+      table: { defaultValue: { summary: 'medium' } },
+    },
+    autofocus: {
+      control: 'boolean',
+      description: 'Automatically focuses the slider on page load',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onChange: {
+      action: 'change',
+      description:
+        "Emitted when an alteration to the control's value is committed by the user.",
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        'The slider label. Alternatively, you can use the `label` attribute.',
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute. instead.',
+      table: { category: 'Slots' },
+    },
+    'slot:reference': {
+      control: false,
+      description:
+        'One or more reference labels to show visually below the slider.',
+      table: { category: 'Slots' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus to the slider.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the slider.',
+      table: { category: 'Methods' },
+    },
+    'method:stepDown': {
+      control: false,
+      description:
+        "Decreases the slider's value by `step`. This is a programmatic change, so `input` and `change` events will not be emitted when this is called.",
+      table: { category: 'Methods' },
+    },
+    'method:stepUp': {
+      control: false,
+      description:
+        "Increases the slider's value by `step`. This is a programmatic change, so `input` and `change` events will not be emitted when this is called.",
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    label: 'Volume',
-    value: 50,
-    min: 0,
-    max: 100,
     onChange: fn(),
+    onBlur: fn(),
+    onFocus: fn(),
+    onInput: fn(),
     onInvalid: fn(),
   },
 } satisfies Meta<typeof Slider>;

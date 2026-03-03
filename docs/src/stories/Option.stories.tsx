@@ -1,24 +1,39 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Option, Select, Icon } from '@/components/ui';
 
-/**
- * Option is the individual selectable item used inside Select, Combobox, and other list
- * controls. Each option carries a `value`, a human-readable label, and optional prefix/suffix
- * slots for icons, badges, or any decorative content. Options can be individually disabled
- * to prevent selection without hiding them from the list.
- */
+/** Options define the selectable items within various form controls */
 const meta = {
   title: 'Components/Option',
   component: Option,
   tags: ['autodocs'],
   argTypes: {
-    value: {
-      control: 'text',
-      description: 'The value submitted when selected',
+    value: { control: 'text', description: 'The option value' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the option',
+      table: { defaultValue: { summary: 'false' } },
     },
-    disabled: { control: 'boolean' },
+    selected: {
+      control: 'boolean',
+      description: 'Draws the option in a selected state',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    label: {
+      control: 'text',
+      description:
+        "A custom label for the option (used by select's display input)",
+    },
+    'slot:start': {
+      control: false,
+      description: 'An element, such as `<wa-icon>`, placed before the label.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description: 'An element, such as `<wa-icon>`, placed after the label.',
+      table: { category: 'Slots' },
+    },
   },
-  args: { value: 'option' },
 } satisfies Meta<typeof Option>;
 
 export default meta;

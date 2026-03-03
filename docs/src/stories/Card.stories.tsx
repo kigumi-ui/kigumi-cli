@@ -1,12 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Card, Button, Badge, Avatar, Icon } from '@/components/ui';
 
-/**
- * Card is a versatile container that groups related content into a distinct visual unit.
- * It exposes slots for a header, body, footer, and media image, and supports horizontal
- * orientation for side-by-side layouts. Multiple appearance styles, from a plain surface
- * to a shadowed or outlined box, so it adapts to any design context.
- */
+/** Cards can be used to group related subjects in a container */
 const meta = {
   title: 'Components/Card',
   component: Card,
@@ -15,16 +10,66 @@ const meta = {
     appearance: {
       control: 'select',
       options: ['outlined', 'filled-outlined', 'plain', 'filled', 'accent'],
+      description: 'Visual appearance style',
       table: { defaultValue: { summary: 'outlined' } },
     },
     orientation: {
       control: 'select',
       options: ['vertical', 'horizontal'],
+      description: 'Card layout orientation',
       table: { defaultValue: { summary: 'vertical' } },
     },
+    'with-header': {
+      control: 'boolean',
+      description: 'Adds header section (for SSR)',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'with-footer': {
+      control: 'boolean',
+      description: 'Adds footer section (for SSR)',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'with-media': {
+      control: 'boolean',
+      description: 'Adds media section (for SSR)',
+      table: { defaultValue: { summary: 'false' } },
+    },
     children: { table: { disable: true } },
+    'slot:header': {
+      control: false,
+      description: 'An optional header for the card.',
+      table: { category: 'Slots' },
+    },
+    'slot:footer': {
+      control: false,
+      description: 'An optional footer for the card.',
+      table: { category: 'Slots' },
+    },
+    'slot:media': {
+      control: false,
+      description:
+        'An optional media section to render at the start of the card.',
+      table: { category: 'Slots' },
+    },
+    'slot:actions': {
+      control: false,
+      description:
+        'An optional actions section to render at the end for the horizontal card.',
+      table: { category: 'Slots' },
+    },
+    'slot:header-actions': {
+      control: false,
+      description:
+        'An optional actions section to render in the header of the vertical card.',
+      table: { category: 'Slots' },
+    },
+    'slot:footer-actions': {
+      control: false,
+      description:
+        'An optional actions section to render in the footer of the vertical card.',
+      table: { category: 'Slots' },
+    },
   },
-  args: { appearance: 'outlined' },
 } satisfies Meta<typeof Card>;
 
 export default meta;

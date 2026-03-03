@@ -2,29 +2,38 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Include } from '@/components/ui';
 
-/**
- * Include fetches and injects external HTML content directly into the page at render time,
- * similar to a server-side include but handled in the browser. Useful for loading shared
- * partials, SVG sprites, or any static HTML fragment without a build step. Fires load/error
- * events so you can react when the content arrives.
- */
+/** Includes give you the power to embed external HTML files into the page */
 const meta = {
   title: 'Components/Include',
   component: Include,
   tags: ['autodocs'],
   argTypes: {
-    src: { control: 'text', description: 'URL of the HTML content to include' },
-    'allow-scripts': {
-      control: 'boolean',
-      description: 'Allow script execution in included content',
+    src: {
+      control: 'text',
+      description: 'The location of the HTML file to include',
     },
     mode: {
       control: 'select',
       options: ['cors', 'no-cors', 'same-origin'],
+      description: 'The fetch mode',
       table: { defaultValue: { summary: 'cors' } },
     },
-    onLoad: { action: 'load' },
-    onIncludeError: { action: 'include-error' },
+    'allow-scripts': {
+      control: 'boolean',
+      description: 'Allows included scripts to be executed',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    onLoad: {
+      action: 'load',
+      description: 'Emitted when the included file is loaded.',
+      table: { category: 'Events' },
+    },
+    onIncludeError: {
+      action: 'include-error',
+      description:
+        'Emitted when the included file fails to load due to an error.',
+      table: { category: 'Events' },
+    },
   },
   args: {
     onLoad: fn(),
@@ -81,8 +90,8 @@ export const ErrorState: Story = {
           marginBottom: '1rem',
         }}
       >
-        When the URL is unreachable, the <code>wa-include-error</code> event
-        fires. Check the Actions panel.
+        When the URL is unreachable, the <code>onError</code> callback fires.
+        Check the Actions panel.
       </p>
       <Include {...args} />
     </div>

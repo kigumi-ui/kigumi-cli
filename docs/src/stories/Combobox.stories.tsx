@@ -22,57 +22,201 @@ const fruits = [
   'Watermelon',
 ];
 
-/**
- * Combobox combines a text input with a filterable dropdown list, letting users either
- * pick from predefined options or (optionally) enter a custom value. It supports single
- * and multiple selection, clearable values, various appearances, sizes, and a hint line for
- * additional guidance.
- */
+/** Combines a text input with a listbox for filtering and selecting options */
 const meta = {
   title: 'Components/Combobox',
   component: Combobox,
   tags: ['autodocs'],
   argTypes: {
+    'allow-custom-value': {
+      control: 'boolean',
+      description: 'Allows entering custom values',
+      table: { defaultValue: { summary: 'false' } },
+    },
     appearance: {
       control: 'select',
       options: ['filled', 'outlined', 'filled-outlined'],
+      description: 'Visual appearance style',
       table: { defaultValue: { summary: 'outlined' } },
-    },
-    size: {
-      control: 'select',
-      options: ['small', 'medium', 'large'],
-      table: { defaultValue: { summary: 'medium' } },
-    },
-    placement: {
-      control: 'select',
-      options: ['top', 'bottom'],
-      table: { defaultValue: { summary: 'bottom' } },
     },
     autocomplete: {
       control: 'select',
       options: ['list', 'none'],
+      description: 'Autocomplete behavior',
       table: { defaultValue: { summary: 'list' } },
     },
-    'allow-custom-value': { control: 'boolean' },
-    multiple: { control: 'boolean' },
-    'with-clear': { control: 'boolean' },
-    pill: { control: 'boolean' },
-    disabled: { control: 'boolean' },
-    required: { control: 'boolean' },
-    placeholder: { control: 'text' },
-    label: { control: 'text' },
-    hint: { control: 'text' },
-    onShow: { action: 'show' },
-    onHide: { action: 'hide' },
-    onClear: { action: 'clear' },
-    open: { table: { disable: true } },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the combobox',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    hint: { control: 'text', description: 'Hint text' },
+    label: { control: 'text', description: 'Label text' },
+    'max-options-visible': {
+      control: 'number',
+      description: 'Maximum visible options before scrolling',
+      table: { defaultValue: { summary: '3' } },
+    },
+    multiple: {
+      control: 'boolean',
+      description: 'Allows multiple selections',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    name: { control: 'text', description: 'Form field name' },
+    open: {
+      control: 'boolean',
+      description: 'Whether the listbox is open',
+      table: { disable: true, defaultValue: { summary: 'false' } },
+    },
+    pill: {
+      control: 'boolean',
+      description: 'Rounded edges style',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    placeholder: { control: 'text', description: 'Placeholder text' },
+    placement: {
+      control: 'select',
+      options: ['top', 'bottom'],
+      description: 'Listbox placement',
+      table: { defaultValue: { summary: 'bottom' } },
+    },
+    required: {
+      control: 'boolean',
+      description: 'Makes field mandatory',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    size: {
+      control: 'select',
+      options: ['small', 'medium', 'large'],
+      description: 'Combobox size',
+      table: { defaultValue: { summary: 'medium' } },
+    },
+    'with-clear': {
+      control: 'boolean',
+      description: 'Shows clear button',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    value: { control: 'text', description: 'Current value of the combobox' },
+    onInput: {
+      action: 'input',
+      description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
+    },
+    onChange: {
+      action: 'change',
+      description: "Emitted when the control's value changes.",
+      table: { category: 'Events' },
+    },
+    onFocus: {
+      action: 'focus',
+      description: 'Emitted when the control gains focus.',
+      table: { category: 'Events' },
+    },
+    onBlur: {
+      action: 'blur',
+      description: 'Emitted when the control loses focus.',
+      table: { category: 'Events' },
+    },
+    onClear: {
+      action: 'clear',
+      description: "Emitted when the control's value is cleared.",
+      table: { category: 'Events' },
+    },
+    onShow: {
+      action: 'show',
+      description: "Emitted when the combobox's menu opens.",
+      table: { category: 'Events' },
+    },
+    onAfterShow: {
+      action: 'after-show',
+      description:
+        "Emitted after the combobox's menu opens and all animations are complete.",
+      table: { category: 'Events' },
+    },
+    onHide: {
+      action: 'hide',
+      description: "Emitted when the combobox's menu closes.",
+      table: { category: 'Events' },
+    },
+    onAfterHide: {
+      action: 'after-hide',
+      description:
+        "Emitted after the combobox's menu closes and all animations are complete.",
+      table: { category: 'Events' },
+    },
+    onInvalid: {
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+      table: { category: 'Events' },
+    },
+    'slot:label': {
+      control: false,
+      description:
+        "The input's label. Alternatively, you can use the `label` attribute.",
+      table: { category: 'Slots' },
+    },
+    'slot:start': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the start of the combobox.',
+      table: { category: 'Slots' },
+    },
+    'slot:end': {
+      control: false,
+      description:
+        'An element, such as `<wa-icon>`, placed at the end of the combobox.',
+      table: { category: 'Slots' },
+    },
+    'slot:clear-icon': {
+      control: false,
+      description: 'An icon to use in lieu of the default clear icon.',
+      table: { category: 'Slots' },
+    },
+    'slot:expand-icon': {
+      control: false,
+      description:
+        'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
+      table: { category: 'Slots' },
+    },
+    'slot:hint': {
+      control: false,
+      description:
+        'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
+      table: { category: 'Slots' },
+    },
+    'method:show': {
+      control: false,
+      description: 'Shows the listbox.',
+      table: { category: 'Methods' },
+    },
+    'method:hide': {
+      control: false,
+      description: 'Hides the listbox.',
+      table: { category: 'Methods' },
+    },
+    'method:focus': {
+      control: false,
+      description: 'Sets focus on the control.',
+      table: { category: 'Methods' },
+    },
+    'method:blur': {
+      control: false,
+      description: 'Removes focus from the control.',
+      table: { category: 'Methods' },
+    },
   },
   args: {
-    placeholder: 'Search fruits...',
-    label: 'Fruit',
-    onShow: fn(),
-    onHide: fn(),
+    onInput: fn(),
+    onChange: fn(),
+    onFocus: fn(),
+    onBlur: fn(),
     onClear: fn(),
+    onShow: fn(),
+    onAfterShow: fn(),
+    onHide: fn(),
+    onAfterHide: fn(),
+    onInvalid: fn(),
   },
 } satisfies Meta<typeof Combobox>;
 
