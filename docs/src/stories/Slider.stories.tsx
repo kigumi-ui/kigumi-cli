@@ -73,11 +73,6 @@ const meta = {
       description: 'Slider size',
       table: { defaultValue: { summary: 'medium' } },
     },
-    autofocus: {
-      control: 'boolean',
-      description: 'Automatically focuses the slider on page load',
-      table: { defaultValue: { summary: 'false' } },
-    },
     onChange: {
       action: 'change',
       description:
@@ -194,7 +189,7 @@ export const Vertical: Story = {
 
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
-  // tags: ['!dev', '!autodocs'],
+  tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },
   render: () => (
     <div
