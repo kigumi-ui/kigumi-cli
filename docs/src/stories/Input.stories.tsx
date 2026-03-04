@@ -112,11 +112,6 @@ const meta = {
       options: ['off', 'on'],
       description: 'Hint for autocorrect behavior',
     },
-    autofocus: {
-      control: 'boolean',
-      description: 'Automatically focuses the input on page load',
-      table: { defaultValue: { summary: 'false' } },
-    },
     inputmode: {
       control: 'select',
       options: [
@@ -321,7 +316,7 @@ export const WithIcons: Story = {
 
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
-  // tags: ['!dev', '!autodocs'],
+  tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },
   render: () => (
     <div

@@ -155,6 +155,14 @@ export function buildStoryData(componentKey: string): StoryData | null {
 
   // 5. Apply overrides
   if (overrides) {
+    // Excluded props (completely removed — not valid on the React component type)
+    if (overrides.excludedProps) {
+      for (const prop of overrides.excludedProps) {
+        delete argTypes[prop];
+        delete args[prop];
+      }
+    }
+
     // Hidden props
     if (overrides.hiddenProps) {
       for (const prop of overrides.hiddenProps) {

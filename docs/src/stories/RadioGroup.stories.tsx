@@ -159,7 +159,7 @@ export const Sizes: Story = {
 
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
-  // tags: ['!dev', '!autodocs'],
+  tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { pauseAnimationAtEnd: true } },
   render: () => (
     <div

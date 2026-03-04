@@ -225,7 +225,8 @@ export const ScrollingContent: Story = {
 
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
-  // tags: ['!dev', '!autodocs'],
+  tags: ['!dev', '!autodocs'],
+  args: { label: 'Dialog' },
   parameters: { chromatic: { pauseAnimationAtEnd: true } },
   render: () => (
     <div style={{ padding: '1.5rem' }}>

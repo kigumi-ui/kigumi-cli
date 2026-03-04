@@ -78,7 +78,7 @@ export const Controlled: Story = {
 
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
-  // tags: ['!dev', '!autodocs'],
+  tags: ['!dev', '!autodocs'],
   parameters: { chromatic: { delay: 300, pauseAnimationAtEnd: true } },
   render: () => (
     <div

@@ -12,6 +12,8 @@ export interface StoryOverride {
   title?: string;
   /** Props to hide from Storybook controls (table.disable: true) */
   hiddenProps?: string[];
+  /** Props to completely remove from argTypes (not valid on the React component type) */
+  excludedProps?: string[];
   /** Default value for children arg */
   childrenDefault?: string;
   /** Extra argTypes not in registry/metadata */
@@ -118,6 +120,9 @@ export const STORY_OVERRIDES: Record<string, StoryOverride> = {
   dialog: {
     hiddenProps: ['open'],
   },
+  input: {
+    excludedProps: ['autofocus'],
+  },
   drawer: {
     hiddenProps: ['open'],
   },
@@ -132,6 +137,9 @@ export const STORY_OVERRIDES: Record<string, StoryOverride> = {
   },
   select: {
     hiddenProps: ['open'],
+  },
+  slider: {
+    excludedProps: ['autofocus'],
   },
 
   // ── Children defaults ────────────────────────────────────────────────────
