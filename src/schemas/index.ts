@@ -26,11 +26,17 @@ export {
   validatePartialConfig,
   mergeWithDefaults,
   DEFAULT_CONFIG,
+  registrySourceSchema,
+  installedComponentSchema,
+  installedThemeSchema,
   type KigumiConfig,
   type Framework,
   type Tier,
   type ThemeConfig,
   type WebAwesomeConfig,
+  type RegistrySource,
+  type InstalledComponent,
+  type InstalledTheme,
 } from './config.js';
 
 // Command options schemas
@@ -50,6 +56,20 @@ export {
   type BrandOptions,
   type ListOptions,
 } from './options.js';
+
+// Community registry schemas
+export {
+  communityRegistrySchema,
+  communityComponentSchema,
+  communityThemeSchema,
+  componentFilesSchema,
+  validateCommunityRegistry,
+  validateRegistryDependencies,
+  type CommunityRegistry,
+  type CommunityComponent,
+  type CommunityTheme,
+  type ComponentFiles,
+} from './community-registry.js';
 
 // Tier validation
 export {

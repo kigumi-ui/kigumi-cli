@@ -132,3 +132,19 @@ export const INSTALL_TIMEOUT_MS = 300_000;
 
 /** Default Web Awesome package version */
 export const DEFAULT_WEBAWESOME_VERSION = '^3.2.1';
+
+// =============================================================================
+// Community Registry
+// =============================================================================
+
+/** GitHub raw content base URL */
+export const GITHUB_RAW_BASE_URL = 'https://raw.githubusercontent.com';
+
+/** Kigumi cache directory (relative to home dir) */
+export const KIGUMI_CACHE_DIR = '.kigumi/cache';
+
+/** Registry cache TTL in milliseconds (1 hour) */
+export const REGISTRY_CACHE_TTL_MS = 3_600_000;
+
+/** Community registry file name */
+export const REGISTRY_FILE_NAME = 'registry.json';

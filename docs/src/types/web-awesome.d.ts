@@ -10,6 +10,7 @@ declare global {
     interface IntrinsicElements {
       'wa-animated-image': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           src?: string;
           alt?: string;
           play?: boolean;
@@ -19,6 +20,7 @@ declare global {
 
       'wa-animation': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           name?: string;
           play?: boolean;
           delay?: number;
@@ -36,6 +38,7 @@ declare global {
 
       'wa-avatar': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           image?: string;
           label?: string;
           initials?: string;
@@ -47,6 +50,7 @@ declare global {
 
       'wa-badge': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
           appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
           pill?: boolean;
@@ -57,6 +61,7 @@ declare global {
 
       'wa-breadcrumb': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           label?: string;
         },
         HTMLElement
@@ -64,6 +69,7 @@ declare global {
 
       'wa-breadcrumb-item': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           href?: string;
           target?: '_blank' | '_parent' | '_self' | '_top';
           rel?: string;
@@ -73,6 +79,7 @@ declare global {
 
       'wa-button': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
           appearance?:
             | 'accent'
@@ -89,19 +96,45 @@ declare global {
           target?: '_blank' | '_self' | '_parent' | '_top';
           download?: string;
           rel?: string;
+          type?: 'button' | 'submit' | 'reset';
+          name?: string;
+          value?: string;
+          formaction?: string;
+          formenctype?: string;
+          formmethod?: string;
+          formnovalidate?: boolean;
+          formtarget?: string;
         },
         HTMLElement
       >;
 
       'wa-button-group': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
           orientation?: 'horizontal' | 'vertical';
+        },
+        HTMLElement
+      >;
+
+      'wa-callout': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          appearance?:
+            | 'accent'
+            | 'filled'
+            | 'outlined'
+            | 'plain'
+            | 'filled-outlined';
+          size?: 'small' | 'medium' | 'large';
+          variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
         },
         HTMLElement
       >;
 
       'wa-card': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           appearance?:
             | 'outlined'
             | 'filled-outlined'
@@ -118,6 +151,7 @@ declare global {
 
       'wa-carousel': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           autoplay?: boolean;
           'autoplay-interval'?: number;
           loop?: boolean;
@@ -132,12 +166,15 @@ declare global {
       >;
 
       'wa-carousel-item': DetailedHTMLProps<
-        HTMLAttributes<HTMLElement> & {},
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+        },
         HTMLElement
       >;
 
       'wa-checkbox': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           checked?: boolean;
           disabled?: boolean;
           hint?: string;
@@ -152,6 +189,7 @@ declare global {
 
       'wa-color-picker': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: string;
           format?: 'hex' | 'rgb' | 'hsl' | 'hsv';
           opacity?: boolean;
@@ -165,12 +203,14 @@ declare global {
           swatches?: string;
           uppercase?: boolean;
           'without-format-toggle'?: boolean;
+          inline?: boolean;
         },
         HTMLElement
       >;
 
       'wa-combobox': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           'allow-custom-value'?: boolean;
           appearance?: 'filled' | 'outlined' | 'filled-outlined';
           autocomplete?: 'list' | 'none';
@@ -187,12 +227,14 @@ declare global {
           required?: boolean;
           size?: 'small' | 'medium' | 'large';
           'with-clear'?: boolean;
+          value?: string;
         },
         HTMLElement
       >;
 
       'wa-comparison': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           position?: number;
         },
         HTMLElement
@@ -200,6 +242,7 @@ declare global {
 
       'wa-copy-button': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: string;
           from?: string;
           disabled?: boolean;
@@ -214,6 +257,7 @@ declare global {
 
       'wa-details': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           open?: boolean;
           summary?: string;
           disabled?: boolean;
@@ -226,6 +270,7 @@ declare global {
 
       'wa-dialog': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           open?: boolean;
           label?: string;
           'without-header'?: boolean;
@@ -236,6 +281,7 @@ declare global {
 
       'wa-divider': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           orientation?: 'horizontal' | 'vertical';
         },
         HTMLElement
@@ -243,6 +289,7 @@ declare global {
 
       'wa-drawer': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           open?: boolean;
           label?: string;
           placement?: 'top' | 'end' | 'bottom' | 'start';
@@ -254,6 +301,7 @@ declare global {
 
       'wa-dropdown': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           open?: boolean;
           placement?:
             | 'top'
@@ -273,23 +321,41 @@ declare global {
           distance?: number;
           skidding?: number;
           hoist?: boolean;
+          size?: 'small' | 'medium' | 'large';
         },
         HTMLElement
       >;
 
       'wa-dropdown-item': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           type?: 'normal' | 'checkbox';
           checked?: boolean;
           value?: string;
           disabled?: boolean;
           loading?: boolean;
+          variant?: 'neutral' | 'danger';
+        },
+        HTMLElement
+      >;
+
+      'wa-file-input': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          hint?: string;
+          accept?: string;
+          multiple?: boolean;
+          disabled?: boolean;
+          required?: boolean;
+          size?: 'small' | 'medium' | 'large';
         },
         HTMLElement
       >;
 
       'wa-format-bytes': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: number;
           unit?: 'byte' | 'bit';
           display?: 'long' | 'short' | 'narrow';
@@ -300,6 +366,7 @@ declare global {
 
       'wa-format-date': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           date?: string;
           weekday?: 'narrow' | 'short' | 'long';
           era?: 'narrow' | 'short' | 'long';
@@ -319,6 +386,7 @@ declare global {
 
       'wa-format-number': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: number;
           type?: 'currency' | 'decimal' | 'percent';
           currency?: string;
@@ -336,6 +404,7 @@ declare global {
 
       'wa-icon': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           name?: string;
           library?: string;
           src?: string;
@@ -344,12 +413,16 @@ declare global {
           variant?: string;
           'auto-width'?: boolean;
           'swap-opacity'?: boolean;
+          rotate?: number;
+          flip?: 'horizontal' | 'vertical' | 'both';
+          animation?: string;
         },
         HTMLElement
       >;
 
       'wa-include': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           src?: string;
           mode?: 'cors' | 'no-cors' | 'same-origin';
           'allow-scripts'?: boolean;
@@ -359,6 +432,7 @@ declare global {
 
       'wa-input': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           type?:
             | 'text'
             | 'email'
@@ -378,22 +452,63 @@ declare global {
           disabled?: boolean;
           'with-clear'?: boolean;
           'password-toggle'?: boolean;
+          'password-visible'?: boolean;
+          readonly?: boolean;
+          required?: boolean;
+          name?: string;
+          pattern?: string;
+          minlength?: number;
+          maxlength?: number;
+          min?: string;
+          max?: string;
+          step?: string;
+          'without-spin-buttons'?: boolean;
+          autocomplete?: string;
+          autocapitalize?:
+            | 'off'
+            | 'none'
+            | 'on'
+            | 'sentences'
+            | 'words'
+            | 'characters';
+          autocorrect?: 'off' | 'on';
+          autofocus?: boolean;
+          inputmode?:
+            | 'none'
+            | 'text'
+            | 'decimal'
+            | 'numeric'
+            | 'tel'
+            | 'search'
+            | 'email'
+            | 'url';
+          enterkeyhint?:
+            | 'enter'
+            | 'done'
+            | 'go'
+            | 'next'
+            | 'previous'
+            | 'search'
+            | 'send';
         },
         HTMLElement
       >;
 
       'wa-intersection-observer': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           disabled?: boolean;
           once?: boolean;
           threshold?: string;
           'root-margin'?: string;
+          'intersect-class'?: string;
         },
         HTMLElement
       >;
 
       'wa-mutation-observer': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           attr?: string;
           'attr-old-value'?: boolean;
           'char-data'?: boolean;
@@ -405,16 +520,51 @@ declare global {
         HTMLElement
       >;
 
+      'wa-number-input': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          hint?: string;
+          value?: number;
+          min?: number;
+          max?: number;
+          step?: number;
+          disabled?: boolean;
+          required?: boolean;
+          placeholder?: string;
+          size?: 'small' | 'medium' | 'large';
+          appearance?: 'filled' | 'outlined' | 'filled-outlined';
+          'without-steppers'?: boolean;
+        },
+        HTMLElement
+      >;
+
       'wa-option': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: string;
           disabled?: boolean;
+          selected?: boolean;
+          label?: string;
+        },
+        HTMLElement
+      >;
+
+      'wa-page': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          'disable-navigation-toggle'?: boolean;
+          'mobile-breakpoint'?: string;
+          'navigation-placement'?: 'start' | 'end';
+          'nav-open'?: boolean;
+          view?: 'mobile' | 'desktop';
         },
         HTMLElement
       >;
 
       'wa-popover': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           open?: boolean;
           disabled?: boolean;
           placement?:
@@ -434,12 +584,15 @@ declare global {
           distance?: number;
           skidding?: number;
           'with-arrow'?: boolean;
+          'without-arrow'?: boolean;
+          for?: string;
         },
         HTMLElement
       >;
 
       'wa-popup': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           active?: boolean;
           anchor?: string;
           placement?:
@@ -476,6 +629,7 @@ declare global {
 
       'wa-progress-bar': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: number;
           indeterminate?: boolean;
           label?: string;
@@ -485,6 +639,7 @@ declare global {
 
       'wa-progress-ring': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: number;
           label?: string;
         },
@@ -493,6 +648,7 @@ declare global {
 
       'wa-qr-code': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: string;
           label?: string;
           size?: number;
@@ -506,39 +662,49 @@ declare global {
 
       'wa-radio': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           value?: string;
           disabled?: boolean;
           size?: 'small' | 'medium' | 'large';
+          appearance?: 'default' | 'button';
         },
         HTMLElement
       >;
 
       'wa-radio-group': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           label?: string;
           hint?: string;
           name?: string;
           value?: string;
           size?: 'small' | 'medium' | 'large';
           required?: boolean;
+          orientation?: 'horizontal' | 'vertical';
+          disabled?: boolean;
+          invalid?: boolean;
+          'help-text'?: string;
         },
         HTMLElement
       >;
 
       'wa-rating': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           label?: string;
           value?: number;
           max?: number;
           precision?: number;
           readonly?: boolean;
           disabled?: boolean;
+          size?: 'small' | 'medium' | 'large';
         },
         HTMLElement
       >;
 
       'wa-relative-time': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           date?: string;
           format?: 'long' | 'short' | 'narrow';
           numeric?: 'always' | 'auto';
@@ -550,6 +716,7 @@ declare global {
 
       'wa-resize-observer': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           disabled?: boolean;
         },
         HTMLElement
@@ -557,14 +724,18 @@ declare global {
 
       'wa-scroller': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           orientation?: 'horizontal' | 'vertical' | 'both';
           'with-scroll-indicator'?: boolean;
+          'without-scrollbar'?: boolean;
+          'without-shadow'?: boolean;
         },
         HTMLElement
       >;
 
       'wa-select': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           name?: string;
           value?: string;
           appearance?: 'filled' | 'outlined' | 'filled-outlined';
@@ -581,12 +752,15 @@ declare global {
           label?: string;
           hint?: string;
           required?: boolean;
+          invalid?: boolean;
+          'help-text'?: string;
         },
         HTMLElement
       >;
 
       'wa-skeleton': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           effect?: 'pulse' | 'sheen' | 'none';
         },
         HTMLElement
@@ -594,6 +768,7 @@ declare global {
 
       'wa-slider': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           name?: string;
           value?: number;
           label?: string;
@@ -601,19 +776,41 @@ declare global {
           min?: number;
           max?: number;
           step?: number;
-          tooltip?: 'top' | 'bottom' | 'none';
+          orientation?: 'horizontal' | 'vertical';
           disabled?: boolean;
+          readonly?: boolean;
+          required?: boolean;
+          range?: boolean;
+          'with-markers'?: boolean;
+          'with-tooltip'?: boolean;
+          size?: 'small' | 'medium' | 'large';
+          autofocus?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-sparkline': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          data?: string;
+          label?: string;
+          appearance?: 'gradient' | 'line' | 'solid';
+          trend?: 'positive' | 'negative' | 'neutral';
+          curve?: 'linear' | 'natural' | 'step';
         },
         HTMLElement
       >;
 
       'wa-spinner': DetailedHTMLProps<
-        HTMLAttributes<HTMLElement> & {},
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+        },
         HTMLElement
       >;
 
       'wa-split-panel': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           position?: number;
           'position-in-pixels'?: number;
           orientation?: 'horizontal' | 'vertical';
@@ -627,6 +824,7 @@ declare global {
 
       'wa-switch': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           name?: string;
           value?: string;
           size?: 'small' | 'medium' | 'large';
@@ -640,6 +838,7 @@ declare global {
 
       'wa-tab': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           panel?: string;
           disabled?: boolean;
         },
@@ -648,15 +847,18 @@ declare global {
 
       'wa-tab-group': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           placement?: 'top' | 'bottom' | 'start' | 'end';
           activation?: 'auto' | 'manual';
           'without-scroll-controls'?: boolean;
+          active?: string;
         },
         HTMLElement
       >;
 
       'wa-tab-panel': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           name?: string;
           active?: boolean;
         },
@@ -665,6 +867,7 @@ declare global {
 
       'wa-tag': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
           pill?: boolean;
           size?: 'small' | 'medium' | 'large';
@@ -676,6 +879,7 @@ declare global {
 
       'wa-textarea': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           name?: string;
           value?: string;
           appearance?: 'filled' | 'outlined' | 'filled-outlined';
@@ -697,7 +901,7 @@ declare global {
 
       'wa-tooltip': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
-          content?: string;
+          class?: string;
           placement?:
             | 'top'
             | 'top-start'
@@ -719,12 +923,14 @@ declare global {
           'without-arrow'?: boolean;
           'show-delay'?: number;
           'hide-delay'?: number;
+          for?: string;
         },
         HTMLElement
       >;
 
       'wa-tree': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           selection?: 'single' | 'multiple' | 'leaf';
         },
         HTMLElement
@@ -732,6 +938,7 @@ declare global {
 
       'wa-tree-item': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           expanded?: boolean;
           selected?: boolean;
           disabled?: boolean;
@@ -742,6 +949,7 @@ declare global {
 
       'wa-zoomable-frame': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+          class?: string;
           src?: string;
           srcdoc?: string;
           zoom?: number;
@@ -752,79 +960,6 @@ declare global {
           'without-interaction'?: boolean;
           sandbox?: string;
           referrerpolicy?: string;
-        },
-        HTMLElement
-      >;
-
-      'wa-callout': DetailedHTMLProps<
-        HTMLAttributes<HTMLElement> & {
-          appearance?:
-            | 'accent'
-            | 'filled'
-            | 'outlined'
-            | 'plain'
-            | 'filled-outlined';
-          size?: 'small' | 'medium' | 'large';
-          variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
-        },
-        HTMLElement
-      >;
-
-      'wa-page': DetailedHTMLProps<
-        HTMLAttributes<HTMLElement> & {
-          'disable-navigation-toggle'?: boolean;
-          'mobile-breakpoint'?: string;
-          'navigation-placement'?: 'start' | 'end';
-          'nav-open'?: boolean;
-          view?: 'mobile' | 'desktop';
-        },
-        HTMLElement
-      >;
-
-      'wa-file-input': DetailedHTMLProps<
-        HTMLAttributes<HTMLElement> & {
-          label?: string;
-          hint?: string;
-          accept?: string;
-          multiple?: boolean;
-          disabled?: boolean;
-          required?: boolean;
-          size?: 'small' | 'medium' | 'large';
-          appearance?: 'filled' | 'outlined' | 'filled-outlined';
-          'max-file-size'?: number;
-          'max-files'?: number;
-        },
-        HTMLElement
-      >;
-
-      'wa-number-input': DetailedHTMLProps<
-        HTMLAttributes<HTMLElement> & {
-          label?: string;
-          hint?: string;
-          value?: number;
-          min?: number;
-          max?: number;
-          step?: number;
-          disabled?: boolean;
-          required?: boolean;
-          placeholder?: string;
-          size?: 'small' | 'medium' | 'large';
-          appearance?: 'filled' | 'outlined' | 'filled-outlined';
-          'no-spin-buttons'?: boolean;
-        },
-        HTMLElement
-      >;
-
-      'wa-sparkline': DetailedHTMLProps<
-        HTMLAttributes<HTMLElement> & {
-          data?: string;
-          type?: 'line' | 'bar' | 'area';
-          width?: number;
-          height?: number;
-          color?: string;
-          'fill-color'?: string;
-          'line-width'?: number;
-          'show-tooltip'?: boolean;
         },
         HTMLElement
       >;

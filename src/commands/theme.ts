@@ -110,7 +110,24 @@ async function themeAction(themeName?: string) {
   }
 }
 
-export const themeCommand = new Command('theme')
-  .description('Change the Web Awesome theme')
+export const themeCommand = new Command('theme').description(
+  'Manage Web Awesome themes'
+);
+
+// Default action: select/set a built-in theme
+themeCommand
+  .command('set', { isDefault: true })
+  .description('Set a built-in theme')
   .argument('[name]', 'Theme name (omit to see options)')
   .action(themeAction);
+
+// Install a community theme from a remote registry
+themeCommand
+  .command('install')
+  .description('Install a theme from a community registry')
+  .argument('<name>', 'Theme name in the registry')
+  .requiredOption('--from <source>', 'Registry URL or connected name')
+  .action(async (name: string, options: { from: string }) => {
+    const { themeInstallAction } = await import('./theme/install.js');
+    await themeInstallAction(name, options);
+  });

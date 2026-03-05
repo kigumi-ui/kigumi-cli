@@ -4,9 +4,26 @@
   "outputDirectory": "dist",
   "installCommand": "cd .. && node scripts/setup-npmrc.mjs && cd docs && pnpm install",
   "framework": "vite",
+  "headers": [
+    {
+      "source": "/.well-known/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Content-Type", "value": "application/json" }
+      ]
+    }
+  ],
   "rewrites": [
     {
-      "source": "/((?!skills|.well-known|assets|favicon).*)",
+      "source": "/.well-known/:path*",
+      "destination": "/.well-known/:path*"
+    },
+    {
+      "source": "/skills/:path*",
+      "destination": "/skills/:path*"
+    },
+    {
+      "source": "/((?!assets|favicon|llms\\.txt).*)",
       "destination": "/index.html"
     }
   ]

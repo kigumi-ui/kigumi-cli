@@ -1,0 +1,137 @@
+/**
+ * Registry Add Source Command
+ *
+ * Adds a community registry URL to the project config.
+ */
+
+import pc from 'picocolors';
+import { getOutput } from '../../output/index.js';
+import {
+  CheckRunner,
+  ConfigExistsCheck,
+  ConfigValidCheck,
+} from '../../checks/index.js';
+import {
+  handleError,
+  PreFlightCheckError,
+  FrameworkMismatchError,
+  CommunityRegistryNotFoundError,
+} from '../../errors/index.js';
+import { loadConfig, saveConfig, getConfig } from '../../utils/config.js';
+import {
+  parseGitHubUrl,
+  fetchRegistryJson,
+} from '../../utils/github-fetcher.js';
+import { getGitHubToken } from '../../utils/github-token.js';
+import type { KigumiConfig } from '../../schemas/config.js';
+
+interface AddSourceOptions {
+  cwd?: string;
+}
+
+export async function registryConnectAction(
+  url: string,
+  options?: AddSourceOptions
+) {
+  const output = getOutput();
+  output.intro('kigumi registry connect');
+
+  const cwd = options?.cwd || process.cwd();
+
+  try {
+    // 1. Load config
+    let config: KigumiConfig | undefined;
+    try {
+      loadConfig(cwd);
+      config = getConfig(cwd);
+    } catch {
+      // Will be caught by checks
+    }
+
+    // 2. Pre-flight checks
+    const checker = new CheckRunner()
+      .add(new ConfigExistsCheck())
+      .add(new ConfigValidCheck());
+
+    const checkResults = await checker.run({ cwd, config });
+    if (checker.hasErrors(checkResults)) {
+      throw new PreFlightCheckError(checkResults);
+    }
+
+    if (!config) {
+      throw new Error('Configuration not loaded despite passing checks');
+    }
+
+    // 3. Parse and validate URL
+    const spinner = output.spinner('Verifying registry...');
+    const source = parseGitHubUrl(url);
+
+    // Attach token if available
+    const token = await getGitHubToken();
+    if (token) {
+      source.token = token;
+    }
+
+    // 4. Check if already added
+    const registries = config.registries || [];
+    if (registries.some((r) => r.url === source.url)) {
+      spinner.stop(`Registry already configured: ${source.url}`);
+      output.outro('No changes made');
+      return;
+    }
+
+    // 5. Fetch and validate registry.json
+    let registry;
+    try {
+      registry = await fetchRegistryJson(source);
+    } catch (cause) {
+      spinner.error('Failed to fetch registry');
+      throw new CommunityRegistryNotFoundError(
+        source.url,
+        cause instanceof Error ? cause : undefined
+      );
+    }
+
+    // 6. Check framework compatibility
+    if (!registry.frameworks.includes(config.framework)) {
+      spinner.error('Framework mismatch');
+      throw new FrameworkMismatchError(
+        registry.name,
+        registry.frameworks,
+        config.framework
+      );
+    }
+
+    // 7. Add to config
+    config.registries = [
+      ...registries,
+      { url: source.url, name: registry.name },
+    ];
+    await saveConfig(config, cwd);
+
+    spinner.stop('Registry verified');
+
+    const componentCount = Object.keys(registry.components).length;
+    const themeCount = Object.keys(registry.themes).length;
+
+    output.note(
+      `${registry.name}`,
+      [
+        `${componentCount} component(s), ${themeCount} theme(s)`,
+        registry.description || '',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    );
+
+    output.outro(
+      `${pc.green('✓')} Connected registry "${registry.name}"\n` +
+        pc.dim(
+          `Use: kigumi add --from ${registry.name} <component>\n` +
+            `     kigumi theme install <theme> --from ${registry.name}`
+        )
+    );
+  } catch (error) {
+    handleError(error, output);
+  }
+}

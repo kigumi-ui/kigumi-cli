@@ -14,7 +14,8 @@ tests/
 │   ├── project-config.test.ts
 │   ├── test-detection.test.ts
 │   ├── type-installation.test.ts
-│   └── edge-cases.test.ts
+│   ├── edge-cases.test.ts
+│   └── community-registry.test.ts  # Registry schema, URL parsing, deps
 ├── e2e/                     # Full CLI integration
 │   └── smoke.test.ts        # End-to-end workflows
 └── .tmp-react-*/            # Temporary test projects (gitignored)
@@ -56,6 +57,9 @@ describe('detectTier', () => {
 - Zod schema validation
 - Tier detection logic
 - Config parsing
+- Community registry schema validation
+- GitHub URL parsing
+- Dependency resolution (topological sort, circular detection)
 
 ### E2E Tests (`tests/e2e/`)
 

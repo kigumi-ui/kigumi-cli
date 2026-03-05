@@ -40,6 +40,8 @@ export const addOptionsSchema = z.object({
   tests: z.boolean().optional().default(false),
   yes: z.boolean().optional(), // Non-interactive mode
   cwd: z.string().optional(),
+  /** Community registry URL to install from */
+  from: z.string().optional(),
 });
 
 export type AddOptions = z.infer<typeof addOptionsSchema>;
