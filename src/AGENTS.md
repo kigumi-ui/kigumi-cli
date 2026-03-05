@@ -11,7 +11,24 @@ src/
 ├── commands/             # CLI command handlers
 │   ├── init/             # Project initialization
 │   ├── add/              # Component installation
-│   ├── theme.ts          # Theme switching
+│   │   ├── index.ts              # Main add logic (built-in + remote branching)
+│   │   ├── validator.ts          # Validate component exists, tier access
+│   │   ├── component-selector.ts # Interactive component picker (built-in)
+│   │   ├── installer.ts          # Copy templates, run transforms
+│   │   ├── remote-installer.ts   # Download + install from GitHub (no Handlebars)
+│   │   └── remote-component-selector.ts  # Interactive picker (community)
+│   ├── theme.ts          # Theme command group (set + install)
+│   ├── theme/
+│   │   └── install.ts    # Install community themes from registry
+│   ├── registry.ts       # Registry command group
+│   ├── registry/         # Community registry management
+│   │   ├── init.ts       # Scaffold new registry
+│   │   ├── validate.ts   # Validate registry.json
+│   │   ├── add-source.ts # Connect registry URL to config (registry connect)
+│   │   ├── list-sources.ts # List connected registries
+│   │   ├── remove-source.ts # Remove registry from config
+│   │   ├── add-component.ts # Add component entry to registry.json
+│   │   └── add-theme.ts  # Add theme entry to registry.json
 │   ├── status.ts         # Project status
 │   └── ...
 ├── utils/                # Business logic
@@ -20,10 +37,20 @@ src/
 │   ├── tier-restrictions.ts
 │   ├── config.ts         # kigumi.config.json handling
 │   ├── template.ts       # Handlebars rendering
-│   ├── regenerate.ts     # Auto-generate webawesome.ts (theme imports), theme.css (custom CSS template)
-│   └── json.ts           # JSON with comments support
+│   ├── regenerate.ts     # Auto-generate webawesome.ts, theme.css
+│   ├── json.ts           # JSON with comments support
+│   ├── github-fetcher.ts # GitHub URL parsing + raw content fetch
+│   ├── registry-cache.ts # Disk cache for registry data (~/.kigumi/cache)
+│   ├── github-token.ts   # GitHub PAT resolution chain
+│   └── registry-resolver.ts # Resolve --from value (URL or saved name)
 ├── schemas/              # Zod validation schemas
+│   ├── config.ts         # KigumiConfig schema
+│   ├── options.ts        # Command options schemas
+│   ├── community-registry.ts  # Community registry.json schema
+│   └── ...
 ├── errors/               # Typed error classes
+│   ├── community-registry.ts  # Registry-specific errors
+│   └── ...
 ├── output/               # Console formatting (@clack/prompts)
 ├── frameworks/           # Framework adapters (React, Vue, Svelte)
 └── checks/               # Pre-flight validation
@@ -93,6 +120,8 @@ npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken TOKEN
 
 Loads/saves `kigumi.config.json`. **Never stores tier** - always detected.
 
+**Important:** Import `KigumiConfig` type from `src/schemas/config.ts` (Zod-inferred, complete), NOT from `src/utils/config.ts` (old interface, missing `installedThemes` etc.).
+
 ```typescript
 interface KigumiConfig {
   framework: 'react' | 'vue' | 'svelte';
@@ -108,6 +137,25 @@ interface KigumiConfig {
     version: string;
     // NO tier field
   };
+  // Community registry fields (all optional, backward-compatible)
+  registries?: Array<{ url: string; name?: string }>;
+  installedComponents?: Record<
+    string,
+    {
+      source: 'builtin' | 'community';
+      registryUrl?: string;
+      registryVersion?: string;
+      installedAt?: string;
+    }
+  >;
+  installedThemes?: Record<
+    string,
+    {
+      source: 'builtin' | 'community';
+      registryUrl?: string;
+      registryVersion?: string;
+    }
+  >;
 }
 ```
 
@@ -168,18 +216,57 @@ if (previousTier !== newTier) {
 
 ### `commands/add/`
 
-| File                    | Responsibility                         |
-| ----------------------- | -------------------------------------- |
-| `index.ts`              | Main add logic, webawesome.ts updates  |
-| `validator.ts`          | Validate component exists, tier access |
-| `component-selector.ts` | Interactive component picker           |
-| `installer.ts`          | Copy templates, run transforms         |
+| File                           | Responsibility                                       |
+| ------------------------------ | ---------------------------------------------------- |
+| `index.ts`                     | Orchestration (branches on `--from` for remote flow) |
+| `validator.ts`                 | Validate component exists, tier access               |
+| `component-selector.ts`        | Interactive component picker (built-in registry)     |
+| `installer.ts`                 | Copy templates, run transforms (Handlebars)          |
+| `remote-installer.ts`          | Download + install from GitHub (no Handlebars)       |
+| `remote-component-selector.ts` | Interactive picker (community registry)              |
+
+**Built-in flow:** Uses Handlebars templates + `ComponentInstaller`.
+**Remote flow (`--from`):** Downloads pre-rendered files via `RemoteComponentInstaller`, resolves internal dependencies (topological sort), tracks provenance in `config.installedComponents`.
 
 **Auto-import:** After adding component, `updateWebAwesomeImports()` adds:
 
 ```typescript
 import '@awesome.me/webawesome/dist/components/{name}/{name}.js';
 ```
+
+### `commands/registry/`
+
+Community registry management:
+
+| File               | Responsibility                                      |
+| ------------------ | --------------------------------------------------- |
+| `init.ts`          | Scaffold new registry (registry.json + dirs)        |
+| `validate.ts`      | 6-check validation of registry.json                 |
+| `add-source.ts`    | Connect registry URL to config (`registry connect`) |
+| `list-sources.ts`  | List connected registries                           |
+| `remove-source.ts` | Remove registry from config                         |
+| `add-component.ts` | Add component entry to registry.json (for authors)  |
+| `add-theme.ts`     | Add theme entry to registry.json (for authors)      |
+
+### `utils/registry-resolver.ts` - Name-based Registry Lookup
+
+Resolves `--from` value to a GitHub URL. Accepts either a full URL or a saved registry name from `config.registries`.
+
+```typescript
+// URL passthrough: contains '/' or '.'
+resolveRegistrySource('https://github.com/user/reg', config); // → URL as-is
+
+// Name lookup: plain string → search config.registries by name
+resolveRegistrySource('mischa-dev', config); // → matched registry URL
+```
+
+Used by `commands/add/index.ts` and `commands/theme/install.ts`.
+
+### `commands/theme/`
+
+| File         | Responsibility                                   |
+| ------------ | ------------------------------------------------ |
+| `install.ts` | Install community theme from registry (`--from`) |
 
 ---
 
@@ -204,6 +291,16 @@ try {
   throw error;
 }
 ```
+
+**Community registry errors** (`src/errors/community-registry.ts`):
+
+| Error Class                       | When Thrown                               |
+| --------------------------------- | ----------------------------------------- |
+| `CommunityRegistryNotFoundError`  | Repo or registry.json not found           |
+| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed    |
+| `CommunityComponentNotFoundError` | Component key not in registry             |
+| `FrameworkMismatchError`          | Registry doesn't support user's framework |
+| `CircularDependencyError`         | Dependency cycle detected in resolution   |
 
 ---
 

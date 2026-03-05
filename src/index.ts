@@ -13,6 +13,7 @@ import { themeCommand } from './commands/theme.js';
 import { brandCommand } from './commands/brand.js';
 import { paletteCommand } from './commands/palette.js';
 import { doctorCommand } from './commands/doctor.js';
+import { registryCommand } from './commands/registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -50,6 +51,7 @@ program
   .argument('[components...]', 'Components to add')
   .option('--all', 'Add all available components')
   .option('--overwrite', 'Overwrite existing components')
+  .option('--from <source>', 'Registry URL or connected registry name')
   .option('--no-types', 'Skip TypeScript type definitions')
   .option('-y, --yes', 'Skip all prompts (non-interactive mode)')
   .action(addCommand);
@@ -68,6 +70,9 @@ program
 program.addCommand(themeCommand);
 program.addCommand(brandCommand);
 program.addCommand(paletteCommand);
+
+// Community registry commands
+program.addCommand(registryCommand);
 
 // Diagnostic command
 program

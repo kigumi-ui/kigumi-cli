@@ -45,6 +45,41 @@ export const webAwesomeConfigSchema = z.object({
 });
 
 /**
+ * Registry source schema (community registry reference)
+ */
+export const registrySourceSchema = z.object({
+  /** GitHub URL of the registry */
+  url: z.string().url('Must be a valid URL'),
+  /** Friendly name (auto-derived from repo if not set) */
+  name: z.string().optional(),
+});
+
+export type RegistrySource = z.infer<typeof registrySourceSchema>;
+
+/**
+ * Installed component provenance schema
+ */
+export const installedComponentSchema = z.object({
+  source: z.enum(['builtin', 'community']),
+  registryUrl: z.string().optional(),
+  registryVersion: z.string().optional(),
+  installedAt: z.string().optional(),
+});
+
+export type InstalledComponent = z.infer<typeof installedComponentSchema>;
+
+/**
+ * Installed theme provenance schema
+ */
+export const installedThemeSchema = z.object({
+  source: z.enum(['builtin', 'community']),
+  registryUrl: z.string().optional(),
+  registryVersion: z.string().optional(),
+});
+
+export type InstalledTheme = z.infer<typeof installedThemeSchema>;
+
+/**
  * Main Kigumi configuration schema
  */
 export const kigumiConfigSchema = z.object({
@@ -58,6 +93,14 @@ export const kigumiConfigSchema = z.object({
   theme: themeConfigSchema,
   aliases: z.record(z.string(), z.string()).optional(),
   webAwesome: webAwesomeConfigSchema.optional(),
+  /** Community registry sources */
+  registries: z.array(registrySourceSchema).optional(),
+  /** Provenance tracking for installed components */
+  installedComponents: z
+    .record(z.string(), installedComponentSchema)
+    .optional(),
+  /** Provenance tracking for installed themes */
+  installedThemes: z.record(z.string(), installedThemeSchema).optional(),
 });
 
 /**

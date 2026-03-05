@@ -226,6 +226,7 @@ export function generateTypeDeclaration(
 
   return `      '${component.tagName}': DetailedHTMLProps<
         HTMLAttributes<HTMLElement> & {
+      class?: string;
 ${propTypes}
         },
         HTMLElement

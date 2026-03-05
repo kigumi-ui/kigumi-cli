@@ -2,7 +2,7 @@
 
 > **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Svelte wrappers around Web Awesome components.
 
-**Version**: 0.2.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
+**Version**: 0.10.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
 
 ## Quick Start
 
@@ -21,8 +21,6 @@ node dist/index.js add button --overwrite
 
 ## Repository Structure
 
-See [CLAUDE.md](CLAUDE.md) for architecture diagrams (module dependencies, command flows, template pipeline, plugin system). Standalone `.mmd` files are in `.claude/diagrams/`.
-
 | Directory    | Purpose              | Local AGENTS.md                            |
 | ------------ | -------------------- | ------------------------------------------ |
 | `src/`       | CLI source code      | [src/AGENTS.md](src/AGENTS.md)             |
@@ -36,8 +34,13 @@ See [CLAUDE.md](CLAUDE.md) for architecture diagrams (module dependencies, comma
 | `src/index.ts` | CLI entry point (Commander routing) |
 | `src/utils/registry.ts` | Component definitions (single source of truth) |
 | `src/utils/tier.ts` | Free/Pro tier detection from `package.json` + `.env` |
+| `src/utils/registry-resolver.ts` | Resolves `--from` value (URL or saved registry name) |
 | `src/commands/init/` | Project initialization |
-| `src/commands/add.ts` | Component installation |
+| `src/commands/add/` | Component installation (built-in + community) |
+| `src/commands/registry.ts` | Community registry management (connect, list, remove) |
+| `src/commands/theme/install.ts` | Community theme installation from registry |
+| `src/utils/github-fetcher.ts` | GitHub API integration for registries |
+| `src/schemas/community-registry.ts` | Community registry schema validation |
 
 ---
 
@@ -224,17 +227,6 @@ pnpm test          # Vitest: all passing
 
 ## Architecture
 
-### Data Flow
-
-```mermaid
-flowchart LR
-    CLI[src/index.ts] --> Commands[src/commands/]
-    Commands --> Utils[src/utils/]
-    Utils --> Schemas[src/schemas/]
-    Commands --> Templates[templates/*.hbs]
-    Templates --> Output[Generated Files]
-```
-
 ### Module Boundaries
 
 | Layer    | Directory       | Responsibility                          |
@@ -246,17 +238,262 @@ flowchart LR
 | Errors   | `src/errors/`   | Typed error classes                     |
 | Output   | `src/output/`   | Console formatting (@clack/prompts)     |
 
-### Init Command Flow
+### Module Dependency Graph
+
+```mermaid
+flowchart TD
+    subgraph Entry["CLI Entry"]
+        CLI["src/index.ts\nCommander routing"]
+    end
+
+    subgraph Commands["commands/"]
+        init["init/\nconfig-builder, file-generator\nmigration, installer"]
+        add["add/\ncomponent-selector, validator\ninstaller, remote-installer"]
+        theme["theme/\nset, install"]
+        doctor["doctor.ts"]
+        brand["brand.ts"]
+        palette["palette.ts"]
+        list["list.ts"]
+        status["status.ts"]
+        registry_cmd["registry/\ninit, validate, connect\nlist, remove"]
+    end
+
+    subgraph Frameworks["frameworks/"]
+        FW_INDEX["index.ts\nFrameworkRegistry\nlazy-loaded Map"]
+        react["react/ReactPlugin"]
+        vue["vue/VuePlugin"]
+        angular["angular/AngularPlugin (stub)"]
+        svelte["svelte/SveltePlugin (stub)"]
+    end
+
+    subgraph Utils["utils/"]
+        registry["registry.ts\n62+ ComponentDefinitions\nprops, events, slots, methods"]
+        template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
+        tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
+        config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
+        css_meta["css-metadata.ts"]
+        detect_fw["detect-framework.ts\ngetProjectInfo"]
+        token_mgr["token-manager.ts"]
+        regenerate["regenerate.ts"]
+        github_fetcher["github-fetcher.ts\nURL parsing, raw fetch"]
+        github_token["github-token.ts\nPAT resolution"]
+        registry_cache["registry-cache.ts\nDisk cache with TTL"]
+        registry_resolver["registry-resolver.ts\nresolveRegistrySource()"]
+    end
+
+    subgraph Schemas["schemas/"]
+        schema_config["config.ts — Zod KigumiConfig"]
+        schema_options["options.ts — Zod command options"]
+        schema_tier["tier.ts — Zod tier types"]
+        schema_community["community-registry.ts\nZod registry schema"]
+    end
+
+    subgraph Errors["errors/"]
+        err_base["base.ts — KigumiError"]
+        err_config["config.ts"]
+        err_fs["filesystem.ts"]
+        err_net["network.ts"]
+        err_community["community-registry.ts"]
+    end
+
+    subgraph Checks["checks/"]
+        check_runner["runner.ts — CheckRunner"]
+        check_config["config-checks.ts"]
+        check_deps["dependency-checks.ts"]
+    end
+
+    subgraph Templates["templates/"]
+        tpl_react["react/ — 62 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
+        tpl_vue["vue/ — 62 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
+    end
+
+    CLI --> Commands
+    init --> FW_INDEX
+    init --> config
+    init --> tier
+    init --> template
+    init --> detect_fw
+    add --> FW_INDEX
+    add --> registry
+    add --> tier
+    add --> template
+    add --> check_runner
+    add --> github_fetcher
+    add --> schema_community
+    add --> registry_resolver
+    theme --> config
+    theme --> registry_resolver
+    registry_cmd --> config
+    registry_cmd --> github_fetcher
+    doctor --> config
+    doctor --> tier
+
+    FW_INDEX --> react & vue & angular & svelte
+    react --> template
+    vue --> template
+    template --> tpl_react & tpl_vue
+    template --> registry
+    template --> css_meta
+
+    github_fetcher --> github_token
+    github_fetcher --> registry_cache
+
+    config --> schema_config
+    add --> schema_options
+    tier --> schema_tier
+    check_runner --> check_config & check_deps
+    Commands --> Errors
+```
+
+### Command Flows
 
 ```mermaid
 sequenceDiagram
-    User->>CLI: kigumi init
-    CLI->>Validator: Pre-flight checks
-    CLI->>ConfigBuilder: Build config + detect tier
-    CLI->>Migration: Handle tier changes
-    CLI->>FileGenerator: Generate webawesome.ts, theme.css
-    CLI->>Installer: npm/pnpm install
-    CLI-->>User: Success
+    participant User
+    participant CLI as index.ts
+    participant Checks as checks/runner
+    participant Config as utils/config
+    participant Tier as utils/tier
+    participant FW as frameworks/index
+    participant Reg as utils/registry
+    participant Tpl as utils/template
+    participant FS as File System
+
+    Note over User,FS: === kigumi init ===
+    User->>CLI: kigumi init [options]
+    CLI->>Checks: PackageJsonExistsCheck
+    Checks-->>CLI: pass/fail
+    CLI->>FW: detectFramework(cwd) — parallel, highest confidence
+    FW-->>CLI: FrameworkPlugin
+    CLI->>Tier: detectTier(cwd) — reads .env + package.json
+    Tier-->>CLI: free | pro
+    CLI->>Config: buildConfig (framework + tier + theme + palette)
+    CLI->>Config: saveConfig → kigumi.config.json
+    CLI->>Tpl: generateProjectFiles (webawesome.ts, layers.css, theme.css)
+    Tpl->>FS: write setup files
+    CLI->>FW: installDependencies(cwd, pm, deps)
+    FW->>FS: execa(pnpm/npm/yarn install)
+    CLI-->>User: Success + next steps
+
+    Note over User,FS: === kigumi add button ===
+    User->>CLI: kigumi add button [--overwrite]
+    CLI->>Checks: ConfigExistsCheck + ConfigValidCheck
+    Checks-->>CLI: pass/fail
+    CLI->>Config: loadConfig(cwd) → KigumiConfig
+    CLI->>Tier: detectTier(cwd)
+    Tier-->>CLI: free | pro
+    CLI->>Reg: getComponent("button") → ComponentDefinition
+    Reg-->>CLI: { name, tagName, props, events, slots, importPath, tier }
+    CLI->>FW: plugin.generateComponent(cwd, config, component, options)
+    FW->>Tpl: renderTemplate(hbs path, context)
+    Tpl->>Tpl: getCompiledTemplate (cached) → Handlebars.compile
+    Tpl->>FS: read .hbs from templates/{framework}/{Component}/
+    Tpl-->>FW: rendered string
+    FW-->>CLI: GeneratedFile[]
+    CLI->>FS: write .tsx/.vue + .test + .css
+    CLI->>Tpl: updateTypeDeclarations (React only)
+    CLI->>Tpl: updateComponentIndex (barrel export)
+    CLI-->>User: Added 1 component(s)
+
+    Note over User,FS: === kigumi add --from <name> ===
+    User->>CLI: kigumi add comp --from mischa-dev
+    CLI->>Checks: ConfigExistsCheck + ConfigValidCheck
+    Checks-->>CLI: pass/fail
+    CLI->>Config: loadConfig(cwd) → KigumiConfig
+    CLI->>CLI: resolveRegistrySource(name, config) → URL
+    CLI->>FS: fetchRegistryJson(source) via GitHub Raw API
+    FS-->>CLI: CommunityRegistry
+    CLI->>CLI: selectRemoteComponents (interactive)
+    CLI->>CLI: resolveDependencies (topological sort)
+    CLI->>FS: fetchFile + write (no Handlebars)
+    CLI->>Config: update installedComponents provenance
+    CLI-->>User: Added N component(s) from registry
+```
+
+### Template Pipeline
+
+```mermaid
+flowchart LR
+    subgraph Input
+        HBS["templates/{framework}/{Component}/\n{Component}.tsx.hbs"]
+        REG["registry.ts\nComponentDefinition\nname, tagName, props,\nevents, slots, methods"]
+        CFG["KigumiConfig\nframework, tier, typescript"]
+    end
+
+    subgraph TierResolution["Import Path Resolution"]
+        DETECT["detectTierSync(cwd)\nreads .env + package.json"]
+        PKG["getWebAwesomePackage(tier)\nfree → @awesome.me/webawesome\npro → @awesome.me/webawesome-pro"]
+        REPLACE["importPath.replace(\npackageName pattern,\ncorrect package)"]
+    end
+
+    subgraph Processing
+        CTX["buildTemplateContext()\n→ { name, tagName,\ndescription, importPath, props }"]
+        CACHE["templateCache Map\nkey: absolute path\nvalue: compiled template"]
+        COMPILE["Handlebars.compile()\ncached via getCompiledTemplate()"]
+        RENDER["template(context)\n→ rendered string"]
+    end
+
+    subgraph Helpers["Handlebars Helpers"]
+        QP["quoteProp\nhyphenated → 'prop-name'\nnormal → propName"]
+    end
+
+    subgraph Output
+        COMP[".tsx / .jsx / .vue / .js.vue"]
+        TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
+        CSS[".css — from css-metadata.ts\nor component-specific .css.hbs"]
+        TYPES["web-awesome.d.ts\nupdateTypeDeclarations\n(React + TS only, includes class?)"]
+        INDEX["index.ts barrel export\nupdateComponentIndex"]
+    end
+
+    REG --> CTX
+    CFG --> TierResolution
+    DETECT --> PKG --> REPLACE
+    REPLACE --> CTX
+    CTX --> RENDER
+    HBS --> COMPILE --> RENDER
+    Helpers -.-> COMPILE
+    COMPILE --> CACHE
+    RENDER --> COMP & TEST & CSS
+    COMP --> TYPES & INDEX
+```
+
+### Framework Plugin System
+
+```mermaid
+flowchart TB
+    subgraph Interface["FrameworkPlugin Interface (frameworks/types.ts)"]
+        detect["detect(cwd) → DetectionResult\n{ detected, confidence, version }"]
+        generate["generateComponent(cwd, config, component, opts)\n→ GeneratedFile[]"]
+        setup["generateSetupFiles(cwd, config)\n→ GeneratedFile[]"]
+        install["installDependencies(cwd, pm, deps)"]
+        validate["validateConfig(config) → ValidationResult"]
+    end
+
+    subgraph Registry["FrameworkRegistry (frameworks/index.ts)"]
+        MAP["FRAMEWORK_PLUGINS\nMap<string, () => Promise<Plugin>>\nlazy-loaded via dynamic import()"]
+        getPlugin["getPlugin(name)"]
+        detectFW["detectFramework(cwd)\nparallel detection\nhighest confidence wins"]
+        supported["getSupportedFrameworks()\nisSupported(name)"]
+    end
+
+    subgraph Plugins["Plugin Implementations"]
+        R["ReactPlugin\ndetects: react in package.json\ngenerates: .tsx/.jsx + .test + .css\nsetup: webawesome.ts, vite-env.d.ts"]
+        V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: webawesome.ts, shims-vue.d.ts"]
+        A["AngularPlugin\ndetects: @angular/core\nSTUB — not fully implemented"]
+        S["SveltePlugin\ndetects: svelte\nSTUB — not fully implemented"]
+    end
+
+    subgraph Detection["Detection Confidence Levels"]
+        HIGH["HIGH: framework in dependencies"]
+        MED["MEDIUM: framework config files found"]
+        LOW["LOW: framework-like file patterns"]
+    end
+
+    MAP -->|"lazy import()"| R & V & A & S
+    R & V & A & S -.->|"implements"| Interface
+    getPlugin --> MAP
+    detectFW --> MAP
+    detectFW -.-> Detection
 ```
 
 ---
@@ -291,25 +528,30 @@ sequenceDiagram
 9. **Manually editing `layers.css` or `webawesome.ts`** (auto-generated - use `kigumi theme` commands)
 10. **Adding Web Awesome imports to `theme.css`** (all imports handled in `layers.css`)
 11. Making assumptions - ask for help if unsure
+12. **Manually editing community registry files** instead of using `kigumi registry` commands
+13. **Importing `KigumiConfig` from `utils/config.ts`** (old interface, incomplete) — use `schemas/config.ts` (Zod-inferred, has `registries`, `installedThemes`, etc.)
 
 ---
 
 ## Auto-Generated Files
 
-| File                    | Purpose                                                  | Regenerated When             | User-Editable      |
-| ----------------------- | -------------------------------------------------------- | ---------------------------- | ------------------ |
-| `src/lib/webawesome.ts` | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands | ❌ No              |
-| `src/styles/layers.css` | Wraps Web Awesome CSS in cascade layers                  | Theme/brand/palette commands | ❌ No              |
-| `src/styles/theme.css`  | User custom CSS overrides                                | Only on init (if missing)    | ✅ Yes - preserved |
-| `src/vite-env.d.ts`     | TypeScript declarations for wa-\* elements               | Only on init                 | ❌ No              |
-| `.npmrc` (user project) | Registry URL only (no token)                             | Only on init                 | ❌ No              |
-| `docs/.npmrc`           | Registry + token (gitignored)                            | `pnpm run setup:npmrc`       | ❌ No              |
+| File                                | Purpose                                                  | Regenerated When              | User-Editable      |
+| ----------------------------------- | -------------------------------------------------------- | ----------------------------- | ------------------ |
+| `src/lib/webawesome.ts`             | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands  | ❌ No              |
+| `src/styles/layers.css`             | Wraps Web Awesome CSS in cascade layers                  | Theme/brand/palette commands  | ❌ No              |
+| `src/styles/theme.css`              | User custom CSS overrides                                | Only on init (if missing)     | ✅ Yes - preserved |
+| `src/types/web-awesome.d.ts`        | TypeScript declarations for wa-\* elements (incl. class) | `kigumi add` (React + TS)     | ❌ No              |
+| `src/styles/community-themes/*.css` | Downloaded community theme CSS                           | `kigumi theme install --from` | ❌ No              |
+| `.npmrc` (user project)             | Registry URL only (no token)                             | Only on init                  | ❌ No              |
+| `docs/.npmrc`                       | Registry + token (gitignored)                            | `pnpm run setup:npmrc`        | ❌ No              |
 
 **Key Points:**
 
 - `layers.css` uses CSS `@layer` for cascade control (base < theme)
+- `layers.css` distinguishes built-in themes (from WA package) vs community themes (from `community-themes/` dir)
 - `theme.css` is preserved on re-init - existing user styles won't be overwritten
 - Theme/brand commands regenerate `webawesome.ts` + `layers.css` but preserve `theme.css`
+- Type declarations include `class?: string` on all `wa-*` elements (web components use `class`, not `className`)
 
 ---
 
@@ -652,12 +894,12 @@ gh pr checks
 
 ## Related Documentation
 
+- **Critical rules:** [CLAUDE.md](CLAUDE.md) - Always-in-context rules for Claude Code
 - **Templates:** [templates/AGENTS.md](templates/AGENTS.md) - Component generation patterns
 - **Source:** [src/AGENTS.md](src/AGENTS.md) - Code architecture details
 - **Tests:** [tests/AGENTS.md](tests/AGENTS.md) - Testing guidelines
-- **Cursor Skills:** [.cursor/SKILLS.md](.cursor/SKILLS.md) - Automated component generation
-- **Changelog:** Generated via changesets (coming soon)
+- **Kigumi Studio:** [docs/src/kigumi-studio/AGENTS.md](docs/src/kigumi-studio/AGENTS.md) - Visual theme builder
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-02-22
+**Maintained by:** AI Assistants | **Last Updated:** 2026-03-05

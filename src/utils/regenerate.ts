@@ -17,7 +17,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
-import type { KigumiConfig } from './config.js';
+import type { KigumiConfig } from '../schemas/config.js';
 import type { Tier } from './tier.js';
 import { detectTierSync, getWebAwesomePackage } from './tier.js';
 
@@ -61,10 +61,13 @@ export async function regenerateWebAwesomeSetup(
     layersPreserved = true;
   } else {
     // Generate layers.css
+    const isCommunityTheme =
+      config.installedThemes?.[config.theme.selected]?.source === 'community';
     const layersContent = await generateLayersCSS(
       packageName,
       config.theme.selected,
-      stylesDir
+      stylesDir,
+      isCommunityTheme
     );
     await fs.writeFile(layersPath, layersContent);
   }
@@ -138,9 +141,15 @@ if (typeof document !== 'undefined') {
 export async function generateLayersCSS(
   packageName: string,
   themeName: string,
-  stylesDir: string
+  stylesDir: string,
+  isCommunityTheme = false
 ): Promise<string> {
   const stylesAlias = stylesDir.replace(/^src\//, '@/');
+
+  // Community themes are stored locally; built-in themes come from the WA package
+  const themeImport = isCommunityTheme
+    ? `${stylesAlias}/community-themes/${themeName}.css`
+    : `${packageName}/dist/styles/themes/${themeName}.css`;
 
   return `/**
  * Web Awesome CSS Cascade Layers
@@ -162,7 +171,7 @@ export async function generateLayersCSS(
 @import '${packageName}/dist/styles/webawesome.css' layer(base);
 
 /* Layer 1: Web Awesome theme styles */
-@import '${packageName}/dist/styles/themes/${themeName}.css' layer(base);
+@import '${themeImport}' layer(base);
 
 /* Layer 2: Your custom CSS overrides */
 @import '${stylesAlias}/theme.css' layer(theme);

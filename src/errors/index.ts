@@ -76,6 +76,15 @@ export {
   RegistryError,
 } from './network.js';
 
+// Community registry errors
+export {
+  CommunityRegistryNotFoundError,
+  CommunityRegistryInvalidError,
+  CommunityComponentNotFoundError,
+  FrameworkMismatchError,
+  CircularDependencyError,
+} from './community-registry.js';
+
 // Pre-flight check errors
 export {
   PreFlightCheckError,

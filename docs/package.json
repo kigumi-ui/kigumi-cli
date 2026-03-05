@@ -8,7 +8,7 @@
   "scripts": {
     "setup:npmrc": "node ../scripts/setup-npmrc.mjs",
     "dev": "vite",
-    "prebuild": "mkdir -p public/.well-known/skills && cp -r ../skills public/ && cp -r ../skills/kigumi-react public/.well-known/skills/ && cp -r ../skills/kigumi-theme public/.well-known/skills/ && cp ../llms.txt public/",
+    "prebuild": "mkdir -p public/.well-known/skills && cp -r ../skills public/ && cp -r ../skills/kigumi-react public/.well-known/skills/ && cp -r ../skills/kigumi-theme public/.well-known/skills/ && node ../scripts/generate-skills-index.mjs && cp ../llms.txt public/",
     "build": "tsc -b && vite build",
     "chromatic": "chromatic --project-token=chpt_4e3397305b8d707",
     "lint": "eslint .",

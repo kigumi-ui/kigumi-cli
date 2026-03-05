@@ -80,9 +80,11 @@ export WEBAWESOME_NPM_TOKEN=your_token
 Add components to your project:
 
 ```bash
-npx kigumi add <components> # Add specific components (e.g., button input card)
-npx kigumi add              # Interactive component selector
-npx kigumi add --all        # Add all 80+ components at once
+npx kigumi add <components>              # Add specific components (e.g., button input card)
+npx kigumi add                           # Interactive component selector
+npx kigumi add --all                     # Add all available components at once
+npx kigumi add --from <url>              # Install from a community registry
+npx kigumi add <comp> --from <url>       # Install specific component from community registry
 ```
 
 ### `theme`
@@ -90,9 +92,10 @@ npx kigumi add --all        # Add all 80+ components at once
 Change [theme](https://webawesome.com/docs/themes), [palette](https://webawesome.com/docs/color-palettes), or brand color:
 
 ```bash
-npx kigumi theme [name]    # Change theme (shows selector if name omitted)
-npx kigumi palette [name]  # Change color palette
-npx kigumi brand [color]   # Change brand color
+npx kigumi theme [name]                      # Change theme (shows selector if name omitted)
+npx kigumi theme install <name> --from <url>  # Install a community theme
+npx kigumi palette [name]                     # Change color palette
+npx kigumi brand [color]                      # Change brand color
 ```
 
 ### `doctor`
@@ -106,12 +109,163 @@ npx kigumi doctor --dry-run # Report issues without fixing
 
 The doctor command automatically detects your tier (Free/Pro) and ensures all component imports use the correct package. Useful when upgrading from Free to Pro or encountering import errors.
 
+### `registry`
+
+Manage community component and theme registries:
+
+```bash
+npx kigumi registry init           # Scaffold a new community registry
+npx kigumi registry validate       # Validate your registry.json
+npx kigumi registry connect <url>  # Connect a community registry to your project
+npx kigumi registry list           # List connected registries
+npx kigumi registry remove <url>   # Remove a registry
+```
+
+## Community Registries
+
+Share custom components and themes with others via GitHub-based registries. A community registry is a GitHub repo containing a `registry.json` file that describes available components and themes.
+
+### Install from a Registry
+
+```bash
+# Connect a registry (one-time)
+npx kigumi registry connect https://github.com/user/my-registry
+
+# Then install using the registry name
+npx kigumi add button --from my-registry
+npx kigumi theme install my-theme --from my-registry
+
+# Full URLs also work directly
+npx kigumi add button --from https://github.com/user/my-registry
+```
+
+Private GitHub repos are supported via `GITHUB_TOKEN` or `gh auth`.
+
+### Create Your Own Registry
+
+```bash
+# 1. Scaffold the registry
+npx kigumi registry init
+```
+
+This creates the following structure:
+
+```
+my-registry/
+├── registry.json          # Registry metadata (components + themes)
+├── components/
+│   └── react/             # One directory per framework
+└── themes/
+```
+
+### Add a Theme
+
+Place your theme CSS in `themes/` and register it:
+
+```bash
+# Create the theme file
+mkdir -p themes/my-theme
+# Add your CSS with Web Awesome custom properties (:root, .wa-dark)
+
+# Register it in registry.json
+npx kigumi registry add-theme
+# Prompts for: slug, name, description, CSS file path
+```
+
+A theme CSS file uses Web Awesome design tokens as CSS custom properties:
+
+```css
+:root {
+  --wa-color-brand: #6200ee;
+  --wa-font-family-heading: 'Space Grotesk', sans-serif;
+  --wa-border-radius-scale: 0;
+}
+.wa-dark {
+  --wa-color-brand: #bb86fc;
+  --wa-color-surface-default: #1e1e1e;
+}
+```
+
+### Add Components
+
+Place your component files in `components/{framework}/` and register them:
+
+```bash
+# Create the component
+mkdir -p components/react/MyButton
+# Add MyButton.tsx and MyButton.css
+
+# Register it in registry.json
+npx kigumi registry add-component
+# Prompts for: slug, name, description, category, file paths, dependencies
+```
+
+Components are pre-rendered files (`.tsx`, `.vue`, etc.) that get copied as-is into the consumer's project. They can use theme CSS variables — consumers install both the theme and components.
+
+### Validate and Publish
+
+```bash
+npx kigumi registry validate  # 6-check validation (schema, files, deps, extensions)
+git push                       # Push to GitHub — done!
+```
+
+### registry.json Reference
+
+```json
+{
+  "name": "my-registry",
+  "version": "1.0.0",
+  "frameworks": ["react"],
+  "components": {
+    "button": {
+      "name": "Button",
+      "description": "Custom button",
+      "category": "Actions",
+      "dependencies": [],
+      "files": {
+        "react": {
+          "component": "components/react/Button/Button.tsx",
+          "css": "components/react/Button/Button.css",
+          "test": "components/react/Button/Button.test.tsx",
+          "extras": []
+        }
+      }
+    }
+  },
+  "themes": {
+    "my-theme": {
+      "name": "My Theme",
+      "description": "A custom theme",
+      "files": {
+        "css": "themes/my-theme/theme.css",
+        "variables": "themes/my-theme/variables.css"
+      },
+      "extends": "default"
+    }
+  }
+}
+```
+
+| Field                                  | Required | Description                                |
+| -------------------------------------- | -------- | ------------------------------------------ |
+| `name`                                 | Yes      | Registry name                              |
+| `version`                              | Yes      | Semver version (e.g. `1.0.0`)              |
+| `frameworks`                           | Yes      | Array: `react`, `vue`, `svelte`, `angular` |
+| `components[slug].files[fw].component` | Yes      | Main component file path                   |
+| `components[slug].files[fw].css`       | No       | CSS file path                              |
+| `components[slug].files[fw].test`      | No       | Test file path                             |
+| `components[slug].files[fw].extras`    | No       | Additional files (hooks, utils)            |
+| `components[slug].dependencies`        | No       | Other component slugs in this registry     |
+| `themes[slug].files.css`               | Yes      | Main theme CSS file                        |
+| `themes[slug].files.variables`         | No       | CSS variables file                         |
+| `themes[slug].extends`                 | No       | Built-in theme to extend                   |
+
 ## Agent Skills
 
 Kigumi provides AI agent skills for transforming Web Awesome HTML to Kigumi components and for working with design tokens.
 
 ```bash
-npx skills add https://kigumi.style/skills
+npx skills add https://kigumi.style
 ```
 
 ## Utility Classes
