@@ -1,0 +1,82 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './ToastItem.css';
+
+/**
+ * A single notification banner that can be stacked inside a Toast container
+ *
+ * @example
+ * ```jsx
+ * // Basic usage inside a Toast
+ * <Toast>
+ *   <ToastItem variant="success">File saved successfully!</ToastItem>
+ * </Toast>
+ *
+ * // With icon and custom duration
+ * <ToastItem variant="danger" duration={10000}>
+ *   <wa-icon slot="icon" name="triangle-exclamation" />
+ *   Something went wrong
+ * </ToastItem>
+ * ```
+ *
+ * @typedef {Object} ToastItemProps
+ * @property {string} [variant] - Colour scheme reflecting the notification intent: brand | success | warning | danger | neutral
+ * @property {string} [size] - Overall dimensions of the notification: small | medium | large
+ * @property {number} [duration] - Milliseconds before auto-dismiss. Use 0 to keep visible.
+ * @property {function} [onShow] - Fires when the reveal transition starts
+ * @property {function} [onAfterShow] - Fires once the reveal transition has finished
+ * @property {function} [onHide] - Fires when the dismiss transition starts
+ * @property {function} [onAfterHide] - Fires once the dismiss transition has finished
+ */
+
+export const ToastItem = React.forwardRef(
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+    const toastItemRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        hide: () => toastItemRef.current?.hide?.(),
+        get element() {
+          return toastItemRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      const el = toastItemRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-toast-item
+        ref={toastItemRef}
+        class={clsx('ToastItem', className)}
+        {...props}
+      >
+        {children}
+      </wa-toast-item>
+    );
+  }
+);
+
+ToastItem.displayName = 'ToastItem';

@@ -96,6 +96,26 @@ export const CustomColors: Story = {
   ),
 };
 
+/** Uses CSS color and background-color for theme-aware styling. */
+export const CssStyling: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+      <QrCode
+        value="https://kigumi.style"
+        size={140}
+        label="CSS styled QR"
+        style={{ color: '#6366f1', backgroundColor: '#f5f3ff' }}
+      />
+      <QrCode
+        value="https://kigumi.style"
+        size={140}
+        label="Dark mode QR"
+        style={{ color: 'white', backgroundColor: '#1e1b4b' }}
+      />
+    </div>
+  ),
+};
+
 /** Increases module radius for rounded-corner QR aesthetics. */
 export const Rounded: Story = {
   args: { value: 'https://kigumi.style', size: 200, radius: 0.5 },

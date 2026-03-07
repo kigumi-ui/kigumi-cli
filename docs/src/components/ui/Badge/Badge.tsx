@@ -14,11 +14,16 @@ import './Badge.css';
  * @example
  * ```tsx
  * // Basic usage
- * <Badge />
+ * <Badge>New</Badge>
  *
- * // With event handlers
- * <Badge />
+ * // With start/end slots
+ * <Badge variant="success">
+ *   <wa-icon slot="start" name="check" />
+ *   Approved
+ * </Badge>
  *
+ * // Pill style with attention
+ * <Badge pill attention="pulse">5</Badge>
  * ```
  */
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {

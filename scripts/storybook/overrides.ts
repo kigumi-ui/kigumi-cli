@@ -109,6 +109,10 @@ export const STORY_OVERRIDES: Record<string, StoryOverride> = {
   'tree-item': {
     title: 'Components/Tree Item',
   },
+  'toast-item': {
+    title: 'Components/Toast Item',
+    childrenDefault: 'This is a notification',
+  },
   'zoomable-frame': {
     title: 'Components/Zoomable Frame',
   },

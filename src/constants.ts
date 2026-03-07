@@ -131,7 +131,7 @@ export const INSTALL_TIMEOUT_MS = 300_000;
 // =============================================================================
 
 /** Default Web Awesome package version */
-export const DEFAULT_WEBAWESOME_VERSION = '^3.2.1';
+export const DEFAULT_WEBAWESOME_VERSION = '^3.3.1';
 
 // =============================================================================
 // Community Registry

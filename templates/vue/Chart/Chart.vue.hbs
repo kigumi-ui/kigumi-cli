@@ -1,0 +1,43 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './Chart.css';
+
+/**
+ * Renders interactive data visualisations including bars, lines, pies, and more via Chart.js
+ */
+export interface ChartProps {
+  label?: string;
+  description?: string;
+  type?: 'bar' | 'line' | 'pie' | 'doughnut' | 'polarArea' | 'radar' | 'scatter' | 'bubble';
+  'x-label'?: string;
+  'y-label'?: string;
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  stacked?: boolean;
+  'index-axis'?: 'x' | 'y';
+  grid?: 'x' | 'y' | 'both' | 'none';
+  min?: number;
+  max?: number;
+  'without-animation'?: boolean;
+  'without-legend'?: boolean;
+  'without-tooltip'?: boolean;
+}
+
+const props = defineProps<ChartProps>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-chart
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-chart>
+</template>

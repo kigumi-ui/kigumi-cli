@@ -18,6 +18,7 @@ import {
   DEFAULT_CONFIG,
   type KigumiConfig,
 } from '../../src/utils/config.js';
+import { DEFAULT_WEBAWESOME_VERSION } from '../../src/constants.js';
 
 describe('config management', () => {
   let testDir: string;
@@ -242,7 +243,9 @@ describe('config management', () => {
       expect(DEFAULT_CONFIG.theme.palette).toBe('default');
       expect(DEFAULT_CONFIG.theme.brandColor).toBe('blue');
       expect(DEFAULT_CONFIG.aliases).toBeDefined();
-      expect(DEFAULT_CONFIG.webAwesome?.version).toBe('^3.2.1');
+      expect(DEFAULT_CONFIG.webAwesome?.version).toBe(
+        DEFAULT_WEBAWESOME_VERSION
+      );
     });
   });
 

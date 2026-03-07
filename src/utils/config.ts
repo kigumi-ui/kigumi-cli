@@ -14,6 +14,7 @@
 import { cosmiconfigSync } from 'cosmiconfig';
 import fs from 'fs-extra';
 import path from 'path';
+import { DEFAULT_WEBAWESOME_VERSION } from '../constants.js';
 
 /**
  * Configuration interface for kigumi projects
@@ -54,7 +55,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
     '@/styles': './src/styles',
   },
   webAwesome: {
-    version: '^3.2.1',
+    version: DEFAULT_WEBAWESOME_VERSION,
   },
 };
 

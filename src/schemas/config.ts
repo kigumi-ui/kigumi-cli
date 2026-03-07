@@ -6,6 +6,7 @@
 
 import { z } from 'zod';
 import type { ZodIssue } from 'zod';
+import { DEFAULT_WEBAWESOME_VERSION } from '../constants.js';
 
 /**
  * Supported frameworks constant - single source of truth
@@ -132,7 +133,7 @@ export const DEFAULT_CONFIG: KigumiConfig = {
     '@/styles': './src/styles',
   },
   webAwesome: {
-    version: '^3.2.1',
+    version: DEFAULT_WEBAWESOME_VERSION,
   },
 };
 

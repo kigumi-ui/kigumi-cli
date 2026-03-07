@@ -2,7 +2,7 @@
 
 > **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Svelte wrappers around Web Awesome components.
 
-**Version**: 0.10.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
+**Version**: 0.12.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
 
 ## Quick Start
 
@@ -145,7 +145,7 @@ requestClose: () => dialogRef.current?.requestClose(),
 | Free | No token in `.env`               | `@awesome.me/webawesome`     | 3 themes  |
 | Pro  | `WEBAWESOME_NPM_TOKEN` in `.env` | `@awesome.me/webawesome-pro` | 11 themes |
 
-**Pro-only components:** page, charts, combobox, data-grid, date-picker, file-input, toast, video
+**Pro-only components:** page, chart, bar-chart, line-chart, bubble-chart, doughnut-chart, pie-chart, polar-area-chart, radar-chart, scatter-chart, combobox, data-grid, date-picker, file-input, number-input, sparkline, toast, toast-item, video
 
 ### Tier Detection Logic
 
@@ -267,7 +267,7 @@ flowchart TD
     end
 
     subgraph Utils["utils/"]
-        registry["registry.ts\n62+ ComponentDefinitions\nprops, events, slots, methods"]
+        registry["registry.ts\n73+ ComponentDefinitions\nprops, events, slots, methods"]
         template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
         tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
@@ -303,8 +303,8 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 62 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
-        tpl_vue["vue/ — 62 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
+        tpl_react["react/ — 73 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
+        tpl_vue["vue/ — 73 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
     end
 
     CLI --> Commands
@@ -327,6 +327,7 @@ flowchart TD
     registry_cmd --> github_fetcher
     doctor --> config
     doctor --> tier
+    doctor --> constants
 
     FW_INDEX --> react & vue & angular & svelte
     react --> template
@@ -510,6 +511,7 @@ flowchart TB
 | Tier wrong          | `.env` has token?           | Use `detectTier()`                  |
 | Free→Pro fails      | Migration ran?              | Check `migration.ts`                |
 | Wrong import paths  | Mixed free/pro imports?     | Run `kigumi doctor`                 |
+| Stale WA version    | Config or package outdated? | Run `kigumi doctor`                 |
 | JSON parse fails    | File has comments?          | Use `readJSONWithComments()`        |
 | 401 in docs/        | `docs/.npmrc` present?      | Run `pnpm run setup:npmrc`          |
 
@@ -902,4 +904,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-03-05
+**Maintained by:** AI Assistants | **Last Updated:** 2026-03-07

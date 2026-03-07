@@ -12,6 +12,19 @@
  * To change brand color, use: kigumi brand <color>
  */
 
+// Prevent duplicate custom-element registrations when Web Awesome components
+// share internal dependencies (e.g. toast-item internally uses progress-ring)
+if (typeof customElements !== 'undefined') {
+  const _ceDefine = customElements.define.bind(customElements);
+  customElements.define = function (
+    name: string,
+    ctor: CustomElementConstructor,
+    options?: ElementDefinitionOptions
+  ) {
+    if (!customElements.get(name)) _ceDefine(name, ctor, options);
+  };
+}
+
 // Import Web Awesome CSS with cascade layers for predictable specificity control
 import '@/styles/layers.css';
 

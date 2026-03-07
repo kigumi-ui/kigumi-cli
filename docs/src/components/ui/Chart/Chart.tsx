@@ -1,0 +1,113 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/chart/chart.js';
+import './Chart.css';
+
+/**
+ * Renders interactive data visualisations including bars, lines, pies, and more via Chart.js
+ *
+ * @example
+ * ```tsx
+ * // Basic bar chart with JSON config
+ * <Chart type="bar" label="Sales">
+ *   <script type="application/json">{JSON.stringify({
+ *     data: {
+ *       labels: ['Jan', 'Feb', 'Mar'],
+ *       datasets: [{ label: 'Sales', data: [10, 20, 30] }]
+ *     }
+ *   })}</script>
+ * </Chart>
+ *
+ * // Line chart with options
+ * <Chart type="line" label="Revenue" stacked without-legend />
+ * ```
+ */
+export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** Accessible name read by screen readers */
+  label?: string;
+
+  /** Supplementary accessible description for the chart */
+  description?: string;
+
+  /** Visualisation style to use for the datasets */
+  type?:
+    | 'bar'
+    | 'line'
+    | 'pie'
+    | 'doughnut'
+    | 'polarArea'
+    | 'radar'
+    | 'scatter'
+    | 'bubble';
+
+  /** Text label shown along the horizontal axis */
+  'x-label'?: string;
+
+  /** Text label shown along the vertical axis */
+  'y-label'?: string;
+
+  /** Where the dataset legend appears around the chart area */
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+
+  /** Layers multiple datasets on a single axis */
+  stacked?: boolean;
+
+  /** Primary axis for categories (swap to create horizontal charts) */
+  'index-axis'?: 'x' | 'y';
+
+  /** Controls which background grid lines are visible */
+  grid?: 'x' | 'y' | 'both' | 'none';
+
+  /** Lower bound for the value axis scale */
+  min?: number;
+
+  /** Upper bound for the value axis scale */
+  max?: number;
+
+  /** Turns off entrance and update transitions */
+  'without-animation'?: boolean;
+
+  /** Removes the dataset legend from view */
+  'without-legend'?: boolean;
+
+  /** Suppresses hover tooltips on data points */
+  'without-tooltip'?: boolean;
+}
+
+export interface ChartRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Chart = forwardRef<ChartRef, ChartProps>(
+  ({ children, className, ...props }, ref) => {
+    const chartRef = useRef<HTMLElement>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return chartRef.current;
+        },
+      }),
+      []
+    );
+
+    return (
+      <wa-chart
+        ref={chartRef}
+        class={clsx('Chart', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-chart>
+    );
+  }
+);
+
+Chart.displayName = 'Chart';

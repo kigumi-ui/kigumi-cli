@@ -1,0 +1,100 @@
+import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './BarChart.css';
+
+/**
+ * Displays categorical data as horizontal or vertical rectangular bars scaled to their values
+ *
+ * @example
+ * ```tsx
+ * <BarChart label="Sales by region">
+ *   <script type="application/json">{JSON.stringify({
+ *     data: {
+ *       labels: ['North', 'South', 'East', 'West'],
+ *       datasets: [{ label: 'Revenue', data: [42, 38, 55, 29] }]
+ *     }
+ *   })}</script>
+ * </BarChart>
+ *
+ * // Horizontal orientation
+ * <BarChart orientation="horizontal" label="Scores" />
+ * ```
+ */
+export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
+  /** Accessible name announced by assistive technology */
+  label?: string;
+
+  /** Extended accessible description for the chart */
+  description?: string;
+
+  /** Caption displayed beneath the horizontal axis */
+  'x-label'?: string;
+
+  /** Caption displayed beside the vertical axis */
+  'y-label'?: string;
+
+  /** Placement of the dataset legend relative to the chart */
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+
+  /** Layers multiple datasets on a single axis */
+  stacked?: boolean;
+
+  /** Base axis for category labels */
+  'index-axis'?: 'x' | 'y';
+
+  /** Selects which background grid lines are drawn */
+  grid?: 'x' | 'y' | 'both' | 'none';
+
+  /** Floor value for the value axis scale */
+  min?: number;
+
+  /** Ceiling value for the value axis scale */
+  max?: number;
+
+  /** Disables entrance and update motion effects */
+  'without-animation'?: boolean;
+
+  /** Hides the dataset legend entirely */
+  'without-legend'?: boolean;
+
+  /** Prevents hover tooltips from appearing on data points */
+  'without-tooltip'?: boolean;
+
+  /** Controls whether bars grow upward or sideways */
+  orientation?: 'vertical' | 'horizontal';
+}
+
+export interface BarChartRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const BarChart = forwardRef<BarChartRef, BarChartProps>(
+  ({ children, className, ...props }, ref) => {
+    const barChartRef = useRef<HTMLElement>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return barChartRef.current;
+        },
+      }),
+      []
+    );
+
+    return (
+      <wa-bar-chart
+        ref={barChartRef}
+        class={clsx('BarChart', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-bar-chart>
+    );
+  }
+);
+
+BarChart.displayName = 'BarChart';

@@ -89,6 +89,18 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Tag',
     },
     {
+      name: 'Toast',
+      description:
+        'Manages and stacks lightweight notification banners at a screen edge.',
+      kind: 'Components/Toast',
+    },
+    {
+      name: 'Toast Item',
+      description:
+        'Single notification banner with variants, icons, and auto-dismiss.',
+      kind: 'Components/Toast Item',
+    },
+    {
       name: 'Tooltip',
       description:
         'Brief text label that appears near a trigger on hover or focus.',
@@ -305,12 +317,66 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Split Panel',
     },
   ],
-  Other: [
+  'Data Display': [
+    {
+      name: 'Chart',
+      description:
+        'Renders interactive visualisations such as bars, lines, pies, and more.',
+      kind: 'Components/Chart',
+    },
     {
       name: 'Sparkline',
       description:
         'Compact inline chart for visualising data trends at a glance.',
       kind: 'Components/Sparkline',
+    },
+    {
+      name: 'Bar Chart',
+      description:
+        'Displays categorical data as horizontal or vertical rectangular bars scaled to their values.',
+      kind: 'Components/Bar Chart',
+    },
+    {
+      name: 'Bubble Chart',
+      description:
+        'Plots three-dimensional data using position and circle size to encode a third variable.',
+      kind: 'Components/Bubble Chart',
+    },
+    {
+      name: 'Doughnut Chart',
+      description:
+        'Shows proportional segments in a ring shape with an open center for summary content.',
+      kind: 'Components/Doughnut Chart',
+    },
+    {
+      name: 'Line Chart',
+      description:
+        'Connects sequential data points to reveal trends and patterns over a continuous axis.',
+      kind: 'Components/Line Chart',
+    },
+    {
+      name: 'Pie Chart',
+      description:
+        "Divides a circle into wedges that represent each category's share of the whole.",
+      kind: 'Components/Pie Chart',
+    },
+    {
+      name: 'Polar Area Chart',
+      description:
+        'Arranges segments of equal angle but varying radius around a central point.',
+      kind: 'Components/Polar Area Chart',
+    },
+    {
+      name: 'Radar Chart',
+      description:
+        'Maps multiple variables onto radial axes to compare profiles at a glance.',
+      kind: 'Components/Radar Chart',
+    },
+    {
+      name: 'Scatter Chart',
+      description:
+        'Positions individual data points by two numeric axes to expose correlations.',
+      kind: 'Components/Scatter Chart',
     },
   ],
   Utilities: [
@@ -380,12 +446,12 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
 
 const categoryOrder = [
   'Actions',
+  'Data Display',
   'Feedback & Status',
   'Form Controls',
   'Imagery',
   'Navigation',
   'Organization',
-  'Other',
   'Utilities',
 ];
 
