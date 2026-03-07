@@ -26,19 +26,19 @@ export function Header() {
           >
             Docs
           </a>
+          <Link to="/kigumi-studio" className="wa-caption-m">
+            Kigumi Studio
+          </Link>
           <a
             href={
               import.meta.env.DEV
                 ? 'http://localhost:6006/?path=/docs/kigumi-changelog--docs'
                 : 'https://docs.kigumi.style/?path=/docs/kigumi-changelog--docs'
             }
-            className="wa-caption-m"
+            className="wa-caption-m header__changelog"
           >
             Changelog
           </a>
-          <Link to="/kigumi-studio" className="wa-caption-m">
-            Kigumi Studio
-          </Link>
           <ThemeFab />
         </div>
       </div>
