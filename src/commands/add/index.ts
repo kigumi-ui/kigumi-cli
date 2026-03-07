@@ -19,9 +19,12 @@ import {
   PreFlightCheckError,
   FrameworkMismatchError,
   CommunityRegistryNotFoundError,
+  VersionMismatchError,
 } from '../../errors/index.js';
 import { validators, type AddOptions } from '../../schemas/index.js';
 import { loadConfig, saveConfig, getConfig } from '../../utils/config.js';
+import { checkVersionCompatibility } from '../../utils/version-check.js';
+import { CLI_VERSION } from '../../constants.js';
 import { selectComponents } from './component-selector.js';
 import { validateComponents } from './validator.js';
 import { ComponentInstaller } from './installer.js';
@@ -55,6 +58,7 @@ export async function addCommand(components: string[], options?: AddOptions) {
       all: options?.all ?? false,
       tests: options?.tests ?? true,
       typescript: options?.typescript,
+      yes: options?.yes,
       cwd: options?.cwd,
       from: options?.from,
     });
@@ -84,6 +88,32 @@ export async function addCommand(components: string[], options?: AddOptions) {
     }
     // TypeScript type narrowing: config is now guaranteed to be defined
     const validConfig = config;
+
+    // 4. Version compatibility check
+    const versionResult = checkVersionCompatibility(
+      validConfig.kigumiVersion,
+      CLI_VERSION
+    );
+
+    if (versionResult.status === 'major-mismatch') {
+      throw new VersionMismatchError(
+        versionResult.configVersion,
+        versionResult.cliVersion
+      );
+    }
+
+    if (versionResult.status === 'minor-mismatch') {
+      output.warning(
+        `CLI version ${versionResult.cliVersion} differs from project version ${versionResult.configVersion}. ` +
+          `Consider: npx kigumi@${versionResult.configVersion} add <component>`
+      );
+    }
+
+    if (versionResult.status === 'no-pin') {
+      output.info(
+        'Project has no kigumiVersion set. Run "npx kigumi init" to pin a version.'
+      );
+    }
 
     // Branch: Remote registry flow vs. local built-in flow
     if (validatedOptions.from) {
@@ -216,18 +246,30 @@ async function addFromBuiltinRegistry(
   const installer = new ComponentInstaller(cwd, config, output);
   const results = await installer.installComponents(componentsToAdd, options);
 
-  // 5. Update vite-env.d.ts with new component types (React + TypeScript only)
+  // 5. Update provenance tracking for builtin components
+  const added = results.filter((r) => r.success && !r.skipped);
+  if (added.length > 0) {
+    config.installedComponents = config.installedComponents || {};
+    for (const result of added) {
+      config.installedComponents[result.name] = {
+        source: 'builtin',
+        installedAt: new Date().toISOString(),
+        kigumiVersion: CLI_VERSION,
+      };
+    }
+    await saveConfig(config, cwd);
+  }
+
+  // 6. Update vite-env.d.ts with new component types (React + TypeScript only)
   if (config.typescript && config.framework === 'react') {
-    const addedComponents = results
-      .filter((r) => r.success && !r.skipped)
-      .map((r) => r.name);
+    const addedComponents = added.map((r) => r.name);
 
     if (addedComponents.length > 0) {
       await updateViteEnvTypes(cwd, addedComponents, output);
     }
   }
 
-  // 6. Summary
+  // 7. Summary
   printSummary(results, config, output);
 }
 
@@ -263,6 +305,20 @@ function printSummary(
         `import { ${componentNames} } from '${config.aliases?.['@/components'] || config.componentsDir}';`
       );
     }
+  }
+
+  // Show which components had local modifications that were overwritten
+  const overwrittenWithMods = added.filter(
+    (r) => r.modifiedFiles && r.modifiedFiles.length > 0
+  );
+  if (overwrittenWithMods.length > 0) {
+    output.warning(
+      'The following components had local modifications that were overwritten:'
+    );
+    for (const r of overwrittenWithMods) {
+      output.warn(`  ${r.name}: ${r.modifiedFiles!.join(', ')}`);
+    }
+    output.info('Review the changes with git diff to verify nothing was lost.');
   }
 
   if (skipped.length > 0) {

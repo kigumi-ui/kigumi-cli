@@ -31,6 +31,8 @@ src/
 │   │   └── add-theme.ts  # Add theme entry to registry.json
 │   ├── doctor.ts         # Diagnose/fix imports + version alignment
 │   ├── status.ts         # Project status
+│   ├── upgrade.ts        # Version upgrade guide + config update
+│   ├── diff.ts           # Compare components against current templates
 │   └── ...
 ├── utils/                # Business logic
 │   ├── registry.ts       # Component definitions (SOURCE OF TRUTH)
@@ -41,6 +43,9 @@ src/
 │   ├── regenerate.ts     # Auto-generate webawesome.ts, theme.css
 │   ├── json.ts           # JSON with comments support
 │   ├── github-fetcher.ts # GitHub URL parsing + raw content fetch
+│   ├── file-diff.ts      # Detect local modifications before overwriting
+│   ├── version-check.ts  # CLI vs project version compatibility check
+│   ├── version-map.ts    # Version history + breaking changes data
 │   ├── registry-cache.ts # Disk cache for registry data (~/.kigumi/cache)
 │   ├── github-token.ts   # GitHub PAT resolution chain
 │   └── registry-resolver.ts # Resolve --from value (URL or saved name)
@@ -51,6 +56,7 @@ src/
 │   └── ...
 ├── errors/               # Typed error classes
 │   ├── community-registry.ts  # Registry-specific errors
+│   ├── version.ts        # VersionMismatchError (exit code 7)
 │   └── ...
 ├── output/               # Console formatting (@clack/prompts)
 ├── frameworks/           # Framework adapters (React, Vue, Svelte)
@@ -222,7 +228,7 @@ if (previousTier !== newTier) {
 | `index.ts`                     | Orchestration (branches on `--from` for remote flow) |
 | `validator.ts`                 | Validate component exists, tier access               |
 | `component-selector.ts`        | Interactive component picker (built-in registry)     |
-| `installer.ts`                 | Copy templates, run transforms (Handlebars)          |
+| `installer.ts`                 | Copy templates, run transforms, detect modifications |
 | `remote-installer.ts`          | Download + install from GitHub (no Handlebars)       |
 | `remote-component-selector.ts` | Interactive picker (community registry)              |
 

@@ -93,6 +93,9 @@ export {
   type CheckResult,
 } from './preflight.js';
 
+// Version errors
+export { VersionMismatchError } from './version.js';
+
 /**
  * Error handler utility
  *

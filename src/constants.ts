@@ -148,3 +148,20 @@ export const REGISTRY_CACHE_TTL_MS = 3_600_000;
 
 /** Community registry file name */
 export const REGISTRY_FILE_NAME = 'registry.json';
+
+// =============================================================================
+// CLI Version
+// =============================================================================
+
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const __constants_filename = fileURLToPath(import.meta.url);
+const __constants_dirname = dirname(__constants_filename);
+const __cliPackageJson = JSON.parse(
+  readFileSync(join(__constants_dirname, '..', 'package.json'), 'utf-8')
+);
+
+/** Current Kigumi CLI version (read from package.json) */
+export const CLI_VERSION: string = __cliPackageJson.version;

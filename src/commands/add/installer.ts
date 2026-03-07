@@ -3,6 +3,7 @@
  *
  * PURPOSE: Handles installation of Web Awesome components.
  * Generates component files, CSS, tests, and updates imports.
+ * Detects local modifications before overwriting and prompts the user.
  *
  * EXPORTS:
  * - ComponentInstaller - Class that handles component installation
@@ -15,18 +16,26 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
+import * as p from '@clack/prompts';
 import {
   getComponent,
   type ComponentDefinition,
 } from '../../utils/registry.js';
 import {
   generateComponent,
-  generateComponentCSS,
-  generateComponentTest,
+  generateComponentCSSContent,
+  generateComponentTestContent,
+  getComponentCSSPath,
+  getComponentTestPath,
   updateTypeDeclarations,
   updateComponentIndex,
 } from '../../utils/template.js';
-import type { OutputInterface } from '../../output/types.js';
+import {
+  checkFileModification,
+  getModifiedFiles,
+  type FileModificationCheck,
+} from '../../utils/file-diff.js';
+import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../utils/config.js';
 
@@ -35,6 +44,8 @@ export interface InstallResult {
   success: boolean;
   skipped?: boolean;
   error?: string;
+  /** Names of files that had local modifications when overwritten */
+  modifiedFiles?: string[];
 }
 
 /**
@@ -67,17 +78,16 @@ export class ComponentInstaller {
           throw new Error(`Component ${componentName} not found`);
         }
 
-        const wasSkipped = await this.installComponent(component, options);
+        const result = await this.installComponent(component, options, spinner);
 
-        if (wasSkipped) {
+        if (result.skipped) {
           spinner.stop(
             `${pc.yellow('○')} Skipped ${pc.cyan(componentName)} (already exists)`
           );
-          results.push({ name: componentName, success: true, skipped: true });
         } else {
           spinner.stop(`${pc.green('✓')} Added ${pc.cyan(componentName)}`);
-          results.push({ name: componentName, success: true });
         }
+        results.push(result);
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
@@ -95,13 +105,14 @@ export class ComponentInstaller {
 
   /**
    * Install a single component
-   * @returns true if skipped, false if installed
+   * @returns InstallResult with success/skipped/modifiedFiles info
    */
   private async installComponent(
     component: ComponentDefinition,
-    options: AddOptions
-  ): Promise<boolean> {
-    // Generate component file
+    options: AddOptions,
+    spinner: OutputSpinner
+  ): Promise<InstallResult> {
+    // Generate all content as strings first (no disk writes yet)
     const componentContent = await generateComponent(
       component,
       this.config,
@@ -122,38 +133,92 @@ export class ComponentInstaller {
       component.name
     );
     const componentPath = path.join(componentDir, `${component.name}.${ext}`);
+    const cssPath = getComponentCSSPath(component, this.config, this.cwd);
 
-    // Check if file exists
-    if ((await fs.pathExists(componentPath)) && !options.overwrite) {
-      // When using --all flag, skip silently instead of throwing
+    const hasTestSetup = await this.checkTestSetup();
+    const cssContent = await generateComponentCSSContent(
+      component,
+      this.config
+    );
+    const testContent = hasTestSetup
+      ? await generateComponentTestContent(component, this.config)
+      : null;
+    const testPath = hasTestSetup
+      ? getComponentTestPath(component, this.config, this.cwd)
+      : null;
+
+    // Check if component already exists
+    const componentExists = await fs.pathExists(componentPath);
+
+    if (componentExists && !options.overwrite) {
       if (options.all) {
-        return true; // Skip this component
+        return { name: component.name, success: true, skipped: true };
       }
       throw new Error('Component already exists. Use --overwrite to replace.');
+    }
+
+    // When overwriting, check for local modifications
+    let modifiedFileNames: string[] | undefined;
+    if (componentExists && options.overwrite) {
+      const checks = await Promise.all(
+        [
+          checkFileModification(componentPath, componentContent),
+          checkFileModification(cssPath, cssContent),
+          testContent && testPath
+            ? checkFileModification(testPath, testContent)
+            : null,
+        ].filter((c): c is Promise<FileModificationCheck> => c !== null)
+      );
+
+      const modified = getModifiedFiles(checks);
+
+      if (modified.length > 0) {
+        modifiedFileNames = modified.map((m) => m.fileName);
+
+        // Stop spinner before prompting
+        spinner.stop(
+          `${pc.yellow('!')} ${pc.cyan(component.name)} has local modifications`
+        );
+
+        // Show which files are modified vs unchanged
+        for (const check of checks) {
+          if (check.modified) {
+            this.output.warn(`  Modified:  ${pc.yellow(check.fileName)}`);
+          } else if (check.exists) {
+            this.output.info(`  Unchanged: ${pc.dim(check.fileName)}`);
+          }
+        }
+
+        // Auto-confirm with --yes, otherwise prompt
+        if (!options.yes) {
+          const confirmed = await p.confirm({
+            message: `Overwrite all files for ${component.name}?`,
+            initialValue: false,
+          });
+
+          if (p.isCancel(confirmed) || !confirmed) {
+            return { name: component.name, success: true, skipped: true };
+          }
+        }
+
+        // Restart spinner for the write phase
+        spinner.start(`Overwriting ${pc.cyan(component.name)}...`);
+      }
     }
 
     // Create component directory (required before writing files to it)
     await fs.ensureDir(componentDir);
 
-    // Check test setup BEFORE parallel operations (needed to decide what to generate)
-    const hasTestSetup = await this.checkTestSetup();
-
     // PARALLELIZED FILE OPERATIONS
-    // WHY: These operations are independent - component file, CSS, and test file
-    // can all be written simultaneously. This gives ~2x speedup when adding components.
     const parallelOps: Promise<void>[] = [
-      // Write component file
       fs.writeFile(componentPath, componentContent),
-      // Generate CSS file
-      generateComponentCSS(component, this.config, this.cwd),
+      fs.writeFile(cssPath, cssContent),
     ];
 
-    // Generate unit test ONLY if test setup exists
-    if (hasTestSetup) {
-      parallelOps.push(generateComponentTest(component, this.config, this.cwd));
+    if (testContent && testPath) {
+      parallelOps.push(fs.writeFile(testPath, testContent));
     }
 
-    // Wait for all file writes to complete
     await Promise.all(parallelOps);
 
     // SEQUENTIAL OPERATIONS
@@ -165,7 +230,11 @@ export class ComponentInstaller {
     await updateComponentIndex(component, this.config, this.cwd);
     await this.updateWebAwesomeImports(component);
 
-    return false; // Not skipped
+    return {
+      name: component.name,
+      success: true,
+      modifiedFiles: modifiedFileNames,
+    };
   }
 
   /**

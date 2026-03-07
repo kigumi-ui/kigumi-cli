@@ -21,6 +21,7 @@ import pc from 'picocolors';
 import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
+  CLI_VERSION,
 } from '../../constants.js';
 import { getOutput } from '../../output/index.js';
 import { CheckRunner, PackageJsonExistsCheck } from '../../checks/index.js';
@@ -369,6 +370,9 @@ async function saveAndGenerate(
 ): Promise<void> {
   const { cwd, output } = context;
   const { config, proToken, newTier } = configResult;
+
+  // Pin the current CLI version
+  config.kigumiVersion = CLI_VERSION;
 
   await saveConfig(config, cwd);
   output.success('Configuration saved');

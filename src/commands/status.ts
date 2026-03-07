@@ -150,6 +150,7 @@ export async function statusCommand(
     const components = await getInstalledComponents(componentsPath);
 
     // 6. Display info
+    output.info(`Kigumi Version: ${config.kigumiVersion || 'not pinned'}`);
     output.info(`Tier: ${tier}${tier === 'pro' ? ' 🌟' : ''}`);
     output.info(`Framework: ${config.framework}`);
     output.info(`TypeScript: ${config.typescript ? 'Yes' : 'No'}`);

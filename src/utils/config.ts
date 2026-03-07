@@ -36,6 +36,29 @@ export interface KigumiConfig {
     version?: string;
     cdnUrl?: string; // Optional CDN URL override
   };
+  registries?: Array<{
+    url: string;
+    name?: string;
+  }>;
+  installedComponents?: Record<
+    string,
+    {
+      source: 'builtin' | 'community';
+      registryUrl?: string;
+      registryVersion?: string;
+      installedAt?: string;
+      kigumiVersion?: string;
+    }
+  >;
+  installedThemes?: Record<
+    string,
+    {
+      source: 'builtin' | 'community';
+      registryUrl?: string;
+      registryVersion?: string;
+    }
+  >;
+  kigumiVersion?: string;
 }
 
 export const DEFAULT_CONFIG: KigumiConfig = {

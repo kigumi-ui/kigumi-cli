@@ -65,6 +65,8 @@ export const installedComponentSchema = z.object({
   registryUrl: z.string().optional(),
   registryVersion: z.string().optional(),
   installedAt: z.string().optional(),
+  /** Kigumi CLI version that generated this component */
+  kigumiVersion: z.string().optional(),
 });
 
 export type InstalledComponent = z.infer<typeof installedComponentSchema>;
@@ -102,6 +104,8 @@ export const kigumiConfigSchema = z.object({
     .optional(),
   /** Provenance tracking for installed themes */
   installedThemes: z.record(z.string(), installedThemeSchema).optional(),
+  /** Kigumi CLI version that initialized/last upgraded this project */
+  kigumiVersion: z.string().optional(),
 });
 
 /**

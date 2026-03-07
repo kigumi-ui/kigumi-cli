@@ -14,6 +14,8 @@ import { brandCommand } from './commands/brand.js';
 import { paletteCommand } from './commands/palette.js';
 import { doctorCommand } from './commands/doctor.js';
 import { registryCommand } from './commands/registry.js';
+import { upgradeCommand } from './commands/upgrade.js';
+import { diffCommand } from './commands/diff.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -80,6 +82,21 @@ program
   .description('Diagnose and fix common issues in your project')
   .option('--dry-run', 'Only report issues without fixing them')
   .action(doctorCommand);
+
+// Version management commands
+program
+  .command('upgrade')
+  .description('Show upgrade guide and update project version')
+  .option('--dry-run', 'Show changes without updating')
+  .option('-y, --yes', 'Skip prompts')
+  .action(upgradeCommand);
+
+program
+  .command('diff')
+  .description('Compare installed components against current templates')
+  .argument('[components...]', 'Specific components to diff')
+  .option('--verbose', 'Show line-by-line differences')
+  .action(diffCommand);
 
 // Global error handler for uncaught exceptions
 process.on('uncaughtException', (error: Error) => {

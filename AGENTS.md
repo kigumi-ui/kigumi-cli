@@ -39,6 +39,10 @@ node dist/index.js add button --overwrite
 | `src/commands/add/` | Component installation (built-in + community) |
 | `src/commands/registry.ts` | Community registry management (connect, list, remove) |
 | `src/commands/theme/install.ts` | Community theme installation from registry |
+| `src/commands/upgrade.ts` | Upgrade guide + version pin update |
+| `src/commands/diff.ts` | Compare installed components vs current templates |
+| `src/utils/version-check.ts` | CLI vs project version compatibility check |
+| `src/utils/version-map.ts` | Version history + breaking changes data |
 | `src/utils/github-fetcher.ts` | GitHub API integration for registries |
 | `src/schemas/community-registry.ts` | Community registry schema validation |
 
@@ -256,6 +260,8 @@ flowchart TD
         list["list.ts"]
         status["status.ts"]
         registry_cmd["registry/\ninit, validate, connect\nlist, remove"]
+        upgrade["upgrade.ts"]
+        diff["diff.ts"]
     end
 
     subgraph Frameworks["frameworks/"]
@@ -279,6 +285,8 @@ flowchart TD
         github_token["github-token.ts\nPAT resolution"]
         registry_cache["registry-cache.ts\nDisk cache with TTL"]
         registry_resolver["registry-resolver.ts\nresolveRegistrySource()"]
+        version_check["version-check.ts\ncheckVersionCompatibility()"]
+        version_map["version-map.ts\nVERSION_MAP, breaking changes"]
     end
 
     subgraph Schemas["schemas/"]
@@ -294,6 +302,7 @@ flowchart TD
         err_fs["filesystem.ts"]
         err_net["network.ts"]
         err_community["community-registry.ts"]
+        err_version["version.ts\nVersionMismatchError"]
     end
 
     subgraph Checks["checks/"]
@@ -328,6 +337,12 @@ flowchart TD
     doctor --> config
     doctor --> tier
     doctor --> constants
+    upgrade --> config
+    upgrade --> version_map
+    diff --> config
+    diff --> template
+    diff --> registry
+    add --> version_check
 
     FW_INDEX --> react & vue & angular & svelte
     react --> template
@@ -512,6 +527,7 @@ flowchart TB
 | Free→Pro fails      | Migration ran?              | Check `migration.ts`                |
 | Wrong import paths  | Mixed free/pro imports?     | Run `kigumi doctor`                 |
 | Stale WA version    | Config or package outdated? | Run `kigumi doctor`                 |
+| Version mismatch    | `kigumiVersion` in config?  | Run `kigumi upgrade`                |
 | JSON parse fails    | File has comments?          | Use `readJSONWithComments()`        |
 | 401 in docs/        | `docs/.npmrc` present?      | Run `pnpm run setup:npmrc`          |
 

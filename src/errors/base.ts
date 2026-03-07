@@ -51,6 +51,9 @@ export enum ErrorCode {
   MISSING_DEPENDENCY = 601,
   INCOMPATIBLE_VERSION = 602,
 
+  // Version errors (exit code 7)
+  VERSION_MISMATCH = 700,
+
   // Unknown errors (exit code 1)
   UNKNOWN = 999,
 }
@@ -130,6 +133,7 @@ export abstract class KigumiError extends Error {
     if (code >= 400 && code < 500) return 4; // Filesystem
     if (code >= 500 && code < 600) return 5; // Network
     if (code >= 600 && code < 700) return 6; // Pre-flight checks
+    if (code >= 700 && code < 800) return 7; // Version errors
     return 1; // Default
   }
 
