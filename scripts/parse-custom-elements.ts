@@ -74,9 +74,10 @@ async function findCustomElementsJson(): Promise<string | null> {
 
   if (await fs.pathExists(pnpmPath)) {
     const pnpmDirs = await fs.readdir(pnpmPath);
-    const webAwesomeDirs = pnpmDirs.filter((dir) =>
-      dir.startsWith('@awesome.me+webawesome-pro@')
-    );
+    const webAwesomeDirs = pnpmDirs
+      .filter((dir) => dir.startsWith('@awesome.me+webawesome-pro@'))
+      .sort()
+      .reverse(); // Sort descending to prefer newest version
 
     for (const dir of webAwesomeDirs) {
       const jsonPath = path.join(

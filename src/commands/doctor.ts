@@ -7,6 +7,7 @@
  * - Detects project tier (Pro/Free) from package.json
  * - Scans all component files for incorrect import paths
  * - Fixes import paths to match the installed package
+ * - Checks Web Awesome version alignment (config + package.json)
  * - Reports what was fixed
  *
  * @see AGENTS.md for doctor command architecture
@@ -15,6 +16,8 @@
 import fs from 'fs-extra';
 import path from 'path';
 import {
+  CONFIG_FILE_NAME,
+  DEFAULT_WEBAWESOME_VERSION,
   FREE_PACKAGE_REGEX,
   PRO_PACKAGE_REGEX,
   WEB_AWESOME_FREE_PACKAGE,
@@ -73,6 +76,72 @@ async function findComponentFiles(
 }
 
 /**
+ * Check Web Awesome version alignment between config, package.json, and CLI target
+ */
+async function checkVersionAlignment(
+  cwd: string,
+  options: DoctorOptions,
+  output: OutputInterface
+): Promise<DiagnosticResult[]> {
+  const results: DiagnosticResult[] = [];
+
+  // Check config version staleness
+  const configPath = path.join(cwd, CONFIG_FILE_NAME);
+  if (await fs.pathExists(configPath)) {
+    const configData = await fs.readJSON(configPath);
+    const configVersion = configData?.webAwesome?.version;
+
+    if (configVersion && configVersion !== DEFAULT_WEBAWESOME_VERSION) {
+      const result: DiagnosticResult = {
+        filePath: configPath,
+        relativePath: CONFIG_FILE_NAME,
+        issue: `Config Web Awesome version "${configVersion}" is outdated (CLI targets "${DEFAULT_WEBAWESOME_VERSION}")`,
+        fixed: false,
+      };
+
+      if (!options.dryRun) {
+        configData.webAwesome.version = DEFAULT_WEBAWESOME_VERSION;
+        await fs.writeJSON(configPath, configData, { spaces: 2 });
+        result.fixed = true;
+      }
+
+      results.push(result);
+    }
+  }
+
+  // Check installed package version staleness
+  const packageJsonPath = path.join(cwd, 'package.json');
+  if (await fs.pathExists(packageJsonPath)) {
+    const packageJson = await fs.readJSON(packageJsonPath);
+    const deps = packageJson.dependencies || {};
+    const installedVersion =
+      deps[WEB_AWESOME_PRO_PACKAGE] || deps[WEB_AWESOME_FREE_PACKAGE];
+
+    if (installedVersion && installedVersion !== DEFAULT_WEBAWESOME_VERSION) {
+      const installedPackage = deps[WEB_AWESOME_PRO_PACKAGE]
+        ? WEB_AWESOME_PRO_PACKAGE
+        : WEB_AWESOME_FREE_PACKAGE;
+
+      results.push({
+        filePath: packageJsonPath,
+        relativePath: 'package.json',
+        issue: `Installed Web Awesome version "${installedVersion}" differs from CLI target "${DEFAULT_WEBAWESOME_VERSION}"`,
+        fixed: false, // Never auto-fix — user must run npm install
+      });
+
+      output.warning(
+        `To update, run: npm install ${installedPackage}@${DEFAULT_WEBAWESOME_VERSION}`
+      );
+      output.warning(
+        'Then regenerate components: npx kigumi add --all --overwrite'
+      );
+    }
+  }
+
+  return results;
+}
+
+/**
  * Diagnose and fix import path issues
  */
 async function diagnoseAndFix(
@@ -104,6 +173,10 @@ async function diagnoseAndFix(
     return results;
   }
 
+  // Check version alignment
+  const versionResults = await checkVersionAlignment(cwd, options, output);
+  results.push(...versionResults);
+
   // Find all component files
   const files = await findComponentFiles(cwd, config.componentsDir);
 
@@ -114,7 +187,7 @@ async function diagnoseAndFix(
 
   output.info(`Scanning ${files.length} component file(s)...`);
 
-  // Check each file
+  // Check each file for import path issues
   for (const filePath of files) {
     const content = await fs.readFile(filePath, 'utf-8');
     const relativePath = path.relative(cwd, filePath);
@@ -174,15 +247,31 @@ export async function doctorCommand(
         'Run without --dry-run to fix these issues automatically'
       );
     } else {
-      output.success(`Fixed ${results.length} issue(s):`);
-      for (const result of results) {
-        output.log(`  ✓ ${result.relativePath}`);
-        output.log(`    ${result.issue}`);
+      const fixedCount = results.filter((r) => r.fixed).length;
+      const unfixedCount = results.length - fixedCount;
+
+      if (fixedCount > 0) {
+        output.success(`Fixed ${fixedCount} issue(s):`);
+        for (const result of results.filter((r) => r.fixed)) {
+          output.log(`  ✓ ${result.relativePath}`);
+          output.log(`    ${result.issue}`);
+        }
       }
-      output.note(
-        'Import paths updated',
-        'All component imports now match your installed Web Awesome package'
-      );
+
+      if (unfixedCount > 0) {
+        output.warning(`${unfixedCount} issue(s) require manual action:`);
+        for (const result of results.filter((r) => !r.fixed)) {
+          output.log(`  × ${result.relativePath}`);
+          output.log(`    ${result.issue}`);
+        }
+      }
+
+      if (fixedCount > 0) {
+        output.note(
+          'Issues resolved',
+          'Some issues were fixed automatically. Review the changes above.'
+        );
+      }
     }
 
     output.outro('Done!');

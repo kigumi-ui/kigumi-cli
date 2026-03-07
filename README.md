@@ -103,11 +103,31 @@ npx kigumi brand [color]                      # Change brand color
 Diagnose and fix common issues in your project:
 
 ```bash
-npx kigumi doctor           # Scan and fix import path issues
+npx kigumi doctor           # Scan and fix issues automatically
 npx kigumi doctor --dry-run # Report issues without fixing
 ```
 
-The doctor command automatically detects your tier (Free/Pro) and ensures all component imports use the correct package. Useful when upgrading from Free to Pro or encountering import errors.
+The doctor command checks for:
+
+- **Import path mismatches** — Detects and fixes components importing the wrong package (e.g., free instead of pro)
+- **Config version staleness** — Updates `kigumi.config.json` when its Web Awesome version falls behind the CLI target (auto-fixable)
+- **Package version staleness** — Warns when your installed Web Awesome package differs from the CLI target and provides upgrade instructions
+
+Useful after upgrading Kigumi CLI, switching tiers (Free↔Pro), or encountering import errors.
+
+### Upgrading
+
+When a new version of Kigumi CLI is released, run:
+
+```bash
+# 1. Check for issues — auto-fixes config and shows upgrade instructions
+npx kigumi doctor
+
+# 2. Follow the doctor's output to update Web Awesome if needed
+
+# 3. Regenerate all components from updated templates
+npx kigumi add --all --overwrite
+```
 
 ### `registry`
 

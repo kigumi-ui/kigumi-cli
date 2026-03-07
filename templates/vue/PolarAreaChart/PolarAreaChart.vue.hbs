@@ -1,0 +1,35 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './PolarAreaChart.css';
+
+/**
+ * Arranges segments of equal angle but varying radius around a central point
+ */
+export interface PolarAreaChartProps {
+  label?: string;
+  description?: string;
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  'without-animation'?: boolean;
+  'without-legend'?: boolean;
+  'without-tooltip'?: boolean;
+}
+
+const props = defineProps<PolarAreaChartProps>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-polar-area-chart
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-polar-area-chart>
+</template>

@@ -1,0 +1,41 @@
+<script setup>
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './Chart.css';
+
+/**
+ * Renders interactive data visualisations including bars, lines, pies, and more via Chart.js
+ */
+const props = defineProps({
+  label: { type: String, required: false },
+  description: { type: String, required: false },
+  type: { type: String, required: false, default: 'bar' },
+  'x-label': { type: String, required: false },
+  'y-label': { type: String, required: false },
+  'legend-position': { type: String, required: false, default: 'top' },
+  stacked: { type: Boolean, required: false, default: false },
+  'index-axis': { type: String, required: false, default: 'x' },
+  grid: { type: String, required: false, default: 'both' },
+  min: { type: Number, required: false },
+  max: { type: Number, required: false },
+  'without-animation': { type: Boolean, required: false, default: false },
+  'without-legend': { type: Boolean, required: false, default: false },
+  'without-tooltip': { type: Boolean, required: false, default: false },
+});
+
+const elementRef = ref(null);
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-chart
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-chart>
+</template>

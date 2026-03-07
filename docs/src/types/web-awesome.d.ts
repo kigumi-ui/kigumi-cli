@@ -963,6 +963,248 @@ declare global {
         },
         HTMLElement
       >;
+
+      'wa-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          type?:
+            | 'bar'
+            | 'line'
+            | 'pie'
+            | 'doughnut'
+            | 'polarArea'
+            | 'radar'
+            | 'scatter'
+            | 'bubble';
+          'x-label'?: string;
+          'y-label'?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          stacked?: boolean;
+          'index-axis'?: 'x' | 'y';
+          grid?: 'x' | 'y' | 'both' | 'none';
+          min?: number;
+          max?: number;
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-toast': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          placement?:
+            | 'top-start'
+            | 'top-center'
+            | 'top-end'
+            | 'bottom-start'
+            | 'bottom-center'
+            | 'bottom-end';
+        },
+        HTMLElement
+      >;
+
+      'wa-toast-item': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
+          size?: 'small' | 'medium' | 'large';
+          duration?: number;
+        },
+        HTMLElement
+      >;
+
+      'wa-bar-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          orientation?: 'vertical' | 'horizontal';
+          'x-label'?: string;
+          'y-label'?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          stacked?: boolean;
+          'index-axis'?: 'x' | 'y';
+          grid?: 'x' | 'y' | 'both' | 'none';
+          min?: number;
+          max?: number;
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-line-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          'x-label'?: string;
+          'y-label'?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          stacked?: boolean;
+          'index-axis'?: 'x' | 'y';
+          grid?: 'x' | 'y' | 'both' | 'none';
+          min?: number;
+          max?: number;
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-bubble-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          'x-label'?: string;
+          'y-label'?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          stacked?: boolean;
+          'index-axis'?: 'x' | 'y';
+          grid?: 'x' | 'y' | 'both' | 'none';
+          min?: number;
+          max?: number;
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-doughnut-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-pie-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-polar-area-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-radar-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          stacked?: boolean;
+          grid?: 'x' | 'y' | 'both' | 'none';
+          min?: number;
+          max?: number;
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
+
+      'wa-scatter-chart': DetailedHTMLProps<
+        HTMLAttributes<HTMLElement> & {
+          class?: string;
+          label?: string;
+          description?: string;
+          'x-label'?: string;
+          'y-label'?: string;
+          'legend-position'?:
+            | 'top'
+            | 'right'
+            | 'bottom'
+            | 'left'
+            | 'start'
+            | 'end';
+          grid?: 'x' | 'y' | 'both' | 'none';
+          min?: number;
+          max?: number;
+          'without-animation'?: boolean;
+          'without-legend'?: boolean;
+          'without-tooltip'?: boolean;
+        },
+        HTMLElement
+      >;
     }
   }
 }

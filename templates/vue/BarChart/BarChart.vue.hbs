@@ -1,0 +1,43 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './BarChart.css';
+
+/**
+ * Displays categorical data as horizontal or vertical rectangular bars scaled to their values
+ */
+export interface BarChartProps {
+  label?: string;
+  description?: string;
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  'without-animation'?: boolean;
+  'without-legend'?: boolean;
+  'without-tooltip'?: boolean;
+  'x-label'?: string;
+  'y-label'?: string;
+  stacked?: boolean;
+  'index-axis'?: 'x' | 'y';
+  grid?: 'x' | 'y' | 'both' | 'none';
+  min?: number;
+  max?: number;
+  orientation?: 'vertical' | 'horizontal';
+}
+
+const props = defineProps<BarChartProps>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-bar-chart
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-bar-chart>
+</template>

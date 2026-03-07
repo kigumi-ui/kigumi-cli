@@ -1,0 +1,42 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './BubbleChart.css';
+
+/**
+ * Plots three-dimensional data using position and circle size to encode a third variable
+ */
+export interface BubbleChartProps {
+  label?: string;
+  description?: string;
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  'without-animation'?: boolean;
+  'without-legend'?: boolean;
+  'without-tooltip'?: boolean;
+  'x-label'?: string;
+  'y-label'?: string;
+  stacked?: boolean;
+  'index-axis'?: 'x' | 'y';
+  grid?: 'x' | 'y' | 'both' | 'none';
+  min?: number;
+  max?: number;
+}
+
+const props = defineProps<BubbleChartProps>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-bubble-chart
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-bubble-chart>
+</template>

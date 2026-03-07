@@ -1,0 +1,40 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './ScatterChart.css';
+
+/**
+ * Positions individual data points by two numeric axes to expose correlations
+ */
+export interface ScatterChartProps {
+  label?: string;
+  description?: string;
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  'without-animation'?: boolean;
+  'without-legend'?: boolean;
+  'without-tooltip'?: boolean;
+  'x-label'?: string;
+  'y-label'?: string;
+  grid?: 'x' | 'y' | 'both' | 'none';
+  min?: number;
+  max?: number;
+}
+
+const props = defineProps<ScatterChartProps>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-scatter-chart
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-scatter-chart>
+</template>

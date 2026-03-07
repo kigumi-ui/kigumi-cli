@@ -104,6 +104,26 @@ export const Pill: Story = {
   ),
 };
 
+/** Uses start and end slots to place icons alongside badge text. */
+export const WithSlots: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <Badge variant="success">
+        <wa-icon slot="start" name="check" />
+        Approved
+      </Badge>
+      <Badge variant="danger">
+        <wa-icon slot="start" name="xmark" />
+        Rejected
+      </Badge>
+      <Badge variant="brand">
+        New
+        <wa-icon slot="end" name="arrow-right" />
+      </Badge>
+    </div>
+  ),
+};
+
 /** Positions a badge over a button to mimic a notification counter. */
 export const OnButton: Story = {
   render: () => (

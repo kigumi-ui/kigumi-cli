@@ -7,7 +7,7 @@
 ```
 src/
 ├── index.ts              # CLI entry (Commander.js routing)
-├── constants.ts          # Magic strings, regex patterns
+├── constants.ts          # Magic strings, regex patterns, WA version
 ├── commands/             # CLI command handlers
 │   ├── init/             # Project initialization
 │   ├── add/              # Component installation
@@ -29,6 +29,7 @@ src/
 │   │   ├── remove-source.ts # Remove registry from config
 │   │   ├── add-component.ts # Add component entry to registry.json
 │   │   └── add-theme.ts  # Add theme entry to registry.json
+│   ├── doctor.ts         # Diagnose/fix imports + version alignment
 │   ├── status.ts         # Project status
 │   └── ...
 ├── utils/                # Business logic
@@ -70,7 +71,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     importPath: '@awesome.me/webawesome/dist/components/button/button.js',
     tier: 'free',
   },
-  // ... 62+ components
+  // ... 73 components
 };
 ```
 

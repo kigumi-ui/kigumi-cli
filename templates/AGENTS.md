@@ -235,6 +235,7 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 | Simple                    | `Button/Button.tsx.hbs`          | `Button/Button.vue.hbs`          |
 | Complex (events)          | `Dialog/Dialog.tsx.hbs`          | `Dialog/Dialog.vue.hbs`          |
 | Complex (two-way binding) | `Input/Input.tsx.hbs`            | `Input/Input.vue.hbs`            |
+| Portal + methods          | `Toast/Toast.tsx.hbs`            | `Toast/Toast.vue.hbs`            |
 | Sub-components            | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` |
 
 ---

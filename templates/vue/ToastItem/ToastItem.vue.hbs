@@ -1,0 +1,63 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import '{{{importPath}}}';
+import './ToastItem.css';
+
+/**
+ * A single notification banner that can be stacked inside a Toast container
+ */
+export interface ToastItemProps {
+  variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
+  size?: 'small' | 'medium' | 'large';
+  duration?: number;
+}
+
+const props = defineProps<ToastItemProps>();
+
+const emit = defineEmits<{
+  show: [event: CustomEvent];
+  'after-show': [event: CustomEvent];
+  hide: [event: CustomEvent];
+  'after-hide': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  const handleShow = (e: Event) => emit('show', e as CustomEvent);
+  const handleAfterShow = (e: Event) => emit('after-show', e as CustomEvent);
+  const handleHide = (e: Event) => emit('hide', e as CustomEvent);
+  const handleAfterHide = (e: Event) => emit('after-hide', e as CustomEvent);
+
+  el.addEventListener('wa-show', handleShow);
+  el.addEventListener('wa-after-show', handleAfterShow);
+  el.addEventListener('wa-hide', handleHide);
+  el.addEventListener('wa-after-hide', handleAfterHide);
+
+  onUnmounted(() => {
+    el.removeEventListener('wa-show', handleShow);
+    el.removeEventListener('wa-after-show', handleAfterShow);
+    el.removeEventListener('wa-hide', handleHide);
+    el.removeEventListener('wa-after-hide', handleAfterHide);
+  });
+});
+
+defineExpose({
+  hide: () => (elementRef.value as unknown as { hide?: () => void })?.hide?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-toast-item
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+    <slot name="icon" />
+  </wa-toast-item>
+</template>

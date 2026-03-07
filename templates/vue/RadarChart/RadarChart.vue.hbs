@@ -1,0 +1,39 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './RadarChart.css';
+
+/**
+ * Maps multiple variables onto radial axes to compare profiles at a glance
+ */
+export interface RadarChartProps {
+  label?: string;
+  description?: string;
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  'without-animation'?: boolean;
+  'without-legend'?: boolean;
+  'without-tooltip'?: boolean;
+  stacked?: boolean;
+  grid?: 'x' | 'y' | 'both' | 'none';
+  min?: number;
+  max?: number;
+}
+
+const props = defineProps<RadarChartProps>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-radar-chart
+    ref="elementRef"
+    v-bind="props"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-radar-chart>
+</template>

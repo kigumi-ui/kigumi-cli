@@ -47,6 +47,286 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [],
     methods: [],
   },
+  checkbox: {
+    tagName: 'wa-checkbox',
+    className: 'WaCheckbox',
+    events: [
+      {
+        name: 'change',
+        description: 'Emitted when the checked state changes.',
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'blur',
+        description: 'Emitted when the checkbox loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the checkbox gains focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'input',
+        description: 'Emitted when the checkbox receives input.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onWaInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: "The checkbox's label.",
+      },
+      {
+        name: 'hint',
+        description:
+          'Text that describes how to use the checkbox. Alternatively, you can use the `hint` attribute.',
+      },
+    ],
+    methods: [
+      {
+        name: 'click',
+        description: 'Simulates a click on the checkbox.',
+      },
+      {
+        name: 'focus',
+        description: 'Sets focus on the checkbox.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the checkbox.',
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
+  spinner: {
+    tagName: 'wa-spinner',
+    className: 'WaSpinner',
+    events: [],
+    slots: [],
+    methods: [],
+  },
+  'tree-item': {
+    tagName: 'wa-tree-item',
+    className: 'WaTreeItem',
+    events: [
+      {
+        name: 'wa-expand',
+        description: 'Emitted when the tree item expands.',
+        reactName: 'onWaExpand',
+        eventType: 'WaExpandEvent',
+      },
+      {
+        name: 'wa-after-expand',
+        description:
+          'Emitted after the tree item expands and all animations are complete.',
+        reactName: 'onWaAfterExpand',
+        eventType: 'WaAfterExpandEvent',
+      },
+      {
+        name: 'wa-collapse',
+        description: 'Emitted when the tree item collapses.',
+        reactName: 'onWaCollapse',
+        eventType: 'WaCollapseEvent',
+      },
+      {
+        name: 'wa-after-collapse',
+        description:
+          'Emitted after the tree item collapses and all animations are complete.',
+        reactName: 'onWaAfterCollapse',
+        eventType: 'WaAfterCollapseEvent',
+      },
+      {
+        name: 'wa-lazy-change',
+        description: "Emitted when the tree item's lazy state changes.",
+        reactName: 'onWaLazyChange',
+        eventType: 'WaLazyChangeEvent',
+      },
+      {
+        name: 'wa-lazy-load',
+        description:
+          'Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree.',
+        reactName: 'onWaLazyLoad',
+        eventType: 'WaLazyLoadEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: 'The default slot.',
+      },
+      {
+        name: 'expand-icon',
+        description: 'The icon to show when the tree item is expanded.',
+      },
+      {
+        name: 'collapse-icon',
+        description: 'The icon to show when the tree item is collapsed.',
+      },
+    ],
+    methods: [
+      {
+        name: 'getChildrenItems',
+        description: 'Gets all the nested tree items in this node.',
+        parameters: [
+          {
+            name: '{ includeDisabled = true }',
+            type: '{ includeDisabled?: boolean }',
+          },
+        ],
+      },
+    ],
+  },
+  'carousel-item': {
+    tagName: 'wa-carousel-item',
+    className: 'WaCarouselItem',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The carousel item's content..",
+      },
+    ],
+    methods: [],
+  },
+  button: {
+    tagName: 'wa-button',
+    className: 'WaButton',
+    events: [
+      {
+        name: 'blur',
+        description: 'Emitted when the button loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the button gains focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onWaInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: "The button's label.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed before the label.',
+      },
+      {
+        name: 'end',
+        description: 'An element, such as `<wa-icon>`, placed after the label.',
+      },
+    ],
+    methods: [
+      {
+        name: 'click',
+        description: 'Simulates a click on the button.',
+      },
+      {
+        name: 'focus',
+        description: 'Sets focus on the button.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the button.',
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
   'animated-image': {
     tagName: 'wa-animated-image',
     className: 'WaAnimatedImage',
@@ -142,41 +422,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     ],
     methods: [],
   },
-  spinner: {
-    tagName: 'wa-spinner',
-    className: 'WaSpinner',
+  badge: {
+    tagName: 'wa-badge',
+    className: 'WaBadge',
     events: [],
-    slots: [],
-    methods: [],
-  },
-  button: {
-    tagName: 'wa-button',
-    className: 'WaButton',
-    events: [
-      {
-        name: 'blur',
-        description: 'Emitted when the button loses focus.',
-        reactName: 'onBlur',
-        eventType: 'BlurEvent',
-      },
-      {
-        name: 'focus',
-        description: 'Emitted when the button gains focus.',
-        reactName: 'onFocus',
-        eventType: 'FocusEvent',
-      },
-      {
-        name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
-        eventType: 'WaInvalidEvent',
-      },
-    ],
     slots: [
       {
         name: '',
-        description: "The button's label.",
+        description: "The badge's content.",
       },
       {
         name: 'start',
@@ -188,26 +441,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'An element, such as `<wa-icon>`, placed after the label.',
       },
     ],
-    methods: [
-      {
-        name: 'click',
-        description: 'Simulates a click on the button.',
-      },
-      {
-        name: 'focus',
-        description: 'Sets focus on the button.',
-        parameters: [
-          {
-            name: 'options',
-            type: 'FocusOptions',
-          },
-        ],
-      },
-      {
-        name: 'blur',
-        description: 'Removes focus from the button.',
-      },
-    ],
+    methods: [],
   },
   'breadcrumb-item': {
     tagName: 'wa-breadcrumb-item',
@@ -248,18 +482,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'separator',
         description:
           'The separator to use between breadcrumb items. Works best with `<wa-icon>`.',
-      },
-    ],
-    methods: [],
-  },
-  badge: {
-    tagName: 'wa-badge',
-    className: 'WaBadge',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The badge's content.",
       },
     ],
     methods: [],
@@ -334,18 +556,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     ],
     methods: [],
   },
-  'carousel-item': {
-    tagName: 'wa-carousel-item',
-    className: 'WaCarouselItem',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The carousel item's content..",
-      },
-    ],
-    methods: [],
-  },
   carousel: {
     tagName: 'wa-carousel',
     className: 'WaCarousel',
@@ -408,74 +618,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
             type: 'ScrollBehavior',
           },
         ],
-      },
-    ],
-  },
-  checkbox: {
-    tagName: 'wa-checkbox',
-    className: 'WaCheckbox',
-    events: [
-      {
-        name: 'change',
-        description: 'Emitted when the checked state changes.',
-        reactName: 'onChange',
-        eventType: 'ChangeEvent',
-      },
-      {
-        name: 'blur',
-        description: 'Emitted when the checkbox loses focus.',
-        reactName: 'onBlur',
-        eventType: 'BlurEvent',
-      },
-      {
-        name: 'focus',
-        description: 'Emitted when the checkbox gains focus.',
-        reactName: 'onFocus',
-        eventType: 'FocusEvent',
-      },
-      {
-        name: 'input',
-        description: 'Emitted when the checkbox receives input.',
-        reactName: 'onInput',
-        eventType: 'InputEvent',
-      },
-      {
-        name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
-        eventType: 'WaInvalidEvent',
-      },
-    ],
-    slots: [
-      {
-        name: '',
-        description: "The checkbox's label.",
-      },
-      {
-        name: 'hint',
-        description:
-          'Text that describes how to use the checkbox. Alternatively, you can use the `hint` attribute.',
-      },
-    ],
-    methods: [
-      {
-        name: 'click',
-        description: 'Simulates a click on the checkbox.',
-      },
-      {
-        name: 'focus',
-        description: 'Sets focus on the checkbox.',
-        parameters: [
-          {
-            name: 'options',
-            type: 'FocusOptions',
-          },
-        ],
-      },
-      {
-        name: 'blur',
-        description: 'Removes focus from the checkbox.',
       },
     ],
   },
@@ -633,6 +775,37 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           'Decrements the value of a numeric input type by the value of the step attribute.',
       },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
     ],
   },
   popup: {
@@ -757,7 +930,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           },
           {
             name: 'alpha',
-            type: 'number',
+            type: 'any',
           },
         ],
       },
@@ -799,303 +972,36 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'hide',
         description: 'Hides the color picker panel',
       },
-    ],
-  },
-  tag: {
-    tagName: 'wa-tag',
-    className: 'WaTag',
-    events: [
       {
-        name: 'wa-remove',
-        description: 'Emitted when the remove button is activated.',
-        reactName: 'onWaRemove',
-        eventType: 'WaRemoveEvent',
-      },
-    ],
-    slots: [
-      {
-        name: '',
-        description: "The tag's content.",
-      },
-    ],
-    methods: [],
-  },
-  select: {
-    tagName: 'wa-select',
-    className: 'WaSelect',
-    events: [
-      {
-        name: 'input',
-        description: 'Emitted when the control receives input.',
-        reactName: 'onInput',
-        eventType: 'InputEvent',
-      },
-      {
-        name: 'change',
-        description: "Emitted when the control's value changes.",
-        reactName: 'onChange',
-        eventType: 'ChangeEvent',
-      },
-      {
-        name: 'focus',
-        description: 'Emitted when the control gains focus.',
-        reactName: 'onFocus',
-        eventType: 'FocusEvent',
-      },
-      {
-        name: 'blur',
-        description: 'Emitted when the control loses focus.',
-        reactName: 'onBlur',
-        eventType: 'BlurEvent',
-      },
-      {
-        name: 'wa-clear',
-        description: "Emitted when the control's value is cleared.",
-        reactName: 'onWaClear',
-        eventType: 'WaClearEvent',
-      },
-      {
-        name: 'wa-show',
-        description: "Emitted when the select's menu opens.",
-        reactName: 'onWaShow',
-        eventType: 'WaShowEvent',
-      },
-      {
-        name: 'wa-after-show',
+        name: 'setCustomValidity',
         description:
-          "Emitted after the select's menu opens and all animations are complete.",
-        reactName: 'onWaAfterShow',
-        eventType: 'WaAfterShowEvent',
-      },
-      {
-        name: 'wa-hide',
-        description: "Emitted when the select's menu closes.",
-        reactName: 'onWaHide',
-        eventType: 'WaHideEvent',
-      },
-      {
-        name: 'wa-after-hide',
-        description:
-          "Emitted after the select's menu closes and all animations are complete.",
-        reactName: 'onWaAfterHide',
-        eventType: 'WaAfterHideEvent',
-      },
-      {
-        name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
-        eventType: 'WaInvalidEvent',
-      },
-    ],
-    slots: [
-      {
-        name: '',
-        description:
-          'The listbox options. Must be `<wa-option>` elements. You can use `<wa-divider>` to group items visually.',
-      },
-      {
-        name: 'label',
-        description:
-          "The input's label. Alternatively, you can use the `label` attribute.",
-      },
-      {
-        name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed at the start of the combobox.',
-      },
-      {
-        name: 'end',
-        description:
-          'An element, such as `<wa-icon>`, placed at the end of the combobox.',
-      },
-      {
-        name: 'clear-icon',
-        description: 'An icon to use in lieu of the default clear icon.',
-      },
-      {
-        name: 'expand-icon',
-        description:
-          'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
-      },
-      {
-        name: 'hint',
-        description:
-          'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
-      },
-    ],
-    methods: [
-      {
-        name: 'show',
-        description: 'Shows the listbox.',
-      },
-      {
-        name: 'hide',
-        description: 'Hides the listbox.',
-      },
-      {
-        name: 'focus',
-        description: 'Sets focus on the control.',
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
-            name: 'options',
-            type: 'FocusOptions',
+            name: 'message',
+            type: 'string',
           },
         ],
       },
       {
-        name: 'blur',
-        description: 'Removes focus from the control.',
-      },
-    ],
-  },
-  option: {
-    tagName: 'wa-option',
-    className: 'WaOption',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The option's label.",
-      },
-      {
-        name: 'start',
+        name: 'formStateRestoreCallback',
         description:
-          'An element, such as `<wa-icon>`, placed before the label.',
-      },
-      {
-        name: 'end',
-        description: 'An element, such as `<wa-icon>`, placed after the label.',
-      },
-    ],
-    methods: [],
-  },
-  combobox: {
-    tagName: 'wa-combobox',
-    className: 'WaCombobox',
-    events: [
-      {
-        name: 'input',
-        description: 'Emitted when the control receives input.',
-        reactName: 'onInput',
-        eventType: 'InputEvent',
-      },
-      {
-        name: 'change',
-        description: "Emitted when the control's value changes.",
-        reactName: 'onChange',
-        eventType: 'ChangeEvent',
-      },
-      {
-        name: 'focus',
-        description: 'Emitted when the control gains focus.',
-        reactName: 'onFocus',
-        eventType: 'FocusEvent',
-      },
-      {
-        name: 'blur',
-        description: 'Emitted when the control loses focus.',
-        reactName: 'onBlur',
-        eventType: 'BlurEvent',
-      },
-      {
-        name: 'wa-clear',
-        description: "Emitted when the control's value is cleared.",
-        reactName: 'onWaClear',
-        eventType: 'WaClearEvent',
-      },
-      {
-        name: 'wa-show',
-        description: "Emitted when the combobox's menu opens.",
-        reactName: 'onWaShow',
-        eventType: 'WaShowEvent',
-      },
-      {
-        name: 'wa-after-show',
-        description:
-          "Emitted after the combobox's menu opens and all animations are complete.",
-        reactName: 'onWaAfterShow',
-        eventType: 'WaAfterShowEvent',
-      },
-      {
-        name: 'wa-hide',
-        description: "Emitted when the combobox's menu closes.",
-        reactName: 'onWaHide',
-        eventType: 'WaHideEvent',
-      },
-      {
-        name: 'wa-after-hide',
-        description:
-          "Emitted after the combobox's menu closes and all animations are complete.",
-        reactName: 'onWaAfterHide',
-        eventType: 'WaAfterHideEvent',
-      },
-      {
-        name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
-        eventType: 'WaInvalidEvent',
-      },
-    ],
-    slots: [
-      {
-        name: '',
-        description:
-          'The listbox options. Must be `<wa-option>` elements. You can use `<wa-divider>` to group items visually.',
-      },
-      {
-        name: 'label',
-        description:
-          "The input's label. Alternatively, you can use the `label` attribute.",
-      },
-      {
-        name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed at the start of the combobox.',
-      },
-      {
-        name: 'end',
-        description:
-          'An element, such as `<wa-icon>`, placed at the end of the combobox.',
-      },
-      {
-        name: 'clear-icon',
-        description: 'An icon to use in lieu of the default clear icon.',
-      },
-      {
-        name: 'expand-icon',
-        description:
-          'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
-      },
-      {
-        name: 'hint',
-        description:
-          'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
-      },
-    ],
-    methods: [
-      {
-        name: 'show',
-        description: 'Shows the listbox.',
-      },
-      {
-        name: 'hide',
-        description: 'Hides the listbox.',
-      },
-      {
-        name: 'focus',
-        description: 'Sets focus on the control.',
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
         parameters: [
           {
-            name: 'options',
-            type: 'FocusOptions',
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
           },
         ],
       },
       {
-        name: 'blur',
-        description: 'Removes focus from the control.',
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -1495,79 +1401,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [],
     methods: [],
   },
-  'file-input': {
-    tagName: 'wa-file-input',
-    className: 'WaFileInput',
-    events: [
-      {
-        name: 'input',
-        description: 'Emitted when file selection changes.',
-        reactName: 'onInput',
-        eventType: 'InputEvent',
-      },
-      {
-        name: 'change',
-        description: 'Emitted when files are added or removed.',
-        reactName: 'onChange',
-        eventType: 'ChangeEvent',
-      },
-      {
-        name: 'focus',
-        description: 'Emitted when the dropzone gains focus.',
-        reactName: 'onFocus',
-        eventType: 'FocusEvent',
-      },
-      {
-        name: 'blur',
-        description: 'Emitted when the dropzone loses focus.',
-        reactName: 'onBlur',
-        eventType: 'BlurEvent',
-      },
-      {
-        name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
-        eventType: 'WaInvalidEvent',
-      },
-    ],
-    slots: [
-      {
-        name: 'label',
-        description:
-          "The file input's label. Alternatively, you can use the `label` attribute.",
-      },
-      {
-        name: 'hint',
-        description:
-          'Text that describes how to use the file input. Alternatively, you can use the `hint` attribute.',
-      },
-      {
-        name: 'dropzone',
-        description: 'Custom content to show in the dropzone.',
-      },
-      {
-        name: 'file-icon',
-        description: 'Custom icon for non-image files.',
-      },
-    ],
-    methods: [
-      {
-        name: 'focus',
-        description: 'Sets focus on the file input.',
-        parameters: [
-          {
-            name: 'options',
-            type: 'FocusOptions',
-          },
-        ],
-      },
-      {
-        name: 'blur',
-        description: 'Removes focus from the file input.',
-      },
-    ],
-  },
   'format-date': {
     tagName: 'wa-format-date',
     className: 'WaFormatDate',
@@ -1737,109 +1570,236 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'stepDown',
         description: 'Decrements the value by the step amount.',
       },
-    ],
-  },
-  page: {
-    tagName: 'wa-page',
-    className: 'WaPage',
-    events: [],
-    slots: [
       {
-        name: '',
-        description: "The page's main content.",
-      },
-      {
-        name: 'banner',
+        name: 'setCustomValidity',
         description:
-          'The banner that gets display above the header. The banner will not be shown if no content is provided.',
-      },
-      {
-        name: 'header',
-        description:
-          'The header to display at the top of the page. If a banner is present, the header will appear below the banner. The header will not be shown if there is no content.',
-      },
-      {
-        name: 'subheader',
-        description:
-          'A subheader to display below the `header`. This is a good place to put things like breadcrumbs.',
-      },
-      {
-        name: 'menu',
-        description:
-          'The left side of the page. If you slot an element in here, you will override the default `navigation` slot and will be handling navigation on your own. This also will not disable the fallback behavior of the navigation button. This section "sticks" to the top as the page scrolls.',
-      },
-      {
-        name: 'navigation-header',
-        description:
-          'The header for a navigation area. On mobile this will be the header for `<wa-drawer>`.',
-      },
-      {
-        name: 'navigation',
-        description:
-          'The main content to display in the navigation area. This is displayed on the left side of the page, if `menu` is not used. This section "sticks" to the top as the page scrolls.',
-      },
-      {
-        name: 'navigation-footer',
-        description:
-          'The footer for a navigation area. On mobile this will be the footer for `<wa-drawer>`.',
-      },
-      {
-        name: 'navigation-toggle',
-        description:
-          'Use this slot to slot in your own button + icon for toggling the navigation drawer. By default it is a `<wa-button>` + a 3 bars `<wa-icon>`',
-      },
-      {
-        name: 'navigation-toggle-icon',
-        description:
-          'Use this to slot in your own icon for toggling the navigation drawer. By default it is 3 bars `<wa-icon>`.',
-      },
-      {
-        name: 'main-header',
-        description: 'Header to display inline above the main content.',
-      },
-      {
-        name: 'main-footer',
-        description: 'Footer to display inline below the main content.',
-      },
-      {
-        name: 'aside',
-        description:
-          'Content to be shown on the right side of the page. Typically contains a table of contents, ads, etc. This section "sticks" to the top as the page scrolls.',
-      },
-      {
-        name: 'skip-to-content',
-        description:
-          'The "skip to content" slot. You can override this If you would like to override the `Skip to content` button and add additional "Skip to X", they can be inserted here.',
-      },
-      {
-        name: 'footer',
-        description:
-          'The content to display in the footer. This is always displayed underneath the viewport so will always make the page "scrollable".',
-      },
-    ],
-    methods: [
-      {
-        name: 'visiblePixelsInViewport',
-        description:
-          'https://stackoverflow.com/a/26831113\nThis prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps.',
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
-            name: 'element',
-            type: 'HTMLElement | null',
+            name: 'message',
+            type: 'string',
           },
         ],
       },
       {
-        name: 'showNavigation',
-        description: 'Shows the mobile navigation drawer',
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
       },
       {
-        name: 'hideNavigation',
-        description: 'Hides the mobile navigation drawer',
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
+  tag: {
+    tagName: 'wa-tag',
+    className: 'WaTag',
+    events: [
+      {
+        name: 'wa-remove',
+        description: 'Emitted when the remove button is activated.',
+        reactName: 'onWaRemove',
+        eventType: 'WaRemoveEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: "The tag's content.",
+      },
+    ],
+    methods: [],
+  },
+  option: {
+    tagName: 'wa-option',
+    className: 'WaOption',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The option's label.",
       },
       {
-        name: 'toggleNavigation',
-        description: 'Toggles the mobile navigation drawer',
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed before the label.',
+      },
+      {
+        name: 'end',
+        description: 'An element, such as `<wa-icon>`, placed after the label.',
+      },
+    ],
+    methods: [],
+  },
+  select: {
+    tagName: 'wa-select',
+    className: 'WaSelect',
+    events: [
+      {
+        name: 'input',
+        description: 'Emitted when the control receives input.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'change',
+        description: "Emitted when the control's value changes.",
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the control gains focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'blur',
+        description: 'Emitted when the control loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'wa-clear',
+        description: "Emitted when the control's value is cleared.",
+        reactName: 'onWaClear',
+        eventType: 'WaClearEvent',
+      },
+      {
+        name: 'wa-show',
+        description: "Emitted when the select's menu opens.",
+        reactName: 'onWaShow',
+        eventType: 'WaShowEvent',
+      },
+      {
+        name: 'wa-after-show',
+        description:
+          "Emitted after the select's menu opens and all animations are complete.",
+        reactName: 'onWaAfterShow',
+        eventType: 'WaAfterShowEvent',
+      },
+      {
+        name: 'wa-hide',
+        description: "Emitted when the select's menu closes.",
+        reactName: 'onWaHide',
+        eventType: 'WaHideEvent',
+      },
+      {
+        name: 'wa-after-hide',
+        description:
+          "Emitted after the select's menu closes and all animations are complete.",
+        reactName: 'onWaAfterHide',
+        eventType: 'WaAfterHideEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onWaInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description:
+          'The listbox options. Must be `<wa-option>` elements. You can use `<wa-divider>` to group items visually.',
+      },
+      {
+        name: 'label',
+        description:
+          "The input's label. Alternatively, you can use the `label` attribute.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed at the start of the combobox.',
+      },
+      {
+        name: 'end',
+        description:
+          'An element, such as `<wa-icon>`, placed at the end of the combobox.',
+      },
+      {
+        name: 'clear-icon',
+        description: 'An icon to use in lieu of the default clear icon.',
+      },
+      {
+        name: 'expand-icon',
+        description:
+          'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
+      },
+      {
+        name: 'hint',
+        description:
+          'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
+      },
+    ],
+    methods: [
+      {
+        name: 'show',
+        description: 'Shows the listbox.',
+      },
+      {
+        name: 'hide',
+        description: 'Hides the listbox.',
+      },
+      {
+        name: 'focus',
+        description: 'Sets focus on the control.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the control.',
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -1948,7 +1908,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: "The radio's label.",
       },
     ],
-    methods: [],
+    methods: [
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
   },
   'radio-group': {
     tagName: 'wa-radio-group',
@@ -2001,6 +1993,37 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           },
         ],
       },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
     ],
   },
   rating: {
@@ -2046,6 +2069,18 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [],
     methods: [],
   },
+  scroller: {
+    tagName: 'wa-scroller',
+    className: 'WaScroller',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: 'The content to show inside the scroller.',
+      },
+    ],
+    methods: [],
+  },
   'resize-observer': {
     tagName: 'wa-resize-observer',
     className: 'WaResizeObserver',
@@ -2061,18 +2096,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: '',
         description: 'One or more elements to watch for resizing.',
-      },
-    ],
-    methods: [],
-  },
-  scroller: {
-    tagName: 'wa-scroller',
-    className: 'WaScroller',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: 'The content to show inside the scroller.',
       },
     ],
     methods: [],
@@ -2157,42 +2180,38 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description:
           "Increases the slider's value by `step`. This is a programmatic change, so `input` and `change` events will not be\nemitted when this is called.",
       },
-    ],
-  },
-  sparkline: {
-    tagName: 'wa-sparkline',
-    className: 'WaSparkline',
-    events: [],
-    slots: [],
-    methods: [],
-  },
-  'split-panel': {
-    tagName: 'wa-split-panel',
-    className: 'WaSplitPanel',
-    events: [
       {
-        name: 'wa-reposition',
-        description: "Emitted when the divider's position changes.",
-        reactName: 'onWaReposition',
-        eventType: 'WaRepositionEvent',
-      },
-    ],
-    slots: [
-      {
-        name: 'start',
-        description: 'Content to place in the start panel.',
-      },
-      {
-        name: 'end',
-        description: 'Content to place in the end panel.',
-      },
-      {
-        name: 'divider',
+        name: 'setCustomValidity',
         description:
-          'The divider. Useful for slotting in a custom icon that renders as a handle.',
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
-    methods: [],
   },
   switch: {
     tagName: 'wa-switch',
@@ -2260,6 +2279,37 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'blur',
         description: 'Removes focus from the switch.',
       },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
     ],
   },
   tab: {
@@ -2270,6 +2320,34 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: '',
         description: "The tab's label.",
+      },
+    ],
+    methods: [],
+  },
+  'split-panel': {
+    tagName: 'wa-split-panel',
+    className: 'WaSplitPanel',
+    events: [
+      {
+        name: 'wa-reposition',
+        description: "Emitted when the divider's position changes.",
+        reactName: 'onWaReposition',
+        eventType: 'WaRepositionEvent',
+      },
+    ],
+    slots: [
+      {
+        name: 'start',
+        description: 'Content to place in the start panel.',
+      },
+      {
+        name: 'end',
+        description: 'Content to place in the end panel.',
+      },
+      {
+        name: 'divider',
+        description:
+          'The divider. Useful for slotting in a custom icon that renders as a handle.',
       },
     ],
     methods: [],
@@ -2436,76 +2514,36 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           },
         ],
       },
-    ],
-  },
-  'tree-item': {
-    tagName: 'wa-tree-item',
-    className: 'WaTreeItem',
-    events: [
       {
-        name: 'wa-expand',
-        description: 'Emitted when the tree item expands.',
-        reactName: 'onWaExpand',
-        eventType: 'WaExpandEvent',
-      },
-      {
-        name: 'wa-after-expand',
+        name: 'setCustomValidity',
         description:
-          'Emitted after the tree item expands and all animations are complete.',
-        reactName: 'onWaAfterExpand',
-        eventType: 'WaAfterExpandEvent',
-      },
-      {
-        name: 'wa-collapse',
-        description: 'Emitted when the tree item collapses.',
-        reactName: 'onWaCollapse',
-        eventType: 'WaCollapseEvent',
-      },
-      {
-        name: 'wa-after-collapse',
-        description:
-          'Emitted after the tree item collapses and all animations are complete.',
-        reactName: 'onWaAfterCollapse',
-        eventType: 'WaAfterCollapseEvent',
-      },
-      {
-        name: 'wa-lazy-change',
-        description: "Emitted when the tree item's lazy state changes.",
-        reactName: 'onWaLazyChange',
-        eventType: 'WaLazyChangeEvent',
-      },
-      {
-        name: 'wa-lazy-load',
-        description:
-          'Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree.',
-        reactName: 'onWaLazyLoad',
-        eventType: 'WaLazyLoadEvent',
-      },
-    ],
-    slots: [
-      {
-        name: '',
-        description: 'The default slot.',
-      },
-      {
-        name: 'expand-icon',
-        description: 'The icon to show when the tree item is expanded.',
-      },
-      {
-        name: 'collapse-icon',
-        description: 'The icon to show when the tree item is collapsed.',
-      },
-    ],
-    methods: [
-      {
-        name: 'getChildrenItems',
-        description: 'Gets all the nested tree items in this node.',
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
-            name: '{ includeDisabled = true }',
-            type: '{ includeDisabled?: boolean }',
+            name: 'message',
+            type: 'string',
           },
         ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -2574,6 +2612,574 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'zoomOut',
         description: 'Zooms out to the previous available zoom level.',
+      },
+    ],
+  },
+  chart: {
+    tagName: 'wa-chart',
+    className: 'WaChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  'bar-chart': {
+    tagName: 'wa-bar-chart',
+    className: 'WaBarChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  'bubble-chart': {
+    tagName: 'wa-bubble-chart',
+    className: 'WaBubbleChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  combobox: {
+    tagName: 'wa-combobox',
+    className: 'WaCombobox',
+    events: [
+      {
+        name: 'input',
+        description: 'Emitted when the control receives input.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'change',
+        description: "Emitted when the control's value changes.",
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the control gains focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'blur',
+        description: 'Emitted when the control loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'wa-clear',
+        description: "Emitted when the control's value is cleared.",
+        reactName: 'onWaClear',
+        eventType: 'WaClearEvent',
+      },
+      {
+        name: 'wa-show',
+        description: "Emitted when the combobox's menu opens.",
+        reactName: 'onWaShow',
+        eventType: 'WaShowEvent',
+      },
+      {
+        name: 'wa-after-show',
+        description:
+          "Emitted after the combobox's menu opens and all animations are complete.",
+        reactName: 'onWaAfterShow',
+        eventType: 'WaAfterShowEvent',
+      },
+      {
+        name: 'wa-hide',
+        description: "Emitted when the combobox's menu closes.",
+        reactName: 'onWaHide',
+        eventType: 'WaHideEvent',
+      },
+      {
+        name: 'wa-after-hide',
+        description:
+          "Emitted after the combobox's menu closes and all animations are complete.",
+        reactName: 'onWaAfterHide',
+        eventType: 'WaAfterHideEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onWaInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description:
+          'The listbox options. Must be `<wa-option>` elements. You can use `<wa-divider>` to group items visually.',
+      },
+      {
+        name: 'label',
+        description:
+          "The input's label. Alternatively, you can use the `label` attribute.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed at the start of the combobox.',
+      },
+      {
+        name: 'end',
+        description:
+          'An element, such as `<wa-icon>`, placed at the end of the combobox.',
+      },
+      {
+        name: 'clear-icon',
+        description: 'An icon to use in lieu of the default clear icon.',
+      },
+      {
+        name: 'expand-icon',
+        description:
+          'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
+      },
+      {
+        name: 'hint',
+        description:
+          'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
+      },
+    ],
+    methods: [
+      {
+        name: 'show',
+        description: 'Shows the listbox.',
+      },
+      {
+        name: 'hide',
+        description: 'Hides the listbox.',
+      },
+      {
+        name: 'focus',
+        description: 'Sets focus on the control.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the control.',
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
+  'doughnut-chart': {
+    tagName: 'wa-doughnut-chart',
+    className: 'WaDoughnutChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  'file-input': {
+    tagName: 'wa-file-input',
+    className: 'WaFileInput',
+    events: [
+      {
+        name: 'input',
+        description: 'Emitted when file selection changes.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'change',
+        description: 'Emitted when files are added or removed.',
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the dropzone gains focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'blur',
+        description: 'Emitted when the dropzone loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onWaInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: 'label',
+        description:
+          "The file input's label. Alternatively, you can use the `label` attribute.",
+      },
+      {
+        name: 'hint',
+        description:
+          'Text that describes how to use the file input. Alternatively, you can use the `hint` attribute.',
+      },
+      {
+        name: 'dropzone',
+        description: 'Custom content to show in the dropzone.',
+      },
+      {
+        name: 'file-icon',
+        description: 'Custom icon for non-image files.',
+      },
+    ],
+    methods: [
+      {
+        name: 'focus',
+        description: 'Sets focus on the file input.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the file input.',
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
+  'line-chart': {
+    tagName: 'wa-line-chart',
+    className: 'WaLineChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  page: {
+    tagName: 'wa-page',
+    className: 'WaPage',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The page's main content.",
+      },
+      {
+        name: 'banner',
+        description:
+          'The banner that gets display above the header. The banner will not be shown if no content is provided.',
+      },
+      {
+        name: 'header',
+        description:
+          'The header to display at the top of the page. If a banner is present, the header will appear below the banner. The header will not be shown if there is no content.',
+      },
+      {
+        name: 'subheader',
+        description:
+          'A subheader to display below the `header`. This is a good place to put things like breadcrumbs.',
+      },
+      {
+        name: 'menu',
+        description:
+          'The left side of the page. If you slot an element in here, you will override the default `navigation` slot and will be handling navigation on your own. This also will not disable the fallback behavior of the navigation button. This section "sticks" to the top as the page scrolls.',
+      },
+      {
+        name: 'navigation-header',
+        description:
+          'The header for a navigation area. On mobile this will be the header for `<wa-drawer>`.',
+      },
+      {
+        name: 'navigation',
+        description:
+          'The main content to display in the navigation area. This is displayed on the left side of the page, if `menu` is not used. This section "sticks" to the top as the page scrolls.',
+      },
+      {
+        name: 'navigation-footer',
+        description:
+          'The footer for a navigation area. On mobile this will be the footer for `<wa-drawer>`.',
+      },
+      {
+        name: 'navigation-toggle',
+        description:
+          'Use this slot to slot in your own button + icon for toggling the navigation drawer. By default it is a `<wa-button>` + a 3 bars `<wa-icon>`',
+      },
+      {
+        name: 'navigation-toggle-icon',
+        description:
+          'Use this to slot in your own icon for toggling the navigation drawer. By default it is 3 bars `<wa-icon>`.',
+      },
+      {
+        name: 'main-header',
+        description: 'Header to display inline above the main content.',
+      },
+      {
+        name: 'main-footer',
+        description: 'Footer to display inline below the main content.',
+      },
+      {
+        name: 'aside',
+        description:
+          'Content to be shown on the right side of the page. Typically contains a table of contents, ads, etc. This section "sticks" to the top as the page scrolls.',
+      },
+      {
+        name: 'skip-to-content',
+        description:
+          'The "skip to content" slot. You can override this If you would like to override the `Skip to content` button and add additional "Skip to X", they can be inserted here.',
+      },
+      {
+        name: 'footer',
+        description:
+          'The content to display in the footer. This is always displayed underneath the viewport so will always make the page "scrollable".',
+      },
+    ],
+    methods: [
+      {
+        name: 'visiblePixelsInViewport',
+        description:
+          'https://stackoverflow.com/a/26831113\nThis prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps.',
+        parameters: [
+          {
+            name: 'element',
+            type: 'HTMLElement | null',
+          },
+        ],
+      },
+      {
+        name: 'showNavigation',
+        description: 'Shows the mobile navigation drawer',
+      },
+      {
+        name: 'hideNavigation',
+        description: 'Hides the mobile navigation drawer',
+      },
+      {
+        name: 'toggleNavigation',
+        description: 'Toggles the mobile navigation drawer',
+      },
+    ],
+  },
+  'pie-chart': {
+    tagName: 'wa-pie-chart',
+    className: 'WaPieChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  'polar-area-chart': {
+    tagName: 'wa-polar-area-chart',
+    className: 'WaPolarAreaChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  'radar-chart': {
+    tagName: 'wa-radar-chart',
+    className: 'WaRadarChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  'scatter-chart': {
+    tagName: 'wa-scatter-chart',
+    className: 'WaScatterChart',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
+      },
+    ],
+    methods: [],
+  },
+  sparkline: {
+    tagName: 'wa-sparkline',
+    className: 'WaSparkline',
+    events: [],
+    slots: [],
+    methods: [],
+  },
+  'toast-item': {
+    tagName: 'wa-toast-item',
+    className: 'WaToastItem',
+    events: [
+      {
+        name: 'wa-show',
+        description: 'Emitted when the toast item begins to show.',
+        reactName: 'onWaShow',
+        eventType: 'WaShowEvent',
+      },
+      {
+        name: 'wa-after-show',
+        description: 'Emitted after the toast item has finished showing.',
+        reactName: 'onWaAfterShow',
+        eventType: 'WaAfterShowEvent',
+      },
+      {
+        name: 'wa-hide',
+        description: 'Emitted when the toast item begins to hide.',
+        reactName: 'onWaHide',
+        eventType: 'WaHideEvent',
+      },
+      {
+        name: 'wa-after-hide',
+        description: 'Emitted after the toast item has finished hiding.',
+        reactName: 'onWaAfterHide',
+        eventType: 'WaAfterHideEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: "The toast item's message content.",
+      },
+      {
+        name: 'icon',
+        description: 'An optional icon to show at the start of the toast item.',
+      },
+    ],
+    methods: [
+      {
+        name: 'hide',
+        description:
+          'Hides the toast item with animation and removes it from the DOM.',
+      },
+    ],
+  },
+  toast: {
+    tagName: 'wa-toast',
+    className: 'WaToast',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description:
+          'Place `<wa-toast-item>` elements here to show them as notifications.',
+      },
+    ],
+    methods: [
+      {
+        name: 'create',
+        description:
+          'Creates a toast notification programmatically and adds it to the stack. Returns a reference to the created toast\nitem element.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+          {
+            name: 'options',
+            type: 'ToastCreateOptions',
+          },
+        ],
       },
     ],
   },

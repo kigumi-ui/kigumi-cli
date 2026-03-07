@@ -1,0 +1,33 @@
+<script setup>
+import { ref } from 'vue';
+import '{{{importPath}}}';
+import './Toast.css';
+
+/**
+ * Container that manages and stacks lightweight notification banners at a chosen screen edge
+ */
+const props = defineProps({
+  placement: { type: String, required: false, default: 'top-end' },
+});
+
+const elementRef = ref(null);
+
+defineExpose({
+  create: (message, options) => {
+    elementRef.value?.create?.(message, options);
+  },
+  element: elementRef,
+});
+</script>
+
+<template>
+  <Teleport to="body">
+    <wa-toast
+      ref="elementRef"
+      v-bind="props"
+      :class="$attrs.class"
+    >
+      <slot />
+    </wa-toast>
+  </Teleport>
+</template>

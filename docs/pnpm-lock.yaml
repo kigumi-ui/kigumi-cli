@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@awesome.me/webawesome-pro':
-        specifier: ^3.2.1
-        version: 3.2.1(@floating-ui/utils@0.2.10)(@types/react@19.2.14)
+        specifier: ^3.3.1
+        version: 3.3.1(@floating-ui/utils@0.2.10)(@types/react@19.2.14)
       '@storybook/addon-themes':
         specifier: ^10.2.11
         version: 10.2.11(storybook@10.2.10(@testing-library/dom@10.4.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
@@ -129,8 +129,8 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@awesome.me/webawesome-pro@3.2.1':
-    resolution: {integrity: sha512-6rDqIpkHDozUL3pcrzvsN/3pjAKCD3JPVg2igb/RRHp+6CwU+GgPkEuRVaTfoj3Jq5/Sj+raWpcA3jvQUViaog==}
+  '@awesome.me/webawesome-pro@3.3.1':
+    resolution: {integrity: sha512-MeDDXApCmMboDNBVeRiCf2HWEmu0hFLz81etmPuP+VQkxe9cdGKlUmiBpxLjv5C1ma6UaVQ1izcx5Zffeh0zGA==}
     engines: {node: '>=14.17.0'}
 
   '@babel/code-frame@7.29.0':
@@ -521,6 +521,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@kurkle/color@0.3.4':
+    resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
 
   '@lit-labs/ssr-dom-shim@1.5.1':
     resolution: {integrity: sha512-Aou5UdlSpr5whQe8AA/bZG0jMj96CoJIWbGfZ91qieWu5AWUMKw8VR/pAkQkJYvBNhmCcWnZlyyk5oze8JIqYA==}
@@ -1106,6 +1109,10 @@ packages:
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
+
+  chart.js@4.5.1:
+    resolution: {integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==}
+    engines: {pnpm: '>=8'}
 
   check-error@2.1.3:
     resolution: {integrity: sha512-PAJdDJusoxnwm1VwW07VWwUN1sl7smmC3OKggvndJFadxxDRyFJBX/ggnu/KE4kQAB7a3Dp8f/YXC1FlUprWmA==}
@@ -1876,6 +1883,9 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  style-observer@0.1.2:
+    resolution: {integrity: sha512-VdGkVx7dGqEzosau63CI33vRJsAGKPJCXyS9f5ze7gFbgsXm0wt5liXUNB9+YjyfhMyD+iTwNa7sM4cvpP3N9Q==}
+
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
@@ -2164,17 +2174,19 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@awesome.me/webawesome-pro@3.2.1(@floating-ui/utils@0.2.10)(@types/react@19.2.14)':
+  '@awesome.me/webawesome-pro@3.3.1(@floating-ui/utils@0.2.10)(@types/react@19.2.14)':
     dependencies:
       '@ctrl/tinycolor': 4.1.0
       '@floating-ui/dom': 1.7.5
       '@lit/react': 1.0.8(@types/react@19.2.14)
       '@shoelace-style/animations': 1.2.0
       '@shoelace-style/localize': 3.2.1
+      chart.js: 4.5.1
       composed-offset-position: 0.0.6(@floating-ui/utils@0.2.10)
       lit: 3.3.2
       nanoid: 5.1.6
       qr-creator: 1.0.0
+      style-observer: 0.1.2
     transitivePeerDependencies:
       - '@floating-ui/utils'
       - '@types/react'
@@ -2509,6 +2521,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@kurkle/color@0.3.4': {}
 
   '@lit-labs/ssr-dom-shim@1.5.1': {}
 
@@ -3136,6 +3150,10 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
+
+  chart.js@4.5.1:
+    dependencies:
+      '@kurkle/color': 0.3.4
 
   check-error@2.1.3: {}
 
@@ -3892,6 +3910,8 @@ snapshots:
   strip-indent@4.1.1: {}
 
   strip-json-comments@3.1.1: {}
+
+  style-observer@0.1.2: {}
 
   supports-color@7.2.0:
     dependencies:

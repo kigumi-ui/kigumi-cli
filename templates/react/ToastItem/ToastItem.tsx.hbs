@@ -1,0 +1,111 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './ToastItem.css';
+
+/**
+ * A single notification banner that can be stacked inside a Toast container
+ *
+ * @example
+ * ```tsx
+ * // Basic usage inside a Toast
+ * <Toast>
+ *   <ToastItem variant="success">File saved successfully!</ToastItem>
+ * </Toast>
+ *
+ * // With icon and custom duration
+ * <ToastItem variant="danger" duration={10000}>
+ *   <wa-icon slot="icon" name="triangle-exclamation" />
+ *   Something went wrong
+ * </ToastItem>
+ *
+ * // With ref to hide programmatically
+ * const itemRef = useRef<ToastItemRef>(null);
+ * <ToastItem ref={itemRef}>
+ *   Dismissible notification
+ * </ToastItem>
+ * ```
+ */
+export interface ToastItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onHide' | 'dir'> {
+
+  /** Colour scheme reflecting the notification intent */
+  variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
+
+  /** Controls the overall dimensions of the notification */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Milliseconds before auto-dismiss. Use 0 to keep it visible until closed. */
+  duration?: number;
+
+  /** Fires when the reveal transition starts. */
+  onShow?: (event: CustomEvent) => void;
+
+  /** Fires once the reveal transition has finished. */
+  onAfterShow?: (event: CustomEvent) => void;
+
+  /** Fires when the dismiss transition starts. */
+  onHide?: (event: CustomEvent) => void;
+
+  /** Fires once the dismiss transition has finished. */
+  onAfterHide?: (event: CustomEvent) => void;
+}
+
+export interface ToastItemRef {
+  /** Hides the toast item with animation and removes it from the DOM */
+  hide: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+    const toastItemRef = useRef<HTMLElement & {
+      hide?: () => void;
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        hide: () => toastItemRef.current?.hide?.(),
+        get element() {
+          return toastItemRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = toastItemRef.current;
+      if (!el) return;
+
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-toast-item
+        ref={toastItemRef}
+        class={clsx('ToastItem', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-toast-item>
+    );
+  }
+);
+
+ToastItem.displayName = 'ToastItem';
