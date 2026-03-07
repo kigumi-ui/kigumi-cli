@@ -9,8 +9,12 @@
  * - generateTypeDeclaration() - Generate TypeScript declarations
  * - updateTypeDeclarations() - Update web-awesome.d.ts file
  * - updateComponentIndex() - Update barrel export file
- * - generateComponentCSS() - Generate CSS file
- * - generateComponentTest() - Generate test file
+ * - generateComponentCSSContent() - Generate CSS content string
+ * - generateComponentCSS() - Generate CSS file (content + write)
+ * - generateComponentTestContent() - Generate test content string
+ * - generateComponentTest() - Generate test file (content + write)
+ * - getComponentCSSPath() - Get CSS file path for a component
+ * - getComponentTestPath() - Get test file path for a component
  *
  * @see AGENTS.md Rule #2 for templates-first development
  */
@@ -366,19 +370,24 @@ export async function updateComponentIndex(
 }
 
 /**
- * Generate CSS file for component
+ * Get the CSS file path for a component
  */
-export async function generateComponentCSS(
+export function getComponentCSSPath(
   component: ComponentDefinition,
   config: KigumiConfig,
   cwd: string
-): Promise<void> {
+): string {
   const componentDir = path.join(cwd, config.componentsDir, component.name);
-  const cssPath = path.join(componentDir, `${component.name}.css`);
+  return path.join(componentDir, `${component.name}.css`);
+}
 
-  await fs.ensureDir(componentDir);
-
-  // Use component-specific CSS template if it exists
+/**
+ * Generate CSS content string for a component (without writing to disk)
+ */
+export async function generateComponentCSSContent(
+  component: ComponentDefinition,
+  config: KigumiConfig
+): Promise<string> {
   const componentCSSTemplatePath = path.join(
     TEMPLATES_DIR,
     config.framework,
@@ -386,34 +395,51 @@ export async function generateComponentCSS(
     `${component.name}.css.hbs`
   );
 
-  let cssContent: string;
   if (await fs.pathExists(componentCSSTemplatePath)) {
-    cssContent = await renderTemplate(
+    return renderTemplate(
       componentCSSTemplatePath,
       buildTemplateContext(component)
     );
-  } else {
-    cssContent = generateCSSTemplate(component.name);
   }
-
-  await fs.writeFile(cssPath, cssContent);
+  return generateCSSTemplate(component.name);
 }
 
 /**
- * Generate unit test for component
+ * Generate CSS file for component (generates content + writes to disk)
  */
-export async function generateComponentTest(
+export async function generateComponentCSS(
   component: ComponentDefinition,
   config: KigumiConfig,
   cwd: string
 ): Promise<void> {
+  const cssPath = getComponentCSSPath(component, config, cwd);
+  await fs.ensureDir(path.dirname(cssPath));
+  const cssContent = await generateComponentCSSContent(component, config);
+  await fs.writeFile(cssPath, cssContent);
+}
+
+/**
+ * Get the test file path for a component
+ */
+export function getComponentTestPath(
+  component: ComponentDefinition,
+  config: KigumiConfig,
+  cwd: string
+): string {
   const componentDir = path.join(cwd, config.componentsDir, component.name);
   const ext = getTestExtension(config.framework, config.typescript);
-  const testPath = path.join(componentDir, `${component.name}.${ext}`);
+  return path.join(componentDir, `${component.name}.${ext}`);
+}
 
-  await fs.ensureDir(componentDir);
+/**
+ * Generate test content string for a component (without writing to disk)
+ */
+export async function generateComponentTestContent(
+  component: ComponentDefinition,
+  config: KigumiConfig
+): Promise<string> {
+  const ext = getTestExtension(config.framework, config.typescript);
 
-  // Use component-specific test template if it exists
   const componentTestTemplatePath = path.join(
     TEMPLATES_DIR,
     config.framework,
@@ -421,17 +447,17 @@ export async function generateComponentTest(
     `${component.name}.${ext}.hbs`
   );
 
-  let testContent: string;
   if (await fs.pathExists(componentTestTemplatePath)) {
-    testContent = await renderTemplate(
+    return renderTemplate(
       componentTestTemplatePath,
       buildTemplateContext(component)
     );
-  } else {
-    // Fallback to generic test
-    if (config.framework === 'vue') {
-      const vueExt = config.typescript ? '.vue' : '.js.vue';
-      testContent = `import { describe, it, expect } from 'vitest';
+  }
+
+  // Fallback to generic test
+  if (config.framework === 'vue') {
+    const vueExt = config.typescript ? '.vue' : '.js.vue';
+    return `import { describe, it, expect } from 'vitest';
 import { mount } from '@testing-library/vue';
 import ${component.name} from './${component.name}${vueExt}';
 
@@ -442,8 +468,9 @@ describe('${component.name}', () => {
   });
 });
 `;
-    } else {
-      testContent = `import { render, screen } from '@testing-library/react';
+  }
+
+  return `import { render, screen } from '@testing-library/react';
 import { ${component.name} } from './${component.name}';
 
 describe('${component.name}', () => {
@@ -460,8 +487,18 @@ describe('${component.name}', () => {
   });
 });
 `;
-    }
-  }
+}
 
+/**
+ * Generate unit test for component (generates content + writes to disk)
+ */
+export async function generateComponentTest(
+  component: ComponentDefinition,
+  config: KigumiConfig,
+  cwd: string
+): Promise<void> {
+  const testPath = getComponentTestPath(component, config, cwd);
+  await fs.ensureDir(path.dirname(testPath));
+  const testContent = await generateComponentTestContent(component, config);
   await fs.writeFile(testPath, testContent);
 }

@@ -209,7 +209,11 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir, overwrite: true });
+      await addCommand(['button'], {
+        cwd: tempDir,
+        overwrite: true,
+        yes: true,
+      });
 
       // Check content WAS overwritten
       const content = await fs.readFile(

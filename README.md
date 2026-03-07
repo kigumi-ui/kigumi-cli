@@ -115,19 +115,60 @@ The doctor command checks for:
 
 Useful after upgrading Kigumi CLI, switching tiers (Free↔Pro), or encountering import errors.
 
-### Upgrading
+### `status`
 
-When a new version of Kigumi CLI is released, run:
+Show your project's current configuration at a glance:
 
 ```bash
-# 1. Check for issues — auto-fixes config and shows upgrade instructions
-npx kigumi doctor
-
-# 2. Follow the doctor's output to update Web Awesome if needed
-
-# 3. Regenerate all components from updated templates
-npx kigumi add --all --overwrite
+npx kigumi status
 ```
+
+### `upgrade`
+
+When a new version of Kigumi CLI is released, see what changed and update your project:
+
+```bash
+npx kigumi upgrade             # Show upgrade guide and update version
+npx kigumi upgrade --dry-run   # Preview changes without modifying config
+```
+
+The upgrade command shows:
+
+- **Version comparison** — your pinned version vs. the CLI version
+- **Web Awesome version changes** — whether the underlying WA dependency changed
+- **Breaking changes** — what changed and how to migrate
+- **Recommended actions** — step-by-step instructions
+
+### `diff`
+
+Compare your installed components against the current templates to see what's changed:
+
+```bash
+npx kigumi diff                # Diff all installed components
+npx kigumi diff button card    # Diff specific components
+```
+
+Useful before running `--overwrite` to understand which files have local modifications.
+
+### Version Pinning
+
+Kigumi tracks which CLI version generated your project in `kigumi.config.json`. This ensures you stay on a compatible version and don't accidentally upgrade Web Awesome.
+
+```bash
+# Pin your project to the current CLI version
+npx kigumi upgrade
+
+# Use a specific CLI version (matches your project)
+npx kigumi@0.12.0 add button
+
+# Check your pinned version
+npx kigumi status
+```
+
+When the CLI version doesn't match your project:
+
+- **Minor mismatch** (e.g., 0.11 → 0.12): warning, continues normally
+- **Major mismatch** (e.g., 0.x → 1.x): hard error with instructions to upgrade or use the matching version
 
 ### `registry`
 
