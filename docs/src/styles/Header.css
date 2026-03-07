@@ -20,6 +20,13 @@
     }
   }
 
+  & .header__changelog {
+    display: none;
+    @media (min-width: 768px) {
+      display: block;
+    }
+  }
+
   & .header__title {
     font-weight: 800;
 
