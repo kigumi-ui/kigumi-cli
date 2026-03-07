@@ -44,7 +44,11 @@ const preview: Preview = {
     layout: 'padded',
     options: {
       storySort: {
-        order: ['Kigumi', ['Welcome', 'Getting Started'], 'Components'],
+        order: [
+          'Kigumi',
+          ['Welcome', 'Getting Started', 'Changelog'],
+          'Components',
+        ],
       },
     },
     controls: {

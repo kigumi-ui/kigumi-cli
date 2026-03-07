@@ -1,0 +1,67 @@
+.changelog-content h2 {
+  font-family: var(--wa-font-family-heading) !important;
+  font-size: var(--wa-font-heading-xl) !important;
+}
+
+.changelog-content h3 {
+  font-family: var(--wa-font-family-heading) !important;
+  font-size: var(--wa-font-heading-l) !important;
+}
+
+/* .changelog-content {
+  max-width: 720px;
+}
+
+.changelog-content h1 {
+  font: var(--wa-font-heading-4xl);
+  margin-block: 0 var(--wa-space-2xl);
+}
+
+.changelog-content p {
+  font: var(--wa-font-body-m);
+  color: var(--wa-color-neutral-700);
+  margin-block: 0 var(--wa-space-m);
+}
+
+.changelog-content ul,
+.changelog-content ol {
+  margin-block: 0 var(--wa-space-m);
+  padding-inline-start: var(--wa-space-xl);
+}
+
+.changelog-content li {
+  font: var(--wa-font-body-m);
+  color: var(--wa-color-neutral-700);
+  margin-block-end: var(--wa-space-xs);
+}
+
+.changelog-content code {
+  font-family: var(--wa-font-mono);
+  font-size: 0.875em;
+  background: var(--wa-color-neutral-100);
+  color: var(--wa-color-neutral-900);
+  padding: 0.1em 0.3em;
+  border-radius: var(--wa-border-radius-s);
+}
+
+.changelog-content pre {
+  background: var(--wa-color-neutral-100);
+  border-radius: var(--wa-border-radius-m);
+  padding: var(--wa-space-m);
+  overflow-x: auto;
+  margin-block: 0 var(--wa-space-m);
+}
+
+.changelog-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.changelog-content a {
+  color: var(--wa-color-brand-600);
+  text-decoration: underline;
+}
+
+.changelog-content a:hover {
+  color: var(--wa-color-brand-700);
+} */
