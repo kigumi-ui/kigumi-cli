@@ -35,9 +35,20 @@ export function Hero() {
       <div className="wa-grid wa-align-items-start">
         <div className="wa-stack wa-align-items-start">
           <div className="wa-stack wa-align-items-start wa-gap-xs">
-            <Badge pill className="wa-font-size-s">
-              <Icon name="tag" />v{__CLI_VERSION__}
-            </Badge>
+            <a
+              href={
+                import.meta.env.DEV
+                  ? 'http://localhost:6006/?path=/docs/kigumi-changelog--docs'
+                  : 'https://docs.kigumi.style/?path=/docs/kigumi-changelog--docs'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none' }}
+            >
+              <Badge pill className="wa-font-size-s">
+                <Icon name="tag" />v{__CLI_VERSION__}
+              </Badge>
+            </a>
             <h1 className="wa-heading-4xl heading-1">
               Build framework-agnostic UIs
             </h1>
