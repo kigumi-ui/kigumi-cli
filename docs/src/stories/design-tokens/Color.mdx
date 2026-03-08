@@ -1,0 +1,143 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design Tokens/Color" />
+
+<Unstyled>
+<div style={{ fontFamily: 'var(--wa-font-family-body)', color: 'var(--wa-color-text-normal)', maxWidth: '860px' }}>
+
+<h1 className="wa-heading-2xl" style={{ marginBottom: '0.25rem' }}>Color Tokens</h1>
+
+<p style={{ marginBottom: '2rem' }}>Color tokens use the <code>--wa-color-</code> prefix and are available in all themes. Override them at <code>:root</code> to customize the palette.</p>
+
+<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Foundational Surface &amp; Text</h2>
+
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '2rem' }}>
+  <thead>
+    <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
+      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
+      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-surface-raised</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Elevated surfaces (cards, popovers)</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-surface-default</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Default background</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-surface-lowered</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Recessed areas (inputs, wells)</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-surface-border</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Dividers and borders</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-text-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Primary body text</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-text-quiet</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Secondary / de-emphasized text</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-text-link</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Interactive link text</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-overlay-modal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Modal backdrop</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-overlay-inline</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Inline overlay tint</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-shadow</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Drop shadow base color</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-focus</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Focus ring color</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-mix-hover</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Hover state color mix</td>
+    </tr>
+    <tr>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-mix-active</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Active/pressed state color mix</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Semantic Color Scale</h2>
+
+<p style={{ marginBottom: '0.75rem' }}>Semantic tokens follow the pattern <code>--wa-color-{'{group}'}-{'{role}'}-{'{attention}'}</code>.</p>
+
+<p style={{ marginBottom: '0.25rem' }}><strong>Groups:</strong> <code>brand</code> · <code>success</code> · <code>neutral</code> · <code>warning</code> · <code>danger</code></p>
+<p style={{ marginBottom: '0.25rem' }}><strong>Roles:</strong> <code>fill</code> · <code>border</code> · <code>on</code></p>
+<p style={{ marginBottom: '1rem' }}><strong>Attention levels:</strong> <code>quiet</code> · <code>normal</code> · <code>loud</code></p>
+
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '2rem' }}>
+  <thead>
+    <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
+      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token example</th>
+      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Usage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-brand-fill-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Brand-colored button background</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-brand-fill-quiet</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Subtle brand tint</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-brand-fill-loud</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>High-contrast brand fill</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-brand-border-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Brand-colored border</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-brand-on-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Text/icon on brand fill</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-danger-fill-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Error/destructive button background</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-success-fill-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Success indicator background</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-warning-fill-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Warning indicator background</td>
+    </tr>
+    <tr>
+      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-color-neutral-fill-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Neutral button background</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Raw Color Scale</h2>
+
+<p style={{ marginBottom: '0.75rem' }}>Raw hue scales (<code>--wa-color-{'{hue}'}-{'{tint}'}</code>) are available for direct use. Tints range from <code>05</code> (lightest) to <code>95</code> (darkest).</p>
+
+<p style={{ marginBottom: '1rem' }}>Available hues: <code>red</code> · <code>orange</code> · <code>yellow</code> · <code>green</code> · <code>cyan</code> · <code>blue</code> · <code>indigo</code> · <code>purple</code> · <code>pink</code> · <code>gray</code></p>
+
+<div style={{ borderLeft: '3px solid var(--wa-color-brand-border-normal)', paddingLeft: '1rem', margin: '1rem 0', color: 'var(--wa-color-text-quiet)' }}>
+  Prefer semantic tokens over raw hue values to ensure consistency across light and dark themes.
+</div>
+
+</div>
+</Unstyled>

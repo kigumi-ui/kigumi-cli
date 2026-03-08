@@ -346,6 +346,7 @@ output.error('Failed to install');
 - **Path aliases** - use `@/` for `src/`
 - **fs-extra** - use `fs-extra` not native `fs`
 - **Async/await** - no callbacks or raw promises
+- **WA utility classes**: Prefer `.wa-stack`, `.wa-grid`, `.wa-cluster`, `.wa-flank`, `.wa-frame`, `.wa-split` for layout compositions. See root AGENTS.md § CSS Utilities.
 
 ---
 

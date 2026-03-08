@@ -140,6 +140,29 @@ requestClose: () => dialogRef.current?.requestClose(),
 
 ---
 
+## CSS Utilities
+
+Prefer Web Awesome utility classes over custom CSS for layout and style composition:
+
+**Layout utilities** (`.wa-` prefix — applied via `className` on plain HTML elements):
+| Class | Purpose |
+|-------|---------|
+| `.wa-stack` | Vertical stacking with consistent gap |
+| `.wa-grid` | Responsive column grid |
+| `.wa-cluster` | Horizontal wrapping group (tags, chips) |
+| `.wa-flank` | Sidebar + main content split |
+| `.wa-frame` | Aspect-ratio constrained container |
+| `.wa-split` | Two equal columns |
+
+**Style utilities:**
+| Class | Purpose |
+|-------|---------|
+| `.wa-dark` | Applies dark color scheme to a subtree |
+
+Reference: https://webawesome.com/docs/utilities/ and https://webawesome.com/docs/layout/
+
+---
+
 ## Tier System
 
 **Single source of truth:** `.env` file determines tier, NOT config.
@@ -920,4 +943,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-03-07
+**Maintained by:** AI Assistants | **Last Updated:** 2026-03-08

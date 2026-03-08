@@ -1,0 +1,48 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design Tokens/Component Groups" />
+
+<Unstyled>
+<div style={{ fontFamily: 'var(--wa-font-family-body)', color: 'var(--wa-color-text-normal)', maxWidth: '860px' }}>
+
+<h1 className="wa-heading-2xl" style={{ marginBottom: '0.25rem' }}>Component Groups</h1>
+
+<p style={{ marginBottom: '1rem' }}>Component group tokens allow a single CSS custom property to control related values across multiple components simultaneously — useful for building consistent themes.</p>
+
+<div style={{ borderLeft: '3px solid var(--wa-color-brand-border-normal)', paddingLeft: '1rem', margin: '1rem 0', color: 'var(--wa-color-text-quiet)' }}>
+  These tokens are set at a component or section level and cascade to all matching child components.
+</div>
+
+<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Available Groups</h2>
+
+<p style={{ marginBottom: '1rem' }}>Component-level CSS custom properties follow the pattern <code>--wa-{'{component}'}-{'{property}'}</code>.</p>
+
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '1rem' }}>
+  <thead>
+    <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
+      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Group</th>
+      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Form controls</td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Shared sizing and spacing across <code>wa-input</code>, <code>wa-select</code>, <code>wa-textarea</code></td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Overlays</td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Shared z-index and backdrop tokens across <code>wa-dialog</code>, <code>wa-drawer</code>, <code>wa-popover</code></td>
+    </tr>
+    <tr>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Navigation</td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>Shared spacing for <code>wa-breadcrumb</code>, <code>wa-tab-group</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<div style={{ borderLeft: '3px solid var(--wa-color-brand-border-normal)', paddingLeft: '1rem', margin: '1rem 0', color: 'var(--wa-color-text-quiet)' }}>
+  Refer to each component's CSS Parts and Custom Properties documentation for the full token list.
+</div>
+
+</div>
+</Unstyled>
