@@ -1,0 +1,56 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Layout / Justify Content" />
+
+<DocPage
+  title="Justify Content"
+  description={<>Distributes space along the main axis of flex and grid containers via <code>.wa-justify-content-*</code> classes. These classes also implicitly set <code>display: flex</code>.</>}
+>
+
+<DocSection title="CSS Classes">
+<DocTable
+  columns={[
+    { key: 'cls', header: 'Class' },
+    { key: 'value', header: 'CSS Value' },
+    { key: 'example', header: 'Examples' },
+  ]}
+  rows={[
+    { cls: <code>.wa-justify-content-start</code>, className: 'wa-justify-content-start', value: <code>flex-start</code> },
+    { cls: <code>.wa-justify-content-end</code>, className: 'wa-justify-content-end', value: <code>flex-end</code> },
+    { cls: <code>.wa-justify-content-center</code>, className: 'wa-justify-content-center', value: <code>center</code> },
+    { cls: <code>.wa-justify-content-space-around</code>, className: 'wa-justify-content-space-around', value: <code>space-around</code> },
+    { cls: <code>.wa-justify-content-space-between</code>, className: 'wa-justify-content-space-between', value: <code>space-between</code> },
+    { cls: <code>.wa-justify-content-space-evenly</code>, className: 'wa-justify-content-space-evenly', value: <code>space-evenly</code> },
+  ].map((row) => ({
+    cls: row.cls,
+    value: row.value,
+    example: (
+      <div
+        className={row.className}
+        style={{
+          gap: 'var(--wa-space-s)',
+          height: '3em',
+          border: '1px solid var(--wa-color-surface-border)',
+          borderRadius: 'var(--wa-border-radius-m)',
+          padding: 'var(--wa-space-s)',
+          alignItems: 'center',
+          minWidth: '260px',
+        }}
+      >
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', width: '2em', height: '2em' }} />
+        ))}
+      </div>
+    ),
+  }))}
+/>
+</DocSection>
+
+<DocSection title="Main Axis Reference">
+<p>
+  The main axis runs parallel to a container's content direction. For row-direction flex containers and grid containers, it runs inline (horizontally in LTR). For column-direction containers, it runs in the block direction (vertically).
+</p>
+</DocSection>
+
+</DocPage>

@@ -5,179 +5,370 @@ import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
 <Unstyled>
 <div style={{ fontFamily: 'var(--wa-font-family-body)', color: 'var(--wa-color-text-normal)', maxWidth: '860px' }}>
 
-<h1 className="wa-heading-2xl" style={{ marginBottom: '0.25rem' }}>Typography Tokens</h1>
+<h1 className="wa-heading-2xl" style={{ marginBottom: '0.25rem' }}>
+  Typography Tokens
+</h1>
 
-<p style={{ marginBottom: '2rem' }}>Typography tokens control font families, sizes, weights, line heights, and link styling.</p>
+<p style={{ marginBottom: '2rem' }}>
+  Typography tokens control font families, sizes, weights, line heights, and
+  link styling.
+</p>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Font Family</h2>
+<h2 className="wa-heading-xl">Font Family</h2>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '2rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '2rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Default</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Use</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Default
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Use
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-family-body</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>ui-sans-serif, system-ui, sans-serif</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-family-body</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>ui-sans-serif, system-ui, sans-serif</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Default text</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-family-heading</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-family-heading</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Same as body</td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Headings</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-family-code</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>ui-monospace, monospace</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-family-code</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>ui-monospace, monospace</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Code blocks</td>
     </tr>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-family-longform</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>ui-serif, serif</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-family-longform</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>ui-serif, serif</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Articles, prose</td>
     </tr>
   </tbody>
 </table>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Font Size</h2>
+<h2 className="wa-heading-xl">Font Size</h2>
 
-<p style={{ marginBottom: '1rem' }}>Sizes follow a 1.125 modular scale anchored at <code>--wa-font-size-m</code> (16px by default).</p>
+<p style={{ marginBottom: '1rem' }}>
+  Sizes follow a 1.125 modular scale anchored at <code>--wa-font-size-m</code>{' '}
+  (16px by default).
+</p>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '1rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '1rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Approx.</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Approx.
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-2xs</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-2xs</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>11px</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-xs</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-xs</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>12px</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-s</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-s</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>14px</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-m</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-m</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>16px (base)</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-l</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-l</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>20px</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-xl</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-xl</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>25px</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-2xl</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-2xl</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>32px</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-3xl</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-3xl</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>41px</td>
     </tr>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-size-4xl</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-size-4xl</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>52px</td>
     </tr>
   </tbody>
 </table>
 
-<p style={{ marginBottom: '2rem' }}>Use <code>--wa-font-size-scale</code> to proportionally scale all sizes.</p>
+<p style={{ marginBottom: '2rem' }}>
+  Use <code>--wa-font-size-scale</code> to proportionally scale all sizes.
+</p>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Font Weight</h2>
+<h2 className="wa-heading-xl">Font Weight</h2>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '2rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '2rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Value</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Value
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-weight-light</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-weight-light</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>300</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-weight-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-weight-normal</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>400</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-weight-semibold</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-weight-semibold</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>500</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-weight-bold</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-weight-bold</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>600</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-weight-body</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-weight-body</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>→ normal</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-weight-heading</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-weight-heading</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>→ bold</td>
     </tr>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-font-weight-action</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-font-weight-action</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>→ semibold</td>
     </tr>
   </tbody>
 </table>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Line Height</h2>
+<h2 className="wa-heading-xl">Line Height</h2>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '2rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '2rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Value</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Value
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-line-height-condensed</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-line-height-condensed</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>1.2</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-line-height-normal</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-line-height-normal</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>1.6</td>
     </tr>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-line-height-expanded</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-line-height-expanded</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>2.0</td>
     </tr>
   </tbody>
 </table>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Link Decoration</h2>
+<h2 className="wa-heading-xl">Link Decoration</h2>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '2rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '2rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Value</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Value
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-link-decoration-default</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}>Dotted underline at 70% opacity</td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-link-decoration-default</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        Dotted underline at 70% opacity
+      </td>
     </tr>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-link-decoration-hover</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-link-decoration-hover</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Solid underline</td>
     </tr>
   </tbody>

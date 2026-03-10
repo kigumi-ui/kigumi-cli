@@ -24,7 +24,7 @@ export const kigumiLight = create({
   textInverseColor: '#ffffff',
   textMutedColor: '#6b7280',
 
-  buttonBg: '#8b5cf6',
+  buttonBg: 'white',
   buttonBorder: '#8b5cf6',
 
   inputBorderRadius: 255,

@@ -1,0 +1,67 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Layout / Gap" />
+
+export const GapDemo = ({ cls }) => (
+  <div
+    className={cls}
+    style={{
+      width: 'fit-content',
+      border: '2px solid var(--wa-color-surface-border)',
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: 'var(--wa-color-brand-fill-loud)',
+        width: '1em',
+        height: '1em',
+        flexShrink: 0,
+      }}
+    />
+    <div
+      style={{
+        backgroundColor: 'var(--wa-color-brand-fill-loud)',
+        width: '1em',
+        height: '1em',
+        flexShrink: 0,
+      }}
+    />
+  </div>
+);
+
+<DocPage
+  title="Gap"
+  description={
+    <>
+      Sets the spacing between flex or grid children using space tokens via{' '}
+      <code>.wa-gap-*</code> classes. Each class maps to a{' '}
+      <code>--wa-space-*</code> token. These classes also implicitly set{' '}
+      <code>display: flex</code>.
+    </>
+  }
+>
+
+<DocSection title="CSS Classes">
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'token', header: 'Token' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      { cls: <code>.wa-gap-0</code>, token: <code>0</code>, example: <GapDemo cls="wa-gap-0" /> },
+      { cls: <code>.wa-gap-3xs</code>, token: <code>--wa-space-3xs</code>, example: <GapDemo cls="wa-gap-3xs" /> },
+      { cls: <code>.wa-gap-2xs</code>, token: <code>--wa-space-2xs</code>, example: <GapDemo cls="wa-gap-2xs" /> },
+      { cls: <code>.wa-gap-xs</code>, token: <code>--wa-space-xs</code>, example: <GapDemo cls="wa-gap-xs" /> },
+      { cls: <code>.wa-gap-s</code>, token: <code>--wa-space-s</code>, example: <GapDemo cls="wa-gap-s" /> },
+      { cls: <code>.wa-gap-m</code>, token: <code>--wa-space-m</code>, example: <GapDemo cls="wa-gap-m" /> },
+      { cls: <code>.wa-gap-l</code>, token: <code>--wa-space-l</code>, example: <GapDemo cls="wa-gap-l" /> },
+      { cls: <code>.wa-gap-xl</code>, token: <code>--wa-space-xl</code>, example: <GapDemo cls="wa-gap-xl" /> },
+      { cls: <code>.wa-gap-2xl</code>, token: <code>--wa-space-2xl</code>, example: <GapDemo cls="wa-gap-2xl" /> },
+      { cls: <code>.wa-gap-3xl</code>, token: <code>--wa-space-3xl</code>, example: <GapDemo cls="wa-gap-3xl" /> },
+    ]}
+  />
+</DocSection>
+
+</DocPage>

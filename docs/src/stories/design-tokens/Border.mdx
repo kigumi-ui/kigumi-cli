@@ -5,100 +5,233 @@ import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
 <Unstyled>
 <div style={{ fontFamily: 'var(--wa-font-family-body)', color: 'var(--wa-color-text-normal)', maxWidth: '860px' }}>
 
-<h1 className="wa-heading-2xl" style={{ marginBottom: '0.25rem' }}>Border Tokens</h1>
+<h1 className="wa-heading-2xl" style={{ marginBottom: '0.25rem' }}>
+  Border Tokens
+</h1>
 
-<p style={{ marginBottom: '2rem' }}>Border tokens control width, radius, and style across all components.</p>
+<p style={{ marginBottom: '2rem' }}>
+  Border tokens control width, radius, and style across all components.
+</p>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Width</h2>
+<h2 className="wa-heading-xl">Width</h2>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '1rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '1rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Value</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Approx.</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Value
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Approx.
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-width-s</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>0.0625rem</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-width-s</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>0.0625rem</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>1px</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-width-m</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>0.125rem</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-width-m</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>0.125rem</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>2px</td>
     </tr>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-width-l</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>0.1875rem</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-width-l</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>0.1875rem</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>3px</td>
     </tr>
   </tbody>
 </table>
 
-<p style={{ marginBottom: '2rem' }}>Use <code>--wa-border-width-scale</code> to adjust all widths proportionally.</p>
+<p style={{ marginBottom: '2rem' }}>
+  Use <code>--wa-border-width-scale</code> to adjust all widths proportionally.
+</p>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Radius</h2>
+<h2 className="wa-heading-xl">Radius</h2>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '1rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '1rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Value</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Shape</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Value
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Shape
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-radius-s</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>0.1875rem</code> (3px)</td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-radius-s</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>0.1875rem</code> (3px)
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Slight rounding</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-radius-m</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>0.375rem</code> (6px)</td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-radius-m</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>0.375rem</code> (6px)
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Standard rounding</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-radius-l</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>0.75rem</code> (12px)</td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-radius-l</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>0.75rem</code> (12px)
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Prominent rounding</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-radius-pill</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>9999px</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-radius-pill</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>9999px</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Fully rounded</td>
     </tr>
     <tr style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-radius-circle</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>50%</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-radius-circle</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>50%</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>Circular</td>
     </tr>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-radius-square</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>0px</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-radius-square</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>0px</code>
+      </td>
       <td style={{ padding: '0.5rem 0.75rem' }}>No rounding</td>
     </tr>
   </tbody>
 </table>
 
-<p style={{ marginBottom: '2rem' }}>Use <code>--wa-border-radius-scale</code> to scale corner roundness globally.</p>
+<p style={{ marginBottom: '2rem' }}>
+  Use <code>--wa-border-radius-scale</code> to scale corner roundness globally.
+</p>
 
-<h2 className="wa-heading-xl" style={{ marginBottom: '0.75rem' }}>Style</h2>
+<h2 className="wa-heading-xl">Style</h2>
 
-<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', marginBottom: '2rem' }}>
+<table
+  style={{
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '0.875rem',
+    marginBottom: '2rem',
+  }}
+>
   <thead>
     <tr style={{ borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Token</th>
-      <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: 'var(--wa-font-weight-semibold)' }}>Value</th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Token
+      </th>
+      <th
+        style={{
+          textAlign: 'left',
+          padding: '0.5rem 0.75rem',
+          fontWeight: 'var(--wa-font-weight-semibold)',
+        }}
+      >
+        Value
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>--wa-border-style</code></td>
-      <td style={{ padding: '0.5rem 0.75rem' }}><code>solid</code></td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>--wa-border-style</code>
+      </td>
+      <td style={{ padding: '0.5rem 0.75rem' }}>
+        <code>solid</code>
+      </td>
     </tr>
   </tbody>
 </table>
