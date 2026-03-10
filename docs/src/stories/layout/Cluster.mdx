@@ -1,0 +1,206 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Layout / Cluster" />
+
+export const ClusterChips = ({ className, style }) => (
+  <div
+    className={className || 'wa-cluster'}
+    style={{
+      maxWidth: '260px',
+      border: '2px solid var(--wa-color-surface-border)',
+      ...style,
+    }}
+  >
+    {[64, 80, 48, 96, 56, 72].map((w, i) => (
+      <div
+        key={i}
+        style={{
+          backgroundColor: 'var(--wa-color-brand-fill-loud)',
+          width: `${w}px`,
+          height: '1em',
+        }}
+      />
+    ))}
+  </div>
+);
+
+<DocPage
+  title="Cluster"
+  description={
+    <>
+      Arranges items horizontally with wrapping and consistent gap via{' '}
+      <code>.wa-cluster</code>. Ideal for tags, chips, action groups, and
+      inline navigation.
+    </>
+  }
+>
+
+<DocSection title="CSS Classes">
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'desc', header: 'Description' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-cluster</code>,
+        desc: 'Horizontal flex row with wrapping and default gap',
+        example: <ClusterChips />,
+      },
+    ]}
+  />
+</DocSection>
+
+<DocSection
+  title="Align Items"
+  description={
+    <>
+      Items inside a cluster are vertically centered by default. Add a{' '}
+      <code>.wa-align-items-*</code> class to change cross-axis alignment.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'desc', header: 'Description' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-align-items-start</code>,
+        desc: 'Aligns items to the start',
+        example: (
+          <div
+            className="wa-cluster wa-align-items-start"
+            style={{
+              minHeight: '4em',
+              border: '2px solid var(--wa-color-surface-border)',
+              width: 'fit-content',
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                  width: '1em',
+                  height: '1em',
+                }}
+              />
+            ))}
+          </div>
+        ),
+      },
+      {
+        cls: <code>.wa-align-items-end</code>,
+        desc: 'Aligns items to the end',
+        example: (
+          <div
+            className="wa-cluster wa-align-items-end"
+            style={{
+              minHeight: '4em',
+              border: '2px solid var(--wa-color-surface-border)',
+              width: 'fit-content',
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                  width: '1em',
+                  height: '1em',
+                }}
+              />
+            ))}
+          </div>
+        ),
+      },
+      {
+        cls: <code>.wa-align-items-center</code>,
+        desc: 'Centers items (default)',
+        example: (
+          <div
+            className="wa-cluster wa-align-items-center"
+            style={{
+              minHeight: '4em',
+              border: '2px solid var(--wa-color-surface-border)',
+              width: 'fit-content',
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                  width: '1em',
+                  height: '1em',
+                }}
+              />
+            ))}
+          </div>
+        ),
+      },
+      {
+        cls: <code>.wa-align-items-stretch</code>,
+        desc: 'Stretches items to fill the cross axis',
+        example: (
+          <div
+            className="wa-cluster wa-align-items-stretch"
+            style={{
+              height: '4em',
+              border: '2px solid var(--wa-color-surface-border)',
+              width: 'fit-content',
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                  width: '1em',
+                }}
+              />
+            ))}
+          </div>
+        ),
+      },
+    ]}
+  />
+</DocSection>
+
+<DocSection
+  title="Gap"
+  description={
+    <>
+      The default gap between cluster items uses <code>--wa-space-m</code>. Add
+      a <code>.wa-gap-*</code> class to adjust spacing.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-gap-2xs</code>,
+        example: <ClusterChips className="wa-cluster wa-gap-2xs" />,
+      },
+      {
+        cls: <code>.wa-gap-m</code>,
+        example: <ClusterChips className="wa-cluster wa-gap-m" />,
+      },
+      {
+        cls: <code>.wa-gap-2xl</code>,
+        example: <ClusterChips className="wa-cluster wa-gap-2xl" />,
+      },
+    ]}
+  />
+</DocSection>
+
+</DocPage>

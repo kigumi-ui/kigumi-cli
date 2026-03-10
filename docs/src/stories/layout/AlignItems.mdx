@@ -1,0 +1,139 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Layout / Align Items" />
+
+<DocPage
+  title="Align Items"
+  description={<>Controls cross-axis alignment within flex and grid containers via <code>.wa-align-items-*</code> classes. These classes also implicitly set <code>display: flex</code>.</>}
+>
+
+<DocSection title="CSS Classes">
+<DocTable
+  columns={[
+    { key: 'cls', header: 'Class' },
+    { key: 'desc', header: 'Description' },
+    { key: 'example', header: 'Examples' },
+  ]}
+  rows={[
+    {
+      cls: <code>.wa-align-items-start</code>,
+      desc: 'Aligns items to the start of the cross axis',
+      example: (
+        <div className="wa-align-items-start wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-items-end</code>,
+      desc: 'Aligns items to the end of the cross axis',
+      example: (
+        <div className="wa-align-items-end wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-items-center</code>,
+      desc: 'Centers items along the cross axis',
+      example: (
+        <div className="wa-align-items-center wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-items-stretch</code>,
+      desc: 'Stretches items to fill the cross axis',
+      example: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-items-baseline</code>,
+      desc: 'Aligns items along their text baseline',
+      example: (
+        <div className="wa-align-items-baseline wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+        </div>
+      ),
+    },
+  ]}
+/>
+</DocSection>
+
+<DocSection
+  title="Align Self"
+  description={<>Overrides the container's <code>align-items</code> for an individual item. Apply <code>.wa-align-self-*</code> to a child element to change its cross-axis alignment independently.</>}
+>
+<DocTable
+  columns={[
+    { key: 'cls', header: 'Class' },
+    { key: 'desc', header: 'Description' },
+    { key: 'example', header: 'Examples' },
+  ]}
+  rows={[
+    {
+      cls: <code>.wa-align-self-start</code>,
+      desc: 'Aligns this item to the start',
+      example: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          <div className="wa-align-self-start" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-self-end</code>,
+      desc: 'Aligns this item to the end',
+      example: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          <div className="wa-align-self-end" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-self-center</code>,
+      desc: 'Centers this item on the cross axis',
+      example: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          <div className="wa-align-self-center" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-self-stretch</code>,
+      desc: 'Stretches this item to fill the cross axis',
+      example: (
+        <div className="wa-align-items-start wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          <div className="wa-align-self-stretch" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+        </div>
+      ),
+    },
+    {
+      cls: <code>.wa-align-self-baseline</code>,
+      desc: 'Aligns this item to its text baseline',
+      example: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
+          <div className="wa-align-self-baseline" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+        </div>
+      ),
+    },
+  ]}
+/>
+</DocSection>
+
+<DocSection title="Cross Axis Reference">
+<p>
+  The cross axis runs perpendicular to a container's content direction. For row-direction containers, the cross axis is vertical. For column-direction containers, it runs horizontally.
+</p>
+</DocSection>
+
+</DocPage>

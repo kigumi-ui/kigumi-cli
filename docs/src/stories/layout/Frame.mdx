@@ -1,0 +1,138 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Layout / Frame" />
+
+export const FrameBox = ({ className, style }) => (
+  <div className={className || 'wa-frame'} style={{ width: '3em', ...style }}>
+    <div
+      style={{
+        backgroundColor: 'var(--wa-color-brand-fill-loud)',
+        width: '100%',
+        height: '100%',
+      }}
+    />
+  </div>
+);
+
+<DocPage
+  title="Frame"
+  description={
+    <>
+      Constrains content to a fixed aspect ratio via <code>.wa-frame</code>.
+      Content is centered and overflow is clipped. Ideal for images, video
+      embeds, and media placeholders.
+    </>
+  }
+>
+
+<DocSection title="CSS Classes">
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'desc', header: 'Description' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-frame</code>,
+        desc: 'Square aspect ratio container (1:1 default)',
+        example: <FrameBox />,
+      },
+    ]}
+  />
+</DocSection>
+
+<DocSection
+  title="Aspect Ratio"
+  description={
+    <>
+      Append <code>:square</code>, <code>:landscape</code>, or{' '}
+      <code>:portrait</code> to set a preset ratio. For custom ratios, set the{' '}
+      <code>aspect-ratio</code> CSS property inline.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class / Style' },
+      { key: 'ratio', header: 'Ratio' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-frame:square</code>,
+        ratio: '1 / 1',
+        example: <FrameBox className="wa-frame:square" />,
+      },
+      {
+        cls: <code>.wa-frame:landscape</code>,
+        ratio: '16 / 9',
+        example: <FrameBox className="wa-frame:landscape" style={{ width: '5em' }} />,
+      },
+      {
+        cls: <code>.wa-frame:portrait</code>,
+        ratio: '9 / 16',
+        example: <FrameBox className="wa-frame:portrait" style={{ width: '1.75em' }} />,
+      },
+      {
+        cls: (
+          <>
+            <code>aspect-ratio: 4/3</code> (inline)
+          </>
+        ),
+        ratio: '4 / 3',
+        example: (
+          <FrameBox style={{ width: '4em', aspectRatio: '4 / 3' }} />
+        ),
+      },
+    ]}
+  />
+</DocSection>
+
+<DocSection
+  title="Border Radius"
+  description={
+    <>
+      Frames have square corners by default. Add a{' '}
+      <code>.wa-border-radius-*</code> rounding class to clip content with
+      rounded edges.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-border-radius-s</code>,
+        example: <FrameBox className="wa-frame wa-border-radius-s" />,
+      },
+      {
+        cls: <code>.wa-border-radius-m</code>,
+        example: <FrameBox className="wa-frame wa-border-radius-m" />,
+      },
+      {
+        cls: <code>.wa-border-radius-l</code>,
+        example: <FrameBox className="wa-frame wa-border-radius-l" />,
+      },
+      {
+        cls: <code>.wa-border-radius-pill</code>,
+        example: (
+          <FrameBox
+            className="wa-frame:landscape wa-border-radius-pill"
+            style={{ width: '5em' }}
+          />
+        ),
+      },
+      {
+        cls: <code>.wa-border-radius-circle</code>,
+        example: <FrameBox className="wa-frame wa-border-radius-circle" />,
+      },
+    ]}
+  />
+</DocSection>
+
+</DocPage>

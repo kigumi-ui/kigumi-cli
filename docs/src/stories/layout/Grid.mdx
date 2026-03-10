@@ -1,0 +1,153 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Layout / Grid" />
+
+export const GridCells = ({ className, style, count = 6 }) => (
+  <div
+    className={className || 'wa-grid'}
+    style={{ '--min-column-size': '5em', maxWidth: '300px', ...style }}
+  >
+    {Array.from({ length: count }, (_, i) => (
+      <div
+        key={i}
+        style={{
+          backgroundColor: 'var(--wa-color-brand-fill-loud)',
+          height: '1em',
+        }}
+      />
+    ))}
+  </div>
+);
+
+<DocPage
+  title="Grid"
+  description={
+    <>
+      Creates a responsive grid that auto-fits columns to available space via{' '}
+      <code>.wa-grid</code>. Columns wrap when they fall below a minimum width
+      threshold.
+    </>
+  }
+>
+
+<DocSection title="CSS Classes">
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'desc', header: 'Description' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-grid</code>,
+        desc: 'Auto-fit responsive grid layout',
+        example: <GridCells />,
+      },
+      {
+        cls: <code>.wa-span-grid</code>,
+        desc: 'Spans a child across all grid columns',
+        example: (
+          <div className="wa-grid" style={{ '--min-column-size': '5em', maxWidth: '300px' }}>
+            <div
+              style={{
+                backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                height: '1em',
+              }}
+            />
+            <div
+              style={{
+                backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                height: '1em',
+              }}
+            />
+            <div
+              className="wa-span-grid"
+              style={{
+                backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                height: '1em',
+                opacity: 0.6,
+              }}
+            />
+            <div
+              style={{
+                backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                height: '1em',
+              }}
+            />
+            <div
+              style={{
+                backgroundColor: 'var(--wa-color-brand-fill-loud)',
+                height: '1em',
+              }}
+            />
+          </div>
+        ),
+      },
+    ]}
+  />
+</DocSection>
+
+<DocSection
+  title="Sizing"
+  description={
+    <>
+      Grid items wrap when columns are narrower than <code>20ch</code> by
+      default. Set a custom minimum column width with the{' '}
+      <code>--min-column-size</code> property.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'property', header: 'Property' },
+      { key: 'value', header: 'Value' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        property: <code>--min-column-size</code>,
+        value: <code>200px</code>,
+        example: <GridCells style={{ '--min-column-size': '200px' }} />,
+      },
+      {
+        property: <code>--min-column-size</code>,
+        value: <code>6rem</code>,
+        example: <GridCells style={{ '--min-column-size': '6rem' }} />,
+      },
+    ]}
+  />
+</DocSection>
+
+<DocSection
+  title="Gap"
+  description={
+    <>
+      The default gap between grid items uses <code>--wa-space-m</code>. Add a{' '}
+      <code>.wa-gap-*</code> class to adjust spacing between rows and columns.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'example', header: 'Examples' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-gap-2xs</code>,
+        example: <GridCells className="wa-grid wa-gap-2xs" />,
+      },
+      {
+        cls: <code>.wa-gap-m</code>,
+        example: <GridCells className="wa-grid wa-gap-m" />,
+      },
+      {
+        cls: <code>.wa-gap-2xl</code>,
+        example: <GridCells className="wa-grid wa-gap-2xl" />,
+      },
+    ]}
+  />
+</DocSection>
+
+</DocPage>
