@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@10.29.3",
   "bin": {
-    "kigumi": "./dist/index.js"
+    "kigumi": "./dist/bin.js"
   },
   "files": [
     "dist",
@@ -65,6 +65,9 @@
   ],
   "author": "Michael Suzuki <legal@kigumi.style>",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@clack/prompts": "^1.0.0",
     "cheerio": "^1.2.0",
