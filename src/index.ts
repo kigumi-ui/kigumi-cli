@@ -5,6 +5,7 @@ import pc from 'picocolors';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { GITHUB_ISSUES_URL } from './constants.js';
 import { initCommand } from './commands/init.js';
 import { addCommand } from './commands/add.js';
 import { listCommand } from './commands/list.js';
@@ -27,7 +28,26 @@ const program = new Command();
 program
   .name('kigumi')
   .description('CLI tool to add Web Awesome components to your project')
-  .version(packageJson.version);
+  .version(packageJson.version)
+  .option('--verbose', 'Show debug output')
+  .hook('preAction', (thisCommand) => {
+    const opts = thisCommand.optsWithGlobals();
+    if (opts.verbose) {
+      process.env.DEBUG = '1';
+    }
+    // Start timing
+    (thisCommand as unknown as Record<string, number>).__startTime =
+      performance.now();
+  })
+  .hook('postAction', (thisCommand) => {
+    const start = (thisCommand as unknown as Record<string, number>)
+      .__startTime;
+    if (start && process.env.DEBUG) {
+      const elapsed = ((performance.now() - start) / 1000).toFixed(1);
+      // Uses console.error directly because getOutput() is not available in Commander hooks
+      console.error(pc.dim(`Done in ${elapsed}s`));
+    }
+  });
 
 program
   .command('init')
@@ -61,11 +81,13 @@ program
 program
   .command('list')
   .description('List all available components')
+  .option('--json', 'Output as JSON')
   .action(listCommand);
 
 program
   .command('status')
   .description('Show project status (tier, theme, components, token)')
+  .option('--json', 'Output as JSON')
   .action(statusCommand);
 
 // Theme management commands
@@ -105,9 +127,7 @@ process.on('uncaughtException', (error: Error) => {
     console.error(pc.gray(error.stack || ''));
   }
   console.error(
-    pc.dim(
-      '\nIf this persists, please report at: https://github.com/kigumi/cli/issues'
-    )
+    pc.dim(`\nIf this persists, please report at: ${GITHUB_ISSUES_URL}`)
   );
   process.exit(1);
 });

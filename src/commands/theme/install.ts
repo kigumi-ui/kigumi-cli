@@ -26,7 +26,7 @@ import {
 } from '../../utils/github-fetcher.js';
 import { getGitHubToken } from '../../utils/github-token.js';
 import { resolveRegistrySource } from '../../utils/registry-resolver.js';
-import { regenerateWebAwesomeSetup } from '../../utils/regenerate.js';
+import { regenerateKigumiSetup } from '../../utils/regenerate.js';
 import type { KigumiConfig } from '../../schemas/config.js';
 
 interface ThemeInstallOptions {
@@ -49,7 +49,7 @@ export async function themeInstallAction(
     try {
       loadConfig(cwd);
       config = getConfig(cwd);
-    } catch {
+    } catch (_error) {
       // Will be caught by checks
     }
 
@@ -131,7 +131,7 @@ export async function themeInstallAction(
 
     // 7. Regenerate setup files
     const utilsDir = config.utilsDir || 'src/lib';
-    await regenerateWebAwesomeSetup(cwd, config, utilsDir);
+    await regenerateKigumiSetup(cwd, config, utilsDir);
 
     installSpinner.stop('Theme installed');
 

@@ -5,7 +5,7 @@ import { CarouselItem, Carousel } from '@/components/ui';
 const meta = {
   title: 'Components/Carousel Item',
   component: CarouselItem,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'experimental'],
   argTypes: {},
 } satisfies Meta<typeof CarouselItem>;
 
@@ -130,7 +130,9 @@ export const WithCards: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

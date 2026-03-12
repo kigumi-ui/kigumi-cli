@@ -74,7 +74,7 @@ async function detectPreviousTier(cwd: string): Promise<Tier> {
     }
 
     return 'free';
-  } catch {
+  } catch (_error) {
     return 'free';
   }
 }
@@ -110,7 +110,7 @@ async function checkDuplicatePackages(
           `  npm uninstall ${WEB_AWESOME_FREE_PACKAGE}`
       );
     }
-  } catch {
+  } catch (_error) {
     // Ignore errors - this is just a helpful warning
   }
 }
@@ -471,35 +471,35 @@ function showPostInstallInstructions(
   depsInstalled: boolean,
   tier: Tier
 ): void {
-  console.log('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
+  output.info('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
   let stepNum = 1;
 
   // Step: Configure Pro token globally (if Pro tier and token not already global)
   // Only show this if user might need to set up global token for npm install
   if (tier === 'pro' && !depsInstalled) {
-    console.log(
+    output.info(
       pc.bold(pc.cyan(`${stepNum}. Ensure Pro token is configured globally:\n`))
     );
-    console.log(pc.dim('\tFor npm install to work, run once per machine:\n'));
-    console.log(
+    output.info(pc.dim('\tFor npm install to work, run once per machine:\n'));
+    output.info(
       pc.green(
         '\tnpm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken YOUR_TOKEN\n'
       )
     );
-    console.log(pc.dim('\tGet token: https://https://webawesome.com/login\n'));
+    output.info(pc.dim('\tGet token: https://webawesome.com/login\n'));
     stepNum++;
   }
 
   // Step: Install dependencies (if not installed)
   if (!depsInstalled) {
-    console.log(pc.bold(pc.cyan(`${stepNum}. Install dependencies:\n`)));
-    console.log(pc.dim(`\t${packageManager} install\n`));
+    output.info(pc.bold(pc.cyan(`${stepNum}. Install dependencies:\n`)));
+    output.info(pc.dim(`\t${packageManager} install\n`));
     stepNum++;
   }
 
-  // Step: Import webawesome setup
-  console.log(
+  // Step: Import Kigumi setup
+  output.info(
     pc.bold(
       pc.cyan(`${stepNum}. Import Web Awesome in your main entry file:\n`)
     )
@@ -508,19 +508,19 @@ function showPostInstallInstructions(
     config.framework === 'vue'
       ? 'src/main.ts'
       : 'src/main.tsx (or src/main.jsx)';
-  console.log(pc.dim(`\tAdd this import to ${mainFile}:`));
-  console.log(pc.green('\timport "@/lib/webawesome";\n'));
+  output.info(pc.dim(`\tAdd this import to ${mainFile}:`));
+  output.info(pc.green('\timport "@/lib/kigumi";\n'));
   stepNum++;
 
   // Vue-specific: isCustomElement configuration
   if (config.framework === 'vue') {
-    console.log(
+    output.info(
       pc.bold(
         pc.cyan(`${stepNum}. Configure custom elements in vite.config.ts:\n`)
       )
     );
-    console.log(pc.dim('\tAdd to your vue() plugin options:'));
-    console.log(
+    output.info(pc.dim('\tAdd to your vue() plugin options:'));
+    output.info(
       pc.green(
         '\tvue({ template: { compilerOptions: { isCustomElement: tag => tag.startsWith("wa-") } } })\n'
       )
@@ -529,49 +529,45 @@ function showPostInstallInstructions(
   }
 
   // Step: Add components
-  console.log(pc.bold(pc.cyan(`${stepNum}. Add UI components:\n`)));
-  console.log(pc.dim('\tnpx kigumi add button card dialog input\n'));
+  output.info(pc.bold(pc.cyan(`${stepNum}. Add UI components:\n`)));
+  output.info(pc.dim('\tnpx kigumi add button card dialog input\n'));
   stepNum++;
 
   // Step: Start development
-  console.log(pc.bold(pc.cyan(`${stepNum}. Start development server:\n`)));
-  console.log(pc.dim(`\t${packageManager} run dev\n`));
+  output.info(pc.bold(pc.cyan(`${stepNum}. Start development server:\n`)));
+  output.info(pc.dim(`\t${packageManager} run dev\n`));
 
   // Info box with project structure
-  console.log(pc.bold(pc.cyan('ℹ️  Generated Files:\n')));
-  console.log(pc.dim(`\tComponents:\t${config.componentsDir}/`));
-  console.log(
+  output.log(pc.bold(pc.cyan('ℹ️  Generated Files:\n')));
+  output.log(pc.dim(`\tComponents:\t${config.componentsDir}/`));
+  output.log(
     pc.dim(`\tStyles:\t\t${config.stylesDir || 'src/styles'}/theme.css`)
   );
-  console.log(
-    pc.dim(`\tSetup:\t\t${config.utilsDir || 'src/lib'}/webawesome.ts\n`)
-  );
+  output.log(pc.dim(`\tSetup:\t\t${config.utilsDir || 'src/lib'}/kigumi.ts\n`));
 
   // Info box with theme details (using display labels for proper capitalization)
-  console.log(pc.bold(pc.cyan('🎨 Theme Configuration:\n')));
-  console.log(pc.dim(`\tTheme:\t\t${getThemeLabel(config.theme.selected)}`));
-  console.log(pc.dim(`\tPalette:\t${getPaletteLabel(config.theme.palette)}`));
-  console.log(
+  output.log(pc.bold(pc.cyan('🎨 Theme Configuration:\n')));
+  output.log(pc.dim(`\tTheme:\t\t${getThemeLabel(config.theme.selected)}`));
+  output.log(pc.dim(`\tPalette:\t${getPaletteLabel(config.theme.palette)}`));
+  output.log(
     pc.dim(`\tBrand Color:\t${getBrandColorLabel(config.theme.brandColor)}`)
   );
-  console.log(
+  output.log(
     pc.dim(
       '\tEdit theme.css to customize: https://www.npmjs.com/package/kigumi#customization\n'
     )
   );
 
   // Additional resources
-  console.log(pc.bold(pc.cyan('📚 Useful Web Awesome resources:\n')));
-  console.log(
-    pc.dim('\t• Components: https://webawesome.com/docs/components/')
-  );
-  console.log(pc.dim('\t• Design Tokens: https://webawesome.com/docs/tokens/'));
-  console.log(
+  output.log(pc.bold(pc.cyan('📚 Useful Web Awesome resources:\n')));
+  output.log(pc.dim('\t• Components: https://webawesome.com/docs/components/'));
+  output.log(pc.dim('\t• Design Tokens: https://webawesome.com/docs/tokens/'));
+  output.log(
     pc.dim('\t• Style Utilities: https://webawesome.com/docs/utilities/')
   );
-  console.log(pc.dim('\t• Layout: https://webawesome.com/docs/layout/'));
-  console.log(pc.dim('\t• Themes: https://webawesome.com/docs/themes'));
-  console.log(
+  output.log(pc.dim('\t• Layout: https://webawesome.com/docs/layout/'));
+  output.log(pc.dim('\t• Themes: https://webawesome.com/docs/themes'));
+  output.log(
     pc.dim('\t• Color Palettes: https://webawesome.com/docs/color-palettes\n')
   );
 }

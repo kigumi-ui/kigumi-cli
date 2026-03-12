@@ -6,16 +6,62 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests
-│   ├── config.test.ts       # Config loading/saving
-│   ├── tier.test.ts         # Tier detection
-│   ├── tier-restrictions.test.ts
-│   ├── migration.test.ts    # Free↔Pro migration
-│   ├── project-config.test.ts
-│   ├── test-detection.test.ts
-│   ├── type-installation.test.ts
-│   ├── edge-cases.test.ts
-│   └── community-registry.test.ts  # Registry schema, URL parsing, deps
+├── unit/                    # Fast, isolated tests (53 files, 906 tests)
+│   ├── add-command.test.ts          # Add command (built-in + remote)
+│   ├── add-validator.test.ts        # Component validation
+│   ├── brand-command.test.ts        # Brand color command
+│   ├── check-runner.test.ts         # Pre-flight check runner
+│   ├── community-registry.test.ts   # Registry schema, URL parsing, deps
+│   ├── config.test.ts               # Config loading/saving
+│   ├── config-checks.test.ts        # Config validation checks
+│   ├── config-schema.test.ts        # Zod config schema validation
+│   ├── dependency-checks.test.ts    # Dependency validation
+│   ├── detect-framework.test.ts     # Framework/TS/PM detection
+│   ├── diff-command.test.ts         # Diff command (component comparison)
+│   ├── display-options.test.ts      # Theme/palette/brand display data
+│   ├── doctor.test.ts               # Doctor command (import fixes)
+│   ├── edge-cases.test.ts           # Edge case handling
+│   ├── error-classes.test.ts        # Error class hierarchy
+│   ├── errors.test.ts               # Error formatting
+│   ├── file-diff.test.ts            # File modification detection
+│   ├── framework-detection.test.ts  # Extended framework detection
+│   ├── github-token.test.ts         # GitHub PAT resolution chain
+│   ├── init-existing-config.test.ts # Init with existing project
+│   ├── init-installer.test.ts       # Init installer logic
+│   ├── list.test.ts                 # List command
+│   ├── list-json.test.ts            # List --json output
+│   ├── migration.test.ts            # Free↔Pro migration
+│   ├── network-errors.test.ts       # Network error classes
+│   ├── options-schema.test.ts       # Command options schemas
+│   ├── palette-command.test.ts      # Palette command
+│   ├── preflight-errors.test.ts     # Pre-flight error classes
+│   ├── project-config.test.ts       # Project config helpers
+│   ├── regenerate.test.ts           # File regeneration utilities
+│   ├── registry.test.ts             # Component registry lookups
+│   ├── registry-cache.test.ts       # Disk cache for registries
+│   ├── registry-init-command.test.ts      # Registry init command
+│   ├── registry-list-remove-command.test.ts # Registry list/remove
+│   ├── registry-validate-command.test.ts  # Registry validate command
+│   ├── status.test.ts               # Status command
+│   ├── status-json.test.ts          # Status --json output
+│   ├── storybook-generator.test.ts  # Storybook story generation
+│   ├── template.test.ts             # Handlebars template rendering
+│   ├── test-detection.test.ts       # Test framework detection
+│   ├── theme.test.ts                # Theme validation
+│   ├── theme-commands.test.ts       # Theme set/list/show/install commands
+│   ├── tier.test.ts                 # Tier detection
+│   ├── tier-restrictions.test.ts    # Tier restriction logic
+│   ├── tier-schema.test.ts          # Tier schema validation
+│   ├── token.test.ts                # Token handling
+│   ├── token-manager.test.ts        # Token validation, loading, saving
+│   ├── type-installation.test.ts    # TypeScript type installation
+│   ├── upgrade-command.test.ts      # Upgrade command (version management)
+│   ├── validation-errors.test.ts    # Validation error classes
+│   ├── version-check.test.ts        # CLI vs project version check
+│   ├── version-error.test.ts        # Version error classes
+│   └── version-map.test.ts          # Version history data
+├── integration/             # Integration tests (build + run CLI)
+│   └── *.test.ts            # Tests that require built CLI
 ├── e2e/                     # Full CLI integration
 │   └── smoke.test.ts        # End-to-end workflows
 └── .tmp-react-*/            # Temporary test projects (gitignored)
@@ -24,10 +70,12 @@ tests/
 ## Commands
 
 ```bash
-pnpm test          # Unit tests (fast)
-pnpm test:e2e      # E2E tests (slow, creates real projects)
-pnpm test:all      # Both unit and E2E
-pnpm test:watch    # Watch mode
+pnpm test              # Unit tests (fast)
+pnpm test:integration  # Integration tests (requires build first)
+pnpm test:e2e          # E2E tests (slow, creates real projects)
+pnpm test:coverage     # Unit tests with coverage report
+pnpm test:all          # Both unit and E2E
+pnpm test:watch        # Watch mode
 ```
 
 ---
@@ -57,8 +105,11 @@ describe('detectTier', () => {
 - Zod schema validation
 - Tier detection logic
 - Config parsing
+- Command handlers (diff, upgrade, doctor, theme, brand, palette)
+- File regeneration (kigumi.ts, layers.css, theme.css)
 - Community registry schema validation
-- GitHub URL parsing
+- GitHub URL parsing and token resolution
+- Registry caching (disk cache TTL, invalidation)
 - Dependency resolution (topological sort, circular detection)
 
 ### E2E Tests (`tests/e2e/`)
@@ -216,3 +267,5 @@ describe('myFeature', () => {
 ---
 
 **Parent:** [AGENTS.md](../AGENTS.md)
+
+**Last Updated:** 2026-03-12

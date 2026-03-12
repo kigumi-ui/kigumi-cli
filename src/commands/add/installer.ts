@@ -222,13 +222,13 @@ export class ComponentInstaller {
     await Promise.all(parallelOps);
 
     // SEQUENTIAL OPERATIONS
-    // WHY: These operations modify shared files (index.ts, webawesome.ts, type declarations)
+    // WHY: These operations modify shared files (index.ts, kigumi.ts, type declarations)
     // and must be sequential to avoid race conditions
     if (this.config.typescript) {
       await updateTypeDeclarations(component, this.config, this.cwd);
     }
     await updateComponentIndex(component, this.config, this.cwd);
-    await this.updateWebAwesomeImports(component);
+    await this.updateKigumiImports(component);
 
     return {
       name: component.name,
@@ -267,21 +267,21 @@ export class ComponentInstaller {
       );
 
       return (hasVitest || hasJest) && hasTestingLibrary;
-    } catch {
+    } catch (_error) {
       return false;
     }
   }
 
   /**
-   * Update webawesome.ts to include component JS imports
+   * Update kigumi.ts to include component JS imports
    *
    * WHY: Web Awesome components need to be imported to register their
    * custom elements. This method ensures the component JS file is imported
-   * in webawesome.ts so the component can be used.
+   * in kigumi.ts so the component can be used.
    *
    * @internal
    */
-  private async updateWebAwesomeImports(
+  private async updateKigumiImports(
     component: ComponentDefinition
   ): Promise<void> {
     const { detectTier, getWebAwesomePackage } =
@@ -289,18 +289,18 @@ export class ComponentInstaller {
     const tier = await detectTier(this.cwd);
     const packageName = getWebAwesomePackage(tier);
 
-    const webawesomePath = path.join(
+    const kigumiPath = path.join(
       this.cwd,
       this.config.utilsDir || 'src/lib',
-      'webawesome.ts'
+      'kigumi.ts'
     );
 
     // Check if file exists
-    if (!(await fs.pathExists(webawesomePath))) {
-      return; // Skip if webawesome.ts doesn't exist
+    if (!(await fs.pathExists(kigumiPath))) {
+      return; // Skip if kigumi.ts doesn't exist
     }
 
-    const content = await fs.readFile(webawesomePath, 'utf-8');
+    const content = await fs.readFile(kigumiPath, 'utf-8');
     const componentImport = `import '${packageName}/dist/components/${component.tagName.replace('wa-', '')}/${component.tagName.replace('wa-', '')}.js';`;
 
     // Check if import already exists
@@ -333,7 +333,7 @@ export class ComponentInstaller {
       lines.splice(insertIndex, 0, componentImport);
 
       // Write back
-      await fs.writeFile(webawesomePath, lines.join('\n'));
+      await fs.writeFile(kigumiPath, lines.join('\n'));
     }
   }
 }

@@ -241,3 +241,5 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 ---
 
 **Parent:** [AGENTS.md](../AGENTS.md)
+
+**Last Updated:** 2026-03-12

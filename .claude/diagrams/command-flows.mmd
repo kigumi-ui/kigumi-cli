@@ -19,7 +19,7 @@ sequenceDiagram
     Tier-->>CLI: free | pro
     CLI->>Config: buildConfig (framework + tier + theme + palette)
     CLI->>Config: saveConfig → kigumi.config.json
-    CLI->>Tpl: generateProjectFiles (webawesome.ts, layers.css, theme.css)
+    CLI->>Tpl: generateProjectFiles (kigumi.ts, layers.css, theme.css)
     Tpl->>FS: write setup files
     CLI->>FW: installDependencies(cwd, pm, deps)
     FW->>FS: execa(pnpm/npm/yarn install)

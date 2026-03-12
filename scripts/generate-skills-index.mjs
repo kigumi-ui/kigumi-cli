@@ -19,7 +19,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = join(__dirname, '..');
 
-const SKILLS_SOURCE = join(ROOT, 'skills');
 const OUTPUT_DIR = join(ROOT, 'docs', 'public', '.well-known', 'skills');
 const OUTPUT_FILE = join(OUTPUT_DIR, 'index.json');
 
@@ -50,11 +49,37 @@ function parseFrontmatter(content) {
   if (!match) return {};
 
   const frontmatter = {};
-  for (const line of match[1].split('\n')) {
+  const lines = match[1].split('\n');
+  let currentKey = null;
+  let blockScalar = false;
+  let blockLines = [];
+
+  for (const line of lines) {
     const colonIdx = line.indexOf(':');
+
+    // Continuation line for block scalar (starts with whitespace)
+    if (blockScalar && line.match(/^\s+\S/)) {
+      blockLines.push(line.trim());
+      continue;
+    } else if (blockScalar) {
+      // End of block scalar
+      frontmatter[currentKey] = blockLines.join(' ');
+      blockScalar = false;
+      blockLines = [];
+    }
+
     if (colonIdx === -1) continue;
     const key = line.slice(0, colonIdx).trim();
     let value = line.slice(colonIdx + 1).trim();
+
+    // YAML block scalar indicator (> or |)
+    if (value === '>' || value === '|') {
+      currentKey = key;
+      blockScalar = true;
+      blockLines = [];
+      continue;
+    }
+
     // Strip quotes
     if ((value.startsWith("'") && value.endsWith("'")) ||
         (value.startsWith('"') && value.endsWith('"'))) {
@@ -63,12 +88,18 @@ function parseFrontmatter(content) {
     frontmatter[key] = value;
   }
 
+  // Flush any trailing block scalar
+  if (blockScalar && currentKey) {
+    frontmatter[currentKey] = blockLines.join(' ');
+  }
+
   return frontmatter;
 }
 
 async function main() {
-  // Discover skill directories (each must contain SKILL.md)
-  const entries = await readdir(SKILLS_SOURCE, { withFileTypes: true });
+  // Discover skill directories already copied to the output location by prebuild.
+  // This ensures the index only lists skills that are actually being hosted.
+  const entries = await readdir(OUTPUT_DIR, { withFileTypes: true });
   const skillDirs = entries
     .filter(e => e.isDirectory())
     .map(e => e.name)
@@ -77,7 +108,7 @@ async function main() {
   const skills = [];
 
   for (const skillName of skillDirs) {
-    const skillDir = join(SKILLS_SOURCE, skillName);
+    const skillDir = join(OUTPUT_DIR, skillName);
     const skillMdPath = join(skillDir, 'SKILL.md');
 
     try {

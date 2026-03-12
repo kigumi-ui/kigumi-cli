@@ -6,7 +6,7 @@ import { Carousel, CarouselItem } from '@/components/ui';
 const meta = {
   title: 'Components/Carousel',
   component: Carousel,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'experimental'],
   argTypes: {
     autoplay: {
       control: 'boolean',
@@ -182,7 +182,9 @@ export const Autoplay: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

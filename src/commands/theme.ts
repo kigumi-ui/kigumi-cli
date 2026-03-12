@@ -24,7 +24,7 @@ import {
 } from '../errors/index.js';
 import { TierRestrictionError } from '../errors/tier.js';
 import { loadConfig, saveConfig, getConfig } from '../utils/config.js';
-import { regenerateWebAwesomeSetup } from '../utils/regenerate.js';
+import { regenerateKigumiSetup } from '../utils/regenerate.js';
 import {
   getAvailableThemes,
   isThemeAvailable,
@@ -40,7 +40,7 @@ async function themeAction(themeName?: string) {
     try {
       loadConfig(cwd);
       config = getConfig(cwd);
-    } catch {
+    } catch (_error) {
       // Config loading failed - will be caught by checks
     }
 
@@ -97,7 +97,7 @@ async function themeAction(themeName?: string) {
     await saveConfig(config, cwd);
 
     const utilsDir = config.utilsDir || 'src/lib';
-    await regenerateWebAwesomeSetup(cwd, config, utilsDir);
+    await regenerateKigumiSetup(cwd, config, utilsDir);
 
     spinner.stop('Theme updated');
 

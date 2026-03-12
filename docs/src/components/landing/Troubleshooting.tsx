@@ -175,7 +175,7 @@ export function Troubleshooting() {
           <Details
             name="faq"
             appearance="outlined"
-            summary="Cannot find module '@/lib/webawesome'"
+            summary="Cannot find module '@/lib/kigumi'"
           >
             <div className="wa-stack wa-gap-m">
               <p>Configure path aliases in your project:</p>
@@ -254,7 +254,7 @@ export function Troubleshooting() {
                   style={{ position: 'relative' }}
                 >
                   <pre>
-                    <code>import '@/lib/webawesome';</code>
+                    <code>import '@/lib/kigumi';</code>
                   </pre>
                   <span
                     style={{
@@ -267,7 +267,7 @@ export function Troubleshooting() {
                       justifyContent: 'center',
                     }}
                   >
-                    <CopyButton value="import '@/lib/webawesome';" />
+                    <CopyButton value="import '@/lib/kigumi';" />
                   </span>
                 </div>
               </Card>

@@ -8,7 +8,7 @@
   "scripts": {
     "setup:npmrc": "node ../scripts/setup-npmrc.mjs",
     "dev": "vite",
-    "prebuild": "mkdir -p public/.well-known/skills && cp -r ../skills public/ && cp -r ../skills/kigumi-react public/.well-known/skills/ && cp -r ../skills/kigumi-theme public/.well-known/skills/ && node ../scripts/generate-skills-index.mjs && cp ../llms.txt public/",
+    "prebuild": "rm -rf public/skills public/.well-known/skills && mkdir -p public/skills public/.well-known/skills && cp -r ../.claude/skills/kigumi-react public/skills/ && cp -r ../.claude/skills/kigumi-theme public/skills/ && cp -r ../.claude/skills/kigumi-react public/.well-known/skills/ && cp -r ../.claude/skills/kigumi-theme public/.well-known/skills/ && node ../scripts/generate-skills-index.mjs && cp ../llms.txt public/",
     "build": "tsc -b && vite build",
     "chromatic": "chromatic --project-token=chpt_4e3397305b8d707",
     "lint": "eslint .",
@@ -52,6 +52,7 @@
     "jsdom": "^28.1.0",
     "playwright": "^1.58.2",
     "storybook": "^10.2.10",
+    "storybook-addon-tag-badges": "^3.0.6",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

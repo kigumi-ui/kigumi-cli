@@ -6,7 +6,7 @@ import { NumberInput } from '@/components/ui';
 const meta = {
   title: 'Components/Number Input',
   component: NumberInput,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro'],
   argTypes: {
     label: { control: 'text', description: 'Accessible label' },
     hint: { control: 'text', description: 'Descriptive hint text' },
@@ -179,7 +179,9 @@ export const Disabled: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

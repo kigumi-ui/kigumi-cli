@@ -5,7 +5,7 @@ import { Chart } from '@/components/ui';
 const meta = {
   title: 'Components/Chart',
   component: Chart,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   argTypes: {
     label: {
       control: 'text',
@@ -162,7 +162,9 @@ export const HorizontalBar: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

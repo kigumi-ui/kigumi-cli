@@ -2,7 +2,7 @@
  * File Generator
  *
  * PURPOSE: Generates project files during `kigumi init`.
- * Creates webawesome.ts, theme.css, vite-env.d.ts, .npmrc, etc.
+ * Creates kigumi.ts, theme.css, vite-env.d.ts, .npmrc, etc.
  *
  * @see AGENTS.md for list of auto-generated files
  */
@@ -20,7 +20,7 @@ import {
 } from '../../constants.js';
 import { getWebAwesomePackage } from '../../utils/tier.js';
 import {
-  regenerateWebAwesomeSetup,
+  regenerateKigumiSetup,
   generateViteEnvDts,
   generateThemeCSS,
   generateGitIgnore,
@@ -65,17 +65,17 @@ export async function generateProjectFiles(
     await fs.ensureDir(path.join(cwd, stylesDir));
     output.log(`[DEBUG] ✓ Created ${stylesDir}`);
 
-    // 2. Generate webawesome.ts (and layers.css)
-    spinner.message('Generating webawesome.ts...');
-    output.log(`[DEBUG] Generating webawesome.ts in ${utilsDir}`);
-    const { layersPreserved } = await regenerateWebAwesomeSetup(
+    // 2. Generate kigumi.ts (and layers.css)
+    spinner.message('Generating kigumi.ts...');
+    output.log(`[DEBUG] Generating kigumi.ts in ${utilsDir}`);
+    const { layersPreserved } = await regenerateKigumiSetup(
       cwd,
       config,
       utilsDir,
       tier,
       { preserveLayersCSS: true }
     );
-    output.log(`[DEBUG] ✓ webawesome.ts generated`);
+    output.log(`[DEBUG] ✓ kigumi.ts generated`);
     if (layersPreserved) {
       output.log(`[DEBUG] layers.css already exists, skipping generation`);
       output.info(

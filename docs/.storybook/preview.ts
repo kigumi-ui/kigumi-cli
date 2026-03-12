@@ -15,7 +15,7 @@ if (typeof customElements !== 'undefined') {
   };
 }
 
-// Apply WA theme classes to <html> (mirrors src/lib/webawesome.ts)
+// Apply WA theme classes to <html> (mirrors src/lib/kigumi.ts)
 if (typeof document !== 'undefined') {
   const html = document.documentElement;
   html.className = html.className
@@ -90,6 +90,7 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    chromatic: { disableSnapshot: true },
     a11y: {},
     docs: {
       container: DocsContainer,

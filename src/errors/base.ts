@@ -5,6 +5,8 @@
  * structured context, and actionable suggestions.
  */
 
+import { GITHUB_ISSUES_URL } from '../constants.js';
+
 /**
  * Error codes for semantic categorization
  */
@@ -227,7 +229,7 @@ export class UnknownError extends KigumiError {
         {
           title: 'This is an unexpected error',
           steps: [
-            'Please report this issue at: https://github.com/Siregar/kigumi-cli/issues',
+            `Please report this issue at: ${GITHUB_ISSUES_URL}`,
             'Include the full error message and stack trace',
           ],
         },

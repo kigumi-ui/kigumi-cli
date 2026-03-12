@@ -31,6 +31,7 @@ import { handleError, ConfigNotFoundError } from '../errors/index.js';
 
 interface StatusOptions {
   cwd?: string;
+  json?: boolean;
 }
 
 /**
@@ -51,7 +52,8 @@ async function getInstalledComponents(
       .sort();
 
     return components;
-  } catch {
+  } catch (_error) {
+    // Non-critical: components dir may not exist yet
     return [];
   }
 }
@@ -89,7 +91,8 @@ async function getPackageInfo(
     }
 
     return null;
-  } catch {
+  } catch (_error) {
+    // Non-critical: package.json may be malformed
     return null;
   }
 }
@@ -113,7 +116,8 @@ async function checkTokenStatus(cwd: string): Promise<boolean> {
       tokenMatch[1] &&
       tokenMatch[1].length >= MIN_TOKEN_LENGTH
     );
-  } catch {
+  } catch (_error) {
+    // Non-critical: .env may not exist or be unreadable
     return false;
   }
 }
@@ -128,10 +132,8 @@ export async function statusCommand(
   const output = getOutput();
 
   try {
-    output.intro('kigumi status');
-
     // 1. Load config
-    const config = await loadConfig(cwd);
+    const config = loadConfig(cwd);
     if (!config) {
       throw new ConfigNotFoundError(cwd);
     }
@@ -149,7 +151,60 @@ export async function statusCommand(
     const componentsPath = path.join(cwd, config.componentsDir);
     const components = await getInstalledComponents(componentsPath);
 
-    // 6. Display info
+    // Collect warnings
+    const warnings: string[] = [];
+
+    if (tier === 'free' && packageInfo?.package === WEB_AWESOME_PRO_PACKAGE) {
+      warnings.push(
+        'Pro package installed but no token found - may cause installation issues'
+      );
+    }
+
+    if (tier === 'pro' && packageInfo?.package === WEB_AWESOME_FREE_PACKAGE) {
+      warnings.push(
+        'Free package installed but Pro token present - consider upgrading package'
+      );
+    }
+
+    try {
+      const packageJsonPath = path.join(cwd, 'package.json');
+      const packageJson = await fs.readJSON(packageJsonPath);
+      const hasFree = !!packageJson.dependencies?.[WEB_AWESOME_FREE_PACKAGE];
+      const hasPro = !!packageJson.dependencies?.[WEB_AWESOME_PRO_PACKAGE];
+
+      if (hasFree && hasPro) {
+        warnings.push(
+          'Both webawesome and webawesome-pro are installed - consider removing Free package'
+        );
+      }
+    } catch (_error) {
+      // Non-critical: duplicate check is advisory only
+    }
+
+    // JSON output mode
+    if (options.json) {
+      const data = {
+        version: config.kigumiVersion || null,
+        tier,
+        framework: config.framework,
+        typescript: config.typescript,
+        componentsDir: config.componentsDir,
+        theme: {
+          selected: config.theme.selected,
+          palette: config.theme.palette,
+          brandColor: config.theme.brandColor,
+        },
+        token: hasToken,
+        package: packageInfo,
+        components,
+        warnings,
+      };
+      process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      return;
+    }
+
+    // 6. Display info (text mode)
+    output.intro('kigumi status');
     output.info(`Kigumi Version: ${config.kigumiVersion || 'not pinned'}`);
     output.info(`Tier: ${tier}${tier === 'pro' ? ' 🌟' : ''}`);
     output.info(`Framework: ${config.framework}`);
@@ -187,40 +242,11 @@ export async function statusCommand(
     }
 
     // 10. Warnings
-    const warnings: string[] = [];
-
-    // Check for tier mismatch
-    if (tier === 'free' && packageInfo?.package === WEB_AWESOME_PRO_PACKAGE) {
-      warnings.push(
-        '⚠️  Pro package installed but no token found - may cause installation issues'
-      );
-    }
-
-    if (tier === 'pro' && packageInfo?.package === WEB_AWESOME_FREE_PACKAGE) {
-      warnings.push(
-        '⚠️  Free package installed but Pro token present - consider upgrading package'
-      );
-    }
-
-    // Check for duplicate packages
-    try {
-      const packageJsonPath = path.join(cwd, 'package.json');
-      const packageJson = await fs.readJSON(packageJsonPath);
-      const hasFree = !!packageJson.dependencies?.[WEB_AWESOME_FREE_PACKAGE];
-      const hasPro = !!packageJson.dependencies?.[WEB_AWESOME_PRO_PACKAGE];
-
-      if (hasFree && hasPro) {
-        warnings.push(
-          '⚠️  Both webawesome and webawesome-pro are installed - consider removing Free package'
-        );
-      }
-    } catch {
-      // Ignore
-    }
-
     if (warnings.length > 0) {
       output.info('');
-      output.warning('Warnings:\n' + warnings.join('\n'));
+      output.warning(
+        'Warnings:\n' + warnings.map((w) => `⚠️  ${w}`).join('\n')
+      );
     }
 
     output.outro('✓ Status check complete');

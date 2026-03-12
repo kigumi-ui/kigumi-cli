@@ -6,7 +6,7 @@ import { CopyButton } from '@/components/ui';
 const meta = {
   title: 'Components/Copy Button',
   component: CopyButton,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'experimental'],
   argTypes: {
     value: { control: 'text', description: 'The text to copy' },
     from: {
@@ -135,7 +135,9 @@ export const Disabled: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

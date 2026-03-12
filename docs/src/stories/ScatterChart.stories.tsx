@@ -5,7 +5,7 @@ import { ScatterChart } from '@/components/ui';
 const meta = {
   title: 'Components/Scatter Chart',
   component: ScatterChart,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   argTypes: {
     label: {
       control: 'text',
@@ -107,7 +107,9 @@ export const Default: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div style={{ padding: '1.5rem' }}>
       <ScatterChart

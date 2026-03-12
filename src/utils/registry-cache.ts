@@ -67,7 +67,7 @@ export class RegistryCache {
       }
 
       return await fs.readJSON(registryPath);
-    } catch {
+    } catch (_error) {
       return null;
     }
   }
@@ -109,7 +109,7 @@ export class RegistryCache {
 
     try {
       return await fs.readFile(cachedPath, 'utf-8');
-    } catch {
+    } catch (_error) {
       return null;
     }
   }

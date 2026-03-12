@@ -136,11 +136,10 @@ export class VuePlugin implements FrameworkPlugin {
     cwd: string,
     config: KigumiConfig
   ): Promise<GeneratedFile[]> {
-    const { regenerateWebAwesomeSetup } =
-      await import('../../utils/regenerate.js');
+    const { regenerateKigumiSetup } = await import('../../utils/regenerate.js');
 
-    // Generate webawesome.ts (shared across frameworks)
-    await regenerateWebAwesomeSetup(cwd, config, config.utilsDir || 'src/lib');
+    // Generate kigumi.ts (shared across frameworks)
+    await regenerateKigumiSetup(cwd, config, config.utilsDir || 'src/lib');
 
     // No vite-env.d.ts needed for Vue - Vue handles custom element types differently
     // Vue users configure isCustomElement in vite.config.ts instead

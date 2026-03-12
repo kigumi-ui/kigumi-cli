@@ -44,7 +44,7 @@ export async function registryConnectAction(
     try {
       loadConfig(cwd);
       config = getConfig(cwd);
-    } catch {
+    } catch (_error) {
       // Will be caught by checks
     }
 

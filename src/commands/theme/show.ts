@@ -19,7 +19,7 @@ export const showCommand = new Command('show')
     const output = getOutput();
 
     try {
-      const config = await loadConfig(cwd);
+      const config = loadConfig(cwd);
 
       if (!config) {
         throw new ConfigNotFoundError(cwd);

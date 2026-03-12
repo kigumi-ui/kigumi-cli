@@ -70,16 +70,15 @@ export class FrameworkRegistry {
 
     // Load all plugins and run detection in parallel
     const detectionPromises = Array.from(FRAMEWORK_PLUGINS.entries()).map(
-      async ([name, loader]) => {
+      async ([_name, loader]) => {
         try {
           const plugin = await loader();
           const result = await plugin.detect(cwd);
           if (result.detected) {
             results.push({ plugin, result });
           }
-        } catch (error) {
-          // Silently ignore detection errors for individual frameworks
-          console.warn(`Failed to detect ${name}:`, error);
+        } catch (_error) {
+          // Detection errors are expected when a framework isn't present
         }
       }
     );
@@ -144,8 +143,8 @@ export class FrameworkRegistry {
           const plugin = await loader();
           const result = await plugin.detect(cwd);
           results.set(name, result);
-        } catch (error) {
-          console.warn(`Failed to detect ${name}:`, error);
+        } catch (_error) {
+          // Detection errors are expected when a framework isn't present
           results.set(name, {
             detected: false,
             confidence: 'low',

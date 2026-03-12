@@ -60,8 +60,8 @@ describe('migration integration', () => {
   });
 
   describe('migratePackageReferences (Free → Pro)', () => {
-    it('should migrate webawesome.ts imports', async () => {
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
+    it('should migrate kigumi.ts imports', async () => {
+      const webawesomePath = path.join(testDir, 'src/lib/kigumi.ts');
       await fs.writeFile(
         webawesomePath,
         `import '@awesome.me/webawesome/dist/components/button/button.js';
@@ -123,7 +123,7 @@ export const Button = () => <wa-button />;
     });
 
     it('should NOT migrate webawesome-pro references (already pro)', async () => {
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
+      const webawesomePath = path.join(testDir, 'src/lib/kigumi.ts');
       await fs.writeFile(
         webawesomePath,
         `import '@awesome.me/webawesome-pro/dist/components/button/button.js';
@@ -148,7 +148,7 @@ export const Button = () => <wa-button />;
 
     it('should report correct migration count', async () => {
       await fs.writeFile(
-        path.join(testDir, 'src/lib/webawesome.ts'),
+        path.join(testDir, 'src/lib/kigumi.ts'),
         `import '@awesome.me/webawesome/dist/components/button/button.js';`
       );
       await fs.writeFile(
@@ -168,8 +168,8 @@ export const Button = () => <wa-button />;
   });
 
   describe('reverseMigratePackageReferences (Pro → Free)', () => {
-    it('should reverse migrate webawesome.ts imports', async () => {
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
+    it('should reverse migrate kigumi.ts imports', async () => {
+      const webawesomePath = path.join(testDir, 'src/lib/kigumi.ts');
       await fs.writeFile(
         webawesomePath,
         `import '@awesome.me/webawesome-pro/dist/components/button/button.js';
@@ -232,7 +232,7 @@ export const Button = () => <wa-button />;
     });
 
     it('should NOT migrate free references (already free)', async () => {
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
+      const webawesomePath = path.join(testDir, 'src/lib/kigumi.ts');
       await fs.writeFile(
         webawesomePath,
         `import '@awesome.me/webawesome/dist/components/button/button.js';
@@ -254,7 +254,7 @@ export const Button = () => <wa-button />;
       const originalContent = `import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/card/card.js';
 `;
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
+      const webawesomePath = path.join(testDir, 'src/lib/kigumi.ts');
       await fs.writeFile(webawesomePath, originalContent);
 
       // Free → Pro
@@ -271,7 +271,7 @@ import '@awesome.me/webawesome/dist/components/card/card.js';
     it('should be reversible: Pro → Free → Pro', async () => {
       const originalContent = `import '@awesome.me/webawesome-pro/dist/components/button/button.js';
 `;
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
+      const webawesomePath = path.join(testDir, 'src/lib/kigumi.ts');
       await fs.writeFile(webawesomePath, originalContent);
 
       // Pro → Free
@@ -291,12 +291,12 @@ import '@awesome.me/webawesome/dist/components/card/card.js';
       const content = `// @awesome.me/webawesome and @awesome.me/webawesome again
 import '@awesome.me/webawesome/dist/components/button/button.js';
 `;
-      await fs.writeFile(path.join(testDir, 'src/lib/webawesome.ts'), content);
+      await fs.writeFile(path.join(testDir, 'src/lib/kigumi.ts'), content);
 
       await migratePackageReferences(testDir, mockOutput);
 
       const result = await fs.readFile(
-        path.join(testDir, 'src/lib/webawesome.ts'),
+        path.join(testDir, 'src/lib/kigumi.ts'),
         'utf-8'
       );
       // All occurrences should be migrated

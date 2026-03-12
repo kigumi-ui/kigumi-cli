@@ -38,6 +38,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build
+        run: pnpm build
+
+      - name: Smoke test
+        run: |
+          node dist/index.js --version
+          node dist/index.js list
+
+      - name: Verify package contents
+        run: pnpm pack --dry-run 2>&1 | head -50
+
       - name: Version and Publish
         id: changesets
         uses: changesets/action@v1

@@ -5,7 +5,7 @@ import { LineChart } from '@/components/ui';
 const meta = {
   title: 'Components/Line Chart',
   component: LineChart,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   argTypes: {
     label: {
       control: 'text',
@@ -126,7 +126,9 @@ export const MultiSeries: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

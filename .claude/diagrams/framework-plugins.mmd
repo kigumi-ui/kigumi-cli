@@ -15,8 +15,8 @@ flowchart TB
     end
 
     subgraph Plugins["Plugin Implementations"]
-        R["ReactPlugin\ndetects: react in package.json\ngenerates: .tsx/.jsx + .test + .css\nsetup: webawesome.ts, vite-env.d.ts"]
-        V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: webawesome.ts, shims-vue.d.ts"]
+        R["ReactPlugin\ndetects: react in package.json\ngenerates: .tsx/.jsx + .test + .css\nsetup: kigumi.ts, vite-env.d.ts"]
+        V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: kigumi.ts, shims-vue.d.ts"]
         A["AngularPlugin\ndetects: @angular/core\nSTUB — not fully implemented"]
         S["SveltePlugin\ndetects: svelte\nSTUB — not fully implemented"]
     end

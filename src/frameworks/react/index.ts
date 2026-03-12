@@ -154,11 +154,11 @@ export class ReactPlugin implements FrameworkPlugin {
   ): Promise<GeneratedFile[]> {
     // These files are now generated directly by regenerate functions
     // This method is kept for compatibility but delegates to regenerate.ts
-    const { regenerateWebAwesomeSetup, generateViteEnvDts } =
+    const { regenerateKigumiSetup, generateViteEnvDts } =
       await import('../../utils/regenerate.js');
 
     // Trigger file generation (they write directly to disk)
-    await regenerateWebAwesomeSetup(cwd, config, config.utilsDir || 'src/lib');
+    await regenerateKigumiSetup(cwd, config, config.utilsDir || 'src/lib');
 
     if (config.typescript) {
       // Detect tier from .env or default to free

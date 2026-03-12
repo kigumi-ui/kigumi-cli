@@ -19,7 +19,9 @@ src/
 │   │   └── remote-component-selector.ts  # Interactive picker (community)
 │   ├── theme.ts          # Theme command group (set + install)
 │   ├── theme/
-│   │   └── install.ts    # Install community themes from registry
+│   │   ├── install.ts    # Install community themes from registry
+│   │   ├── list.ts       # List available themes for current tier
+│   │   └── show.ts       # Show current theme details
 │   ├── registry.ts       # Registry command group
 │   ├── registry/         # Community registry management
 │   │   ├── init.ts       # Scaffold new registry
@@ -30,7 +32,8 @@ src/
 │   │   ├── add-component.ts # Add component entry to registry.json
 │   │   └── add-theme.ts  # Add theme entry to registry.json
 │   ├── doctor.ts         # Diagnose/fix imports + version alignment
-│   ├── status.ts         # Project status
+│   ├── status.ts         # Project status (supports --json)
+│   ├── list.ts            # List all available components (supports --json)
 │   ├── upgrade.ts        # Version upgrade guide + config update
 │   ├── diff.ts           # Compare components against current templates
 │   └── ...
@@ -40,7 +43,7 @@ src/
 │   ├── tier-restrictions.ts
 │   ├── config.ts         # kigumi.config.json handling
 │   ├── template.ts       # Handlebars rendering
-│   ├── regenerate.ts     # Auto-generate webawesome.ts, theme.css
+│   ├── regenerate.ts     # Auto-generate kigumi.ts, theme.css
 │   ├── json.ts           # JSON with comments support
 │   ├── github-fetcher.ts # GitHub URL parsing + raw content fetch
 │   ├── file-diff.ts      # Detect local modifications before overwriting
@@ -48,7 +51,12 @@ src/
 │   ├── version-map.ts    # Version history + breaking changes data
 │   ├── registry-cache.ts # Disk cache for registry data (~/.kigumi/cache)
 │   ├── github-token.ts   # GitHub PAT resolution chain
-│   └── registry-resolver.ts # Resolve --from value (URL or saved name)
+│   ├── registry-resolver.ts # Resolve --from value (URL or saved name)
+│   ├── display-options.ts # Theme/palette/brand display labels and options
+│   ├── project-config.ts # Project configuration helpers
+│   ├── component-metadata.ts # Component CSS metadata extraction
+│   ├── detect-framework.ts # Framework, TypeScript, package manager detection
+│   └── token-manager.ts  # Token validation, loading, saving, prompting
 ├── schemas/              # Zod validation schemas
 │   ├── config.ts         # KigumiConfig schema
 │   ├── options.ts        # Command options schemas
@@ -70,7 +78,7 @@ src/
 **Single source of truth** for all Web Awesome components.
 
 ```typescript
-export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
+export const LOCAL_REGISTRY: ComponentRegistry = {
   button: {
     name: 'Button',
     tagName: 'wa-button',
@@ -179,18 +187,18 @@ const tsconfig = await readJSONWithComments(tsconfigPath);
 
 ### `utils/regenerate.ts` - File Generation
 
-Generates `webawesome.ts`, `layers.css`, `theme.css`, and `vite-env.d.ts`.
+Generates `kigumi.ts`, `layers.css`, `theme.css`, and `vite-env.d.ts`.
 
 **Key Design Decisions:**
 
 - **`layers.css`** (auto-generated): Wraps all Web Awesome imports in `@layer` for cascade control. Base layer (Web Awesome CSS) < theme layer (user custom CSS). Regenerated on every theme/brand/palette change.
-- **`webawesome.ts`** (auto-generated): Imports layers.css and applies theme classes to `<html>`. Regenerated on every theme/brand/palette change.
+- **`kigumi.ts`** (auto-generated): Imports layers.css and applies theme classes to `<html>`. Regenerated on every theme/brand/palette change.
 - **`theme.css`** (user-editable): User's custom CSS overrides ONLY. Generated only on `init` if file doesn't exist, then preserved on subsequent inits.
 - **`vite-env.d.ts`**: TypeScript declarations. Must use `declare global`, not `declare module 'react'`.
 
 **When regenerated:**
 
-- `layers.css` + `webawesome.ts`: All theme/brand/palette commands
+- `layers.css` + `kigumi.ts`: All theme/brand/palette commands
 - `theme.css`: Only `init` (if file doesn't exist)
 
 ---
@@ -235,7 +243,7 @@ if (previousTier !== newTier) {
 **Built-in flow:** Uses Handlebars templates + `ComponentInstaller`.
 **Remote flow (`--from`):** Downloads pre-rendered files via `RemoteComponentInstaller`, resolves internal dependencies (topological sort), tracks provenance in `config.installedComponents`.
 
-**Auto-import:** After adding component, `updateWebAwesomeImports()` adds:
+**Auto-import:** After adding component, `updateKigumiImports()` adds:
 
 ```typescript
 import '@awesome.me/webawesome/dist/components/{name}/{name}.js';
@@ -274,6 +282,8 @@ Used by `commands/add/index.ts` and `commands/theme/install.ts`.
 | File         | Responsibility                                   |
 | ------------ | ------------------------------------------------ |
 | `install.ts` | Install community theme from registry (`--from`) |
+| `list.ts`    | List available themes for current tier           |
+| `show.ts`    | Show current theme, palette, and brand color     |
 
 ---
 
@@ -351,3 +361,5 @@ output.error('Failed to install');
 ---
 
 **Parent:** [AGENTS.md](../AGENTS.md)
+
+**Last Updated:** 2026-03-12

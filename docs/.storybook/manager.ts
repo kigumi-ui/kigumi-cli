@@ -12,7 +12,28 @@ const initialResolved =
     : 'light';
 addons.setConfig({
   theme: initialResolved === 'dark' ? kigumiDark : kigumiLight,
+  tagBadges: [
+    {
+      tags: 'pro',
+      badge: {
+        text: 'Pro',
+        bgColor: '#001c13',
+        fgColor: '#e0eb0b',
+        tooltip: 'Requires Web Awesome Pro license',
+      },
+    },
+    {
+      tags: 'experimental',
+      badge: {
+        text: 'Experimental',
+        bgColor: '#7c2d12',
+        fgColor: '#fed7aa',
+        tooltip: 'API may change in future releases',
+      },
+    },
+  ],
   sidebar: {
+    collapsedRoots: ['style', 'layout', 'design-tokens', 'components'],
     renderLabel: (item: { type: string; name: string }) => {
       if (item.type === 'component') {
         return React.createElement(

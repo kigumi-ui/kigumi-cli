@@ -6,7 +6,7 @@ import { ToastItem } from '@/components/ui';
 const meta = {
   title: 'Components/Toast Item',
   component: ToastItem,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro'],
   argTypes: {
     variant: {
       control: 'select',
@@ -145,7 +145,9 @@ export const WithIcon: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

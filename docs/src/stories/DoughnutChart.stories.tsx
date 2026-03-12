@@ -5,7 +5,7 @@ import { DoughnutChart } from '@/components/ui';
 const meta = {
   title: 'Components/Doughnut Chart',
   component: DoughnutChart,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   argTypes: {
     label: {
       control: 'text',
@@ -82,7 +82,9 @@ export const MultiSegment: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div style={{ padding: '1.5rem' }}>
       <DoughnutChart

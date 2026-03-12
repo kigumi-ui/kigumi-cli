@@ -37,7 +37,7 @@ export async function getGitHubToken(): Promise<string | undefined> {
     if (token) {
       return token;
     }
-  } catch {
+  } catch (_error) {
     // gh not installed or not authenticated — that's fine
   }
 

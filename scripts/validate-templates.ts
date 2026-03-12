@@ -19,6 +19,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
+import Handlebars from 'handlebars';
 import { getAllComponents } from '../src/utils/registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -88,6 +89,38 @@ async function validateComponentTemplates(
 }
 
 /**
+ * Validate that all .hbs files in a component directory compile as valid Handlebars
+ */
+async function validateTemplateContent(
+  componentName: string,
+  framework: 'react' | 'vue'
+): Promise<string[]> {
+  const errors: string[] = [];
+  const componentDir = path.join(TEMPLATES_DIR, framework, componentName);
+
+  if (!(await fs.pathExists(componentDir))) {
+    return errors; // Already reported by file-existence check
+  }
+
+  const entries = await fs.readdir(componentDir);
+  const hbsFiles = entries.filter((f) => f.endsWith('.hbs'));
+
+  for (const file of hbsFiles) {
+    const filePath = path.join(componentDir, file);
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      Handlebars.precompile(content);
+    } catch (err) {
+      errors.push(
+        `Template compile error: templates/${framework}/${componentName}/${file} — ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
+  }
+
+  return errors;
+}
+
+/**
  * Validate naming conventions
  */
 function validateNaming(componentName: string): string[] {
@@ -132,11 +165,18 @@ async function validateTemplates(): Promise<ValidationResult> {
       const namingErrors = validateNaming(component.name);
       result.errors.push(...namingErrors);
 
-      // Validate template files
+      // Validate template files exist
       const templateErrors = await validateComponentTemplates(
         component.name,
         framework
       );
+
+      // Validate template content compiles
+      const contentErrors = await validateTemplateContent(
+        component.name,
+        framework
+      );
+      result.errors.push(...contentErrors);
 
       if (templateErrors.length === 0) {
         if (framework === 'react') {

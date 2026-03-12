@@ -203,7 +203,13 @@ export const AnimationShowcase: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { delay: 500, pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: {
+      disableSnapshot: false,
+      delay: 500,
+      pauseAnimationAtEnd: true,
+    },
+  },
   render: () => (
     <div
       style={{

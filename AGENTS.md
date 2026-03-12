@@ -2,7 +2,7 @@
 
 > **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Svelte wrappers around Web Awesome components.
 
-**Version**: 0.12.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
+**Version**: 0.13.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
 
 ## Quick Start
 
@@ -21,12 +21,13 @@ node dist/index.js add button --overwrite
 
 ## Repository Structure
 
-| Directory    | Purpose              | Local AGENTS.md                            |
-| ------------ | -------------------- | ------------------------------------------ |
-| `src/`       | CLI source code      | [src/AGENTS.md](src/AGENTS.md)             |
-| `templates/` | Handlebars templates | [templates/AGENTS.md](templates/AGENTS.md) |
-| `tests/`     | Unit & E2E tests     | [tests/AGENTS.md](tests/AGENTS.md)         |
-| `dist/`      | Build output         | -                                          |
+| Directory         | Purpose              | Local AGENTS.md                            |
+| ----------------- | -------------------- | ------------------------------------------ |
+| `src/`            | CLI source code      | [src/AGENTS.md](src/AGENTS.md)             |
+| `templates/`      | Handlebars templates | [templates/AGENTS.md](templates/AGENTS.md) |
+| `tests/`          | Unit & E2E tests     | [tests/AGENTS.md](tests/AGENTS.md)         |
+| `.claude/skills/` | AI agent skills      | -                                          |
+| `dist/`           | Build output         | -                                          |
 
 **Key Files:**
 | File | Purpose |
@@ -39,12 +40,27 @@ node dist/index.js add button --overwrite
 | `src/commands/add/` | Component installation (built-in + community) |
 | `src/commands/registry.ts` | Community registry management (connect, list, remove) |
 | `src/commands/theme/install.ts` | Community theme installation from registry |
+| `src/commands/theme/list.ts` | List available themes for current tier |
+| `src/commands/theme/show.ts` | Show current theme details |
+| `src/commands/list.ts` | List all available components (`--json` supported) |
+| `src/commands/status.ts` | Project status (`--json` supported) |
 | `src/commands/upgrade.ts` | Upgrade guide + version pin update |
 | `src/commands/diff.ts` | Compare installed components vs current templates |
 | `src/utils/version-check.ts` | CLI vs project version compatibility check |
 | `src/utils/version-map.ts` | Version history + breaking changes data |
 | `src/utils/github-fetcher.ts` | GitHub API integration for registries |
 | `src/schemas/community-registry.ts` | Community registry schema validation |
+
+---
+
+## Skills
+
+| Skill                        | Location                                     | Audience    | Purpose                              |
+| ---------------------------- | -------------------------------------------- | ----------- | ------------------------------------ |
+| `kigumi-react`               | `.claude/skills/kigumi-react/`               | End user    | Convert WA HTML to Kigumi React JSX  |
+| `kigumi-theme`               | `.claude/skills/kigumi-theme/`               | End user    | Theme customization guidance         |
+| `generate-theme-preset`      | `.claude/skills/generate-theme-preset/`      | Contributor | Create Studio theme presets          |
+| `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates |
 
 ---
 
@@ -123,13 +139,13 @@ useEffect(() => {
 
 ### 6. Web Component Registration
 
-Components must be imported in `src/lib/webawesome.ts`:
+Components must be imported in `src/lib/kigumi.ts`:
 
 ```typescript
 import '@awesome.me/webawesome/dist/components/button/button.js';
 ```
 
-Auto-managed by `updateWebAwesomeImports()` in `src/commands/add.ts`.
+Auto-managed by `updateKigumiImports()` in `src/commands/add.ts`.
 
 ### 7. Dialog API: `requestClose()` not `hide()`
 
@@ -408,7 +424,7 @@ sequenceDiagram
     Tier-->>CLI: free | pro
     CLI->>Config: buildConfig (framework + tier + theme + palette)
     CLI->>Config: saveConfig → kigumi.config.json
-    CLI->>Tpl: generateProjectFiles (webawesome.ts, layers.css, theme.css)
+    CLI->>Tpl: generateProjectFiles (kigumi.ts, layers.css, theme.css)
     Tpl->>FS: write setup files
     CLI->>FW: installDependencies(cwd, pm, deps)
     FW->>FS: execa(pnpm/npm/yarn install)
@@ -516,8 +532,8 @@ flowchart TB
     end
 
     subgraph Plugins["Plugin Implementations"]
-        R["ReactPlugin\ndetects: react in package.json\ngenerates: .tsx/.jsx + .test + .css\nsetup: webawesome.ts, vite-env.d.ts"]
-        V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: webawesome.ts, shims-vue.d.ts"]
+        R["ReactPlugin\ndetects: react in package.json\ngenerates: .tsx/.jsx + .test + .css\nsetup: kigumi.ts, vite-env.d.ts"]
+        V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: kigumi.ts, shims-vue.d.ts"]
         A["AngularPlugin\ndetects: @angular/core\nSTUB — not fully implemented"]
         S["SveltePlugin\ndetects: svelte\nSTUB — not fully implemented"]
     end
@@ -539,20 +555,23 @@ flowchart TB
 
 ## Debugging
 
-| Problem             | Check                       | Fix                                 |
-| ------------------- | --------------------------- | ----------------------------------- |
-| Components unstyled | `webawesome.ts` imports?    | Run `updateWebAwesomeImports()`     |
-| TypeScript errors   | `declare module 'react'`?   | Use `declare global` instead        |
-| wa-\* type errors   | `vite-env.d.ts` exists?     | Run `generateViteEnvDts()`          |
-| Theme not applying  | CSS imported? HTML classes? | Check `webawesome.ts` imports       |
-| Theme conflicts     | Duplicate theme imports?    | Verify `theme.css` has no `@import` |
-| Tier wrong          | `.env` has token?           | Use `detectTier()`                  |
-| Free→Pro fails      | Migration ran?              | Check `migration.ts`                |
-| Wrong import paths  | Mixed free/pro imports?     | Run `kigumi doctor`                 |
-| Stale WA version    | Config or package outdated? | Run `kigumi doctor`                 |
-| Version mismatch    | `kigumiVersion` in config?  | Run `kigumi upgrade`                |
-| JSON parse fails    | File has comments?          | Use `readJSONWithComments()`        |
-| 401 in docs/        | `docs/.npmrc` present?      | Run `pnpm run setup:npmrc`          |
+| Problem             | Check                       | Fix                                                                            |
+| ------------------- | --------------------------- | ------------------------------------------------------------------------------ |
+| Components unstyled | `kigumi.ts` imports?        | Run `updateKigumiImports()`                                                    |
+| TypeScript errors   | `declare module 'react'`?   | Use `declare global` instead                                                   |
+| wa-\* type errors   | `vite-env.d.ts` exists?     | Run `generateViteEnvDts()`                                                     |
+| Theme not applying  | CSS imported? HTML classes? | Check `kigumi.ts` imports                                                      |
+| Theme conflicts     | Duplicate theme imports?    | Verify `theme.css` has no `@import`                                            |
+| Tier wrong          | `.env` has token?           | Use `detectTier()`                                                             |
+| Free→Pro fails      | Migration ran?              | Check `migration.ts`                                                           |
+| Wrong import paths  | Mixed free/pro imports?     | Run `kigumi doctor`                                                            |
+| Stale WA version    | Config or package outdated? | Run `kigumi doctor`                                                            |
+| Version mismatch    | `kigumiVersion` in config?  | Run `kigumi upgrade`                                                           |
+| JSON parse fails    | File has comments?          | Use `readJSONWithComments()`                                                   |
+| 401 in docs/        | `docs/.npmrc` present?      | Run `pnpm run setup:npmrc`                                                     |
+| Broken error URLs   | `https://https://` prefix?  | Use constants from `src/constants.ts` (`GITHUB_ISSUES_URL`, `GITHUB_REPO_URL`) |
+| Unhandled error     | `catch {}` swallows error?  | Always capture: `catch (_error) {}` with descriptive comment                   |
+| Config validation   | Generic `Error` thrown?     | Use `ConfigInvalidError` from `src/errors/config.ts`                           |
 
 ---
 
@@ -566,11 +585,14 @@ flowchart TB
 6. Storing tier in config (detect from `.env`)
 7. Using `any` type (use `unknown` or proper types)
 8. **Using `!important` to override Web Awesome styles** (use CSS layers - `theme.css` automatically overrides base)
-9. **Manually editing `layers.css` or `webawesome.ts`** (auto-generated - use `kigumi theme` commands)
+9. **Manually editing `layers.css` or `kigumi.ts`** (auto-generated - use `kigumi theme` commands)
 10. **Adding Web Awesome imports to `theme.css`** (all imports handled in `layers.css`)
 11. Making assumptions - ask for help if unsure
 12. **Manually editing community registry files** instead of using `kigumi registry` commands
 13. **Importing `KigumiConfig` from `utils/config.ts`** (old interface, incomplete) — use `schemas/config.ts` (Zod-inferred, has `registries`, `installedThemes`, etc.)
+14. **Hardcoding GitHub URLs** — use `GITHUB_ISSUES_URL` / `GITHUB_REPO_URL` from `src/constants.ts`
+15. **Silent `catch {}` blocks** — always capture the error variable (`catch (_error)`) and add a descriptive comment explaining why it's intentionally ignored
+16. **Using `process.exit()` in commands** — use `handleError(error, output)` from `src/errors/index.ts` for consistent error reporting
 
 ---
 
@@ -578,7 +600,7 @@ flowchart TB
 
 | File                                | Purpose                                                  | Regenerated When              | User-Editable      |
 | ----------------------------------- | -------------------------------------------------------- | ----------------------------- | ------------------ |
-| `src/lib/webawesome.ts`             | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands  | ❌ No              |
+| `src/lib/kigumi.ts`                 | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands  | ❌ No              |
 | `src/styles/layers.css`             | Wraps Web Awesome CSS in cascade layers                  | Theme/brand/palette commands  | ❌ No              |
 | `src/styles/theme.css`              | User custom CSS overrides                                | Only on init (if missing)     | ✅ Yes - preserved |
 | `src/types/web-awesome.d.ts`        | TypeScript declarations for wa-\* elements (incl. class) | `kigumi add` (React + TS)     | ❌ No              |
@@ -591,7 +613,7 @@ flowchart TB
 - `layers.css` uses CSS `@layer` for cascade control (base < theme)
 - `layers.css` distinguishes built-in themes (from WA package) vs community themes (from `community-themes/` dir)
 - `theme.css` is preserved on re-init - existing user styles won't be overwritten
-- Theme/brand commands regenerate `webawesome.ts` + `layers.css` but preserve `theme.css`
+- Theme/brand commands regenerate `kigumi.ts` + `layers.css` but preserve `theme.css`
 - Type declarations include `class?: string` on all `wa-*` elements (web components use `class`, not `className`)
 
 ---
@@ -737,11 +759,15 @@ START: Change affects tier detection or packages
   - Changes: `pnpm validate:changes`
 
 - [ ] **CI pipeline green**
+  - Lint & Format job
   - Test job (Node 18, 20, 22)
-  - Coverage job (>50%)
-  - TypeCheck job
-  - Validate job
-  - Security job
+  - Integration Tests job
+  - Coverage job (>=63%)
+  - TypeScript Check job
+  - Validate Registry & Templates job
+  - License Check job
+  - Security Audit job
+  - Chromatic visual regression job
 
 - [ ] **Documentation updated**
   - CHANGELOG.md (if user-facing)
@@ -866,11 +892,15 @@ gh pr create --title "feat: my feature" --body "Description..."
 
 All checks must pass before merge:
 
+- Lint & Format
 - Test (Node 18, 20, 22)
-- Coverage (>=33%)
-- TypeCheck
+- Integration Tests
+- Coverage (>=63%)
+- TypeScript Check
 - Validate Registry & Templates
+- License Check
 - Security Audit
+- Chromatic (visual regression)
 
 Once CI passes and review is approved, merge via GitHub UI (squash or merge commit, no rebase).
 
@@ -943,4 +973,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-03-08
+**Maintained by:** AI Assistants | **Last Updated:** 2026-03-12

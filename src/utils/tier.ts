@@ -56,7 +56,7 @@ export async function detectTier(cwd: string): Promise<Tier> {
       if (deps[WEB_AWESOME_FREE_PACKAGE]) {
         return 'free';
       }
-    } catch {
+    } catch (_error) {
       // Ignore JSON parse errors, fall through to token detection
     }
   }
@@ -92,7 +92,7 @@ export function detectTierSync(cwd: string): Tier {
       if (deps[WEB_AWESOME_FREE_PACKAGE]) {
         return 'free';
       }
-    } catch {
+    } catch (_error) {
       // Ignore JSON parse errors, fall through to token detection
     }
   }
