@@ -168,7 +168,7 @@ export function GettingStarted() {
                 style={{ position: 'relative' }}
               >
                 <pre>
-                  <code>import '@/lib/webawesome';</code>
+                  <code>import '@/lib/kigumi';</code>
                 </pre>
                 <span
                   style={{
@@ -181,7 +181,7 @@ export function GettingStarted() {
                     justifyContent: 'center',
                   }}
                 >
-                  <CopyButton value="import '@/lib/webawesome';" />
+                  <CopyButton value="import '@/lib/kigumi';" />
                 </span>
               </div>
             </Card>

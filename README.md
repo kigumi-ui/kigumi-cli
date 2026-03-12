@@ -14,7 +14,7 @@ npx kigumi add button input
 Import in your entry file (e.g. `src/main.tsx`):
 
 ```tsx
-import '@/lib/webawesome';
+import '@/lib/kigumi';
 ```
 
 Use components:
@@ -93,6 +93,8 @@ Change [theme](https://webawesome.com/docs/themes), [palette](https://webawesome
 
 ```bash
 npx kigumi theme [name]                      # Change theme (shows selector if name omitted)
+npx kigumi theme list                         # List available themes for your tier
+npx kigumi theme show                         # Show current theme, palette, brand color
 npx kigumi theme install <name> --from <url>  # Install a community theme
 npx kigumi palette [name]                     # Change color palette
 npx kigumi brand [color]                      # Change brand color
@@ -115,12 +117,22 @@ The doctor command checks for:
 
 Useful after upgrading Kigumi CLI, switching tiers (Free↔Pro), or encountering import errors.
 
+### `list`
+
+List all available components:
+
+```bash
+npx kigumi list              # Interactive list
+npx kigumi list --json       # Machine-readable JSON output
+```
+
 ### `status`
 
 Show your project's current configuration at a glance:
 
 ```bash
-npx kigumi status
+npx kigumi status            # Interactive display
+npx kigumi status --json     # Machine-readable JSON output
 ```
 
 ### `upgrade`
@@ -175,11 +187,13 @@ When the CLI version doesn't match your project:
 Manage community component and theme registries:
 
 ```bash
-npx kigumi registry init           # Scaffold a new community registry
-npx kigumi registry validate       # Validate your registry.json
-npx kigumi registry connect <url>  # Connect a community registry to your project
-npx kigumi registry list           # List connected registries
-npx kigumi registry remove <url>   # Remove a registry
+npx kigumi registry init              # Scaffold a new community registry
+npx kigumi registry validate          # Validate your registry.json
+npx kigumi registry connect <url>     # Connect a community registry to your project
+npx kigumi registry list              # List connected registries
+npx kigumi registry remove <url>      # Remove a registry
+npx kigumi registry add-component     # Add a component entry to registry.json
+npx kigumi registry add-theme         # Add a theme entry to registry.json
 ```
 
 ## Community Registries
@@ -321,6 +335,15 @@ git push                       # Push to GitHub — done!
 | `themes[slug].files.variables`         | No       | CSS variables file                         |
 | `themes[slug].extends`                 | No       | Built-in theme to extend                   |
 
+## Global Options
+
+All commands support these flags:
+
+```bash
+npx kigumi <command> --verbose   # Show debug output and command timing
+npx kigumi <command> --json      # Machine-readable JSON output (list, status)
+```
+
 ## Agent Skills
 
 Kigumi provides AI agent skills for transforming Web Awesome HTML to Kigumi components and for working with design tokens.
@@ -352,7 +375,7 @@ Add your custom CSS overrides in `src/styles/theme.css`:
 }
 ```
 
-**Note:** Theme selection is handled via `kigumi theme` command, which updates `src/lib/webawesome.ts`. The `theme.css` file is for your custom CSS only.
+**Note:** Theme selection is handled via `kigumi theme` command, which updates `src/lib/kigumi.ts`. The `theme.css` file is for your custom CSS only.
 
 [Design Tokens Reference](https://webawesome.com/docs/tokens)
 [Theming Guide](https://webawesome.com/docs/themes)
@@ -372,7 +395,7 @@ Later layers always override earlier layers, regardless of specificity. This mea
 
 ### Import errors with @ alias
 
-If you see errors like `Cannot find module '@/lib/webawesome'`, configure path aliases:
+If you see errors like `Cannot find module '@/lib/kigumi'`, configure path aliases:
 
 **Vite (vite.config.ts):**
 
@@ -423,7 +446,7 @@ If `npm install` fails with 401 errors:
 Make sure you've imported the Web Awesome setup in your app entry point:
 
 ```tsx
-import '@/lib/webawesome'; // Must be imported before components
+import '@/lib/kigumi'; // Must be imported before components
 ```
 
 ## Resources

@@ -288,7 +288,7 @@ describe('theme commands', () => {
   });
 
   describe('theme file generation', () => {
-    it('should create webawesome.ts with theme imports', async () => {
+    it('should create kigumi.ts with theme imports', async () => {
       const config = {
         framework: 'react',
         typescript: true,
@@ -312,17 +312,17 @@ describe('theme commands', () => {
       await fs.ensureDir(path.join(testDir, 'src/lib'));
       await fs.ensureDir(path.join(testDir, 'src/styles'));
 
-      // Generate webawesome.ts
-      const { regenerateWebAwesomeSetup } =
+      // Generate kigumi.ts
+      const { regenerateKigumiSetup } =
         await import('../../src/utils/regenerate.js');
-      await regenerateWebAwesomeSetup(testDir, config, 'src/lib');
+      await regenerateKigumiSetup(testDir, config, 'src/lib');
 
       // Check file exists
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
-      expect(await fs.pathExists(webawesomePath)).toBe(true);
+      const kigumiPath = path.join(testDir, 'src/lib/kigumi.ts');
+      expect(await fs.pathExists(kigumiPath)).toBe(true);
 
       // Check content
-      const content = await fs.readFile(webawesomePath, 'utf-8');
+      const content = await fs.readFile(kigumiPath, 'utf-8');
       expect(content).toContain('wa-theme-awesome');
       expect(content).toContain('wa-palette-sky');
     });
@@ -351,17 +351,17 @@ describe('theme commands', () => {
       await fs.ensureDir(path.join(testDir, 'src/lib'));
       await fs.ensureDir(path.join(testDir, 'src/styles'));
 
-      // Generate webawesome.ts
-      const { regenerateWebAwesomeSetup } =
+      // Generate kigumi.ts
+      const { regenerateKigumiSetup } =
         await import('../../src/utils/regenerate.js');
-      await regenerateWebAwesomeSetup(testDir, config, 'src/lib');
+      await regenerateKigumiSetup(testDir, config, 'src/lib');
 
       // Check file exists
-      const webawesomePath = path.join(testDir, 'src/lib/webawesome.ts');
-      expect(await fs.pathExists(webawesomePath)).toBe(true);
+      const kigumiPath = path.join(testDir, 'src/lib/kigumi.ts');
+      expect(await fs.pathExists(kigumiPath)).toBe(true);
 
       // Check content (should not have theme import)
-      const content = await fs.readFile(webawesomePath, 'utf-8');
+      const content = await fs.readFile(kigumiPath, 'utf-8');
       expect(content).not.toContain('themes/none.css');
     });
   });

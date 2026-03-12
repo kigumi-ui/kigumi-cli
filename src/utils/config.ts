@@ -14,73 +14,12 @@
 import { cosmiconfigSync } from 'cosmiconfig';
 import fs from 'fs-extra';
 import path from 'path';
-import { DEFAULT_WEBAWESOME_VERSION } from '../constants.js';
+import { DEFAULT_CONFIG } from '../schemas/config.js';
+import type { KigumiConfig } from '../schemas/config.js';
 
-/**
- * Configuration interface for kigumi projects
- * @public - Used by command handlers
- */
-export interface KigumiConfig {
-  framework: 'react' | 'vue' | 'svelte' | 'angular';
-  typescript: boolean;
-  componentsDir: string;
-  utilsDir?: string;
-  stylesDir?: string;
-  theme: {
-    selected: string; // Which theme to use (default, awesome, shoelace, none, or pro themes)
-    palette: string; // Color palette (default, bright, shoelace, etc.)
-    brandColor: string; // Brand color mapping (blue, purple, green, etc.)
-  };
-  aliases?: Record<string, string>;
-  webAwesome?: {
-    version?: string;
-    cdnUrl?: string; // Optional CDN URL override
-  };
-  registries?: Array<{
-    url: string;
-    name?: string;
-  }>;
-  installedComponents?: Record<
-    string,
-    {
-      source: 'builtin' | 'community';
-      registryUrl?: string;
-      registryVersion?: string;
-      installedAt?: string;
-      kigumiVersion?: string;
-    }
-  >;
-  installedThemes?: Record<
-    string,
-    {
-      source: 'builtin' | 'community';
-      registryUrl?: string;
-      registryVersion?: string;
-    }
-  >;
-  kigumiVersion?: string;
-}
-
-export const DEFAULT_CONFIG: KigumiConfig = {
-  framework: 'react',
-  typescript: true,
-  componentsDir: 'src/components/ui',
-  utilsDir: 'src/lib',
-  stylesDir: 'src/styles',
-  theme: {
-    selected: 'default',
-    palette: 'default',
-    brandColor: 'blue',
-  },
-  aliases: {
-    '@/components': './src/components',
-    '@/lib': './src/lib',
-    '@/styles': './src/styles',
-  },
-  webAwesome: {
-    version: DEFAULT_WEBAWESOME_VERSION,
-  },
-};
+// Re-export type and defaults from the canonical source (schemas/config.ts)
+export type { KigumiConfig };
+export { DEFAULT_CONFIG };
 
 /**
  * Load kigumi configuration from the user's project

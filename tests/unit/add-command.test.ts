@@ -65,10 +65,10 @@ describe('addCommand', () => {
     await fs.ensureDir(path.join(tempDir, 'src/lib'));
     await fs.ensureDir(path.join(tempDir, 'src/styles'));
 
-    // Create webawesome.ts (required for component installation)
+    // Create kigumi.ts (required for component installation)
     await fs.writeFile(
-      path.join(tempDir, 'src/lib/webawesome.ts'),
-      `// Web Awesome imports - auto-managed by kigumi
+      path.join(tempDir, 'src/lib/kigumi.ts'),
+      `// Kigumi Setup - auto-managed by kigumi
 import '../styles/layers.css';
 `
     );
@@ -318,8 +318,8 @@ import '../styles/layers.css';
     });
   });
 
-  describe('webawesome.ts updates', () => {
-    it('should keep webawesome.ts intact', async () => {
+  describe('kigumi.ts updates', () => {
+    it('should keep kigumi.ts intact', async () => {
       await createConfig();
       await setupProject();
 
@@ -327,8 +327,8 @@ import '../styles/layers.css';
 
       await addCommand(['button'], { cwd: tempDir });
 
-      // Check webawesome.ts exists
-      const waPath = path.join(tempDir, 'src/lib/webawesome.ts');
+      // Check kigumi.ts exists
+      const waPath = path.join(tempDir, 'src/lib/kigumi.ts');
       expect(await fs.pathExists(waPath)).toBe(true);
     });
   });

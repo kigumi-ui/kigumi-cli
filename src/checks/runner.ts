@@ -102,7 +102,7 @@ export class CheckRunner {
         results.push({
           passed: false,
           severity: CheckSeverity.ERROR,
-          message: `Check "${check.name}" failed with error: ${(error as Error).message}`,
+          message: `Check "${check.name}" failed with error: ${error instanceof Error ? error.message : String(error)}`,
           suggestion: ['Check the logs for more details'],
         });
 
@@ -126,7 +126,7 @@ export class CheckRunner {
         return {
           passed: false,
           severity: CheckSeverity.ERROR,
-          message: `Check "${check.name}" failed with error: ${(error as Error).message}`,
+          message: `Check "${check.name}" failed with error: ${error instanceof Error ? error.message : String(error)}`,
           suggestion: ['Check the logs for more details'],
         } as CheckResult;
       }

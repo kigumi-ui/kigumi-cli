@@ -11,7 +11,9 @@ export default defineConfig({
       '**/tests/react*/**',
       '**/tests/test-*/**',
       '**/tests/integration/**',
+      '**/tests/e2e/**',
       '**/tests/.tmp-*/**',
+      '**/.claude/worktrees/**',
     ],
     coverage: {
       provider: 'v8',
@@ -23,6 +25,12 @@ export default defineConfig({
         '**/*.test.ts',
         '**/*.d.ts',
       ],
+      thresholds: {
+        lines: 68,
+        branches: 57,
+        functions: 77,
+        statements: 68,
+      },
     },
   },
 });

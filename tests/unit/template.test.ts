@@ -122,7 +122,7 @@ describe('template utilities', () => {
         description: 'Test',
         importPath: 'test',
         props: [],
-      } as any);
+      } as unknown as Parameters<typeof renderTemplate>[1]);
 
       expect(result).toBe('Name: Button, Missing: ');
     });

@@ -6,7 +6,7 @@ import { FileInput } from '@/components/ui';
 const meta = {
   title: 'Components/File Input',
   component: FileInput,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   argTypes: {
     label: { control: 'text', description: 'Accessible label for the input' },
     hint: { control: 'text', description: 'Descriptive hint text' },
@@ -126,7 +126,9 @@ export const Sizes: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

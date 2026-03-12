@@ -68,7 +68,7 @@ export async function addCommand(components: string[], options?: AddOptions) {
     try {
       loadConfig(cwd);
       config = getConfig(cwd);
-    } catch {
+    } catch (_error) {
       // Config loading failed - will be caught by checks
     }
 

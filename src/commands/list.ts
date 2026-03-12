@@ -9,17 +9,33 @@ import { getOutput } from '../output/index.js';
 import { handleError } from '../errors/index.js';
 import { getAllComponents } from '../utils/registry.js';
 
+interface ListOptions {
+  json?: boolean;
+}
+
 /**
  * List command
  *
  * Shows all available components grouped by category
  */
-export async function listCommand() {
+export async function listCommand(options: ListOptions = {}) {
   const output = getOutput();
-  output.intro('kigumi list');
 
   try {
     const components = getAllComponents();
+
+    // JSON output mode
+    if (options.json) {
+      const data = Object.entries(components).map(([name, comp]) => ({
+        name,
+        category: comp.category,
+        description: comp.description,
+      }));
+      process.stdout.write(JSON.stringify(data, null, 2) + '\n');
+      return;
+    }
+
+    output.intro('kigumi list');
 
     // Group by category
     const byCategory: Record<string, string[]> = {};

@@ -14,7 +14,7 @@ describe('list command', () => {
   beforeEach(() => {
     consoleOutput = [];
     // Mock console output to capture output
-    vi.spyOn(process.stdout, 'write').mockImplementation((str: any) => {
+    vi.spyOn(process.stdout, 'write').mockImplementation((str: unknown) => {
       consoleOutput.push(str.toString());
       return true;
     });

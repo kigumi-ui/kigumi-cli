@@ -91,7 +91,7 @@ async function checkLockfileCompatibility(
       compatible: !hasIncompatibility,
       lockfilePath: hasIncompatibility ? lockfilePath : null,
     };
-  } catch {
+  } catch (_error) {
     // If command times out or fails, assume compatible
     return { compatible: true, lockfilePath: null };
   }
@@ -253,7 +253,7 @@ export async function installDependencies(
         throw new DependencyInstallError(
           dependencies.join(' '),
           packageManager,
-          execaError as Error,
+          error instanceof Error ? error : new Error(String(execaError.stderr)),
           execaError.exitCode
         );
       }
@@ -286,7 +286,7 @@ export async function installDependencies(
         throw new DependencyInstallError(
           dependencies.join(' '),
           packageManager,
-          execaError as Error,
+          error instanceof Error ? error : new Error(String(execaError.stderr)),
           execaError.exitCode
         );
       }
@@ -308,7 +308,7 @@ export async function installDependencies(
             `   Set ${ENV_TOKEN_KEY} environment variable\n\n` +
             '3. Project-specific (.env file):\n' +
             `   ${ENV_TOKEN_KEY}=your_token_here\n\n` +
-            'Get your token at: https://https://webawesome.com/login\n' +
+            'Get your token at: https://webawesome.com/login\n' +
             'Then run kigumi init again.'
         );
       }
@@ -316,7 +316,7 @@ export async function installDependencies(
       throw new DependencyInstallError(
         dependencies.join(' '),
         packageManager,
-        execaError as Error,
+        error instanceof Error ? error : new Error(String(execaError.stderr)),
         execaError.exitCode
       );
     }
@@ -324,7 +324,7 @@ export async function installDependencies(
     throw new DependencyInstallError(
       dependencies.join(' '),
       packageManager,
-      error as Error
+      error instanceof Error ? error : new Error(String(error))
     );
   }
 }
@@ -365,7 +365,7 @@ export async function cleanupOldPackage(
 
       spinner.stop(`Removed old package: ${oldPackage}`);
       output.log(`[DEBUG] Cleaned up old package: ${oldPackage}`);
-    } catch {
+    } catch (_error) {
       // Non-critical error, just log it
       spinner.error(`Failed to remove old package: ${oldPackage}`);
       output.warn(

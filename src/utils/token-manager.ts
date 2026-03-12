@@ -61,7 +61,7 @@ export async function loadTokenFromEnv(cwd: string): Promise<string | null> {
     }
 
     return null;
-  } catch {
+  } catch (_error) {
     return null;
   }
 }

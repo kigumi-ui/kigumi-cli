@@ -7,6 +7,7 @@
 import { z } from 'zod';
 import type { ZodIssue } from 'zod';
 import { DEFAULT_WEBAWESOME_VERSION } from '../constants.js';
+import { ConfigInvalidError } from '../errors/config.js';
 
 /**
  * Supported frameworks constant - single source of truth
@@ -162,9 +163,7 @@ export function validateConfig(data: unknown): KigumiConfig {
           })
         : ['Unknown validation error'];
 
-    // We'll throw the proper error in the next phase when integrating
-    // For now, just throw a basic error
-    throw new Error(`Configuration validation failed:\n${errors.join('\n')}`);
+    throw new ConfigInvalidError(errors);
   }
 
   return result.data;
@@ -189,7 +188,7 @@ export function validatePartialConfig(data: unknown): Partial<KigumiConfig> {
           })
         : ['Unknown validation error'];
 
-    throw new Error(`Configuration validation failed:\n${errors.join('\n')}`);
+    throw new ConfigInvalidError(errors);
   }
 
   return result.data;

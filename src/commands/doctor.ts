@@ -27,6 +27,7 @@ import { detectTier, getWebAwesomePackage } from '../utils/tier.js';
 import { loadConfig } from '../utils/config.js';
 import { getOutput } from '../output/index.js';
 import type { OutputInterface } from '../output/types.js';
+import { handleError } from '../errors/index.js';
 
 interface DoctorOptions {
   dryRun?: boolean;
@@ -276,9 +277,6 @@ export async function doctorCommand(
 
     output.outro('Done!');
   } catch (error) {
-    output.error(
-      error instanceof Error ? error.message : 'An unknown error occurred'
-    );
-    process.exit(1);
+    handleError(error, output);
   }
 }

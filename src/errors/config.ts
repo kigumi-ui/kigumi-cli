@@ -5,6 +5,7 @@
  */
 
 import { KigumiError, ErrorCode, type ErrorSuggestion } from './base.js';
+import { GITHUB_REPO_URL } from '../constants.js';
 
 /**
  * Configuration file not found
@@ -25,7 +26,7 @@ export class ConfigNotFoundError extends KigumiError {
         steps: [
           'Create kigumi-components.json in your project root',
           'Add the required configuration fields',
-          'See: https://github.com/anthropics/kigumi-cli#configuration',
+          `See: ${GITHUB_REPO_URL}#configuration`,
         ],
       },
     ];

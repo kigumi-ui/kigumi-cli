@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Validate Changes Script - AI Guard Rails
  *
@@ -126,7 +127,7 @@ const issues: ValidationIssue[] = [];
  */
 async function checkGeneratedFiles(): Promise<void> {
   const generatedFiles = [
-    'src/lib/webawesome.ts',
+    'src/lib/kigumi.ts',
     'src/styles/layers.css',
     'src/vite-env.d.ts',
   ];

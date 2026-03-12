@@ -116,9 +116,9 @@ describe('E2E Smoke Test - Free Tier', () => {
   });
 
   it('should create generated files', async () => {
-    expect(
-      await fs.pathExists(path.join(TEST_DIR, 'src/lib/webawesome.ts'))
-    ).toBe(true);
+    expect(await fs.pathExists(path.join(TEST_DIR, 'src/lib/kigumi.ts'))).toBe(
+      true
+    );
     expect(
       await fs.pathExists(path.join(TEST_DIR, 'src/styles/theme.css'))
     ).toBe(true);
@@ -149,7 +149,7 @@ describe('E2E Smoke Test - Free Tier', () => {
 
   it('should pass TypeScript check (tsc -b)', async () => {
     // Create a test App that uses the component
-    const appContent = `import '@/lib/webawesome';
+    const appContent = `import '@/lib/kigumi';
 import { Button } from '@/components/ui/Button/Button';
 
 function App() {

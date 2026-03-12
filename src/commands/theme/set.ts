@@ -9,7 +9,7 @@ import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { loadConfig, saveConfig, getConfig } from '../../utils/config.js';
-import { regenerateWebAwesomeSetup } from '../../utils/regenerate.js';
+import { regenerateKigumiSetup } from '../../utils/regenerate.js';
 import {
   getAvailableThemes,
   isThemeAvailable,
@@ -34,7 +34,7 @@ export const setCommand = new Command('set')
       try {
         loadConfig(cwd);
         config = getConfig(cwd);
-      } catch {
+      } catch (_error) {
         // Config loading failed - will be caught by checks
       }
 
@@ -76,11 +76,11 @@ export const setCommand = new Command('set')
       await saveConfig(config, cwd);
       spinner.stop('Updated kigumi-components.json');
 
-      // Regenerate webawesome.ts
+      // Regenerate kigumi.ts
       const utilsDir = config.utilsDir || 'src/lib';
       spinner.start('Regenerating setup file...');
-      await regenerateWebAwesomeSetup(cwd, config, utilsDir);
-      spinner.stop(`Regenerated ${utilsDir}/webawesome.ts`);
+      await regenerateKigumiSetup(cwd, config, utilsDir);
+      spinner.stop(`Regenerated ${utilsDir}/kigumi.ts`);
 
       p.note(
         `Theme: ${pc.cyan(themeName)}\n\n` +

@@ -5,7 +5,7 @@ import { PieChart } from '@/components/ui';
 const meta = {
   title: 'Components/Pie Chart',
   component: PieChart,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   argTypes: {
     label: {
       control: 'text',
@@ -80,7 +80,9 @@ export const ThreeWay: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div style={{ padding: '1.5rem' }}>
       <PieChart

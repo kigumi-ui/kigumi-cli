@@ -219,7 +219,7 @@ async function diffComponentFiles(
     results.push(
       await compareFile(componentFilePath, componentFileName, generatedContent)
     );
-  } catch {
+  } catch (_error) {
     results.push({ fileName: componentFileName, status: 'missing' });
   }
 
@@ -229,7 +229,7 @@ async function diffComponentFiles(
   try {
     const generatedCSS = await generateComponentCSSContent(component, config);
     results.push(await compareFile(cssFilePath, cssFileName, generatedCSS));
-  } catch {
+  } catch (_error) {
     results.push({ fileName: cssFileName, status: 'missing' });
   }
 
@@ -247,7 +247,7 @@ async function diffComponentFiles(
   try {
     const generatedTest = await generateComponentTestContent(component, config);
     results.push(await compareFile(testFilePath, testFileName, generatedTest));
-  } catch {
+  } catch (_error) {
     results.push({ fileName: testFileName, status: 'missing' });
   }
 

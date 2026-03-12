@@ -26,7 +26,7 @@ const fruits = [
 const meta = {
   title: 'Components/Combobox',
   component: Combobox,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   argTypes: {
     'allow-custom-value': {
       control: 'boolean',
@@ -314,7 +314,9 @@ export const Disabled: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

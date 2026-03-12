@@ -5,7 +5,7 @@ import { Page, Button, Icon } from '@/components/ui';
 const meta = {
   title: 'Components/Page',
   component: Page,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'pro', 'experimental'],
   parameters: { layout: 'fullscreen' },
   argTypes: {
     'disable-navigation-toggle': {
@@ -156,7 +156,9 @@ export const MobileView: Story = {
 /** Static snapshot for visual regression testing. */
 export const ChromaticOnly: Story = {
   tags: ['!dev', '!autodocs'],
-  parameters: { chromatic: { pauseAnimationAtEnd: true } },
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
   render: () => (
     <div
       style={{

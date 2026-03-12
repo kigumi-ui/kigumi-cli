@@ -72,7 +72,7 @@ describe('validateConfig', () => {
   it('throws on invalid framework', () => {
     expect(() =>
       validateConfig({ ...validConfig, framework: 'ember' })
-    ).toThrow('Configuration validation failed');
+    ).toThrow('Configuration file is invalid');
   });
 
   it('throws on missing framework', () => {
@@ -82,13 +82,13 @@ describe('validateConfig', () => {
 
   it('throws on non-boolean typescript', () => {
     expect(() => validateConfig({ ...validConfig, typescript: 'yes' })).toThrow(
-      'Configuration validation failed'
+      'Configuration file is invalid'
     );
   });
 
   it('throws on empty componentsDir', () => {
     expect(() => validateConfig({ ...validConfig, componentsDir: '' })).toThrow(
-      'Configuration validation failed'
+      'Configuration file is invalid'
     );
   });
 

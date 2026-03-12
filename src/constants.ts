@@ -55,8 +55,8 @@ export const ENV_FILE_NAME = '.env';
 /** NPM registry configuration file name */
 export const NPMRC_FILE_NAME = '.npmrc';
 
-/** Web Awesome imports file (generated) */
-export const WEBAWESOME_IMPORTS_FILE = 'webawesome.ts';
+/** Kigumi setup file (generated) */
+export const KIGUMI_SETUP_FILE = 'kigumi.ts';
 
 /** Theme CSS file (generated) */
 export const THEME_CSS_FILE = 'theme.css';
@@ -148,6 +148,16 @@ export const REGISTRY_CACHE_TTL_MS = 3_600_000;
 
 /** Community registry file name */
 export const REGISTRY_FILE_NAME = 'registry.json';
+
+// =============================================================================
+// GitHub Repository
+// =============================================================================
+
+/** GitHub repository URL */
+export const GITHUB_REPO_URL = 'https://github.com/Siregar/kigumi-cli';
+
+/** GitHub issues URL for bug reports */
+export const GITHUB_ISSUES_URL = `${GITHUB_REPO_URL}/issues`;
 
 // =============================================================================
 // CLI Version

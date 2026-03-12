@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
-import { loadConfig } from '../../utils/config.js';
 
 export const listCommand = new Command('list')
   .description('List available themes, palettes, and brand colors')
@@ -9,7 +8,6 @@ export const listCommand = new Command('list')
     p.intro(pc.bgCyan(pc.black(' Available Themes ')));
 
     const cwd = process.cwd();
-    const _config = await loadConfig(cwd);
     const { detectTier } = await import('../../utils/tier.js');
     const tier = await detectTier(cwd);
 

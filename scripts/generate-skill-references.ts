@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+/* eslint-disable no-console */
 /**
  * Generate Agent Skill Reference Files
  *
@@ -17,7 +18,13 @@ import { join } from 'path';
 import prettier from 'prettier';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 
-const SKILLS_DIR = join(process.cwd(), 'skills', 'kigumi-react', 'references');
+const SKILLS_DIR = join(
+  process.cwd(),
+  '.claude',
+  'skills',
+  'kigumi-react',
+  'references'
+);
 const COMPONENTS_DIR = join(SKILLS_DIR, 'components');
 
 /**

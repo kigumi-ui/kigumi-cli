@@ -110,9 +110,9 @@ export interface FrameworkPlugin {
    * Generate framework-specific setup files
    *
    * Examples:
-   * - React: webawesome.ts, vite-env.d.ts
-   * - Vue: webawesome.ts, shims-vue.d.ts
-   * - Angular: webawesome.module.ts
+   * - React: kigumi.ts, vite-env.d.ts
+   * - Vue: kigumi.ts, shims-vue.d.ts
+   * - Angular: kigumi.module.ts
    *
    * @param cwd - Current working directory
    * @param config - Kigumi configuration
