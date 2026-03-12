@@ -1,5 +1,47 @@
 # kigumi
 
+## 0.14.0
+
+### Minor Changes
+
+- ### Breaking Changes
+  - **Node 18 deprecated**: Minimum supported Node.js version is now Node 20. CI no longer tests against Node 18.
+  - **Setup file renamed**: Generated setup file renamed from `webawesome.ts` to `kigumi.ts`. Associated functions renamed (`regenerateWebAwesomeSetup` → `regenerateKigumiSetup`, `updateWebAwesomeImports` → `updateKigumiImports`). Update your import path from `@/lib/webawesome` to `@/lib/kigumi`.
+
+  ### Features
+  - **`--json` output**: `kigumi status` and `kigumi list` now accept a `--json` flag for CI/CD-friendly machine-readable output.
+  - **`--verbose` global flag**: Enables debug logging and command timing ("Done in 1.2s" on stderr).
+  - **Storybook documentation**: New Style, Layout, and Design Tokens categories with comprehensive utility class and token reference docs.
+  - **Pro/Experimental badges**: Storybook sidebar now shows Pro and Experimental badges for Web Awesome component stories.
+  - **Chromatic visual regression**: CI now runs Chromatic snapshot tests on pull requests.
+
+  ### Bug Fixes
+  - Fix broken double-protocol URLs (`https://https://`) in add/validator, init/index, init/installer.
+  - Fix `status --json` intro banner leaking into JSON output.
+  - Fix post-init next steps not showing (switched from `output.log()` to `output.info()`).
+  - Fix 29 silent catch blocks across 19 files.
+  - Fix post-build script referencing removed `skills/` directory.
+  - Fix `loadConfig` incorrectly awaited in status and theme/show commands.
+
+  ### Refactoring
+  - Comprehensive quality audit (Phases 1–6): consolidated `KigumiConfig` type, replaced unsafe `as Error` casts, added `ConfigInvalidError`, consolidated GitHub URLs into constants, escalated ESLint `no-explicit-any` to error, added `no-console` rule.
+  - Build system improvements: `tsup.config.ts` with source maps, `scripts/post-build.ts` replacing fragile shell commands.
+  - Handlebars `precompile()` content validation added to template validation script.
+
+  ### Tests
+  - Added ~350 new unit tests across 20 new test files covering brand, palette, theme, init-installer, init-existing-config, framework-detection, diff, upgrade, regenerate, registry-cache, github-token, status-json, list-json, detect-framework, display-options, token-manager, and registry commands.
+  - Coverage thresholds raised to 68/57/77/68 (lines/branches/functions/statements).
+  - Smoke test added before npm publish in release workflow.
+
+  ### CI/CD
+  - Restructured CI into 10 parallel jobs (lint, test, integration, coverage, typecheck, validate, security, chromatic, license-check, smoke).
+  - Added dependency license check (MIT/ISC/BSD/Apache allowed).
+  - Added npm pack dry-run before publish.
+
+  ### Dependencies
+  - Bumped `@eslint/js`, `@types/node`, and various production/development dependencies.
+  - Updated pnpm from 10.28.2 to 10.29.3.
+
 ## 0.13.0
 
 ### Minor Changes
