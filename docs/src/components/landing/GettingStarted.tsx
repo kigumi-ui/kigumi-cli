@@ -1,5 +1,5 @@
-import { Badge, Card } from '@/components/ui';
-import { CopyButton } from '@/components/ui';
+import { Badge, Card, CopyButton } from '@/components/ui';
+import { FrameworkCodeBlock } from '@/components/landing/FrameworkCodeBlock';
 import { Link } from 'react-router-dom';
 
 export function GettingStarted() {
@@ -19,7 +19,9 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>1</Badge>
-              <h3 className="wa-heading-l">Initialize your project</h3>
+              <h3 className="wa-heading-l" id="initialize">
+                Initialize your project
+              </h3>
             </div>
             <p className="wa-caption-m">
               Set up Kigumi in your React or Vue project. Choose your framework
@@ -94,7 +96,9 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>2</Badge>
-              <h3 className="wa-heading-l">Add components to your project</h3>
+              <h3 className="wa-heading-l" id="add-components">
+                Add components to your project
+              </h3>
             </div>
             <p className="wa-caption-m">
               Install individual components or add them all at once. Each
@@ -155,55 +159,47 @@ export function GettingStarted() {
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>3</Badge>
-              <h3 className="wa-heading-l">Import Web Awesome</h3>
+              <h3 className="wa-heading-l" id="import">
+                Import Web Awesome
+              </h3>
             </div>
 
             <p className="wa-caption-m">
               Import the Web Awesome setup in your app entry point:
             </p>
 
-            <Card appearance="outlined" style={{ '--spacing': '0' }}>
-              <div
-                className="wa-flank:end wa-align-items-center wa-gap-xs"
-                style={{ position: 'relative' }}
-              >
-                <pre>
-                  <code>import '@/lib/kigumi';</code>
-                </pre>
-                <span
-                  style={{
-                    position: 'absolute',
-                    right: 'var(--wa-space-xs)',
-                    top: '0',
-                    bottom: '0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <CopyButton value="import '@/lib/kigumi';" />
-                </span>
-              </div>
-            </Card>
+            <FrameworkCodeBlock
+              snippets={{
+                react: {
+                  code: "import '@/lib/kigumi';",
+                  filename: 'src/main.tsx',
+                },
+                vue: {
+                  code: "import '@/lib/kigumi';",
+                  filename: 'src/main.ts',
+                },
+              }}
+            />
           </div>
 
           {/* Step 4: Build your UI */}
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>4</Badge>
-              <h3 className="wa-heading-l">Start building</h3>
+              <h3 className="wa-heading-l" id="start-building">
+                Start building
+              </h3>
             </div>
 
             <p className="wa-caption-m">
               Import and use components in your React or Vue code:
             </p>
-            <Card appearance="outlined" style={{ '--spacing': '0' }}>
-              <div
-                className="wa-flank:end wa-align-items-start wa-gap-xs"
-                style={{ position: 'relative' }}
-              >
-                <pre>
-                  <code>{`import { Button, Input } from '@/components/ui';
+
+            <FrameworkCodeBlock
+              snippets={{
+                react: {
+                  code: `import { useState } from 'react';
+import { Button, Input } from '@/components/ui';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -225,53 +221,41 @@ export default function LoginForm() {
       </Button>
     </form>
   );
-}`}</code>
-                </pre>
-                <span
-                  style={{
-                    position: 'absolute',
-                    right: 'var(--wa-space-xs)',
-                    top: 'var(--wa-space-xs)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <CopyButton
-                    value={`import { Button, Input } from '@/components/ui';
+}`,
+                  filename: 'src/components/LoginForm.tsx',
+                },
+                vue: {
+                  code: `<script setup>
+import { ref } from 'vue'
+import { Button, Input } from '@/components/ui'
 
-export default function LoginForm() {
-  const [email, setEmail] = useState('');
+const email = ref('')
 
-  return (
-    <form onSubmit={(e) => {
-      e.preventDefault();
-      console.log('Email:', email);
-    }}>
-      <Input
-        type="email"
-        label="Email"
-        value={email}
-        onInput={(e) => setEmail(e.target.value)}
-        required
-      />
-      <Button type="submit" variant="brand">
-        Sign In
-      </Button>
-    </form>
-  );
-}`}
-                  />
-                </span>
-              </div>
-            </Card>
+function onSubmit(e) {
+  e.preventDefault()
+  console.log('Email:', email.value)
+}
+</script>
+
+<template>
+  <form @submit="onSubmit">
+    <Input v-model="email" type="email" label="Email" required />
+    <Button type="submit" variant="brand">Sign In</Button>
+  </form>
+</template>`,
+                  filename: 'src/components/LoginForm.vue',
+                },
+              }}
+            />
           </div>
 
           {/* Step 5: Customize your theme */}
           <div className="wa-stack wa-gap-m">
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>5</Badge>
-              <h3 className="wa-heading-l">Customize your theme</h3>
+              <h3 className="wa-heading-l" id="customize-theme">
+                Customize your theme
+              </h3>
             </div>
 
             <p className="wa-caption-m">
