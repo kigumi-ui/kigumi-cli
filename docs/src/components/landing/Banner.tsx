@@ -29,7 +29,15 @@ export const Banner = () => {
         </Badge>
         <span>
           Use <code>npx kigumi registry</code> to consume components and themes
-          from the community!
+          from the community!{' '}
+          <a
+            href="https://docs.kigumi.style/?path=/docs/kigumi-customize--docs#community-registries"
+            target="_blank"
+            className="wa-text-link"
+            rel="noopener noreferrer"
+          >
+            Read more
+          </a>
         </span>
       </div>
       <Button
