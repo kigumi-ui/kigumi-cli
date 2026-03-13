@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { type PropsWithChildren, useEffect, useState } from 'react';
 import {
   DocsContainer as BaseDocsContainer,
   type DocsContainerProps,
@@ -39,7 +39,7 @@ function getInitialTheme(): string {
   return 'system';
 }
 
-export function DocsContainer(props: DocsContainerProps) {
+export function DocsContainer(props: PropsWithChildren<DocsContainerProps>) {
   const { context, children } = props;
 
   const [themeKey, setThemeKey] = useState<string>(getInitialTheme);
