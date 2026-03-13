@@ -1,0 +1,336 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
+
+<Meta title="Kigumi / Community Registries" />
+
+<Unstyled>
+  <div className="wa-stack wa-gap-4xl">
+    <div className="wa-stack wa-gap-xl">
+      <h2 className="wa-heading-2xl" id="community-registries">
+        Community Registries
+      </h2>
+      <p className="wa-caption-m">
+        Share and install custom components and themes via GitHub-based registries.
+        A community registry is a GitHub repo containing a <code>registry.json</code> that
+        describes available components and themes.
+      </p>
+
+      {/* Install from a registry */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="install-from-registry">Install from a registry</h3>
+        <p className="wa-caption-m">
+          Connect a third-party registry once, then install components or themes by name.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi registry connect https://github.com/user/my-registry</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi registry connect https://github.com/user/my-registry" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi add button --from my-registry</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi add button --from my-registry" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi theme install my-theme --from my-registry</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi theme install my-theme --from my-registry" />
+            </span>
+          </div>
+        </Card>
+        <Callout appearance="outlined">
+          <Icon name="info-circle" slot="icon" />
+          Full URLs also work directly:{' '}
+          <code>npx kigumi add button --from https://github.com/user/my-registry</code>.
+          Private repos are supported via <code>GITHUB_TOKEN</code> or <code>gh auth</code>.
+        </Callout>
+      </div>
+
+      {/* Manage registries */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="manage-registries">Manage registries</h3>
+        <p className="wa-caption-m">
+          Use <code>npx kigumi registry</code> to manage connected registries in your project.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi registry list</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi registry list" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi registry remove {'<url>'}</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi registry remove" />
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      <Divider />
+
+      {/* Create your own registry */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="create-registry">Create your own registry</h3>
+        <p className="wa-caption-m">
+          Scaffold a new registry with a single command. This creates the directory structure
+          and a <code>registry.json</code> file to get you started.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi registry init</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi registry init" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div style={{ position: 'relative' }}>
+            <pre>
+              <code>{`my-registry/
+├── registry.json          # Registry metadata
+├── components/
+│   └── react/             # One directory per framework
+└── themes/`}</code>
+            </pre>
+          </div>
+        </Card>
+      </div>
+
+      {/* Add themes */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="add-themes">Add a theme</h3>
+        <p className="wa-caption-m">
+          Place your theme CSS in <code>themes/</code> and register it interactively.
+          Themes use Web Awesome design tokens as CSS custom properties.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi registry add-theme</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi registry add-theme" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div style={{ position: 'relative' }}>
+            <pre>
+              <code>{`:root {
+  --wa-color-brand: #6200ee;
+  --wa-font-family-heading: 'Space Grotesk', sans-serif;
+  --wa-border-radius-scale: 0;
+}
+.wa-dark {
+  --wa-color-brand: #bb86fc;
+  --wa-color-surface-default: #1e1e1e;
+}`}</code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: 'var(--wa-space-xs)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value={`:root {
+  --wa-color-brand: #6200ee;
+  --wa-font-family-heading: 'Space Grotesk', sans-serif;
+  --wa-border-radius-scale: 0;
+}
+.wa-dark {
+  --wa-color-brand: #bb86fc;
+  --wa-color-surface-default: #1e1e1e;
+}`} />
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      {/* Add components */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="add-components">Add components</h3>
+        <p className="wa-caption-m">
+          Place your component files in <code>components/{'<framework>'}/</code> and register them.
+          Components are pre-rendered files (<code>.tsx</code>, <code>.vue</code>, etc.) that get
+          copied as-is into the consumer's project.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi registry add-component</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi registry add-component" />
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      {/* Validate and publish */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="validate-publish">Validate and publish</h3>
+        <p className="wa-caption-m">
+          Run the built-in validator before pushing. It checks the schema, file paths, dependencies,
+          and file extensions.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre><code>npx kigumi registry validate</code></pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx kigumi registry validate" />
+            </span>
+          </div>
+        </Card>
+        <Callout appearance="outlined">
+          <Icon name="info-circle" slot="icon" />
+          Publishing is just a <code>git push</code>. Anyone with the repo URL can connect
+          to your registry.
+        </Callout>
+      </div>
+
+      <Divider />
+
+      {/* registry.json reference */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="registry-json">registry.json reference</h3>
+        <p className="wa-caption-m">
+          The registry manifest describes your components and themes.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div style={{ position: 'relative' }}>
+            <pre>
+              <code>{`{
+  "name": "my-registry",
+  "version": "1.0.0",
+  "frameworks": ["react"],
+  "components": {
+    "button": {
+      "name": "Button",
+      "description": "Custom button",
+      "category": "Actions",
+      "dependencies": [],
+      "files": {
+        "react": {
+          "component": "components/react/Button/Button.tsx",
+          "css": "components/react/Button/Button.css",
+          "test": "components/react/Button/Button.test.tsx",
+          "extras": []
+        }
+      }
+    }
+  },
+  "themes": {
+    "my-theme": {
+      "name": "My Theme",
+      "description": "A custom theme",
+      "files": {
+        "css": "themes/my-theme/theme.css",
+        "variables": "themes/my-theme/variables.css"
+      },
+      "extends": "default"
+    }
+  }
+}`}</code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: 'var(--wa-space-xs)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value={`{
+  "name": "my-registry",
+  "version": "1.0.0",
+  "frameworks": ["react"],
+  "components": {},
+  "themes": {}
+}`} />
+            </span>
+          </div>
+        </Card>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Field</th>
+              <th style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Required</th>
+              <th style={{ textAlign: 'left', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>name</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Yes</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Registry name</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>version</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Yes</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Semver version (e.g. <code>1.0.0</code>)</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>frameworks</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Yes</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>react</code>, <code>vue</code>, <code>svelte</code>, <code>angular</code></td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>components[slug].files[fw].component</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Yes</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Main component file path</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>components[slug].files[fw].css</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>No</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>CSS file path</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>components[slug].files[fw].test</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>No</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Test file path</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>components[slug].files[fw].extras</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>No</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Additional files (hooks, utils)</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>components[slug].dependencies</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>No</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Other component slugs in this registry</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>themes[slug].files.css</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Yes</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Main theme CSS file</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>themes[slug].files.variables</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>No</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>CSS variables file</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)' }}><code>themes[slug].extends</code></td>
+              <td style={{ textAlign: 'center', padding: 'var(--wa-space-xs) var(--wa-space-s)' }}>No</td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)' }}>Built-in theme to extend</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</Unstyled>
