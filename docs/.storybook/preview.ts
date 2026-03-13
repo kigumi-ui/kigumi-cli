@@ -46,7 +46,13 @@ const preview: Preview = {
       storySort: {
         order: [
           'Kigumi',
-          ['Welcome', 'Getting Started', 'Customize', 'Changelog'],
+          [
+            'Welcome',
+            'Getting Started',
+            'Customize',
+            'Community Registries',
+            'Changelog',
+          ],
           'Style',
           [
             'Color Variants',
