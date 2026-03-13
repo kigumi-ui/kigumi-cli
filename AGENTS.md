@@ -50,6 +50,8 @@ node dist/index.js add button --overwrite
 | `src/utils/version-map.ts` | Version history + breaking changes data |
 | `src/utils/github-fetcher.ts` | GitHub API integration for registries |
 | `src/schemas/community-registry.ts` | Community registry schema validation |
+| `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json → `component-metadata.ts` (events, slots, methods) |
+| `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
 
 ---
 
@@ -973,4 +975,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-03-12
+**Maintained by:** AI Assistants | **Last Updated:** 2026-03-13

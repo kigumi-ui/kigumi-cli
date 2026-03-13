@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Tag.css';
 
@@ -16,22 +16,35 @@ export interface TagProps {
 
 const props = defineProps<TagProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'remove': [event: CustomEvent];
+  'wa-remove': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaRemove = (e: Event) => emit('wa-remove', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleRemove = (e: Event) => emit('remove', e as CustomEvent);
-  el.addEventListener('wa-remove', handleRemove);
+  el.addEventListener('wa-remove', handleWaRemove);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-remove', handleRemove);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-remove', handleWaRemove);
 });
 
 defineExpose({
@@ -42,7 +55,7 @@ defineExpose({
 <template>
   <wa-tag
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

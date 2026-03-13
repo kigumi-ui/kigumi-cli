@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './TreeItem.css';
 
@@ -13,35 +13,48 @@ const props = defineProps({
     lazy: { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['expand', 'after-expand', 'collapse', 'after-collapse', 'lazy-change', 'lazy-load']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-expand', 'wa-after-expand', 'wa-collapse', 'wa-after-collapse', 'wa-lazy-change', 'wa-lazy-load']);
 
 const elementRef = ref(null);
+
+const handleWaExpand = (e) => emit('wa-expand', e);
+const handleWaAfterExpand = (e) => emit('wa-after-expand', e);
+const handleWaCollapse = (e) => emit('wa-collapse', e);
+const handleWaAfterCollapse = (e) => emit('wa-after-collapse', e);
+const handleWaLazyChange = (e) => emit('wa-lazy-change', e);
+const handleWaLazyLoad = (e) => emit('wa-lazy-load', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleExpand = (e) => emit('expand', e);
-  el.addEventListener('wa-expand', handleExpand);
-  const handleAfterExpand = (e) => emit('after-expand', e);
-  el.addEventListener('wa-after-expand', handleAfterExpand);
-  const handleCollapse = (e) => emit('collapse', e);
-  el.addEventListener('wa-collapse', handleCollapse);
-  const handleAfterCollapse = (e) => emit('after-collapse', e);
-  el.addEventListener('wa-after-collapse', handleAfterCollapse);
-  const handleLazyChange = (e) => emit('lazy-change', e);
-  el.addEventListener('wa-lazy-change', handleLazyChange);
-  const handleLazyLoad = (e) => emit('lazy-load', e);
-  el.addEventListener('wa-lazy-load', handleLazyLoad);
+  el.addEventListener('wa-expand', handleWaExpand);
+  el.addEventListener('wa-after-expand', handleWaAfterExpand);
+  el.addEventListener('wa-collapse', handleWaCollapse);
+  el.addEventListener('wa-after-collapse', handleWaAfterCollapse);
+  el.addEventListener('wa-lazy-change', handleWaLazyChange);
+  el.addEventListener('wa-lazy-load', handleWaLazyLoad);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-expand', handleExpand);
-    el.removeEventListener('wa-after-expand', handleAfterExpand);
-    el.removeEventListener('wa-collapse', handleCollapse);
-    el.removeEventListener('wa-after-collapse', handleAfterCollapse);
-    el.removeEventListener('wa-lazy-change', handleLazyChange);
-    el.removeEventListener('wa-lazy-load', handleLazyLoad);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-expand', handleWaExpand);
+  el.removeEventListener('wa-after-expand', handleWaAfterExpand);
+  el.removeEventListener('wa-collapse', handleWaCollapse);
+  el.removeEventListener('wa-after-collapse', handleWaAfterCollapse);
+  el.removeEventListener('wa-lazy-change', handleWaLazyChange);
+  el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
 });
 
 defineExpose({
@@ -53,11 +66,9 @@ defineExpose({
 <template>
   <wa-tree-item
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="expand-icon" />
-    <slot name="collapse-icon" />
   </wa-tree-item>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './DropdownItem.css';
 
@@ -12,9 +12,19 @@ export interface DropdownItemProps {
   value?: string;
   disabled?: boolean;
   loading?: boolean;
+  variant?: 'neutral' | 'danger';
 }
 
 const props = defineProps<DropdownItemProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
 
 const emit = defineEmits<{
   'blur': [event: CustomEvent];
@@ -23,19 +33,23 @@ const emit = defineEmits<{
 
 const elementRef = ref<HTMLElement | null>(null);
 
+const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
   el.addEventListener('blur', handleBlur);
-  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
   el.addEventListener('focus', handleFocus);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('focus', handleFocus);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
 });
 
 defineExpose({
@@ -48,12 +62,9 @@ defineExpose({
 <template>
   <wa-dropdown-item
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="icon" />
-    <slot name="details" />
-    <slot name="submenu" />
   </wa-dropdown-item>
 </template>

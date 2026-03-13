@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './MutationObserver.css';
 
@@ -18,22 +18,35 @@ export interface MutationObserverProps {
 
 const props = defineProps<MutationObserverProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'mutation': [event: CustomEvent];
+  'wa-mutation': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaMutation = (e: Event) => emit('wa-mutation', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleMutation = (e: Event) => emit('mutation', e as CustomEvent);
-  el.addEventListener('wa-mutation', handleMutation);
+  el.addEventListener('wa-mutation', handleWaMutation);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-mutation', handleMutation);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-mutation', handleWaMutation);
 });
 
 defineExpose({
@@ -44,7 +57,7 @@ defineExpose({
 <template>
   <wa-mutation-observer
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

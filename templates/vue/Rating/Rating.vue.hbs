@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import '{{{importPath}}}';
 import './Rating.css';
 
@@ -8,35 +8,55 @@ import './Rating.css';
  */
 export interface RatingProps {
   label?: string;
-  value?: number;
   max?: number;
   precision?: number;
   readonly?: boolean;
   disabled?: boolean;
+  size?: 'small' | 'medium' | 'large';
 }
 
 const props = defineProps<RatingProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
   'change': [event: CustomEvent];
-  'hover': [event: CustomEvent];
+  'wa-hover': [event: CustomEvent];
 }>();
 
+const model = defineModel<number>();
+
 const elementRef = ref<HTMLElement | null>(null);
+
+watch(model, (val) => {
+  const el = elementRef.value as any;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+const handleChange = (e: Event) => { model.value = (e.target as any).value; emit('change', e as CustomEvent); };
+const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleChange = (e: Event) => emit('change', e as CustomEvent);
   el.addEventListener('change', handleChange);
-  const handleHover = (e: Event) => emit('hover', e as CustomEvent);
-  el.addEventListener('wa-hover', handleHover);
+  el.addEventListener('wa-hover', handleWaHover);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('change', handleChange);
-    el.removeEventListener('wa-hover', handleHover);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('wa-hover', handleWaHover);
 });
 
 defineExpose({
@@ -49,8 +69,9 @@ defineExpose({
 <template>
   <wa-rating
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
+    :value="model"
   >
     <slot />
   </wa-rating>

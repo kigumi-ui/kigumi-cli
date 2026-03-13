@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import '{{{importPath}}}';
 import './Rating.css';
 
@@ -8,30 +8,50 @@ import './Rating.css';
  */
 const props = defineProps({
     label: { type: String, required: false, default: '' },
-    value: { type: Number, required: false, default: 0 },
     max: { type: Number, required: false, default: 5 },
     precision: { type: Number, required: false, default: 1 },
     readonly: { type: Boolean, required: false, default: false },
-    disabled: { type: Boolean, required: false, default: false }
+    disabled: { type: Boolean, required: false, default: false },
+    size: { type: String, required: false, default: medium }
 });
 
-const emit = defineEmits(['change', 'hover']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['change', 'wa-hover']);
+
+const model = defineModel();
 
 const elementRef = ref(null);
+
+watch(model, (val) => {
+  const el = elementRef.value;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+const handleChange = (e) => { model.value = e.target.value; emit('change', e); };
+const handleWaHover = (e) => emit('wa-hover', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleChange = (e) => emit('change', e);
   el.addEventListener('change', handleChange);
-  const handleHover = (e) => emit('hover', e);
-  el.addEventListener('wa-hover', handleHover);
+  el.addEventListener('wa-hover', handleWaHover);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('change', handleChange);
-    el.removeEventListener('wa-hover', handleHover);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('wa-hover', handleWaHover);
 });
 
 defineExpose({
@@ -44,8 +64,9 @@ defineExpose({
 <template>
   <wa-rating
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
+    :value="model"
   >
     <slot />
   </wa-rating>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './Page.css';
 
@@ -14,20 +14,18 @@ const props = defineProps({
     view: { type: String, required: false, default: desktop }
 });
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
-
-onMounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-
-
-  onUnmounted(() => {
-
-  });
-});
 
 defineExpose({
   visiblePixelsInViewport: (element) => elementRef.value?.visiblePixelsInViewport?.(element),
@@ -41,23 +39,9 @@ defineExpose({
 <template>
   <wa-page
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="banner" />
-    <slot name="header" />
-    <slot name="subheader" />
-    <slot name="menu" />
-    <slot name="navigation-header" />
-    <slot name="navigation" />
-    <slot name="navigation-footer" />
-    <slot name="navigation-toggle" />
-    <slot name="navigation-toggle-icon" />
-    <slot name="main-header" />
-    <slot name="main-footer" />
-    <slot name="aside" />
-    <slot name="skip-to-content" />
-    <slot name="footer" />
   </wa-page>
 </template>

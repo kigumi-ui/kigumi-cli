@@ -512,17 +512,16 @@ function showPostInstallInstructions(
   output.info(pc.green('\timport "@/lib/kigumi";\n'));
   stepNum++;
 
-  // Vue-specific: isCustomElement configuration
+  // Vue-specific: remove conflicting default styles
   if (config.framework === 'vue') {
     output.info(
       pc.bold(
-        pc.cyan(`${stepNum}. Configure custom elements in vite.config.ts:\n`)
+        pc.cyan(`${stepNum}. Remove default styles (if using create-vue):\n`)
       )
     );
-    output.info(pc.dim('\tAdd to your vue() plugin options:'));
     output.info(
-      pc.green(
-        '\tvue({ template: { compilerOptions: { isCustomElement: tag => tag.startsWith("wa-") } } })\n'
+      pc.dim(
+        '\tDelete or empty src/style.css to avoid conflicts with Web Awesome tokens.\n'
       )
     );
     stepNum++;

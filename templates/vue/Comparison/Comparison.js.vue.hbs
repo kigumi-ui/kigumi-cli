@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Comparison.css';
 
@@ -10,20 +10,33 @@ const props = defineProps({
     position: { type: Number, required: false, default: 50 }
 });
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits(['change']);
 
 const elementRef = ref(null);
+
+const handleChange = (e) => emit('change', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleChange = (e) => emit('change', e);
   el.addEventListener('change', handleChange);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('change', handleChange);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('change', handleChange);
 });
 
 defineExpose({
@@ -34,12 +47,9 @@ defineExpose({
 <template>
   <wa-comparison
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="before" />
-    <slot name="after" />
-    <slot name="handle" />
   </wa-comparison>
 </template>

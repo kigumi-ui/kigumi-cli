@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Radio.css';
 
@@ -10,9 +10,19 @@ export interface RadioProps {
   value?: string;
   disabled?: boolean;
   size?: 'small' | 'medium' | 'large';
+  appearance?: 'default' | 'button';
 }
 
 const props = defineProps<RadioProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
 
 const emit = defineEmits<{
   'blur': [event: CustomEvent];
@@ -21,22 +31,29 @@ const emit = defineEmits<{
 
 const elementRef = ref<HTMLElement | null>(null);
 
+const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
   el.addEventListener('blur', handleBlur);
-  const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
   el.addEventListener('focus', handleFocus);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('focus', handleFocus);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
 });
 
 defineExpose({
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -44,7 +61,7 @@ defineExpose({
 <template>
   <wa-radio
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Animation.css';
 
@@ -20,26 +20,39 @@ const props = defineProps({
     'playback-rate': { type: Number, required: false, default: 1 }
 });
 
-const emit = defineEmits(['cancel', 'finish', 'start']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-cancel', 'wa-finish', 'wa-start']);
 
 const elementRef = ref(null);
+
+const handleWaCancel = (e) => emit('wa-cancel', e);
+const handleWaFinish = (e) => emit('wa-finish', e);
+const handleWaStart = (e) => emit('wa-start', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleCancel = (e) => emit('cancel', e);
-  el.addEventListener('wa-cancel', handleCancel);
-  const handleFinish = (e) => emit('finish', e);
-  el.addEventListener('wa-finish', handleFinish);
-  const handleStart = (e) => emit('start', e);
-  el.addEventListener('wa-start', handleStart);
+  el.addEventListener('wa-cancel', handleWaCancel);
+  el.addEventListener('wa-finish', handleWaFinish);
+  el.addEventListener('wa-start', handleWaStart);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-cancel', handleCancel);
-    el.removeEventListener('wa-finish', handleFinish);
-    el.removeEventListener('wa-start', handleStart);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-cancel', handleWaCancel);
+  el.removeEventListener('wa-finish', handleWaFinish);
+  el.removeEventListener('wa-start', handleWaStart);
 });
 
 defineExpose({
@@ -52,7 +65,7 @@ defineExpose({
 <template>
   <wa-animation
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

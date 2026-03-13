@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Carousel.css';
 
@@ -18,20 +18,33 @@ const props = defineProps({
     'slides-per-page': { type: Number, required: false, default: 1 }
 });
 
-const emit = defineEmits(['slide-change']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-slide-change']);
 
 const elementRef = ref(null);
+
+const handleWaSlideChange = (e) => emit('wa-slide-change', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleSlideChange = (e) => emit('slide-change', e);
-  el.addEventListener('wa-slide-change', handleSlideChange);
+  el.addEventListener('wa-slide-change', handleWaSlideChange);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-slide-change', handleSlideChange);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-slide-change', handleWaSlideChange);
 });
 
 defineExpose({
@@ -45,11 +58,9 @@ defineExpose({
 <template>
   <wa-carousel
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="next-icon" />
-    <slot name="previous-icon" />
   </wa-carousel>
 </template>

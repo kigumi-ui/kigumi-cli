@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './BubbleChart.css';
 
@@ -7,20 +7,31 @@ import './BubbleChart.css';
  * Plots three-dimensional data using position and circle size to encode a third variable
  */
 const props = defineProps({
-  label: { type: String, required: false },
-  description: { type: String, required: false },
-  'legend-position': { type: String, required: false, default: 'top' },
-  'without-animation': { type: Boolean, required: false, default: false },
-  'without-legend': { type: Boolean, required: false, default: false },
-  'without-tooltip': { type: Boolean, required: false, default: false },
-  'x-label': { type: String, required: false },
-  'y-label': { type: String, required: false },
-  stacked: { type: Boolean, required: false, default: false },
-  'index-axis': { type: String, required: false, default: 'x' },
-  grid: { type: String, required: false, default: 'both' },
-  min: { type: Number, required: false },
-  max: { type: Number, required: false },
+    label: { type: String, required: false },
+    description: { type: String, required: false },
+    'x-label': { type: String, required: false },
+    'y-label': { type: String, required: false },
+    'legend-position': { type: String, required: false, default: top },
+    stacked: { type: Boolean, required: false, default: false },
+    'index-axis': { type: String, required: false, default: x },
+    grid: { type: String, required: false, default: both },
+    min: { type: Number, required: false },
+    max: { type: Number, required: false },
+    'without-animation': { type: Boolean, required: false, default: false },
+    'without-legend': { type: Boolean, required: false, default: false },
+    'without-tooltip': { type: Boolean, required: false, default: false }
 });
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits([]);
 
 const elementRef = ref(null);
 
@@ -32,7 +43,7 @@ defineExpose({
 <template>
   <wa-bubble-chart
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

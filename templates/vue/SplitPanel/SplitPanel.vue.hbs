@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './SplitPanel.css';
 
@@ -18,22 +18,35 @@ export interface SplitPanelProps {
 
 const props = defineProps<SplitPanelProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'reposition': [event: CustomEvent];
+  'wa-reposition': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaReposition = (e: Event) => emit('wa-reposition', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleReposition = (e: Event) => emit('reposition', e as CustomEvent);
-  el.addEventListener('wa-reposition', handleReposition);
+  el.addEventListener('wa-reposition', handleWaReposition);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-reposition', handleReposition);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-reposition', handleWaReposition);
 });
 
 defineExpose({
@@ -44,12 +57,9 @@ defineExpose({
 <template>
   <wa-split-panel
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="start" />
-    <slot name="end" />
-    <slot name="divider" />
   </wa-split-panel>
 </template>

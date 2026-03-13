@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './TreeItem.css';
 
@@ -15,42 +15,55 @@ export interface TreeItemProps {
 
 const props = defineProps<TreeItemProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'expand': [event: CustomEvent];
-  'after-expand': [event: CustomEvent];
-  'collapse': [event: CustomEvent];
-  'after-collapse': [event: CustomEvent];
-  'lazy-change': [event: CustomEvent];
-  'lazy-load': [event: CustomEvent];
+  'wa-expand': [event: CustomEvent];
+  'wa-after-expand': [event: CustomEvent];
+  'wa-collapse': [event: CustomEvent];
+  'wa-after-collapse': [event: CustomEvent];
+  'wa-lazy-change': [event: CustomEvent];
+  'wa-lazy-load': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaExpand = (e: Event) => emit('wa-expand', e as CustomEvent);
+const handleWaAfterExpand = (e: Event) => emit('wa-after-expand', e as CustomEvent);
+const handleWaCollapse = (e: Event) => emit('wa-collapse', e as CustomEvent);
+const handleWaAfterCollapse = (e: Event) => emit('wa-after-collapse', e as CustomEvent);
+const handleWaLazyChange = (e: Event) => emit('wa-lazy-change', e as CustomEvent);
+const handleWaLazyLoad = (e: Event) => emit('wa-lazy-load', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleExpand = (e: Event) => emit('expand', e as CustomEvent);
-  el.addEventListener('wa-expand', handleExpand);
-  const handleAfterExpand = (e: Event) => emit('after-expand', e as CustomEvent);
-  el.addEventListener('wa-after-expand', handleAfterExpand);
-  const handleCollapse = (e: Event) => emit('collapse', e as CustomEvent);
-  el.addEventListener('wa-collapse', handleCollapse);
-  const handleAfterCollapse = (e: Event) => emit('after-collapse', e as CustomEvent);
-  el.addEventListener('wa-after-collapse', handleAfterCollapse);
-  const handleLazyChange = (e: Event) => emit('lazy-change', e as CustomEvent);
-  el.addEventListener('wa-lazy-change', handleLazyChange);
-  const handleLazyLoad = (e: Event) => emit('lazy-load', e as CustomEvent);
-  el.addEventListener('wa-lazy-load', handleLazyLoad);
+  el.addEventListener('wa-expand', handleWaExpand);
+  el.addEventListener('wa-after-expand', handleWaAfterExpand);
+  el.addEventListener('wa-collapse', handleWaCollapse);
+  el.addEventListener('wa-after-collapse', handleWaAfterCollapse);
+  el.addEventListener('wa-lazy-change', handleWaLazyChange);
+  el.addEventListener('wa-lazy-load', handleWaLazyLoad);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-expand', handleExpand);
-    el.removeEventListener('wa-after-expand', handleAfterExpand);
-    el.removeEventListener('wa-collapse', handleCollapse);
-    el.removeEventListener('wa-after-collapse', handleAfterCollapse);
-    el.removeEventListener('wa-lazy-change', handleLazyChange);
-    el.removeEventListener('wa-lazy-load', handleLazyLoad);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-expand', handleWaExpand);
+  el.removeEventListener('wa-after-expand', handleWaAfterExpand);
+  el.removeEventListener('wa-collapse', handleWaCollapse);
+  el.removeEventListener('wa-after-collapse', handleWaAfterCollapse);
+  el.removeEventListener('wa-lazy-change', handleWaLazyChange);
+  el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
 });
 
 defineExpose({
@@ -62,11 +75,9 @@ defineExpose({
 <template>
   <wa-tree-item
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="expand-icon" />
-    <slot name="collapse-icon" />
   </wa-tree-item>
 </template>

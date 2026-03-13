@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Radio.css';
 
@@ -9,29 +9,46 @@ import './Radio.css';
 const props = defineProps({
     value: { type: String, required: false },
     disabled: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: medium }
+    size: { type: String, required: false, default: medium },
+    appearance: { type: String, required: false, default: default }
+});
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 });
 
 const emit = defineEmits(['blur', 'focus']);
 
 const elementRef = ref(null);
 
+const handleBlur = (e) => emit('blur', e);
+const handleFocus = (e) => emit('focus', e);
+
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleBlur = (e) => emit('blur', e);
   el.addEventListener('blur', handleBlur);
-  const handleFocus = (e) => emit('focus', e);
   el.addEventListener('focus', handleFocus);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('focus', handleFocus);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
 });
 
 defineExpose({
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -39,7 +56,7 @@ defineExpose({
 <template>
   <wa-radio
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

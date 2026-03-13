@@ -134,13 +134,27 @@ export async function generateProjectFiles(
     if (config.framework === 'react' || config.framework === 'vue') {
       spinner.message('Configuring project...');
 
-      const { configureVitePathAliases, configureTSConfig } =
-        await import('../../utils/project-config.js');
+      const {
+        configureVitePathAliases,
+        configureTSConfig,
+        configureVueCustomElements,
+        configureVueTypes,
+      } = await import('../../utils/project-config.js');
 
       await configureVitePathAliases(cwd, output);
 
       if (config.typescript) {
         await configureTSConfig(cwd, output);
+      }
+
+      // Vue-specific: auto-configure isCustomElement and WA types
+      if (config.framework === 'vue') {
+        await configureVueCustomElements(cwd, output);
+
+        if (config.typescript) {
+          const waPackage = getWebAwesomePackage(tier);
+          await configureVueTypes(cwd, output, waPackage);
+        }
       }
     }
 

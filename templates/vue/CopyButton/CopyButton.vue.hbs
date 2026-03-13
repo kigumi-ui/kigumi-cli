@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './CopyButton.css';
 
@@ -19,26 +19,39 @@ export interface CopyButtonProps {
 
 const props = defineProps<CopyButtonProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'copy': [event: CustomEvent];
-  'error': [event: CustomEvent];
+  'wa-copy': [event: CustomEvent];
+  'wa-error': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaCopy = (e: Event) => emit('wa-copy', e as CustomEvent);
+const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleCopy = (e: Event) => emit('copy', e as CustomEvent);
-  el.addEventListener('wa-copy', handleCopy);
-  const handleError = (e: Event) => emit('error', e as CustomEvent);
-  el.addEventListener('wa-error', handleError);
+  el.addEventListener('wa-copy', handleWaCopy);
+  el.addEventListener('wa-error', handleWaError);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-copy', handleCopy);
-    el.removeEventListener('wa-error', handleError);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-copy', handleWaCopy);
+  el.removeEventListener('wa-error', handleWaError);
 });
 
 defineExpose({
@@ -49,12 +62,9 @@ defineExpose({
 <template>
   <wa-copy-button
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="copy-icon" />
-    <slot name="success-icon" />
-    <slot name="error-icon" />
   </wa-copy-button>
 </template>

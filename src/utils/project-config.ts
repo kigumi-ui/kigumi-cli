@@ -53,7 +53,13 @@ export async function configureVitePathAliases(
     return false;
   }
 
-  // Add path import if missing
+  // Detect ESM project (type: "module" in package.json)
+  const pkgJsonPath = path.join(cwd, 'package.json');
+  const isESM =
+    (await fs.pathExists(pkgJsonPath)) &&
+    (await fs.readJSON(pkgJsonPath)).type === 'module';
+
+  // Add path and fileURLToPath imports if missing
   if (
     !content.includes("import path from 'path'") &&
     !content.includes('import path from "path"')
@@ -68,7 +74,35 @@ export async function configureVitePathAliases(
     }
 
     if (lastImportIndex >= 0) {
-      lines.splice(lastImportIndex + 1, 0, "import path from 'path';");
+      if (isESM) {
+        lines.splice(
+          lastImportIndex + 1,
+          0,
+          "import path from 'path';",
+          "import { fileURLToPath } from 'url';"
+        );
+      } else {
+        lines.splice(lastImportIndex + 1, 0, "import path from 'path';");
+      }
+      content = lines.join('\n');
+    }
+  } else if (
+    isESM &&
+    !content.includes('fileURLToPath') &&
+    !content.includes('import.meta.dirname')
+  ) {
+    // path already imported but fileURLToPath missing in ESM
+    const lines = content.split('\n');
+    let lastImportIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim().startsWith('import ')) lastImportIndex = i;
+    }
+    if (lastImportIndex >= 0) {
+      lines.splice(
+        lastImportIndex + 1,
+        0,
+        "import { fileURLToPath } from 'url';"
+      );
       content = lines.join('\n');
     }
   }
@@ -78,11 +112,16 @@ export async function configureVitePathAliases(
     return false;
   }
 
+  // Use ESM-safe dirname derivation
+  const dirnameExpr = isESM
+    ? 'path.dirname(fileURLToPath(import.meta.url))'
+    : '__dirname';
+
   // Insert resolve config after 'export default defineConfig({'
   const resolveConfig = `
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(${dirnameExpr}, './src'),
     },
   },`;
 
@@ -141,6 +180,104 @@ export async function configureTSConfig(
   }
 
   return modified;
+}
+
+/**
+ * Configure Vue custom element recognition in vite.config.ts
+ *
+ * Adds `isCustomElement: tag => tag.startsWith('wa-')` to the vue() plugin
+ * so Vue treats `<wa-*>` tags as custom elements instead of Vue components.
+ */
+export async function configureVueCustomElements(
+  cwd: string,
+  output: OutputInterface
+): Promise<boolean> {
+  const viteConfigTs = path.join(cwd, 'vite.config.ts');
+  const viteConfigJs = path.join(cwd, 'vite.config.js');
+
+  let configPath: string | null = null;
+  if (await fs.pathExists(viteConfigTs)) {
+    configPath = viteConfigTs;
+  } else if (await fs.pathExists(viteConfigJs)) {
+    configPath = viteConfigJs;
+  }
+
+  if (!configPath) {
+    return false;
+  }
+
+  let content = await fs.readFile(configPath, 'utf-8');
+
+  // Already configured
+  if (content.includes('isCustomElement')) {
+    return false;
+  }
+
+  // Replace bare `vue()` with full custom element config
+  // Handles: vue(), vue({}), vue({ ... })
+  const bareVueMatch = content.match(/vue\(\s*\)/);
+  if (bareVueMatch) {
+    content = content.replace(
+      /vue\(\s*\)/,
+      `vue({\n    template: {\n      compilerOptions: {\n        isCustomElement: (tag: string) => tag.startsWith('wa-'),\n      },\n    },\n  })`
+    );
+    await fs.writeFile(configPath, content);
+    return true;
+  }
+
+  // vue() with existing options object — inject template config
+  const vueWithOptionsMatch = content.match(/vue\(\s*\{/);
+  if (vueWithOptionsMatch) {
+    content = content.replace(
+      /vue\(\s*\{/,
+      `vue({\n    template: {\n      compilerOptions: {\n        isCustomElement: (tag: string) => tag.startsWith('wa-'),\n      },\n    },`
+    );
+    await fs.writeFile(configPath, content);
+    return true;
+  }
+
+  output.warn(
+    'Could not parse vue() plugin in vite.config, skipping isCustomElement config'
+  );
+  return false;
+}
+
+/**
+ * Add Web Awesome Vue type definitions to tsconfig
+ *
+ * Adds the WA Vue types so TypeScript recognizes `<wa-*>` elements
+ * in Vue templates with proper prop/event typing.
+ */
+export async function configureVueTypes(
+  cwd: string,
+  _output: OutputInterface,
+  waPackage: string
+): Promise<boolean> {
+  const tsconfigAppPath = path.join(cwd, 'tsconfig.app.json');
+
+  if (!(await fs.pathExists(tsconfigAppPath))) {
+    return false;
+  }
+
+  const tsconfig = (await readJSONWithComments(tsconfigAppPath)) as TSConfig;
+
+  tsconfig.compilerOptions = tsconfig.compilerOptions || {};
+
+  const vueTypePath = `${waPackage}/dist/types/vue`;
+  const existingTypes = (tsconfig.compilerOptions as Record<string, unknown>)
+    .types as string[] | undefined;
+
+  if (existingTypes?.includes(vueTypePath)) {
+    return false;
+  }
+
+  (tsconfig.compilerOptions as Record<string, unknown>).types = [
+    ...(existingTypes || []),
+    vueTypePath,
+  ];
+
+  await fs.writeJSON(tsconfigAppPath, tsconfig, { spaces: 2 });
+  return true;
 }
 
 // Re-export for backward compatibility

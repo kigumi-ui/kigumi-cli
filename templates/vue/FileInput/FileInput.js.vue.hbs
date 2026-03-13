@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './FileInput.css';
 
@@ -13,43 +13,56 @@ const props = defineProps({
     multiple: { type: Boolean, required: false, default: false },
     disabled: { type: Boolean, required: false, default: false },
     required: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: medium },
-    appearance: { type: String, required: false, default: outlined },
-    'max-file-size': { type: Number, required: false },
-    'max-files': { type: Number, required: false }
+    size: { type: String, required: false, default: medium }
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'invalid']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-invalid']);
 
 const elementRef = ref(null);
+
+const handleInput = (e) => emit('input', e);
+const handleChange = (e) => emit('change', e);
+const handleFocus = (e) => emit('focus', e);
+const handleBlur = (e) => emit('blur', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleInput = (e) => emit('input', e);
   el.addEventListener('input', handleInput);
-  const handleChange = (e) => emit('change', e);
   el.addEventListener('change', handleChange);
-  const handleFocus = (e) => emit('focus', e);
   el.addEventListener('focus', handleFocus);
-  const handleBlur = (e) => emit('blur', e);
   el.addEventListener('blur', handleBlur);
-  const handleInvalid = (e) => emit('invalid', e);
-  el.addEventListener('wa-invalid', handleInvalid);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('input', handleInput);
-    el.removeEventListener('change', handleChange);
-    el.removeEventListener('focus', handleFocus);
-    el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('wa-invalid', handleInvalid);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
 defineExpose({
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -57,13 +70,9 @@ defineExpose({
 <template>
   <wa-file-input
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="label" />
-    <slot name="hint" />
-    <slot name="dropzone" />
-    <slot name="file-icon" />
   </wa-file-input>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './BreadcrumbItem.css';
 
@@ -12,20 +12,18 @@ const props = defineProps({
     rel: { type: String, required: false, default: noreferrer noopener }
 });
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
-
-onMounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-
-
-  onUnmounted(() => {
-
-  });
-});
 
 defineExpose({
   element: elementRef,
@@ -35,12 +33,9 @@ defineExpose({
 <template>
   <wa-breadcrumb-item
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="start" />
-    <slot name="end" />
-    <slot name="separator" />
   </wa-breadcrumb-item>
 </template>
