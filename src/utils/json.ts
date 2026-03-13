@@ -24,13 +24,57 @@ export async function readJSONWithComments(filePath: string): Promise<unknown> {
 /**
  * Strip comments from JSON-like content
  *
- * Removes both single-line (//) and multi-line (/* *\/) comments
+ * Uses a state-machine parser to skip string literals, avoiding corruption
+ * of glob patterns like `src/**\/*.ts` that contain `/*` sequences.
  *
  * @param content - JSON content with comments
  * @returns JSON content without comments
  */
 export function stripJSONComments(content: string): string {
-  return content
-    .replace(/\/\/.*/g, '') // Remove single-line comments
-    .replace(/\/\*[\s\S]*?\*\//g, ''); // Remove multi-line comments
+  let result = '';
+  let i = 0;
+  const len = content.length;
+
+  while (i < len) {
+    const ch = content[i];
+    const next = content[i + 1];
+
+    // String literal — copy verbatim (including any /* or // inside)
+    if (ch === '"') {
+      let j = i + 1;
+      while (j < len) {
+        if (content[j] === '\\') {
+          j += 2; // skip escaped character
+        } else if (content[j] === '"') {
+          j++;
+          break;
+        } else {
+          j++;
+        }
+      }
+      result += content.slice(i, j);
+      i = j;
+      continue;
+    }
+
+    // Single-line comment — skip to end of line
+    if (ch === '/' && next === '/') {
+      i += 2;
+      while (i < len && content[i] !== '\n') i++;
+      continue;
+    }
+
+    // Multi-line comment — skip to closing */
+    if (ch === '/' && next === '*') {
+      i += 2;
+      while (i < len && !(content[i] === '*' && content[i + 1] === '/')) i++;
+      i += 2; // skip closing */
+      continue;
+    }
+
+    result += ch;
+    i++;
+  }
+
+  return result;
 }
