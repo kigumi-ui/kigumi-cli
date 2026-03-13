@@ -8,7 +8,7 @@ import vitejsLogo from '@/assets/vitejs-logo.svg';
 export const CompatibilityInfo = () => {
   return (
     <div className="wa-stack wa-gap-xs">
-      <p className="wa-caption-xs">Compatible with:</p>
+      <p className="wa-caption-xs">Compatible with Node 20+ and</p>
       <span className="wa-span-grid wa-gap-xs wa-align-items-center">
         <img
           id="vitejs-logo"

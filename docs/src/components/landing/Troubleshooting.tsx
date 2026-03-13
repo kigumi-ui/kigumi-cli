@@ -245,7 +245,7 @@ export function Troubleshooting() {
           >
             <div className="wa-stack wa-gap-m">
               <p>
-                Import Web Awesome setup in your entry file (e.g.{' '}
+                Import Kigumi setup in your entry file (e.g.{' '}
                 <code>src/main.tsx</code>):
               </p>
               <Card appearance="outlined" style={{ '--spacing': '0' }}>

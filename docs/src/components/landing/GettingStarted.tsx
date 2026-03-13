@@ -160,12 +160,12 @@ export function GettingStarted() {
             <div className="wa-cluster wa-gap-xs wa-align-items-center">
               <Badge pill>3</Badge>
               <h3 className="wa-heading-l" id="import">
-                Import Web Awesome
+                Import Kigumi
               </h3>
             </div>
 
             <p className="wa-caption-m">
-              Import the Web Awesome setup in your app entry point:
+              Import the Kigumi setup in your app entry point:
             </p>
 
             <FrameworkCodeBlock

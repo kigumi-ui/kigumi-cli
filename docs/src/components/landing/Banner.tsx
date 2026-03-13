@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, Icon } from '@/components/ui';
-import { Link } from 'react-router-dom';
 
-const BANNER_STORAGE_KEY = 'banner-20260217-dismissed';
+const BANNER_STORAGE_KEY = 'banner-20260312-dismissed';
 
 export const Banner = () => {
   const [isDismissed, setIsDismissed] = useState(() => {
@@ -25,12 +24,12 @@ export const Banner = () => {
       className="banner wa-gap-xs wa-justify-content-center wa-align-items-center"
     >
       <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
-        <Badge pill variant="neutral" appearance="accent">
-          Beta
+        <Badge pill variant="neutral" appearance="accent" attention="pulse">
+          New feature
         </Badge>
         <span>
-          Use <Link to="/kigumi-studio">Kigumi Studio</Link>'s latest version to
-          create stunning themes!
+          Use <code>npx kigumi registry</code> to consume components and themes
+          from the community!
         </span>
       </div>
       <Button
