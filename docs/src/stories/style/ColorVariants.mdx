@@ -1,0 +1,121 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Style/Color Variants" />
+
+export const ColorSwatch = ({ cls, label }) => (
+  <div
+    className={`wa-${cls}`}
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--wa-color-fill-normal)',
+      color: 'var(--wa-color-on-normal)',
+      padding: '0.5rem 1rem',
+      borderRadius: 'var(--wa-border-radius-m)',
+      fontWeight: 'var(--wa-font-weight-semibold)',
+      whiteSpace: 'nowrap',
+    }}
+  >
+    {label}
+  </div>
+);
+
+export const NeutralSwatch = ({ cls, label }) => (
+  <div
+    className={cls}
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--wa-color-neutral-fill-normal)',
+      color: 'var(--wa-color-neutral-on-normal)',
+      padding: '0.5rem 1rem',
+      borderRadius: 'var(--wa-border-radius-m)',
+      whiteSpace: 'nowrap',
+    }}
+  >
+    {label}
+  </div>
+);
+
+<DocPage
+  title="Color Variants"
+  description={
+    <>
+      Scoping classes that remap semantic color tokens to a specific hue.
+      Apply to a parent element to change the color theme of all children.
+    </>
+  }
+>
+
+<DocSection
+  title="Semantic Palette"
+  description={
+    <>
+      Each class remaps <code>--wa-color-fill-*</code>,{' '}
+      <code>--wa-color-border-*</code>, and <code>--wa-color-on-*</code>{' '}
+      tokens to the matching hue.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'tokens', header: 'Tokens' },
+      { key: 'example', header: 'Example' },
+    ]}
+    rows={[
+      {
+        cls: <code>.wa-neutral</code>,
+        tokens: <><code>--wa-color-fill-*</code>, <code>--wa-color-border-*</code>, <code>--wa-color-on-*</code></>,
+        example: <ColorSwatch cls="neutral" label="neutral" />,
+      },
+      {
+        cls: <code>.wa-brand</code>,
+        tokens: <><code>--wa-color-fill-*</code>, <code>--wa-color-border-*</code>, <code>--wa-color-on-*</code></>,
+        example: <ColorSwatch cls="brand" label="brand" />,
+      },
+      {
+        cls: <code>.wa-success</code>,
+        tokens: <><code>--wa-color-fill-*</code>, <code>--wa-color-border-*</code>, <code>--wa-color-on-*</code></>,
+        example: <ColorSwatch cls="success" label="success" />,
+      },
+      {
+        cls: <code>.wa-warning</code>,
+        tokens: <><code>--wa-color-fill-*</code>, <code>--wa-color-border-*</code>, <code>--wa-color-on-*</code></>,
+        example: <ColorSwatch cls="warning" label="warning" />,
+      },
+      {
+        cls: <code>.wa-danger</code>,
+        tokens: <><code>--wa-color-fill-*</code>, <code>--wa-color-border-*</code>, <code>--wa-color-on-*</code></>,
+        example: <ColorSwatch cls="danger" label="danger" />,
+      },
+    ]}
+  />
+</DocSection>
+
+<DocSection
+  title="Neutral Palette"
+  description={
+    <>
+      Override the neutral hue by applying a <code>.wa-neutral-*</code> palette
+      modifier class.
+    </>
+  }
+>
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'example', header: 'Example' },
+    ]}
+    rows={[
+      { cls: <code>.wa-neutral-gray</code>, example: <NeutralSwatch cls="wa-neutral-gray" label="gray" /> },
+      { cls: <code>.wa-neutral-red</code>, example: <NeutralSwatch cls="wa-neutral-red" label="red" /> },
+      { cls: <code>.wa-neutral-orange</code>, example: <NeutralSwatch cls="wa-neutral-orange" label="orange" /> },
+    ]}
+  />
+</DocSection>
+
+</DocPage>
