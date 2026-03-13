@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './IntersectionObserver.css';
 
@@ -10,23 +10,37 @@ const props = defineProps({
     disabled: { type: Boolean, required: false, default: false },
     once: { type: Boolean, required: false, default: false },
     threshold: { type: String, required: false, default: 0 },
-    'root-margin': { type: String, required: false, default: 0px }
+    'root-margin': { type: String, required: false, default: 0px },
+    'intersect-class': { type: String, required: false }
 });
 
-const emit = defineEmits(['intersect']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-intersect']);
 
 const elementRef = ref(null);
+
+const handleWaIntersect = (e) => emit('wa-intersect', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleIntersect = (e) => emit('intersect', e);
-  el.addEventListener('wa-intersect', handleIntersect);
+  el.addEventListener('wa-intersect', handleWaIntersect);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-intersect', handleIntersect);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-intersect', handleWaIntersect);
 });
 
 defineExpose({
@@ -37,7 +51,7 @@ defineExpose({
 <template>
   <wa-intersection-observer
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

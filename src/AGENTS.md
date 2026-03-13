@@ -53,8 +53,8 @@ src/
 │   ├── github-token.ts   # GitHub PAT resolution chain
 │   ├── registry-resolver.ts # Resolve --from value (URL or saved name)
 │   ├── display-options.ts # Theme/palette/brand display labels and options
-│   ├── project-config.ts # Project configuration helpers
-│   ├── component-metadata.ts # Component CSS metadata extraction
+│   ├── project-config.ts # Project configuration helpers (configureVueCustomElements, configureVueTypes)
+│   ├── component-metadata.ts # Auto-generated component metadata (events, slots, methods) — used by Vue template generator
 │   ├── detect-framework.ts # Framework, TypeScript, package manager detection
 │   └── token-manager.ts  # Token validation, loading, saving, prompting
 ├── schemas/              # Zod validation schemas
@@ -184,6 +184,8 @@ import { readJSONWithComments } from '@/utils/json';
 // Instead of fs.readJSON() which fails on comments
 const tsconfig = await readJSONWithComments(tsconfigPath);
 ```
+
+Uses a custom `stripJSONComments` state-machine parser (not regex) to correctly handle `//` and `/* */` comments inside strings. Avoids the `strip-json-comments` npm dependency.
 
 ### `utils/regenerate.ts` - File Generation
 
@@ -362,4 +364,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-03-13

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './ScatterChart.css';
 
@@ -9,18 +9,31 @@ import './ScatterChart.css';
 export interface ScatterChartProps {
   label?: string;
   description?: string;
-  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
-  'without-animation'?: boolean;
-  'without-legend'?: boolean;
-  'without-tooltip'?: boolean;
   'x-label'?: string;
   'y-label'?: string;
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
   grid?: 'x' | 'y' | 'both' | 'none';
   min?: number;
   max?: number;
+  'without-animation'?: boolean;
+  'without-legend'?: boolean;
+  'without-tooltip'?: boolean;
 }
 
 const props = defineProps<ScatterChartProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
 
 const elementRef = ref<HTMLElement | null>(null);
 
@@ -32,7 +45,7 @@ defineExpose({
 <template>
   <wa-scatter-chart
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

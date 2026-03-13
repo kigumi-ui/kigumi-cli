@@ -1233,7 +1233,16 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "The dialog's footer, usually one or more buttons representing various options.",
       },
     ],
-    methods: [],
+    methods: [
+      {
+        name: 'show',
+        description: 'Shows the dialog.',
+      },
+      {
+        name: 'requestClose',
+        description: 'Closes the dialog.',
+      },
+    ],
   },
   divider: {
     tagName: 'wa-divider',
@@ -1295,7 +1304,16 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "The drawer's footer, usually one or more buttons representing various options.",
       },
     ],
-    methods: [],
+    methods: [
+      {
+        name: 'show',
+        description: 'Shows the drawer.',
+      },
+      {
+        name: 'requestClose',
+        description: 'Closes the drawer.',
+      },
+    ],
   },
   'dropdown-item': {
     tagName: 'wa-dropdown-item',

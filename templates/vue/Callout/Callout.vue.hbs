@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './Callout.css';
 
@@ -14,22 +14,20 @@ export interface CalloutProps {
 
 const props = defineProps<CalloutProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
   // No events for this component
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
-
-onMounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-
-
-  onUnmounted(() => {
-
-  });
-});
 
 defineExpose({
   element: elementRef,
@@ -39,10 +37,9 @@ defineExpose({
 <template>
   <wa-callout
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="icon" />
   </wa-callout>
 </template>

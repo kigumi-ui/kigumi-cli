@@ -274,6 +274,35 @@ async function addFromBuiltinRegistry(
 }
 
 /**
+ * Resolve the import base path for display.
+ *
+ * When an `@/components` alias is configured, replace the matching prefix
+ * of `componentsDir` with the alias name so the displayed import uses the
+ * alias while still including any subdirectory (e.g. `ui/`).
+ *
+ * Example:
+ *   componentsDir  = "src/components/ui"
+ *   alias value    = "./src/components"
+ *   result         = "@/components/ui"
+ */
+function resolveImportBase(config: KigumiConfig): string {
+  const alias = config.aliases?.['@/components'];
+  if (!alias) return config.componentsDir;
+
+  // Normalise the alias value by stripping a leading "./"
+  const normalised = alias.replace(/^\.\//, '');
+
+  // If componentsDir starts with the normalised alias target, replace it
+  if (config.componentsDir.startsWith(normalised)) {
+    const rest = config.componentsDir.slice(normalised.length); // e.g. "/ui"
+    return `@/components${rest}`;
+  }
+
+  // Alias doesn't match componentsDir — fall back to the raw dir
+  return config.componentsDir;
+}
+
+/**
  * Print installation summary
  */
 function printSummary(
@@ -290,11 +319,12 @@ function printSummary(
     const source = registryName ? ` from ${registryName}` : '';
     output.success(`Added ${added.length} component(s)${source}`);
 
+    const importBase = resolveImportBase(config);
     if (config.framework === 'vue') {
       const importList = added
         .map(
           (r) =>
-            `import ${r.name} from '${config.aliases?.['@/components'] || config.componentsDir}/${r.name}/${r.name}.vue';`
+            `import ${r.name} from '${importBase}/${r.name}/${r.name}.vue';`
         )
         .join('\n');
       output.note('Import them', importList);
@@ -302,7 +332,7 @@ function printSummary(
       const componentNames = added.map((r) => r.name).join(', ');
       output.note(
         'Import them',
-        `import { ${componentNames} } from '${config.aliases?.['@/components'] || config.componentsDir}';`
+        `import { ${componentNames} } from '${importBase}';`
       );
     }
   }

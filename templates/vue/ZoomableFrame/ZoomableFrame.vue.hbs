@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './ZoomableFrame.css';
 
@@ -21,6 +21,15 @@ export interface ZoomableFrameProps {
 
 const props = defineProps<ZoomableFrameProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
   'load': [event: CustomEvent];
   'error': [event: CustomEvent];
@@ -28,19 +37,23 @@ const emit = defineEmits<{
 
 const elementRef = ref<HTMLElement | null>(null);
 
+const handleLoad = (e: Event) => emit('load', e as CustomEvent);
+const handleError = (e: Event) => emit('error', e as CustomEvent);
+
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleLoad = (e: Event) => emit('load', e as CustomEvent);
   el.addEventListener('load', handleLoad);
-  const handleError = (e: Event) => emit('error', e as CustomEvent);
   el.addEventListener('error', handleError);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('load', handleLoad);
-    el.removeEventListener('error', handleError);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('load', handleLoad);
+  el.removeEventListener('error', handleError);
 });
 
 defineExpose({
@@ -53,11 +66,9 @@ defineExpose({
 <template>
   <wa-zoomable-frame
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="zoom-in-icon" />
-    <slot name="zoom-out-icon" />
   </wa-zoomable-frame>
 </template>

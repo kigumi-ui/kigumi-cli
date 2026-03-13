@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './Toast.css';
 
@@ -12,24 +12,33 @@ export interface ToastProps {
 
 const props = defineProps<ToastProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
 const elementRef = ref<HTMLElement | null>(null);
 
 defineExpose({
-  create: (message: string, options?: Record<string, unknown>) => {
-    (elementRef.value as unknown as { create?: (m: string, o?: Record<string, unknown>) => void })?.create?.(message, options);
-  },
+  create: (message: string, options: ToastCreateOptions) => (elementRef.value as any)?.create?.(message, options),
   element: elementRef,
 });
 </script>
 
 <template>
-  <Teleport to="body">
-    <wa-toast
-      ref="elementRef"
-      v-bind="props"
-      :class="$attrs.class"
-    >
-      <slot />
-    </wa-toast>
-  </Teleport>
+  <wa-toast
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-toast>
 </template>

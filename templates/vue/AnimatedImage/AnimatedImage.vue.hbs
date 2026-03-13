@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './AnimatedImage.css';
 
@@ -14,26 +14,39 @@ export interface AnimatedImageProps {
 
 const props = defineProps<AnimatedImageProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'load': [event: CustomEvent];
-  'error': [event: CustomEvent];
+  'wa-load': [event: CustomEvent];
+  'wa-error': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
+const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleLoad = (e: Event) => emit('load', e as CustomEvent);
-  el.addEventListener('wa-load', handleLoad);
-  const handleError = (e: Event) => emit('error', e as CustomEvent);
-  el.addEventListener('wa-error', handleError);
+  el.addEventListener('wa-load', handleWaLoad);
+  el.addEventListener('wa-error', handleWaError);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-load', handleLoad);
-    el.removeEventListener('wa-error', handleError);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-load', handleWaLoad);
+  el.removeEventListener('wa-error', handleWaError);
 });
 
 defineExpose({
@@ -44,11 +57,9 @@ defineExpose({
 <template>
   <wa-animated-image
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="play-icon" />
-    <slot name="pause-icon" />
   </wa-animated-image>
 </template>

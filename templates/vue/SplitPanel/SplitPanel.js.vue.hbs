@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './SplitPanel.css';
 
@@ -16,20 +16,33 @@ const props = defineProps({
     'snap-threshold': { type: Number, required: false, default: 12 }
 });
 
-const emit = defineEmits(['reposition']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-reposition']);
 
 const elementRef = ref(null);
+
+const handleWaReposition = (e) => emit('wa-reposition', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleReposition = (e) => emit('reposition', e);
-  el.addEventListener('wa-reposition', handleReposition);
+  el.addEventListener('wa-reposition', handleWaReposition);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-reposition', handleReposition);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-reposition', handleWaReposition);
 });
 
 defineExpose({
@@ -40,12 +53,9 @@ defineExpose({
 <template>
   <wa-split-panel
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="start" />
-    <slot name="end" />
-    <slot name="divider" />
   </wa-split-panel>
 </template>

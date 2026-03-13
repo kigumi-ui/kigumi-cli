@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Avatar.css';
 
@@ -14,20 +14,33 @@ const props = defineProps({
     shape: { type: String, required: false, default: circle }
 });
 
-const emit = defineEmits(['error']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-error']);
 
 const elementRef = ref(null);
+
+const handleWaError = (e) => emit('wa-error', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleError = (e) => emit('error', e);
-  el.addEventListener('wa-error', handleError);
+  el.addEventListener('wa-error', handleWaError);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-error', handleError);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-error', handleWaError);
 });
 
 defineExpose({
@@ -38,10 +51,9 @@ defineExpose({
 <template>
   <wa-avatar
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="icon" />
   </wa-avatar>
 </template>

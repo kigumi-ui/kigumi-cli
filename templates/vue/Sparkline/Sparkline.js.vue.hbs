@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './Sparkline.css';
 
@@ -8,29 +8,24 @@ import './Sparkline.css';
  */
 const props = defineProps({
     data: { type: String, required: false },
-    type: { type: String, required: false, default: line },
-    width: { type: Number, required: false },
-    height: { type: Number, required: false },
-    color: { type: String, required: false },
-    'fill-color': { type: String, required: false },
-    'line-width': { type: Number, required: false, default: 2 },
-    'show-tooltip': { type: Boolean, required: false, default: false }
+    label: { type: String, required: false },
+    appearance: { type: String, required: false, default: line },
+    trend: { type: String, required: false },
+    curve: { type: String, required: false, default: natural }
+});
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 });
 
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
-
-onMounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-
-
-  onUnmounted(() => {
-
-  });
-});
 
 defineExpose({
   element: elementRef,
@@ -40,7 +35,7 @@ defineExpose({
 <template>
   <wa-sparkline
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

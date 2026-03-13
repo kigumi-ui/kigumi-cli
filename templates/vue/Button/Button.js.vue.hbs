@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Button.css';
 
@@ -17,35 +17,59 @@ const props = defineProps({
     href: { type: String, required: false },
     target: { type: String, required: false },
     download: { type: String, required: false },
-    rel: { type: String, required: false }
+    rel: { type: String, required: false },
+    type: { type: String, required: false, default: button },
+    name: { type: String, required: false },
+    value: { type: String, required: false },
+    formaction: { type: String, required: false },
+    formenctype: { type: String, required: false },
+    formmethod: { type: String, required: false },
+    formnovalidate: { type: Boolean, required: false, default: false },
+    formtarget: { type: String, required: false }
 });
 
-const emit = defineEmits(['blur', 'focus', 'invalid']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['blur', 'focus', 'wa-invalid']);
 
 const elementRef = ref(null);
+
+const handleBlur = (e) => emit('blur', e);
+const handleFocus = (e) => emit('focus', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleBlur = (e) => emit('blur', e);
   el.addEventListener('blur', handleBlur);
-  const handleFocus = (e) => emit('focus', e);
   el.addEventListener('focus', handleFocus);
-  const handleInvalid = (e) => emit('invalid', e);
-  el.addEventListener('wa-invalid', handleInvalid);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('focus', handleFocus);
-    el.removeEventListener('wa-invalid', handleInvalid);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
 defineExpose({
   click: () => elementRef.value?.click?.(),
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -53,11 +77,9 @@ defineExpose({
 <template>
   <wa-button
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="start" />
-    <slot name="end" />
   </wa-button>
 </template>

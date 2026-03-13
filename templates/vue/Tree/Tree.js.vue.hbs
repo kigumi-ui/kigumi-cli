@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Tree.css';
 
@@ -10,20 +10,33 @@ const props = defineProps({
     selection: { type: String, required: false, default: single }
 });
 
-const emit = defineEmits(['selection-change']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-selection-change']);
 
 const elementRef = ref(null);
+
+const handleWaSelectionChange = (e) => emit('wa-selection-change', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleSelectionChange = (e) => emit('selection-change', e);
-  el.addEventListener('wa-selection-change', handleSelectionChange);
+  el.addEventListener('wa-selection-change', handleWaSelectionChange);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-selection-change', handleSelectionChange);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-selection-change', handleWaSelectionChange);
 });
 
 defineExpose({
@@ -34,11 +47,9 @@ defineExpose({
 <template>
   <wa-tree
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="expand-icon" />
-    <slot name="collapse-icon" />
   </wa-tree>
 </template>

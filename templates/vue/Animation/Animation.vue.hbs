@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Animation.css';
 
@@ -22,30 +22,43 @@ export interface AnimationProps {
 
 const props = defineProps<AnimationProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'cancel': [event: CustomEvent];
-  'finish': [event: CustomEvent];
-  'start': [event: CustomEvent];
+  'wa-cancel': [event: CustomEvent];
+  'wa-finish': [event: CustomEvent];
+  'wa-start': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaCancel = (e: Event) => emit('wa-cancel', e as CustomEvent);
+const handleWaFinish = (e: Event) => emit('wa-finish', e as CustomEvent);
+const handleWaStart = (e: Event) => emit('wa-start', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleCancel = (e: Event) => emit('cancel', e as CustomEvent);
-  el.addEventListener('wa-cancel', handleCancel);
-  const handleFinish = (e: Event) => emit('finish', e as CustomEvent);
-  el.addEventListener('wa-finish', handleFinish);
-  const handleStart = (e: Event) => emit('start', e as CustomEvent);
-  el.addEventListener('wa-start', handleStart);
+  el.addEventListener('wa-cancel', handleWaCancel);
+  el.addEventListener('wa-finish', handleWaFinish);
+  el.addEventListener('wa-start', handleWaStart);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-cancel', handleCancel);
-    el.removeEventListener('wa-finish', handleFinish);
-    el.removeEventListener('wa-start', handleStart);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-cancel', handleWaCancel);
+  el.removeEventListener('wa-finish', handleWaFinish);
+  el.removeEventListener('wa-start', handleWaStart);
 });
 
 defineExpose({
@@ -58,7 +71,7 @@ defineExpose({
 <template>
   <wa-animation
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

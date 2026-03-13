@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './CopyButton.css';
 
@@ -17,23 +17,36 @@ const props = defineProps({
     'tooltip-placement': { type: String, required: false, default: top }
 });
 
-const emit = defineEmits(['copy', 'error']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-copy', 'wa-error']);
 
 const elementRef = ref(null);
+
+const handleWaCopy = (e) => emit('wa-copy', e);
+const handleWaError = (e) => emit('wa-error', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleCopy = (e) => emit('copy', e);
-  el.addEventListener('wa-copy', handleCopy);
-  const handleError = (e) => emit('error', e);
-  el.addEventListener('wa-error', handleError);
+  el.addEventListener('wa-copy', handleWaCopy);
+  el.addEventListener('wa-error', handleWaError);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-copy', handleCopy);
-    el.removeEventListener('wa-error', handleError);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-copy', handleWaCopy);
+  el.removeEventListener('wa-error', handleWaError);
 });
 
 defineExpose({
@@ -44,12 +57,9 @@ defineExpose({
 <template>
   <wa-copy-button
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="copy-icon" />
-    <slot name="success-icon" />
-    <slot name="error-icon" />
   </wa-copy-button>
 </template>

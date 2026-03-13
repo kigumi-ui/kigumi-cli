@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './AnimatedImage.css';
 
@@ -12,23 +12,36 @@ const props = defineProps({
     play: { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['load', 'error']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-load', 'wa-error']);
 
 const elementRef = ref(null);
+
+const handleWaLoad = (e) => emit('wa-load', e);
+const handleWaError = (e) => emit('wa-error', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleLoad = (e) => emit('load', e);
-  el.addEventListener('wa-load', handleLoad);
-  const handleError = (e) => emit('error', e);
-  el.addEventListener('wa-error', handleError);
+  el.addEventListener('wa-load', handleWaLoad);
+  el.addEventListener('wa-error', handleWaError);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-load', handleLoad);
-    el.removeEventListener('wa-error', handleError);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-load', handleWaLoad);
+  el.removeEventListener('wa-error', handleWaError);
 });
 
 defineExpose({
@@ -39,11 +52,9 @@ defineExpose({
 <template>
   <wa-animated-image
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="play-icon" />
-    <slot name="pause-icon" />
   </wa-animated-image>
 </template>

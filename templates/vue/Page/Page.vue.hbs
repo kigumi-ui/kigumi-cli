@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './Page.css';
 
@@ -16,22 +16,20 @@ export interface PageProps {
 
 const props = defineProps<PageProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
   // No events for this component
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
-
-onMounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-
-
-  onUnmounted(() => {
-
-  });
-});
 
 defineExpose({
   visiblePixelsInViewport: (element: HTMLElement | null) => (elementRef.value as any)?.visiblePixelsInViewport?.(element),
@@ -45,23 +43,9 @@ defineExpose({
 <template>
   <wa-page
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="banner" />
-    <slot name="header" />
-    <slot name="subheader" />
-    <slot name="menu" />
-    <slot name="navigation-header" />
-    <slot name="navigation" />
-    <slot name="navigation-footer" />
-    <slot name="navigation-toggle" />
-    <slot name="navigation-toggle-icon" />
-    <slot name="main-header" />
-    <slot name="main-footer" />
-    <slot name="aside" />
-    <slot name="skip-to-content" />
-    <slot name="footer" />
   </wa-page>
 </template>

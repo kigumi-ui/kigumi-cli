@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import '{{{importPath}}}';
 import './Details.css';
 
@@ -7,7 +7,6 @@ import './Details.css';
  * Shows a brief summary and expands to show additional content
  */
 const props = defineProps({
-    open: { type: Boolean, required: false, default: false },
     summary: { type: String, required: false },
     disabled: { type: Boolean, required: false, default: false },
     appearance: { type: String, required: false, default: outlined },
@@ -15,29 +14,52 @@ const props = defineProps({
     name: { type: String, required: false }
 });
 
-const emit = defineEmits(['show', 'after-show', 'hide', 'after-hide']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
+
+const open = defineModel('open', { default: false });
 
 const elementRef = ref(null);
+
+watch(open, (newOpen) => {
+  const el = elementRef.value;
+  if (!el) return;
+  const isOpen = el.open ?? false;
+  if (newOpen && !isOpen) el.show?.();
+  else if (!newOpen && isOpen) el.hide?.();
+});
+
+const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
+const handleWaAfterShow = (e) => emit('wa-after-show', e);
+const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
+const handleWaAfterHide = (e) => emit('wa-after-hide', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleShow = (e) => emit('show', e);
-  el.addEventListener('wa-show', handleShow);
-  const handleAfterShow = (e) => emit('after-show', e);
-  el.addEventListener('wa-after-show', handleAfterShow);
-  const handleHide = (e) => emit('hide', e);
-  el.addEventListener('wa-hide', handleHide);
-  const handleAfterHide = (e) => emit('after-hide', e);
-  el.addEventListener('wa-after-hide', handleAfterHide);
+  el.addEventListener('wa-show', handleWaShow);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  el.addEventListener('wa-hide', handleWaHide);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-show', handleShow);
-    el.removeEventListener('wa-after-show', handleAfterShow);
-    el.removeEventListener('wa-hide', handleHide);
-    el.removeEventListener('wa-after-hide', handleAfterHide);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-show', handleWaShow);
+  el.removeEventListener('wa-after-show', handleWaAfterShow);
+  el.removeEventListener('wa-hide', handleWaHide);
+  el.removeEventListener('wa-after-hide', handleWaAfterHide);
 });
 
 defineExpose({
@@ -50,12 +72,10 @@ defineExpose({
 <template>
   <wa-details
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
+    :open="open"
   >
     <slot />
-    <slot name="summary" />
-    <slot name="expand-icon" />
-    <slot name="collapse-icon" />
   </wa-details>
 </template>

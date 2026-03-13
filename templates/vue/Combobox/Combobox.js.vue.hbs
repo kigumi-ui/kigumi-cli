@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import '{{{importPath}}}';
 import './Combobox.css';
 
@@ -25,47 +25,67 @@ const props = defineProps({
     'with-clear': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'clear', 'show', 'after-show', 'hide', 'after-hide', 'invalid']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-invalid']);
+
+const model = defineModel();
 
 const elementRef = ref(null);
+
+watch(model, (val) => {
+  const el = elementRef.value;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleChange = (e) => emit('change', e);
+const handleFocus = (e) => emit('focus', e);
+const handleBlur = (e) => emit('blur', e);
+const handleWaClear = (e) => emit('wa-clear', e);
+const handleWaShow = (e) => emit('wa-show', e);
+const handleWaAfterShow = (e) => emit('wa-after-show', e);
+const handleWaHide = (e) => emit('wa-hide', e);
+const handleWaAfterHide = (e) => emit('wa-after-hide', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleInput = (e) => emit('input', e);
   el.addEventListener('input', handleInput);
-  const handleChange = (e) => emit('change', e);
   el.addEventListener('change', handleChange);
-  const handleFocus = (e) => emit('focus', e);
   el.addEventListener('focus', handleFocus);
-  const handleBlur = (e) => emit('blur', e);
   el.addEventListener('blur', handleBlur);
-  const handleClear = (e) => emit('clear', e);
-  el.addEventListener('wa-clear', handleClear);
-  const handleShow = (e) => emit('show', e);
-  el.addEventListener('wa-show', handleShow);
-  const handleAfterShow = (e) => emit('after-show', e);
-  el.addEventListener('wa-after-show', handleAfterShow);
-  const handleHide = (e) => emit('hide', e);
-  el.addEventListener('wa-hide', handleHide);
-  const handleAfterHide = (e) => emit('after-hide', e);
-  el.addEventListener('wa-after-hide', handleAfterHide);
-  const handleInvalid = (e) => emit('invalid', e);
-  el.addEventListener('wa-invalid', handleInvalid);
+  el.addEventListener('wa-clear', handleWaClear);
+  el.addEventListener('wa-show', handleWaShow);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  el.addEventListener('wa-hide', handleWaHide);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('input', handleInput);
-    el.removeEventListener('change', handleChange);
-    el.removeEventListener('focus', handleFocus);
-    el.removeEventListener('blur', handleBlur);
-    el.removeEventListener('wa-clear', handleClear);
-    el.removeEventListener('wa-show', handleShow);
-    el.removeEventListener('wa-after-show', handleAfterShow);
-    el.removeEventListener('wa-hide', handleHide);
-    el.removeEventListener('wa-after-hide', handleAfterHide);
-    el.removeEventListener('wa-invalid', handleInvalid);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('wa-clear', handleWaClear);
+  el.removeEventListener('wa-show', handleWaShow);
+  el.removeEventListener('wa-after-show', handleWaAfterShow);
+  el.removeEventListener('wa-hide', handleWaHide);
+  el.removeEventListener('wa-after-hide', handleWaAfterHide);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
 defineExpose({
@@ -73,6 +93,9 @@ defineExpose({
   hide: () => elementRef.value?.hide?.(),
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -80,15 +103,10 @@ defineExpose({
 <template>
   <wa-combobox
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
+    :value="model"
   >
     <slot />
-    <slot name="label" />
-    <slot name="start" />
-    <slot name="end" />
-    <slot name="clear-icon" />
-    <slot name="expand-icon" />
-    <slot name="hint" />
   </wa-combobox>
 </template>

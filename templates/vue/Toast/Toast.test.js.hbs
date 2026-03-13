@@ -5,6 +5,6 @@ import Toast from './Toast.vue';
 describe('Toast', () => {
   it('renders without crashing', () => {
     const { container } = mount(Toast);
-    expect(document.body.querySelector('wa-toast')).toBeTruthy();
+    expect(container.querySelector('wa-toast')).toBeTruthy();
   });
 });

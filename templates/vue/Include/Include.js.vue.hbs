@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Include.css';
 
@@ -12,23 +12,36 @@ const props = defineProps({
     'allow-scripts': { type: Boolean, required: false, default: false }
 });
 
-const emit = defineEmits(['load', 'include-error']);
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-load', 'wa-include-error']);
 
 const elementRef = ref(null);
+
+const handleWaLoad = (e) => emit('wa-load', e);
+const handleWaIncludeError = (e) => emit('wa-include-error', e);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleLoad = (e) => emit('load', e);
-  el.addEventListener('wa-load', handleLoad);
-  const handleIncludeError = (e) => emit('include-error', e);
-  el.addEventListener('wa-include-error', handleIncludeError);
+  el.addEventListener('wa-load', handleWaLoad);
+  el.addEventListener('wa-include-error', handleWaIncludeError);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-load', handleLoad);
-    el.removeEventListener('wa-include-error', handleIncludeError);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-load', handleWaLoad);
+  el.removeEventListener('wa-include-error', handleWaIncludeError);
 });
 
 defineExpose({
@@ -39,7 +52,7 @@ defineExpose({
 <template>
   <wa-include
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

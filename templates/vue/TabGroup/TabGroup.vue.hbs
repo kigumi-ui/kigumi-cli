@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './TabGroup.css';
 
@@ -10,30 +10,44 @@ export interface TabGroupProps {
   placement?: 'top' | 'bottom' | 'start' | 'end';
   activation?: 'auto' | 'manual';
   'without-scroll-controls'?: boolean;
+  active?: string;
 }
 
 const props = defineProps<TabGroupProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'tab-show': [event: CustomEvent];
-  'tab-hide': [event: CustomEvent];
+  'wa-tab-show': [event: CustomEvent];
+  'wa-tab-hide': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaTabShow = (e: Event) => emit('wa-tab-show', e as CustomEvent);
+const handleWaTabHide = (e: Event) => emit('wa-tab-hide', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleTabShow = (e: Event) => emit('tab-show', e as CustomEvent);
-  el.addEventListener('wa-tab-show', handleTabShow);
-  const handleTabHide = (e: Event) => emit('tab-hide', e as CustomEvent);
-  el.addEventListener('wa-tab-hide', handleTabHide);
+  el.addEventListener('wa-tab-show', handleWaTabShow);
+  el.addEventListener('wa-tab-hide', handleWaTabHide);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-tab-show', handleTabShow);
-    el.removeEventListener('wa-tab-hide', handleTabHide);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-tab-show', handleWaTabShow);
+  el.removeEventListener('wa-tab-hide', handleWaTabHide);
 });
 
 defineExpose({
@@ -44,10 +58,9 @@ defineExpose({
 <template>
   <wa-tab-group
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
-    <slot name="nav" />
   </wa-tab-group>
 </template>

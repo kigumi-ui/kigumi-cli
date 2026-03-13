@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+/* eslint-disable no-console */
 /**
  * Custom Elements Parser
  *
@@ -64,6 +65,21 @@ interface ComponentMetadata {
     parameters?: Array<{ name: string; type: string }>;
   }>;
 }
+
+/**
+ * Method overrides for components where custom-elements.json marks methods
+ * as private or lacks descriptions, causing them to be filtered out.
+ */
+const METHOD_OVERRIDES: Record<string, ComponentMetadata['methods']> = {
+  dialog: [
+    { name: 'show', description: 'Shows the dialog.' },
+    { name: 'requestClose', description: 'Closes the dialog.' },
+  ],
+  drawer: [
+    { name: 'show', description: 'Shows the drawer.' },
+    { name: 'requestClose', description: 'Closes the drawer.' },
+  ],
+};
 
 /**
  * Find custom-elements.json in node_modules
@@ -182,6 +198,15 @@ async function parseCustomElements(): Promise<
         slots,
         methods,
       };
+
+      // Apply method overrides for components where custom-elements.json
+      // marks methods as private or lacks descriptions (e.g. Dialog, Drawer)
+      if (
+        METHOD_OVERRIDES[componentKey] &&
+        metadata[componentKey].methods.length === 0
+      ) {
+        metadata[componentKey].methods = METHOD_OVERRIDES[componentKey];
+      }
     }
   }
 

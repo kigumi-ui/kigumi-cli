@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './ResizeObserver.css';
 
@@ -12,22 +12,35 @@ export interface ResizeObserverProps {
 
 const props = defineProps<ResizeObserverProps>();
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits<{
-  'resize': [event: CustomEvent];
+  'wa-resize': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
+
+const handleWaResize = (e: Event) => emit('wa-resize', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  const handleResize = (e: Event) => emit('resize', e as CustomEvent);
-  el.addEventListener('wa-resize', handleResize);
+  el.addEventListener('wa-resize', handleWaResize);
+});
 
-  onUnmounted(() => {
-    el.removeEventListener('wa-resize', handleResize);
-  });
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-resize', handleWaResize);
 });
 
 defineExpose({
@@ -38,7 +51,7 @@ defineExpose({
 <template>
   <wa-resize-observer
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />

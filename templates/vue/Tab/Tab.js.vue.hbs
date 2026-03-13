@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import '{{{importPath}}}';
 import './Tab.css';
 
@@ -11,20 +11,18 @@ const props = defineProps({
     disabled: { type: Boolean, required: false, default: false }
 });
 
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
-
-onMounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-
-
-  onUnmounted(() => {
-
-  });
-});
 
 defineExpose({
   element: elementRef,
@@ -34,7 +32,7 @@ defineExpose({
 <template>
   <wa-tab
     ref="elementRef"
-    v-bind="props"
+    v-bind="definedProps"
     :class="$attrs.class"
   >
     <slot />
