@@ -10,10 +10,12 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 
-// Import the function under test
+// Import the functions under test
 import {
   configureTSConfig,
   configureVitePathAliases,
+  configureVueCustomElements,
+  configureVueTypes,
 } from '../../src/utils/project-config.js';
 
 // Mock output interface
@@ -295,5 +297,288 @@ export default defineConfig({
   it('should return false if no vite.config exists', async () => {
     const result = await configureVitePathAliases(testDir, mockOutput);
     expect(result).toBe(false);
+  });
+
+  it('should add fileURLToPath import for ESM projects', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      type: 'module',
+    });
+    const viteConfig = `import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVitePathAliases(testDir, mockOutput);
+
+    expect(result).toBe(true);
+    const updated = await fs.readFile(
+      path.join(testDir, 'vite.config.ts'),
+      'utf-8'
+    );
+    expect(updated).toContain("import { fileURLToPath } from 'url'");
+    expect(updated).toContain("import path from 'path'");
+    expect(updated).toContain('path.dirname(fileURLToPath(import.meta.url))');
+  });
+
+  it('should use __dirname for non-ESM projects', async () => {
+    const viteConfig = `import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVitePathAliases(testDir, mockOutput);
+
+    expect(result).toBe(true);
+    const updated = await fs.readFile(
+      path.join(testDir, 'vite.config.ts'),
+      'utf-8'
+    );
+    expect(updated).toContain('__dirname');
+    expect(updated).not.toContain('fileURLToPath');
+  });
+
+  it('should add fileURLToPath when path already imported in ESM project', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      type: 'module',
+    });
+    const viteConfig = `import { defineConfig } from 'vite'
+import path from 'path'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVitePathAliases(testDir, mockOutput);
+
+    expect(result).toBe(true);
+    const updated = await fs.readFile(
+      path.join(testDir, 'vite.config.ts'),
+      'utf-8'
+    );
+    expect(updated).toContain("import { fileURLToPath } from 'url'");
+  });
+
+  it('should return false when resolve: already exists', async () => {
+    const viteConfig = `import { defineConfig } from 'vite'
+import path from 'path'
+
+export default defineConfig({
+  resolve: {
+    extensions: ['.ts'],
+  },
+  plugins: [],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVitePathAliases(testDir, mockOutput);
+
+    expect(result).toBe(false);
+  });
+
+  it('should fall back to vite.config.js when .ts not found', async () => {
+    const viteConfig = `import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.js'), viteConfig);
+
+    const result = await configureVitePathAliases(testDir, mockOutput);
+
+    expect(result).toBe(true);
+    const updated = await fs.readFile(
+      path.join(testDir, 'vite.config.js'),
+      'utf-8'
+    );
+    expect(updated).toContain('resolve:');
+  });
+});
+
+describe('configureVueCustomElements', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'kigumi-vue-custom-test-')
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it('should return false when no vite.config exists', async () => {
+    const result = await configureVueCustomElements(testDir, mockOutput);
+    expect(result).toBe(false);
+  });
+
+  it('should return false when isCustomElement already configured', async () => {
+    const viteConfig = `import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue({
+    template: {
+      compilerOptions: {
+        isCustomElement: (tag) => tag.startsWith('wa-'),
+      },
+    },
+  })],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVueCustomElements(testDir, mockOutput);
+    expect(result).toBe(false);
+  });
+
+  it('should inject isCustomElement into bare vue()', async () => {
+    const viteConfig = `import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVueCustomElements(testDir, mockOutput);
+
+    expect(result).toBe(true);
+    const updated = await fs.readFile(
+      path.join(testDir, 'vite.config.ts'),
+      'utf-8'
+    );
+    expect(updated).toContain('isCustomElement');
+    expect(updated).toContain("tag.startsWith('wa-')");
+  });
+
+  it('should inject isCustomElement into vue with existing options', async () => {
+    const viteConfig = `import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue({
+    reactivityTransform: true,
+  })],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVueCustomElements(testDir, mockOutput);
+
+    expect(result).toBe(true);
+    const updated = await fs.readFile(
+      path.join(testDir, 'vite.config.ts'),
+      'utf-8'
+    );
+    expect(updated).toContain('isCustomElement');
+  });
+
+  it('should return false and warn when vue() not found', async () => {
+    const warnings: string[] = [];
+    const output = { ...mockOutput, warn: (msg: string) => warnings.push(msg) };
+
+    const viteConfig = `import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.ts'), viteConfig);
+
+    const result = await configureVueCustomElements(testDir, output);
+
+    expect(result).toBe(false);
+    expect(warnings.length).toBeGreaterThan(0);
+  });
+
+  it('should fall back to vite.config.js', async () => {
+    const viteConfig = `import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+})`;
+    await fs.writeFile(path.join(testDir, 'vite.config.js'), viteConfig);
+
+    const result = await configureVueCustomElements(testDir, mockOutput);
+    expect(result).toBe(true);
+  });
+});
+
+describe('configureVueTypes', () => {
+  let testDir: string;
+  const waPackage = '@anthropic/web-awesome';
+
+  beforeEach(async () => {
+    testDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'kigumi-vue-types-test-')
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it('should return false when tsconfig.app.json does not exist', async () => {
+    const result = await configureVueTypes(testDir, mockOutput, waPackage);
+    expect(result).toBe(false);
+  });
+
+  it('should add WA Vue types to empty compilerOptions', async () => {
+    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {
+      compilerOptions: {},
+    });
+
+    const result = await configureVueTypes(testDir, mockOutput, waPackage);
+
+    expect(result).toBe(true);
+    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
+    expect(updated.compilerOptions.types).toEqual([
+      `${waPackage}/dist/types/vue`,
+    ]);
+  });
+
+  it('should append WA Vue types to existing types array', async () => {
+    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {
+      compilerOptions: { types: ['vite/client'] },
+    });
+
+    const result = await configureVueTypes(testDir, mockOutput, waPackage);
+
+    expect(result).toBe(true);
+    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
+    expect(updated.compilerOptions.types).toEqual([
+      'vite/client',
+      `${waPackage}/dist/types/vue`,
+    ]);
+  });
+
+  it('should not duplicate if WA Vue types already present', async () => {
+    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {
+      compilerOptions: { types: [`${waPackage}/dist/types/vue`] },
+    });
+
+    const result = await configureVueTypes(testDir, mockOutput, waPackage);
+    expect(result).toBe(false);
+  });
+
+  it('should initialize compilerOptions when missing', async () => {
+    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {});
+
+    const result = await configureVueTypes(testDir, mockOutput, waPackage);
+
+    expect(result).toBe(true);
+    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
+    expect(updated.compilerOptions.types).toEqual([
+      `${waPackage}/dist/types/vue`,
+    ]);
   });
 });
