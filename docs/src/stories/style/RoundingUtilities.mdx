@@ -1,0 +1,44 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Style/Rounding Utilities" />
+
+export const RadiusDemo = ({ cls }) => (
+  <div
+    className={cls}
+    style={{
+      width: '64px',
+      height: '64px',
+      background: 'var(--wa-color-brand-fill-normal)',
+    }}
+  />
+);
+
+<DocPage
+  title="Rounding Utilities"
+  description={
+    <>
+      Apply border radius tokens directly to any element using{' '}
+      <code>.wa-border-radius-*</code> utility classes.
+    </>
+  }
+>
+
+<DocSection title="CSS Classes">
+  <DocTable
+    columns={[
+      { key: 'cls', header: 'Class' },
+      { key: 'example', header: 'Example' },
+    ]}
+    rows={[
+      { cls: <code>.wa-border-radius-square</code>, example: <RadiusDemo cls="wa-border-radius-square" /> },
+      { cls: <code>.wa-border-radius-s</code>, example: <RadiusDemo cls="wa-border-radius-s" /> },
+      { cls: <code>.wa-border-radius-m</code>, example: <RadiusDemo cls="wa-border-radius-m" /> },
+      { cls: <code>.wa-border-radius-l</code>, example: <RadiusDemo cls="wa-border-radius-l" /> },
+      { cls: <code>.wa-border-radius-pill</code>, example: <RadiusDemo cls="wa-border-radius-pill" /> },
+      { cls: <code>.wa-border-radius-circle</code>, example: <RadiusDemo cls="wa-border-radius-circle" /> },
+    ]}
+  />
+</DocSection>
+
+</DocPage>
