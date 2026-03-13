@@ -1,0 +1,380 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Kigumi / Vue Guide" />
+
+# Vue 3 Guide
+
+Kigumi generates Vue 3 single-file components that wrap Web Awesome custom elements.
+This guide covers the Vue-specific patterns you need to know.
+
+---
+
+## Events
+
+Kigumi wrappers re-emit Web Awesome custom events so you can use Vue's `@event` syntax directly.
+
+### Standard DOM events
+
+```vue
+<script setup>
+import { Button } from '@/components/ui'
+
+function handleClick(e) {
+  console.log('clicked', e.target)
+}
+</script>
+
+<template>
+  <Button @click="handleClick">Click me</Button>
+</template>
+```
+
+### Web Awesome custom events
+
+WA components emit custom events prefixed with `wa-`. Kigumi wrappers forward these as Vue events:
+
+```vue
+<script setup>
+import { Input } from '@/components/ui'
+
+function onClear(e) {
+  console.log('input cleared')
+}
+</script>
+
+<template>
+  <Input label="Search" with-clear @wa-clear="onClear" />
+</template>
+```
+
+### Dialog show/hide events
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Dialog, Button } from '@/components/ui'
+
+const open = ref(false)
+
+function onShow(e) {
+  console.log('dialog opened')
+}
+
+function onHide(e) {
+  console.log('dialog closed')
+}
+</script>
+
+<template>
+  <Button @click="open = true">Open Dialog</Button>
+
+  <Dialog
+    v-model:open="open"
+    label="Confirm"
+    @wa-show="onShow"
+    @wa-hide="onHide"
+  >
+    <p>Are you sure?</p>
+    <Button slot="footer" variant="brand" @click="open = false">
+      Confirm
+    </Button>
+  </Dialog>
+</template>
+```
+
+Available events per component are typed in `defineEmits` inside each wrapper. Check the component's `.vue` file for the full list.
+
+---
+
+## Slots
+
+Web components use the HTML `slot` attribute -- not Vue's `<template #name>` syntax.
+
+### Correct: use `slot="name"` on child elements
+
+```vue
+<template>
+  <Card>
+    <img slot="media" src="/hero.jpg" alt="Hero" />
+    <h3 slot="header">Card Title</h3>
+
+    <p>Default slot content goes here.</p>
+
+    <div slot="footer">
+      <Button variant="brand">Action</Button>
+    </div>
+  </Card>
+</template>
+```
+
+### Incorrect: do NOT use Vue named slots
+
+```vue
+<!-- This will NOT work with web components -->
+<template>
+  <Card>
+    <template #header>
+      <h3>Card Title</h3>
+    </template>
+  </Card>
+</template>
+```
+
+The `slot` attribute is part of the web component spec. It tells the browser's Shadow DOM where to project the element. Vue's `<template #name>` syntax only works with Vue components that define `<slot name="...">` in their own template.
+
+### Common slot names across WA components
+
+| Component | Slots |
+|-----------|-------|
+| Card | `header`, `footer`, `media` |
+| Dialog | `header`, `header-actions`, `footer` |
+| Drawer | `header`, `header-actions`, `footer` |
+| Details | `summary`, `expand-icon`, `collapse-icon` |
+| Input | `prefix`, `suffix`, `help-text` |
+| Select | `prefix`, `suffix`, `help-text` |
+
+---
+
+## v-model
+
+Kigumi wrappers implement `defineModel` so you get native Vue two-way binding.
+
+### Text inputs
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Input, Textarea } from '@/components/ui'
+
+const name = ref('')
+const bio = ref('')
+</script>
+
+<template>
+  <Input v-model="name" label="Name" />
+  <Textarea v-model="bio" label="Bio" />
+</template>
+```
+
+### Boolean controls
+
+Checkbox and Switch bind to `checked` internally, but you use `v-model` with a boolean:
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Checkbox, Switch } from '@/components/ui'
+
+const agreed = ref(false)
+const notifications = ref(true)
+</script>
+
+<template>
+  <Checkbox v-model="agreed">I agree to the terms</Checkbox>
+  <Switch v-model="notifications">Enable notifications</Switch>
+</template>
+```
+
+### Dialog and Drawer (named model)
+
+Dialog and Drawer use a named model for the `open` state:
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Dialog, Drawer, Button } from '@/components/ui'
+
+const dialogOpen = ref(false)
+const drawerOpen = ref(false)
+</script>
+
+<template>
+  <Button @click="dialogOpen = true">Open Dialog</Button>
+  <Dialog v-model:open="dialogOpen" label="My Dialog">
+    <p>Content here</p>
+  </Dialog>
+
+  <Button @click="drawerOpen = true">Open Drawer</Button>
+  <Drawer v-model:open="drawerOpen" label="My Drawer">
+    <p>Drawer content</p>
+  </Drawer>
+</template>
+```
+
+### Why this works
+
+Kigumi wrappers are real Vue components (not raw `<wa-*>` elements). Each wrapper uses `defineModel` and syncs the value with the underlying web component via `watch` and event listeners. You never need to manually listen to `input` or `change` events for basic data binding.
+
+---
+
+## Complex Data (the `.prop` modifier)
+
+When using **raw** `<wa-*>` elements (not Kigumi wrappers), Vue serializes bound attributes to strings. Arrays and objects become `"[object Object]"`.
+
+Use the `.prop` modifier to pass data as a JavaScript property instead of an HTML attribute:
+
+```vue
+<script setup>
+const swatches = ['#d32f2f', '#7b1fa2', '#1976d2', '#388e3c']
+</script>
+
+<template>
+  <!-- Raw WA element: need .prop for arrays/objects -->
+  <wa-color-picker :swatches.prop="swatches" />
+</template>
+```
+
+### With Kigumi wrappers, you don't need `.prop`
+
+Kigumi wrappers use `v-bind="props"` internally, which passes data as properties through Vue's reactivity system:
+
+```vue
+<template>
+  <!-- Kigumi wrapper: just bind normally -->
+  <ColorPicker :swatches="swatches" />
+</template>
+```
+
+**Rule of thumb:** Use `.prop` only when writing `<wa-*>` tags directly. With Kigumi components, standard `:binding` works.
+
+---
+
+## Template Refs
+
+Access the underlying Web Awesome element and its methods via template refs.
+
+### Using a Kigumi wrapper
+
+Kigumi wrappers expose the raw element through `element`:
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Dialog, Button } from '@/components/ui'
+
+const dialogRef = ref()
+
+function openProgrammatically() {
+  // Access the underlying <wa-dialog> element
+  dialogRef.value.element.show()
+}
+</script>
+
+<template>
+  <Button @click="openProgrammatically">Open</Button>
+  <Dialog ref="dialogRef" label="Programmatic">
+    <p>Opened via ref</p>
+  </Dialog>
+</template>
+```
+
+### Exposed methods
+
+Many wrappers also expose common methods directly, so you can skip `.element`:
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Input } from '@/components/ui'
+
+const inputRef = ref()
+
+function focusInput() {
+  inputRef.value.focus()
+}
+
+function validateInput() {
+  inputRef.value.setCustomValidity('Please enter a valid email')
+}
+</script>
+
+<template>
+  <Input ref="inputRef" label="Email" type="email" />
+  <button @click="focusInput">Focus</button>
+  <button @click="validateInput">Validate</button>
+</template>
+```
+
+Check `defineExpose` in each wrapper's source to see which methods are available directly.
+
+---
+
+## Form Integration
+
+Web Awesome form controls participate in native `<form>` validation via the `ElementInternals` API.
+
+### Basic native form
+
+```vue
+<script setup>
+import { Input, Select, Option, Checkbox, Button } from '@/components/ui'
+
+function onSubmit(e) {
+  const formData = new FormData(e.target)
+  console.log(Object.fromEntries(formData))
+}
+</script>
+
+<template>
+  <form @submit.prevent="onSubmit">
+    <Input name="email" type="email" label="Email" required />
+
+    <Select name="role" label="Role" required>
+      <Option value="admin">Admin</Option>
+      <Option value="user">User</Option>
+    </Select>
+
+    <Checkbox name="terms" required>I agree to the terms</Checkbox>
+
+    <Button type="submit" variant="brand">Submit</Button>
+  </form>
+</template>
+```
+
+### Custom validity
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { Input } from '@/components/ui'
+
+const inputRef = ref()
+
+function validate() {
+  const el = inputRef.value.element
+  if (el.value.length < 3) {
+    inputRef.value.setCustomValidity('Must be at least 3 characters')
+  } else {
+    inputRef.value.setCustomValidity('')
+  }
+}
+</script>
+
+<template>
+  <Input ref="inputRef" label="Username" @input="validate" />
+</template>
+```
+
+### Waiting for custom element registration
+
+If you need to call methods on a WA element before it has been upgraded, wait for registration:
+
+```vue
+<script setup>
+import { ref, onMounted } from 'vue'
+import { Input } from '@/components/ui'
+
+const inputRef = ref()
+
+onMounted(async () => {
+  await customElements.whenDefined('wa-input')
+  inputRef.value.focus()
+})
+</script>
+
+<template>
+  <Input ref="inputRef" label="Auto-focused" />
+</template>
+```
+
+In practice, Kigumi's setup import (`import '@/lib/kigumi'`) registers all added components eagerly, so `whenDefined` is only needed if you lazy-load components or access them very early in the lifecycle.

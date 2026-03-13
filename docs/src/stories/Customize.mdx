@@ -1,0 +1,485 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import {
+  Card,
+  Badge,
+  CopyButton,
+  Button,
+  Callout,
+  Icon,
+} from '@/components/ui';
+
+<Meta title="Kigumi / Customize" />
+
+<Unstyled>
+  <div className="wa-stack wa-gap-4xl">
+    <div className="wa-stack wa-gap-xl">
+      <h2 className="wa-heading-2xl" id="customize">
+        Customize
+      </h2>
+
+      {/* Step 1: Check your current setup */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+
+          <h3 className="wa-heading-l" id="check-setup">Check your current setup</h3>
+        </div>
+        <p className="wa-caption-m">
+          See which theme, palette, and brand color are currently active in your
+          project.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-center wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>
+                <span
+                  style={{
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: 'inherit',
+                    zIndex: 1,
+                    userSelect: 'none',
+                  }}
+                  aria-hidden="true"
+                >
+                  ${' '}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 'var(--wa-space-m)',
+                    display: 'inline-block',
+                  }}
+                >
+                  npx kigumi theme show
+                </span>
+              </code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: '0',
+                bottom: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value="npx kigumi theme show" />
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      {/* Step 2: Switch themes, palettes, and brand colors */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+
+          <h3 className="wa-heading-l" id="switch-themes">Switch themes, palettes, and brand colors</h3>
+        </div>
+        <p className="wa-caption-m">
+          Quickly swap visual presets via the CLI. Leave out the argument to get
+          an interactive selector.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-center wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>
+                <span
+                  style={{
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: 'inherit',
+                    zIndex: 1,
+                    userSelect: 'none',
+                  }}
+                  aria-hidden="true"
+                >
+                  ${' '}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 'var(--wa-space-m)',
+                    display: 'inline-block',
+                  }}
+                >
+                  npx kigumi theme [name]
+                </span>
+              </code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: '0',
+                bottom: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value="npx kigumi theme" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-center wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>
+                <span
+                  style={{
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: 'inherit',
+                    zIndex: 1,
+                    userSelect: 'none',
+                  }}
+                  aria-hidden="true"
+                >
+                  ${' '}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 'var(--wa-space-m)',
+                    display: 'inline-block',
+                  }}
+                >
+                  npx kigumi palette [name]
+                </span>
+              </code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: '0',
+                bottom: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value="npx kigumi palette" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-center wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>
+                <span
+                  style={{
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: 'inherit',
+                    zIndex: 1,
+                    userSelect: 'none',
+                  }}
+                  aria-hidden="true"
+                >
+                  ${' '}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 'var(--wa-space-m)',
+                    display: 'inline-block',
+                  }}
+                >
+                  npx kigumi brand [color]
+                </span>
+              </code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: '0',
+                bottom: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value="npx kigumi brand" />
+            </span>
+          </div>
+        </Card>
+        <p className="wa-caption-m">
+          Run <code>npx kigumi theme list</code> to see all available options.
+        </p>
+      </div>
+
+      {/* Step 3: Override design tokens in CSS */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+
+          <h3 className="wa-heading-l" id="override-tokens">Override design tokens in CSS</h3>
+        </div>
+        <p className="wa-caption-m">
+          For deeper customization, override <code>--wa-*</code> custom
+          properties in <code>src/styles/theme.css</code>. CSS Cascade Layers
+          ensure your overrides win automatically — no{' '}
+          <code>!important</code> needed.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-start wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>{`:root {
+
+--wa-color-brand: oklch(0.6 0.25 280);
+--wa-font-family: 'Inter', sans-serif;
+--wa-border-radius-m: 0.5rem;
+}
+
+.wa-dark {
+--wa-color-surface: oklch(0.15 0.01 280);
+}`}</code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: 'var(--wa-space-xs)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton
+                value={`:root {
+--wa-color-brand: oklch(0.6 0.25 280);
+--wa-font-family: 'Inter', sans-serif;
+--wa-border-radius-m: 0.5rem;
+}
+
+.wa-dark {
+--wa-color-surface: oklch(0.15 0.01 280);
+}`}
+/>
+
+</span>
+</div>
+</Card>
+<Callout appearance="outlined">
+<Icon name="info-circle" slot="icon" />
+See the <a href="/?path=/docs/design-tokens-color--docs">Design Tokens</a> section
+for the full list of available tokens.
+</Callout>
+</div>
+
+      {/* Step 4: Use Kigumi Studio */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+
+          <h3 className="wa-heading-l" id="kigumi-studio">Use Kigumi Studio</h3>
+        </div>
+        <p className="wa-caption-m">
+          A visual theme editor with real-time preview. Adjust colors,
+          typography, spacing, and borders live, then export the generated CSS.
+        </p>
+        <a href="/kigumi-studio" target="_blank" rel="noopener noreferrer">
+          <Button variant="brand">Open Kigumi Studio</Button>
+        </a>
+      </div>
+
+      {/* Step 5: Install from community registries */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+
+          <h3 className="wa-heading-l" id="community-registries">Install from community registries</h3>
+        </div>
+        <p className="wa-caption-m">
+          Connect third-party registries and install components or themes from
+          the community.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-center wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>
+                <span
+                  style={{
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: 'inherit',
+                    zIndex: 1,
+                    userSelect: 'none',
+                  }}
+                  aria-hidden="true"
+                >
+                  ${' '}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 'var(--wa-space-m)',
+                    display: 'inline-block',
+                  }}
+                >
+                  npx kigumi registry connect https://github.com/user/my-registry
+                </span>
+              </code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: '0',
+                bottom: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value="npx kigumi registry connect https://github.com/user/my-registry" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-center wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>
+                <span
+                  style={{
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: 'inherit',
+                    zIndex: 1,
+                    userSelect: 'none',
+                  }}
+                  aria-hidden="true"
+                >
+                  ${' '}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 'var(--wa-space-m)',
+                    display: 'inline-block',
+                  }}
+                >
+                  npx kigumi add button --from my-registry
+                </span>
+              </code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: '0',
+                bottom: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value="npx kigumi add button --from my-registry" />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-flank:end wa-align-items-center wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>
+                <span
+                  style={{
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: 'inherit',
+                    zIndex: 1,
+                    userSelect: 'none',
+                  }}
+                  aria-hidden="true"
+                >
+                  ${' '}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 'var(--wa-space-m)',
+                    display: 'inline-block',
+                  }}
+                >
+                  npx kigumi theme install my-theme --from my-registry
+                </span>
+              </code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: '0',
+                bottom: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value="npx kigumi theme install my-theme --from my-registry" />
+            </span>
+          </div>
+        </Card>
+        <Callout appearance="outlined">
+        <Icon name="info-circle" slot="icon" />
+          Run <code>npx kigumi registry list</code> to see connected registries.
+          Private repos work via <code>GITHUB_TOKEN</code> or <code>gh auth</code>.
+        </Callout>
+      </div>
+    </div>
+
+  </div>
+</Unstyled>
