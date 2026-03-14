@@ -21,7 +21,8 @@ const initialResolved =
 // Icon per sidebar item type
 function itemIcon(type: string): string | null {
   if (type === 'component') return '❖';
-  if (type === 'story' || type === 'docs') return '⬦';
+  if (type === 'story') return '⬦';
+  if (type === 'docs') return '';
   return null;
 }
 
@@ -47,8 +48,12 @@ const LabelContainer = styled.div`
 `;
 
 const badgeMap: Record<string, { text: string; bg: string; fg: string }> = {
-  pro: { text: 'Pro', bg: '#001c13', fg: '#e0eb0b' },
-  experimental: { text: 'Beta', bg: '#7c2d12', fg: '#fed7aa' },
+  pro: {
+    text: 'Pro',
+    bg: '#6B24AE88',
+    fg: '#FFFFFF',
+  },
+  beta: { text: 'Beta', bg: '#C9C9C988', fg: '#10121A' },
 };
 
 // Sidebar label with custom icon + inline tag badges

@@ -5,7 +5,7 @@ import { Page, Button, Icon } from '@/components/ui';
 const meta = {
   title: 'Components/Page',
   component: Page,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   parameters: { layout: 'fullscreen' },
   argTypes: {
     'disable-navigation-toggle': {
@@ -43,113 +43,144 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const navItems = ['Dashboard', 'Projects', 'Team', 'Reports', 'Settings'];
-
-/** A full page shell with header, navigation, and content area. */
+/** Visual slot map showing all 11 available slots in `<wa-page>`. */
 export const Default: Story = {
   render: (args) => (
-    <Page {...args} style={{ height: '500px' }}>
-      <nav
-        slot="navigation"
-        style={{
-          padding: '1rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-        }}
-      >
+    <div>
+      <Page {...args}>
         <div
           style={{
-            fontWeight: 700,
-            padding: '0.5rem 1rem',
-            marginBottom: '0.5rem',
-            fontSize: '1.125rem',
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
           }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="banner"
         >
-          App Name
+          banner
         </div>
-        {navItems.map((item) => (
-          <Button
-            key={item}
-            appearance="plain"
-            style={{ justifyContent: 'flex-start' }}
-          >
-            <Icon name="circle" slot="prefix" />
-            {item}
-          </Button>
-        ))}
-      </nav>
-      <div style={{ padding: '2rem' }}>
-        <h1 style={{ margin: '0 0 1rem' }}>Dashboard</h1>
-        <p>Main content area. The navigation panel slides in from the side.</p>
-      </div>
-    </Page>
-  ),
-};
-
-/** Positions the side navigation on the end (right) side. */
-export const NavigationEnd: Story = {
-  args: { 'navigation-placement': 'end' },
-  render: (args) => (
-    <Page {...args} style={{ height: '500px' }}>
-      <nav
-        slot="navigation"
-        style={{
-          padding: '1rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-        }}
-      >
-        {navItems.map((item) => (
-          <Button
-            key={item}
-            appearance="plain"
-            style={{ justifyContent: 'flex-start' }}
-          >
-            {item}
-          </Button>
-        ))}
-      </nav>
-      <div style={{ padding: '2rem' }}>
-        <h1 style={{ margin: '0 0 1rem' }}>Navigation from End</h1>
-        <p>Navigation panel slides in from the right/end side.</p>
-      </div>
-    </Page>
-  ),
-};
-
-/** Shows the responsive collapsed navigation on a narrow viewport. */
-export const MobileView: Story = {
-  args: { view: 'mobile' },
-  render: (args) => (
-    <Page {...args} style={{ height: '500px' }}>
-      <nav
-        slot="navigation"
-        style={{
-          padding: '1rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-        }}
-      >
-        {navItems.map((item) => (
-          <Button
-            key={item}
-            appearance="plain"
-            style={{ justifyContent: 'flex-start' }}
-          >
-            {item}
-          </Button>
-        ))}
-      </nav>
-      <div style={{ padding: '2rem' }}>
-        <h1 style={{ margin: '0 0 1rem' }}>Mobile View</h1>
-        <p>
-          Navigation is collapsed in mobile view. Use the toggle to show it.
-        </p>
-      </div>
-    </Page>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="header"
+        >
+          header
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="subheader"
+        >
+          subheader
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="navigation-header"
+        >
+          navigation-header
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="main-header"
+        >
+          main-header
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="navigation"
+        >
+          navigation
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+        >
+          (default)
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="aside"
+        >
+          aside
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="navigation-footer"
+        >
+          navigation-footer
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="main-footer"
+        >
+          main-footer
+        </div>
+        <div
+          style={{
+            background: 'var(--wa-color-neutral-fill-normal)',
+            margin: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            width: 'calc(100%-0.5rem)',
+          }}
+          className="wa-align-items-center wa-justify-content-center wa-gap-m"
+          slot="footer"
+        >
+          footer
+        </div>
+      </Page>
+    </div>
   ),
 };
 

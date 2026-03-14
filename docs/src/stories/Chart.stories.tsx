@@ -5,7 +5,7 @@ import { Chart } from '@/components/ui';
 const meta = {
   title: 'Components/Chart',
   component: Chart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',

@@ -6,7 +6,7 @@ import { FileInput } from '@/components/ui';
 const meta = {
   title: 'Components/File Input',
   component: FileInput,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: { control: 'text', description: 'Accessible label for the input' },
     hint: { control: 'text', description: 'Descriptive hint text' },

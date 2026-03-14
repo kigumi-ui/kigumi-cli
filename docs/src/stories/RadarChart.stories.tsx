@@ -5,7 +5,7 @@ import { RadarChart } from '@/components/ui';
 const meta = {
   title: 'Components/Radar Chart',
   component: RadarChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',

@@ -26,7 +26,7 @@ const fruits = [
 const meta = {
   title: 'Components/Combobox',
   component: Combobox,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     'allow-custom-value': {
       control: 'boolean',

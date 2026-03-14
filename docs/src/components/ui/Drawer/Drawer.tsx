@@ -76,6 +76,7 @@ export interface DrawerProps extends Omit<
 export interface DrawerRef {
   show: () => void;
   hide: () => void;
+  requestClose: () => void;
   /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
@@ -94,19 +95,20 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     },
     ref
   ) => {
-    const drawerRef = useRef<
-      HTMLElement & {
-        show?: () => void;
-        hide?: () => void;
-        open?: boolean;
-      }
-    >(null);
+    const drawerRef = useRef<HTMLElement & { open?: boolean }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        show: () => drawerRef.current?.show?.(),
-        hide: () => drawerRef.current?.hide?.(),
+        show: () => {
+          if (drawerRef.current) drawerRef.current.open = true;
+        },
+        hide: () => {
+          if (drawerRef.current) drawerRef.current.open = false;
+        },
+        requestClose: () => {
+          if (drawerRef.current) drawerRef.current.open = false;
+        },
         get element() {
           return drawerRef.current;
         },
@@ -118,13 +120,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     useEffect(() => {
       const el = drawerRef.current;
       if (!el || open === undefined) return;
-
-      const isOpen = el.open ?? false;
-      if (open && !isOpen) {
-        el.show?.();
-      } else if (!open && isOpen) {
-        el.hide?.();
-      }
+      el.open = open;
     }, [open]);
 
     // Setup event listeners

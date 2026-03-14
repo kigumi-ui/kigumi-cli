@@ -5,7 +5,7 @@ import { Sparkline } from '@/components/ui';
 const meta = {
   title: 'Components/Sparkline',
   component: Sparkline,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     data: {
       control: 'text',

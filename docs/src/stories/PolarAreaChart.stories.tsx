@@ -5,7 +5,7 @@ import { PolarAreaChart } from '@/components/ui';
 const meta = {
   title: 'Components/Polar Area Chart',
   component: PolarAreaChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',

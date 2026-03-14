@@ -5,7 +5,7 @@ import { DoughnutChart } from '@/components/ui';
 const meta = {
   title: 'Components/Doughnut Chart',
   component: DoughnutChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',

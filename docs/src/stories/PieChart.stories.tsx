@@ -5,7 +5,7 @@ import { PieChart } from '@/components/ui';
 const meta = {
   title: 'Components/Pie Chart',
   component: PieChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',
