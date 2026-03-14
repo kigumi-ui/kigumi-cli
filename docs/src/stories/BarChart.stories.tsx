@@ -5,7 +5,7 @@ import { BarChart } from '@/components/ui';
 const meta = {
   title: 'Components/Bar Chart',
   component: BarChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',

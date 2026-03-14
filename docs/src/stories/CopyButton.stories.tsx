@@ -6,7 +6,7 @@ import { CopyButton } from '@/components/ui';
 const meta = {
   title: 'Components/Copy Button',
   component: CopyButton,
-  tags: ['autodocs', 'experimental'],
+  tags: ['autodocs', 'beta'],
   argTypes: {
     value: { control: 'text', description: 'The text to copy' },
     from: {

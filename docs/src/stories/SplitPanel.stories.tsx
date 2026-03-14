@@ -2,25 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { SplitPanel } from '@/components/ui';
 
-const PanelContent = ({ label, color }: { label: string; color: string }) => (
-  <div
-    style={{
-      height: '100%',
-      minHeight: '200px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: color,
-      fontSize: '1.25rem',
-      fontWeight: 600,
-      color: '#fff',
-      padding: '1rem',
-    }}
-  >
-    {label}
-  </div>
-);
-
 /** Split panels display two adjacent panels with a divider for resizing */
 const meta = {
   title: 'Components/Split Panel',
@@ -77,8 +58,18 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: (args) => (
     <SplitPanel {...args} style={{ height: '200px' }}>
-      <PanelContent label="Start Panel" color="var(--wa-color-brand-600)" />
-      <PanelContent label="End Panel" color="var(--wa-color-neutral-700)" />
+      <div
+        slot="start"
+        className="wa-align-items-center wa-justify-content-center"
+      >
+        Start Panel
+      </div>
+      <div
+        slot="end"
+        className="wa-align-items-center wa-justify-content-center"
+      >
+        End Panel
+      </div>
     </SplitPanel>
   ),
 };
@@ -88,8 +79,18 @@ export const Vertical: Story = {
   args: { orientation: 'vertical' },
   render: (args) => (
     <SplitPanel {...args} style={{ height: '300px' }}>
-      <PanelContent label="Top Panel" color="var(--wa-color-success-600)" />
-      <PanelContent label="Bottom Panel" color="var(--wa-color-warning-600)" />
+      <div
+        slot="start"
+        className="wa-align-items-center wa-justify-content-center"
+      >
+        Top Panel
+      </div>
+      <div
+        slot="end"
+        className="wa-align-items-center wa-justify-content-center"
+      >
+        Bottom Panel
+      </div>
     </SplitPanel>
   ),
 };
@@ -99,8 +100,18 @@ export const Disabled: Story = {
   args: { disabled: true },
   render: (args) => (
     <SplitPanel {...args} style={{ height: '200px' }}>
-      <PanelContent label="Start (fixed)" color="var(--wa-color-neutral-400)" />
-      <PanelContent label="End (fixed)" color="var(--wa-color-neutral-600)" />
+      <div
+        slot="start"
+        className="wa-align-items-center wa-justify-content-center"
+      >
+        Start Panel
+      </div>
+      <div
+        slot="end"
+        className="wa-align-items-center wa-justify-content-center"
+      >
+        End Panel
+      </div>
     </SplitPanel>
   ),
 };
@@ -110,33 +121,75 @@ export const WithSnapping: Story = {
   args: { snap: '25% 50% 75%', 'snap-threshold': 10 },
   render: (args) => (
     <div>
-      <p
-        style={{
-          marginBottom: '0.5rem',
-          color: 'var(--wa-color-neutral-600)',
-          fontSize: '0.875rem',
-        }}
-      >
+      <p className="wa-text-body-small wa-text-neutral-600">
         Drag the divider, snaps at 25%, 50%, and 75%
       </p>
       <SplitPanel {...args} style={{ height: '200px' }}>
-        <PanelContent label="Start" color="var(--wa-color-danger-600)" />
-        <PanelContent label="End" color="var(--wa-color-brand-600)" />
+        <div
+          slot="start"
+          className="wa-align-items-center wa-justify-content-center"
+        >
+          Start Panel
+        </div>
+        <div
+          slot="end"
+          className="wa-align-items-center wa-justify-content-center"
+        >
+          End Panel
+        </div>
       </SplitPanel>
     </div>
   ),
 };
 
 /** The end panel has a fixed pixel width; the start panel fills remaining space. */
-export const PrimaryEnd: Story = {
+export const NestedPanels: Story = {
   args: { primary: 'end', position: 300 },
-  render: (args) => (
-    <SplitPanel {...args} style={{ height: '200px' }}>
-      <PanelContent label="Start (fluid)" color="var(--wa-color-brand-600)" />
-      <PanelContent
-        label="End (fixed 300px)"
-        color="var(--wa-color-neutral-700)"
-      />
+  render: () => (
+    <SplitPanel>
+      <div
+        slot="start"
+        style={{
+          height: 400,
+          background: 'var(--wa-color-surface-lowered)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        Start Panel
+      </div>
+      <div slot="end">
+        <SplitPanel orientation="vertical" style={{ height: 400 }}>
+          <div
+            slot="start"
+            style={{
+              height: '100%',
+              background: 'var(--wa-color-surface-lowered)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            Top Panel
+          </div>
+          <div
+            slot="end"
+            style={{
+              height: '100%',
+              background: 'var(--wa-color-surface-lowered)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            Bottom Panel
+          </div>
+        </SplitPanel>
+      </div>
     </SplitPanel>
   ),
 };

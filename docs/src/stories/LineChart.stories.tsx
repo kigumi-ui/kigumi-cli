@@ -5,7 +5,7 @@ import { LineChart } from '@/components/ui';
 const meta = {
   title: 'Components/Line Chart',
   component: LineChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',

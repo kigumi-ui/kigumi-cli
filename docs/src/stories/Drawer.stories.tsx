@@ -3,6 +3,32 @@ import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Drawer, Button } from '@/components/ui';
 
+const SlotBlock = ({
+  label,
+  height = '3rem',
+  ...rest
+}: {
+  label: string;
+  height?: string;
+} & React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    style={{
+      display: 'grid',
+      placeItems: 'center',
+      height,
+      padding: '0.5rem',
+      borderRadius: 'var(--wa-border-radius-m)',
+      backgroundColor: 'var(--wa-color-brand-surface)',
+      color: 'var(--wa-color-brand-text)',
+      fontSize: 'var(--wa-font-size-s)',
+      fontWeight: 'var(--wa-font-weight-semibold)',
+    }}
+    {...rest}
+  >
+    {label}
+  </div>
+);
+
 /** Drawers slide in from a container edge to expose additional options */
 const meta = {
   title: 'Components/Drawer',
@@ -27,7 +53,7 @@ const meta = {
     'light-dismiss': {
       control: 'boolean',
       description: 'Closes the drawer when the user clicks outside of it',
-      table: { defaultValue: { summary: 'false' } },
+      table: { defaultValue: { summary: 'true' } },
     },
     'without-header': {
       control: 'boolean',
@@ -69,7 +95,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A drawer that slides in from the end (right) side. */
+/** A drawer that slides in from the end (right) side, showing all available slots. */
 export const Default: Story = {
   args: { label: 'Menu', placement: 'end' },
   render: (args) => {
@@ -87,12 +113,26 @@ export const Default: Story = {
           onAfterHide={() => args.onAfterHide?.({} as CustomEvent)}
         >
           <p>
-            Drawer content goes here. Use drawers for navigation, settings, or
-            supplementary content.
+            This is a basic drawer. Use it to display supplementary content that
+            doesn't need to be visible at all times.
           </p>
-          <Button slot="footer" onClick={() => setOpen(false)}>
-            Close
-          </Button>
+          <p>
+            Drawers are great for navigation menus, filters, settings panels,
+            and detail views on smaller screens.
+          </p>
+          <div
+            slot="footer"
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Button appearance="plain" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setOpen(false)}>Save</Button>
+          </div>
         </Drawer>
       </>
     );
@@ -122,12 +162,7 @@ export const Placements: Story = {
             open={placement === p}
             onHide={() => setPlacement(null)}
           >
-            <p>
-              Drawer sliding in from the <strong>{p}</strong>.
-            </p>
-            <Button slot="footer" onClick={() => setPlacement(null)}>
-              Close
-            </Button>
+            <SlotBlock label="default" height="8rem" />
           </Drawer>
         ))}
       </>
@@ -176,7 +211,7 @@ export const LightDismiss: Story = {
           Open Filters (click outside to close)
         </Button>
         <Drawer {...args} open={open} onHide={() => setOpen(false)}>
-          <p>Click outside the drawer to close it.</p>
+          <SlotBlock label="default" height="8rem" />
         </Drawer>
       </>
     );

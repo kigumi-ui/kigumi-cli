@@ -6,7 +6,7 @@ import { Carousel, CarouselItem } from '@/components/ui';
 const meta = {
   title: 'Components/Carousel',
   component: Carousel,
-  tags: ['autodocs', 'experimental'],
+  tags: ['autodocs', 'beta'],
   argTypes: {
     autoplay: {
       control: 'boolean',

@@ -5,7 +5,7 @@ import { BubbleChart } from '@/components/ui';
 const meta = {
   title: 'Components/Bubble Chart',
   component: BubbleChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',

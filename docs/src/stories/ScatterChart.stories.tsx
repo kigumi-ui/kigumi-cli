@@ -5,7 +5,7 @@ import { ScatterChart } from '@/components/ui';
 const meta = {
   title: 'Components/Scatter Chart',
   component: ScatterChart,
-  tags: ['autodocs', 'pro', 'experimental'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: {
       control: 'text',
