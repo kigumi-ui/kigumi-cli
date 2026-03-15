@@ -1,5 +1,15 @@
 # kigumi
 
+## 0.15.1
+
+### Patch Changes
+
+- ### Features
+  - **Community Registries**: Add Community Registries section to documentation with link from Banner component
+  - **Component Grid images**: Update Storybook component grid with preview images for all components
+  - **Storybook layout**: Change story canvas layout from centered to padded for improved presentation
+  - **Story organisation**: Refine story tags and exclude VueGuide from Storybook navigation
+
 ## 0.15.0
 
 ### Minor Changes
