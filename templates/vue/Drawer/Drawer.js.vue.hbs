@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Drawer.css';
 
@@ -28,14 +28,6 @@ const open = defineModel('open', { default: false });
 
 const elementRef = ref(null);
 
-watch(open, (newOpen) => {
-  const el = elementRef.value;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
-});
-
 const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
 const handleWaAfterShow = (e) => emit('wa-after-show', e);
 const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
@@ -62,8 +54,9 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  show: () => elementRef.value?.show?.(),
-  requestClose: () => elementRef.value?.requestClose?.(),
+  show: () => { open.value = true; },
+  hide: () => { open.value = false; },
+  requestClose: () => { open.value = false; },
   element: elementRef,
 });
 </script>

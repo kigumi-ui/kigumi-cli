@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
 import './Drawer.css';
 
@@ -35,14 +35,6 @@ const open = defineModel<boolean>('open', { default: false });
 
 const elementRef = ref<HTMLElement | null>(null);
 
-watch(open, (newOpen) => {
-  const el = elementRef.value as any;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
-});
-
 const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as CustomEvent); };
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
 const handleWaHide = (e: Event) => { open.value = false; emit('wa-hide', e as CustomEvent); };
@@ -69,8 +61,9 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  show: () => (elementRef.value as any)?.show?.(),
-  requestClose: () => (elementRef.value as any)?.requestClose?.(),
+  show: () => { open.value = true; },
+  hide: () => { open.value = false; },
+  requestClose: () => { open.value = false; },
   element: elementRef,
 });
 </script>

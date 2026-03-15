@@ -3,6 +3,7 @@
   "typescript": true,
   "componentsDir": "src/components/ui",
   "utilsDir": "src/lib",
+  "stylesDir": "src/styles",
   "theme": {
     "selected": "awesome",
     "palette": "rudimentary",
@@ -14,5 +15,12 @@
   },
   "webAwesome": {
     "version": "^3.1.0"
+  },
+  "installedComponents": {
+    "Drawer": {
+      "source": "builtin",
+      "installedAt": "2026-03-14T11:44:18.934Z",
+      "kigumiVersion": "0.15.0"
+    }
   }
 }
