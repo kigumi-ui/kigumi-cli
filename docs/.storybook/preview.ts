@@ -41,7 +41,7 @@ const preview: Preview = {
     theme: 'system',
   },
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
     options: {
       storySort: {
         order: [
