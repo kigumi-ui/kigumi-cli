@@ -24,6 +24,7 @@ import './Drawer.css';
  * @typedef {Object} DrawerRef
  * @property {() => void} show
  * @property {() => void} hide
+ * @property {() => void} requestClose
  * @property {HTMLElement | null} element
  *
  * @param {Object} props
@@ -47,8 +48,9 @@ export const Drawer = React.forwardRef(
     React.useImperativeHandle(
       ref,
       () => ({
-        show: () => drawerRef.current?.show?.(),
-        hide: () => drawerRef.current?.hide?.(),
+        show: () => { if (drawerRef.current) drawerRef.current.open = true; },
+        hide: () => { if (drawerRef.current) drawerRef.current.open = false; },
+        requestClose: () => { if (drawerRef.current) drawerRef.current.open = false; },
         get element() {
           return drawerRef.current;
         },
@@ -60,13 +62,7 @@ export const Drawer = React.forwardRef(
     React.useEffect(() => {
       const el = drawerRef.current;
       if (!el || open === undefined) return;
-
-      const isOpen = el.open ?? false;
-      if (open && !isOpen) {
-        el.show?.();
-      } else if (!open && isOpen) {
-        el.hide?.();
-      }
+      el.open = open;
     }, [open]);
 
     // Setup event listeners
