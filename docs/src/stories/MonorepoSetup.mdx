@@ -1,0 +1,302 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Badge, Callout, Card, CopyButton, Icon } from '@/components/ui';
+import { FrameworkCodeBlock } from '@/components/landing/FrameworkCodeBlock';
+import { MonorepoPatternBlock } from '@/components/landing/MonorepoPatternBlock';
+
+export const treeApps = `monorepo/
+├── turbo.json
+├── pnpm-workspace.yaml
+├── packages/
+│   └── theme/                 # Optional: shared theme
+│       ├── package.json       # @repo/theme
+│       └── theme.css
+└── apps/
+    ├── web/                   # React app
+    │   └── kigumi.config.json
+    └── admin/                 # Vue app
+        └── kigumi.config.json`;
+
+export const treePackages = `monorepo/
+├── turbo.json
+├── pnpm-workspace.yaml
+├── packages/
+│   ├── theme/                 # Optional: shared theme
+│   │   ├── package.json       # @repo/theme
+│   │   └── theme.css
+│   ├── react-ui/              # Shared React components
+│   │   └── kigumi.config.json
+│   └── vue-ui/                # Shared Vue components
+│       └── kigumi.config.json
+└── apps/
+    ├── web/                   # imports @repo/react-ui
+    └── admin/                 # imports @repo/vue-ui`;
+
+export const initApps = `cd apps/web && npx kigumi init    # Choose: React
+cd apps/admin && npx kigumi init  # Choose: Vue`;
+
+export const initPackages = `cd packages/react-ui && npx kigumi init  # Choose: React
+cd packages/vue-ui && npx kigumi init    # Choose: Vue`;
+
+export const addApps = `cd apps/web && npx kigumi add button input card`;
+
+export const addPackages = `cd packages/react-ui && npx kigumi add button input card`;
+
+export const themePackageJson = `{
+  "name": "@repo/theme",
+  "private": true
+}`;
+
+export const themeCss = `:root {
+  /* Shared design tokens */
+  /* --wa-color-brand-600: #6366f1; */
+}`;
+
+export const themeImport = `@import '@repo/theme/theme.css';
+
+/* App-specific overrides below */`;
+
+<Meta title="Guides / Monorepo Setup" />
+
+<Unstyled>
+  <div className="wa-stack wa-gap-4xl">
+    <div className="wa-stack wa-gap-xl">
+      <h2 className="wa-heading-2xl" id="monorepo-setup">Monorepo Setup</h2>
+      <p className="wa-caption-m">
+        Kigumi works in any monorepo. Each workspace runs <code>kigumi init</code> independently
+        and gets its own config, components, and theme. This guide shows two patterns: components
+        living inside apps, or extracted into shared UI packages, with an optional shared theme.
+      </p>
+
+      {/* Step 1: Project Structure */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <Badge pill>1</Badge>
+          <h3 className="wa-heading-l" id="project-structure">Project structure</h3>
+        </div>
+        <p className="wa-caption-m">
+          Pick the pattern that fits your team. Both work with pnpm workspaces and Turborepo.
+        </p>
+        <MonorepoPatternBlock
+          snippets={{
+            apps: { code: treeApps },
+            packages: { code: treePackages },
+          }}
+        />
+      </div>
+
+      {/* Step 2: Initialize Each Workspace */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <Badge pill>2</Badge>
+          <h3 className="wa-heading-l" id="initialize-workspaces">Initialize each workspace</h3>
+        </div>
+        <p className="wa-caption-m">
+          Run <code>kigumi init</code> from each workspace that will own components.
+          Each gets its own <code>kigumi.config.json</code>, <code>layers.css</code>,{' '}
+          <code>theme.css</code>, and <code>kigumi.ts</code>.
+        </p>
+        <MonorepoPatternBlock
+          snippets={{
+            apps: { code: initApps },
+            packages: { code: initPackages },
+          }}
+        />
+      </div>
+
+      {/* Step 3: Add Components */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <Badge pill>3</Badge>
+          <h3 className="wa-heading-l" id="add-components">Add components</h3>
+        </div>
+        <p className="wa-caption-m">
+          Run <code>kigumi add</code> from the workspace where you initialized.
+        </p>
+        <MonorepoPatternBlock
+          snippets={{
+            apps: { code: addApps },
+            packages: { code: addPackages },
+          }}
+        />
+      </div>
+
+      {/* Step 4: Import Kigumi */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <Badge pill>4</Badge>
+          <h3 className="wa-heading-l" id="import-kigumi">Import Kigumi</h3>
+        </div>
+        <p className="wa-caption-m">
+          Import the Kigumi setup in your app entry point:
+        </p>
+        <FrameworkCodeBlock
+          snippets={{
+            react: { code: "import '@/lib/kigumi';", filename: 'src/App.tsx' },
+            vue: { code: "import '@/lib/kigumi';", filename: 'src/main.ts' },
+          }}
+        />
+        <Callout appearance="outlined">
+          <Icon name="info-circle" slot="icon" />
+          <strong>UI Packages pattern:</strong> The app entry point still imports{' '}
+          <code>@/lib/kigumi</code> for CSS setup. The UI package re-exports components,
+          and each app imports them from <code>@repo/react-ui</code> or <code>@repo/vue-ui</code>.
+        </Callout>
+      </div>
+
+      {/* Step 5: Share a Theme (Optional) */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <Badge pill>5</Badge>
+          <h3 className="wa-heading-l" id="share-theme">Share a theme (optional)</h3>
+        </div>
+        <p className="wa-caption-m">
+          Extract shared design tokens into a theme package so every app stays in sync.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-caption-xs"
+            style={{
+              padding: 'var(--wa-space-xs) var(--wa-space-m)',
+              borderBottom: '1px solid var(--wa-color-border)',
+              color: 'var(--wa-color-text-subdued)',
+            }}
+          >
+            packages/theme/package.json
+          </div>
+          <div
+            className="wa-flank:end wa-align-items-start wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>{themePackageJson}</code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: 'var(--wa-space-xs)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value={themePackageJson} />
+            </span>
+          </div>
+        </Card>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-caption-xs"
+            style={{
+              padding: 'var(--wa-space-xs) var(--wa-space-m)',
+              borderBottom: '1px solid var(--wa-color-border)',
+              color: 'var(--wa-color-text-subdued)',
+            }}
+          >
+            packages/theme/theme.css
+          </div>
+          <div
+            className="wa-flank:end wa-align-items-start wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>{themeCss}</code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: 'var(--wa-space-xs)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value={themeCss} />
+            </span>
+          </div>
+        </Card>
+        <p className="wa-caption-m">
+          In each workspace's <code>theme.css</code>, replace the content with:
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div
+            className="wa-caption-xs"
+            style={{
+              padding: 'var(--wa-space-xs) var(--wa-space-m)',
+              borderBottom: '1px solid var(--wa-color-border)',
+              color: 'var(--wa-color-text-subdued)',
+            }}
+          >
+            apps/web/src/styles/theme.css
+          </div>
+          <div
+            className="wa-flank:end wa-align-items-start wa-gap-xs"
+            style={{ position: 'relative' }}
+          >
+            <pre>
+              <code>{themeImport}</code>
+            </pre>
+            <span
+              style={{
+                position: 'absolute',
+                right: 'var(--wa-space-xs)',
+                top: 'var(--wa-space-xs)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CopyButton value={themeImport} />
+            </span>
+          </div>
+        </Card>
+        <Callout appearance="outlined">
+          <Icon name="info-circle" slot="icon" />
+          <code>layers.css</code> stays per-workspace — it's tied to the WA package version and tier.
+          Only <code>theme.css</code> is shared: the one file you customize.{' '}
+          <code>theme.css</code> is preserved on <code>kigumi init</code> re-runs, so the import won't be overwritten.
+        </Callout>
+      </div>
+
+      {/* Good to know */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="good-to-know">Good to know</h3>
+        <p className="wa-caption-m">
+          A few things to keep in mind when running Kigumi across multiple workspaces.
+        </p>
+        <div className="wa-stack wa-gap-s">
+          <h4 className="wa-heading-m">.npmrc</h4>
+          <p className="wa-caption-m">
+            Each workspace gets its own <code>.npmrc</code> from <code>kigumi init</code>.
+            For Pro tier, configure your token globally in <code>~/.npmrc</code> instead
+            of per-workspace.
+          </p>
+        </div>
+        <div className="wa-stack wa-gap-s">
+          <h4 className="wa-heading-m">Package hoisting</h4>
+          <p className="wa-caption-m">
+            pnpm hoists <code>@awesome.me/webawesome</code>. Make sure it's listed in each
+            workspace's own <code>package.json</code> dependencies so resolution is explicit.
+          </p>
+        </div>
+        <div className="wa-stack wa-gap-s">
+          <h4 className="wa-heading-m">Path aliases</h4>
+          <p className="wa-caption-m">
+            <code>kigumi init</code> auto-configures the <code>@/</code> alias in{' '}
+            <code>tsconfig.json</code> and <code>vite.config.ts</code> per workspace.
+            No extra monorepo config needed.
+          </p>
+        </div>
+        <div className="wa-stack wa-gap-s">
+          <h4 className="wa-heading-m">Re-running init</h4>
+          <p className="wa-caption-m">
+            Safe to do. <code>theme.css</code> and <code>layers.css</code> are preserved if they
+            already exist.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</Unstyled>

@@ -31,7 +31,7 @@ export const Banner = () => {
           Use <code>npx kigumi registry</code> to consume components and themes
           from the community!{' '}
           <a
-            href="https://docs.kigumi.style/?path=/docs/kigumi-community-registries--docs"
+            href="https://docs.kigumi.style/?path=/docs/guides-community-registries--docs"
             target="_blank"
             className="wa-text-link"
             rel="noopener noreferrer"

@@ -45,15 +45,10 @@ const preview: Preview = {
     options: {
       storySort: {
         order: [
-          'Kigumi',
-          [
-            'Welcome',
-            'Getting Started',
-            'Customize',
-            'Community Registries',
-            'Roadmap',
-            'Changelog',
-          ],
+          'General',
+          ['Welcome', 'Getting Started', 'Roadmap', 'Changelog'],
+          'Guides',
+          ['Customize', 'Community Registries', 'Monorepo Setup'],
           'Style',
           [
             'Color Variants',

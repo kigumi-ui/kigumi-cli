@@ -38,8 +38,8 @@ export function Hero() {
             <a
               href={
                 import.meta.env.DEV
-                  ? 'http://localhost:6006/?path=/docs/kigumi-changelog--docs'
-                  : 'https://docs.kigumi.style/?path=/docs/kigumi-changelog--docs'
+                  ? 'http://localhost:6006/?path=/docs/general-changelog--docs'
+                  : 'https://docs.kigumi.style/?path=/docs/general-changelog--docs'
               }
               target="_blank"
               rel="noopener noreferrer"
