@@ -51,6 +51,7 @@ const preview: Preview = {
             'Getting Started',
             'Customize',
             'Community Registries',
+            'Roadmap',
             'Changelog',
           ],
           'Style',
