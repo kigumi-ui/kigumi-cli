@@ -279,10 +279,13 @@ export const ChromaticOnly: Story = {
         <p>Simple card without image.</p>
       </Card>
       <Card style={{ maxWidth: '340px' }}>
-        <img
+        <div
           slot="media"
-          src="https://images.unsplash.com/photo-1559209172-0ff8f6d49ff7?w=500&h=300&fit=crop"
-          alt="Cat"
+          style={{
+            width: '100%',
+            height: '180px',
+            backgroundColor: 'var(--wa-color-neutral-fill-quiet)',
+          }}
         />
         <div slot="header">
           <strong>Card with Image</strong>

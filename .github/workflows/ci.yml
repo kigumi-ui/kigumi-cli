@@ -216,7 +216,7 @@ jobs:
   chromatic:
     name: Visual Regression (Chromatic)
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -254,6 +254,7 @@ jobs:
           workingDir: docs
           storybookBuildDir: storybook-static
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          autoAcceptChanges: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           exitZeroOnChanges: true
           exitOnceUploaded: true
 
