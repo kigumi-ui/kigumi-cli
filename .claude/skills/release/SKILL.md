@@ -106,7 +106,7 @@ Stage and commit the version bump:
 
 ```bash
 git add package.json CHANGELOG.md .changeset/
-git commit -m "chore: release v$(node -p "require('./package.json').version")"
+git commit -m "chore(release): bump version"
 ```
 
 Do not add `Co-Authored-By` lines to the commit message.
