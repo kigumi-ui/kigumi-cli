@@ -1,0 +1,548 @@
+/**
+ * Update Command Tests
+ *
+ * Tests for src/commands/update.ts
+ *
+ * Covers:
+ * - No config → error handling
+ * - No installed components → info message
+ * - Up to date with snapshot → skip
+ * - Safe overwrite → file written + snapshot updated
+ * - Clean merge → file merged + snapshot updated
+ * - Conflict → markers written + warning
+ * - Legacy no-snapshot match → snapshot created
+ * - Legacy no-snapshot differ → prompts user
+ * - --dry-run → no writes
+ * - --force → overwrite without merge
+ * - --yes → auto-confirm
+ * - Specific component names filter
+ * - Multiple components mixed scenarios
+ * - Community component → skipped (not in registry)
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'fs-extra';
+import path from 'path';
+import os from 'os';
+
+// Mock @clack/prompts
+vi.mock('@clack/prompts', () => ({
+  intro: vi.fn(),
+  outro: vi.fn(),
+  note: vi.fn(),
+  confirm: vi.fn().mockResolvedValue(true),
+  log: {
+    info: vi.fn(),
+    success: vi.fn(),
+    warning: vi.fn(),
+    error: vi.fn(),
+    message: vi.fn(),
+  },
+  isCancel: vi.fn().mockReturnValue(false),
+}));
+
+// Mock output
+const mockOutput = {
+  intro: vi.fn(),
+  outro: vi.fn(),
+  info: vi.fn(),
+  success: vi.fn(),
+  warning: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  note: vi.fn(),
+  spinner: vi.fn().mockReturnValue({
+    start: vi.fn(),
+    stop: vi.fn(),
+    message: vi.fn(),
+    error: vi.fn(),
+  }),
+  log: vi.fn(),
+};
+
+vi.mock('../../src/output/index.js', () => ({
+  getOutput: () => mockOutput,
+  ConsoleOutput: vi.fn(),
+}));
+
+// Mock template generation
+vi.mock('../../src/utils/template.js', () => ({
+  generateComponent: vi.fn().mockResolvedValue('// generated component'),
+  generateComponentCSSContent: vi.fn().mockResolvedValue('/* generated css */'),
+  generateComponentTestContent: vi.fn().mockResolvedValue('// generated test'),
+}));
+
+// Mock registry
+vi.mock('../../src/utils/registry.js', () => ({
+  getComponent: vi.fn((name: string) => {
+    const registry: Record<
+      string,
+      {
+        name: string;
+        tagName: string;
+        importPath: string;
+        tier: string;
+        category: string;
+        description: string;
+      }
+    > = {
+      button: {
+        name: 'Button',
+        tagName: 'wa-button',
+        importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+        tier: 'free',
+        category: 'Actions',
+        description: 'Buttons represent actions available to the user',
+      },
+      dialog: {
+        name: 'Dialog',
+        tagName: 'wa-dialog',
+        importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
+        tier: 'free',
+        category: 'Overlays',
+        description: 'Dialogs display interactive content',
+      },
+    };
+    return registry[name.toLowerCase()] ?? null;
+  }),
+}));
+
+// Mock tier detection
+vi.mock('../../src/utils/tier.js', () => ({
+  detectTier: vi.fn().mockResolvedValue('free'),
+  detectTierSync: vi.fn().mockReturnValue('free'),
+  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
+  getProToken: vi.fn().mockResolvedValue(null),
+}));
+
+describe('updateCommand', () => {
+  let testDir: string;
+  let originalCwd: string;
+  let originalExit: typeof process.exit;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-update-cmd-'))
+    );
+    originalCwd = process.cwd();
+    process.chdir(testDir);
+
+    originalExit = process.exit;
+    process.exit = vi.fn() as unknown as typeof process.exit;
+  });
+
+  afterEach(async () => {
+    process.chdir(originalCwd);
+    process.exit = originalExit;
+    await fs.remove(testDir);
+  });
+
+  async function createConfig(
+    overrides: Record<string, unknown> = {}
+  ): Promise<void> {
+    const config = {
+      framework: 'react',
+      typescript: true,
+      componentsDir: 'src/components',
+      utilsDir: 'src/lib',
+      theme: {
+        selected: 'default',
+        palette: 'default',
+        brandColor: 'blue',
+      },
+      ...overrides,
+    };
+    await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), config);
+  }
+
+  async function installComponent(
+    name: string,
+    files: Record<string, string>
+  ): Promise<void> {
+    const componentDir = path.join(testDir, 'src/components', name);
+    await fs.ensureDir(componentDir);
+    for (const [fileName, content] of Object.entries(files)) {
+      await fs.writeFile(path.join(componentDir, fileName), content, 'utf-8');
+    }
+  }
+
+  async function createSnapshot(
+    name: string,
+    files: Record<string, string>
+  ): Promise<void> {
+    const snapshotDir = path.join(testDir, '.kigumi/snapshots', name);
+    await fs.ensureDir(snapshotDir);
+    for (const [fileName, content] of Object.entries(files)) {
+      await fs.writeFile(path.join(snapshotDir, fileName), content, 'utf-8');
+    }
+  }
+
+  // ── Test 1: No config → error ──
+
+  it('should call output.error when no config is found', async () => {
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand([], { cwd: testDir });
+
+    expect(mockOutput.error).toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalled();
+  });
+
+  // ── Test 2: No installed components → info message ──
+
+  it('should report no installed components when componentsDir is empty', async () => {
+    await createConfig();
+    await fs.ensureDir(path.join(testDir, 'src/components'));
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand([], { cwd: testDir });
+
+    expect(mockOutput.info).toHaveBeenCalledWith(
+      expect.stringContaining('No installed components')
+    );
+  });
+
+  // ── Test 3: Up to date with snapshot → skip ──
+
+  it('should report up to date when snapshot matches template', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// user modified component',
+      'Button.css': '/* generated css */',
+    });
+    // Snapshot base === theirs (generated) → template unchanged
+    await createSnapshot('Button', {
+      'Button.tsx': '// generated component',
+      'Button.css': '/* generated css */',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    const infoCalls = mockOutput.info.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    const upToDateLines = infoCalls.filter(
+      (msg: string) => typeof msg === 'string' && msg.includes('up to date')
+    );
+    expect(upToDateLines.length).toBeGreaterThanOrEqual(1);
+  });
+
+  // ── Test 4: Safe overwrite → file written + snapshot updated ──
+
+  it('should overwrite when user did not edit (base === ours)', async () => {
+    await createConfig();
+    // ours === base, but theirs is different
+    await installComponent('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    // File should be updated
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toBe('// generated component');
+
+    const infoCalls = mockOutput.info.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    const overwriteLines = infoCalls.filter(
+      (msg: string) => typeof msg === 'string' && msg.includes('safe overwrite')
+    );
+    expect(overwriteLines.length).toBeGreaterThanOrEqual(1);
+  });
+
+  // ── Test 5: Clean merge → file merged + snapshot updated ──
+
+  it('should merge cleanly when changes do not overlap', async () => {
+    const base = 'line1\nline2\nline3\nline4\nline5';
+    const ours = 'line1 user edit\nline2\nline3\nline4\nline5';
+    const theirs = 'line1\nline2\nline3\nline4\nline5 template edit';
+
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': ours,
+      'Button.css': '/* generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': base,
+      'Button.css': '/* generated css */',
+    });
+
+    // Mock to return specific theirs content
+    const { generateComponent } = await import('../../src/utils/template.js');
+    vi.mocked(generateComponent).mockResolvedValue(theirs);
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toContain('line1 user edit');
+    expect(content).toContain('line5 template edit');
+  });
+
+  // ── Test 6: Conflict → markers written + warning ──
+
+  it('should write conflict markers when changes overlap', async () => {
+    const base = 'line1\nshared line\nline3';
+    const ours = 'line1\nuser change\nline3';
+    const theirs = 'line1\ntemplate change\nline3';
+
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': ours,
+      'Button.css': '/* generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': base,
+      'Button.css': '/* generated css */',
+    });
+
+    const { generateComponent } = await import('../../src/utils/template.js');
+    vi.mocked(generateComponent).mockResolvedValue(theirs);
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toContain('<<<<<<< yours');
+    expect(content).toContain('=======');
+    expect(content).toContain('>>>>>>> theirs');
+
+    const infoCalls = mockOutput.info.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    const conflictLines = infoCalls.filter(
+      (msg: string) => typeof msg === 'string' && msg.includes('conflict')
+    );
+    expect(conflictLines.length).toBeGreaterThanOrEqual(1);
+  });
+
+  // ── Test 7: Legacy no-snapshot match → snapshot created ──
+
+  it('should report no-snapshot-match when files match template without snapshot', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// generated component',
+      'Button.css': '/* generated css */',
+    });
+    // No snapshot
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    const infoCalls = mockOutput.info.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    const matchLines = infoCalls.filter(
+      (msg: string) =>
+        typeof msg === 'string' && msg.includes('matches template')
+    );
+    expect(matchLines.length).toBeGreaterThanOrEqual(1);
+  });
+
+  // ── Test 8: Legacy no-snapshot differ → prompts user ──
+
+  it('should warn when no snapshot and files differ from template', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// user customized',
+      'Button.css': '/* custom css */',
+    });
+    // No snapshot, content differs from mock generated
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir, yes: true });
+
+    expect(mockOutput.warn).toHaveBeenCalledWith(
+      expect.stringContaining('no snapshot found')
+    );
+  });
+
+  // ── Test 9: --dry-run → no writes ──
+
+  it('should not write files in dry-run mode', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir, dryRun: true });
+
+    // File should NOT be updated
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toBe('// old generated component');
+  });
+
+  // ── Test 10: --force → overwrite without merge ──
+
+  it('should overwrite all files in force mode', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// user customized content',
+      'Button.css': '/* custom css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// original base',
+      'Button.css': '/* original css */',
+    });
+
+    // Ensure mock returns default generated content (may be changed by prior tests)
+    const { generateComponent } = await import('../../src/utils/template.js');
+    vi.mocked(generateComponent).mockResolvedValue('// generated component');
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir, force: true });
+
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toBe('// generated component');
+  });
+
+  // ── Test 11: Specific component names filter ──
+
+  it('should only update specified components when names are provided', async () => {
+    await createConfig();
+
+    // Install both Button and Dialog
+    await installComponent('Button', {
+      'Button.tsx': '// old btn',
+      'Button.css': '/* old btn css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// old btn',
+      'Button.css': '/* old btn css */',
+    });
+
+    await installComponent('Dialog', {
+      'Dialog.tsx': '// old dlg',
+      'Dialog.css': '/* old dlg css */',
+    });
+    await createSnapshot('Dialog', {
+      'Dialog.tsx': '// old dlg',
+      'Dialog.css': '/* old dlg css */',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    const infoCalls = mockOutput.info.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    const summaryLine = infoCalls.find(
+      (msg: string) =>
+        typeof msg === 'string' && msg.includes('component(s) processed')
+    );
+    expect(summaryLine).toContain('1');
+  });
+
+  // ── Test 12: Multiple components mixed scenarios ──
+
+  it('should process multiple components with different statuses', async () => {
+    await createConfig();
+
+    // Button: up to date (snapshot base === theirs)
+    await installComponent('Button', {
+      'Button.tsx': '// user modified',
+      'Button.css': '/* generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// generated component',
+      'Button.css': '/* generated css */',
+    });
+
+    // Dialog: safe overwrite (base === ours)
+    await installComponent('Dialog', {
+      'Dialog.tsx': '// old generated component',
+      'Dialog.css': '/* old generated css */',
+    });
+    await createSnapshot('Dialog', {
+      'Dialog.tsx': '// old generated component',
+      'Dialog.css': '/* old generated css */',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand([], { cwd: testDir });
+
+    const infoCalls = mockOutput.info.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    const summaryLine = infoCalls.find(
+      (msg: string) =>
+        typeof msg === 'string' && msg.includes('component(s) processed')
+    );
+    expect(summaryLine).toContain('2');
+  });
+
+  // ── Test 13: Community component → skipped (not in registry) ──
+
+  it('should skip non-builtin components when scanning directory', async () => {
+    await createConfig();
+
+    await installComponent('Button', {
+      'Button.tsx': '// generated component',
+      'Button.css': '/* generated css */',
+    });
+
+    // Custom (non-registry) component
+    await fs.ensureDir(path.join(testDir, 'src/components/CustomWidget'));
+    await fs.writeFile(
+      path.join(testDir, 'src/components/CustomWidget/CustomWidget.tsx'),
+      '// custom widget',
+      'utf-8'
+    );
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand([], { cwd: testDir });
+
+    const infoCalls = mockOutput.info.mock.calls.map(
+      (call: unknown[]) => call[0]
+    );
+    const summaryLine = infoCalls.find(
+      (msg: string) =>
+        typeof msg === 'string' && msg.includes('component(s) processed')
+    );
+    expect(summaryLine).toContain('1');
+  });
+
+  // ── Test 14: intro and outro ──
+
+  it('should call intro and outro', async () => {
+    await createConfig();
+    await fs.ensureDir(path.join(testDir, 'src/components'));
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand([], { cwd: testDir });
+
+    expect(mockOutput.intro).toHaveBeenCalledWith('kigumi update');
+    expect(mockOutput.outro).toHaveBeenCalledWith('Done');
+  });
+});

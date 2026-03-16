@@ -35,6 +35,7 @@ import {
   getModifiedFiles,
   type FileModificationCheck,
 } from '../../utils/file-diff.js';
+import { saveSnapshot } from '../../utils/snapshot.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../utils/config.js';
@@ -220,6 +221,27 @@ export class ComponentInstaller {
     }
 
     await Promise.all(parallelOps);
+
+    // Save snapshot for three-way merge support (kigumi update)
+    // Only for builtin template-generated components, not community --from installs
+    if (!options.from) {
+      const testExt =
+        this.config.framework === 'vue'
+          ? this.config.typescript
+            ? 'test.ts'
+            : 'test.js'
+          : this.config.typescript
+            ? 'test.tsx'
+            : 'test.jsx';
+
+      await saveSnapshot(this.cwd, component.name, {
+        [`${component.name}.${ext}`]: componentContent,
+        [`${component.name}.css`]: cssContent,
+        ...(testContent
+          ? { [`${component.name}.${testExt}`]: testContent }
+          : {}),
+      });
+    }
 
     // SEQUENTIAL OPERATIONS
     // WHY: These operations modify shared files (index.ts, kigumi.ts, type declarations)

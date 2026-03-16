@@ -48,7 +48,12 @@ const preview: Preview = {
           'General',
           ['Welcome', 'Getting Started', 'Roadmap', 'Changelog'],
           'Guides',
-          ['Customize', 'Community Registries', 'Monorepo Setup'],
+          [
+            'Customize',
+            'Updating Components',
+            'Community Registries',
+            'Monorepo Setup',
+          ],
           'Style',
           [
             'Color Variants',

@@ -1,0 +1,250 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Card, CopyButton, Badge, Callout } from '@/components/ui';
+
+<Meta title="Guides / Updating Components" />
+
+<Unstyled>
+  <div className="wa-stack wa-gap-4xl">
+    <div className="wa-stack wa-gap-xl">
+      <h2 className="wa-heading-2xl" id="updating-components">Updating Components</h2>
+
+      <p className="wa-caption-m">
+        When you update Kigumi CLI, the templates that generate your components may change.
+        <code>kigumi update</code> intelligently merges upstream template changes with your
+        local customizations using a three-way merge — no more losing your edits.
+      </p>
+
+      <Callout variant="brand">
+        This is Kigumi's biggest advantage over copy-paste workflows: you can customize
+        components freely, then safely pull in template improvements without manual diffing.
+      </Callout>
+    </div>
+
+    {/* How It Works */}
+    <div className="wa-stack wa-gap-l">
+      <h3 className="wa-heading-xl" id="how-it-works">How It Works</h3>
+
+      <p className="wa-caption-m">
+        When you add a component, Kigumi saves a <strong>snapshot</strong> of the generated
+        template output in <code>.kigumi/snapshots/</code>. On update, three versions are compared:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Source</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Base</strong></td>
+            <td><code>.kigumi/snapshots/</code></td>
+            <td>The original template output from when you installed the component</td>
+          </tr>
+          <tr>
+            <td><strong>Yours</strong></td>
+            <td><code>src/components/</code></td>
+            <td>Your current file with any local customizations</td>
+          </tr>
+          <tr>
+            <td><strong>Theirs</strong></td>
+            <td>Fresh template</td>
+            <td>What the current CLI version would generate</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p className="wa-caption-m">
+        By comparing all three, Kigumi can tell which changes are yours and which come from the template.
+      </p>
+    </div>
+
+    {/* Step 1 */}
+    <div className="wa-stack wa-gap-m">
+      <div className="wa-cluster wa-gap-xs wa-align-items-center">
+        <Badge pill>1</Badge>
+        <h3 className="wa-heading-l" id="check-for-updates">Check for updates</h3>
+      </div>
+
+      <p className="wa-caption-m">
+        Use <code>kigumi diff</code> to see which files have changed — either
+        locally by you, in the template, or both:
+      </p>
+
+      <Card appearance="outlined" style={{ '--spacing': '0' }}>
+        <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+          <pre><code>npx kigumi diff</code></pre>
+          <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center' }}>
+            <CopyButton value="npx kigumi diff" />
+          </span>
+        </div>
+      </Card>
+
+      <p className="wa-caption-m">Output classifies each file:</p>
+      <table>
+        <thead>
+          <tr><th>Icon</th><th>Status</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style={{ color: 'var(--wa-color-success-600)' }}>✓</td><td>Unchanged</td><td>File matches the template</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-warning-600)' }}>~</td><td>Template changed</td><td>Template has updates you can pull in</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-brand-600)' }}>*</td><td>Locally modified</td><td>You edited this file</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-danger-600)' }}>⚡</td><td>Both changed</td><td>Both you and the template changed this file</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    {/* Step 2 */}
+    <div className="wa-stack wa-gap-m">
+      <div className="wa-cluster wa-gap-xs wa-align-items-center">
+        <Badge pill>2</Badge>
+        <h3 className="wa-heading-l" id="update-components">Update components</h3>
+      </div>
+
+      <p className="wa-caption-m">
+        Run <code>kigumi update</code> to apply template changes:
+      </p>
+
+      <Card appearance="outlined" style={{ '--spacing': '0' }}>
+        <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+          <pre><code>npx kigumi update</code></pre>
+          <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center' }}>
+            <CopyButton value="npx kigumi update" />
+          </span>
+        </div>
+      </Card>
+
+      <p className="wa-caption-m">Example output:</p>
+
+      <Card appearance="outlined">
+        <pre style={{ margin: 0, fontSize: '0.85em', lineHeight: '1.6' }}>
+{`Button
+  ✓ Button.tsx — up to date
+  → Button.css — safe overwrite (applied)
+  ⚡ Button.test.tsx — clean merge (applied)
+
+Dialog
+  ⚠ Dialog.tsx — conflict (3 regions, resolve manually)
+  ✓ Dialog.css — up to date
+  → Dialog.test.tsx — safe overwrite (applied)
+
+Summary:
+  2 component(s) processed
+  3 file(s) updated
+  1 file(s) with conflicts (resolve manually)`}
+        </pre>
+      </Card>
+
+      <table>
+        <thead>
+          <tr><th>Icon</th><th>Status</th><th>Action taken</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style={{ color: 'var(--wa-color-success-600)' }}>✓</td><td>Up to date</td><td>No action needed</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-success-600)' }}>→</td><td>Safe overwrite</td><td>You didn't edit this file — updated to new template</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-brand-600)' }}>⚡</td><td>Clean merge</td><td>Both changed, but no overlap — merged automatically</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-warning-600)' }}>⚠</td><td>Conflict</td><td>Both changed the same lines — conflict markers inserted</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    {/* Step 3 */}
+    <div className="wa-stack wa-gap-m">
+      <div className="wa-cluster wa-gap-xs wa-align-items-center">
+        <Badge pill>3</Badge>
+        <h3 className="wa-heading-l" id="resolve-conflicts">Resolve conflicts</h3>
+      </div>
+
+      <p className="wa-caption-m">
+        If the update reports conflicts, open the file in your editor. You'll see
+        standard Git-style conflict markers:
+      </p>
+
+      <Card appearance="outlined">
+        <pre style={{ margin: 0, fontSize: '0.85em', lineHeight: '1.6' }}>
+{`<<<<<<< yours
+  return <wa-button {...props} class="my-custom-class" />;
+=======
+  return <wa-button {...props} aria-busy={loading} />;
+>>>>>>> theirs`}
+        </pre>
+      </Card>
+
+      <p className="wa-caption-m">
+        Choose the code you want (or combine both), then remove the markers.
+        Most editors (VS Code, JetBrains, Neovim) have built-in conflict resolution UI.
+      </p>
+    </div>
+
+    {/* Options Reference */}
+    <div className="wa-stack wa-gap-l">
+      <h3 className="wa-heading-xl" id="options">Options</h3>
+
+      <table>
+        <thead>
+          <tr><th>Flag</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>--dry-run</code></td>
+            <td>Preview what would change without writing any files</td>
+          </tr>
+          <tr>
+            <td><code>--force</code></td>
+            <td>Overwrite all files with fresh template output (like <code>add --overwrite</code>)</td>
+          </tr>
+          <tr>
+            <td><code>--yes</code></td>
+            <td>Auto-confirm prompts (useful in CI/scripts)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <Card appearance="outlined" style={{ '--spacing': '0' }}>
+        <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+          <pre><code>npx kigumi update button dialog --dry-run</code></pre>
+          <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center' }}>
+            <CopyButton value="npx kigumi update button dialog --dry-run" />
+          </span>
+        </div>
+      </Card>
+    </div>
+
+    {/* FAQ */}
+    <div className="wa-stack wa-gap-l">
+      <h3 className="wa-heading-xl" id="faq">FAQ</h3>
+
+      <div className="wa-stack wa-gap-m">
+        <h4 className="wa-heading-m">What is the .kigumi/ directory?</h4>
+        <p className="wa-caption-m">
+          The <code>.kigumi/snapshots/</code> directory stores a copy of the template
+          output at install time. It should be committed to git so your whole team gets
+          consistent update behavior.
+        </p>
+
+        <h4 className="wa-heading-m">I installed components before the update feature existed</h4>
+        <p className="wa-caption-m">
+          Legacy components (no snapshot) still work. If the file matches the current
+          template, a snapshot is created automatically. If it differs, you'll be prompted
+          to create one — this enables three-way merges for all future updates.
+        </p>
+
+        <h4 className="wa-heading-m">What about community registry components?</h4>
+        <p className="wa-caption-m">
+          Components installed via <code>--from</code> are downloaded as raw files,
+          not generated from templates. They don't get snapshots and are skipped by
+          the update command.
+        </p>
+
+        <h4 className="wa-heading-m">Can I regenerate a component from scratch?</h4>
+        <p className="wa-caption-m">
+          Yes — use <code>npx kigumi update --force</code> or{' '}
+          <code>npx kigumi add button --overwrite --yes</code> to replace with a
+          fresh template output.
+        </p>
+      </div>
+    </div>
+  </div>
+</Unstyled>

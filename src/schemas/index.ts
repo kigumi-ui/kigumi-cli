@@ -43,6 +43,7 @@ export {
 export {
   initOptionsSchema,
   addOptionsSchema,
+  updateOptionsSchema,
   themeSetOptionsSchema,
   paletteOptionsSchema,
   brandOptionsSchema,
@@ -51,6 +52,7 @@ export {
   validators,
   type InitOptions,
   type AddOptions,
+  type UpdateOptions,
   type ThemeSetOptions,
   type PaletteOptions,
   type BrandOptions,

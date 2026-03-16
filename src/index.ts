@@ -15,6 +15,7 @@ import { doctorCommand } from './commands/doctor.js';
 import { registryCommand } from './commands/registry.js';
 import { upgradeCommand } from './commands/upgrade.js';
 import { diffCommand } from './commands/diff.js';
+import { updateCommand } from './commands/update.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -117,6 +118,15 @@ program
   .argument('[components...]', 'Specific components to diff')
   .option('--verbose', 'Show line-by-line differences')
   .action(diffCommand);
+
+program
+  .command('update')
+  .description('Update installed components with three-way merge')
+  .argument('[components...]', 'Specific components to update')
+  .option('--dry-run', 'Show what would change without writing')
+  .option('--force', 'Overwrite without merge (like add --overwrite)')
+  .option('-y, --yes', 'Auto-confirm prompts')
+  .action(updateCommand);
 
 // Global error handler for uncaught exceptions
 process.on('uncaughtException', (error: Error) => {
