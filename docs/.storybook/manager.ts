@@ -54,6 +54,7 @@ const badgeMap: Record<string, { text: string; bg: string; fg: string }> = {
     fg: '#FFFFFF',
   },
   beta: { text: 'Beta', bg: '#C9C9C988', fg: '#10121A' },
+  new: { text: 'New', bg: '#E5484D88', fg: '#FFFFFF' },
 };
 
 // Sidebar label with custom icon + inline tag badges
