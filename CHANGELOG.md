@@ -1,5 +1,18 @@
 # kigumi
 
+## 0.16.0
+
+### Minor Changes
+
+- ### Features
+  - **`kigumi update` command**: Three-way merge update workflow that intelligently merges upstream template changes with your local component modifications
+  - **"New" badges**: Sidebar and Welcome page cards now display "New" badges for recently added components
+
+  ### Improvements
+  - **Welcome page**: Refreshed layout, enhanced card structure, and clearer content
+  - **Roadmap board**: Updated visual styling for improved consistency
+  - **Documentation**: Added monorepo setup guide, restructured sidebar navigation, expanded troubleshooting FAQs, and added roadmap page with kanban board
+
 ## 0.15.1
 
 ### Patch Changes
