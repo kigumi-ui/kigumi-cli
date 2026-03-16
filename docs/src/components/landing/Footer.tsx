@@ -11,7 +11,7 @@ export const Footer = () => {
         <div className="wa-stack">
           <div className="wa-cluster wa-gap-xs wa-justify-content-center wa-align-items-center">
             <span>
-              Kigumi by{' '}
+              © {new Date().getFullYear()} Kigumi by{' '}
               <a
                 href="https://mischa.dev"
                 target="_blank"
