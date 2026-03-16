@@ -15,27 +15,27 @@ export function ShadowComponentEditor() {
   const comboboxRef = useRef<ComboboxRef>(null);
   const previousValueRef = useRef<string[]>(shadowComponents);
 
-  const handleMenuClose = () => {
-    setTimeout(() => {
-      const el = comboboxRef.current?.element as ComboboxElement | null;
-      if (!el) return;
-
-      const currentValue = Array.isArray(el.value)
-        ? el.value.filter(Boolean)
-        : [];
-
-      const prevSorted = [...shadowComponents].sort().join(',');
-      const newSorted = [...currentValue].sort().join(',');
-
-      if (prevSorted !== newSorted) {
-        setShadowComponents(currentValue);
-      }
-    }, 50);
-  };
-
   useEffect(() => {
     const el = comboboxRef.current?.element;
     if (!el) return;
+
+    const handleMenuClose = () => {
+      setTimeout(() => {
+        const target = comboboxRef.current?.element as ComboboxElement | null;
+        if (!target) return;
+
+        const currentValue = Array.isArray(target.value)
+          ? target.value.filter(Boolean)
+          : [];
+
+        const prevSorted = [...shadowComponents].sort().join(',');
+        const newSorted = [...currentValue].sort().join(',');
+
+        if (prevSorted !== newSorted) {
+          setShadowComponents(currentValue);
+        }
+      }, 50);
+    };
 
     const handleChange = (e: Event) => {
       const target = e.target as HTMLElement & { value?: string | string[] };
@@ -85,6 +85,7 @@ export function ShadowComponentEditor() {
       currentValue.every((v, i) => v === shadowComponents[i]);
 
     if (!isSame) {
+      // eslint-disable-next-line react-hooks/immutability -- imperative DOM property on web component ref
       el.value = shadowComponents;
       previousValueRef.current = shadowComponents;
     }
@@ -112,7 +113,6 @@ export function ShadowComponentEditor() {
         placeholder="Select components..."
         max-options-visible={8}
         className="shadow-component-editor__combobox"
-        onHide={handleMenuClose}
       >
         {SHADOW_CATEGORIES.map((category) => {
           const componentsInCategory = SHADOW_COMPONENTS.filter(

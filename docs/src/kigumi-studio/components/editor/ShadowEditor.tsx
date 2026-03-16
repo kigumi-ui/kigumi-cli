@@ -105,6 +105,7 @@ export function ShadowEditor() {
       currentValue.every((v, i) => v === shadowComponents[i]);
 
     if (!isSame) {
+      // eslint-disable-next-line react-hooks/immutability -- imperative DOM property on web component ref
       el.value = shadowComponents;
       previousValueRef.current = shadowComponents;
     }

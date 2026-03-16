@@ -79,15 +79,82 @@ function cloneDefaults(): Record<string, ThemeValue> {
   return clone;
 }
 
+function loadPersistedState(): PersistedState | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored) as PersistedState;
+    if (parsed.version !== STORAGE_VERSION) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function loadInitialValues(
+  persisted: PersistedState | null
+): Record<string, ThemeValue> {
+  const base = cloneDefaults();
+  if (!persisted?.modifiedProperties) return base;
+
+  const imported: Record<string, { light?: string; dark?: string }> = {};
+  for (const [cssVar, value] of Object.entries(
+    persisted.modifiedProperties.light
+  )) {
+    imported[cssVar] = { ...imported[cssVar], light: value };
+  }
+  for (const [cssVar, value] of Object.entries(
+    persisted.modifiedProperties.dark
+  )) {
+    imported[cssVar] = { ...imported[cssVar], dark: value };
+  }
+
+  for (const [cssVar, modes] of Object.entries(imported)) {
+    if (!base[cssVar]) continue;
+    const prop = PROPERTIES_BY_VAR.get(cssVar);
+    const suffix = prop?.unit;
+    const strip = (v: string | undefined): string | undefined => {
+      if (!v || !suffix) return v;
+      return v.endsWith(suffix) ? v.slice(0, -suffix.length) : v;
+    };
+    base[cssVar] = {
+      light: strip(modes.light) ?? base[cssVar].light,
+      dark: strip(modes.dark) ?? base[cssVar].dark,
+    };
+  }
+
+  return base;
+}
+
+// Cache persisted state at module level so it's read once (not on every render)
+let _persistedCache: PersistedState | null | undefined;
+function getPersistedOnce(): PersistedState | null {
+  if (_persistedCache === undefined) {
+    _persistedCache = loadPersistedState();
+  }
+  return _persistedCache;
+}
+
 export function StudioProvider({ children }: { children: ReactNode }) {
-  const [values, setValues] =
-    useState<Record<string, ThemeValue>>(cloneDefaults);
-  const [editMode, setEditMode] = useState<ThemeMode>('dark');
-  const [previewMode, setPreviewMode] = useState<ThemeMode>('dark');
-  const [shadowComponents, setShadowComponents] = useState<string[]>([]);
-  const [customCSS, setCustomCSS] = useState<string | null>(null);
-  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-  const hasLoadedFromStorage = useRef(false);
+  const [values, setValues] = useState<Record<string, ThemeValue>>(() =>
+    loadInitialValues(getPersistedOnce())
+  );
+  const [editMode, setEditMode] = useState<ThemeMode>(
+    () => getPersistedOnce()?.editMode ?? 'dark'
+  );
+  const [previewMode, setPreviewMode] = useState<ThemeMode>(
+    () => getPersistedOnce()?.previewMode ?? 'dark'
+  );
+  const [shadowComponents, setShadowComponents] = useState<string[]>(
+    () => getPersistedOnce()?.shadowComponents ?? []
+  );
+  const [customCSS, setCustomCSS] = useState<string | null>(
+    () => getPersistedOnce()?.customCSS ?? null
+  );
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(
+    () => getPersistedOnce()?.selectedPreset ?? null
+  );
+  const isFirstRender = useRef(true);
 
   const setProperty = useCallback(
     (cssVar: string, value: string) => {
@@ -271,65 +338,13 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     [values]
   );
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    if (hasLoadedFromStorage.current) return;
-    hasLoadedFromStorage.current = true;
-
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) return;
-
-      const parsed = JSON.parse(stored) as PersistedState;
-      if (parsed.version !== STORAGE_VERSION) return;
-
-      setEditMode(parsed.editMode);
-      setPreviewMode(parsed.previewMode);
-      setShadowComponents(parsed.shadowComponents ?? []);
-      setCustomCSS(parsed.customCSS ?? null);
-      setSelectedPreset(parsed.selectedPreset ?? null);
-
-      // Import modified properties
-      if (parsed.modifiedProperties) {
-        const imported: Record<string, { light?: string; dark?: string }> = {};
-        for (const [cssVar, value] of Object.entries(
-          parsed.modifiedProperties.light
-        )) {
-          imported[cssVar] = { ...imported[cssVar], light: value };
-        }
-        for (const [cssVar, value] of Object.entries(
-          parsed.modifiedProperties.dark
-        )) {
-          imported[cssVar] = { ...imported[cssVar], dark: value };
-        }
-        // Use setValues directly to avoid issues with importValues callback
-        setValues((prev) => {
-          const next = { ...prev };
-          for (const [cssVar, modes] of Object.entries(imported)) {
-            if (!next[cssVar]) continue;
-            const prop = PROPERTIES_BY_VAR.get(cssVar);
-            const suffix = prop?.unit;
-            const strip = (v: string | undefined): string | undefined => {
-              if (!v || !suffix) return v;
-              return v.endsWith(suffix) ? v.slice(0, -suffix.length) : v;
-            };
-            next[cssVar] = {
-              light: strip(modes.light) ?? next[cssVar].light,
-              dark: strip(modes.dark) ?? next[cssVar].dark,
-            };
-          }
-          return next;
-        });
-      }
-    } catch (err) {
-      console.warn('Failed to load theme from localStorage:', err);
-    }
-  }, []);
-
   // Save to localStorage on change (debounced)
   useEffect(() => {
-    // Skip initial render before loading from storage
-    if (!hasLoadedFromStorage.current) return;
+    // Skip the first render — state already matches localStorage
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
 
     const timeoutId = setTimeout(() => {
       try {
