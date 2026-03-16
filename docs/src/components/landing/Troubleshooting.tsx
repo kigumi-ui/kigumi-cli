@@ -9,7 +9,72 @@ export function Troubleshooting() {
         </h2>
 
         <div className="wa-stack wa-gap-m">
-          {/* Q1: Pro token 401 (CLI users) */}
+          {/* Q1: Doctor — NEW */}
+          <Details
+            name="faq"
+            appearance="outlined"
+            summary="Something looks broken? Run the doctor"
+          >
+            <div className="wa-stack wa-gap-m">
+              <p>
+                The <code>doctor</code> command checks your project for common
+                issues — wrong imports, missing components, version mismatches —
+                and offers to fix them automatically.
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi doctor</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi doctor" />
+                  </span>
+                </div>
+              </Card>
+              <p>
+                To preview what would be fixed without making changes, use the
+                dry-run flag:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi doctor --dry-run</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi doctor --dry-run" />
+                  </span>
+                </div>
+              </Card>
+            </div>
+          </Details>
+
+          {/* Q2: Pro token 401 (existing) */}
           <Details
             name="faq"
             appearance="outlined"
@@ -171,7 +236,50 @@ export function Troubleshooting() {
             </div>
           </Details>
 
-          {/* Q2: Import errors */}
+          {/* Q3: Config not found — NEW */}
+          <Details
+            name="faq"
+            appearance="outlined"
+            summary="Command fails with 'Configuration file not found'"
+          >
+            <div className="wa-stack wa-gap-m">
+              <p>
+                This error means Kigumi can't find{' '}
+                <code>kigumi-components.json</code> or <code>kigumi.json</code>{' '}
+                in your project. You need to initialize your project first:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi init</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi init" />
+                  </span>
+                </div>
+              </Card>
+              <p>
+                This will create the config file and set up your project
+                structure. After that, you can run <code>kigumi add</code> to
+                install components.
+              </p>
+            </div>
+          </Details>
+
+          {/* Q4: Import errors (existing) */}
           <Details
             name="faq"
             appearance="outlined"
@@ -237,7 +345,7 @@ export function Troubleshooting() {
             </div>
           </Details>
 
-          {/* Q3: Styles not loading */}
+          {/* Q5: Styles not loading (existing) */}
           <Details
             name="faq"
             appearance="outlined"
@@ -278,7 +386,199 @@ export function Troubleshooting() {
             </div>
           </Details>
 
-          {/* Q4: Package manager store/cache errors */}
+          {/* Q6: Tier restriction — NEW */}
+          <Details
+            name="faq"
+            appearance="outlined"
+            summary="Tried to add a component but got a tier restriction error"
+          >
+            <div className="wa-stack wa-gap-m">
+              <p>
+                Some components (like <code>toast</code>, <code>data-grid</code>
+                , <code>date-picker</code>) require Web Awesome Pro. If you see{' '}
+                <em>"Feature requires Pro tier"</em>, you need to set up your
+                Pro token:
+              </p>
+              <p>
+                <strong>
+                  1. Add your token to <code>.env</code>:
+                </strong>
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>WEBAWESOME_NPM_TOKEN=your_token_here</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="WEBAWESOME_NPM_TOKEN=your_token_here" />
+                  </span>
+                </div>
+              </Card>
+              <p>
+                <strong>2. Re-run the add command:</strong>
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi add toast</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi add toast" />
+                  </span>
+                </div>
+              </Card>
+              <p>
+                To see which components are available for your current tier,
+                run:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi list</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi list" />
+                  </span>
+                </div>
+              </Card>
+            </div>
+          </Details>
+
+          {/* Q7: Version mismatch — NEW */}
+          <Details
+            name="faq"
+            appearance="outlined"
+            summary="CLI version mismatch after update"
+          >
+            <div className="wa-stack wa-gap-m">
+              <p>
+                If you see <em>"CLI version does not match project version"</em>
+                , your CLI and project config are out of sync. You have two
+                options:
+              </p>
+              <p>
+                <strong>Option 1: Upgrade your project to match the CLI</strong>
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi upgrade</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi upgrade" />
+                  </span>
+                </div>
+              </Card>
+              <p>Preview what would change without modifying anything:</p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi upgrade --dry-run</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi upgrade --dry-run" />
+                  </span>
+                </div>
+              </Card>
+              <p>
+                <strong>Option 2: Pin the CLI to your project's version</strong>
+              </p>
+              <p>
+                If you're not ready to upgrade, use the version that matches
+                your config:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi@YOUR_CONFIG_VERSION add button</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi@YOUR_CONFIG_VERSION add button" />
+                  </span>
+                </div>
+              </Card>
+            </div>
+          </Details>
+
+          {/* Q8: Package manager store/cache errors (existing + Bun) */}
           <Details
             name="faq"
             appearance="outlined"
@@ -374,6 +674,171 @@ export function Troubleshooting() {
                   </span>
                 </div>
               </Card>
+
+              <p>
+                <strong>bun:</strong>
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>rm -rf node_modules bun.lockb && bun install</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="rm -rf node_modules bun.lockb && bun install" />
+                  </span>
+                </div>
+              </Card>
+            </div>
+          </Details>
+
+          {/* Q9: TypeScript errors on wa-* elements — NEW */}
+          <Details
+            name="faq"
+            appearance="outlined"
+            summary="TypeScript errors on wa-* elements"
+          >
+            <div className="wa-stack wa-gap-m">
+              <p>
+                If you see{' '}
+                <em>
+                  "Property 'wa-button' does not exist on type
+                  'JSX.IntrinsicElements'"
+                </em>
+                , the type declarations for Web Awesome components are missing.
+                Re-add the component to regenerate them:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi add button</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi add button" />
+                  </span>
+                </div>
+              </Card>
+              <p>
+                Also verify that <code>src/types/web-awesome.d.ts</code> is
+                included in your <code>tsconfig.json</code>:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>{`"include": ["src"]`}</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value='"include": ["src"]' />
+                  </span>
+                </div>
+              </Card>
+            </div>
+          </Details>
+
+          {/* Q10: Customizations overwritten — NEW */}
+          <Details
+            name="faq"
+            appearance="outlined"
+            summary="My customizations got overwritten by kigumi add"
+          >
+            <div className="wa-stack wa-gap-m">
+              <p>
+                If you've customized a generated component and then ran{' '}
+                <code>kigumi add --overwrite</code>, your changes may have been
+                replaced. Before overwriting, use <code>kigumi diff</code> to
+                preview what would change:
+              </p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi diff button</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi diff button" />
+                  </span>
+                </div>
+              </Card>
+              <p>For a detailed line-by-line comparison:</p>
+              <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <div
+                  className="wa-flank:end wa-align-items-center wa-gap-xs"
+                  style={{ position: 'relative' }}
+                >
+                  <pre>
+                    <code>npx kigumi diff --verbose</code>
+                  </pre>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      right: 'var(--wa-space-xs)',
+                      top: '0',
+                      bottom: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CopyButton value="npx kigumi diff --verbose" />
+                  </span>
+                </div>
+              </Card>
+              <p>
+                <strong>Tip:</strong> Back up your changes before running{' '}
+                <code>--overwrite</code>. We're working on a smarter merge flow
+                — for now, <code>kigumi diff</code> is the best way to check
+                before you overwrite.
+              </p>
             </div>
           </Details>
         </div>
