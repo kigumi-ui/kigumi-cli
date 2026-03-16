@@ -29,99 +29,154 @@ import stacks from '@/assets/stacks.png';
         </div>
         <div className="wa-stack wa-align-items-stretch wa-gap-l">
           <h3 className="wa-heading-xl">General</h3>
-          <div className="wa-grid wa-gap-l" style={{ '--wa-grid-min-column-size': '200px' }}>
+          <div
+            className="wa-grid wa-gap-l"
+            style={{ '--min-column-size': '300px' }}
+          >
             <LinkTo kind="General / Getting Started" story="docs">
               <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Getting started
-                </h3>
-                Learn how to set up your first project with Kigumi.
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Getting started
+                  </h3>
+                </span>
+                  Learn how to set up your first project with Kigumi.
               </Card>
             </LinkTo>
             <LinkTo kind="Components / Overview" story="docs">
               <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Components
-                </h3>
-                Learn about the components available in Kigumi.
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Components
+                  </h3>
+                </span>
+                  Learn about the components available in Kigumi.
               </Card>
             </LinkTo>
             <a href="/kigumi-studio" target="_blank" rel="noopener noreferrer">
               <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Kigumi Studio
-                </h3>
-                Customize your theme and components visually.
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Kigumi Studio
+                  </h3>
+                </span>
+                  Customize your theme and components visually.
               </Card>
             </a>
+            <LinkTo kind="General / Roadmap" story="docs">
+              <Card>
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Roadmap
+                  </h3>
+                  <Badge variant="danger">New</Badge>
+                </span>
+                  See what's planned and in progress for Kigumi.
+              </Card>
+            </LinkTo>
             <LinkTo kind="General / Changelog" story="docs">
               <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Changelog
-                </h3>
-                View the changelog for Kigumi.
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Changelog
+                  </h3>
+                </span>
+                  View the changelog for Kigumi.
               </Card>
             </LinkTo>
           </div>
         </div>
         <div className="wa-stack wa-align-items-stretch wa-gap-l">
           <h3 className="wa-heading-xl">Guides</h3>
-          <div className="wa-grid wa-gap-l" style={{ '--wa-grid-min-column-size': '200px' }}>
+          <div
+            className="wa-grid wa-gap-l"
+            style={{ '--min-column-size': '300px' }}
+          >
             <LinkTo kind="Guides / Customize" story="docs">
               <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Customize
-                </h3>
-                Learn how to work with themes, design tokens, and visual presets.
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Customize
+                  </h3>
+                </span>
+                  Learn how to work with themes, design tokens, and visual
+                presets.
+              </Card>
+            </LinkTo>
+            <LinkTo kind="Guides / Updating Components" story="docs">
+              <Card>
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Updating Components
+                  </h3>
+                  <Badge variant="danger">New</Badge>
+                </span>
+                  Keep your components up to date with three-way merge.
               </Card>
             </LinkTo>
             <LinkTo kind="Guides / Community Registries" story="docs">
               <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Community Registries <Badge variant="danger">New</Badge>
-                </h3>
-                Install and publish custom components and themes via GitHub.
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Community Registries
+                  </h3>
+                  <Badge variant="danger">New</Badge>
+                </span>
+                  Install and publish custom components and themes via GitHub.
               </Card>
             </LinkTo>
             <LinkTo kind="Guides / Monorepo Setup" story="docs">
               <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Monorepo Setup <Badge variant="danger">New</Badge>
-                </h3>
-                Kigumi can run across multiple workspaces with shared themes. Learn how to set it up.
+                <span className="wa-flank:end wa-gap-m" slot="header">
+                  <h3
+                    className="wa-heading-l"
+                    style={{ margin: 0 }}
+
+                  >
+                    Monorepo Setup
+                  </h3>
+                  <Badge variant="danger">New</Badge>
+                </span>
+                  Kigumi can run across multiple workspaces with shared themes.
+                Learn how to set it up.
               </Card>
             </LinkTo>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </Unstyled>
