@@ -46,6 +46,9 @@ node dist/index.js add button --overwrite
 | `src/commands/status.ts` | Project status (`--json` supported) |
 | `src/commands/upgrade.ts` | Upgrade guide + version pin update |
 | `src/commands/diff.ts` | Compare installed components vs current templates |
+| `src/commands/update.ts` | Three-way merge update for installed components |
+| `src/utils/snapshot.ts` | Snapshot CRUD for `.kigumi/snapshots/` |
+| `src/utils/three-way-merge.ts` | Three-way merge logic using `node-diff3` |
 | `src/utils/version-check.ts` | CLI vs project version compatibility check |
 | `src/utils/version-map.ts` | Version history + breaking changes data |
 | `src/utils/github-fetcher.ts` | GitHub API integration for registries |
@@ -303,6 +306,7 @@ flowchart TD
         registry_cmd["registry/\ninit, validate, connect\nlist, remove"]
         upgrade["upgrade.ts"]
         diff["diff.ts"]
+        update["update.ts"]
     end
 
     subgraph Frameworks["frameworks/"]
@@ -322,6 +326,8 @@ flowchart TD
         detect_fw["detect-framework.ts\ngetProjectInfo"]
         token_mgr["token-manager.ts"]
         regenerate["regenerate.ts"]
+        snapshot["snapshot.ts\n.kigumi/snapshots/ CRUD"]
+        merge["three-way-merge.ts\nnode-diff3 merge logic"]
         github_fetcher["github-fetcher.ts\nURL parsing, raw fetch"]
         github_token["github-token.ts\nPAT resolution"]
         registry_cache["registry-cache.ts\nDisk cache with TTL"]
@@ -383,6 +389,13 @@ flowchart TD
     diff --> config
     diff --> template
     diff --> registry
+    diff --> snapshot
+    update --> config
+    update --> template
+    update --> registry
+    update --> snapshot
+    update --> merge
+    add --> snapshot
     add --> version_check
 
     FW_INDEX --> react & vue & angular & svelte
@@ -975,4 +988,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-03-13
+**Maintained by:** AI Assistants | **Last Updated:** 2026-03-16

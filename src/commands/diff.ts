@@ -22,6 +22,7 @@ import {
   generateComponentCSSContent,
   generateComponentTestContent,
 } from '../utils/template.js';
+import { loadSnapshot } from '../utils/snapshot.js';
 import type { KigumiConfig } from '../schemas/config.js';
 import type { ComponentDefinition } from '../utils/registry.js';
 
@@ -38,7 +39,12 @@ interface ComponentDiffResult {
 
 interface FileDiffResult {
   fileName: string;
-  status: 'unchanged' | 'template-changed' | 'locally-modified' | 'missing';
+  status:
+    | 'unchanged'
+    | 'template-changed'
+    | 'locally-modified'
+    | 'both-changed'
+    | 'missing';
 }
 
 /**
@@ -82,6 +88,7 @@ export async function diffCommand(
     // 4. Display results
     let templateChangedCount = 0;
     let locallyModifiedCount = 0;
+    let bothChangedCount = 0;
 
     for (const result of results) {
       const versionInfo = result.installedVersion
@@ -98,6 +105,9 @@ export async function diffCommand(
           case 'locally-modified':
             locallyModifiedCount++;
             return `    ${pc.blue('*')} ${f.fileName} — ${pc.blue('locally modified')}`;
+          case 'both-changed':
+            bothChangedCount++;
+            return `    ${pc.magenta('⚡')} ${f.fileName} — ${pc.magenta('both changed')}`;
           case 'missing':
             return `    ${pc.dim('-')} ${f.fileName} — not found`;
         }
@@ -124,7 +134,16 @@ export async function diffCommand(
         `  ${pc.blue(`${locallyModifiedCount} file(s) with local modifications`)}`
       );
     }
-    if (templateChangedCount === 0 && locallyModifiedCount === 0) {
+    if (bothChangedCount > 0) {
+      output.info(
+        `  ${pc.magenta(`${bothChangedCount} file(s) with both local and template changes`)}`
+      );
+    }
+    if (
+      templateChangedCount === 0 &&
+      locallyModifiedCount === 0 &&
+      bothChangedCount === 0
+    ) {
       output.success('All components are up to date.');
     }
 
@@ -198,6 +217,9 @@ async function diffComponentFiles(
   const componentDir = path.join(cwd, config.componentsDir, component.name);
   const results: FileDiffResult[] = [];
 
+  // Load snapshot for three-way classification
+  const snapshot = await loadSnapshot(cwd, component.name);
+
   // Component file
   const ext =
     config.framework === 'vue'
@@ -216,8 +238,14 @@ async function diffComponentFiles(
       config,
       config.typescript
     );
+    const snapshotContent = snapshot?.[componentFileName] ?? null;
     results.push(
-      await compareFile(componentFilePath, componentFileName, generatedContent)
+      await compareFile(
+        componentFilePath,
+        componentFileName,
+        generatedContent,
+        snapshotContent
+      )
     );
   } catch (_error) {
     results.push({ fileName: componentFileName, status: 'missing' });
@@ -228,7 +256,10 @@ async function diffComponentFiles(
   const cssFilePath = path.join(componentDir, cssFileName);
   try {
     const generatedCSS = await generateComponentCSSContent(component, config);
-    results.push(await compareFile(cssFilePath, cssFileName, generatedCSS));
+    const snapshotContent = snapshot?.[cssFileName] ?? null;
+    results.push(
+      await compareFile(cssFilePath, cssFileName, generatedCSS, snapshotContent)
+    );
   } catch (_error) {
     results.push({ fileName: cssFileName, status: 'missing' });
   }
@@ -246,7 +277,15 @@ async function diffComponentFiles(
   const testFilePath = path.join(componentDir, testFileName);
   try {
     const generatedTest = await generateComponentTestContent(component, config);
-    results.push(await compareFile(testFilePath, testFileName, generatedTest));
+    const snapshotContent = snapshot?.[testFileName] ?? null;
+    results.push(
+      await compareFile(
+        testFilePath,
+        testFileName,
+        generatedTest,
+        snapshotContent
+      )
+    );
   } catch (_error) {
     results.push({ fileName: testFileName, status: 'missing' });
   }
@@ -256,25 +295,48 @@ async function diffComponentFiles(
 
 /**
  * Compare a single file against its generated content.
+ *
+ * When a snapshot is available, classifies changes more precisely:
+ * - base === ours, base !== theirs → template-changed (upstream update)
+ * - base !== ours, base === theirs → locally-modified (user edit)
+ * - all three differ → both-changed
  */
 async function compareFile(
   filePath: string,
   fileName: string,
-  generatedContent: string
+  generatedContent: string,
+  snapshotContent: string | null = null
 ): Promise<FileDiffResult> {
   if (!(await fs.pathExists(filePath))) {
     return { fileName, status: 'missing' };
   }
 
   const existingContent = await fs.readFile(filePath, 'utf-8');
-  const isIdentical = existingContent.trim() === generatedContent.trim();
+  const existingTrimmed = existingContent.trim();
+  const generatedTrimmed = generatedContent.trim();
 
-  if (isIdentical) {
+  if (existingTrimmed === generatedTrimmed) {
     return { fileName, status: 'unchanged' };
   }
 
-  // Content differs — could be local modification or template change
-  // We can't distinguish without knowing the old template output,
-  // so we report it as "template-changed" (most useful for the user)
+  // With snapshot, we can classify precisely
+  if (snapshotContent !== null) {
+    const baseTrimmed = snapshotContent.trim();
+
+    // base === ours, template changed → template-changed
+    if (baseTrimmed === existingTrimmed) {
+      return { fileName, status: 'template-changed' };
+    }
+
+    // base === theirs, user edited → locally-modified
+    if (baseTrimmed === generatedTrimmed) {
+      return { fileName, status: 'locally-modified' };
+    }
+
+    // All three differ → both-changed
+    return { fileName, status: 'both-changed' };
+  }
+
+  // No snapshot — fall back to previous behavior
   return { fileName, status: 'template-changed' };
 }

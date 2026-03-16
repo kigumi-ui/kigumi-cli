@@ -35,7 +35,8 @@ src/
 │   ├── status.ts         # Project status (supports --json)
 │   ├── list.ts            # List all available components (supports --json)
 │   ├── upgrade.ts        # Version upgrade guide + config update
-│   ├── diff.ts           # Compare components against current templates
+│   ├── diff.ts           # Compare components against current templates (snapshot-aware)
+│   ├── update.ts         # Three-way merge update for installed components
 │   └── ...
 ├── utils/                # Business logic
 │   ├── registry.ts       # Component definitions (SOURCE OF TRUTH)
@@ -47,6 +48,8 @@ src/
 │   ├── json.ts           # JSON with comments support
 │   ├── github-fetcher.ts # GitHub URL parsing + raw content fetch
 │   ├── file-diff.ts      # Detect local modifications before overwriting
+│   ├── snapshot.ts       # Snapshot CRUD for .kigumi/snapshots/ (three-way merge base)
+│   ├── three-way-merge.ts # Three-way merge logic using node-diff3
 │   ├── version-check.ts  # CLI vs project version compatibility check
 │   ├── version-map.ts    # Version history + breaking changes data
 │   ├── registry-cache.ts # Disk cache for registry data (~/.kigumi/cache)
@@ -364,4 +367,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-03-13
+**Last Updated:** 2026-03-16

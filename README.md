@@ -162,6 +162,25 @@ npx kigumi diff button card    # Diff specific components
 
 Useful before running `--overwrite` to understand which files have local modifications.
 
+### `update` — Smart Component Updates
+
+Three-way merge: applies template updates while preserving your local edits.
+
+```bash
+npx kigumi update              # Update all installed components
+npx kigumi update button dialog # Update specific components
+npx kigumi update --dry-run     # Preview changes without writing
+npx kigumi update --force       # Overwrite without merge
+```
+
+When you update Kigumi CLI and templates change, `update` compares three versions:
+
+- **Base**: The original template output (stored in `.kigumi/snapshots/`)
+- **Yours**: Your current file with local customizations
+- **Theirs**: The freshly generated template from the new CLI version
+
+If both you and the template changed the same lines, conflict markers are inserted for manual resolution.
+
 ### Version Pinning
 
 Kigumi tracks which CLI version generated your project in `kigumi.config.json`. This ensures you stay on a compatible version and don't accidentally upgrade Web Awesome.

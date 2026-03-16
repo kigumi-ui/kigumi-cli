@@ -52,12 +52,6 @@ const items: Record<Status, RoadmapItem[]> = {
   ],
   planned: [
     {
-      title: 'Smart component updates',
-      description:
-        'Three-way merge that preserves your edits when templates update. Never lose local changes again.',
-      category: 'cli',
-    },
-    {
       title: 'Visual component composition',
       description:
         'Pre-built page patterns like login forms and data explorers that wire together components with layout, state, and a11y.',
@@ -113,6 +107,12 @@ const items: Record<Status, RoadmapItem[]> = {
     },
   ],
   'in-progress': [
+    {
+      title: 'Smart component updates',
+      description:
+        'Three-way merge that preserves your edits when templates update. Never lose local changes again.',
+      category: 'cli',
+    },
     {
       title: 'Kigumi Studio',
       description: 'Visual theme editor for customizing design tokens.',

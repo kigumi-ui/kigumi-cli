@@ -74,6 +74,18 @@ export const brandOptionsSchema = z.object({
 export type BrandOptions = z.infer<typeof brandOptionsSchema>;
 
 /**
+ * Update command options schema
+ */
+export const updateOptionsSchema = z.object({
+  dryRun: z.boolean().optional().default(false),
+  force: z.boolean().optional().default(false),
+  yes: z.boolean().optional(),
+  cwd: z.string().optional(),
+});
+
+export type UpdateOptions = z.infer<typeof updateOptionsSchema>;
+
+/**
  * List command options schema
  */
 export const listOptionsSchema = z.object({
@@ -124,4 +136,5 @@ export const validators = {
   palette: (options: unknown) => validateOptions(paletteOptionsSchema, options),
   brand: (options: unknown) => validateOptions(brandOptionsSchema, options),
   list: (options: unknown) => validateOptions(listOptionsSchema, options),
+  update: (options: unknown) => validateOptions(updateOptionsSchema, options),
 } as const;
