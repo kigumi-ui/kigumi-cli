@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+    secrets: inherit
 
   release:
     name: Release
