@@ -14,7 +14,7 @@ import { CompatibilityInfo } from '@/components/landing/CompatibilityInfo';
 import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
 import stacks from '@/assets/stacks.png';
 
-<Meta title="Kigumi / Welcome" />
+<Meta title="General / Welcome" />
 
 <Unstyled>
   <div slot="main-header" className="wa-stack wa-gap-4xl">
@@ -28,9 +28,9 @@ import stacks from '@/assets/stacks.png';
           </h2>
         </div>
         <div className="wa-stack wa-align-items-stretch wa-gap-l">
-          <h3 className="wa-heading-xl">Topics</h3>
-          <div className="wa-grid wa-grid-cols-3 wa-gap-l">
-            <LinkTo kind="Kigumi / Getting Started" story="docs">
+          <h3 className="wa-heading-xl">General</h3>
+          <div className="wa-grid wa-gap-l" style={{ '--wa-grid-min-column-size': '200px' }}>
+            <LinkTo kind="General / Getting Started" story="docs">
               <Card>
                 <h3
                   className="wa-heading-l"
@@ -42,30 +42,6 @@ import stacks from '@/assets/stacks.png';
                 Learn how to set up your first project with Kigumi.
               </Card>
             </LinkTo>
-            <LinkTo kind="Kigumi / Customize" story="docs">
-              <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Customize
-                </h3>
-                Themes, design tokens, and community registries.
-              </Card>
-            </LinkTo>
-            <a href="/kigumi-studio" target="_blank" rel="noopener noreferrer">
-              <Card>
-                <h3
-                  className="wa-heading-l"
-                  style={{ margin: 0 }}
-                  slot="header"
-                >
-                  Kigumi Studio
-                </h3>
-                Customize your theme and components with Kigumi Studio.
-              </Card>
-            </a>
             <LinkTo kind="Components / Overview" story="docs">
               <Card>
                 <h3
@@ -78,7 +54,19 @@ import stacks from '@/assets/stacks.png';
                 Learn about the components available in Kigumi.
               </Card>
             </LinkTo>
-            <LinkTo kind="Kigumi / Changelog" story="docs">
+            <a href="/kigumi-studio" target="_blank" rel="noopener noreferrer">
+              <Card>
+                <h3
+                  className="wa-heading-l"
+                  style={{ margin: 0 }}
+                  slot="header"
+                >
+                  Kigumi Studio
+                </h3>
+                Customize your theme and components visually.
+              </Card>
+            </a>
+            <LinkTo kind="General / Changelog" story="docs">
               <Card>
                 <h3
                   className="wa-heading-l"
@@ -88,6 +76,47 @@ import stacks from '@/assets/stacks.png';
                   Changelog
                 </h3>
                 View the changelog for Kigumi.
+              </Card>
+            </LinkTo>
+          </div>
+        </div>
+        <div className="wa-stack wa-align-items-stretch wa-gap-l">
+          <h3 className="wa-heading-xl">Guides</h3>
+          <div className="wa-grid wa-gap-l" style={{ '--wa-grid-min-column-size': '200px' }}>
+            <LinkTo kind="Guides / Customize" story="docs">
+              <Card>
+                <h3
+                  className="wa-heading-l"
+                  style={{ margin: 0 }}
+                  slot="header"
+                >
+                  Customize
+                </h3>
+                Themes, design tokens, and visual presets.
+              </Card>
+            </LinkTo>
+            <LinkTo kind="Guides / Community Registries" story="docs">
+              <Card>
+                <h3
+                  className="wa-heading-l"
+                  style={{ margin: 0 }}
+                  slot="header"
+                >
+                  Community Registries
+                </h3>
+                Share and install components and themes via GitHub.
+              </Card>
+            </LinkTo>
+            <LinkTo kind="Guides / Monorepo Setup" story="docs">
+              <Card>
+                <h3
+                  className="wa-heading-l"
+                  style={{ margin: 0 }}
+                  slot="header"
+                >
+                  Monorepo Setup
+                </h3>
+                Run Kigumi across multiple workspaces with shared themes.
               </Card>
             </LinkTo>
           </div>
