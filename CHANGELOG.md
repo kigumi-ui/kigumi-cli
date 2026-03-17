@@ -1,5 +1,13 @@
 # kigumi
 
+## 0.17.0
+
+### Minor Changes
+
+- ### Bug Fixes
+  - **fix(init)**: Preserve `installedComponents` when re-running `kigumi init`, preventing config from being wiped on re-initialization
+  - **fix(upgrade)**: Auto-install components listed in config during `kigumi upgrade` if they are missing from the project
+
 ## 0.16.0
 
 ### Minor Changes
