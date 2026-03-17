@@ -74,11 +74,36 @@ function ensureBoolean(value: unknown): boolean {
  * Build configuration non-interactively from options
  * NOTE: Tier is now detected from .env, not stored in config
  */
+/**
+ * Copy persistent fields from existing config to new config.
+ * These fields are managed by other commands (add, theme) and must survive re-init.
+ */
+function preservePersistentFields(
+  config: KigumiConfig,
+  existingConfig?: KigumiConfig | null
+): void {
+  if (!existingConfig) return;
+
+  if (existingConfig.installedComponents?.length) {
+    config.installedComponents = existingConfig.installedComponents;
+  }
+  if (existingConfig.registries?.length) {
+    config.registries = existingConfig.registries;
+  }
+  if (
+    existingConfig.installedThemes &&
+    Object.keys(existingConfig.installedThemes).length > 0
+  ) {
+    config.installedThemes = existingConfig.installedThemes;
+  }
+}
+
 export async function buildConfigNonInteractive(
   options: InitOptions,
   projectInfo: ProjectInfo,
   cwd: string,
-  output: OutputInterface
+  output: OutputInterface,
+  existingConfig?: KigumiConfig | null
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
   // Framework selection
   const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue'];
@@ -145,6 +170,8 @@ export async function buildConfigNonInteractive(
       version: DEFAULT_CONFIG.webAwesome?.version,
     },
   };
+
+  preservePersistentFields(config, existingConfig);
 
   return { config, proToken };
 }
@@ -372,6 +399,8 @@ export async function buildConfigInteractive(
       version: DEFAULT_CONFIG.webAwesome?.version,
     },
   };
+
+  preservePersistentFields(config, existingConfig);
 
   return { config, proToken };
 }

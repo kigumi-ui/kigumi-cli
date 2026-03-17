@@ -44,7 +44,7 @@ node dist/index.js add button --overwrite
 | `src/commands/theme/show.ts` | Show current theme details |
 | `src/commands/list.ts` | List all available components (`--json` supported) |
 | `src/commands/status.ts` | Project status (`--json` supported) |
-| `src/commands/upgrade.ts` | Upgrade guide + version pin update |
+| `src/commands/upgrade.ts` | Version upgrade + dependency installation |
 | `src/commands/diff.ts` | Compare installed components vs current templates |
 | `src/commands/update.ts` | Three-way merge update for installed components |
 | `src/utils/snapshot.ts` | Snapshot CRUD for `.kigumi/snapshots/` |

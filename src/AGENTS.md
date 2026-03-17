@@ -34,7 +34,7 @@ src/
 │   ├── doctor.ts         # Diagnose/fix imports + version alignment
 │   ├── status.ts         # Project status (supports --json)
 │   ├── list.ts            # List all available components (supports --json)
-│   ├── upgrade.ts        # Version upgrade guide + config update
+│   ├── upgrade.ts        # Version upgrade + dependency installation
 │   ├── diff.ts           # Compare components against current templates (snapshot-aware)
 │   ├── update.ts         # Three-way merge update for installed components
 │   └── ...
