@@ -1,11 +1,9 @@
 /**
  * Upgrade Command
  *
- * PURPOSE: Shows an upgrade guide when the project's pinned kigumiVersion
- * differs from the running CLI version. Updates config to pin the new version.
- *
- * Phase 1: Display-only upgrade guide with breaking changes and affected components.
- * Phase 2 (future): Automatic codemods via --apply flag.
+ * PURPOSE: Upgrades a kigumi project to the running CLI version.
+ * Updates config, installs the matching Web Awesome version, and shows
+ * breaking changes with migration guides.
  *
  * @public
  */
@@ -21,11 +19,15 @@ import {
   getBreakingChangesBetween,
   getVersionsBetween,
 } from '../utils/version-map.js';
+import { getProjectInfo } from '../utils/detect-framework.js';
+import { detectTier } from '../utils/tier.js';
+import { installDependencies } from './init/installer.js';
 
 interface UpgradeOptions {
   cwd?: string;
   dryRun?: boolean;
   yes?: boolean;
+  install?: boolean;
 }
 
 /**
@@ -125,57 +127,67 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
       output.success('No breaking changes between these versions.');
     }
 
-    // 8. Show recommended actions
-    output.info('');
-    output.info(pc.bold('Recommended actions:'));
-    if (toEntry && fromEntry?.webAwesomeVersion !== toEntry.webAwesomeVersion) {
-      output.info(
-        `  1. Update Web Awesome: npm install @awesome.me/webawesome@${toEntry.webAwesomeVersion}`
-      );
-      output.info(
-        '  2. Regenerate affected components: npx kigumi add <component> --overwrite'
-      );
-      output.info('  3. Update project version (this command)');
-    } else {
-      output.info(
-        '  1. Regenerate affected components: npx kigumi add <component> --overwrite'
-      );
-      output.info('  2. Update project version (this command)');
-    }
+    // 8. Dry run: show what would happen and exit
+    const waVersionChanged =
+      toEntry && fromEntry?.webAwesomeVersion !== toEntry.webAwesomeVersion;
 
-    // 9. Update config version
     if (options.dryRun) {
       output.info('');
       output.info(
         `Dry run: would update kigumiVersion from ${projectVersion} to ${CLI_VERSION}`
       );
+      if (waVersionChanged) {
+        output.info(
+          `Dry run: would install Web Awesome ${toEntry.webAwesomeVersion}`
+        );
+      }
       output.outro('Dry run complete');
       return;
     }
 
+    // 9. Confirm and apply upgrade
     output.info('');
     const shouldUpgrade = options.yes
       ? true
-      : await promptConfirm(`Update kigumiVersion to ${CLI_VERSION}?`);
+      : await promptConfirm(`Upgrade to kigumi@${CLI_VERSION}?`);
 
-    if (shouldUpgrade) {
-      config.kigumiVersion = CLI_VERSION;
-      if (toEntry) {
-        config.webAwesome = config.webAwesome || {};
-        config.webAwesome.version = toEntry.webAwesomeVersion;
-      }
-      await saveConfig(config, cwd);
-      output.success(`Updated kigumiVersion to ${CLI_VERSION}`);
-
-      output.info('');
-      output.note(
-        'Next steps',
-        'Component files are not automatically regenerated.\n' +
-          'Run "npx kigumi add <component> --overwrite" to update specific components.'
-      );
+    if (!shouldUpgrade) {
+      output.outro('Upgrade cancelled');
+      return;
     }
 
-    output.outro('Upgrade guide complete');
+    // 9a. Update config
+    config.kigumiVersion = CLI_VERSION;
+    if (toEntry) {
+      config.webAwesome = config.webAwesome || {};
+      config.webAwesome.version = toEntry.webAwesomeVersion;
+    }
+    await saveConfig(config, cwd);
+    output.success(`Updated kigumiVersion to ${CLI_VERSION}`);
+
+    // 9b. Install updated Web Awesome package
+    if (waVersionChanged && options.install !== false) {
+      const projectInfo = await getProjectInfo(cwd);
+      const tier = await detectTier(cwd);
+
+      await installDependencies({
+        cwd,
+        config,
+        tier,
+        packageManager: projectInfo.packageManager,
+        output,
+      });
+    }
+
+    // 10. Show next steps
+    output.info('');
+    output.note(
+      'Next steps',
+      'Component files are not automatically regenerated.\n' +
+        'Run "npx kigumi add <component> --overwrite" to update specific components.'
+    );
+
+    output.outro('Upgrade complete');
   } catch (error) {
     handleError(error, output);
   }

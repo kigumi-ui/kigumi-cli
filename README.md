@@ -137,19 +137,20 @@ npx kigumi status --json     # Machine-readable JSON output
 
 ### `upgrade`
 
-When a new version of Kigumi CLI is released, see what changed and update your project:
+When a new version of Kigumi CLI is released, upgrade your project in one step:
 
 ```bash
-npx kigumi upgrade             # Show upgrade guide and update version
-npx kigumi upgrade --dry-run   # Preview changes without modifying config
+npx kigumi upgrade               # Upgrade version + install updated dependencies
+npx kigumi upgrade --dry-run     # Preview changes without modifying anything
+npx kigumi upgrade --no-install  # Update config only, skip dependency installation
 ```
 
-The upgrade command shows:
+The upgrade command:
 
-- **Version comparison** — your pinned version vs. the CLI version
-- **Web Awesome version changes** — whether the underlying WA dependency changed
-- **Breaking changes** — what changed and how to migrate
-- **Recommended actions** — step-by-step instructions
+- **Compares versions** — your pinned version vs. the CLI version
+- **Shows breaking changes** — what changed and how to migrate
+- **Updates config** — pins the new version and Web Awesome version
+- **Installs dependencies** — automatically updates the Web Awesome package when the version changed
 
 ### `diff`
 

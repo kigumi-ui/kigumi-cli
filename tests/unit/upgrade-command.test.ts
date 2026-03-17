@@ -105,6 +105,21 @@ vi.mock('../../src/utils/tier.js', () => ({
   getProToken: vi.fn().mockResolvedValue(null),
 }));
 
+// Mock dependency installer
+vi.mock('../../src/commands/init/installer.js', () => ({
+  installDependencies: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Mock framework detection
+vi.mock('../../src/utils/detect-framework.js', () => ({
+  getProjectInfo: vi.fn().mockResolvedValue({
+    framework: 'react',
+    typescript: true,
+    packageManager: 'pnpm',
+    monorepo: false,
+  }),
+}));
+
 const baseConfig = {
   framework: 'react',
   typescript: true,
@@ -285,5 +300,75 @@ describe('upgrade command', () => {
     expect(mockOutput.info).toHaveBeenCalledWith(
       expect.stringContaining('Rename header slot to card-header')
     );
+  });
+
+  it('should install dependencies when WA version changed', async () => {
+    await createConfig({ kigumiVersion: '0.10.0' });
+
+    const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+    const { installDependencies } =
+      await import('../../src/commands/init/installer.js');
+
+    await upgradeCommand({ cwd: testDir, yes: true });
+
+    // WA version changes from ^3.2.1 to ^3.4.0, so install should be called
+    expect(installDependencies).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cwd: testDir,
+        tier: 'free',
+        packageManager: 'pnpm',
+      })
+    );
+  });
+
+  it('should skip install when --no-install is passed', async () => {
+    await createConfig({ kigumiVersion: '0.10.0' });
+
+    const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+    const { installDependencies } =
+      await import('../../src/commands/init/installer.js');
+
+    await upgradeCommand({ cwd: testDir, yes: true, install: false });
+
+    expect(installDependencies).not.toHaveBeenCalled();
+
+    // Config should still be updated
+    const savedConfig = await fs.readJSON(
+      path.join(testDir, 'kigumi.config.json')
+    );
+    expect(savedConfig.kigumiVersion).toBe('0.13.0');
+  });
+
+  it('should not install when WA version unchanged', async () => {
+    await createConfig({ kigumiVersion: '0.12.0' });
+
+    // 0.12.0 and 0.13.0 both use same mock return, but let's set them to same WA version
+    const versionMap = await import('../../src/utils/version-map.js');
+    vi.mocked(versionMap.getVersionEntry).mockImplementation((v: string) => {
+      if (v === '0.12.0')
+        return {
+          kigumiVersion: '0.12.0',
+          webAwesomeVersion: '^3.4.0',
+          releasedAt: '2026-03-01',
+          breakingChanges: [],
+        };
+      if (v === '0.13.0')
+        return {
+          kigumiVersion: '0.13.0',
+          webAwesomeVersion: '^3.4.0',
+          releasedAt: '2026-03-15',
+          breakingChanges: [],
+        };
+      return undefined;
+    });
+
+    const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+    const { installDependencies } =
+      await import('../../src/commands/init/installer.js');
+
+    await upgradeCommand({ cwd: testDir, yes: true });
+
+    // Same WA version, no install needed
+    expect(installDependencies).not.toHaveBeenCalled();
   });
 });

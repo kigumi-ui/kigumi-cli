@@ -68,10 +68,11 @@ describe('handleExistingConfig', () => {
 
   /**
    * Write a valid kigumi config file.
-   * Uses kigumi-components.json because that's what handleExistingConfig checks.
+   * Uses kigumi.config.json (the canonical name used by saveConfig).
    */
   async function writeKigumiConfig(
-    overrides: Record<string, unknown> = {}
+    overrides: Record<string, unknown> = {},
+    filename = 'kigumi.config.json'
   ): Promise<void> {
     const config = {
       framework: 'react',
@@ -84,7 +85,7 @@ describe('handleExistingConfig', () => {
       },
       ...overrides,
     };
-    await fs.writeJSON(path.join(tempDir, 'kigumi-components.json'), config);
+    await fs.writeJSON(path.join(tempDir, filename), config);
   }
 
   describe('when no config exists', () => {
@@ -286,7 +287,7 @@ describe('handleExistingConfig', () => {
     it('should return null when config file exists but cannot be loaded', async () => {
       // Write invalid JSON to the config path
       // Use content that cosmiconfig can parse as JSON but produces an empty/falsy result
-      await fs.writeFile(path.join(tempDir, 'kigumi-components.json'), 'null');
+      await fs.writeFile(path.join(tempDir, 'kigumi.config.json'), 'null');
 
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
@@ -298,7 +299,7 @@ describe('handleExistingConfig', () => {
     });
 
     it('should return null when config file is empty', async () => {
-      await fs.writeFile(path.join(tempDir, 'kigumi-components.json'), '');
+      await fs.writeFile(path.join(tempDir, 'kigumi.config.json'), '');
 
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
@@ -309,7 +310,7 @@ describe('handleExistingConfig', () => {
   });
 
   describe('config file name detection', () => {
-    it('should detect kigumi-components.json', async () => {
+    it('should detect kigumi.config.json', async () => {
       await writeKigumiConfig();
 
       const { handleExistingConfig } =
@@ -320,7 +321,20 @@ describe('handleExistingConfig', () => {
       );
 
       const result = await handleExistingConfig(tempDir, mockOutput);
-      // Should not return null because config was found
+      expect(result).toBe('update');
+    });
+
+    it('should detect legacy kigumi-components.json for backward compat', async () => {
+      await writeKigumiConfig({}, 'kigumi-components.json');
+
+      const { handleExistingConfig } =
+        await import('../../src/commands/init/existing-config.js');
+      const clackModule = await import('@clack/prompts');
+      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
+        'update'
+      );
+
+      const result = await handleExistingConfig(tempDir, mockOutput);
       expect(result).toBe('update');
     });
   });

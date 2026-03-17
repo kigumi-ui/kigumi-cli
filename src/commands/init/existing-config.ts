@@ -4,8 +4,6 @@
  * Handles cases where configuration already exists
  */
 
-import fs from 'fs-extra';
-import path from 'path';
 import * as p from '@clack/prompts';
 import type { OutputInterface } from '../../output/types.js';
 import { loadConfig } from '../../utils/config.js';
@@ -25,14 +23,6 @@ export async function handleExistingConfig(
   output: OutputInterface,
   force = false
 ): Promise<ExistingConfigAction | null> {
-  const configPath = path.join(cwd, 'kigumi-components.json');
-  const exists = await fs.pathExists(configPath);
-
-  if (!exists) {
-    return null;
-  }
-
-  // Load existing config
   const existingConfig = loadConfig(cwd);
 
   if (!existingConfig) {

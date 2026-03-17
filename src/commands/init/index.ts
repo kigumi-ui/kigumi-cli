@@ -125,6 +125,7 @@ interface InitContext {
   output: import('../../output/types.js').OutputInterface;
   isNonInteractive: boolean;
   existingConfig: import('../../schemas/index.js').KigumiConfig | null;
+  existingAction: import('./existing-config.js').ExistingConfigAction | null;
   projectInfo: Awaited<ReturnType<typeof getProjectInfo>>;
   previousTier: Tier;
 }
@@ -163,6 +164,20 @@ export async function initCommand(options: InitOptions = {}) {
   try {
     // Phase 1: Validate and prepare
     const context = await validateAndPrepare(options, cwd, output);
+
+    // Reinstall: skip config wizard, just reinstall deps with existing config
+    if (context.existingAction === 'reinstall' && context.existingConfig) {
+      const newTier = await detectTier(cwd);
+      const skipInstall = options.install === false;
+      await handleDependencies(
+        context,
+        { config: context.existingConfig, proToken: undefined, newTier },
+        { didMigrate: false },
+        skipInstall
+      );
+      output.outro('✓ Dependencies reinstalled!');
+      return;
+    }
 
     // Phase 2: Build configuration
     const configResult = await buildConfiguration(context, options);
@@ -248,6 +263,7 @@ async function validateAndPrepare(
     output,
     isNonInteractive,
     existingConfig,
+    existingAction,
     projectInfo,
     previousTier,
   };
@@ -274,7 +290,8 @@ async function buildConfiguration(
         validatedOptions,
         projectInfo,
         cwd,
-        output
+        output,
+        context.existingConfig
       )
     : await buildConfigInteractive(
         validatedOptions,

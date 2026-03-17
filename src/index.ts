@@ -107,9 +107,10 @@ program
 // Version management commands
 program
   .command('upgrade')
-  .description('Show upgrade guide and update project version')
+  .description('Upgrade project version and install updated dependencies')
   .option('--dry-run', 'Show changes without updating')
   .option('-y, --yes', 'Skip prompts')
+  .option('--no-install', 'Skip dependency installation')
   .action(upgradeCommand);
 
 program
