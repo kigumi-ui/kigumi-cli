@@ -319,3 +319,13 @@ For detailed component APIs, props, and examples, see individual component refer
 
 - This skill only works for React projects
 - Check `framework` field in `kigumi.config.json`
+- For Vue projects, use the `kigumi-vue` skill instead
+
+## Related Skills
+
+For multi-component composition patterns, use:
+
+- **kigumi-compose-form** -- Build complete forms with validation and async submission
+- **kigumi-compose-layout** -- Build page layouts using WA layout utilities
+- **kigumi-compose-overlay** -- Build dialogs, drawers, dropdown menus, toasts
+- **kigumi-compose-data** -- Build data tables, stats dashboards, list views

@@ -1,83 +1,2151 @@
-# Kigumi CLI - Web Awesome Component Library for React
+# Kigumi
 
-Kigumi provides a CLI tool to add Web Awesome components to React projects with framework-specific wrappers.
+> shadcn/ui for Web Awesome. Framework-specific component wrappers for React and Vue. Version 0.13.0.
 
-## Quick Start
+Kigumi generates React and Vue wrapper components around Web Awesome web components. Components are copied into your project (not imported from a package), giving you full ownership and customization control.
 
-```bash
-npx kigumi init        # Initialize project
-npx kigumi add button  # Add components
-```
+Web Awesome's own llms.txt (at node_modules/@awesome.me/webawesome-pro/dist/llms.txt) documents the raw web component API. This file documents the Kigumi application layer: React/Vue wrapper APIs, composition patterns, layout utilities, state management, and accessibility guidance.
 
-## Components
+## Project Detection
 
-57+ components available across categories:
-- **Actions**: Button, ButtonGroup, CopyButton, Dropdown, QrCode
-- **Form Controls**: Input, Checkbox, Radio, RadioGroup, Select, Slider, Switch, Textarea
-- **Navigation**: Breadcrumb, Tab, TabGroup, Tree
-- **Organization**: Card, Dialog, Drawer, Details, Divider
-- **Feedback**: Badge, Callout, ProgressBar, Spinner, Tag, Tooltip
-- **Imagery**: Avatar, Carousel, Icon, AnimatedImage
-- **Utilities**: Animation, FormatDate, FormatNumber, Popup, Popover
+A Kigumi project has a `kigumi.config.json` in the project root.
 
-**Full list**: `npx kigumi list`
+Read it to determine:
+- `framework`: "react" or "vue"
+- `typescript`: true or false
+- `componentsDir`: where components live (default: "src/components/ui")
+- `theme.selected`: active theme name
+- `theme.palette`: color palette
+- `theme.brandColor`: primary color
 
-## AI Agent Skills
+## CLI Introspection
 
-For AI-assisted transformation of Web Awesome HTML to Kigumi components:
-
-### Install the Skill
+Machine-readable project state:
 
 ```bash
-# Via skills CLI (no npm package needed!)
-npx skills add https://kigumi.style/skills/kigumi-react
-
-# Or from installed package
-npm install kigumi
-cp -r ./node_modules/kigumi/dist/skills/kigumi-react .cursor/skills/
+npx kigumi status --json
 ```
 
-### How It Works
-
-1. Paste Web Awesome HTML to your AI assistant
-2. Ask: "Convert this to Kigumi React"
-3. Get transformed code with proper imports
-4. Detects missing components and suggests installation commands
-
-**Example**:
-
-Input (Web Awesome):
-```html
-<wa-card>
-  <wa-button variant="brand">Click me</wa-button>
-</wa-card>
+Output schema:
+```json
+{
+  "version": "0.13.0",
+  "tier": "free",
+  "framework": "react",
+  "typescript": true,
+  "componentsDir": "src/components/ui",
+  "theme": { "selected": "awesome", "palette": "rudimentary", "brandColor": "blue" },
+  "token": false,
+  "package": { "package": "@awesome.me/webawesome", "version": "3.3.1" },
+  "components": ["Button", "Card", "Dialog"],
+  "warnings": []
+}
 ```
 
-Output (Kigumi React):
+List available components:
+```bash
+npx kigumi list --json
+```
+
+Output: array of `{ name, category, description }`.
+
+Check installed components by listing subdirectories of `componentsDir`.
+
+## Tier System
+
+| Tier | Package | Detection |
+|------|---------|-----------|
+| Free | @awesome.me/webawesome | No token in .env |
+| Pro  | @awesome.me/webawesome-pro | WEBAWESOME_NPM_TOKEN in .env |
+
+Pro-only components: Page, Chart, BarChart, LineChart, BubbleChart, DoughnutChart, PieChart, PolarAreaChart, RadarChart, ScatterChart, Combobox, FileInput, NumberInput, Sparkline, Toast, ToastItem
+
+## Critical Rules
+
+1. Use `class` (not `className`) on web components and Kigumi wrapper components. `className` does not propagate through Shadow DOM.
+2. Use `className` on standard HTML elements (`<div>`, `<form>`, `<section>`).
+3. Form controls emit native DOM events (input, change, blur, focus). Read values via `e.target.value`. NOT CustomEvent.
+4. Overlay components (Dialog, Drawer, Dropdown) emit custom `wa-*` events (wa-show, wa-hide). These ARE CustomEvent.
+5. Use `requestClose()` not `hide()` on Dialog/Drawer refs. requestClose() triggers the wa-hide event lifecycle.
+6. Never use `!important` in CSS. Use CSS cascade layers (base < theme) for specificity.
+7. Always provide the `label` prop on Dialog, Drawer, Input, Select, Textarea for accessibility.
+
+## Available Skills
+
+For deeper AI-assisted workflows, install Kigumi agent skills:
+
+- **kigumi-react**: Convert Web Awesome HTML to Kigumi React components
+- **kigumi-vue**: Convert Web Awesome HTML to Kigumi Vue components
+- **kigumi-theme**: Customize themes, CSS variables, design tokens, dark mode
+- **kigumi-compose-form**: Build complete forms with validation and error handling
+- **kigumi-compose-layout**: Build page layouts, dashboards, app shells
+- **kigumi-compose-overlay**: Build modals, drawers, dropdown menus, toasts
+- **kigumi-compose-data**: Build data tables, stats dashboards, list views
+
+---
+
+## Component Reference
+
+All components available in the Kigumi registry, grouped by category. Each entry shows the Web Awesome tag, install command, import pattern, key props, slots, events, and CSS parts.
+
+**Import convention:**
+
+- React: `import { ComponentName } from '@/components/ui'`
+- Vue: `import { ComponentName } from '@/components/ui'` (only where Vue templates exist)
+
+---
+
+### Actions
+
+### Button
+
+**Tag:** `wa-button` | **Category:** Actions | **Tier:** free
+**Install:** `npx kigumi add button`
+**React:** `import { Button } from '@/components/ui'`
+
+**Key Props:** variant (neutral/brand/success/warning/danger), appearance (accent/filled-outlined/filled/outlined/plain), size (small/medium/large), pill (boolean), disabled (boolean), loading (boolean), with-caret (boolean), href (string), target (string), type (button/submit/reset)
+**Slots:** (default), start, end
+**React Events:** onBlur, onFocus, onWaInvalid
+**CSS Parts:** base, start, label, end
+
+### ButtonGroup
+
+**Tag:** `wa-button-group` | **Category:** Actions | **Tier:** free
+**Install:** `npx kigumi add button-group`
+**React:** `import { ButtonGroup } from '@/components/ui'`
+
+**Key Props:** label (string), orientation (horizontal/vertical)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** base
+
+### CopyButton
+
+**Tag:** `wa-copy-button` | **Category:** Actions | **Tier:** free
+**Install:** `npx kigumi add copy-button`
+**React:** `import { CopyButton } from '@/components/ui'`
+
+**Key Props:** value (string), from (string), disabled (boolean), copy-label (string), success-label (string), error-label (string), feedback-duration (number), tooltip-placement (top/right/bottom/left)
+**Slots:** copy-icon, success-icon, error-icon
+**React Events:** onWaCopy, onWaError
+**CSS Parts:** button, copy-icon, success-icon, error-icon
+
+---
+
+### Form Controls
+
+### Input
+
+**Tag:** `wa-input` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add input`
+**React:** `import { Input } from '@/components/ui'`
+**Vue:** `import { Input } from '@/components/ui'`
+
+**Key Props:** type (text/email/password/number/date/tel/url/search), label (string), hint (string), placeholder (string), value (string), appearance (filled/filled-outlined/outlined), size (small/medium/large), pill (boolean), disabled (boolean), with-clear (boolean), password-toggle (boolean), readonly (boolean), required (boolean), name (string), pattern (string), minlength (number), maxlength (number)
+**Slots:** label, start, end, clear-icon, show-password-icon, hide-password-icon, hint
+**React Events:** onInput, onChange, onBlur, onFocus, onWaClear, onWaInvalid
+**Vue Events:** @input, @change, @blur, @focus, @wa-clear, @wa-invalid
+**CSS Parts:** label, hint, base, input, start, end, clear-button
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent. Read values via e.target.value.
+
+### Checkbox
+
+**Tag:** `wa-checkbox` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add checkbox`
+**React:** `import { Checkbox } from '@/components/ui'`
+
+**Key Props:** checked (boolean), disabled (boolean), hint (string), indeterminate (boolean), name (string), required (boolean), size (small/medium/large), value (string)
+**Slots:** (default), hint
+**React Events:** onChange, onBlur, onFocus, onInput, onWaInvalid
+**CSS Parts:** base, control, checked-icon, indeterminate-icon, label, hint
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### ColorPicker
+
+**Tag:** `wa-color-picker` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add color-picker`
+**React:** `import { ColorPicker } from '@/components/ui'`
+
+**Key Props:** value (string), format (hex/rgb/hsl/hsv), opacity (boolean), disabled (boolean), required (boolean), size (small/medium/large), label (string), hint (string), name (string), open (boolean), swatches (string), inline (boolean)
+**Slots:** label, hint
+**React Events:** onChange, onInput, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onBlur, onFocus, onWaInvalid
+**CSS Parts:** base, trigger, swatches, swatch
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### Combobox
+
+**Tag:** `wa-combobox` | **Category:** Form Controls | **Tier:** pro
+**Install:** `npx kigumi add combobox`
+**React:** `import { Combobox } from '@/components/ui'`
+
+**Key Props:** allow-custom-value (boolean), appearance (filled/outlined/filled-outlined), autocomplete (list/none), disabled (boolean), hint (string), label (string), multiple (boolean), name (string), open (boolean), pill (boolean), placeholder (string), placement (top/bottom), required (boolean), size (small/medium/large), with-clear (boolean), value (string)
+**Slots:** (default), label, start, end, clear-icon, expand-icon, hint
+**React Events:** onInput, onChange, onBlur, onFocus, onWaClear, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onWaInvalid
+**CSS Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, clear-button, expand-icon
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### FileInput
+
+**Tag:** `wa-file-input` | **Category:** Form Controls | **Tier:** pro
+**Install:** `npx kigumi add file-input`
+**React:** `import { FileInput } from '@/components/ui'`
+**Vue:** `import { FileInput } from '@/components/ui'`
+
+**Key Props:** label (string), hint (string), accept (string), multiple (boolean), disabled (boolean), required (boolean), size (small/medium/large)
+**Slots:** label, hint
+**React Events:** onInput, onChange, onBlur, onFocus, onWaInvalid
+**Vue Events:** @input, @change, @blur, @focus, @wa-invalid
+**CSS Parts:** label, hint, base, dropzone
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### NumberInput
+
+**Tag:** `wa-number-input` | **Category:** Form Controls | **Tier:** pro
+**Install:** `npx kigumi add number-input`
+**React:** `import { NumberInput } from '@/components/ui'`
+**Vue:** `import { NumberInput } from '@/components/ui'`
+
+**Key Props:** label (string), hint (string), value (number), min (number), max (number), step (number), disabled (boolean), required (boolean), placeholder (string), size (small/medium/large), appearance (filled/outlined/filled-outlined), without-steppers (boolean)
+**Slots:** label, start, end, increment-icon, decrement-icon, hint
+**React Events:** onInput, onChange, onBlur, onFocus, onWaInvalid
+**Vue Events:** @input, @change, @blur, @focus, @wa-invalid
+**CSS Parts:** label, form-control-label, hint, base, input, start, end, increment-button, decrement-button
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### Option
+
+**Tag:** `wa-option` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add option`
+**React:** `import { Option } from '@/components/ui'`
+
+**Key Props:** value (string), disabled (boolean), selected (boolean), label (string)
+**Slots:** (default), start, end
+**React Events:** (none)
+**CSS Parts:** checked-icon, label, start, end
+
+### Radio
+
+**Tag:** `wa-radio` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add radio`
+**React:** `import { Radio } from '@/components/ui'`
+
+**Key Props:** value (string), disabled (boolean), size (small/medium/large), appearance (default/button)
+**Slots:** (default)
+**React Events:** onBlur, onFocus
+**CSS Parts:** control, checked-icon, label
+**Note:** Form control -- uses native DOM events (onBlur, onFocus), not CustomEvent.
+
+### RadioGroup
+
+**Tag:** `wa-radio-group` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add radio-group`
+**React:** `import { RadioGroup } from '@/components/ui'`
+
+**Key Props:** label (string), hint (string), name (string), value (string), size (small/medium/large), required (boolean), orientation (horizontal/vertical), disabled (boolean)
+**Slots:** (default), label, hint
+**React Events:** onInput, onChange, onWaInvalid
+**CSS Parts:** form-control, form-control-label, form-control-input, radios, hint
+**Note:** Form control -- uses native DOM events (onInput, onChange), not CustomEvent.
+
+### Rating
+
+**Tag:** `wa-rating` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add rating`
+**React:** `import { Rating } from '@/components/ui'`
+
+**Key Props:** label (string), value (number), max (number), precision (number), readonly (boolean), disabled (boolean), size (small/medium/large)
+**Slots:** (none)
+**React Events:** onChange, onWaHover
+**CSS Parts:** base
+**Note:** Form control -- uses native DOM events (onChange), not CustomEvent.
+
+### Select
+
+**Tag:** `wa-select` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add select`
+**React:** `import { Select } from '@/components/ui'`
+
+**Key Props:** name (string), value (string), appearance (filled/outlined/filled-outlined), size (small/medium/large), placeholder (string), multiple (boolean), max-options-visible (number), disabled (boolean), with-clear (boolean), open (boolean), hoist (boolean), placement (top/bottom), pill (boolean), label (string), hint (string), required (boolean)
+**Slots:** (default), label, start, end, clear-icon, expand-icon, hint
+**React Events:** onInput, onChange, onFocus, onBlur, onWaClear, onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onWaInvalid
+**CSS Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, clear-button, expand-icon
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### Slider
+
+**Tag:** `wa-slider` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add slider`
+**React:** `import { Slider } from '@/components/ui'`
+
+**Key Props:** name (string), value (number), label (string), hint (string), min (number), max (number), step (number), orientation (horizontal/vertical), disabled (boolean), readonly (boolean), required (boolean), range (boolean), with-markers (boolean), with-tooltip (boolean), size (small/medium/large)
+**Slots:** label, hint, reference
+**React Events:** onChange, onBlur, onFocus, onInput, onWaInvalid
+**CSS Parts:** label, hint, slider, track, indicator, markers, marker, references, thumb, thumb-min, thumb-max, tooltip
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### Switch
+
+**Tag:** `wa-switch` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add switch`
+**React:** `import { Switch } from '@/components/ui'`
+
+**Key Props:** name (string), value (string), size (small/medium/large), disabled (boolean), checked (boolean), required (boolean), hint (string)
+**Slots:** (default), hint
+**React Events:** onChange, onInput, onBlur, onFocus, onWaInvalid
+**CSS Parts:** base, control, thumb, label, hint
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+### Textarea
+
+**Tag:** `wa-textarea` | **Category:** Form Controls | **Tier:** free
+**Install:** `npx kigumi add textarea`
+**React:** `import { Textarea } from '@/components/ui'`
+
+**Key Props:** name (string), value (string), appearance (filled/outlined/filled-outlined), size (small/medium/large), label (string), hint (string), placeholder (string), rows (number), resize (none/vertical/horizontal/both/auto), disabled (boolean), readonly (boolean), required (boolean), minlength (number), maxlength (number)
+**Slots:** label, hint
+**React Events:** onBlur, onChange, onFocus, onInput, onWaInvalid
+**CSS Parts:** label, form-control-input, hint, textarea, base
+**Note:** Form control -- uses native DOM events (onInput, onChange, onBlur, onFocus), not CustomEvent.
+
+---
+
+### Navigation
+
+### Breadcrumb
+
+**Tag:** `wa-breadcrumb` | **Category:** Navigation | **Tier:** free
+**Install:** `npx kigumi add breadcrumb`
+**React:** `import { Breadcrumb } from '@/components/ui'`
+
+**Key Props:** label (string)
+**Slots:** (default), separator
+**React Events:** (none)
+**CSS Parts:** base
+
+### BreadcrumbItem
+
+**Tag:** `wa-breadcrumb-item` | **Category:** Navigation | **Tier:** free
+**Install:** `npx kigumi add breadcrumb-item`
+**React:** `import { BreadcrumbItem } from '@/components/ui'`
+
+**Key Props:** href (string), target (_blank/_parent/_self/_top), rel (string)
+**Slots:** (default), start, end, separator
+**React Events:** (none)
+**CSS Parts:** label, start, end, separator
+
+### Tab
+
+**Tag:** `wa-tab` | **Category:** Navigation | **Tier:** free
+**Install:** `npx kigumi add tab`
+**React:** `import { Tab } from '@/components/ui'`
+
+**Key Props:** panel (string), disabled (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** base
+
+### TabGroup
+
+**Tag:** `wa-tab-group` | **Category:** Navigation | **Tier:** free
+**Install:** `npx kigumi add tab-group`
+**React:** `import { TabGroup } from '@/components/ui'`
+
+**Key Props:** placement (top/bottom/start/end), activation (auto/manual), without-scroll-controls (boolean), active (string)
+**Slots:** (default), nav
+**React Events:** onWaTabShow, onWaTabHide
+**CSS Parts:** base, nav, tabs, body, scroll-button, scroll-button-start, scroll-button-end
+
+### TabPanel
+
+**Tag:** `wa-tab-panel` | **Category:** Navigation | **Tier:** free
+**Install:** `npx kigumi add tab-panel`
+**React:** `import { TabPanel } from '@/components/ui'`
+
+**Key Props:** name (string), active (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** base
+
+### Tree
+
+**Tag:** `wa-tree` | **Category:** Navigation | **Tier:** free
+**Install:** `npx kigumi add tree`
+**React:** `import { Tree } from '@/components/ui'`
+
+**Key Props:** selection (single/multiple/leaf)
+**Slots:** (default), expand-icon, collapse-icon
+**React Events:** onWaSelectionChange
+**CSS Parts:** base
+
+### TreeItem
+
+**Tag:** `wa-tree-item` | **Category:** Navigation | **Tier:** free
+**Install:** `npx kigumi add tree-item`
+**React:** `import { TreeItem } from '@/components/ui'`
+
+**Key Props:** expanded (boolean), selected (boolean), disabled (boolean), lazy (boolean)
+**Slots:** (default), expand-icon, collapse-icon
+**React Events:** onWaExpand, onWaAfterExpand, onWaCollapse, onWaAfterCollapse, onWaLazyChange, onWaLazyLoad
+**CSS Parts:** base, item, indentation, expand-button, spinner, label, children, checkbox
+
+---
+
+### Overlays
+
+### Dialog
+
+**Tag:** `wa-dialog` | **Category:** Overlays | **Tier:** free
+**Install:** `npx kigumi add dialog`
+**React:** `import { Dialog } from '@/components/ui'`
+**Vue:** `import { Dialog } from '@/components/ui'`
+
+**Key Props:** open (boolean), label (string, required for a11y), without-header (boolean), light-dismiss (boolean)
+**Slots:** (default), label, header-actions, footer
+**React Events:** onWaShow, onWaAfterShow, onWaHide, onWaAfterHide
+**Vue Events:** @wa-show, @wa-after-show, @wa-hide, @wa-after-hide
+**CSS Parts:** dialog, header, header-actions, title, close-button, close-button__base, body, footer
+**Methods:** show(), requestClose() -- use requestClose() not hide()
+
+### Drawer
+
+**Tag:** `wa-drawer` | **Category:** Overlays | **Tier:** free
+**Install:** `npx kigumi add drawer`
+**React:** `import { Drawer } from '@/components/ui'`
+**Vue:** `import { Drawer } from '@/components/ui'`
+
+**Key Props:** open (boolean), label (string, required for a11y), placement (top/end/bottom/start), light-dismiss (boolean), without-header (boolean)
+**Slots:** (default), label, header-actions, footer
+**React Events:** onWaShow, onWaAfterShow, onWaHide, onWaAfterHide
+**Vue Events:** @wa-show, @wa-after-show, @wa-hide, @wa-after-hide
+**CSS Parts:** dialog, header, header-actions, title, close-button, close-button__base, body, footer
+**Methods:** show(), requestClose() -- use requestClose() not hide()
+
+### Dropdown
+
+**Tag:** `wa-dropdown` | **Category:** Overlays | **Tier:** free
+**Install:** `npx kigumi add dropdown`
+**React:** `import { Dropdown } from '@/components/ui'`
+
+**Key Props:** open (boolean), placement (top/top-start/top-end/bottom/bottom-start/bottom-end/right/left/...), disabled (boolean), stay-open-on-select (boolean), distance (number), skidding (number), hoist (boolean), size (small/medium/large)
+**Slots:** (default), trigger
+**React Events:** onWaShow, onWaAfterShow, onWaHide, onWaAfterHide, onWaSelect
+**CSS Parts:** base, menu
+
+### DropdownItem
+
+**Tag:** `wa-dropdown-item` | **Category:** Overlays | **Tier:** free
+**Install:** `npx kigumi add dropdown-item`
+**React:** `import { DropdownItem } from '@/components/ui'`
+
+**Key Props:** type (normal/checkbox), checked (boolean), value (string), disabled (boolean), loading (boolean), variant (neutral/danger)
+**Slots:** (default), icon, details, submenu
+**React Events:** onBlur, onFocus
+**CSS Parts:** checkmark, icon, label, details
+
+### Popover
+
+**Tag:** `wa-popover` | **Category:** Overlays | **Tier:** free
+**Install:** `npx kigumi add popover`
+**React:** `import { Popover } from '@/components/ui'`
+
+**Key Props:** open (boolean), disabled (boolean), placement (top/bottom/left/right/...), trigger (click/hover/focus), distance (number), skidding (number), with-arrow (boolean), for (string)
+**Slots:** (default)
+**React Events:** onWaShow, onWaAfterShow, onWaHide, onWaAfterHide
+**CSS Parts:** dialog, body, popup, popup__popup
+
+### Popup
+
+**Tag:** `wa-popup` | **Category:** Overlays | **Tier:** free
+**Install:** `npx kigumi add popup`
+**React:** `import { Popup } from '@/components/ui'`
+
+**Key Props:** active (boolean), anchor (string), placement (top/bottom/left/right/...), strategy (absolute/fixed), distance (number), skidding (number), arrow (boolean), flip (boolean), shift (boolean), auto-size (horizontal/vertical/both), sync (width/height/both)
+**Slots:** (default), anchor
+**React Events:** onWaReposition
+**CSS Parts:** arrow, popup, hover-bridge
+
+### Tooltip
+
+**Tag:** `wa-tooltip` | **Category:** Overlays | **Tier:** free
+**Install:** `npx kigumi add tooltip`
+**React:** `import { Tooltip } from '@/components/ui'`
+
+**Key Props:** placement (top/bottom/left/right/...), disabled (boolean), distance (number), open (boolean), skidding (number), trigger (string), without-arrow (boolean), show-delay (number), hide-delay (number), for (string)
+**Slots:** (default)
+**React Events:** onWaShow, onWaAfterShow, onWaHide, onWaAfterHide
+**CSS Parts:** base, base__popup, base__arrow, body
+
+---
+
+### Display
+
+### AnimatedImage
+
+**Tag:** `wa-animated-image` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add animated-image`
+**React:** `import { AnimatedImage } from '@/components/ui'`
+
+**Key Props:** src (string, required), alt (string, required), play (boolean)
+**Slots:** play-icon, pause-icon
+**React Events:** onWaLoad, onWaError
+**CSS Parts:** control-box
+
+### Avatar
+
+**Tag:** `wa-avatar` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add avatar`
+**React:** `import { Avatar } from '@/components/ui'`
+
+**Key Props:** image (string), label (string, required for a11y), initials (string), loading (eager/lazy), shape (circle/square/rounded)
+**Slots:** icon
+**React Events:** onWaError
+**CSS Parts:** icon, initials, image
+
+### Badge
+
+**Tag:** `wa-badge` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add badge`
+**React:** `import { Badge } from '@/components/ui'`
+
+**Key Props:** variant (brand/neutral/success/warning/danger), appearance (accent/filled/outlined/filled-outlined), pill (boolean), attention (none/pulse/bounce)
+**Slots:** (default), start, end
+**React Events:** (none)
+**CSS Parts:** base, start, end
+
+### Callout
+
+**Tag:** `wa-callout` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add callout`
+**React:** `import { Callout } from '@/components/ui'`
+
+**Key Props:** appearance (accent/filled/outlined/plain/filled-outlined), size (small/medium/large), variant (brand/neutral/success/warning/danger)
+**Slots:** (default), icon
+**React Events:** (none)
+**CSS Parts:** icon, message
+
+### Carousel
+
+**Tag:** `wa-carousel` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add carousel`
+**React:** `import { Carousel } from '@/components/ui'`
+
+**Key Props:** autoplay (boolean), autoplay-interval (number), loop (boolean), mouse-dragging (boolean), navigation (boolean), orientation (horizontal/vertical), pagination (boolean), slides-per-move (number), slides-per-page (number)
+**Slots:** (default), next-icon, previous-icon
+**React Events:** onWaSlideChange
+**CSS Parts:** base, scroll-container, pagination, pagination-item
+
+### CarouselItem
+
+**Tag:** `wa-carousel-item` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add carousel-item`
+**React:** `import { CarouselItem } from '@/components/ui'`
+
+**Key Props:** (none)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### Comparison
+
+**Tag:** `wa-comparison` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add comparison`
+**React:** `import { Comparison } from '@/components/ui'`
+
+**Key Props:** position (number, 0-100)
+**Slots:** before, after, handle
+**React Events:** onChange
+**CSS Parts:** base, before, after, divider, handle
+
+### Icon
+
+**Tag:** `wa-icon` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add icon`
+**React:** `import { Icon } from '@/components/ui'`
+
+**Key Props:** name (string), library (string), src (string), label (string), family (string), variant (string), auto-width (boolean), swap-opacity (boolean), rotate (number), flip (horizontal/vertical/both), animation (string)
+**Slots:** (none)
+**React Events:** onWaLoad, onWaError
+**CSS Parts:** svg, use
+
+### QrCode
+
+**Tag:** `wa-qr-code` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add qr-code`
+**React:** `import { QrCode } from '@/components/ui'`
+
+**Key Props:** value (string), label (string), size (number), fill (string), background (string), radius (number), error-correction (L/M/Q/H)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** base
+
+### Skeleton
+
+**Tag:** `wa-skeleton` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add skeleton`
+**React:** `import { Skeleton } from '@/components/ui'`
+
+**Key Props:** effect (pulse/sheen/none)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** indicator
+
+### Sparkline
+
+**Tag:** `wa-sparkline` | **Category:** Display | **Tier:** pro
+**Install:** `npx kigumi add sparkline`
+**React:** `import { Sparkline } from '@/components/ui'`
+**Vue:** `import { Sparkline } from '@/components/ui'`
+
+**Key Props:** data (string), label (string), appearance (gradient/line/solid), trend (positive/negative/neutral), curve (linear/natural/step)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** base, line, fill
+
+### Tag
+
+**Tag:** `wa-tag` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add tag`
+**React:** `import { Tag } from '@/components/ui'`
+
+**Key Props:** appearance (accent/filled/outlined/filled-outlined), pill (boolean), size (small/medium/large), variant (brand/neutral/success/warning/danger), with-remove (boolean)
+**Slots:** (default)
+**React Events:** onWaRemove
+**CSS Parts:** base, content, remove-button, remove-button__base
+
+### ZoomableFrame
+
+**Tag:** `wa-zoomable-frame` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add zoomable-frame`
+**React:** `import { ZoomableFrame } from '@/components/ui'`
+
+**Key Props:** src (string), srcdoc (string), zoom (number), zoom-levels (string), allowfullscreen (boolean), loading (eager/lazy), without-controls (boolean), without-interaction (boolean), sandbox (string)
+**Slots:** zoom-in-icon, zoom-out-icon
+**React Events:** onLoad, onError
+**CSS Parts:** iframe, controls, zoom-in-button, zoom-out-button
+
+---
+
+### Organization
+
+### Card
+
+**Tag:** `wa-card` | **Category:** Organization | **Tier:** free
+**Install:** `npx kigumi add card`
+**React:** `import { Card } from '@/components/ui'`
+**Vue:** `import { Card } from '@/components/ui'`
+
+**Key Props:** appearance (outlined/filled-outlined/plain/filled/accent), orientation (vertical/horizontal), with-header (boolean), with-footer (boolean), with-media (boolean)
+**Slots:** (default), header, footer, media, actions, header-actions, footer-actions
+**React Events:** (none)
+**Vue Events:** (none)
+**CSS Parts:** media, header, body, footer
+
+### Details
+
+**Tag:** `wa-details` | **Category:** Organization | **Tier:** free
+**Install:** `npx kigumi add details`
+**React:** `import { Details } from '@/components/ui'`
+
+**Key Props:** open (boolean), summary (string), disabled (boolean), appearance (filled/outlined/filled-outlined/plain), icon-placement (start/end), name (string)
+**Slots:** (default), summary, expand-icon, collapse-icon
+**React Events:** onWaShow, onWaAfterShow, onWaHide, onWaAfterHide
+**CSS Parts:** base, header, summary, icon, content
+
+---
+
+### Layout
+
+### Divider
+
+**Tag:** `wa-divider` | **Category:** Layout | **Tier:** free
+**Install:** `npx kigumi add divider`
+**React:** `import { Divider } from '@/components/ui'`
+
+**Key Props:** orientation (horizontal/vertical)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### Page
+
+**Tag:** `wa-page` | **Category:** Layout | **Tier:** pro
+**Install:** `npx kigumi add page`
+**React:** `import { Page } from '@/components/ui'`
+
+**Key Props:** disable-navigation-toggle (boolean), mobile-breakpoint (string), navigation-placement (start/end), nav-open (boolean), view (mobile/desktop)
+**Slots:** (default), banner, header, subheader, navigation, navigation-toggle, footer
+**React Events:** onWaNavToggle
+**CSS Parts:** base, banner, header, subheader, navigation, body, footer
+
+### Scroller
+
+**Tag:** `wa-scroller` | **Category:** Layout | **Tier:** free
+**Install:** `npx kigumi add scroller`
+**React:** `import { Scroller } from '@/components/ui'`
+
+**Key Props:** orientation (horizontal/vertical/both), with-scroll-indicator (boolean), without-scrollbar (boolean), without-shadow (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** content
+
+### SplitPanel
+
+**Tag:** `wa-split-panel` | **Category:** Layout | **Tier:** free
+**Install:** `npx kigumi add split-panel`
+**React:** `import { SplitPanel } from '@/components/ui'`
+
+**Key Props:** position (number), position-in-pixels (number), orientation (horizontal/vertical), primary (start/end), disabled (boolean), snap (string), snap-threshold (number)
+**Slots:** start, end, divider
+**React Events:** onWaReposition
+**CSS Parts:** start, end, panel, divider
+
+---
+
+### Progress
+
+### ProgressBar
+
+**Tag:** `wa-progress-bar` | **Category:** Progress | **Tier:** free
+**Install:** `npx kigumi add progress-bar`
+**React:** `import { ProgressBar } from '@/components/ui'`
+
+**Key Props:** value (number, 0-100), indeterminate (boolean), label (string)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** base, indicator, label
+
+### ProgressRing
+
+**Tag:** `wa-progress-ring` | **Category:** Progress | **Tier:** free
+**Install:** `npx kigumi add progress-ring`
+**React:** `import { ProgressRing } from '@/components/ui'`
+
+**Key Props:** value (number, 0-100), label (string)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** base, label, track, indicator
+
+### Spinner
+
+**Tag:** `wa-spinner` | **Category:** Progress | **Tier:** free
+**Install:** `npx kigumi add spinner`
+**React:** `import { Spinner } from '@/components/ui'`
+
+**Key Props:** (none)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** base
+
+---
+
+### Formatting
+
+### FormatBytes
+
+**Tag:** `wa-format-bytes` | **Category:** Formatting | **Tier:** free
+**Install:** `npx kigumi add format-bytes`
+**React:** `import { FormatBytes } from '@/components/ui'`
+
+**Key Props:** value (number), unit (byte/bit), display (long/short/narrow), lang (string)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### FormatDate
+
+**Tag:** `wa-format-date` | **Category:** Formatting | **Tier:** free
+**Install:** `npx kigumi add format-date`
+**React:** `import { FormatDate } from '@/components/ui'`
+
+**Key Props:** date (string), weekday (narrow/short/long), year (numeric/2-digit), month (numeric/2-digit/narrow/short/long), day (numeric/2-digit), hour (numeric/2-digit), minute (numeric/2-digit), second (numeric/2-digit), hour-format (auto/12/24), time-zone (string), lang (string)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### FormatNumber
+
+**Tag:** `wa-format-number` | **Category:** Formatting | **Tier:** free
+**Install:** `npx kigumi add format-number`
+**React:** `import { FormatNumber } from '@/components/ui'`
+
+**Key Props:** value (number), type (currency/decimal/percent), currency (string), currency-display (symbol/narrowSymbol/code/name), minimum-fraction-digits (number), maximum-fraction-digits (number), without-grouping (boolean), lang (string)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### RelativeTime
+
+**Tag:** `wa-relative-time` | **Category:** Formatting | **Tier:** free
+**Install:** `npx kigumi add relative-time`
+**React:** `import { RelativeTime } from '@/components/ui'`
+
+**Key Props:** date (string), format (long/short/narrow), numeric (always/auto), sync (boolean), lang (string)
+**Slots:** (none)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+---
+
+### Utilities
+
+### Animation
+
+**Tag:** `wa-animation` | **Category:** Display | **Tier:** free
+**Install:** `npx kigumi add animation`
+**React:** `import { Animation } from '@/components/ui'`
+
+**Key Props:** name (string), play (boolean), delay (number), direction (normal/reverse/alternate/alternate-reverse), duration (number), easing (string), fill (auto/backwards/both/forwards/none), iterations (number), playback-rate (number)
+**Slots:** (default)
+**React Events:** onWaCancel, onWaFinish, onWaStart
+**CSS Parts:** (none)
+
+### Include
+
+**Tag:** `wa-include` | **Category:** Utilities | **Tier:** free
+**Install:** `npx kigumi add include`
+**React:** `import { Include } from '@/components/ui'`
+
+**Key Props:** src (string), mode (cors/no-cors/same-origin), allow-scripts (boolean)
+**Slots:** (none)
+**React Events:** onWaLoad, onWaIncludeError
+**CSS Parts:** (none)
+
+### IntersectionObserver
+
+**Tag:** `wa-intersection-observer` | **Category:** Utilities | **Tier:** free
+**Install:** `npx kigumi add intersection-observer`
+**React:** `import { IntersectionObserver } from '@/components/ui'`
+
+**Key Props:** disabled (boolean), once (boolean), threshold (string), root-margin (string), intersect-class (string)
+**Slots:** (default)
+**React Events:** onWaIntersect
+**CSS Parts:** (none)
+
+### MutationObserver
+
+**Tag:** `wa-mutation-observer` | **Category:** Utilities | **Tier:** free
+**Install:** `npx kigumi add mutation-observer`
+**React:** `import { MutationObserver } from '@/components/ui'`
+
+**Key Props:** attr (string), attr-old-value (boolean), char-data (boolean), child-list (boolean), disabled (boolean), subtree (boolean)
+**Slots:** (default)
+**React Events:** onWaMutation
+**CSS Parts:** (none)
+
+### ResizeObserver
+
+**Tag:** `wa-resize-observer` | **Category:** Utilities | **Tier:** free
+**Install:** `npx kigumi add resize-observer`
+**React:** `import { ResizeObserver } from '@/components/ui'`
+
+**Key Props:** disabled (boolean)
+**Slots:** (default)
+**React Events:** onWaResize
+**CSS Parts:** (none)
+
+---
+
+### Feedback
+
+### Toast
+
+**Tag:** `wa-toast` | **Category:** Feedback | **Tier:** pro
+**Install:** `npx kigumi add toast`
+**React:** `import { Toast } from '@/components/ui'`
+**Vue:** `import { Toast } from '@/components/ui'`
+
+**Key Props:** placement (top-start/top-center/top-end/bottom-start/bottom-center/bottom-end)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** stack
+**Methods:** create(message, options) -- programmatic toast creation
+
+### ToastItem
+
+**Tag:** `wa-toast-item` | **Category:** Feedback | **Tier:** pro
+**Install:** `npx kigumi add toast-item`
+**React:** `import { ToastItem } from '@/components/ui'`
+**Vue:** `import { ToastItem } from '@/components/ui'`
+
+**Key Props:** variant (brand/success/warning/danger/neutral), size (small/medium/large), duration (number, ms; 0 = persistent)
+**Slots:** (default), icon
+**React Events:** onWaShow, onWaAfterShow, onWaHide, onWaAfterHide
+**Vue Events:** @wa-show, @wa-after-show, @wa-hide, @wa-after-hide
+**CSS Parts:** toast-item, accent, icon, content, close-button, progress-ring
+
+---
+
+### Data Display
+
+### Chart
+
+**Tag:** `wa-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add chart`
+**React:** `import { Chart } from '@/components/ui'`
+**Vue:** `import { Chart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), type (bar/line/pie/doughnut/polarArea/radar/scatter/bubble), x-label (string), y-label (string), legend-position (top/right/bottom/left/start/end), stacked (boolean), index-axis (x/y), grid (x/y/both/none), min (number), max (number), without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default) -- accepts `<script type="application/json">` for Chart.js config
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### BarChart
+
+**Tag:** `wa-bar-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add bar-chart`
+**React:** `import { BarChart } from '@/components/ui'`
+**Vue:** `import { BarChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), orientation (vertical/horizontal), x-label (string), y-label (string), legend-position (top/right/bottom/left/start/end), stacked (boolean), grid (x/y/both/none), min (number), max (number), without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### LineChart
+
+**Tag:** `wa-line-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add line-chart`
+**React:** `import { LineChart } from '@/components/ui'`
+**Vue:** `import { LineChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), x-label (string), y-label (string), legend-position, stacked (boolean), grid, min (number), max (number), without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### BubbleChart
+
+**Tag:** `wa-bubble-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add bubble-chart`
+**React:** `import { BubbleChart } from '@/components/ui'`
+**Vue:** `import { BubbleChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), x-label (string), y-label (string), legend-position, stacked (boolean), grid, min (number), max (number), without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### DoughnutChart
+
+**Tag:** `wa-doughnut-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add doughnut-chart`
+**React:** `import { DoughnutChart } from '@/components/ui'`
+**Vue:** `import { DoughnutChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), legend-position, without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### PieChart
+
+**Tag:** `wa-pie-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add pie-chart`
+**React:** `import { PieChart } from '@/components/ui'`
+**Vue:** `import { PieChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), legend-position, without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### PolarAreaChart
+
+**Tag:** `wa-polar-area-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add polar-area-chart`
+**React:** `import { PolarAreaChart } from '@/components/ui'`
+**Vue:** `import { PolarAreaChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), legend-position, without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### RadarChart
+
+**Tag:** `wa-radar-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add radar-chart`
+**React:** `import { RadarChart } from '@/components/ui'`
+**Vue:** `import { RadarChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), legend-position, stacked (boolean), grid, min (number), max (number), without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+### ScatterChart
+
+**Tag:** `wa-scatter-chart` | **Category:** Data Display | **Tier:** pro
+**Install:** `npx kigumi add scatter-chart`
+**React:** `import { ScatterChart } from '@/components/ui'`
+**Vue:** `import { ScatterChart } from '@/components/ui'`
+
+**Key Props:** label (string), description (string), x-label (string), y-label (string), legend-position, grid, min (number), max (number), without-animation (boolean), without-legend (boolean), without-tooltip (boolean)
+**Slots:** (default)
+**React Events:** (none)
+**CSS Parts:** (none)
+
+---
+
+## Layout System
+
+Kigumi includes CSS utility classes from Web Awesome for composing layouts without writing custom CSS. These are applied via `className` on standard HTML elements (NOT `class` on web components).
+
+**IMPORTANT:** Use `className` on `<div>`, `<section>`, `<form>`, and other HTML elements. Use `class` on `<wa-*>` web components and Kigumi wrapper components (`<Button>`, `<Card>`, etc.).
+
+### Layout Primitives
+
+| Class | Purpose | Key Custom Property |
+|-------|---------|-------------------|
+| `.wa-stack` | Vertical stacking with consistent gap | -- |
+| `.wa-grid` | Responsive auto-fit column grid | `--min-column-size` (default: 250px) |
+| `.wa-cluster` | Horizontal wrapping group (tags, chips, buttons) | -- |
+| `.wa-flank` | Sidebar + main content layout | `--flank-size` (default: 15rem) |
+| `.wa-frame` | Aspect-ratio constrained container | -- |
+| `.wa-split` | Two-column equal split | `--content-percentage` (default: 50%) |
+
+### Gap Scale
+
+| Class | Approximate Size |
+|-------|-----------------|
+| `.wa-gap-0` | 0 |
+| `.wa-gap-3xs` | ~2px |
+| `.wa-gap-2xs` | ~4px |
+| `.wa-gap-xs` | ~8px |
+| `.wa-gap-s` | ~12px |
+| `.wa-gap-m` | ~16px |
+| `.wa-gap-l` | ~24px |
+| `.wa-gap-xl` | ~32px |
+| `.wa-gap-2xl` | ~40px |
+| `.wa-gap-3xl` | ~48px |
+
+### Alignment Classes
+
+**Align Items (cross axis):**
+`.wa-align-items-start`, `.wa-align-items-center`, `.wa-align-items-end`, `.wa-align-items-stretch`, `.wa-align-items-baseline`
+
+**Justify Content (main axis):**
+`.wa-justify-content-start`, `.wa-justify-content-center`, `.wa-justify-content-end`, `.wa-justify-content-space-between`, `.wa-justify-content-space-around`, `.wa-justify-content-space-evenly`
+
+### Custom Properties
+
+Override layout behavior with CSS custom properties:
+
+```css
+/* Change grid minimum column width */
+.my-grid {
+  --min-column-size: 200px;
+}
+
+/* Change flank sidebar width */
+.my-layout {
+  --flank-size: 20rem;
+}
+
+/* Change split ratio */
+.my-split {
+  --content-percentage: 33%;
+}
+```
+
+### Quick Example: Form Layout (React)
+
 ```tsx
-import { Button, Card } from '@/components/ui';
+import { Button, Input, Select, Option } from '@/components/ui';
 
-<Card>
-  <Button variant="brand">Click me</Button>
-</Card>
+function ContactForm() {
+  return (
+    <form>
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-grid wa-gap-m" style={{ '--min-column-size': '200px' } as React.CSSProperties}>
+          <Input label="First name" name="firstName" required />
+          <Input label="Last name" name="lastName" required />
+        </div>
+        <Input label="Email" type="email" name="email" required />
+        <Select label="Department" name="department">
+          <Option value="engineering">Engineering</Option>
+          <Option value="design">Design</Option>
+          <Option value="product">Product</Option>
+        </Select>
+        <Button type="submit" variant="brand">Submit</Button>
+      </div>
+    </form>
+  );
+}
 ```
 
-### Available Skills
+---
 
-- **kigumi-react**: Transform Web Awesome HTML to React components
-- **kigumi-theme**: Customize themes, CSS variables, dark mode, and design tokens
+## Composition Patterns
 
-Full documentation: [skills/README.md](https://github.com/Siregar/kigumi-cli/blob/main/skills/README.md)
+Concrete code examples for common UI patterns in both React and Vue.
 
-## Documentation
+### 1. Form with Validation
+
+**React:**
+
+```tsx
+import { Button, Input, Select, Option, Checkbox } from '@/components/ui';
+import { useState, type FormEvent } from 'react';
+
+function SignupForm() {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData);
+    await fetch('/api/signup', { method: 'POST', body: JSON.stringify(data) });
+    setLoading(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="wa-stack wa-gap-m">
+        <Input
+          label="Full name"
+          name="name"
+          required
+          onInput={(e) => console.log(e.target.value)}
+        />
+        <Input label="Email" type="email" name="email" required />
+        <Select label="Role" name="role" required>
+          <Option value="developer">Developer</Option>
+          <Option value="designer">Designer</Option>
+        </Select>
+        <Checkbox name="terms" required>
+          I agree to the terms of service
+        </Checkbox>
+        <Button type="submit" variant="brand" loading={loading}>
+          Create Account
+        </Button>
+      </div>
+    </form>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Button, Input, Select, Option, Checkbox } from '@/components/ui';
+
+const loading = ref(false);
+
+async function handleSubmit(e: Event) {
+  e.preventDefault();
+  loading.value = true;
+  const formData = new FormData(e.target as HTMLFormElement);
+  const data = Object.fromEntries(formData);
+  await fetch('/api/signup', { method: 'POST', body: JSON.stringify(data) });
+  loading.value = false;
+}
+</script>
+
+<template>
+  <form @submit="handleSubmit">
+    <div class="wa-stack wa-gap-m">
+      <Input label="Full name" name="name" required />
+      <Input label="Email" type="email" name="email" required />
+      <Select label="Role" name="role" required>
+        <Option value="developer">Developer</Option>
+        <Option value="designer">Designer</Option>
+      </Select>
+      <Checkbox name="terms" required>
+        I agree to the terms of service
+      </Checkbox>
+      <Button type="submit" variant="brand" :loading="loading">
+        Create Account
+      </Button>
+    </div>
+  </form>
+</template>
+```
+
+### 2. Dialog with Form
+
+**React:**
+
+```tsx
+import { Button, Dialog, Input } from '@/components/ui';
+import { useState, useRef, useEffect } from 'react';
+
+function EditProfileDialog() {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const dialogRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return;
+    const handleHide = () => setOpen(false);
+    el.addEventListener('wa-after-hide', handleHide);
+    return () => el.removeEventListener('wa-after-hide', handleHide);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    await fetch('/api/profile', { method: 'PUT' });
+    setLoading(false);
+    dialogRef.current?.requestClose();
+  };
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Edit Profile</Button>
+      <Dialog ref={dialogRef} label="Edit Profile" open={open}>
+        <form onSubmit={handleSubmit}>
+          <div className="wa-stack wa-gap-m">
+            <Input label="Display name" name="displayName" required />
+            <Input label="Bio" name="bio" />
+          </div>
+        </form>
+        <div slot="footer">
+          <div className="wa-cluster wa-gap-s wa-justify-content-end">
+            <Button appearance="outlined" onClick={() => dialogRef.current?.requestClose()}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="brand" loading={loading} onClick={handleSubmit}>
+              Save
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+    </>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Button, Dialog, Input } from '@/components/ui';
+
+const open = ref(false);
+const loading = ref(false);
+const dialogEl = ref<HTMLElement | null>(null);
+
+async function handleSubmit(e: Event) {
+  e.preventDefault();
+  loading.value = true;
+  await fetch('/api/profile', { method: 'PUT' });
+  loading.value = false;
+  dialogEl.value?.requestClose();
+}
+
+function handleAfterHide() {
+  open.value = false;
+}
+</script>
+
+<template>
+  <Button @click="open = true">Edit Profile</Button>
+  <Dialog ref="dialogEl" label="Edit Profile" :open="open" @wa-after-hide="handleAfterHide">
+    <form @submit="handleSubmit">
+      <div class="wa-stack wa-gap-m">
+        <Input label="Display name" name="displayName" required />
+        <Input label="Bio" name="bio" />
+      </div>
+    </form>
+    <template #footer>
+      <div class="wa-cluster wa-gap-s wa-justify-content-end">
+        <Button appearance="outlined" @click="dialogEl?.requestClose()">Cancel</Button>
+        <Button type="submit" variant="brand" :loading="loading" @click="handleSubmit">Save</Button>
+      </div>
+    </template>
+  </Dialog>
+</template>
+```
+
+### 3. Dropdown Menu
+
+**React:**
+
+```tsx
+import { Button, Dropdown, DropdownItem, Divider, Icon } from '@/components/ui';
+
+function ActionsMenu() {
+  return (
+    <Dropdown>
+      <Button slot="trigger" with-caret>Actions</Button>
+      <DropdownItem>
+        <Icon slot="icon" name="pen-to-square" />
+        Edit
+      </DropdownItem>
+      <DropdownItem>
+        <Icon slot="icon" name="copy" />
+        Duplicate
+      </DropdownItem>
+      <Divider />
+      <DropdownItem variant="danger">
+        <Icon slot="icon" name="trash" />
+        Delete
+      </DropdownItem>
+    </Dropdown>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { Button, Dropdown, DropdownItem, Divider, Icon } from '@/components/ui';
+</script>
+
+<template>
+  <Dropdown>
+    <Button slot="trigger" with-caret>Actions</Button>
+    <DropdownItem>
+      <Icon slot="icon" name="pen-to-square" />
+      Edit
+    </DropdownItem>
+    <DropdownItem>
+      <Icon slot="icon" name="copy" />
+      Duplicate
+    </DropdownItem>
+    <Divider />
+    <DropdownItem variant="danger">
+      <Icon slot="icon" name="trash" />
+      Delete
+    </DropdownItem>
+  </Dropdown>
+</template>
+```
+
+### 4. App Shell
+
+**React:**
+
+```tsx
+import { Button, Icon, Divider } from '@/components/ui';
+
+function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="wa-flank wa-gap-0" style={{ '--flank-size': '16rem', minHeight: '100vh' } as React.CSSProperties}>
+      <aside>
+        <nav className="wa-stack wa-gap-xs" style={{ padding: 'var(--wa-space-m)' }}>
+          <Button appearance="plain" class="wa-justify-content-start">
+            <Icon slot="start" name="house" /> Dashboard
+          </Button>
+          <Button appearance="plain" class="wa-justify-content-start">
+            <Icon slot="start" name="users" /> Team
+          </Button>
+          <Button appearance="plain" class="wa-justify-content-start">
+            <Icon slot="start" name="gear" /> Settings
+          </Button>
+        </nav>
+      </aside>
+      <main style={{ padding: 'var(--wa-space-l)' }}>
+        {children}
+      </main>
+    </div>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { Button, Icon } from '@/components/ui';
+</script>
+
+<template>
+  <div class="wa-flank wa-gap-0" style="--flank-size: 16rem; min-height: 100vh">
+    <aside>
+      <nav class="wa-stack wa-gap-xs" style="padding: var(--wa-space-m)">
+        <Button appearance="plain" class="wa-justify-content-start">
+          <Icon slot="start" name="house" /> Dashboard
+        </Button>
+        <Button appearance="plain" class="wa-justify-content-start">
+          <Icon slot="start" name="users" /> Team
+        </Button>
+        <Button appearance="plain" class="wa-justify-content-start">
+          <Icon slot="start" name="gear" /> Settings
+        </Button>
+      </nav>
+    </aside>
+    <main style="padding: var(--wa-space-l)">
+      <slot />
+    </main>
+  </div>
+</template>
+```
+
+### 5. Dashboard with Metrics
+
+**React:**
+
+```tsx
+import { Card, FormatNumber, Icon, Badge } from '@/components/ui';
+
+function Dashboard() {
+  const metrics = [
+    { label: 'Revenue', value: 48250, type: 'currency' as const, icon: 'dollar-sign', trend: 'up' },
+    { label: 'Users', value: 12840, type: 'decimal' as const, icon: 'users', trend: 'up' },
+    { label: 'Bounce Rate', value: 0.032, type: 'percent' as const, icon: 'arrow-trend-down', trend: 'down' },
+    { label: 'Avg Session', value: 245, type: 'decimal' as const, icon: 'clock', trend: 'up' },
+  ];
+
+  return (
+    <div className="wa-grid wa-gap-m" style={{ '--min-column-size': '220px' } as React.CSSProperties}>
+      {metrics.map((m) => (
+        <Card key={m.label}>
+          <div className="wa-stack wa-gap-xs">
+            <div className="wa-cluster wa-gap-s wa-align-items-center">
+              <Icon name={m.icon} />
+              <span>{m.label}</span>
+            </div>
+            <strong style={{ fontSize: 'var(--wa-font-size-2xl)' }}>
+              <FormatNumber value={m.value} type={m.type} currency="USD" />
+            </strong>
+            <Badge variant={m.trend === 'up' ? 'success' : 'danger'} appearance="outlined" pill>
+              <Icon slot="start" name={m.trend === 'up' ? 'arrow-up' : 'arrow-down'} />
+              {m.trend === 'up' ? '+12%' : '-3%'}
+            </Badge>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { Card, FormatNumber, Icon, Badge } from '@/components/ui';
+
+const metrics = [
+  { label: 'Revenue', value: 48250, type: 'currency', icon: 'dollar-sign', trend: 'up' },
+  { label: 'Users', value: 12840, type: 'decimal', icon: 'users', trend: 'up' },
+  { label: 'Bounce Rate', value: 0.032, type: 'percent', icon: 'arrow-trend-down', trend: 'down' },
+  { label: 'Avg Session', value: 245, type: 'decimal', icon: 'clock', trend: 'up' },
+];
+</script>
+
+<template>
+  <div class="wa-grid wa-gap-m" style="--min-column-size: 220px">
+    <Card v-for="m in metrics" :key="m.label">
+      <div class="wa-stack wa-gap-xs">
+        <div class="wa-cluster wa-gap-s wa-align-items-center">
+          <Icon :name="m.icon" />
+          <span>{{ m.label }}</span>
+        </div>
+        <strong style="font-size: var(--wa-font-size-2xl)">
+          <FormatNumber :value="m.value" :type="m.type" currency="USD" />
+        </strong>
+        <Badge :variant="m.trend === 'up' ? 'success' : 'danger'" appearance="outlined" pill>
+          <Icon slot="start" :name="m.trend === 'up' ? 'arrow-up' : 'arrow-down'" />
+          {{ m.trend === 'up' ? '+12%' : '-3%' }}
+        </Badge>
+      </div>
+    </Card>
+  </div>
+</template>
+```
+
+### 6. Settings Page
+
+**React:**
+
+```tsx
+import { TabGroup, Tab, TabPanel, Details, Input, Switch, Select, Option, Button } from '@/components/ui';
+
+function SettingsPage() {
+  return (
+    <TabGroup>
+      <Tab slot="nav" panel="profile">Profile</Tab>
+      <Tab slot="nav" panel="notifications">Notifications</Tab>
+      <Tab slot="nav" panel="security">Security</Tab>
+
+      <TabPanel name="profile">
+        <div className="wa-stack wa-gap-l">
+          <Details summary="Personal Information" open>
+            <div className="wa-stack wa-gap-m">
+              <Input label="Display name" name="displayName" />
+              <Input label="Email" type="email" name="email" />
+              <Select label="Timezone" name="timezone">
+                <Option value="utc">UTC</Option>
+                <Option value="est">Eastern Time</Option>
+                <Option value="pst">Pacific Time</Option>
+              </Select>
+            </div>
+          </Details>
+          <Details summary="Preferences">
+            <div className="wa-stack wa-gap-m">
+              <Select label="Language" name="language">
+                <Option value="en">English</Option>
+                <Option value="es">Spanish</Option>
+              </Select>
+            </div>
+          </Details>
+          <Button variant="brand">Save Changes</Button>
+        </div>
+      </TabPanel>
+
+      <TabPanel name="notifications">
+        <div className="wa-stack wa-gap-m">
+          <Switch checked>Email notifications</Switch>
+          <Switch>Push notifications</Switch>
+          <Switch checked>Weekly digest</Switch>
+        </div>
+      </TabPanel>
+
+      <TabPanel name="security">
+        <div className="wa-stack wa-gap-m">
+          <Input label="Current password" type="password" name="currentPassword" />
+          <Input label="New password" type="password" name="newPassword" />
+          <Input label="Confirm password" type="password" name="confirmPassword" />
+          <Button variant="brand">Update Password</Button>
+        </div>
+      </TabPanel>
+    </TabGroup>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { TabGroup, Tab, TabPanel, Details, Input, Switch, Select, Option, Button } from '@/components/ui';
+</script>
+
+<template>
+  <TabGroup>
+    <Tab slot="nav" panel="profile">Profile</Tab>
+    <Tab slot="nav" panel="notifications">Notifications</Tab>
+    <Tab slot="nav" panel="security">Security</Tab>
+
+    <TabPanel name="profile">
+      <div class="wa-stack wa-gap-l">
+        <Details summary="Personal Information" open>
+          <div class="wa-stack wa-gap-m">
+            <Input label="Display name" name="displayName" />
+            <Input label="Email" type="email" name="email" />
+            <Select label="Timezone" name="timezone">
+              <Option value="utc">UTC</Option>
+              <Option value="est">Eastern Time</Option>
+              <Option value="pst">Pacific Time</Option>
+            </Select>
+          </div>
+        </Details>
+        <Details summary="Preferences">
+          <div class="wa-stack wa-gap-m">
+            <Select label="Language" name="language">
+              <Option value="en">English</Option>
+              <Option value="es">Spanish</Option>
+            </Select>
+          </div>
+        </Details>
+        <Button variant="brand">Save Changes</Button>
+      </div>
+    </TabPanel>
+
+    <TabPanel name="notifications">
+      <div class="wa-stack wa-gap-m">
+        <Switch checked>Email notifications</Switch>
+        <Switch>Push notifications</Switch>
+        <Switch checked>Weekly digest</Switch>
+      </div>
+    </TabPanel>
+
+    <TabPanel name="security">
+      <div class="wa-stack wa-gap-m">
+        <Input label="Current password" type="password" name="currentPassword" />
+        <Input label="New password" type="password" name="newPassword" />
+        <Input label="Confirm password" type="password" name="confirmPassword" />
+        <Button variant="brand">Update Password</Button>
+      </div>
+    </TabPanel>
+  </TabGroup>
+</template>
+```
+
+### 7. Data Table with Status Badges
+
+**React:**
+
+```tsx
+import { Badge, Button, Icon } from '@/components/ui';
+
+const statusVariant = {
+  active: 'success',
+  pending: 'warning',
+  inactive: 'danger',
+} as const;
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  status: keyof typeof statusVariant;
+}
+
+function UsersTable({ users }: { users: User[] }) {
+  return (
+    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <thead>
+        <tr style={{ borderBottom: 'var(--wa-border-width-s) solid var(--wa-color-neutral-border-quiet)' }}>
+          <th style={{ textAlign: 'start', padding: 'var(--wa-space-s)' }}>Name</th>
+          <th style={{ textAlign: 'start', padding: 'var(--wa-space-s)' }}>Email</th>
+          <th style={{ textAlign: 'start', padding: 'var(--wa-space-s)' }}>Role</th>
+          <th style={{ textAlign: 'start', padding: 'var(--wa-space-s)' }}>Status</th>
+          <th style={{ textAlign: 'end', padding: 'var(--wa-space-s)' }}>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map((user) => (
+          <tr key={user.id} style={{ borderBottom: 'var(--wa-border-width-s) solid var(--wa-color-neutral-border-quiet)' }}>
+            <td style={{ padding: 'var(--wa-space-s)' }}>{user.name}</td>
+            <td style={{ padding: 'var(--wa-space-s)' }}>{user.email}</td>
+            <td style={{ padding: 'var(--wa-space-s)' }}>{user.role}</td>
+            <td style={{ padding: 'var(--wa-space-s)' }}>
+              <Badge variant={statusVariant[user.status]} pill>{user.status}</Badge>
+            </td>
+            <td style={{ padding: 'var(--wa-space-s)', textAlign: 'end' }}>
+              <Button size="small" appearance="outlined">
+                <Icon slot="start" name="pen-to-square" /> Edit
+              </Button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { Badge, Button, Icon } from '@/components/ui';
+
+const statusVariant = { active: 'success', pending: 'warning', inactive: 'danger' } as const;
+
+defineProps<{
+  users: Array<{ id: number; name: string; email: string; role: string; status: keyof typeof statusVariant }>;
+}>();
+</script>
+
+<template>
+  <table style="width: 100%; border-collapse: collapse">
+    <thead>
+      <tr style="border-bottom: var(--wa-border-width-s) solid var(--wa-color-neutral-border-quiet)">
+        <th style="text-align: start; padding: var(--wa-space-s)">Name</th>
+        <th style="text-align: start; padding: var(--wa-space-s)">Email</th>
+        <th style="text-align: start; padding: var(--wa-space-s)">Role</th>
+        <th style="text-align: start; padding: var(--wa-space-s)">Status</th>
+        <th style="text-align: end; padding: var(--wa-space-s)">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="user in users" :key="user.id" style="border-bottom: var(--wa-border-width-s) solid var(--wa-color-neutral-border-quiet)">
+        <td style="padding: var(--wa-space-s)">{{ user.name }}</td>
+        <td style="padding: var(--wa-space-s)">{{ user.email }}</td>
+        <td style="padding: var(--wa-space-s)">{{ user.role }}</td>
+        <td style="padding: var(--wa-space-s)">
+          <Badge :variant="statusVariant[user.status]" pill>{{ user.status }}</Badge>
+        </td>
+        <td style="padding: var(--wa-space-s); text-align: end">
+          <Button size="small" appearance="outlined">
+            <Icon slot="start" name="pen-to-square" /> Edit
+          </Button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+```
+
+### 8. Toast Notifications (Pro)
+
+**React:**
+
+```tsx
+import { Toast, ToastItem, Button } from '@/components/ui';
+import { useRef } from 'react';
+
+function ToastDemo() {
+  const toastRef = useRef<HTMLElement & { create: (msg: string, opts: Record<string, unknown>) => void }>(null);
+
+  const notify = (variant: string, message: string) => {
+    toastRef.current?.create(message, { variant, duration: 4000 });
+  };
+
+  return (
+    <>
+      <div className="wa-cluster wa-gap-s">
+        <Button variant="success" onClick={() => notify('success', 'Changes saved successfully.')}>
+          Success
+        </Button>
+        <Button variant="danger" onClick={() => notify('danger', 'Something went wrong.')}>
+          Error
+        </Button>
+        <Button variant="warning" onClick={() => notify('warning', 'Disk space running low.')}>
+          Warning
+        </Button>
+      </div>
+      <Toast ref={toastRef} placement="top-end" />
+    </>
+  );
+}
+```
+
+**Vue:**
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Toast, Button } from '@/components/ui';
+
+const toastEl = ref<HTMLElement | null>(null);
+
+function notify(variant: string, message: string) {
+  (toastEl.value as any)?.create(message, { variant, duration: 4000 });
+}
+</script>
+
+<template>
+  <div class="wa-cluster wa-gap-s">
+    <Button variant="success" @click="notify('success', 'Changes saved successfully.')">Success</Button>
+    <Button variant="danger" @click="notify('danger', 'Something went wrong.')">Error</Button>
+    <Button variant="warning" @click="notify('warning', 'Disk space running low.')">Warning</Button>
+  </div>
+  <Toast ref="toastEl" placement="top-end" />
+</template>
+```
+
+---
+
+## State Patterns
+
+### Two Event Systems
+
+Web Awesome components use two distinct event systems. Getting this wrong is the most common source of bugs.
+
+| Category | Event Origin | Event Names | How to Read Value |
+|----------|-------------|-------------|-------------------|
+| Form controls (Input, Select, Checkbox, Textarea, Slider, Switch, Radio, Rating, ColorPicker, Combobox, NumberInput, FileInput) | Native DOM | input, change, blur, focus | `e.target.value` or `e.target.checked` |
+| Overlays (Dialog, Drawer, Dropdown, Tooltip, Popover, Details) | CustomEvent | wa-show, wa-hide, wa-after-show, wa-after-hide | `e.detail` (varies) |
+| Selection (Dropdown, Tree) | CustomEvent | wa-select, wa-selection-change | `e.detail.item` |
+| Validation | CustomEvent | wa-invalid | `e.detail` |
+
+### Controlled Overlay Pattern
+
+**React:**
+
+```tsx
+const [open, setOpen] = useState(false);
+const dialogRef = useRef<HTMLElement>(null);
+
+// Open
+<Button onClick={() => setOpen(true)}>Open</Button>
+
+// Sync close state via event
+useEffect(() => {
+  const el = dialogRef.current;
+  if (!el) return;
+  const handleHide = () => setOpen(false);
+  el.addEventListener('wa-after-hide', handleHide);
+  return () => el.removeEventListener('wa-after-hide', handleHide);
+}, []);
+
+// Close programmatically
+dialogRef.current?.requestClose();
+```
+
+**Vue:**
+
+```vue
+const open = ref(false);
+const dialogEl = ref(null);
+
+// Open
+<Button @click="open = true">Open</Button>
+
+// Sync close
+<Dialog :open="open" @wa-after-hide="open = false">
+
+// Close programmatically
+dialogEl.value?.requestClose();
+```
+
+### requestClose() vs hide()
+
+Always use `requestClose()` on Dialog and Drawer. It triggers the `wa-hide` event lifecycle, which can be prevented with `event.preventDefault()`. Using `hide()` directly bypasses this lifecycle and breaks controlled state.
+
+### Event Cleanup in useEffect
+
+Every `addEventListener` in a `useEffect` MUST return a cleanup function:
+
+```tsx
+useEffect(() => {
+  const el = ref.current;
+  if (!el) return;
+  const handler = (e: Event) => { /* ... */ };
+  el.addEventListener('wa-show', handler);
+  return () => el.removeEventListener('wa-show', handler);
+}, []);
+```
+
+### Form Input Value Reading
+
+**React:**
+
+```tsx
+// Input, Textarea
+<Input onInput={(e) => setValue((e.target as HTMLInputElement).value)} />
+
+// Checkbox, Switch
+<Checkbox onChange={(e) => setChecked((e.target as HTMLInputElement).checked)} />
+
+// Select (single)
+<Select onChange={(e) => setRole((e.target as HTMLSelectElement).value)}>
+
+// Rating
+<Rating onChange={(e) => setRating((e.target as HTMLInputElement).value)} />
+```
+
+**Vue:**
+
+```vue
+<!-- Input, Textarea -->
+<Input @input="(e) => value = e.target.value" />
+
+<!-- Checkbox, Switch -->
+<Checkbox @change="(e) => checked = e.target.checked" />
+
+<!-- Select (single) -->
+<Select @change="(e) => role = e.target.value">
+```
+
+---
+
+## Styling API
+
+### CSS Cascade Layers
+
+Kigumi uses CSS `@layer` for specificity management. The layer order is:
+
+```
+base < theme
+```
+
+- **base**: Web Awesome default styles
+- **theme**: Your project's `theme.css` overrides
+
+This means theme styles always override base styles without needing `!important`. NEVER use `!important` in Kigumi projects.
+
+### CSS Parts
+
+Style Shadow DOM internals using the `::part()` selector:
+
+```css
+/* Style the dialog body */
+wa-dialog::part(body) {
+  padding: var(--wa-space-xl);
+}
+
+/* Style button label */
+wa-button::part(label) {
+  font-weight: var(--wa-font-weight-bold);
+}
+
+/* Style input base */
+wa-input::part(base) {
+  border-radius: var(--wa-border-radius-l);
+}
+```
+
+Each component's CSS Parts are listed in the Component Reference above.
+
+### Design Tokens
+
+Web Awesome provides semantic design tokens as CSS custom properties with the `--wa-` prefix. Override them at `:root` scope or on specific selectors.
+
+**Color tokens:**
+- `--wa-color-brand-fill-loud` / `--wa-color-brand-fill-normal` / `--wa-color-brand-fill-quiet`
+- `--wa-color-neutral-fill-loud` / `--wa-color-neutral-fill-normal` / `--wa-color-neutral-fill-quiet`
+- `--wa-color-success-fill-loud` / `--wa-color-success-fill-normal`
+- `--wa-color-warning-fill-loud` / `--wa-color-warning-fill-normal`
+- `--wa-color-danger-fill-loud` / `--wa-color-danger-fill-normal`
+- `--wa-color-surface-default` / `--wa-color-surface-raised` / `--wa-color-surface-overlay`
+- `--wa-color-surface-text` / `--wa-color-surface-text-quiet`
+- `--wa-color-surface-border` / `--wa-color-neutral-border-quiet`
+
+**Typography tokens:**
+- `--wa-font-size-xs` through `--wa-font-size-3xl`
+- `--wa-font-weight-light` / `--wa-font-weight-normal` / `--wa-font-weight-semibold` / `--wa-font-weight-bold`
+- `--wa-line-height-dense` / `--wa-line-height-normal` / `--wa-line-height-loose`
+- `--wa-font-family-sans` / `--wa-font-family-serif` / `--wa-font-family-mono`
+
+**Spacing tokens:**
+- `--wa-space-3xs` through `--wa-space-3xl`
+
+**Border tokens:**
+- `--wa-border-radius-s` / `--wa-border-radius-m` / `--wa-border-radius-l` / `--wa-border-radius-xl` / `--wa-border-radius-circle` / `--wa-border-radius-pill`
+- `--wa-border-width-s` / `--wa-border-width-m` / `--wa-border-width-l`
+
+**Shadow tokens:**
+- `--wa-shadow-xs` through `--wa-shadow-xl`
+
+**Transition tokens:**
+- `--wa-transition-x-slow` / `--wa-transition-slow` / `--wa-transition-medium` / `--wa-transition-fast` / `--wa-transition-x-fast`
+
+**Z-index tokens:**
+- `--wa-z-index-drawer` / `--wa-z-index-dialog` / `--wa-z-index-dropdown` / `--wa-z-index-toast` / `--wa-z-index-tooltip`
+
+### Override Pattern
+
+Override tokens at `:root` for global changes, or on specific selectors for scoped changes:
+
+```css
+/* Global overrides in theme.css */
+:root {
+  --wa-color-brand-fill-loud: #6366f1;
+  --wa-border-radius-m: 0.5rem;
+  --wa-font-family-sans: 'Inter', sans-serif;
+}
+
+/* Dark mode overrides */
+.wa-dark {
+  --wa-color-surface-default: #1e1e2e;
+  --wa-color-surface-text: #cdd6f4;
+}
+```
+
+### Theme Configuration
+
+Theme settings in `kigumi.config.json`:
+
+```json
+{
+  "theme": {
+    "selected": "awesome",
+    "palette": "rudimentary",
+    "brandColor": "blue"
+  }
+}
+```
+
+- `theme.selected`: The active theme preset (awesome, tailspin, poppins, etc.)
+- `theme.palette`: Color palette (rudimentary, vivid, etc.)
+- `theme.brandColor`: Primary brand color (blue, purple, red, green, etc.)
+
+Change themes via CLI:
+
+```bash
+npx kigumi theme awesome       # Set theme
+npx kigumi palette vivid       # Set palette
+npx kigumi brand purple        # Set brand color
+```
+
+---
+
+## Accessibility
+
+### Form Controls
+
+- **Always provide `label`**: Every Input, Select, Textarea, Slider, RadioGroup, Checkbox, Switch, ColorPicker, Combobox, NumberInput, and FileInput must have a `label` prop for screen readers.
+- **Use `hint` for descriptions**: Add the `hint` prop to provide additional context beyond the label.
+- **Required fields**: Set `required` prop. Web Awesome handles `aria-required` automatically.
+- **Validation messages**: Use `setCustomValidity()` for custom error messages. The `wa-invalid` event fires when validation fails.
+
+### Overlays
+
+- **Always provide `label`**: Dialog and Drawer must have a `label` prop that describes their purpose.
+- **Focus trap**: Dialog and Drawer automatically trap focus inside the overlay when open.
+- **Escape to close**: Dialog and Drawer close on Escape key by default. Prevent this by calling `event.preventDefault()` on `wa-hide`.
+- **Light dismiss**: Set `light-dismiss` to allow closing by clicking outside. Disabled by default for Dialog.
+
+### Keyboard Navigation
+
+Built-in keyboard support:
+- **TabGroup**: Arrow keys navigate between tabs, Enter/Space activates
+- **Tree**: Arrow keys navigate, Enter/Space selects, Left/Right expands/collapses
+- **RadioGroup**: Arrow keys move between options
+- **Dropdown**: Arrow keys navigate items, Enter/Space selects, Escape closes
+- **Select**: Arrow keys navigate options, Enter/Space selects
+- **Slider**: Arrow keys adjust value, Home/End for min/max
+
+### Color
+
+- Never rely on color alone to convey information. Always pair color with text, icons, or patterns.
+- Badge variants (success, warning, danger) include both color and text content.
+- Use sufficient color contrast. Web Awesome tokens are designed to meet WCAG 2.1 AA standards.
+
+### Icons
+
+- **Icon-only buttons**: Always add `aria-label` to buttons that contain only an icon:
+
+```tsx
+<Button aria-label="Delete item">
+  <Icon name="trash" />
+</Button>
+```
+
+- **Decorative icons**: Icons next to text labels are decorative and do not need labels. Web Awesome handles this automatically.
+
+---
+
+## CLI Reference
+
+### npx kigumi init
+
+Initialize a Kigumi project in the current directory.
+
+```bash
+npx kigumi init [options]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--framework <name>` | Framework (react, vue) |
+| `--theme <name>` | Theme preset |
+| `--palette <name>` | Color palette |
+| `--brand <color>` | Brand color |
+| `--typescript` / `--no-typescript` | TypeScript support |
+| `--components-dir <path>` | Component output directory |
+| `--yes` | Skip prompts, use defaults |
+
+### npx kigumi add
+
+Add components to your project.
+
+```bash
+npx kigumi add <component...> [options]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--overwrite` | Overwrite existing components |
+| `--from <registry>` | Install from community registry |
+| `--all` | Add all available components |
+
+Examples:
+```bash
+npx kigumi add button card dialog
+npx kigumi add button --overwrite
+npx kigumi add --all
+npx kigumi add custom-card --from my-registry
+```
+
+### npx kigumi list
+
+List all available components.
+
+```bash
+npx kigumi list [options]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--json` | Machine-readable JSON output |
+| `--category <name>` | Filter by category |
+
+### npx kigumi status
+
+Show project status and configuration.
+
+```bash
+npx kigumi status [options]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--json` | Machine-readable JSON output |
+
+### npx kigumi theme
+
+Set the active theme.
+
+```bash
+npx kigumi theme <name>
+npx kigumi theme list
+npx kigumi theme show
+npx kigumi theme install --from <registry>
+```
+
+### npx kigumi brand
+
+Set the brand color.
+
+```bash
+npx kigumi brand <color>
+```
+
+### npx kigumi palette
+
+Set the color palette.
+
+```bash
+npx kigumi palette <name>
+```
+
+### npx kigumi doctor
+
+Diagnose common issues (imports, tier, config).
+
+```bash
+npx kigumi doctor
+```
+
+### npx kigumi diff
+
+Compare installed components against current templates to see what changed.
+
+```bash
+npx kigumi diff [component...]
+```
+
+### npx kigumi update
+
+Update installed components using three-way merge (preserves your edits).
+
+```bash
+npx kigumi update [component...] [options]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--force` | Overwrite without merge |
+| `--dry-run` | Preview changes without writing |
+
+### npx kigumi upgrade
+
+Check for and apply CLI version upgrades.
+
+```bash
+npx kigumi upgrade
+```
+
+### npx kigumi registry
+
+Manage community component registries.
+
+```bash
+npx kigumi registry connect <name> <url>
+npx kigumi registry list
+npx kigumi registry remove <name>
+```
+
+---
+
+## Links
 
 - **Homepage**: https://kigumi.style
 - **Repository**: https://github.com/Siregar/kigumi-cli
 - **Web Awesome Docs**: https://webawesome.com/docs
-- **Agent Skills**: https://github.com/Siregar/kigumi-cli/tree/main/skills
-
-## Frameworks
-
-Currently supports:
-- React (full support with 57+ components)
-- Vue, Svelte, Angular (coming soon)
+- **Storybook**: https://docs.kigumi.style
