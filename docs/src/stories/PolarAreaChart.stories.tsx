@@ -58,24 +58,3 @@ export const Default: Story = {
     </PolarAreaChart>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <PolarAreaChart
-        label="Seasonal rainfall"
-        without-animation
-        style={{ height: '200px', width: '300px' }}
-      >
-        <script type="application/json">
-          {JSON.stringify(rainfallConfig)}
-        </script>
-      </PolarAreaChart>
-    </div>
-  ),
-};

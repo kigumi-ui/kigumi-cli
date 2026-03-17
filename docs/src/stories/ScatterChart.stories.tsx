@@ -103,26 +103,3 @@ export const Default: Story = {
     </ScatterChart>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <ScatterChart
-        label="Study vs scores"
-        x-label="Hours"
-        y-label="Score"
-        without-animation
-        style={{ height: '200px', width: '400px' }}
-      >
-        <script type="application/json">
-          {JSON.stringify(studyScoresConfig)}
-        </script>
-      </ScatterChart>
-    </div>
-  ),
-};

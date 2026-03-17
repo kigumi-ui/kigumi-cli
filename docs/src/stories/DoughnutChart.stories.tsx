@@ -78,24 +78,3 @@ export const MultiSegment: Story = {
     </DoughnutChart>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <DoughnutChart
-        label="Time allocation"
-        without-animation
-        style={{ height: '200px', width: '300px' }}
-      >
-        <script type="application/json">
-          {JSON.stringify(timeAllocationConfig)}
-        </script>
-      </DoughnutChart>
-    </div>
-  ),
-};

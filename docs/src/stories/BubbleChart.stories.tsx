@@ -108,24 +108,3 @@ export const Default: Story = {
     </BubbleChart>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <BubbleChart
-        label="City populations"
-        without-animation
-        style={{ height: '200px', width: '400px' }}
-      >
-        <script type="application/json">
-          {JSON.stringify(cityPopulationConfig)}
-        </script>
-      </BubbleChart>
-    </div>
-  ),
-};

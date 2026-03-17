@@ -158,38 +158,3 @@ export const HorizontalBar: Story = {
     </Chart>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div
-      style={{
-        display: 'flex',
-        gap: '2rem',
-        flexWrap: 'wrap',
-        padding: '1.5rem',
-      }}
-    >
-      <Chart
-        type="bar"
-        label="Bar"
-        without-animation
-        style={{ height: '200px', width: '300px' }}
-      >
-        <script type="application/json">{JSON.stringify(sampleConfig)}</script>
-      </Chart>
-      <Chart
-        type="line"
-        label="Line"
-        without-animation
-        style={{ height: '200px', width: '300px' }}
-      >
-        <script type="application/json">{JSON.stringify(sampleConfig)}</script>
-      </Chart>
-    </div>
-  ),
-};
