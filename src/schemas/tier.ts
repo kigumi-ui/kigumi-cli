@@ -66,6 +66,8 @@ export const PRO_COMPONENTS = [
   'data-grid',
   'date-picker',
   'file-input',
+  'number-input',
+  'sparkline',
   'toast',
   'video',
 ] as const;
