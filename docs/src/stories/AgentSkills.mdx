@@ -1,0 +1,299 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Card, CopyButton, Callout, Icon } from '@/components/ui';
+
+<Meta title="Guides / Agent Skills" tags={['new']} />
+
+<Unstyled>
+  <div className="wa-stack wa-gap-4xl">
+    <div className="wa-stack wa-gap-xl">
+      <h2 className="wa-heading-2xl" id="agent-skills">
+        Agent Skills
+      </h2>
+      <p className="wa-caption-m">
+        Kigumi provides agent skills that teach AI assistants how to build
+        production-ready UIs with Kigumi components. Install a skill once and
+        your AI assistant gains deep knowledge about component APIs, composition
+        patterns, and best practices.
+      </p>
+
+      <Callout variant="brand" appearance="outlined">
+        <Icon slot="icon" name="circle-info" />
+        Skills work with any AI coding assistant that supports the skills protocol:
+        Claude Code, Cursor, Windsurf, and others.
+      </Callout>
+
+      {/* Installation */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="installation">Install skills</h3>
+        <p className="wa-caption-m">
+          Use the <code>npx skills</code> CLI to browse and install all
+          available Kigumi skills. You will be presented with a selection of
+          skills to choose from.
+        </p>
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
+            <pre>
+              <code>
+                <span style={{ opacity: 0.6, pointerEvents: 'none', position: 'absolute', top: 0, bottom: 0, display: 'flex', alignItems: 'center', fontSize: 'inherit', zIndex: 1, userSelect: 'none' }} aria-hidden="true">$ </span>
+                <span style={{ paddingLeft: 'var(--wa-space-m)', display: 'inline-block' }}>npx skills add https://docs.kigumi.style/skills/kigumi</span>
+              </code>
+            </pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CopyButton value="npx skills add https://docs.kigumi.style/skills/kigumi" />
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      {/* How Skills Work */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="how-skills-work">How skills work</h3>
+        <p className="wa-caption-m">
+          When you install a skill, your AI assistant receives structured knowledge
+          about Kigumi's component APIs, composition patterns, and best practices.
+          Instead of guessing how components work, the AI references accurate
+          documentation and produces correct code on the first try.
+        </p>
+
+        <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
+          <Card appearance="outlined">
+            <div className="wa-stack wa-gap-xs">
+              <strong className="wa-heading-s">Without skills</strong>
+              <p className="wa-caption-s wa-color-text-quiet">
+                AI guesses component APIs, uses wrong event types, forgets
+                accessibility attributes, and produces code that needs manual fixes.
+              </p>
+            </div>
+          </Card>
+          <Card appearance="outlined">
+            <div className="wa-stack wa-gap-xs">
+              <strong className="wa-heading-s">With skills</strong>
+              <p className="wa-caption-s wa-color-text-quiet">
+                AI knows every prop, event, and slot. Generates accessible,
+                production-ready code with correct state management patterns.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Conversion Skills */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="conversion-skills">Conversion skills</h3>
+        <p className="wa-caption-m">
+          Convert Web Awesome HTML from <a href="https://webawesome.com/docs">webawesome.com/docs</a> into
+          framework-specific Kigumi components.
+        </p>
+
+        <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
+          <Card>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                <Icon name="react" family="brands" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
+                <strong className="wa-heading-s">kigumi-react</strong>
+              </div>
+              <p className="wa-caption-s wa-color-text-quiet">
+                Convert Web Awesome HTML to Kigumi React components. Handles
+                attribute mapping, event handlers, slot syntax, and TypeScript types.
+              </p>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                <Icon name="vuejs" family="brands" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
+                <strong className="wa-heading-s">kigumi-vue</strong>
+              </div>
+              <p className="wa-caption-s wa-color-text-quiet">
+                Convert Web Awesome HTML to Kigumi Vue SFCs. Handles <code>@event</code> syntax,
+                template slots, <code>ref()</code> state, and <code>&lt;script setup&gt;</code>.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Composition Skills */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="composition-skills">Composition skills</h3>
+        <p className="wa-caption-m">
+          Teach your AI assistant how to build complete features by composing
+          multiple Kigumi components together. Each skill includes decision trees,
+          code patterns for both React and Vue, and accessibility checklists.
+        </p>
+
+        <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
+          <Card>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                <Icon name="table-list" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
+                <strong className="wa-heading-s">kigumi-compose-form</strong>
+              </div>
+              <p className="wa-caption-s wa-color-text-quiet">
+                Build forms with validation, error handling, and async submission.
+                Includes login, settings, contact, and multi-step wizard patterns.
+              </p>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                <Icon name="table-columns" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
+                <strong className="wa-heading-s">kigumi-compose-layout</strong>
+              </div>
+              <p className="wa-caption-s wa-color-text-quiet">
+                Build page layouts, dashboards, and app shells using Web Awesome
+                layout utilities. Includes 5 layout archetypes with responsive patterns.
+              </p>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                <Icon name="window-restore" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
+                <strong className="wa-heading-s">kigumi-compose-overlay</strong>
+              </div>
+              <p className="wa-caption-s wa-color-text-quiet">
+                Build dialogs, drawers, dropdown menus, tooltips, popovers, and
+                toast notifications with correct state management and focus handling.
+              </p>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                <Icon name="chart-simple" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
+                <strong className="wa-heading-s">kigumi-compose-data</strong>
+              </div>
+              <p className="wa-caption-s wa-color-text-quiet">
+                Build data tables, stats dashboards, list views, detail panels,
+                and loading/empty states with proper formatting components.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Theming Skill */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="theming-skill">Theming skill</h3>
+
+        <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
+          <Card>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-cluster wa-gap-xs wa-align-items-center">
+                <Icon name="palette" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
+                <strong className="wa-heading-s">kigumi-theme</strong>
+              </div>
+              <p className="wa-caption-s wa-color-text-quiet">
+                Customize themes, CSS variables, design tokens, and dark mode.
+                Covers brand colors, palettes, CSS layers, and component-level overrides.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Example */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="example">Example: "Build me a login form"</h3>
+        <p className="wa-caption-m">
+          With <strong>kigumi-compose-form</strong> installed, your AI assistant
+          knows to use native DOM events (not CustomEvent), the <code>required</code> prop
+          for validation, <code>.wa-stack</code> for layout, and the <code>loading</code> prop
+          on the submit button.
+        </p>
+
+        <Card appearance="outlined" style={{ '--spacing': '0' }}>
+          <div className="wa-flank:end wa-align-items-start wa-gap-xs" style={{ position: 'relative' }}>
+            <pre style={{ overflowX: 'auto' }}>
+              <code>{`import { useState } from 'react';
+import { Button, Callout, Checkbox, Input } from '@/components/ui';
+
+export function LoginForm() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        body: new FormData(e.currentTarget),
+      });
+      if (!res.ok) throw new Error('Invalid credentials');
+      window.location.href = '/dashboard';
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
+      {error && <Callout variant="danger">{error}</Callout>}
+      <Input label="Email" name="email" type="email" required />
+      <Input label="Password" name="password" type="password"
+        required password-toggle />
+      <Checkbox name="remember">Remember me</Checkbox>
+      <Button variant="brand" type="submit" loading={loading}>
+        Sign In
+      </Button>
+    </form>
+  );
+}`}</code>
+            </pre>
+            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: 'var(--wa-space-xs)' }}>
+              <CopyButton value={`import { useState } from 'react';
+import { Button, Callout, Checkbox, Input } from '@/components/ui';
+
+export function LoginForm() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        body: new FormData(e.currentTarget),
+      });
+      if (!res.ok) throw new Error('Invalid credentials');
+      window.location.href = '/dashboard';
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
+      {error && <Callout variant="danger">{error}</Callout>}
+      <Input label="Email" name="email" type="email" required />
+      <Input label="Password" name="password" type="password"
+        required password-toggle />
+      <Checkbox name="remember">Remember me</Checkbox>
+      <Button variant="brand" type="submit" loading={loading}>
+        Sign In
+      </Button>
+    </form>
+  );
+}`} />
+            </span>
+          </div>
+        </Card>
+      </div>
+
+    </div>
+  </div>
+</Unstyled>

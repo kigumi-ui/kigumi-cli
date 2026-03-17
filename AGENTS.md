@@ -60,12 +60,18 @@ node dist/index.js add button --overwrite
 
 ## Skills
 
-| Skill                        | Location                                     | Audience    | Purpose                              |
-| ---------------------------- | -------------------------------------------- | ----------- | ------------------------------------ |
-| `kigumi-react`               | `.claude/skills/kigumi-react/`               | End user    | Convert WA HTML to Kigumi React JSX  |
-| `kigumi-theme`               | `.claude/skills/kigumi-theme/`               | End user    | Theme customization guidance         |
-| `generate-theme-preset`      | `.claude/skills/generate-theme-preset/`      | Contributor | Create Studio theme presets          |
-| `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates |
+| Skill                        | Location                                     | Audience    | Purpose                               |
+| ---------------------------- | -------------------------------------------- | ----------- | ------------------------------------- |
+| `kigumi-react`               | `.claude/skills/kigumi-react/`               | End user    | Convert WA HTML to Kigumi React JSX   |
+| `kigumi-vue`                 | `.claude/skills/kigumi-vue/`                 | End user    | Convert WA HTML to Kigumi Vue SFC     |
+| `kigumi-compose-form`        | `.claude/skills/kigumi-compose-form/`        | End user    | Build forms with validation           |
+| `kigumi-compose-layout`      | `.claude/skills/kigumi-compose-layout/`      | End user    | Build page layouts, dashboards        |
+| `kigumi-compose-overlay`     | `.claude/skills/kigumi-compose-overlay/`     | End user    | Build dialogs, drawers, menus, toasts |
+| `kigumi-compose-data`        | `.claude/skills/kigumi-compose-data/`        | End user    | Build data tables, stats, list views  |
+| `kigumi-theme`               | `.claude/skills/kigumi-theme/`               | End user    | Theme customization guidance          |
+| `generate-theme-preset`      | `.claude/skills/generate-theme-preset/`      | Contributor | Create Studio theme presets           |
+| `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates  |
+| `release`                    | `.claude/skills/release/`                    | Contributor | Prepare and publish releases          |
 
 ---
 
