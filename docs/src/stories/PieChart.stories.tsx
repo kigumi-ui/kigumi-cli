@@ -76,24 +76,3 @@ export const ThreeWay: Story = {
     </PieChart>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <PieChart
-        label="Browser share"
-        without-animation
-        style={{ height: '200px', width: '300px' }}
-      >
-        <script type="application/json">
-          {JSON.stringify(browserShareConfig)}
-        </script>
-      </PieChart>
-    </div>
-  ),
-};
