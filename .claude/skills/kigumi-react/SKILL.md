@@ -106,8 +106,7 @@ See [references/transformation-rules.md](references/transformation-rules.md) for
 
 | Web Awesome      | React             | Example                                                          |
 | ---------------- | ----------------- | ---------------------------------------------------------------- |
-| `class="..."`    | `className="..."` | Standard HTML elements (`<div>`, `<span>`, `<form>`)             |
-| `class="..."`    | `class="..."`     | Web components (`<wa-*>`) — keep as-is, `className` doesn't work |
+| `class="..."`    | `className="..."` | ALL elements — both HTML (`<div>`) and Kigumi wrappers (`<Button>`, `<Card>`) |
 | `style="..."`    | `style={{ }}`     | Object syntax                                                    |
 | Kebab-case props | Keep as-is        | `with-caret`, `light-dismiss`                                    |
 | `slot="..."`     | `slot="..."`      | Preserved                                                        |
@@ -115,7 +114,7 @@ See [references/transformation-rules.md](references/transformation-rules.md) for
 | `data-*`         | `data-*`          | Preserved                                                        |
 | Boolean attrs    | Prop only         | `disabled`, `loading`                                            |
 
-**Critical rule:** `className` is for standard HTML elements only. Web components (`<wa-*>` tags, which become `<Button>`, `<Card>`, etc.) use `class` because they are custom elements and `className` does not propagate to their Shadow DOM.
+**Critical rule:** In React, ALWAYS use `className` -- on both standard HTML elements (`<div>`, `<span>`) AND Kigumi wrapper components (`<Button>`, `<Card>`, etc.). The Kigumi wrapper accepts `className` via its `HTMLAttributes` interface and internally passes it to the web component as `class={clsx('ComponentName', className)}`. Using `class` on a Kigumi React wrapper causes TS2322.
 
 ### Event Handlers
 
@@ -276,7 +275,7 @@ export default function App() {
 <wa-button disabled loading>Click</wa-button>
 
 <!-- React (Kigumi component) -->
-<button disabled loading>Click</button>
+<Button disabled loading>Click</Button>
 ```
 
 ## Validation Checklist
@@ -284,7 +283,7 @@ export default function App() {
 After transformation, verify:
 
 - [ ] All `<wa-*>` tags mapped to Kigumi components
-- [ ] `class` kept on `<wa-*>` / Kigumi components; `className` used on standard HTML elements
+- [ ] `className` used on ALL elements (both HTML elements and Kigumi wrappers)
 - [ ] Inline styles use React object syntax `{{ }}`
 - [ ] Self-closing tags use JSX syntax `<Component />`
 - [ ] Component names are PascalCase

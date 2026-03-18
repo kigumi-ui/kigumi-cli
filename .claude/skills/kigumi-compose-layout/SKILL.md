@@ -31,16 +31,16 @@ Build page-level layouts using Kigumi components and Web Awesome CSS layout util
 
 ## Critical Rules
 
-1. **`className` on HTML elements, `class` on Kigumi components.**
+1. **`className` on ALL elements in React (both HTML and Kigumi wrappers).**
 
 ```tsx
-// CORRECT
+// CORRECT -- className on both HTML elements and Kigumi wrappers
 <div className="wa-grid wa-gap-l">
-  <Card>...</Card>
+  <Card className="my-custom-class">...</Card>
 </div>
 
-// WRONG -- className does not propagate through Shadow DOM
-<Card className="wa-grid">...</Card>
+// WRONG -- class causes TS2322 on Kigumi wrappers in React
+<Card class="my-custom-class">...</Card>
 ```
 
 2. **WA layouts are inherently responsive.** `.wa-grid` auto-wraps. `.wa-flank` stacks on narrow screens. Rarely need `@media` queries.
@@ -58,10 +58,20 @@ Build page-level layouts using Kigumi components and Web Awesome CSS layout util
 | `.wa-frame` | Aspect-ratio container | Images, video embeds |
 | `.wa-split` | Space-between distribution | Headers, footers, nav bars |
 
+## Color Sections
+
+| Utility | Purpose | Use For |
+|---------|---------|---------|
+| `.wa-dark` | Invert color tokens in subtree | Dark hero sections, CTA banners, footers |
+
+Apply `.wa-dark` to any container to auto-invert all `--wa-color-*` tokens. Works on `<section>`, `<div>`, or even individual Kigumi components. See [Layout Utilities](references/layout-utilities-complete.md#dark-sections-with-wa-dark) for examples.
+
 ## Archetype Selection
 
 ```
 User describes a page
+|
++-- Using Page component (Pro)? --> Page Shell (F) + inner layout
 |
 +-- Has sidebar navigation? --> App Shell (A) + inner layout
 |

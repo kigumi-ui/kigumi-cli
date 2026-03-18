@@ -167,7 +167,9 @@ export function DetailPanel({ item, onClose }: { item: Record<string, string>; o
 
 **Components:** `npx kigumi add dropdown dropdown-item button icon divider`
 
-### React
+### Basic Actions Menu
+
+#### React
 
 ```tsx
 import { Button, Dropdown, DropdownItem, Icon } from '@/components/ui';
@@ -188,7 +190,7 @@ export function ActionsMenu({ onAction }: { onAction: (action: string) => void }
 }
 ```
 
-### Vue
+#### Vue
 
 ```vue
 <script setup lang="ts">
@@ -211,6 +213,66 @@ function handleSelect(e: CustomEvent) {
   </Dropdown>
 </template>
 ```
+
+### Grouped Dropdown with Categories
+
+Use `<small>` labels and `<wa-divider>` to create visually grouped sections:
+
+```tsx
+import { Button, Dropdown, DropdownItem, Icon } from '@/components/ui';
+
+export function GroupedMenu() {
+  return (
+    <Dropdown>
+      <Button slot="trigger" variant="neutral" with-caret>
+        <Icon slot="start" name="plus" />
+        New
+      </Button>
+
+      {/* Group: Content */}
+      <small style={{ padding: 'var(--wa-space-xs) var(--wa-space-m)', color: 'var(--wa-color-text-quiet)' }}>
+        Content
+      </small>
+      <DropdownItem value="page"><Icon slot="icon" name="file" />Page</DropdownItem>
+      <DropdownItem value="post"><Icon slot="icon" name="pen-nib" />Blog Post</DropdownItem>
+
+      <wa-divider />
+
+      {/* Group: Media */}
+      <small style={{ padding: 'var(--wa-space-xs) var(--wa-space-m)', color: 'var(--wa-color-text-quiet)' }}>
+        Media
+      </small>
+      <DropdownItem value="image"><Icon slot="icon" name="image" />Image</DropdownItem>
+      <DropdownItem value="video"><Icon slot="icon" name="video" />Video</DropdownItem>
+    </Dropdown>
+  );
+}
+```
+
+### Hoisted Dropdown (z-index escape)
+
+Use the `hoist` prop when the Dropdown is inside an overflow-constrained container (e.g., inside a Card, Dialog, or table cell). Hoisting teleports the dropdown panel to the body, escaping `overflow: hidden` and z-index stacking contexts.
+
+```tsx
+<Card>
+  <div className="wa-split wa-align-items-center">
+    <h3>Card Title</h3>
+    {/* hoist prevents the dropdown from being clipped by the Card's overflow */}
+    <Dropdown hoist>
+      <Button slot="trigger" variant="neutral" size="small" aria-label="More actions">
+        <Icon name="ellipsis-vertical" />
+      </Button>
+      <DropdownItem>Edit</DropdownItem>
+      <DropdownItem>Delete</DropdownItem>
+    </Dropdown>
+  </div>
+</Card>
+```
+
+**When to use `hoist`:**
+- Dropdown inside `<Card>`, `<Dialog>`, `<Drawer>`, or `<Details>`
+- Dropdown inside table cells
+- Any container with `overflow: hidden` or `overflow: auto`
 
 ---
 

@@ -51,7 +51,7 @@ import { Button, Card } from '@/components/ui';
 | Aspect | React | Vue |
 |--------|-------|-----|
 | CSS classes on HTML | `className="..."` | `class="..."` |
-| CSS classes on wa-* | `class="..."` | `class="..."` |
+| CSS classes on wa-* | `className="..."` | `class="..."` |
 | Dynamic props | `prop={value}` | `:prop="value"` |
 | Event handlers | `onEvent={handler}` | `@event="handler"` |
 | Custom events | `onWaShow={fn}` | `@wa-show="fn"` |
@@ -59,7 +59,7 @@ import { Button, Card } from '@/components/ui';
 | Conditional | `{cond && <X/>}` | `v-if="cond"` |
 | Lists | `{items.map(i => <X/>)}` | `v-for="i in items"` |
 
-**Vue advantage:** `class` works on ALL elements. No className/class split.
+**Vue note:** In Vue, `class` works on all elements. In React, `className` works on all elements (including Kigumi wrappers). There is no className/class split in either framework.
 
 ## Attribute Rules
 

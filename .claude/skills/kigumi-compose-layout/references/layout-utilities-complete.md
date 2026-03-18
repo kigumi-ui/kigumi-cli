@@ -69,7 +69,50 @@ Main-axis:
 
 ## Other Utilities
 
-`.wa-dark` -- Applies dark color scheme to a subtree.
+### Dark Sections with `.wa-dark`
+
+`.wa-dark` applies the dark color scheme to a subtree, auto-inverting all `--wa-color-*` tokens. Use it for:
+- Hero sections with dark backgrounds
+- CTA banners
+- Footer sections
+- Feature highlights
+
+```tsx
+{/* React */}
+<section className="wa-dark" style={{ padding: 'var(--wa-space-2xl) var(--wa-space-l)' }}>
+  {/* All tokens auto-invert: text becomes light, surfaces become dark */}
+  <div className="wa-stack wa-gap-m wa-align-items-center" style={{ textAlign: 'center' }}>
+    <h2>Ready to get started?</h2>
+    <p style={{ color: 'var(--wa-color-text-quiet)' }}>
+      Join thousands of developers building with Kigumi.
+    </p>
+    <Button variant="brand" size="large">Get Started</Button>
+  </div>
+</section>
+```
+
+```vue
+<!-- Vue -->
+<section class="wa-dark" style="padding: var(--wa-space-2xl) var(--wa-space-l)">
+  <div class="wa-stack wa-gap-m wa-align-items-center" style="text-align: center">
+    <h2>Ready to get started?</h2>
+    <p style="color: var(--wa-color-text-quiet)">
+      Join thousands of developers building with Kigumi.
+    </p>
+    <Button variant="brand" size="large">Get Started</Button>
+  </div>
+</section>
+```
+
+**How it works:** `.wa-dark` redefines all `--wa-color-*` custom properties in the subtree. Surface colors become dark, text colors become light, and brand/accent colors adjust for contrast on dark backgrounds. No additional CSS needed.
+
+**Nesting:** `.wa-dark` sections can be nested inside light pages. You can also use it on individual components:
+
+```tsx
+<Card className="wa-dark">
+  {/* This card has dark styling, rest of page stays light */}
+</Card>
+```
 
 `.wa-border-radius-s` `.wa-border-radius-m` `.wa-border-radius-l` `.wa-border-radius-pill` `.wa-border-radius-circle` `.wa-border-radius-square`
 
@@ -116,3 +159,65 @@ These define generic color tokens for the subtree: `--wa-color-fill-quiet`, `--w
 | Push items to opposite ends | `.wa-split` |
 | Add space between items | `.wa-gap-{size}` |
 | Center items | `.wa-align-items-center` + `.wa-justify-content-center` |
+
+## Custom CSS with WA Design Tokens
+
+When building custom layouts (timelines, steppers, hero sections) that need raw CSS Grid/Flexbox, consume WA design tokens for colors, spacing, and typography to stay consistent with the design system.
+
+### Token Categories for Custom CSS
+
+| Need | Token Pattern | Example |
+|------|--------------|---------|
+| Colors | `var(--wa-color-*)` | `var(--wa-color-brand)`, `var(--wa-color-surface-border)` |
+| Spacing | `var(--wa-space-*)` | `var(--wa-space-m)`, `var(--wa-space-xl)` |
+| Typography | `var(--wa-font-size-*)`, `var(--wa-font-weight-*)` | `var(--wa-font-size-l)` |
+| Radii | `var(--wa-border-radius-*)` | `var(--wa-border-radius-m)` |
+| Shadows | `var(--wa-shadow-*)` | `var(--wa-shadow-m)` |
+| Transitions | `var(--wa-transition-*)` | `var(--wa-transition-fast)` |
+
+### Example: Custom Timeline
+
+A vertical timeline using CSS Grid with WA tokens for consistent theming:
+
+```tsx
+const timelineStyles: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'auto 2px 1fr',
+  gap: 'var(--wa-space-m)',
+};
+
+const railStyle: React.CSSProperties = {
+  backgroundColor: 'var(--wa-color-surface-border)',
+  borderRadius: 'var(--wa-border-radius-pill)',
+};
+
+const nodeStyle: React.CSSProperties = {
+  width: '12px',
+  height: '12px',
+  borderRadius: '50%',
+  backgroundColor: 'var(--wa-color-brand)',
+  border: '2px solid var(--wa-color-surface-raised)',
+  alignSelf: 'start',
+  marginTop: 'var(--wa-space-xs)',
+};
+
+export function Timeline({ items }: { items: { title: string; date: string; description: string }[] }) {
+  return (
+    <div style={timelineStyles}>
+      {items.map((item, i) => (
+        <React.Fragment key={i}>
+          <div style={nodeStyle} />
+          <div style={i < items.length - 1 ? railStyle : { ...railStyle, visibility: 'hidden' }} />
+          <div className="wa-stack wa-gap-2xs" style={{ paddingBottom: 'var(--wa-space-l)' }}>
+            <strong>{item.title}</strong>
+            <small style={{ color: 'var(--wa-color-text-quiet)' }}>{item.date}</small>
+            <p>{item.description}</p>
+          </div>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+```
+
+**Key principle:** Use WA layout utilities (`.wa-stack`, `.wa-grid`, etc.) wherever they fit. Only drop to custom CSS when the layout primitive doesn't exist (e.g., timelines, steppers, custom grids with fixed track sizing). Always use `var(--wa-*)` tokens instead of hardcoded values for colors, spacing, and typography.
