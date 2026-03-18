@@ -34,7 +34,7 @@ export function Hero() {
     <div slot="main-header" className="wa-align-items-start wa-stack">
       <div className="wa-grid wa-align-items-start">
         <div className="wa-stack wa-align-items-start">
-          <div className="wa-stack wa-align-items-start wa-gap-xs">
+          <div className="wa-stack wa-align-items-start wa-gap-xl">
             <a
               href={
                 import.meta.env.DEV
