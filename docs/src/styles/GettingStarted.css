@@ -35,8 +35,7 @@
 .getting-started pre {
   margin: 0;
   padding: var(--wa-space-m);
-  background-color: var(--wa-color-neutral-10);
-  color: var(--wa-color-neutral-95);
+  background-color: var(--wa-color-surface-lowered);
   font-size: 0.875rem;
   line-height: 1.5;
   overflow-x: auto;
@@ -49,8 +48,7 @@
 
 /* Inline Code (not in pre) */
 .getting-started p code {
-  background-color: var(--wa-color-neutral-20);
-  color: var(--wa-color-neutral-95);
+  background-color: var(--wa-color-surface-lowered);
   padding: var(--wa-space-3xs) var(--wa-space-2xs);
   border-radius: var(--wa-border-radius-s);
   font-size: 0.875em;
