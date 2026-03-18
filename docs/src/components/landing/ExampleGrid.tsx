@@ -8,8 +8,11 @@ import { ContactExample } from './examples/ContactExample';
 export function ExampleGrid() {
   return (
     <section className="example-grid section">
-      <div className="example-header">
-        <h2 className="wa-heading-2xl">Some examples</h2>
+      <div className="example-header wa-stack wa-gap-xs">
+        <h2 className="wa-heading-2xl">Showcase</h2>
+        <p className="wa-color-text-quiet">
+          Some examples of Kigumi patterns in action
+        </p>
       </div>
 
       <div>
