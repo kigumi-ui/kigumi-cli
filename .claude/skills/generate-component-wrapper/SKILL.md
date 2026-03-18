@@ -229,7 +229,7 @@ See the [Vue Template Implementation memory](../../memory/MEMORY.md) for details
 Check that generated templates:
 
 - [ ] Use correct React import pattern (named for .tsx, default for .jsx)
-- [ ] Use `class` not `className` on `<wa-*>` web components
+- [ ] Use `class` on raw `<wa-*>` elements inside wrapper JSX (React < 19 custom element handling)
 - [ ] Forward refs correctly
 - [ ] Import Web Component JS file via `{{{importPath}}}` (triple braces)
 - [ ] Event listeners have cleanup in useEffect
@@ -287,7 +287,7 @@ useImperativeHandle(ref, () => ({
 
 ## Common Pitfalls
 
-1. **Use `class` not `className` on web components** — `className` doesn't propagate to Shadow DOM
+1. **Use `class` on raw `<wa-*>` elements in wrapper templates** -- React < 19 has inconsistent custom element attribute handling; `class` is more reliable on raw web component tags. Note: this applies only to the wrapper's internal JSX, NOT to the consumer-facing API (consumers use `className` via HTMLAttributes).
 2. **Remove `wa-` prefix from event props** — `wa-show` → `onShow`
 3. **Add cleanup to event listeners** — Return cleanup function from useEffect
 4. **Check tier restrictions** — Pro-only components go in tier: 'pro'

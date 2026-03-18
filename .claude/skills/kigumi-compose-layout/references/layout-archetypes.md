@@ -173,6 +173,27 @@ TabGroup + collapsible Details sections.
 +-----------------------------------------------+
 ```
 
+### Tab-Panel Linking Convention
+
+Tab and TabPanel components are linked by matching string identifiers:
+
+1. Each `<Tab>` needs `slot="nav"` (to place it in the tab bar) and `panel="panelName"`
+2. Each `<TabPanel>` needs `name="panelName"` (must match the Tab's `panel` prop)
+
+```tsx
+<TabGroup>
+  {/* Tabs in the nav slot, linked via panel prop */}
+  <Tab slot="nav" panel="general">General</Tab>
+  <Tab slot="nav" panel="security">Security</Tab>
+
+  {/* Panels linked via name prop (must match panel above) */}
+  <TabPanel name="general">General content</TabPanel>
+  <TabPanel name="security">Security content</TabPanel>
+</TabGroup>
+```
+
+**Common mistake:** Forgetting `slot="nav"` on Tab components, or mismatching `panel`/`name` strings.
+
 ### React
 
 ```tsx
@@ -355,3 +376,144 @@ export function DataBrowser() {
   );
 }
 ```
+
+---
+
+## F: Page Shell
+
+Full-page layout using the `<Page>` component (Pro tier). Provides header, navigation (with automatic mobile hamburger), and main content slots.
+
+```
++------------------------------------------+
+|  [Logo]     Navigation Links    [Avatar] |  <- header slot
++------------------------------------------+
+|  Main Content                            |  <- default slot
+|                                          |
+|                                          |
++------------------------------------------+
+|  Footer                                  |  <- footer slot
++------------------------------------------+
+
+Mobile:
++---------------------+
+| [=] Logo   [Avatar] |
++---------------------+
+|  Main Content       |
++---------------------+
+|  Footer             |
++---------------------+
+  v hamburger opens v
++--------+
+| Nav 1  |  <- navigation slot (auto drawer)
+| Nav 2  |
+| Nav 3  |
++--------+
+```
+
+**Important:** React cannot forward the `slot` attribute on React components. You must use wrapper HTML elements (`<div slot="header">`, `<nav slot="navigation">`, `<div slot="footer">`).
+
+### React
+
+```tsx
+import { Avatar, Button, Divider, Icon, Page } from '@/components/ui';
+
+export function AppPageShell({ children }: { children: React.ReactNode }) {
+  return (
+    <Page mobile-breakpoint="768px">
+      {/* Header slot -- must use wrapper element */}
+      <div slot="header" className="wa-split wa-align-items-center" style={{ padding: 'var(--wa-space-s) var(--wa-space-m)' }}>
+        <strong>My App</strong>
+        <div className="wa-cluster wa-gap-s wa-align-items-center">
+          <Button variant="neutral" appearance="plain" size="small">Docs</Button>
+          <Avatar initials="M" shape="circle" />
+        </div>
+      </div>
+
+      {/* Navigation slot -- auto hamburger on mobile */}
+      <nav slot="navigation" className="wa-stack wa-gap-xs" style={{ padding: 'var(--wa-space-m)' }}>
+        <Button variant="brand" appearance="plain" style={{ justifyContent: 'flex-start' }}>
+          <Icon slot="start" name="house" />Dashboard
+        </Button>
+        <Button variant="neutral" appearance="plain" style={{ justifyContent: 'flex-start' }}>
+          <Icon slot="start" name="users" />Users
+        </Button>
+        <Button variant="neutral" appearance="plain" style={{ justifyContent: 'flex-start' }}>
+          <Icon slot="start" name="gear" />Settings
+        </Button>
+      </nav>
+
+      {/* Default slot -> main content */}
+      {children}
+
+      {/* Footer slot */}
+      <div slot="footer" className="wa-split wa-align-items-center" style={{ padding: 'var(--wa-space-s) var(--wa-space-m)' }}>
+        <small style={{ color: 'var(--wa-color-text-quiet)' }}>2026 My App</small>
+        <div className="wa-cluster wa-gap-s">
+          <a href="/privacy" className="wa-link">Privacy</a>
+          <a href="/terms" className="wa-link">Terms</a>
+        </div>
+      </div>
+    </Page>
+  );
+}
+```
+
+### Vue
+
+```vue
+<script setup lang="ts">
+import { Avatar, Button, Divider, Icon, Page } from '@/components/ui';
+</script>
+
+<template>
+  <Page mobile-breakpoint="768px">
+    <div slot="header" class="wa-split wa-align-items-center" style="padding: var(--wa-space-s) var(--wa-space-m)">
+      <strong>My App</strong>
+      <div class="wa-cluster wa-gap-s wa-align-items-center">
+        <Button variant="neutral" appearance="plain" size="small">Docs</Button>
+        <Avatar initials="M" shape="circle" />
+      </div>
+    </div>
+
+    <nav slot="navigation" class="wa-stack wa-gap-xs" style="padding: var(--wa-space-m)">
+      <Button variant="brand" appearance="plain" style="justify-content: flex-start">
+        <Icon slot="start" name="house" />Dashboard
+      </Button>
+      <Button variant="neutral" appearance="plain" style="justify-content: flex-start">
+        <Icon slot="start" name="users" />Users
+      </Button>
+      <Button variant="neutral" appearance="plain" style="justify-content: flex-start">
+        <Icon slot="start" name="gear" />Settings
+      </Button>
+    </nav>
+
+    <slot />
+
+    <div slot="footer" class="wa-split wa-align-items-center" style="padding: var(--wa-space-s) var(--wa-space-m)">
+      <small style="color: var(--wa-color-text-quiet)">2026 My App</small>
+      <div class="wa-cluster wa-gap-s">
+        <a href="/privacy" class="wa-link">Privacy</a>
+        <a href="/terms" class="wa-link">Terms</a>
+      </div>
+    </div>
+  </Page>
+</template>
+```
+
+### Key Props
+
+| Prop | Default | Purpose |
+|------|---------|---------|
+| `mobile-breakpoint` | `768px` | Viewport width for mobile/desktop switch |
+| `disable-navigation-toggle` | `false` | Hide built-in hamburger (use for custom toggle) |
+| `navigation-placement` | `start` | Navigation drawer position (`start` or `end`) |
+| `nav-open` | `false` | Programmatic control of mobile nav drawer |
+
+### Slot Reference
+
+| Slot | Element | Purpose |
+|------|---------|---------|
+| `header` | `<div slot="header">` | Top bar (logo, user menu) |
+| `navigation` | `<nav slot="navigation">` | Mobile drawer nav (auto hamburger) |
+| `footer` | `<div slot="footer">` | Page footer |
+| (default) | children | Main content area |

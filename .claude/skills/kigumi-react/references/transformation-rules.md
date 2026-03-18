@@ -82,6 +82,8 @@ Complete mapping of Web Awesome components to Kigumi React components.
 | `aria-*`         | `aria-*` (preserved)     |
 | `data-*`         | `data-*` (preserved)     |
 
+> **Note:** `className` applies to ALL elements in React -- both standard HTML elements and Kigumi wrapper components. The Kigumi wrapper's `HTMLAttributes` interface accepts `className` and maps it internally. Never use `class` on a Kigumi React wrapper.
+
 ### Self-Closing Tags
 
 ```html

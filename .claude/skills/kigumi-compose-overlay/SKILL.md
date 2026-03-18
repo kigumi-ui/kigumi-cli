@@ -31,7 +31,31 @@ Build production-ready overlay UIs: Dialog, Drawer, Dropdown, Tooltip, Popover, 
 3. **Always provide `label` prop** on Dialog and Drawer for accessibility.
 4. **Focus trap is automatic.** No manual focus management needed.
 5. **Controlled `open` pattern:** `open={state}` + sync close in handler.
-6. **`class` not `className`** on Kigumi overlay components.
+6. **`className` in React** on ALL elements including Kigumi overlay components. In Vue, use `class`.
+
+### requestClose() Pattern
+
+When programmatically closing overlays, prefer `requestClose()` over `hide()`. `requestClose()` fires the cancelable `wa-hide` event, allowing the close to be intercepted (e.g., to show "unsaved changes" warnings). `hide()` bypasses this.
+
+```tsx
+// CORRECT -- triggers wa-hide event (cancelable)
+dialogRef.current?.requestClose();
+
+// AVOID -- bypasses wa-hide, no chance to intercept
+dialogRef.current?.hide();
+```
+
+For the common controlled pattern, `onHide` handles close initiated by the user (ESC, backdrop click) and your `requestClose()` calls:
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Dialog open={open} label="Title" onHide={() => setOpen(false)}>
+  <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
+    <Button onClick={() => dialogRef.current?.requestClose()}>Cancel</Button>
+  </div>
+</Dialog>
+```
 
 ## Overlay Selection
 
