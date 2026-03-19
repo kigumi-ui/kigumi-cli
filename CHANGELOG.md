@@ -1,5 +1,15 @@
 # kigumi
 
+## 0.17.1
+
+### Patch Changes
+
+- ### Bug Fixes
+  - **fix(docs)**: Replace Shoelace-era token names with correct Web Awesome API names in theme.css comments, README examples, and generated output (e.g. `--wa-color-brand-600` to `--wa-color-brand-60`, `--wa-font-family-sans` to `--wa-font-family-body`)
+  - **fix(init)**: Fix init output saying "Import Web Awesome" instead of "Import Kigumi"
+  - **fix(update)**: Create snapshot for `no-snapshot-match` status so future three-way merges work correctly
+  - **fix(update)**: Fix conflict status formatting (misplaced closing parenthesis)
+
 ## 0.17.0
 
 ### Minor Changes

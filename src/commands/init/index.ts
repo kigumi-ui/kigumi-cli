@@ -517,9 +517,7 @@ function showPostInstallInstructions(
 
   // Step: Import Kigumi setup
   output.info(
-    pc.bold(
-      pc.cyan(`${stepNum}. Import Web Awesome in your main entry file:\n`)
-    )
+    pc.bold(pc.cyan(`${stepNum}. Import Kigumi in your main entry file:\n`))
   );
   const mainFile =
     config.framework === 'vue'

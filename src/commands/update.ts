@@ -292,11 +292,12 @@ async function processComponent(
         }
       }
 
-      // Update snapshot for successful writes and already-current files
+      // Update snapshot for successful writes, already-current, and no-snapshot-match files
       if (
         result.status === 'safe-overwrite' ||
         result.status === 'clean-merge' ||
-        result.status === 'already-current'
+        result.status === 'already-current' ||
+        result.status === 'no-snapshot-match'
       ) {
         const spec = fileSpecs.find((s) => s.fileName === result.fileName);
         if (spec) {
@@ -377,7 +378,7 @@ function formatFileStatus(result: FileMergeResult): string {
     'safe-overwrite': `${pc.green('→')} ${result.fileName} — ${pc.green('safe overwrite (applied)')}`,
     'already-current': `${pc.green('✓')} ${result.fileName} — already current`,
     'clean-merge': `${pc.cyan('⚡')} ${result.fileName} — ${pc.cyan('clean merge (applied)')}`,
-    conflict: `${pc.yellow('⚠')} ${result.fileName} — ${pc.yellow(`conflict${result.merge ? ` (${result.merge.conflictCount} region${result.merge.conflictCount !== 1 ? 's' : ''})` : ''}, resolve manually`)}`,
+    conflict: `${pc.yellow('⚠')} ${result.fileName} — ${pc.yellow(`conflict${result.merge ? ` (${result.merge.conflictCount} region${result.merge.conflictCount !== 1 ? 's' : ''}, resolve manually)` : ' (resolve manually)'}`)}`,
     'no-snapshot-match': `${pc.green('✓')} ${result.fileName} — matches template (snapshot created)`,
     'no-snapshot-differ': `${pc.dim('○')} ${result.fileName} — ${pc.dim('skipped (no snapshot, files differ)')}`,
   };

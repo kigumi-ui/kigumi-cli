@@ -379,7 +379,7 @@ With the included [style](https://webawesome.com/docs/utilities) and [layout](ht
 ```tsx
 <div className="wa-stack wa-gap-m">
   <h1 className="wa-heading-2xl">Welcome</h1>
-  <p className="wa-text-muted">Get started below</p>
+  <p className="wa-color-text-quiet">Get started below</p>
 </div>
 ```
 
@@ -389,9 +389,9 @@ Add your custom CSS overrides in `src/styles/theme.css`:
 
 ```css
 :root {
-  --wa-color-brand-600: #6366f1;
-  --wa-font-family-sans: 'Inter', system-ui, sans-serif;
-  --wa-border-radius-medium: 0.5rem;
+  --wa-color-brand-60: #6366f1;
+  --wa-font-family-body: 'Inter', system-ui, sans-serif;
+  --wa-border-radius-m: 0.5rem;
 }
 ```
 
