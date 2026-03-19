@@ -146,6 +146,9 @@ Summary:
           <tr><td style={{ color: 'var(--wa-color-success-600)' }}>→</td><td>Safe overwrite</td><td>You didn't edit this file — updated to new template</td></tr>
           <tr><td style={{ color: 'var(--wa-color-brand-600)' }}>⚡</td><td>Clean merge</td><td>Both changed, but no overlap — merged automatically</td></tr>
           <tr><td style={{ color: 'var(--wa-color-warning-600)' }}>⚠</td><td>Conflict</td><td>Both changed the same lines — conflict markers inserted</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-success-600)' }}>✓</td><td>Already current</td><td>Your file already matches the new template</td></tr>
+          <tr><td style={{ color: 'var(--wa-color-success-600)' }}>✓</td><td>Matches template</td><td>No snapshot existed — snapshot created for future merges</td></tr>
+          <tr><td style={{ opacity: 0.5 }}>○</td><td>Skipped</td><td>No snapshot and files differ — prompted to create snapshot</td></tr>
         </tbody>
       </table>
     </div>

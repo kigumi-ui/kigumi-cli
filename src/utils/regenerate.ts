@@ -267,7 +267,7 @@ export async function generateThemeCSS(): Promise<string> {
 
 :root {
   /* Your custom CSS variable overrides here */
-  /* Example: --wa-color-brand-600: #6366f1; */
+  /* Example: --wa-color-brand-60: #6366f1; */
 }
 `;
 }

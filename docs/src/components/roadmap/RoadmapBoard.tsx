@@ -108,12 +108,6 @@ const items: Record<Status, RoadmapItem[]> = {
   ],
   'in-progress': [
     {
-      title: 'Smart component updates',
-      description:
-        'Three-way merge that preserves your edits when templates update. Never lose local changes again.',
-      category: 'cli',
-    },
-    {
       title: 'Kigumi Studio',
       description: 'Visual theme editor for customizing design tokens.',
       category: 'tooling',
@@ -125,6 +119,12 @@ const items: Record<Status, RoadmapItem[]> = {
     },
   ],
   shipped: [
+    {
+      title: 'Smart component updates',
+      description:
+        'Three-way merge that preserves your edits when templates update. Never lose local changes again.',
+      category: 'cli',
+    },
     {
       title: 'React framework support',
       description: 'Full React wrapper generation with TypeScript support.',
