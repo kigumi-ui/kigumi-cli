@@ -39,7 +39,7 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
         }}
       >
         <Tab panel="react">
-          <span className="wa-cluster wa-gap-xs">
+          <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
               src={reactLogo}
               alt="React logo"
@@ -49,7 +49,7 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
           </span>
         </Tab>
         <Tab panel="vue">
-          <span className="wa-cluster wa-gap-xs">
+          <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
               src={vueLogo}
               alt="Vue logo"
@@ -59,7 +59,7 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
           </span>
         </Tab>
         <Tab panel="angular" disabled>
-          <span className="wa-cluster wa-gap-xs">
+          <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
               src={angularLogo}
               alt="Angular logo"
@@ -75,7 +75,7 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
           </span>
         </Tab>
         <Tab panel="svelte" disabled>
-          <span className="wa-cluster wa-gap-xs">
+          <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
               src={svelteLogo}
               alt="Svelte logo"
