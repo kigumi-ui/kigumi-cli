@@ -10,8 +10,11 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
+    with:
+      chromatic-skip: true
     permissions:
       contents: read
+      pull-requests: read
       security-events: write
     secrets: inherit
 
