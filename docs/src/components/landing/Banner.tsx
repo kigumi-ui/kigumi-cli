@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, Icon } from '@/components/ui';
 
-const BANNER_STORAGE_KEY = 'banner-20260312-dismissed';
+const BANNER_STORAGE_KEY = 'banner-20260320-dismissed';
 
 export const Banner = () => {
   const [isDismissed, setIsDismissed] = useState(() => {
@@ -25,19 +25,20 @@ export const Banner = () => {
     >
       <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
         <Badge pill variant="neutral" appearance="accent" attention="pulse">
-          New feature
+          New
         </Badge>
         <span>
-          Use <code>npx kigumi registry</code> to consume components and themes
-          from the community!{' '}
+          The{' '}
           <a
-            href="https://docs.kigumi.style/?path=/docs/guides-community-registries--docs"
+            href="https://marketplace.visualstudio.com/items?itemName=Kigumi.kigumi-intellisense"
             target="_blank"
             className="wa-text-link"
             rel="noopener noreferrer"
           >
-            Read more
-          </a>
+            Kigumi IntelliSense
+          </a>{' '}
+          extension for <strong>Cursor</strong> and <strong>VS Code</strong> is
+          now available.
         </span>
       </div>
       <Button
