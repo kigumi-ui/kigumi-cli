@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useStudio } from '../../contexts/StudioContext';
 import './ComponentShowcase.css';
+import '../../themes/wa-default-override.css';
 import { ActionPanelExample } from '@/components/landing/examples/ActionPanelExample';
 import { ActivityLogExample } from '@/components/landing/examples/ActivityLogExample';
 import { CommentsExample } from '@/components/landing/examples/CommentsExample';
