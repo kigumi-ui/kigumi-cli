@@ -15,16 +15,13 @@ if (typeof customElements !== 'undefined') {
   };
 }
 
-// Apply WA theme classes to <html> (mirrors src/lib/kigumi.ts)
+// Start with Tailspin branding; the global decorator toggles per-story
 if (typeof document !== 'undefined') {
-  const html = document.documentElement;
-  html.className = html.className
-    .replace(/\bwa-theme-\S+/g, '')
-    .replace(/\bwa-palette-\S+/g, '')
-    .replace(/\bwa-brand-\S+/g, '');
-  html.classList.add('wa-theme-tailspin');
-  html.classList.add('wa-palette-rudimentary');
-  html.classList.add('wa-brand-purple');
+  document.documentElement.classList.add(
+    'wa-theme-tailspin',
+    'wa-palette-rudimentary',
+    'wa-brand-purple'
+  );
 }
 
 const preview: Preview = {
@@ -105,6 +102,7 @@ const preview: Preview = {
   },
   decorators: [
     (Story, ctx) => {
+      const html = document.documentElement;
       const theme = (ctx.globals?.theme as string) ?? 'system';
       const resolved =
         theme === 'system'
@@ -112,7 +110,21 @@ const preview: Preview = {
             ? 'dark'
             : 'light'
           : theme;
-      document.documentElement.classList.toggle('wa-dark', resolved === 'dark');
+      html.classList.toggle('wa-dark', resolved === 'dark');
+
+      // Theme: Components render in WA Default (matches Figma Kit),
+      // all other pages keep Kigumi Tailspin branding
+      const useDefaultTheme =
+        ctx.viewMode === 'story' && ctx.title?.startsWith('Components/');
+
+      html.classList.toggle('wa-theme-tailspin', !useDefaultTheme);
+      html.classList.toggle('wa-palette-rudimentary', !useDefaultTheme);
+      html.classList.toggle('wa-brand-purple', !useDefaultTheme);
+
+      html.classList.toggle('wa-theme-default', useDefaultTheme);
+      html.classList.toggle('wa-palette-default', useDefaultTheme);
+      html.classList.toggle('wa-brand-blue', useDefaultTheme);
+
       return Story();
     },
   ],
