@@ -157,6 +157,22 @@ export function extractComponentOverrides(
   return result.length > 0 ? result.join('\n\n') : '';
 }
 
+/**
+ * Basic CSS syntax check: verifies the input contains at least one rule block
+ * and that braces are balanced. Does not validate property names or values.
+ */
+export function hasValidCSSStructure(css: string): boolean {
+  if (!css.includes('{') || !css.includes('}')) return false;
+
+  let depth = 0;
+  for (const ch of css) {
+    if (ch === '{') depth++;
+    else if (ch === '}') depth--;
+    if (depth < 0) return false;
+  }
+  return depth === 0;
+}
+
 interface ParsedOverrides {
   shadowComponents: string[];
   customCSS: string;
