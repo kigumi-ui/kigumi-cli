@@ -13,10 +13,14 @@ export function ComponentShowcase() {
   const { getStyleObject, previewMode } = useStudio();
   const styleObj = getStyleObject(previewMode);
 
-  // Add color-scheme to the style object so browsers render form controls correctly
+  // Add color-scheme and font-size bridge to the style object.
+  // font-size MUST be inline because lightningcss strips font-size declarations
+  // that reference custom properties not defined in the same CSS file.
+  // Without this, body's computed font-size (14px from Tailspin) is inherited.
   const fullStyle: React.CSSProperties = {
     ...(styleObj as React.CSSProperties),
     colorScheme: previewMode,
+    fontSize: 'calc(1rem * var(--wa-font-size-scale))',
   };
 
   return (
