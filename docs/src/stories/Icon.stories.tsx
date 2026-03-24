@@ -79,7 +79,7 @@ const meta = {
     library: {
       control: 'text',
       description:
-        "Registered icon library name. Default uses Font Awesome. Register alternatives via `registerIconLibrary()` from `@awesome.me/webawesome-pro/dist/webawesome.js`.",
+        'Registered icon library name. Default uses Font Awesome. Register alternatives via `registerIconLibrary()` from `@awesome.me/webawesome-pro/dist/webawesome.js`.',
       table: { defaultValue: { summary: 'default' } },
     },
     src: { control: 'text', description: 'An external URL of an SVG file.' },
@@ -121,7 +121,8 @@ const meta = {
     flip: {
       control: 'select',
       options: ['horizontal', 'vertical', 'both'],
-      description: 'Mirror the icon along the horizontal, vertical, or both axes.',
+      description:
+        'Mirror the icon along the horizontal, vertical, or both axes.',
     },
     animation: {
       control: 'select',
@@ -280,7 +281,9 @@ export const FlipAndRotate: Story = {
       }}
     >
       <div>
-        <div style={{ ...caption, marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+        <div
+          style={{ ...caption, marginBottom: '0.5rem', fontSize: '0.875rem' }}
+        >
           Flip
         </div>
         <div style={row}>
@@ -303,7 +306,9 @@ export const FlipAndRotate: Story = {
         </div>
       </div>
       <div>
-        <div style={{ ...caption, marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+        <div
+          style={{ ...caption, marginBottom: '0.5rem', fontSize: '0.875rem' }}
+        >
           Rotate
         </div>
         <div style={row}>
