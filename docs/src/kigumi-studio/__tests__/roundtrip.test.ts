@@ -5,7 +5,7 @@ import { parseThemeCSS, parseComponentOverrides } from '../lib/css-parser';
 describe('round-trip: generate → parse → verify', () => {
   it('round-trips a simple light property', () => {
     const light = { '--wa-color-brand': '#ff0000' };
-    const css = generateThemeCSS(light, {}, { includeHeader: false });
+    const css = generateThemeCSS(light, {}, {});
     const parsed = parseThemeCSS(css);
     expect(parsed.light['--wa-color-brand']).toBe('#ff0000');
   });
@@ -16,7 +16,7 @@ describe('round-trip: generate → parse → verify', () => {
       '--wa-border-style': 'dashed',
     };
     const dark = { '--wa-color-surface-default': '#1a1a2e' };
-    const css = generateThemeCSS(light, dark, { includeHeader: true });
+    const css = generateThemeCSS(light, dark, {});
     const parsed = parseThemeCSS(css);
     expect(parsed.light['--wa-color-brand']).toBe('#ff0000');
     expect(parsed.light['--wa-border-style']).toBe('dashed');
@@ -27,7 +27,7 @@ describe('round-trip: generate → parse → verify', () => {
     const css = generateThemeCSS(
       { '--wa-color-brand': '#ff0000' },
       {},
-      { includeHeader: false, shadowComponents: ['Card', 'Button', 'Badge'] }
+      { shadowComponents: ['Card', 'Button', 'Badge'] }
     );
     const overrides = parseComponentOverrides(css, '.studio-preview');
     expect(overrides.shadowComponents.sort()).toEqual(
@@ -41,7 +41,7 @@ describe('round-trip: generate → parse → verify', () => {
     const css = generateThemeCSS(
       { '--wa-color-brand': '#ff0000' },
       {},
-      { includeHeader: false, customCSS }
+      { customCSS }
     );
     const overrides = parseComponentOverrides(css, '.studio-preview');
     expect(overrides.customCSS).toContain('.Card > .inner');
@@ -53,7 +53,7 @@ describe('round-trip: generate → parse → verify', () => {
       '--wa-color-shadow': '#000000',
       '--wa-shadow-opacity': '0.3',
     };
-    const css = generateThemeCSS(light, {}, { includeHeader: false });
+    const css = generateThemeCSS(light, {}, {});
     expect(css).toContain('rgb(0 0 0 / 0.3)');
     const parsed = parseThemeCSS(css);
     expect(parsed.light['--wa-color-shadow']).toBe('rgb(0 0 0 / 0.3)');
@@ -64,7 +64,7 @@ describe('round-trip: generate → parse → verify', () => {
       '--wa-font-family-body': "'Inter', ui-sans-serif, system-ui, sans-serif",
       '--wa-color-brand': '#3b82f6',
     };
-    const css = generateThemeCSS(light, {}, { includeHeader: false });
+    const css = generateThemeCSS(light, {}, {});
     expect(css).toContain('@import');
     const parsed = parseThemeCSS(css);
     expect(parsed.light['--wa-color-brand']).toBe('#3b82f6');
@@ -84,7 +84,7 @@ describe('round-trip: generate → parse → verify', () => {
       '--wa-color-text-normal': '#f1f5f9',
     };
 
-    const css = generateThemeCSS(light, dark, { includeHeader: false });
+    const css = generateThemeCSS(light, dark, {});
     const parsed = parseThemeCSS(css);
     expect(parsed.warnings).toHaveLength(0);
   });

@@ -22,7 +22,6 @@ export function ExportDialog({ open, onClose }: ExportDialogProps) {
   const { css, lightCount, darkCount, shadowCount } = useMemo(() => {
     const { light, dark } = getModifiedProperties();
     const generated = generateThemeCSS(light, dark, {
-      includeHeader: true,
       shadowComponents,
       customCSS,
     });
