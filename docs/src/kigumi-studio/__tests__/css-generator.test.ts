@@ -3,11 +3,7 @@ import { generateThemeCSS } from '../lib/css-generator';
 
 describe('generateThemeCSS', () => {
   it('generates :root block with one property', () => {
-    const result = generateThemeCSS(
-      { '--wa-color-brand': '#ff0000' },
-      {},
-      { includeHeader: false }
-    );
+    const result = generateThemeCSS({ '--wa-color-brand': '#ff0000' }, {}, {});
     expect(result).toContain(':root {');
     expect(result).toContain('--wa-color-brand: #ff0000;');
     expect(result).not.toContain('.wa-dark');
@@ -17,23 +13,12 @@ describe('generateThemeCSS', () => {
     const result = generateThemeCSS(
       { '--wa-color-brand': '#ff0000' },
       { '--wa-color-surface-default': '#101219' },
-      { includeHeader: false }
+      {}
     );
     expect(result).toContain(':root {');
     expect(result).toContain('--wa-color-brand: #ff0000;');
     expect(result).toContain('.wa-dark {');
     expect(result).toContain('--wa-color-surface-default: #101219;');
-  });
-
-  it('includes header comment when includeHeader is true', () => {
-    const result = generateThemeCSS(
-      { '--wa-color-brand': '#ff0000' },
-      {},
-      { includeHeader: true }
-    );
-    expect(result).toContain('Kigumi Studio Theme');
-    expect(result).toContain('kigumi.style/kigumi-studio');
-    expect(result).toContain('Base theme: Web Awesome Default');
   });
 
   it('returns empty string when no properties provided', () => {
@@ -45,7 +30,7 @@ describe('generateThemeCSS', () => {
     const result = generateThemeCSS(
       {},
       { '--wa-color-surface-raised': '#1a1a2e' },
-      { includeHeader: false }
+      {}
     );
     expect(result).not.toContain(':root');
     expect(result).toContain('.wa-dark {');
@@ -59,7 +44,7 @@ describe('generateThemeCSS', () => {
           'underline color-mix(in oklab, currentColor 70%, transparent) dotted',
       },
       {},
-      { includeHeader: false }
+      {}
     );
     expect(result).toContain(
       'underline color-mix(in oklab, currentColor 70%, transparent) dotted'
@@ -74,7 +59,7 @@ describe('generateThemeCSS', () => {
         '--wa-space-scale': '1.5',
       },
       {},
-      { includeHeader: false }
+      {}
     );
     const lines = result.split('\n');
     // Should have :root {, 3 properties, }
@@ -82,11 +67,7 @@ describe('generateThemeCSS', () => {
   });
 
   it('ends output with a newline', () => {
-    const result = generateThemeCSS(
-      { '--wa-color-brand': '#ff0000' },
-      {},
-      { includeHeader: false }
-    );
+    const result = generateThemeCSS({ '--wa-color-brand': '#ff0000' }, {}, {});
     expect(result.endsWith('\n')).toBe(true);
   });
 
@@ -94,7 +75,7 @@ describe('generateThemeCSS', () => {
     const result = generateThemeCSS(
       { '--wa-color-brand': '#ff0000' },
       {},
-      { includeHeader: false, shadowComponents: ['Card', 'Badge'] }
+      { shadowComponents: ['Card', 'Badge'] }
     );
     expect(result).toContain('/* Component Shadows */');
     expect(result).toContain('.Card {\n  box-shadow: var(--wa-shadow-m);\n}');
@@ -106,7 +87,6 @@ describe('generateThemeCSS', () => {
       { '--wa-color-brand': '#ff0000' },
       {},
       {
-        includeHeader: false,
         customCSS: '.studio-preview .Card > .Card {\n  box-shadow: none;\n}',
       }
     );
@@ -121,7 +101,6 @@ describe('generateThemeCSS', () => {
       { '--wa-color-brand': '#ff0000' },
       {},
       {
-        includeHeader: false,
         shadowComponents: ['Card'],
         customCSS: '.studio-preview .Card > .Card { box-shadow: none; }',
       }
@@ -138,7 +117,7 @@ describe('generateThemeCSS', () => {
         '--wa-shadow-opacity': '0.2',
       },
       {},
-      { includeHeader: false }
+      {}
     );
     expect(result).toContain('--wa-color-shadow: rgb(0 0 0 / 0.2)');
     expect(result).not.toContain('--wa-shadow-opacity');

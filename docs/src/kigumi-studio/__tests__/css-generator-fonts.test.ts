@@ -12,7 +12,7 @@ describe('generateThemeCSS - font imports', () => {
     const result = generateThemeCSS(
       { '--wa-font-family-body': inter.value },
       {},
-      { includeHeader: false }
+      {}
     );
     expect(result).toContain('@import url(');
     expect(result).toContain(inter.bunnyUrl);
@@ -22,7 +22,7 @@ describe('generateThemeCSS - font imports', () => {
     const result = generateThemeCSS(
       { '--wa-font-family-body': systemFont.value },
       {},
-      { includeHeader: false }
+      {}
     );
     expect(result).not.toContain('@import');
   });
@@ -34,7 +34,7 @@ describe('generateThemeCSS - font imports', () => {
         '--wa-font-family-heading': inter.value,
       },
       {},
-      { includeHeader: false }
+      {}
     );
     const importCount = (result.match(/@import/g) || []).length;
     expect(importCount).toBe(1);
@@ -47,7 +47,7 @@ describe('generateThemeCSS - font imports', () => {
         '--wa-font-family-heading': playfair.value,
       },
       {},
-      { includeHeader: false }
+      {}
     );
     expect(result).toContain(inter.bunnyUrl);
     expect(result).toContain(playfair.bunnyUrl);
@@ -60,7 +60,7 @@ describe('generateThemeCSS - font imports', () => {
         '--wa-color-brand': '#ff0000',
       },
       {},
-      { includeHeader: false }
+      {}
     );
     const importIndex = result.indexOf('@import');
     const rootIndex = result.indexOf(':root');
@@ -71,7 +71,7 @@ describe('generateThemeCSS - font imports', () => {
     const result = generateThemeCSS(
       {},
       { '--wa-font-family-code': jetbrains.value },
-      { includeHeader: false }
+      {}
     );
     expect(result).toContain(jetbrains.bunnyUrl);
   });
