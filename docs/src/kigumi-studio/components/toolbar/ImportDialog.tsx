@@ -1,8 +1,38 @@
 import { useState, useCallback } from 'react';
 import { Dialog, Button, Textarea, Callout, Icon } from '@/components/ui';
-import { parseThemeCSS, parseComponentOverrides } from '../../lib/css-parser';
+import {
+  parseThemeCSS,
+  parseComponentOverrides,
+  hasValidCSSStructure,
+} from '../../lib/css-parser';
 import { useStudio } from '../../contexts/StudioContext';
 import './ImportDialog.css';
+
+interface ImportSummary {
+  tokenCount: number;
+  shadowCount: number;
+  hasCustomCSS: boolean;
+}
+
+function formatImportSummary(summary: ImportSummary): string {
+  const parts: string[] = [];
+  if (summary.tokenCount > 0) {
+    parts.push(
+      `${summary.tokenCount} ${summary.tokenCount === 1 ? 'property' : 'properties'}`
+    );
+  }
+  if (summary.shadowCount > 0) {
+    parts.push(
+      `${summary.shadowCount} component ${summary.shadowCount === 1 ? 'shadow' : 'shadows'}`
+    );
+  }
+  if (summary.hasCustomCSS) {
+    parts.push('custom CSS');
+  }
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
+  return `${parts[0]}, ${parts[1]}, and ${parts[2]}`;
+}
 
 interface ImportDialogProps {
   open: boolean;
@@ -15,21 +45,23 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
   const [cssInput, setCssInput] = useState('');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [importedCount, setImportedCount] = useState<number | null>(null);
+  const [importSummary, setImportSummary] = useState<ImportSummary | null>(
+    null
+  );
 
   const handleInput = useCallback((e: Event) => {
     const target = e.target as HTMLTextAreaElement;
     setCssInput(target.value);
     setWarnings([]);
     setError(null);
-    setImportedCount(null);
+    setImportSummary(null);
   }, []);
 
   const handleClose = useCallback(() => {
     setCssInput('');
     setWarnings([]);
     setError(null);
-    setImportedCount(null);
+    setImportSummary(null);
     onClose();
   }, [onClose]);
 
@@ -40,43 +72,54 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
       return;
     }
 
-    try {
-      const result = parseThemeCSS(trimmed);
-      const lightCount = Object.keys(result.light).length;
-      const darkCount = Object.keys(result.dark).length;
-      const totalCount = lightCount + darkCount;
+    if (!hasValidCSSStructure(trimmed)) {
+      setError(
+        'Invalid CSS syntax. Check for balanced braces and valid rules.'
+      );
+      return;
+    }
 
-      if (totalCount === 0) {
+    try {
+      // Parse both theme tokens and component overrides up front
+      const result = parseThemeCSS(trimmed);
+      const overrides = parseComponentOverrides(trimmed, '.studio-preview');
+
+      const tokenCount =
+        Object.keys(result.light).length + Object.keys(result.dark).length;
+      const shadowCount = overrides.shadowComponents.length;
+      const hasCustom = overrides.customCSS.length > 0;
+
+      // Reject only if nothing parseable was found at all
+      if (tokenCount === 0 && shadowCount === 0 && !hasCustom) {
         setError(
-          'No recognized --wa-* properties found. Make sure your CSS contains :root {} or .wa-dark {} blocks with Web Awesome custom properties.'
+          'No recognized content found. Import supports --wa-* properties in :root {} or .wa-dark {} blocks, component shadow rules, and custom CSS.'
         );
         return;
       }
 
-      // Convert ParseResult to the format importValues expects
-      const merged: Record<string, { light?: string; dark?: string }> = {};
-      for (const [cssVar, value] of Object.entries(result.light)) {
-        merged[cssVar] = { ...merged[cssVar], light: value };
-      }
-      for (const [cssVar, value] of Object.entries(result.dark)) {
-        merged[cssVar] = { ...merged[cssVar], dark: value };
+      // Apply theme tokens (full replacement: reset then import)
+      if (tokenCount > 0) {
+        const merged: Record<string, { light?: string; dark?: string }> = {};
+        for (const [cssVar, value] of Object.entries(result.light)) {
+          merged[cssVar] = { ...merged[cssVar], light: value };
+        }
+        for (const [cssVar, value] of Object.entries(result.dark)) {
+          merged[cssVar] = { ...merged[cssVar], dark: value };
+        }
+        resetAll();
+        importValues(merged);
       }
 
-      // Reset to defaults first, then apply imported values (full replacement)
-      resetAll();
-      importValues(merged);
-
-      // Extract component overrides: separate shadow rules from custom CSS
-      const overrides = parseComponentOverrides(trimmed, '.studio-preview');
-      if (overrides.shadowComponents.length > 0) {
+      // Apply component overrides
+      if (shadowCount > 0) {
         setShadowComponents(overrides.shadowComponents);
       }
-      if (overrides.customCSS) {
+      if (hasCustom) {
         setCustomCSS(overrides.customCSS);
       }
 
       setWarnings(result.warnings);
-      setImportedCount(totalCount);
+      setImportSummary({ tokenCount, shadowCount, hasCustomCSS: hasCustom });
 
       if (result.warnings.length === 0) {
         // Auto-close after short delay on clean import
@@ -110,7 +153,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           >
             <code>--wa-*</code> custom properties
           </a>
-          .
+          , component shadow rules, or custom CSS.
         </p>
 
         <Textarea
@@ -140,10 +183,10 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           </Callout>
         )}
 
-        {importedCount !== null && !error && (
+        {importSummary !== null && !error && (
           <Callout variant="success" appearance="outlined" size="small">
             <Icon name="circle-check" slot="icon" />
-            Successfully imported {importedCount} properties.
+            Successfully imported {formatImportSummary(importSummary)}.
           </Callout>
         )}
       </div>
@@ -163,7 +206,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           onClick={handleImport}
           disabled={!cssInput.trim()}
         >
-          <Icon name="file-import" slot="start" />
+          <Icon name="download" slot="start" />
           Import
         </Button>
       </div>
