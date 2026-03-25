@@ -50,8 +50,8 @@ export function parseGitHubUrl(url: string): GitHubRegistrySource {
   let parsed: URL;
   try {
     parsed = new URL(normalized);
-  } catch (_error) {
-    throw new Error(`Invalid URL: ${url}`);
+  } catch (error) {
+    throw new Error(`Invalid URL: ${url}`, { cause: error });
   }
 
   if (parsed.hostname !== 'github.com') {
@@ -148,8 +148,10 @@ export async function fetchRegistryJson(
   let data: unknown;
   try {
     data = JSON.parse(content);
-  } catch (_error) {
-    throw new Error(`Invalid JSON in registry.json from ${source.url}`);
+  } catch (error) {
+    throw new Error(`Invalid JSON in registry.json from ${source.url}`, {
+      cause: error,
+    });
   }
 
   return validateCommunityRegistry(data);
