@@ -47,7 +47,7 @@ importers:
         version: 2.30.0(@types/node@25.5.0)
       '@eslint/js':
         specifier: ^10.0.1
-        version: 10.0.1(eslint@10.0.3)
+        version: 10.0.1(eslint@10.1.0)
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -2763,9 +2763,9 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
 
-  '@eslint/js@10.0.1(eslint@10.0.3)':
+  '@eslint/js@10.0.1(eslint@10.1.0)':
     optionalDependencies:
-      eslint: 10.0.3
+      eslint: 10.1.0
 
   '@eslint/object-schema@3.0.3': {}
 
