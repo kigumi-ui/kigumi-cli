@@ -256,7 +256,7 @@ export async function updateTypeDeclarations(
 
   await fs.ensureDir(typesDir);
 
-  let content = '';
+  let content: string;
 
   if (await fs.pathExists(typesFile)) {
     content = await fs.readFile(typesFile, 'utf-8');
