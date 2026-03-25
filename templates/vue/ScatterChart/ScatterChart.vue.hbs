@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './ScatterChart.css';
 
 /**
@@ -31,11 +32,7 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 defineExpose({
   element: elementRef,

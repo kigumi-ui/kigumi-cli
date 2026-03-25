@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Include.css';
 
 /**
@@ -28,7 +29,7 @@ const emit = defineEmits<{
   'wa-include-error': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
 const handleWaIncludeError = (e: Event) => emit('wa-include-error', e as CustomEvent);

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './LineChart.css';
 
 /**
@@ -64,13 +65,13 @@ export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
 }
 
 export interface LineChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const LineChart = forwardRef<LineChartRef, LineChartProps>(
   ({ children, className, ...props }, ref) => {
-    const lineChartRef = useRef<HTMLElement>(null);
+    const lineChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -84,7 +85,7 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
 
     return (
       <wa-line-chart
-        ref={lineChartRef}
+        ref={(el) => { lineChartRef.current = el; }}
         class={clsx('LineChart', className)}
         {...(props as Record<string, unknown>)}
       >

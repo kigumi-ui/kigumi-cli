@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Tag.css';
 
 /**
@@ -42,8 +43,8 @@ export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'onRemove' |
 }
 
 export interface TagRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Tag = forwardRef<TagRef, TagProps>(
@@ -52,8 +53,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
       ...props,
       ...(withRemove !== undefined && { 'with-remove': withRemove }),
     };
-    const tagRef = useRef<HTMLElement & {
-    }>(null);
+    const tagRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -82,7 +82,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
 
     return (
       <wa-tag
-        ref={tagRef}
+        ref={(el) => { tagRef.current = el; }}
         class={clsx('Tag', className)}
         {...(passThrough as Record<string, unknown>)}
       >

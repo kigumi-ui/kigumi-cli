@@ -54,7 +54,6 @@ program
   .option('--framework <framework>', 'Framework (react, vue)')
   .option('--typescript', 'Use TypeScript')
   .option('--no-typescript', 'Use JavaScript')
-  .option('--tier <tier>', 'Web Awesome tier (free|pro)')
   .option('--theme <theme>', 'Theme name')
   .option('--palette <palette>', 'Color palette')
   .option('--brand <color>', 'Brand color')

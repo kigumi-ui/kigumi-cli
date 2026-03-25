@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './TreeItem.css';
 
 /**
@@ -33,7 +34,7 @@ const emit = defineEmits<{
   'wa-lazy-load': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaExpand = (e: Event) => emit('wa-expand', e as CustomEvent);
 const handleWaAfterExpand = (e: Event) => emit('wa-after-expand', e as CustomEvent);
@@ -67,7 +68,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => (elementRef.value as any)?.getChildrenItems?.({ includeDisabled = true }),
+  getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => elementRef.value?.getChildrenItems?.({ includeDisabled = true }),
   element: elementRef,
 });
 </script>

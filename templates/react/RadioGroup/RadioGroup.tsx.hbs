@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './RadioGroup.css';
 
 /**
@@ -67,15 +68,13 @@ export interface RadioGroupRef {
 
   /** Sets focus on the radio group. */
   focus: (options: FocusOptions) => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
   ({ children, className, onInput, onChange, onInvalid, ...props }, ref) => {
-    const radiogroupRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-    }>(null);
+    const radiogroupRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -121,7 +120,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
 
     return (
       <wa-radio-group
-        ref={radiogroupRef}
+        ref={(el) => { radiogroupRef.current = el; }}
         class={clsx('RadioGroup', className)}
         {...(props as Record<string, unknown>)}
       >

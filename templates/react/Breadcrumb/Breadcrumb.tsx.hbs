@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Breadcrumb.css';
 
 /**
@@ -23,14 +24,13 @@ export interface BreadcrumbProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'
 }
 
 export interface BreadcrumbRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Breadcrumb = forwardRef<BreadcrumbRef, BreadcrumbProps>(
   ({ children, className, ...props }, ref) => {
-    const breadcrumbRef = useRef<HTMLElement & {
-    }>(null);
+    const breadcrumbRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -44,7 +44,7 @@ export const Breadcrumb = forwardRef<BreadcrumbRef, BreadcrumbProps>(
 
     return (
       <wa-breadcrumb
-        ref={breadcrumbRef}
+        ref={(el) => { breadcrumbRef.current = el; }}
         class={clsx('Breadcrumb', className)}
         {...(props as Record<string, unknown>)}
       >

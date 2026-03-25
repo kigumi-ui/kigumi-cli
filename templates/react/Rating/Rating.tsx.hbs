@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Rating.css';
 
 /**
@@ -58,16 +59,13 @@ export interface RatingRef {
 
   /** Removes focus from the rating. */
   blur: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Rating = forwardRef<RatingRef, RatingProps>(
   ({ children, className, onChange, onHover, ...props }, ref) => {
-    const ratingRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-    }>(null);
+    const ratingRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -112,7 +110,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
 
     return (
       <wa-rating
-        ref={ratingRef}
+        ref={(el) => { ratingRef.current = el; }}
         class={clsx('Rating', className)}
         {...(props as Record<string, unknown>)}
       >

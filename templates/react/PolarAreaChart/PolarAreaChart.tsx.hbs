@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './PolarAreaChart.css';
 
 /**
@@ -40,13 +41,13 @@ export interface PolarAreaChartProps extends Omit<HTMLAttributes<HTMLElement>, '
 }
 
 export interface PolarAreaChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>(
   ({ children, className, ...props }, ref) => {
-    const polarAreaChartRef = useRef<HTMLElement>(null);
+    const polarAreaChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -60,7 +61,7 @@ export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>
 
     return (
       <wa-polar-area-chart
-        ref={polarAreaChartRef}
+        ref={(el) => { polarAreaChartRef.current = el; }}
         class={clsx('PolarAreaChart', className)}
         {...(props as Record<string, unknown>)}
       >

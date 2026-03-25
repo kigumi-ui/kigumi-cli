@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Slider.css';
 
 /**
@@ -99,18 +100,13 @@ emitted when this is called. */
   /** Increases the slider's value by `step`. This is a programmatic change, so `input` and `change` events will not be
 emitted when this is called. */
   stepUp: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Slider = forwardRef<SliderRef, SliderProps>(
   ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const sliderRef = useRef<HTMLElement & {
-      focus?: () => void;
-      blur?: () => void;
-      stepDown?: () => void;
-      stepUp?: () => void;
-    }>(null);
+    const sliderRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -183,7 +179,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
 
     return (
       <wa-slider
-        ref={sliderRef}
+        ref={(el) => { sliderRef.current = el; }}
         class={clsx('Slider', className)}
         {...(props as Record<string, unknown>)}
       >

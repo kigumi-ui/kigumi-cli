@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Details.css';
 
 /**
@@ -61,16 +62,13 @@ export interface DetailsRef {
 
   /** Hides the details */
   hide: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Details = forwardRef<DetailsRef, DetailsProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const detailsRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-    }>(null);
+    const detailsRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -127,7 +125,7 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
 
     return (
       <wa-details
-        ref={detailsRef}
+        ref={(el) => { detailsRef.current = el; }}
         class={clsx('Details', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Switch.css';
 
 /**
@@ -70,17 +71,13 @@ export interface SwitchRef {
 
   /** Removes focus from the switch. */
   blur: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Switch = forwardRef<SwitchRef, SwitchProps>(
   ({ children, className, onChange, onInput, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const switchRef = useRef<HTMLElement & {
-      click?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-    }>(null);
+    const switchRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -148,7 +145,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
 
     return (
       <wa-switch
-        ref={switchRef}
+        ref={(el) => { switchRef.current = el; }}
         class={clsx('Switch', className)}
         {...(props as Record<string, unknown>)}
       >

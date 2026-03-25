@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Divider.css';
 
 /**
@@ -26,8 +27,8 @@ export interface DividerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface DividerRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Divider = forwardRef<DividerRef, DividerProps>(
@@ -36,8 +37,7 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
       ...props,
       ...(vertical !== undefined && { orientation: vertical ? 'vertical' : 'horizontal' }),
     };
-    const dividerRef = useRef<HTMLElement & {
-    }>(null);
+    const dividerRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -51,7 +51,7 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
 
     return (
       <wa-divider
-        ref={dividerRef}
+        ref={(el) => { dividerRef.current = el; }}
         class={clsx('Divider', className)}
         {...(passThrough as Record<string, unknown>)}
       >

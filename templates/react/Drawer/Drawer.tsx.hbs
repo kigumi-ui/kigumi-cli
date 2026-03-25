@@ -2,7 +2,15 @@ import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Drawer.css';
+
+/** WaDrawer declares show/requestClose as private; redeclare the methods we need */
+type DrawerElement = HTMLElement & {
+  open?: boolean;
+  show?: () => Promise<void>;
+  requestClose?: (source?: Element) => Promise<void>;
+};
 
 /**
  * Drawers slide in from a container edge to expose additional options
@@ -30,7 +38,7 @@ import './Drawer.css';
  * const drawerRef = useRef<DrawerRef>(null);
  *
  * <Button onClick={() => drawerRef.current?.show()}>Open Drawer</Button>
- * <Drawer ref={drawerRef} label="Drawer Title">
+ * <Drawer ref={(el) => { drawerRef.current = el; }} label="Drawer Title">
  *   <p>Drawer content</p>
  * </Drawer>
  * ```
@@ -69,13 +77,13 @@ export interface DrawerRef {
   show: () => void;
   hide: () => void;
   requestClose: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: DrawerElement | null;
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const drawerRef = useRef<HTMLElement & { open?: boolean }>(null);
+    const drawerRef = useRef<DrawerElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -122,7 +130,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
     return createPortal(
       <wa-drawer
-        ref={drawerRef}
+        ref={(el) => { drawerRef.current = el as DrawerElement; }}
         class={clsx('Drawer', className)}
         {...(props as Record<string, unknown>)}
       >

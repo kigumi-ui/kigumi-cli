@@ -521,64 +521,84 @@ describe('configureVueTypes', () => {
     testDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'kigumi-vue-types-test-')
     );
+    await fs.ensureDir(path.join(testDir, 'src'));
   });
 
   afterEach(async () => {
     await fs.remove(testDir);
   });
 
-  it('should return false when tsconfig.app.json does not exist', async () => {
-    const result = await configureVueTypes(testDir, mockOutput, waPackage);
-    expect(result).toBe(false);
-  });
-
-  it('should add WA Vue types to empty compilerOptions', async () => {
-    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {
-      compilerOptions: {},
-    });
-
+  it('should create env.d.ts with reference directive', async () => {
     const result = await configureVueTypes(testDir, mockOutput, waPackage);
 
     expect(result).toBe(true);
-    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.types).toEqual([
-      `${waPackage}/dist/types/vue`,
-    ]);
+    const content = await fs.readFile(
+      path.join(testDir, 'src', 'env.d.ts'),
+      'utf-8'
+    );
+    expect(content).toContain(
+      `/// <reference types="${waPackage}/dist/types/vue" />`
+    );
   });
 
-  it('should append WA Vue types to existing types array', async () => {
-    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {
-      compilerOptions: { types: ['vite/client'] },
-    });
-
-    const result = await configureVueTypes(testDir, mockOutput, waPackage);
-
-    expect(result).toBe(true);
-    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.types).toEqual([
-      'vite/client',
-      `${waPackage}/dist/types/vue`,
-    ]);
-  });
-
-  it('should not duplicate if WA Vue types already present', async () => {
-    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {
-      compilerOptions: { types: [`${waPackage}/dist/types/vue`] },
-    });
+  it('should not duplicate if reference already present', async () => {
+    await fs.writeFile(
+      path.join(testDir, 'src', 'env.d.ts'),
+      `/// <reference types="${waPackage}/dist/types/vue" />\n`
+    );
 
     const result = await configureVueTypes(testDir, mockOutput, waPackage);
     expect(result).toBe(false);
   });
 
-  it('should initialize compilerOptions when missing', async () => {
-    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {});
+  it('should replace old WA type reference with new one', async () => {
+    await fs.writeFile(
+      path.join(testDir, 'src', 'env.d.ts'),
+      `/// <reference types="@awesome.me/webawesome-pro/dist/types/vue" />\n`
+    );
 
     const result = await configureVueTypes(testDir, mockOutput, waPackage);
 
     expect(result).toBe(true);
-    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.types).toEqual([
-      `${waPackage}/dist/types/vue`,
-    ]);
+    const content = await fs.readFile(
+      path.join(testDir, 'src', 'env.d.ts'),
+      'utf-8'
+    );
+    expect(content).toContain(
+      `/// <reference types="${waPackage}/dist/types/vue" />`
+    );
+    expect(content).not.toContain('webawesome-pro');
+  });
+
+  it('should clean up stale types from tsconfig.app.json', async () => {
+    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), {
+      compilerOptions: {
+        types: ['vite/client', '@awesome.me/webawesome-pro/dist/types/vue'],
+      },
+    });
+
+    await configureVueTypes(testDir, mockOutput, waPackage);
+
+    const tsconfig = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
+    expect(tsconfig.compilerOptions.types).toEqual(['vite/client']);
+  });
+
+  it('should preserve existing env.d.ts content', async () => {
+    await fs.writeFile(
+      path.join(testDir, 'src', 'env.d.ts'),
+      '/// <reference types="vite/client" />\n'
+    );
+
+    const result = await configureVueTypes(testDir, mockOutput, waPackage);
+
+    expect(result).toBe(true);
+    const content = await fs.readFile(
+      path.join(testDir, 'src', 'env.d.ts'),
+      'utf-8'
+    );
+    expect(content).toContain(
+      `/// <reference types="${waPackage}/dist/types/vue" />`
+    );
+    expect(content).toContain('/// <reference types="vite/client" />');
   });
 });

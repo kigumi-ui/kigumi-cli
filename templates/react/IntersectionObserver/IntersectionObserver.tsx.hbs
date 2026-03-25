@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './IntersectionObserver.css';
 
 /**
@@ -39,14 +40,13 @@ export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLEleme
 }
 
 export interface IntersectionObserverRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const IntersectionObserver = forwardRef<IntersectionObserverRef, IntersectionObserverProps>(
   ({ children, className, onIntersect, ...props }, ref) => {
-    const intersectionobserverRef = useRef<HTMLElement & {
-    }>(null);
+    const intersectionobserverRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -75,7 +75,7 @@ export const IntersectionObserver = forwardRef<IntersectionObserverRef, Intersec
 
     return (
       <wa-intersection-observer
-        ref={intersectionobserverRef}
+        ref={(el) => { intersectionobserverRef.current = el; }}
         class={clsx('IntersectionObserver', className)}
         {...(props as Record<string, unknown>)}
       >

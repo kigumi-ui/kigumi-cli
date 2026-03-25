@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Popup.css';
 
 /**
@@ -42,7 +43,7 @@ const emit = defineEmits<{
   'wa-reposition': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaReposition = (e: Event) => emit('wa-reposition', e as CustomEvent);
 
@@ -61,7 +62,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  reposition: () => (elementRef.value as any)?.reposition?.(),
+  reposition: () => elementRef.value?.reposition?.(),
   element: elementRef,
 });
 </script>

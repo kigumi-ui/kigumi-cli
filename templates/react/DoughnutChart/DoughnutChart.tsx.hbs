@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './DoughnutChart.css';
 
 /**
@@ -40,13 +41,13 @@ export interface DoughnutChartProps extends Omit<HTMLAttributes<HTMLElement>, 'd
 }
 
 export interface DoughnutChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
   ({ children, className, ...props }, ref) => {
-    const doughnutChartRef = useRef<HTMLElement>(null);
+    const doughnutChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -60,7 +61,7 @@ export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
 
     return (
       <wa-doughnut-chart
-        ref={doughnutChartRef}
+        ref={(el) => { doughnutChartRef.current = el; }}
         class={clsx('DoughnutChart', className)}
         {...(props as Record<string, unknown>)}
       >

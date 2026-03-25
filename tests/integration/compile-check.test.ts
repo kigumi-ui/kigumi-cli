@@ -70,6 +70,10 @@ function createTsConfig(targetDir: string, framework: Framework): object {
  * Create minimal package.json for testing
  */
 function createPackageJson(framework: Framework): object {
+  const reactVersion = process.env.REACT_VERSION || '18';
+  const reactRange = reactVersion === '19' ? '^19.0.0' : '^18.0.0';
+  const reactTypesRange = reactVersion === '19' ? '^19.0.0' : '^18.0.0';
+
   const basePackage = {
     name: 'test-project',
     version: '0.0.0',
@@ -85,12 +89,12 @@ function createPackageJson(framework: Framework): object {
       ...basePackage,
       dependencies: {
         ...basePackage.dependencies,
-        react: '^18.0.0',
-        'react-dom': '^18.0.0',
+        react: reactRange,
+        'react-dom': reactRange,
       },
       devDependencies: {
-        '@types/react': '^18.0.0',
-        '@types/react-dom': '^18.0.0',
+        '@types/react': reactTypesRange,
+        '@types/react-dom': reactTypesRange,
         typescript: '^5.0.0',
       },
     };
@@ -112,13 +116,24 @@ function createPackageJson(framework: Framework): object {
  * Create minimal React types declarations
  */
 function createReactTypes(): string {
-  return `declare global {
+  return `// React 18 compatibility (global JSX namespace)
+declare global {
   namespace JSX {
     interface IntrinsicElements {
       [key: string]: any;
     }
   }
 }
+
+// React 19 compatibility (module-scoped JSX namespace)
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      [key: string]: any;
+    }
+  }
+}
+
 export {};
 `;
 }
@@ -230,7 +245,12 @@ describe('TypeScript Compile-Check', () => {
         };
 
         // Generate TypeScript variant
-        const content = await generateComponent(component, config, true);
+        const content = await generateComponent(
+          component,
+          config,
+          true,
+          testDir
+        );
 
         const filePath = path.join(componentDir, `${component.name}.tsx`);
         await fs.writeFile(filePath, content);
@@ -303,7 +323,12 @@ describe('TypeScript Compile-Check', () => {
         };
 
         // Generate JavaScript variant
-        const content = await generateComponent(component, config, false);
+        const content = await generateComponent(
+          component,
+          config,
+          false,
+          testDir
+        );
 
         const filePath = path.join(componentDir, `${component.name}.jsx`);
         await fs.writeFile(filePath, content);
@@ -378,7 +403,12 @@ export {};
         };
 
         // Generate TypeScript variant
-        const content = await generateComponent(component, config, true);
+        const content = await generateComponent(
+          component,
+          config,
+          true,
+          testDir
+        );
 
         const filePath = path.join(componentDir, `${component.name}.vue`);
         await fs.writeFile(filePath, content);
@@ -438,7 +468,12 @@ export {};
           themeName: 'default',
         };
 
-        const content = await generateComponent(complexComponent, config, true);
+        const content = await generateComponent(
+          complexComponent,
+          config,
+          true,
+          testDir
+        );
 
         const filePath = path.join(
           componentDir,

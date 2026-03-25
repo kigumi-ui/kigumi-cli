@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Comparison.css';
 
 /**
@@ -27,14 +28,13 @@ export interface ComparisonProps extends Omit<HTMLAttributes<HTMLElement>, 'onCh
 }
 
 export interface ComparisonRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
   ({ children, className, onChange, ...props }, ref) => {
-    const comparisonRef = useRef<HTMLElement & {
-    }>(null);
+    const comparisonRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -63,7 +63,7 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
 
     return (
       <wa-comparison
-        ref={comparisonRef}
+        ref={(el) => { comparisonRef.current = el; }}
         class={clsx('Comparison', className)}
         {...(props as Record<string, unknown>)}
       >

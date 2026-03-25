@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './ProgressRing.css';
 
 /**
@@ -26,14 +27,13 @@ export interface ProgressRingProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 }
 
 export interface ProgressRingRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
   ({ children, className, ...props }, ref) => {
-    const progressringRef = useRef<HTMLElement & {
-    }>(null);
+    const progressringRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -47,7 +47,7 @@ export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
 
     return (
       <wa-progress-ring
-        ref={progressringRef}
+        ref={(el) => { progressringRef.current = el; }}
         class={clsx('ProgressRing', className)}
         {...(props as Record<string, unknown>)}
       >

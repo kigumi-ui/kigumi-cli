@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './ZoomableFrame.css';
 
 /**
@@ -76,8 +77,8 @@ export interface ZoomableFrameRef {
 
   /** Zooms out to the previous available zoom level. */
   zoomOut: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
@@ -88,10 +89,7 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       ...(withoutControls !== undefined && { 'without-controls': withoutControls }),
       ...(withoutInteraction !== undefined && { 'without-interaction': withoutInteraction }),
     };
-    const zoomableframeRef = useRef<HTMLElement & {
-      zoomIn?: () => void;
-      zoomOut?: () => void;
-    }>(null);
+    const zoomableframeRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -136,7 +134,7 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
 
     return (
       <wa-zoomable-frame
-        ref={zoomableframeRef}
+        ref={(el) => { zoomableframeRef.current = el; }}
         class={clsx('ZoomableFrame', className)}
         {...(passThrough as Record<string, unknown>)}
       >

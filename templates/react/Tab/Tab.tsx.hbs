@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Tab.css';
 
 /**
@@ -26,14 +27,13 @@ export interface TabProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface TabRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Tab = forwardRef<TabRef, TabProps>(
   ({ children, className, ...props }, ref) => {
-    const tabRef = useRef<HTMLElement & {
-    }>(null);
+    const tabRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -47,7 +47,7 @@ export const Tab = forwardRef<TabRef, TabProps>(
 
     return (
       <wa-tab
-        ref={tabRef}
+        ref={(el) => { tabRef.current = el; }}
         class={clsx('Tab', className)}
         {...(props as Record<string, unknown>)}
       >

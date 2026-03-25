@@ -121,6 +121,9 @@ export async function runKigumi(
         ...process.env,
         // Force non-interactive mode
         CI: 'true',
+        // Isolate from host Pro tier detection
+        WEBAWESOME_NPM_TOKEN: '',
+        KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
       },
     });
     return {

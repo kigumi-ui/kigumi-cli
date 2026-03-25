@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Sparkline.css';
 
 /**
@@ -39,14 +40,13 @@ export interface SparklineProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
 }
 
 export interface SparklineRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
   ({ children, className, ...props }, ref) => {
-    const sparklineRef = useRef<HTMLElement & {
-    }>(null);
+    const sparklineRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -60,7 +60,7 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
 
     return (
       <wa-sparkline
-        ref={sparklineRef}
+        ref={(el) => { sparklineRef.current = el; }}
         class={clsx('Sparkline', className)}
         {...(props as Record<string, unknown>)}
       >

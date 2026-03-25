@@ -44,15 +44,6 @@ describe('validators.init', () => {
       'Invalid options'
     );
   });
-
-  it('validates tier option', () => {
-    const result = validators.init({ tier: 'pro' });
-    expect(result.tier).toBe('pro');
-  });
-
-  it('rejects invalid tier', () => {
-    expect(() => validators.init({ tier: 'enterprise' })).toThrow();
-  });
 });
 
 describe('validators.add', () => {

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './AnimatedImage.css';
 
 /**
@@ -36,14 +37,13 @@ export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'o
 }
 
 export interface AnimatedImageRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
-    const animatedimageRef = useRef<HTMLElement & {
-    }>(null);
+    const animatedimageRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -78,7 +78,7 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
 
     return (
       <wa-animated-image
-        ref={animatedimageRef}
+        ref={(el) => { animatedimageRef.current = el; }}
         class={clsx('AnimatedImage', className)}
         {...(props as Record<string, unknown>)}
       >

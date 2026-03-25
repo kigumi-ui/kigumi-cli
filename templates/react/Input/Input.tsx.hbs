@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Input.css';
 
 /**
@@ -151,22 +152,13 @@ export interface InputRef {
 
   /** Decrements the value of a numeric input type by the value of the step attribute. */
   stepDown: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Input = forwardRef<InputRef, InputProps>(
   ({ children, className, onInput, onChange, onBlur, onFocus, onClear, onInvalid, ...props }, ref) => {
-    const inputRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      select?: () => void;
-      setSelectionRange?: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
-      setRangeText?: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
-      showPicker?: () => void;
-      stepUp?: () => void;
-      stepDown?: () => void;
-    }>(null);
+    const inputRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -265,7 +257,7 @@ export const Input = forwardRef<InputRef, InputProps>(
 
     return (
       <wa-input
-        ref={inputRef}
+        ref={(el) => { inputRef.current = el; }}
         class={clsx('Input', className)}
         {...(props as Record<string, unknown>)}
       >

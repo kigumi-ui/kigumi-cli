@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Popover.css';
 
 /**
@@ -70,8 +71,8 @@ export interface PopoverRef {
 
   /** Hides the popover. */
   hide: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
@@ -80,10 +81,7 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
       ...props,
       ...(withoutArrow !== undefined && { 'with-arrow': !withoutArrow }),
     };
-    const popoverRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-    }>(null);
+    const popoverRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -140,7 +138,7 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
 
     return (
       <wa-popover
-        ref={popoverRef}
+        ref={(el) => { popoverRef.current = el; }}
         class={clsx('Popover', className)}
         {...(passThrough as Record<string, unknown>)}
       >

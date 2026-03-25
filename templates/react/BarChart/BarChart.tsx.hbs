@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './BarChart.css';
 
 /**
@@ -67,13 +68,13 @@ export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 }
 
 export interface BarChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const BarChart = forwardRef<BarChartRef, BarChartProps>(
   ({ children, className, ...props }, ref) => {
-    const barChartRef = useRef<HTMLElement>(null);
+    const barChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -87,7 +88,7 @@ export const BarChart = forwardRef<BarChartRef, BarChartProps>(
 
     return (
       <wa-bar-chart
-        ref={barChartRef}
+        ref={(el) => { barChartRef.current = el; }}
         class={clsx('BarChart', className)}
         {...(props as Record<string, unknown>)}
       >

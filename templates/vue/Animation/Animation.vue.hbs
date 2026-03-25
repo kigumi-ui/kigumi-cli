@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Animation.css';
 
 /**
@@ -37,7 +38,7 @@ const emit = defineEmits<{
   'wa-start': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaCancel = (e: Event) => emit('wa-cancel', e as CustomEvent);
 const handleWaFinish = (e: Event) => emit('wa-finish', e as CustomEvent);
@@ -62,8 +63,8 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  cancel: () => (elementRef.value as any)?.cancel?.(),
-  finish: () => (elementRef.value as any)?.finish?.(),
+  cancel: () => elementRef.value?.cancel?.(),
+  finish: () => elementRef.value?.finish?.(),
   element: elementRef,
 });
 </script>

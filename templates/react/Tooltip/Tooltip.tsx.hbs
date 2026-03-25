@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Tooltip.css';
 
 /**
@@ -73,16 +74,13 @@ export interface TooltipRef {
 
   /** Hides the tooltip */
   hide: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const tooltipRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-    }>(null);
+    const tooltipRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -139,7 +137,7 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
 
     return (
       <wa-tooltip
-        ref={tooltipRef}
+        ref={(el) => { tooltipRef.current = el; }}
         class={clsx('Tooltip', className)}
         {...(props as Record<string, unknown>)}
       >

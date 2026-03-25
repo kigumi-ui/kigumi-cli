@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Switch.css';
 
 /**
@@ -36,14 +37,14 @@ const emit = defineEmits<{
 
 const model = defineModel<boolean>({ default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value;
   if (el && el.checked !== val) el.checked = val ?? false;
 });
 
-const handleChange = (e: Event) => { model.value = (e.target as any).checked; emit('change', e as CustomEvent); };
+const handleChange = (e: Event) => { model.value = (e.target as HTMLInputElement).checked; emit('change', e as CustomEvent); };
 const handleInput = (e: Event) => emit('input', e as CustomEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -72,12 +73,12 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  click: () => (elementRef.value as any)?.click?.(),
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  click: () => elementRef.value?.click?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

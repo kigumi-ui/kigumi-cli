@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Page.css';
 
 /**
@@ -25,17 +26,13 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 defineExpose({
-  visiblePixelsInViewport: (element: HTMLElement | null) => (elementRef.value as any)?.visiblePixelsInViewport?.(element),
-  showNavigation: () => (elementRef.value as any)?.showNavigation?.(),
-  hideNavigation: () => (elementRef.value as any)?.hideNavigation?.(),
-  toggleNavigation: () => (elementRef.value as any)?.toggleNavigation?.(),
+  visiblePixelsInViewport: (element: HTMLElement | null) => elementRef.value?.visiblePixelsInViewport?.(element),
+  showNavigation: () => elementRef.value?.showNavigation?.(),
+  hideNavigation: () => elementRef.value?.hideNavigation?.(),
+  toggleNavigation: () => elementRef.value?.toggleNavigation?.(),
   element: elementRef,
 });
 </script>

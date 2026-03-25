@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Avatar.css';
 
 /**
@@ -39,14 +40,13 @@ export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onError'
 }
 
 export interface AvatarRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Avatar = forwardRef<AvatarRef, AvatarProps>(
   ({ children, className, onError, ...props }, ref) => {
-    const avatarRef = useRef<HTMLElement & {
-    }>(null);
+    const avatarRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -75,7 +75,7 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
 
     return (
       <wa-avatar
-        ref={avatarRef}
+        ref={(el) => { avatarRef.current = el; }}
         class={clsx('Avatar', className)}
         {...(props as Record<string, unknown>)}
       >

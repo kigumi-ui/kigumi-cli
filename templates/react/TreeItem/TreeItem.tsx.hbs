@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './TreeItem.css';
 
 /**
@@ -58,15 +59,13 @@ export interface TreeItemRef {
 
   /** Gets all the nested tree items in this node. */
   getChildrenItems: (options?: { includeDisabled?: boolean }) => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
   ({ children, className, onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad, ...props }, ref) => {
-    const treeitemRef = useRef<HTMLElement & {
-      getChildrenItems?: (options?: { includeDisabled?: boolean }) => void;
-    }>(null);
+    const treeitemRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -130,7 +129,7 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
 
     return (
       <wa-tree-item
-        ref={treeitemRef}
+        ref={(el) => { treeitemRef.current = el; }}
         class={clsx('TreeItem', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Radio.css';
 
 /**
@@ -39,14 +40,13 @@ export interface RadioProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' |
 }
 
 export interface RadioRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Radio = forwardRef<RadioRef, RadioProps>(
   ({ children, className, onBlur, onFocus, ...props }, ref) => {
-    const radioRef = useRef<HTMLElement & {
-    }>(null);
+    const radioRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -81,7 +81,7 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
 
     return (
       <wa-radio
-        ref={radioRef}
+        ref={(el) => { radioRef.current = el; }}
         class={clsx('Radio', className)}
         {...(props as Record<string, unknown>)}
       >

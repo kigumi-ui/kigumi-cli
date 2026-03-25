@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Page.css';
 
 /**
@@ -52,18 +53,13 @@ This prevents awkward gaps when scrolling the page and the aside / menu dont "fi
 
   /** Toggles the mobile navigation drawer */
   toggleNavigation: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Page = forwardRef<PageRef, PageProps>(
   ({ children, className, ...props }, ref) => {
-    const pageRef = useRef<HTMLElement & {
-      visiblePixelsInViewport?: (element: HTMLElement | null) => void;
-      showNavigation?: () => void;
-      hideNavigation?: () => void;
-      toggleNavigation?: () => void;
-    }>(null);
+    const pageRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -97,7 +93,7 @@ export const Page = forwardRef<PageRef, PageProps>(
 
     return (
       <wa-page
-        ref={pageRef}
+        ref={(el) => { pageRef.current = el; }}
         class={clsx('Page', className)}
         {...(props as Record<string, unknown>)}
       >

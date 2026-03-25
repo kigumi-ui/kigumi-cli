@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './SplitPanel.css';
 
 /**
@@ -45,14 +46,13 @@ export interface SplitPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'onRe
 }
 
 export interface SplitPanelRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
   ({ children, className, onReposition, ...props }, ref) => {
-    const splitpanelRef = useRef<HTMLElement & {
-    }>(null);
+    const splitpanelRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -81,7 +81,7 @@ export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
 
     return (
       <wa-split-panel
-        ref={splitpanelRef}
+        ref={(el) => { splitpanelRef.current = el; }}
         class={clsx('SplitPanel', className)}
         {...(props as Record<string, unknown>)}
       >

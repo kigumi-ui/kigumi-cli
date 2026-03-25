@@ -210,7 +210,8 @@ async function processComponent(
     config,
     componentDir,
     ext,
-    testExt
+    testExt,
+    cwd
   );
 
   const mergeResults: FileMergeResult[] = [];
@@ -334,7 +335,8 @@ async function buildFileSpecs(
   config: KigumiConfig,
   componentDir: string,
   ext: string,
-  testExt: string
+  testExt: string,
+  cwd: string
 ): Promise<FileSpec[]> {
   const specs: FileSpec[] = [];
 
@@ -344,7 +346,7 @@ async function buildFileSpecs(
     fileName: componentFileName,
     oursPath: path.join(componentDir, componentFileName),
     generateTheirs: () =>
-      generateComponent(component, config, config.typescript),
+      generateComponent(component, config, config.typescript, cwd),
   });
 
   // CSS file

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './NumberInput.css';
 
 /**
@@ -91,19 +92,13 @@ export interface NumberInputRef {
 
   /** Decrements the value by the step amount. */
   stepDown: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
   ({ children, className, onInput, onChange, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const numberinputRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      select?: () => void;
-      stepUp?: () => void;
-      stepDown?: () => void;
-    }>(null);
+    const numberinputRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -181,7 +176,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
 
     return (
       <wa-number-input
-        ref={numberinputRef}
+        ref={(el) => { numberinputRef.current = el; }}
         class={clsx('NumberInput', className)}
         {...(props as Record<string, unknown>)}
       >

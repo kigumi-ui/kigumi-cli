@@ -174,11 +174,12 @@ function getTestExtension(framework: string, typescript: boolean): string {
 export async function generateComponent(
   component: ComponentDefinition,
   config: KigumiConfig,
-  typescript: boolean = true
+  typescript: boolean = true,
+  cwd: string = process.cwd()
 ): Promise<string> {
   // Build context with correct import path based on tier
   const { detectTierSync, getWebAwesomePackage } = await import('./tier.js');
-  const tier = detectTierSync(process.cwd());
+  const tier = detectTierSync(cwd);
   const packageName = getWebAwesomePackage(tier);
 
   // Replace package name in import path

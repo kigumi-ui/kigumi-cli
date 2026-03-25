@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './TabPanel.css';
 
 /**
@@ -26,14 +27,13 @@ export interface TabPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 }
 
 export interface TabPanelRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const TabPanel = forwardRef<TabPanelRef, TabPanelProps>(
   ({ children, className, ...props }, ref) => {
-    const tabpanelRef = useRef<HTMLElement & {
-    }>(null);
+    const tabpanelRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -47,7 +47,7 @@ export const TabPanel = forwardRef<TabPanelRef, TabPanelProps>(
 
     return (
       <wa-tab-panel
-        ref={tabpanelRef}
+        ref={(el) => { tabpanelRef.current = el; }}
         class={clsx('TabPanel', className)}
         {...(props as Record<string, unknown>)}
       >

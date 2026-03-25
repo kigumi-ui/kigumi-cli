@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './MutationObserver.css';
 
 /**
@@ -45,14 +46,13 @@ export interface MutationObserverProps extends Omit<HTMLAttributes<HTMLElement>,
 }
 
 export interface MutationObserverRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const MutationObserver = forwardRef<MutationObserverRef, MutationObserverProps>(
   ({ children, className, onMutation, ...props }, ref) => {
-    const mutationobserverRef = useRef<HTMLElement & {
-    }>(null);
+    const mutationobserverRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -81,7 +81,7 @@ export const MutationObserver = forwardRef<MutationObserverRef, MutationObserver
 
     return (
       <wa-mutation-observer
-        ref={mutationobserverRef}
+        ref={(el) => { mutationobserverRef.current = el; }}
         class={clsx('MutationObserver', className)}
         {...(props as Record<string, unknown>)}
       >

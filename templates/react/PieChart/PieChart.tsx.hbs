@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './PieChart.css';
 
 /**
@@ -40,13 +41,13 @@ export interface PieChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 }
 
 export interface PieChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const PieChart = forwardRef<PieChartRef, PieChartProps>(
   ({ children, className, ...props }, ref) => {
-    const pieChartRef = useRef<HTMLElement>(null);
+    const pieChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -60,7 +61,7 @@ export const PieChart = forwardRef<PieChartRef, PieChartProps>(
 
     return (
       <wa-pie-chart
-        ref={pieChartRef}
+        ref={(el) => { pieChartRef.current = el; }}
         class={clsx('PieChart', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -236,7 +236,8 @@ async function diffComponentFiles(
     const generatedContent = await generateComponent(
       component,
       config,
-      config.typescript
+      config.typescript,
+      cwd
     );
     const snapshotContent = snapshot?.[componentFileName] ?? null;
     results.push(

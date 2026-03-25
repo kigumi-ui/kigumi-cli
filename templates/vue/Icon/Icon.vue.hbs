@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Icon.css';
 
 /**
@@ -36,7 +37,7 @@ const emit = defineEmits<{
   'wa-error': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
 const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
