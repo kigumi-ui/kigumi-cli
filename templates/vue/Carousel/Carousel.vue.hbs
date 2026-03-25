@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Carousel.css';
 
 /**
@@ -33,7 +34,7 @@ const emit = defineEmits<{
   'wa-slide-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaSlideChange = (e: Event) => emit('wa-slide-change', e as CustomEvent);
 
@@ -52,9 +53,9 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  previous: (behavior: ScrollBehavior) => (elementRef.value as any)?.previous?.(behavior),
-  next: (behavior: ScrollBehavior) => (elementRef.value as any)?.next?.(behavior),
-  goToSlide: (index: number, behavior: ScrollBehavior) => (elementRef.value as any)?.goToSlide?.(index, behavior),
+  previous: (behavior: ScrollBehavior) => elementRef.value?.previous?.(behavior),
+  next: (behavior: ScrollBehavior) => elementRef.value?.next?.(behavior),
+  goToSlide: (index: number, behavior: ScrollBehavior) => elementRef.value?.goToSlide?.(index, behavior),
   element: elementRef,
 });
 </script>

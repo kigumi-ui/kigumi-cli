@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './QrCode.css';
 
 /**
@@ -41,14 +42,13 @@ export interface QrCodeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface QrCodeRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
   ({ children, className, ...props }, ref) => {
-    const qrcodeRef = useRef<HTMLElement & {
-    }>(null);
+    const qrcodeRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -62,7 +62,7 @@ export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
 
     return (
       <wa-qr-code
-        ref={qrcodeRef}
+        ref={(el) => { qrcodeRef.current = el; }}
         class={clsx('QrCode', className)}
         {...(props as Record<string, unknown>)}
       >

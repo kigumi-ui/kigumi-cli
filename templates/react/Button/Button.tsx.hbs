@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Button.css';
 
 /**
@@ -100,17 +101,13 @@ export interface ButtonRef {
 
   /** Removes focus from the button. */
   blur: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Button = forwardRef<ButtonRef, ButtonProps>(
   ({ children, className, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const buttonRef = useRef<HTMLElement & {
-      click?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-    }>(null);
+    const buttonRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -166,7 +163,7 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
 
     return (
       <wa-button
-        ref={buttonRef}
+        ref={(el) => { buttonRef.current = el; }}
         class={clsx('Button', className)}
         {...(props as Record<string, unknown>)}
       >

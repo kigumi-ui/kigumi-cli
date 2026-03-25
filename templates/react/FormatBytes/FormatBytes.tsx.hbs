@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './FormatBytes.css';
 
 /**
@@ -35,8 +36,8 @@ export interface FormatBytesProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 }
 
 export interface FormatBytesRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
@@ -45,8 +46,7 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
       ...props,
       ...(locale !== undefined && { lang: locale }),
     };
-    const formatbytesRef = useRef<HTMLElement & {
-    }>(null);
+    const formatbytesRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -60,7 +60,7 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
 
     return (
       <wa-format-bytes
-        ref={formatbytesRef}
+        ref={(el) => { formatbytesRef.current = el; }}
         class={clsx('FormatBytes', className)}
         {...(passThrough as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Animation.css';
 
 /**
@@ -73,16 +74,13 @@ export interface AnimationRef {
 
   /** Sets the playback time to the end of the animation corresponding to the current playback direction. */
   finish: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Animation = forwardRef<AnimationRef, AnimationProps>(
   ({ children, className, onCancel, onFinish, onStart, ...props }, ref) => {
-    const animationRef = useRef<HTMLElement & {
-      cancel?: () => void;
-      finish?: () => void;
-    }>(null);
+    const animationRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -133,7 +131,7 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
 
     return (
       <wa-animation
-        ref={animationRef}
+        ref={(el) => { animationRef.current = el; }}
         class={clsx('Animation', className)}
         {...(props as Record<string, unknown>)}
       >

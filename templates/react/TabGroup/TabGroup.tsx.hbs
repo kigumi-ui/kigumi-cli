@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './TabGroup.css';
 
 /**
@@ -39,14 +40,13 @@ export interface TabGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onTabS
 }
 
 export interface TabGroupRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
   ({ children, className, onTabShow, onTabHide, ...props }, ref) => {
-    const tabgroupRef = useRef<HTMLElement & {
-    }>(null);
+    const tabgroupRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -81,7 +81,7 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
 
     return (
       <wa-tab-group
-        ref={tabgroupRef}
+        ref={(el) => { tabgroupRef.current = el; }}
         class={clsx('TabGroup', className)}
         {...(props as Record<string, unknown>)}
       >

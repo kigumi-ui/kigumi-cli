@@ -2,6 +2,7 @@ import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 're
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Toast.css';
 
 /**
@@ -17,7 +18,7 @@ import './Toast.css';
  * // Programmatic usage with ref
  * const toastRef = useRef<ToastRef>(null);
  * toastRef.current?.create('Hello!', { variant: 'brand' });
- * <Toast ref={toastRef} />
+ * <Toast ref={(el) => { toastRef.current = el; }} />
  * ```
  */
 export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -29,15 +30,13 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 export interface ToastRef {
   /** Creates a toast notification programmatically */
   create: (message: string, options?: Record<string, unknown>) => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Toast = forwardRef<ToastRef, ToastProps>(
   ({ children, className, ...props }, ref) => {
-    const toastRef = useRef<HTMLElement & {
-      create?: (message: string, options?: Record<string, unknown>) => void;
-    }>(null);
+    const toastRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -54,7 +53,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
 
     return createPortal(
       <wa-toast
-        ref={toastRef}
+        ref={(el) => { toastRef.current = el; }}
         class={clsx('Toast', className)}
         {...(props as Record<string, unknown>)}
       >

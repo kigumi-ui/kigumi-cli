@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Skeleton.css';
 
 /**
@@ -23,14 +24,13 @@ export interface SkeletonProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 }
 
 export interface SkeletonRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
   ({ children, className, ...props }, ref) => {
-    const skeletonRef = useRef<HTMLElement & {
-    }>(null);
+    const skeletonRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -44,7 +44,7 @@ export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
 
     return (
       <wa-skeleton
-        ref={skeletonRef}
+        ref={(el) => { skeletonRef.current = el; }}
         class={clsx('Skeleton', className)}
         {...(props as Record<string, unknown>)}
       >

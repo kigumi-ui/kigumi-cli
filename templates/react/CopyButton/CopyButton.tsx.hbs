@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './CopyButton.css';
 
 /**
@@ -51,14 +52,13 @@ export interface CopyButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onCo
 }
 
 export interface CopyButtonRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
   ({ children, className, onCopy, onError, ...props }, ref) => {
-    const copybuttonRef = useRef<HTMLElement & {
-    }>(null);
+    const copybuttonRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -93,7 +93,7 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
 
     return (
       <wa-copy-button
-        ref={copybuttonRef}
+        ref={(el) => { copybuttonRef.current = el; }}
         class={clsx('CopyButton', className)}
         {...(props as Record<string, unknown>)}
       >

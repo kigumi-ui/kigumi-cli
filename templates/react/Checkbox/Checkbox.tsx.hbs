@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Checkbox.css';
 
 /**
@@ -73,17 +74,13 @@ export interface CheckboxRef {
 
   /** Removes focus from the checkbox. */
   blur: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
   ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const checkboxRef = useRef<HTMLElement & {
-      click?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-    }>(null);
+    const checkboxRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -151,7 +148,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
 
     return (
       <wa-checkbox
-        ref={checkboxRef}
+        ref={(el) => { checkboxRef.current = el; }}
         class={clsx('Checkbox', className)}
         {...(props as Record<string, unknown>)}
       >

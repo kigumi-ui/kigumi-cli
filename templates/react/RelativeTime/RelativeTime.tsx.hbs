@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './RelativeTime.css';
 
 /**
@@ -35,8 +36,8 @@ export interface RelativeTimeProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 }
 
 export interface RelativeTimeRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
@@ -46,8 +47,7 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
       ...props,
       ...(dateStr !== undefined && { date: dateStr }),
     };
-    const relativetimeRef = useRef<HTMLElement & {
-    }>(null);
+    const relativetimeRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -61,7 +61,7 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
 
     return (
       <wa-relative-time
-        ref={relativetimeRef}
+        ref={(el) => { relativetimeRef.current = el; }}
         class={clsx('RelativeTime', className)}
         {...(passThrough as Record<string, unknown>)}
       >

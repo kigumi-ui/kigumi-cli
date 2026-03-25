@@ -253,30 +253,54 @@ export async function configureVueTypes(
   _output: OutputInterface,
   waPackage: string
 ): Promise<boolean> {
-  const tsconfigAppPath = path.join(cwd, 'tsconfig.app.json');
-
-  if (!(await fs.pathExists(tsconfigAppPath))) {
-    return false;
-  }
-
-  const tsconfig = (await readJSONWithComments(tsconfigAppPath)) as TSConfig;
-
-  tsconfig.compilerOptions = tsconfig.compilerOptions || {};
-
+  const envDtsPath = path.join(cwd, 'src', 'env.d.ts');
   const vueTypePath = `${waPackage}/dist/types/vue`;
-  const existingTypes = (tsconfig.compilerOptions as Record<string, unknown>)
-    .types as string[] | undefined;
+  const referenceDirective = `/// <reference types="${vueTypePath}" />`;
 
-  if (existingTypes?.includes(vueTypePath)) {
-    return false;
+  if (await fs.pathExists(envDtsPath)) {
+    const content = await fs.readFile(envDtsPath, 'utf-8');
+    if (content.includes(vueTypePath)) {
+      return false;
+    }
+    // Remove old WA type references before adding new one
+    const cleaned = content
+      .split('\n')
+      .filter(
+        (line) =>
+          !line.includes('@awesome.me/') || !line.includes('/dist/types/vue')
+      )
+      .join('\n');
+    await fs.writeFile(envDtsPath, `${referenceDirective}\n${cleaned}`);
+  } else {
+    await fs.writeFile(
+      envDtsPath,
+      `/// <reference types="vite/client" />\n${referenceDirective}\n`
+    );
   }
 
-  (tsconfig.compilerOptions as Record<string, unknown>).types = [
-    ...(existingTypes || []),
-    vueTypePath,
-  ];
+  // Clean up stale types entries from tsconfig.app.json if present
+  const tsconfigAppPath = path.join(cwd, 'tsconfig.app.json');
+  if (await fs.pathExists(tsconfigAppPath)) {
+    const tsconfig = (await readJSONWithComments(tsconfigAppPath)) as TSConfig;
+    const existingTypes = (tsconfig.compilerOptions as Record<string, unknown>)
+      ?.types as string[] | undefined;
+    if (
+      existingTypes?.some(
+        (t) => t.includes('@awesome.me/') && t.includes('/dist/types/vue')
+      )
+    ) {
+      const filtered = existingTypes.filter(
+        (t) => !t.includes('@awesome.me/') || !t.includes('/dist/types/vue')
+      );
+      if (filtered.length === 0) {
+        delete (tsconfig.compilerOptions as Record<string, unknown>).types;
+      } else {
+        (tsconfig.compilerOptions as Record<string, unknown>).types = filtered;
+      }
+      await fs.writeJSON(tsconfigAppPath, tsconfig, { spaces: 2 });
+    }
+  }
 
-  await fs.writeJSON(tsconfigAppPath, tsconfig, { spaces: 2 });
   return true;
 }
 

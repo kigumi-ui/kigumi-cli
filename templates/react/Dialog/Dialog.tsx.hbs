@@ -2,7 +2,15 @@ import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Dialog.css';
+
+/** WaDialog declares show/requestClose as private; redeclare the methods we need */
+type DialogElement = HTMLElement & {
+  open?: boolean;
+  show?: () => Promise<void>;
+  requestClose?: (source?: Element) => Promise<void>;
+};
 
 /**
  * Dialogs display important prompts and information
@@ -33,7 +41,7 @@ import './Dialog.css';
  * const dialogRef = useRef<DialogRef>(null);
  *
  * <Button onClick={() => dialogRef.current?.show()}>Open Dialog</Button>
- * <Dialog ref={dialogRef} label="Dialog Title">
+ * <Dialog ref={(el) => { dialogRef.current = el; }} label="Dialog Title">
  *   <p>Dialog content</p>
  *   <Button slot="footer" variant="brand" onClick={() => dialogRef.current?.hide()}>
  *     Close
@@ -72,17 +80,13 @@ export interface DialogRef {
   show: () => void;
   hide: () => void;
   requestClose: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: DialogElement | null;
 }
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
   ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const dialogRef = useRef<HTMLElement & {
-      show?: () => void;
-      requestClose?: () => void;
-      open?: boolean;
-    }>(null);
+    const dialogRef = useRef<DialogElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -135,7 +139,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return createPortal(
       <wa-dialog
-        ref={dialogRef}
+        ref={(el) => { dialogRef.current = el as DialogElement; }}
         class={clsx('Dialog', className)}
         {...(props as Record<string, unknown>)}
       >

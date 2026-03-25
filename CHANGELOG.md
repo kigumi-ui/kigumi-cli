@@ -1,5 +1,15 @@
 # kigumi
 
+## 0.17.2
+
+### Patch Changes
+
+- ### Bug Fixes
+  - **React templates**: Use WaElement type import for React 19 ref compatibility. Templates now import the actual WA element type, use `useRef<WaElement | null>`, and pass a callback ref matching the WA JSX type signature
+  - **Vue templates**: Use WaElement type, remove all `as any` casts from `defineExpose` methods, and remove unused `defineEmits` from no-event components
+  - **Vue init**: Write Vue type references to `src/env.d.ts` instead of `compilerOptions.types` array in `tsconfig.app.json`. Includes `vite/client` reference for CSS module support
+  - **Init options**: Remove unused `--tier` flag from CLI. Tier is detected from package.json dependencies and `.env` token
+
 ## 0.17.1
 
 ### Patch Changes

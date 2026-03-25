@@ -14,7 +14,6 @@ import { frameworkSchema, tierSchema } from './config.js';
 export const initOptionsSchema = z.object({
   framework: frameworkSchema.optional(),
   typescript: z.boolean().optional(),
-  tier: tierSchema.optional(),
   theme: z.string().optional(),
   palette: z.string().optional(),
   brand: z.string().optional(), // Brand color (short form)

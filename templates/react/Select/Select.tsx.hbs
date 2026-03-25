@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Select.css';
 
 /**
@@ -121,18 +122,13 @@ export interface SelectRef {
 
   /** Removes focus from the control. */
   blur: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Select = forwardRef<SelectRef, SelectProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, ...props }, ref) => {
-    const selectRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-    }>(null);
+    const selectRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -235,7 +231,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
 
     return (
       <wa-select
-        ref={selectRef}
+        ref={(el) => { selectRef.current = el; }}
         class={clsx('Select', className)}
         {...(props as Record<string, unknown>)}
       >

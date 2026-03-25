@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './ScatterChart.css';
 
 /**
@@ -54,13 +55,13 @@ export interface ScatterChartProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 }
 
 export interface ScatterChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
   ({ children, className, ...props }, ref) => {
-    const scatterChartRef = useRef<HTMLElement>(null);
+    const scatterChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -74,7 +75,7 @@ export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
 
     return (
       <wa-scatter-chart
-        ref={scatterChartRef}
+        ref={(el) => { scatterChartRef.current = el; }}
         class={clsx('ScatterChart', className)}
         {...(props as Record<string, unknown>)}
       >

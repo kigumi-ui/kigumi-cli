@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Combobox.css';
 
 /**
@@ -118,18 +119,13 @@ export interface ComboboxRef {
 
   /** Removes focus from the control. */
   blur: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, ...props }, ref) => {
-    const comboboxRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-    }>(null);
+    const comboboxRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -232,7 +228,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
 
     return (
       <wa-combobox
-        ref={comboboxRef}
+        ref={(el) => { comboboxRef.current = el; }}
         class={clsx('Combobox', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Badge.css';
 
 /**
@@ -37,14 +38,13 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface BadgeRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Badge = forwardRef<BadgeRef, BadgeProps>(
   ({ children, className, ...props }, ref) => {
-    const badgeRef = useRef<HTMLElement & {
-    }>(null);
+    const badgeRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -58,7 +58,7 @@ export const Badge = forwardRef<BadgeRef, BadgeProps>(
 
     return (
       <wa-badge
-        ref={badgeRef}
+        ref={(el) => { badgeRef.current = el; }}
         class={clsx('Badge', className)}
         {...(props as Record<string, unknown>)}
       >

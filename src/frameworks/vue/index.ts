@@ -94,7 +94,8 @@ export class VuePlugin implements FrameworkPlugin {
     const componentContent = await generateComponent(
       component as unknown as RegistryComponentDefinition,
       config,
-      options.typescript
+      options.typescript,
+      cwd
     );
 
     files.push({

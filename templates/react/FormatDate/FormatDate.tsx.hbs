@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './FormatDate.css';
 
 /**
@@ -62,8 +63,8 @@ export interface FormatDateProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'
 }
 
 export interface FormatDateRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
@@ -74,8 +75,7 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
       ...(dateStr !== undefined && { date: dateStr }),
       ...(locale !== undefined && { lang: locale }),
     };
-    const formatdateRef = useRef<HTMLElement & {
-    }>(null);
+    const formatdateRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -89,7 +89,7 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
 
     return (
       <wa-format-date
-        ref={formatdateRef}
+        ref={(el) => { formatdateRef.current = el; }}
         class={clsx('FormatDate', className)}
         {...(passThrough as Record<string, unknown>)}
       >

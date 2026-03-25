@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Tree.css';
 
 /**
@@ -25,7 +26,7 @@ const emit = defineEmits<{
   'wa-selection-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaSelectionChange = (e: Event) => emit('wa-selection-change', e as CustomEvent);
 

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './RadarChart.css';
 
 /**
@@ -55,13 +56,13 @@ export interface RadarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'
 }
 
 export interface RadarChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
   ({ children, className, ...props }, ref) => {
-    const radarChartRef = useRef<HTMLElement>(null);
+    const radarChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -75,7 +76,7 @@ export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
 
     return (
       <wa-radar-chart
-        ref={radarChartRef}
+        ref={(el) => { radarChartRef.current = el; }}
         class={clsx('RadarChart', className)}
         {...(props as Record<string, unknown>)}
       >

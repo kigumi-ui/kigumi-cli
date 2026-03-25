@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './FileInput.css';
 
 /**
@@ -67,16 +68,13 @@ export interface FileInputRef {
 
   /** Removes focus from the file input. */
   blur: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const FileInput = forwardRef<FileInputRef, FileInputProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onInvalid, ...props }, ref) => {
-    const fileinputRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-    }>(null);
+    const fileinputRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -139,7 +137,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
 
     return (
       <wa-file-input
-        ref={fileinputRef}
+        ref={(el) => { fileinputRef.current = el; }}
         class={clsx('FileInput', className)}
         {...(props as Record<string, unknown>)}
       >

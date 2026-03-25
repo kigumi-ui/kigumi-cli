@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './ColorPicker.css';
 
 /**
@@ -111,8 +112,8 @@ export interface ColorPickerRef {
 
   /** Hides the color picker panel */
   hide: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
@@ -123,15 +124,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
         swatches: Array.isArray(swatches) ? swatches.join(',') : swatches,
       }),
     };
-    const colorpickerRef = useRef<HTMLElement & {
-      getHexString?: (hue: number, saturation: number, brightness: number, alpha: number) => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      getFormattedValue?: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => void;
-      reportValidity?: () => void;
-      show?: () => void;
-      hide?: () => void;
-    }>(null);
+    const colorpickerRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -243,7 +236,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
 
     return (
       <wa-color-picker
-        ref={colorpickerRef}
+        ref={(el) => { colorpickerRef.current = el; }}
         class={clsx('ColorPicker', className)}
         {...(passThrough as Record<string, unknown>)}
       >

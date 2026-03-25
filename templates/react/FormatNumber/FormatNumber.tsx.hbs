@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './FormatNumber.css';
 
 /**
@@ -56,8 +57,8 @@ export interface FormatNumberProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 }
 
 export interface FormatNumberRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
@@ -66,8 +67,7 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
       ...props,
       ...(locale !== undefined && { lang: locale }),
     };
-    const formatnumberRef = useRef<HTMLElement & {
-    }>(null);
+    const formatnumberRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -81,7 +81,7 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
 
     return (
       <wa-format-number
-        ref={formatnumberRef}
+        ref={(el) => { formatnumberRef.current = el; }}
         class={clsx('FormatNumber', className)}
         {...(passThrough as Record<string, unknown>)}
       >

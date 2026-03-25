@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Spinner.css';
 
 /**
@@ -19,14 +20,13 @@ import './Spinner.css';
 export type SpinnerProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
 
 export interface SpinnerRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
   ({ children, className, ...props }, ref) => {
-    const spinnerRef = useRef<HTMLElement & {
-    }>(null);
+    const spinnerRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -40,7 +40,7 @@ export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
 
     return (
       <wa-spinner
-        ref={spinnerRef}
+        ref={(el) => { spinnerRef.current = el; }}
         class={clsx('Spinner', className)}
         {...(props as Record<string, unknown>)}
       >

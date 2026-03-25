@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Drawer.css';
 
 /**
@@ -33,7 +34,7 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>('open', { default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as CustomEvent); };
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Dropdown.css';
 
 /**
@@ -60,14 +61,13 @@ export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow
 }
 
 export interface DropdownRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, onSelect, ...props }, ref) => {
-    const dropdownRef = useRef<HTMLElement & {
-    }>(null);
+    const dropdownRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -120,7 +120,7 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
 
     return (
       <wa-dropdown
-        ref={dropdownRef}
+        ref={(el) => { dropdownRef.current = el; }}
         class={clsx('Dropdown', className)}
         {...(props as Record<string, unknown>)}
       >

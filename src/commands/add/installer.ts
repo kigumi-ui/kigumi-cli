@@ -117,7 +117,8 @@ export class ComponentInstaller {
     const componentContent = await generateComponent(
       component,
       this.config,
-      this.config.typescript
+      this.config.typescript,
+      this.cwd
     );
 
     const ext =

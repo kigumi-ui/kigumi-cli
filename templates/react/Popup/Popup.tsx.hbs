@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Popup.css';
 
 /**
@@ -85,15 +86,13 @@ export interface PopupRef {
 
   /** Forces the popup to recalculate and reposition itself. */
   reposition: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Popup = forwardRef<PopupRef, PopupProps>(
   ({ children, className, onReposition, ...props }, ref) => {
-    const popupRef = useRef<HTMLElement & {
-      reposition?: () => void;
-    }>(null);
+    const popupRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -127,7 +126,7 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
 
     return (
       <wa-popup
-        ref={popupRef}
+        ref={(el) => { popupRef.current = el; }}
         class={clsx('Popup', className)}
         {...(props as Record<string, unknown>)}
       >

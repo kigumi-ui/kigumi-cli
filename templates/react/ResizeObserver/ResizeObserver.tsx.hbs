@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './ResizeObserver.css';
 
 /**
@@ -27,14 +28,13 @@ export interface ResizeObserverProps extends Omit<HTMLAttributes<HTMLElement>, '
 }
 
 export interface ResizeObserverRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>(
   ({ children, className, onResize, ...props }, ref) => {
-    const resizeobserverRef = useRef<HTMLElement & {
-    }>(null);
+    const resizeobserverRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -63,7 +63,7 @@ export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>
 
     return (
       <wa-resize-observer
-        ref={resizeobserverRef}
+        ref={(el) => { resizeobserverRef.current = el; }}
         class={clsx('ResizeObserver', className)}
         {...(props as Record<string, unknown>)}
       >

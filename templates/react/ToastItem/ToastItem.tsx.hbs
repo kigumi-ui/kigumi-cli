@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './ToastItem.css';
 
 /**
@@ -21,7 +22,7 @@ import './ToastItem.css';
  *
  * // With ref to hide programmatically
  * const itemRef = useRef<ToastItemRef>(null);
- * <ToastItem ref={itemRef}>
+ * <ToastItem ref={(el) => { itemRef.current = el; }}>
  *   Dismissible notification
  * </ToastItem>
  * ```
@@ -53,15 +54,13 @@ export interface ToastItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onSho
 export interface ToastItemRef {
   /** Hides the toast item with animation and removes it from the DOM */
   hide: () => void;
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const toastItemRef = useRef<HTMLElement & {
-      hide?: () => void;
-    }>(null);
+    const toastItemRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -98,7 +97,7 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
 
     return (
       <wa-toast-item
-        ref={toastItemRef}
+        ref={(el) => { toastItemRef.current = el; }}
         class={clsx('ToastItem', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './BubbleChart.css';
 
 /**
@@ -60,13 +61,13 @@ export interface BubbleChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 }
 
 export interface BubbleChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
   ({ children, className, ...props }, ref) => {
-    const bubbleChartRef = useRef<HTMLElement>(null);
+    const bubbleChartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -80,7 +81,7 @@ export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
 
     return (
       <wa-bubble-chart
-        ref={bubbleChartRef}
+        ref={(el) => { bubbleChartRef.current = el; }}
         class={clsx('BubbleChart', className)}
         {...(props as Record<string, unknown>)}
       >

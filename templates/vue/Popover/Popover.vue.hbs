@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Popover.css';
 
 /**
@@ -37,10 +38,10 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>('open', { default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaElement | null>(null);
 
 watch(open, (newOpen) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value;
   if (!el) return;
   const isOpen = el.open ?? false;
   if (newOpen && !isOpen) el.show?.();
@@ -73,8 +74,8 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  show: () => (elementRef.value as any)?.show?.(),
-  hide: () => (elementRef.value as any)?.hide?.(),
+  show: () => elementRef.value?.show?.(),
+  hide: () => elementRef.value?.hide?.(),
   element: elementRef,
 });
 </script>

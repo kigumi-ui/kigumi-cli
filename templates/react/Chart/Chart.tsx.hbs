@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Chart.css';
 
 /**
@@ -68,13 +69,13 @@ export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface ChartRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Chart = forwardRef<ChartRef, ChartProps>(
   ({ children, className, ...props }, ref) => {
-    const chartRef = useRef<HTMLElement>(null);
+    const chartRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -88,7 +89,7 @@ export const Chart = forwardRef<ChartRef, ChartProps>(
 
     return (
       <wa-chart
-        ref={chartRef}
+        ref={(el) => { chartRef.current = el; }}
         class={clsx('Chart', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './Tree.css';
 
 /**
@@ -27,14 +28,13 @@ export interface TreeProps extends Omit<HTMLAttributes<HTMLElement>, 'onSelectio
 }
 
 export interface TreeRef {
-  /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  /** Reference to the underlying element */
+  element: WaElement | null;
 }
 
 export const Tree = forwardRef<TreeRef, TreeProps>(
   ({ children, className, onSelectionChange, ...props }, ref) => {
-    const treeRef = useRef<HTMLElement & {
-    }>(null);
+    const treeRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(
       ref,
@@ -63,7 +63,7 @@ export const Tree = forwardRef<TreeRef, TreeProps>(
 
     return (
       <wa-tree
-        ref={treeRef}
+        ref={(el) => { treeRef.current = el; }}
         class={clsx('Tree', className)}
         {...(props as Record<string, unknown>)}
       >
