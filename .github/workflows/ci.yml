@@ -166,7 +166,7 @@ jobs:
       - name: Build Storybook
         if: steps.docs-filter.outputs.docs == 'true' && inputs.chromatic-skip != true
         working-directory: docs
-        run: pnpm build-storybook
+        run: pnpm build-storybook --stats-json
 
       - name: Run Chromatic
         if: steps.docs-filter.outputs.docs == 'true' || inputs.chromatic-skip == true
