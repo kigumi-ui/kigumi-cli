@@ -5,8 +5,8 @@ import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
 import './Drawer.css';
 
-/** WaDrawer declares show/requestClose as private; redeclare the methods we need */
-type DrawerElement = HTMLElement & {
+/** WaDrawer declares show/requestClose as private; redeclare as public for imperative use */
+type DrawerElement = Omit<WaElement, 'open' | 'show' | 'requestClose'> & {
   open?: boolean;
   show?: () => Promise<void>;
   requestClose?: (source?: Element) => Promise<void>;
@@ -130,7 +130,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
     return createPortal(
       <wa-drawer
-        ref={(el: WaElement | null) => { drawerRef.current = el as DrawerElement; }}
+        ref={(el: WaElement | null) => { drawerRef.current = el as unknown as DrawerElement; }}
         class={clsx('Drawer', className)}
         {...(props as Record<string, unknown>)}
       >
