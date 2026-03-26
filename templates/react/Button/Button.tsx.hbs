@@ -163,7 +163,7 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
 
     return (
       <wa-button
-        ref={(el) => { buttonRef.current = el; }}
+        ref={(el: WaElement | null) => { buttonRef.current = el; }}
         class={clsx('Button', className)}
         {...(props as Record<string, unknown>)}
       >

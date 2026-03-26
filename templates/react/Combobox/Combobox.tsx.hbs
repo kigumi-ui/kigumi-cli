@@ -228,7 +228,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
 
     return (
       <wa-combobox
-        ref={(el) => { comboboxRef.current = el; }}
+        ref={(el: WaElement | null) => { comboboxRef.current = el; }}
         class={clsx('Combobox', className)}
         {...(props as Record<string, unknown>)}
       >

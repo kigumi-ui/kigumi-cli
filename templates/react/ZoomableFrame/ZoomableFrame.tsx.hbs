@@ -134,7 +134,7 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
 
     return (
       <wa-zoomable-frame
-        ref={(el) => { zoomableframeRef.current = el; }}
+        ref={(el: WaElement | null) => { zoomableframeRef.current = el; }}
         class={clsx('ZoomableFrame', className)}
         {...(passThrough as Record<string, unknown>)}
       >

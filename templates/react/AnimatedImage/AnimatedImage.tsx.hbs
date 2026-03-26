@@ -78,7 +78,7 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
 
     return (
       <wa-animated-image
-        ref={(el) => { animatedimageRef.current = el; }}
+        ref={(el: WaElement | null) => { animatedimageRef.current = el; }}
         class={clsx('AnimatedImage', className)}
         {...(props as Record<string, unknown>)}
       >

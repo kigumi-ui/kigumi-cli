@@ -63,7 +63,7 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
 
     return (
       <wa-comparison
-        ref={(el) => { comparisonRef.current = el; }}
+        ref={(el: WaElement | null) => { comparisonRef.current = el; }}
         class={clsx('Comparison', className)}
         {...(props as Record<string, unknown>)}
       >

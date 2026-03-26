@@ -62,7 +62,7 @@ export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
 
     return (
       <wa-qr-code
-        ref={(el) => { qrcodeRef.current = el; }}
+        ref={(el: WaElement | null) => { qrcodeRef.current = el; }}
         class={clsx('QrCode', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -81,7 +81,7 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
 
     return (
       <wa-format-number
-        ref={(el) => { formatnumberRef.current = el; }}
+        ref={(el: WaElement | null) => { formatnumberRef.current = el; }}
         class={clsx('FormatNumber', className)}
         {...(passThrough as Record<string, unknown>)}
       >

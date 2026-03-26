@@ -16,5 +16,18 @@
   },
   "webAwesome": {
     "version": "^3.4.0"
+  },
+  "kigumiVersion": "0.18.0",
+  "installedComponents": {
+    "Input": {
+      "source": "builtin",
+      "installedAt": "2026-03-26T21:28:02.099Z",
+      "kigumiVersion": "0.18.0"
+    },
+    "Slider": {
+      "source": "builtin",
+      "installedAt": "2026-03-26T21:28:02.104Z",
+      "kigumiVersion": "0.18.0"
+    }
   }
 }

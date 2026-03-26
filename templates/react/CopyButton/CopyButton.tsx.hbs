@@ -93,7 +93,7 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
 
     return (
       <wa-copy-button
-        ref={(el) => { copybuttonRef.current = el; }}
+        ref={(el: WaElement | null) => { copybuttonRef.current = el; }}
         class={clsx('CopyButton', className)}
         {...(props as Record<string, unknown>)}
       >

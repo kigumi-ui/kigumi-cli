@@ -176,7 +176,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
 
     return (
       <wa-number-input
-        ref={(el) => { numberinputRef.current = el; }}
+        ref={(el: WaElement | null) => { numberinputRef.current = el; }}
         class={clsx('NumberInput', className)}
         {...(props as Record<string, unknown>)}
       >

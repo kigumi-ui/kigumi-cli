@@ -236,7 +236,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
 
     return (
       <wa-color-picker
-        ref={(el) => { colorpickerRef.current = el; }}
+        ref={(el: WaElement | null) => { colorpickerRef.current = el; }}
         class={clsx('ColorPicker', className)}
         {...(passThrough as Record<string, unknown>)}
       >

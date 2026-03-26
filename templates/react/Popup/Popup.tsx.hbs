@@ -126,7 +126,7 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
 
     return (
       <wa-popup
-        ref={(el) => { popupRef.current = el; }}
+        ref={(el: WaElement | null) => { popupRef.current = el; }}
         class={clsx('Popup', className)}
         {...(props as Record<string, unknown>)}
       >

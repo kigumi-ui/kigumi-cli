@@ -78,7 +78,7 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
 
     return (
       <wa-include
-        ref={(el) => { includeRef.current = el; }}
+        ref={(el: WaElement | null) => { includeRef.current = el; }}
         class={clsx('Include', className)}
         {...(props as Record<string, unknown>)}
       >

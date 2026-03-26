@@ -63,7 +63,7 @@ export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>
 
     return (
       <wa-resize-observer
-        ref={(el) => { resizeobserverRef.current = el; }}
+        ref={(el: WaElement | null) => { resizeobserverRef.current = el; }}
         class={clsx('ResizeObserver', className)}
         {...(props as Record<string, unknown>)}
       >

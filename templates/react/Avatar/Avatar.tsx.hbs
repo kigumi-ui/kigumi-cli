@@ -75,7 +75,7 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
 
     return (
       <wa-avatar
-        ref={(el) => { avatarRef.current = el; }}
+        ref={(el: WaElement | null) => { avatarRef.current = el; }}
         class={clsx('Avatar', className)}
         {...(props as Record<string, unknown>)}
       >

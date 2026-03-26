@@ -61,7 +61,7 @@ export const PieChart = forwardRef<PieChartRef, PieChartProps>(
 
     return (
       <wa-pie-chart
-        ref={(el) => { pieChartRef.current = el; }}
+        ref={(el: WaElement | null) => { pieChartRef.current = el; }}
         class={clsx('PieChart', className)}
         {...(props as Record<string, unknown>)}
       >

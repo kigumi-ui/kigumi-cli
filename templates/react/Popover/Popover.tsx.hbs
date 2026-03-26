@@ -138,7 +138,7 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
 
     return (
       <wa-popover
-        ref={(el) => { popoverRef.current = el; }}
+        ref={(el: WaElement | null) => { popoverRef.current = el; }}
         class={clsx('Popover', className)}
         {...(passThrough as Record<string, unknown>)}
       >

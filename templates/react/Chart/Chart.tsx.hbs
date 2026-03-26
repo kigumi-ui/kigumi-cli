@@ -89,7 +89,7 @@ export const Chart = forwardRef<ChartRef, ChartProps>(
 
     return (
       <wa-chart
-        ref={(el) => { chartRef.current = el; }}
+        ref={(el: WaElement | null) => { chartRef.current = el; }}
         class={clsx('Chart', className)}
         {...(props as Record<string, unknown>)}
       >

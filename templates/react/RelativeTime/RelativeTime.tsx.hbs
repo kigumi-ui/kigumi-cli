@@ -61,7 +61,7 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
 
     return (
       <wa-relative-time
-        ref={(el) => { relativetimeRef.current = el; }}
+        ref={(el: WaElement | null) => { relativetimeRef.current = el; }}
         class={clsx('RelativeTime', className)}
         {...(passThrough as Record<string, unknown>)}
       >

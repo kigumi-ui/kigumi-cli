@@ -81,7 +81,7 @@ export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
 
     return (
       <wa-bubble-chart
-        ref={(el) => { bubbleChartRef.current = el; }}
+        ref={(el: WaElement | null) => { bubbleChartRef.current = el; }}
         class={clsx('BubbleChart', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,5 +1,23 @@
 # kigumi
 
+## 0.18.0
+
+### Minor Changes
+
+- ### Features
+  - **Web Awesome 3.4.0**: Upgrade internal WA dependency from ^3.3.1 to ^3.4.0
+  - **CLI update notification**: Show a notification when a newer CLI version is available on npm (cached 24h, skipped in CI and non-TTY)
+
+  ### Breaking Changes
+  - **Input**: `autocorrect` prop type changed from `'off' | 'on'` (string union) to `boolean`
+  - **Slider**: `required` prop removed (WA 3.4.0 dropped the attribute)
+
+  ### Bug Fixes
+  - **React templates**: Add explicit `WaElement | null` type to ref callback parameter for strict-mode compatibility
+  - **version-map**: Fix kigumiVersion entry to match actual release version (was incorrectly set to 0.13.0)
+  - **lint-staged**: Scope eslint to `{src,tests,scripts}/**` so docs/ uses its own config
+  - **Chromatic CI**: Add `--stats-json` to Storybook build for TurboSnap compatibility
+
 ## 0.17.2
 
 ### Patch Changes

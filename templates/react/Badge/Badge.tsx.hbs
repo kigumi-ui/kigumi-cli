@@ -58,7 +58,7 @@ export const Badge = forwardRef<BadgeRef, BadgeProps>(
 
     return (
       <wa-badge
-        ref={(el) => { badgeRef.current = el; }}
+        ref={(el: WaElement | null) => { badgeRef.current = el; }}
         class={clsx('Badge', className)}
         {...(props as Record<string, unknown>)}
       >

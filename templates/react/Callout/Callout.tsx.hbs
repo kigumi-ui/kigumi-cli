@@ -50,7 +50,7 @@ export const Callout = forwardRef<CalloutRef, CalloutProps>(
 
     return (
       <wa-callout
-        ref={(el) => { calloutRef.current = el; }}
+        ref={(el: WaElement | null) => { calloutRef.current = el; }}
         class={clsx('Callout', className)}
         {...(props as Record<string, unknown>)}
       >

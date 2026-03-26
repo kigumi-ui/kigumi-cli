@@ -51,7 +51,7 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
 
     return (
       <wa-divider
-        ref={(el) => { dividerRef.current = el; }}
+        ref={(el: WaElement | null) => { dividerRef.current = el; }}
         class={clsx('Divider', className)}
         {...(passThrough as Record<string, unknown>)}
       >

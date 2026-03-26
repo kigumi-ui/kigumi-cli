@@ -137,7 +137,7 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
 
     return (
       <wa-tooltip
-        ref={(el) => { tooltipRef.current = el; }}
+        ref={(el: WaElement | null) => { tooltipRef.current = el; }}
         class={clsx('Tooltip', className)}
         {...(props as Record<string, unknown>)}
       >

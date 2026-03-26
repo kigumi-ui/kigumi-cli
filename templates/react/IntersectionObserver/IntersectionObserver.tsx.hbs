@@ -75,7 +75,7 @@ export const IntersectionObserver = forwardRef<IntersectionObserverRef, Intersec
 
     return (
       <wa-intersection-observer
-        ref={(el) => { intersectionobserverRef.current = el; }}
+        ref={(el: WaElement | null) => { intersectionobserverRef.current = el; }}
         class={clsx('IntersectionObserver', className)}
         {...(props as Record<string, unknown>)}
       >

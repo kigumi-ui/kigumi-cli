@@ -125,7 +125,7 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
 
     return (
       <wa-details
-        ref={(el) => { detailsRef.current = el; }}
+        ref={(el: WaElement | null) => { detailsRef.current = el; }}
         class={clsx('Details', className)}
         {...(props as Record<string, unknown>)}
       >

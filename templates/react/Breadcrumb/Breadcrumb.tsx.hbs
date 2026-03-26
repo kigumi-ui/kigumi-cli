@@ -44,7 +44,7 @@ export const Breadcrumb = forwardRef<BreadcrumbRef, BreadcrumbProps>(
 
     return (
       <wa-breadcrumb
-        ref={(el) => { breadcrumbRef.current = el; }}
+        ref={(el: WaElement | null) => { breadcrumbRef.current = el; }}
         class={clsx('Breadcrumb', className)}
         {...(props as Record<string, unknown>)}
       >

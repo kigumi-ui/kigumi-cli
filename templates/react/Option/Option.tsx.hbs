@@ -53,7 +53,7 @@ export const Option = forwardRef<OptionRef, OptionProps>(
 
     return (
       <wa-option
-        ref={(el) => { optionRef.current = el; }}
+        ref={(el: WaElement | null) => { optionRef.current = el; }}
         class={clsx('Option', className)}
         {...(props as Record<string, unknown>)}
       >

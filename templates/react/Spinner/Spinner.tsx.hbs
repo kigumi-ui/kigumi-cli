@@ -40,7 +40,7 @@ export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
 
     return (
       <wa-spinner
-        ref={(el) => { spinnerRef.current = el; }}
+        ref={(el: WaElement | null) => { spinnerRef.current = el; }}
         class={clsx('Spinner', className)}
         {...(props as Record<string, unknown>)}
       >

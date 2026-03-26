@@ -257,7 +257,7 @@ export const Input = forwardRef<InputRef, InputProps>(
 
     return (
       <wa-input
-        ref={(el) => { inputRef.current = el; }}
+        ref={(el: WaElement | null) => { inputRef.current = el; }}
         class={clsx('Input', className)}
         {...(props as Record<string, unknown>)}
       >

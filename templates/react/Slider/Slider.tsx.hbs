@@ -176,7 +176,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
 
     return (
       <wa-slider
-        ref={(el) => { sliderRef.current = el; }}
+        ref={(el: WaElement | null) => { sliderRef.current = el; }}
         class={clsx('Slider', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -131,7 +131,7 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
 
     return (
       <wa-animation
-        ref={(el) => { animationRef.current = el; }}
+        ref={(el: WaElement | null) => { animationRef.current = el; }}
         class={clsx('Animation', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -115,7 +115,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     return (
       <wa-carousel
-        ref={(el) => { carouselRef.current = el; }}
+        ref={(el: WaElement | null) => { carouselRef.current = el; }}
         class={clsx('Carousel', className)}
         {...(props as Record<string, unknown>)}
       >

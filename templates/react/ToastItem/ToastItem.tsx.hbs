@@ -22,7 +22,7 @@ import './ToastItem.css';
  *
  * // With ref to hide programmatically
  * const itemRef = useRef<ToastItemRef>(null);
- * <ToastItem ref={(el) => { itemRef.current = el; }}>
+ * <ToastItem ref={(el: WaElement | null) => { itemRef.current = el; }}>
  *   Dismissible notification
  * </ToastItem>
  * ```
@@ -97,7 +97,7 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
 
     return (
       <wa-toast-item
-        ref={(el) => { toastItemRef.current = el; }}
+        ref={(el: WaElement | null) => { toastItemRef.current = el; }}
         class={clsx('ToastItem', className)}
         {...(props as Record<string, unknown>)}
       >

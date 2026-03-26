@@ -60,7 +60,7 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
 
     return (
       <wa-format-bytes
-        ref={(el) => { formatbytesRef.current = el; }}
+        ref={(el: WaElement | null) => { formatbytesRef.current = el; }}
         class={clsx('FormatBytes', className)}
         {...(passThrough as Record<string, unknown>)}
       >

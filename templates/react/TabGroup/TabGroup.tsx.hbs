@@ -81,7 +81,7 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
 
     return (
       <wa-tab-group
-        ref={(el) => { tabgroupRef.current = el; }}
+        ref={(el: WaElement | null) => { tabgroupRef.current = el; }}
         class={clsx('TabGroup', className)}
         {...(props as Record<string, unknown>)}
       >

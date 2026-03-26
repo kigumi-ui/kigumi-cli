@@ -148,7 +148,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
 
     return (
       <wa-checkbox
-        ref={(el) => { checkboxRef.current = el; }}
+        ref={(el: WaElement | null) => { checkboxRef.current = el; }}
         class={clsx('Checkbox', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -145,7 +145,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
 
     return (
       <wa-switch
-        ref={(el) => { switchRef.current = el; }}
+        ref={(el: WaElement | null) => { switchRef.current = el; }}
         class={clsx('Switch', className)}
         {...(props as Record<string, unknown>)}
       >

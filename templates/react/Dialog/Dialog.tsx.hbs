@@ -41,7 +41,7 @@ type DialogElement = HTMLElement & {
  * const dialogRef = useRef<DialogRef>(null);
  *
  * <Button onClick={() => dialogRef.current?.show()}>Open Dialog</Button>
- * <Dialog ref={(el) => { dialogRef.current = el; }} label="Dialog Title">
+ * <Dialog ref={(el: WaElement | null) => { dialogRef.current = el; }} label="Dialog Title">
  *   <p>Dialog content</p>
  *   <Button slot="footer" variant="brand" onClick={() => dialogRef.current?.hide()}>
  *     Close
@@ -139,7 +139,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return createPortal(
       <wa-dialog
-        ref={(el) => { dialogRef.current = el as DialogElement; }}
+        ref={(el: WaElement | null) => { dialogRef.current = el as DialogElement; }}
         class={clsx('Dialog', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -53,7 +53,7 @@ export const Scroller = forwardRef<ScrollerRef, ScrollerProps>(
 
     return (
       <wa-scroller
-        ref={(el) => { scrollerRef.current = el; }}
+        ref={(el: WaElement | null) => { scrollerRef.current = el; }}
         class={clsx('Scroller', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -81,7 +81,7 @@ export const MutationObserver = forwardRef<MutationObserverRef, MutationObserver
 
     return (
       <wa-mutation-observer
-        ref={(el) => { mutationobserverRef.current = el; }}
+        ref={(el: WaElement | null) => { mutationobserverRef.current = el; }}
         class={clsx('MutationObserver', className)}
         {...(props as Record<string, unknown>)}
       >

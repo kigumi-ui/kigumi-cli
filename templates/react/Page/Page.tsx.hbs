@@ -93,7 +93,7 @@ export const Page = forwardRef<PageRef, PageProps>(
 
     return (
       <wa-page
-        ref={(el) => { pageRef.current = el; }}
+        ref={(el: WaElement | null) => { pageRef.current = el; }}
         class={clsx('Page', className)}
         {...(props as Record<string, unknown>)}
       >

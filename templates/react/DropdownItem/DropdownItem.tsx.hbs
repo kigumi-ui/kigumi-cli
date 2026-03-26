@@ -107,7 +107,7 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
 
     return (
       <wa-dropdown-item
-        ref={(el) => { dropdownitemRef.current = el; }}
+        ref={(el: WaElement | null) => { dropdownitemRef.current = el; }}
         class={clsx('DropdownItem', className)}
         {...(props as Record<string, unknown>)}
       >
