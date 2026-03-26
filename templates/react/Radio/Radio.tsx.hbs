@@ -81,7 +81,7 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
 
     return (
       <wa-radio
-        ref={(el) => { radioRef.current = el; }}
+        ref={(el: WaElement | null) => { radioRef.current = el; }}
         class={clsx('Radio', className)}
         {...(props as Record<string, unknown>)}
       >

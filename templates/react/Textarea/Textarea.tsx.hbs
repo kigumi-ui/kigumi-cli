@@ -193,7 +193,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
 
     return (
       <wa-textarea
-        ref={(el) => { textareaRef.current = el; }}
+        ref={(el: WaElement | null) => { textareaRef.current = el; }}
         class={clsx('Textarea', className)}
         {...(props as Record<string, unknown>)}
       >

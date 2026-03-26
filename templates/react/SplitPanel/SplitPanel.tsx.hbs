@@ -81,7 +81,7 @@ export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
 
     return (
       <wa-split-panel
-        ref={(el) => { splitpanelRef.current = el; }}
+        ref={(el: WaElement | null) => { splitpanelRef.current = el; }}
         class={clsx('SplitPanel', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -44,7 +44,7 @@ export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
 
     return (
       <wa-skeleton
-        ref={(el) => { skeletonRef.current = el; }}
+        ref={(el: WaElement | null) => { skeletonRef.current = el; }}
         class={clsx('Skeleton', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -82,7 +82,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
 
     return (
       <wa-tag
-        ref={(el) => { tagRef.current = el; }}
+        ref={(el: WaElement | null) => { tagRef.current = el; }}
         class={clsx('Tag', className)}
         {...(passThrough as Record<string, unknown>)}
       >

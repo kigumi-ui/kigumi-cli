@@ -60,7 +60,7 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
 
     return (
       <wa-sparkline
-        ref={(el) => { sparklineRef.current = el; }}
+        ref={(el: WaElement | null) => { sparklineRef.current = el; }}
         class={clsx('Sparkline', className)}
         {...(props as Record<string, unknown>)}
       >

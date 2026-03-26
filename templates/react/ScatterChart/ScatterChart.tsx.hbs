@@ -75,7 +75,7 @@ export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
 
     return (
       <wa-scatter-chart
-        ref={(el) => { scatterChartRef.current = el; }}
+        ref={(el: WaElement | null) => { scatterChartRef.current = el; }}
         class={clsx('ScatterChart', className)}
         {...(props as Record<string, unknown>)}
       >

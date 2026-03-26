@@ -56,7 +56,7 @@ export const Card = forwardRef<CardRef, CardProps>(
 
     return (
       <wa-card
-        ref={(el) => { cardRef.current = el; }}
+        ref={(el: WaElement | null) => { cardRef.current = el; }}
         class={clsx('Card', className)}
         {...(props as Record<string, unknown>)}
       >

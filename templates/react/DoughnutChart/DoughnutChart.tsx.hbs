@@ -61,7 +61,7 @@ export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
 
     return (
       <wa-doughnut-chart
-        ref={(el) => { doughnutChartRef.current = el; }}
+        ref={(el: WaElement | null) => { doughnutChartRef.current = el; }}
         class={clsx('DoughnutChart', className)}
         {...(props as Record<string, unknown>)}
       >

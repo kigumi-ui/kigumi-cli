@@ -49,8 +49,8 @@ describe('getVersionEntry', () => {
     expect(entry!.webAwesomeVersion).toBe('^3.3.1');
   });
 
-  it('returns entry for 0.13.0 with WA 3.4.0', () => {
-    const entry = getVersionEntry('0.13.0');
+  it('returns entry for 0.18.0 with WA 3.4.0', () => {
+    const entry = getVersionEntry('0.18.0');
     expect(entry).toBeDefined();
     expect(entry!.webAwesomeVersion).toBe('^3.4.0');
     expect(entry!.breakingChanges).toHaveLength(2);
@@ -86,8 +86,8 @@ describe('getBreakingChangesBetween', () => {
     expect(changes).toEqual([]);
   });
 
-  it('returns WA 3.4.0 breaking changes for 0.12.0 to 0.13.0', () => {
-    const changes = getBreakingChangesBetween('0.12.0', '0.13.0');
+  it('returns WA 3.4.0 breaking changes for 0.12.0 to 0.18.0', () => {
+    const changes = getBreakingChangesBetween('0.12.0', '0.18.0');
     expect(changes).toHaveLength(2);
 
     const sliderChange = changes.find((c) =>

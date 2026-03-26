@@ -110,7 +110,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
 
     return (
       <wa-rating
-        ref={(el) => { ratingRef.current = el; }}
+        ref={(el: WaElement | null) => { ratingRef.current = el; }}
         class={clsx('Rating', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -102,7 +102,7 @@ export const Icon = forwardRef<IconRef, IconProps>(
 
     return (
       <wa-icon
-        ref={(el) => { iconRef.current = el; }}
+        ref={(el: WaElement | null) => { iconRef.current = el; }}
         class={clsx('Icon', className)}
         {...(props as Record<string, unknown>)}
       >

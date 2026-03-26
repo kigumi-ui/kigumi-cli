@@ -85,7 +85,7 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
 
     return (
       <wa-line-chart
-        ref={(el) => { lineChartRef.current = el; }}
+        ref={(el: WaElement | null) => { lineChartRef.current = el; }}
         class={clsx('LineChart', className)}
         {...(props as Record<string, unknown>)}
       >

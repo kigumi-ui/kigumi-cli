@@ -231,7 +231,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
 
     return (
       <wa-select
-        ref={(el) => { selectRef.current = el; }}
+        ref={(el: WaElement | null) => { selectRef.current = el; }}
         class={clsx('Select', className)}
         {...(props as Record<string, unknown>)}
       >

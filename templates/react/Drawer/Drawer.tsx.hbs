@@ -38,7 +38,7 @@ type DrawerElement = HTMLElement & {
  * const drawerRef = useRef<DrawerRef>(null);
  *
  * <Button onClick={() => drawerRef.current?.show()}>Open Drawer</Button>
- * <Drawer ref={(el) => { drawerRef.current = el; }} label="Drawer Title">
+ * <Drawer ref={(el: WaElement | null) => { drawerRef.current = el; }} label="Drawer Title">
  *   <p>Drawer content</p>
  * </Drawer>
  * ```
@@ -130,7 +130,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
     return createPortal(
       <wa-drawer
-        ref={(el) => { drawerRef.current = el as DrawerElement; }}
+        ref={(el: WaElement | null) => { drawerRef.current = el as DrawerElement; }}
         class={clsx('Drawer', className)}
         {...(props as Record<string, unknown>)}
       >

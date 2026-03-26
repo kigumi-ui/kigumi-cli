@@ -61,7 +61,7 @@ export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>
 
     return (
       <wa-polar-area-chart
-        ref={(el) => { polarAreaChartRef.current = el; }}
+        ref={(el: WaElement | null) => { polarAreaChartRef.current = el; }}
         class={clsx('PolarAreaChart', className)}
         {...(props as Record<string, unknown>)}
       >

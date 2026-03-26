@@ -120,7 +120,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
 
     return (
       <wa-radio-group
-        ref={(el) => { radiogroupRef.current = el; }}
+        ref={(el: WaElement | null) => { radiogroupRef.current = el; }}
         class={clsx('RadioGroup', className)}
         {...(props as Record<string, unknown>)}
       >

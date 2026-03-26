@@ -129,7 +129,7 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
 
     return (
       <wa-tree-item
-        ref={(el) => { treeitemRef.current = el; }}
+        ref={(el: WaElement | null) => { treeitemRef.current = el; }}
         class={clsx('TreeItem', className)}
         {...(props as Record<string, unknown>)}
       >

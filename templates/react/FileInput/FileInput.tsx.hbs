@@ -137,7 +137,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
 
     return (
       <wa-file-input
-        ref={(el) => { fileinputRef.current = el; }}
+        ref={(el: WaElement | null) => { fileinputRef.current = el; }}
         class={clsx('FileInput', className)}
         {...(props as Record<string, unknown>)}
       >

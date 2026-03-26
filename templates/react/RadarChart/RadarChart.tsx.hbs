@@ -76,7 +76,7 @@ export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
 
     return (
       <wa-radar-chart
-        ref={(el) => { radarChartRef.current = el; }}
+        ref={(el: WaElement | null) => { radarChartRef.current = el; }}
         class={clsx('RadarChart', className)}
         {...(props as Record<string, unknown>)}
       >

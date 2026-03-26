@@ -47,7 +47,7 @@ export const TabPanel = forwardRef<TabPanelRef, TabPanelProps>(
 
     return (
       <wa-tab-panel
-        ref={(el) => { tabpanelRef.current = el; }}
+        ref={(el: WaElement | null) => { tabpanelRef.current = el; }}
         class={clsx('TabPanel', className)}
         {...(props as Record<string, unknown>)}
       >

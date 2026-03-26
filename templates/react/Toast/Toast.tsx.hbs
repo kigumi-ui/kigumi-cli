@@ -18,7 +18,7 @@ import './Toast.css';
  * // Programmatic usage with ref
  * const toastRef = useRef<ToastRef>(null);
  * toastRef.current?.create('Hello!', { variant: 'brand' });
- * <Toast ref={(el) => { toastRef.current = el; }} />
+ * <Toast ref={(el: WaElement | null) => { toastRef.current = el; }} />
  * ```
  */
 export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -53,7 +53,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
 
     return createPortal(
       <wa-toast
-        ref={(el) => { toastRef.current = el; }}
+        ref={(el: WaElement | null) => { toastRef.current = el; }}
         class={clsx('Toast', className)}
         {...(props as Record<string, unknown>)}
       >

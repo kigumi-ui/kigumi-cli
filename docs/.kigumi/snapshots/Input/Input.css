@@ -1,0 +1,17 @@
+/**
+ * Input Component Styles
+ * Documentation: https://webawesome.com/docs/components/input
+ *
+ * CSS Parts:
+ * label — Label text above the input
+ * hint — Hint text below the input
+ * base — Root wrapper element
+ * input — Native input element
+ * start — Wrapper for start slot content
+ * clear-button — Button to clear the input value
+ * password-toggle-button — Button to show or hide the password
+ * end — Wrapper for end slot content
+ */
+.Input {
+  /* Add your custom styles here */
+}

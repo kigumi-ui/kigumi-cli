@@ -47,7 +47,7 @@ export const Tab = forwardRef<TabRef, TabProps>(
 
     return (
       <wa-tab
-        ref={(el) => { tabRef.current = el; }}
+        ref={(el: WaElement | null) => { tabRef.current = el; }}
         class={clsx('Tab', className)}
         {...(props as Record<string, unknown>)}
       >

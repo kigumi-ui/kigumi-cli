@@ -120,7 +120,7 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
 
     return (
       <wa-dropdown
-        ref={(el) => { dropdownRef.current = el; }}
+        ref={(el: WaElement | null) => { dropdownRef.current = el; }}
         class={clsx('Dropdown', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -47,7 +47,7 @@ export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
 
     return (
       <wa-progress-ring
-        ref={(el) => { progressringRef.current = el; }}
+        ref={(el: WaElement | null) => { progressringRef.current = el; }}
         class={clsx('ProgressRing', className)}
         {...(props as Record<string, unknown>)}
       >

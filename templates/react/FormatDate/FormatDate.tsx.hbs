@@ -89,7 +89,7 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
 
     return (
       <wa-format-date
-        ref={(el) => { formatdateRef.current = el; }}
+        ref={(el: WaElement | null) => { formatdateRef.current = el; }}
         class={clsx('FormatDate', className)}
         {...(passThrough as Record<string, unknown>)}
       >

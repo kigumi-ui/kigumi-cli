@@ -47,7 +47,7 @@ export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
 
     return (
       <wa-button-group
-        ref={(el) => { buttongroupRef.current = el; }}
+        ref={(el: WaElement | null) => { buttongroupRef.current = el; }}
         class={clsx('ButtonGroup', className)}
         {...(props as Record<string, unknown>)}
       >
