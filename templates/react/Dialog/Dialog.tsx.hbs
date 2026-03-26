@@ -5,8 +5,8 @@ import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
 import './Dialog.css';
 
-/** WaDialog declares show/requestClose as private; redeclare the methods we need */
-type DialogElement = HTMLElement & {
+/** WaDialog declares show/requestClose as private; redeclare as public for imperative use */
+type DialogElement = Omit<WaElement, 'open' | 'show' | 'requestClose'> & {
   open?: boolean;
   show?: () => Promise<void>;
   requestClose?: (source?: Element) => Promise<void>;
@@ -139,7 +139,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return createPortal(
       <wa-dialog
-        ref={(el: WaElement | null) => { dialogRef.current = el as DialogElement; }}
+        ref={(el: WaElement | null) => { dialogRef.current = el as unknown as DialogElement; }}
         class={clsx('Dialog', className)}
         {...(props as Record<string, unknown>)}
       >
