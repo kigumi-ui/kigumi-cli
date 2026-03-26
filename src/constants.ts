@@ -131,7 +131,7 @@ export const INSTALL_TIMEOUT_MS = 300_000;
 // =============================================================================
 
 /** Default Web Awesome package version */
-export const DEFAULT_WEBAWESOME_VERSION = '^3.3.1';
+export const DEFAULT_WEBAWESOME_VERSION = '^3.4.0';
 
 // =============================================================================
 // Community Registry
@@ -148,6 +148,22 @@ export const REGISTRY_CACHE_TTL_MS = 3_600_000;
 
 /** Community registry file name */
 export const REGISTRY_FILE_NAME = 'registry.json';
+
+// =============================================================================
+// Update Check
+// =============================================================================
+
+/** NPM registry URL for checking latest CLI version */
+export const NPM_REGISTRY_URL = 'https://registry.npmjs.org/kigumi/latest';
+
+/** Update check cache TTL in milliseconds (24 hours) */
+export const UPDATE_CHECK_CACHE_TTL_MS = 86_400_000;
+
+/** Update check fetch timeout in milliseconds (3 seconds) */
+export const UPDATE_CHECK_TIMEOUT_MS = 3_000;
+
+/** Update check cache file name (within KIGUMI_CACHE_DIR) */
+export const UPDATE_CHECK_CACHE_FILE = 'update-check.json';
 
 // =============================================================================
 // GitHub Repository

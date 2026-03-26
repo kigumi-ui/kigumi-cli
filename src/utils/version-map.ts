@@ -53,6 +53,27 @@ function compareSemver(a: string, b: string): number {
  */
 export const VERSION_MAP: VersionEntry[] = [
   {
+    kigumiVersion: '0.13.0',
+    webAwesomeVersion: '^3.4.0',
+    releasedAt: '2026-03-25',
+    breakingChanges: [
+      {
+        description:
+          'Slider: `required` prop removed (WA 3.4.0 dropped the attribute)',
+        affectedComponents: ['slider'],
+        migrationGuide:
+          'Remove the `required` prop from Slider components. Use custom validation if needed.',
+      },
+      {
+        description:
+          'Input: `autocorrect` prop type changed from string union to boolean',
+        affectedComponents: ['input'],
+        migrationGuide:
+          'Change autocorrect="off" to autocorrect={false} and autocorrect="on" to autocorrect={true}.',
+      },
+    ],
+  },
+  {
     kigumiVersion: '0.12.0',
     webAwesomeVersion: '^3.3.1',
     releasedAt: '2026-03-01',

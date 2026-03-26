@@ -47,11 +47,6 @@ const meta = {
       description: 'Makes the slider readonly',
       table: { defaultValue: { summary: 'false' } },
     },
-    required: {
-      control: 'boolean',
-      description: 'Makes the slider required',
-      table: { defaultValue: { summary: 'false' } },
-    },
     range: {
       control: 'boolean',
       description: 'Converts to a range slider with two thumbs',

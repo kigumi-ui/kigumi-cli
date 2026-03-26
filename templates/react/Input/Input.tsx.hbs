@@ -96,8 +96,8 @@ export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' 
   /** Controls automatic capitalization */
   autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
 
-  /** Hint for autocorrect behavior */
-  autocorrect?: 'off' | 'on';
+  /** Enable autocorrect */
+  autocorrect?: boolean;
 
   /** Automatically focuses the input on page load */
   autofocus?: boolean;
