@@ -108,9 +108,8 @@ const meta = {
       description: 'Controls automatic capitalization',
     },
     autocorrect: {
-      control: 'select',
-      options: ['off', 'on'],
-      description: 'Hint for autocorrect behavior',
+      control: 'boolean',
+      description: 'Enable autocorrect',
     },
     inputmode: {
       control: 'select',

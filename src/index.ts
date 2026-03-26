@@ -4,6 +4,10 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { GITHUB_ISSUES_URL } from './constants.js';
+import {
+  checkForUpdate,
+  formatUpdateNotification,
+} from './utils/update-check.js';
 import { initCommand } from './commands/init.js';
 import { addCommand } from './commands/add.js';
 import { listCommand } from './commands/list.js';
@@ -24,6 +28,9 @@ const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
 const program = new Command();
 
+// Fire update check early so it resolves by the time the command finishes
+const updateCheckPromise = checkForUpdate();
+
 program
   .name('kigumi')
   .description('CLI tool to add Web Awesome components to your project')
@@ -38,13 +45,19 @@ program
     (thisCommand as unknown as Record<string, number>).__startTime =
       performance.now();
   })
-  .hook('postAction', (thisCommand) => {
+  .hook('postAction', async (thisCommand) => {
     const start = (thisCommand as unknown as Record<string, number>)
       .__startTime;
     if (start && process.env.DEBUG) {
       const elapsed = ((performance.now() - start) / 1000).toFixed(1);
       // Uses console.error directly because getOutput() is not available in Commander hooks
       console.error(pc.dim(`Done in ${elapsed}s`));
+    }
+
+    // Show update notification if a newer version is available
+    const updateResult = await updateCheckPromise;
+    if (updateResult) {
+      console.error(pc.yellow(formatUpdateNotification(updateResult)));
     }
   });
 

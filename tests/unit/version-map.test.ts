@@ -49,6 +49,13 @@ describe('getVersionEntry', () => {
     expect(entry!.webAwesomeVersion).toBe('^3.3.1');
   });
 
+  it('returns entry for 0.13.0 with WA 3.4.0', () => {
+    const entry = getVersionEntry('0.13.0');
+    expect(entry).toBeDefined();
+    expect(entry!.webAwesomeVersion).toBe('^3.4.0');
+    expect(entry!.breakingChanges).toHaveLength(2);
+  });
+
   it('returns undefined for unknown version', () => {
     const entry = getVersionEntry('99.99.99');
     expect(entry).toBeUndefined();
@@ -77,6 +84,23 @@ describe('getBreakingChangesBetween', () => {
   it('returns empty for same version', () => {
     const changes = getBreakingChangesBetween('0.12.0', '0.12.0');
     expect(changes).toEqual([]);
+  });
+
+  it('returns WA 3.4.0 breaking changes for 0.12.0 to 0.13.0', () => {
+    const changes = getBreakingChangesBetween('0.12.0', '0.13.0');
+    expect(changes).toHaveLength(2);
+
+    const sliderChange = changes.find((c) =>
+      c.affectedComponents.includes('slider')
+    );
+    expect(sliderChange).toBeDefined();
+    expect(sliderChange!.description).toContain('required');
+
+    const inputChange = changes.find((c) =>
+      c.affectedComponents.includes('input')
+    );
+    expect(inputChange).toBeDefined();
+    expect(inputChange!.description).toContain('autocorrect');
   });
 });
 

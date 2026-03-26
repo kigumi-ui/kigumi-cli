@@ -383,9 +383,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       },
       {
         name: 'autocorrect',
-        type: 'string',
-        values: ['off', 'on'],
-        description: 'Hint for autocorrect behavior',
+        type: 'boolean',
+        default: 'false',
+        description: 'Enable autocorrect',
         required: false,
       },
       {
@@ -2821,12 +2821,6 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'boolean',
         default: 'false',
         description: 'Makes the slider readonly',
-      },
-      {
-        name: 'required',
-        type: 'boolean',
-        default: 'false',
-        description: 'Makes the slider required',
       },
       {
         name: 'range',
