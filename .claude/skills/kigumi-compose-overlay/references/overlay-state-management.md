@@ -47,7 +47,7 @@ Opening:  wa-show -> [animation] -> wa-after-show
 Closing:  wa-hide -> [animation] -> wa-after-hide
 ```
 
-- `wa-show`: Emitted when open is requested. NOT cancelable.
+- `wa-show`: Emitted when open is requested. **Cancelable on Popover** (calling `preventDefault()` stops it from opening). On Dialog and Drawer, `wa-show` fires after the dialog is already opening and is not cancelable.
 - `wa-hide`: Emitted when close is requested. **Cancelable** via `event.preventDefault()`.
 - `wa-after-show` / `wa-after-hide`: Emitted after animation completes. Not cancelable.
 

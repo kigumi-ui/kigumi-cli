@@ -65,6 +65,28 @@ Quick reference: which Kigumi component for which input type.
 ### Combobox (Pro)
 `label` `hint` `placeholder` `value` `multiple` `allow-custom-value` `required` `disabled` `size` `appearance`
 
+## Key Slots
+
+Slots let you place icons or custom content inside form controls. Use `slot="name"` on child elements.
+
+| Component | Slots |
+|-----------|-------|
+| **Input** | `start`, `end`, `label`, `hint`, `clear-icon`, `show-password-icon`, `hide-password-icon` |
+| **Select** | `start`, `end`, `label`, `hint`, `clear-icon`, `expand-icon` |
+| **Textarea** | `label`, `hint` |
+| **Combobox** (pro) | `start`, `end`, `label`, `hint`, `clear-icon`, `expand-icon` |
+
+Most-used pattern -- prefix/suffix icons in Input:
+
+```tsx
+<Input label="Search" type="search">
+  <Icon slot="start" name="search" />
+  <Icon slot="end" name="x-circle" />
+</Input>
+```
+
+See [form-patterns.md](form-patterns.md#form-control-slots) for more slot examples.
+
 ## Event Patterns
 
 All form controls use **native DOM events**:

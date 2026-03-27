@@ -2,7 +2,7 @@
 
 ## A: App Shell
 
-Sidebar navigation + main content area.
+Sidebar navigation + main content area with collapsible sidebar.
 
 ```
 +--sidebar--+--------main---------+
@@ -11,11 +11,19 @@ Sidebar navigation + main content area.
 |  Nav 2    |                     |
 |  Nav 3    |                     |
 +-----------+---------------------+
+
+Collapsed:
++--+--------main---------+
+|<<|                      |
+|  |    Page Content      |
+|  |                      |
++--+----------------------+
 ```
 
 ### React
 
 ```tsx
+import { useState } from 'react';
 import { Button, Divider, Icon } from '@/components/ui';
 
 interface AppShellProps {
@@ -25,6 +33,8 @@ interface AppShellProps {
 }
 
 export function AppShell({ children, currentPage, onNavigate }: AppShellProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'chart-line' },
     { id: 'users', label: 'Users', icon: 'users' },
@@ -32,9 +42,29 @@ export function AppShell({ children, currentPage, onNavigate }: AppShellProps) {
   ];
 
   return (
-    <div className="wa-flank wa-gap-0" style={{ minHeight: '100vh', '--flank-size': '240px' } as React.CSSProperties}>
-      <nav className="wa-stack wa-gap-xs" style={{ padding: 'var(--wa-space-m)', backgroundColor: 'var(--wa-color-surface-lowered)' }} aria-label="Main navigation">
-        <strong style={{ fontSize: 'var(--wa-font-size-l)' }}>My App</strong>
+    <div className="wa-flank wa-gap-0" style={{ minHeight: '100vh', '--flank-size': sidebarOpen ? '240px' : '56px' } as React.CSSProperties}>
+      <nav
+        className="wa-stack wa-gap-xs"
+        style={{
+          padding: sidebarOpen ? 'var(--wa-space-m)' : 'var(--wa-space-s)',
+          backgroundColor: 'var(--wa-color-surface-lowered)',
+          transition: 'var(--wa-transition-fast)',
+          overflow: 'hidden',
+        }}
+        aria-label="Main navigation"
+      >
+        <div className="wa-split wa-align-items-center">
+          {sidebarOpen && <strong className="wa-heading-s">My App</strong>}
+          <Button
+            variant="neutral"
+            appearance="plain"
+            size="small"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+          >
+            <Icon name={sidebarOpen ? 'chevron-left' : 'chevron-right'} />
+          </Button>
+        </div>
         <Divider />
         {navItems.map((item) => (
           <Button
@@ -45,11 +75,16 @@ export function AppShell({ children, currentPage, onNavigate }: AppShellProps) {
             style={{ justifyContent: 'flex-start' }}
           >
             <Icon slot="start" name={item.icon} />
-            {item.label}
+            {sidebarOpen && item.label}
           </Button>
         ))}
       </nav>
-      <main style={{ padding: 'var(--wa-space-l)', flex: 1 }}>
+
+      {/* Content area - use react-router's Outlet for routing:
+          import { Outlet } from 'react-router-dom';
+          Replace the <main> children with <Outlet /> */}
+      <main className="wa-stack wa-gap-l" style={{ padding: 'var(--wa-space-l)', flex: 1 }}>
+        {/* <Outlet /> -- uncomment when using react-router */}
         {children}
       </main>
     </div>
@@ -61,10 +96,13 @@ export function AppShell({ children, currentPage, onNavigate }: AppShellProps) {
 
 ```vue
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Button, Divider, Icon } from '@/components/ui';
 
 defineProps<{ currentPage: string }>();
 const emit = defineEmits<{ navigate: [page: string] }>();
+
+const sidebarOpen = ref(true);
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: 'chart-line' },
@@ -74,9 +112,29 @@ const navItems = [
 </script>
 
 <template>
-  <div class="wa-flank wa-gap-0" style="min-height: 100vh; --flank-size: 240px">
-    <nav class="wa-stack wa-gap-xs" style="padding: var(--wa-space-m); background: var(--wa-color-surface-lowered)" aria-label="Main navigation">
-      <strong style="font-size: var(--wa-font-size-l)">My App</strong>
+  <div class="wa-flank wa-gap-0" :style="{ minHeight: '100vh', '--flank-size': sidebarOpen ? '240px' : '56px' }">
+    <nav
+      class="wa-stack wa-gap-xs"
+      :style="{
+        padding: sidebarOpen ? 'var(--wa-space-m)' : 'var(--wa-space-s)',
+        background: 'var(--wa-color-surface-lowered)',
+        transition: 'var(--wa-transition-fast)',
+        overflow: 'hidden',
+      }"
+      aria-label="Main navigation"
+    >
+      <div class="wa-split wa-align-items-center">
+        <strong v-if="sidebarOpen" class="wa-heading-s">My App</strong>
+        <Button
+          variant="neutral"
+          appearance="plain"
+          size="small"
+          :aria-label="sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'"
+          @click="sidebarOpen = !sidebarOpen"
+        >
+          <Icon :name="sidebarOpen ? 'chevron-left' : 'chevron-right'" />
+        </Button>
+      </div>
       <Divider />
       <Button
         v-for="item in navItems"
@@ -87,10 +145,15 @@ const navItems = [
         @click="emit('navigate', item.id)"
       >
         <Icon slot="start" :name="item.icon" />
-        {{ item.label }}
+        <span v-if="sidebarOpen">{{ item.label }}</span>
       </Button>
     </nav>
-    <main style="padding: var(--wa-space-l); flex: 1">
+
+    <!-- Content area - use vue-router's RouterView for routing:
+         import { RouterView } from 'vue-router';
+         Replace <slot /> with <RouterView /> -->
+    <main class="wa-stack wa-gap-l" style="padding: var(--wa-space-l); flex: 1">
+      <!-- <RouterView /> -- uncomment when using vue-router -->
       <slot />
     </main>
   </div>
@@ -129,15 +192,15 @@ interface Metric {
 export function DashboardContent({ metrics }: { metrics: Metric[] }) {
   return (
     <div className="wa-stack wa-gap-l">
-      <h1>Dashboard</h1>
+      <h1 className="wa-heading-xl">Dashboard</h1>
 
       <div className="wa-grid" style={{ '--min-column-size': '250px' } as React.CSSProperties}>
         {metrics.map((m) => (
           <Card key={m.label}>
             <div className="wa-split">
               <div className="wa-stack wa-gap-2xs">
-                <span style={{ color: 'var(--wa-color-text-quiet)' }}>{m.label}</span>
-                <strong style={{ fontSize: 'var(--wa-font-size-2xl)' }}>
+                <span className="wa-body-s" style={{ color: 'var(--wa-color-text-quiet)' }}>{m.label}</span>
+                <strong className="wa-heading-l">
                   <FormatNumber value={m.value} type={m.type || 'decimal'} currency={m.type === 'currency' ? 'USD' : undefined} />
                 </strong>
               </div>
@@ -148,12 +211,54 @@ export function DashboardContent({ metrics }: { metrics: Metric[] }) {
       </div>
 
       <section className="wa-stack wa-gap-m">
-        <h2>Recent Activity</h2>
-        {/* Activity list here */}
+        <h2 className="wa-heading-m">Recent Activity</h2>
+        {/* Activity list here -- use kigumi-compose-data skill for data tables */}
       </section>
     </div>
   );
 }
+```
+
+### Vue
+
+```vue
+<script setup lang="ts">
+import { Card, FormatNumber, Icon } from '@/components/ui';
+
+interface Metric {
+  label: string;
+  value: number;
+  icon: string;
+  type?: 'currency' | 'decimal' | 'percent';
+}
+
+defineProps<{ metrics: Metric[] }>();
+</script>
+
+<template>
+  <div class="wa-stack wa-gap-l">
+    <h1 class="wa-heading-xl">Dashboard</h1>
+
+    <div class="wa-grid" style="--min-column-size: 250px">
+      <Card v-for="m in metrics" :key="m.label">
+        <div class="wa-split">
+          <div class="wa-stack wa-gap-2xs">
+            <span class="wa-body-s" style="color: var(--wa-color-text-quiet)">{{ m.label }}</span>
+            <strong class="wa-heading-l">
+              <FormatNumber :value="m.value" :type="m.type || 'decimal'" :currency="m.type === 'currency' ? 'USD' : undefined" />
+            </strong>
+          </div>
+          <Icon :name="m.icon" style="font-size: 2rem; color: var(--wa-color-brand)" />
+        </div>
+      </Card>
+    </div>
+
+    <section class="wa-stack wa-gap-m">
+      <h2 class="wa-heading-m">Recent Activity</h2>
+      <!-- Activity list here -- use kigumi-compose-data skill for data tables -->
+    </section>
+  </div>
+</template>
 ```
 
 ---
@@ -205,7 +310,7 @@ import {
 export function SettingsPage() {
   return (
     <div className="wa-stack wa-gap-l" style={{ maxWidth: '800px' }}>
-      <h1>Settings</h1>
+      <h1 className="wa-heading-xl">Settings</h1>
       <TabGroup>
         <Tab slot="nav" panel="general">General</Tab>
         <Tab slot="nav" panel="notifications">Notifications</Tab>
@@ -241,6 +346,7 @@ export function SettingsPage() {
         </TabPanel>
 
         <TabPanel name="security">
+          {/* Use kigumi-compose-form skill for validated form submission */}
           <div className="wa-stack wa-gap-m">
             <Input label="Current password" type="password" />
             <Input label="New password" type="password" />
@@ -253,15 +359,80 @@ export function SettingsPage() {
 }
 ```
 
+### Vue
+
+```vue
+<script setup lang="ts">
+import {
+  Button, Details, Divider, Input, Option, Radio, RadioGroup,
+  Select, Switch, Tab, TabGroup, TabPanel,
+} from '@/components/ui';
+</script>
+
+<template>
+  <div class="wa-stack wa-gap-l" style="max-width: 800px">
+    <h1 class="wa-heading-xl">Settings</h1>
+    <TabGroup>
+      <Tab slot="nav" panel="general">General</Tab>
+      <Tab slot="nav" panel="notifications">Notifications</Tab>
+      <Tab slot="nav" panel="security">Security</Tab>
+
+      <TabPanel name="general">
+        <div class="wa-stack wa-gap-m">
+          <Details summary="Profile" open>
+            <div class="wa-stack wa-gap-m">
+              <div class="wa-grid" style="--min-column-size: 200px">
+                <Input label="First name" name="firstName" />
+                <Input label="Last name" name="lastName" />
+              </div>
+              <Input label="Email" name="email" type="email" />
+            </div>
+          </Details>
+          <Details summary="Preferences">
+            <div class="wa-stack wa-gap-m">
+              <Select label="Language">
+                <Option value="en">English</Option>
+                <Option value="de">Deutsch</Option>
+              </Select>
+              <RadioGroup label="Theme" value="system">
+                <Radio value="light">Light</Radio>
+                <Radio value="dark">Dark</Radio>
+                <Radio value="system">System</Radio>
+              </RadioGroup>
+            </div>
+          </Details>
+        </div>
+      </TabPanel>
+
+      <TabPanel name="notifications">
+        <div class="wa-stack wa-gap-m">
+          <Switch checked>Email notifications</Switch>
+          <Switch>Push notifications</Switch>
+        </div>
+      </TabPanel>
+
+      <TabPanel name="security">
+        <!-- Use kigumi-compose-form skill for validated form submission -->
+        <div class="wa-stack wa-gap-m">
+          <Input label="Current password" type="password" />
+          <Input label="New password" type="password" />
+          <Button variant="brand">Update password</Button>
+        </div>
+      </TabPanel>
+    </TabGroup>
+  </div>
+</template>
+```
+
 ---
 
 ## D: Marketing / Landing Page
 
-Full-width sections stacked vertically.
+Full-width sections stacked vertically. Hero uses `.wa-dark` for a dark section demo.
 
 ```
 +------------------------------------------+
-|          Hero: .wa-split                  |
+|  .wa-dark  Hero: .wa-split               |
 |  [Text + CTA]     [Image/Demo]          |
 +------------------------------------------+
 |     Features: .wa-grid (3 cols)          |
@@ -278,12 +449,21 @@ import { Button, Card, Icon } from '@/components/ui';
 
 export function LandingPage() {
   return (
-    <div className="wa-stack wa-gap-3xl">
-      {/* Hero */}
-      <section className="wa-split" style={{ padding: 'var(--wa-space-3xl) var(--wa-space-l)', alignItems: 'center' }}>
+    <div className="wa-stack wa-gap-0">
+      {/* Hero -- .wa-dark inverts all --wa-color-* tokens in this section */}
+      <section
+        className="wa-dark wa-split"
+        style={{
+          padding: 'var(--wa-space-3xl) var(--wa-space-l)',
+          alignItems: 'center',
+          background: 'var(--wa-color-surface-default)',
+        }}
+      >
         <div className="wa-stack wa-gap-m" style={{ maxWidth: '500px' }}>
-          <h1>Build faster with Kigumi</h1>
-          <p style={{ color: 'var(--wa-color-text-quiet)' }}>
+          <h1 className="wa-heading-2xl" style={{ color: 'var(--wa-color-text-normal)' }}>
+            Build faster with Kigumi
+          </h1>
+          <p className="wa-body-l" style={{ color: 'var(--wa-color-text-quiet)' }}>
             Ready-made Web Awesome components for React and Vue.
           </p>
           <div className="wa-cluster wa-gap-s">
@@ -298,22 +478,98 @@ export function LandingPage() {
 
       {/* Features */}
       <section className="wa-stack wa-gap-l" style={{ padding: 'var(--wa-space-2xl) var(--wa-space-l)' }}>
-        <h2 style={{ textAlign: 'center' }}>Features</h2>
+        <h2 className="wa-heading-xl" style={{ textAlign: 'center' }}>Features</h2>
         <div className="wa-grid" style={{ '--min-column-size': '280px' } as React.CSSProperties}>
           {['bolt', 'palette', 'universal-access'].map((icon) => (
             <Card key={icon}>
               <div className="wa-stack wa-gap-s wa-align-items-center" style={{ textAlign: 'center', padding: 'var(--wa-space-m)' }}>
                 <Icon name={icon} style={{ fontSize: '2rem', color: 'var(--wa-color-brand)' }} />
-                <strong>Feature Title</strong>
-                <p style={{ color: 'var(--wa-color-text-quiet)' }}>Feature description goes here.</p>
+                <strong className="wa-heading-s">Feature Title</strong>
+                <p className="wa-body-m" style={{ color: 'var(--wa-color-text-quiet)' }}>Feature description goes here.</p>
               </div>
             </Card>
           ))}
         </div>
       </section>
+
+      {/* CTA -- another .wa-dark section */}
+      <section className="wa-dark" style={{ padding: 'var(--wa-space-2xl) var(--wa-space-l)', background: 'var(--wa-color-surface-default)' }}>
+        <div className="wa-stack wa-gap-m wa-align-items-center" style={{ textAlign: 'center' }}>
+          <h2 className="wa-heading-xl" style={{ color: 'var(--wa-color-text-normal)' }}>Ready to get started?</h2>
+          <p className="wa-body-l" style={{ color: 'var(--wa-color-text-quiet)' }}>
+            Join thousands of developers building with Kigumi.
+          </p>
+          <Button variant="brand" size="large">Get Started Free</Button>
+        </div>
+      </section>
     </div>
   );
 }
+```
+
+### Vue
+
+```vue
+<script setup lang="ts">
+import { Button, Card, Icon } from '@/components/ui';
+
+const features = [
+  { icon: 'bolt', title: 'Fast', description: 'CLI generates components in seconds.' },
+  { icon: 'palette', title: 'Themeable', description: 'CSS custom properties for full control.' },
+  { icon: 'universal-access', title: 'Accessible', description: 'WCAG 2.1 AA built into every component.' },
+];
+</script>
+
+<template>
+  <div class="wa-stack wa-gap-0">
+    <!-- Hero -- .wa-dark inverts all --wa-color-* tokens in this section -->
+    <section
+      class="wa-dark wa-split"
+      style="padding: var(--wa-space-3xl) var(--wa-space-l); align-items: center; background: var(--wa-color-surface-default)"
+    >
+      <div class="wa-stack wa-gap-m" style="max-width: 500px">
+        <h1 class="wa-heading-2xl" style="color: var(--wa-color-text-normal)">
+          Build faster with Kigumi
+        </h1>
+        <p class="wa-body-l" style="color: var(--wa-color-text-quiet)">
+          Ready-made Web Awesome components for React and Vue.
+        </p>
+        <div class="wa-cluster wa-gap-s">
+          <Button variant="brand" size="large">Get Started</Button>
+          <Button variant="neutral" size="large" appearance="outlined">View Docs</Button>
+        </div>
+      </div>
+      <div class="wa-frame wa-frame:landscape" style="max-width: 500px">
+        <img src="/hero.png" alt="Product screenshot" />
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="wa-stack wa-gap-l" style="padding: var(--wa-space-2xl) var(--wa-space-l)">
+      <h2 class="wa-heading-xl" style="text-align: center">Features</h2>
+      <div class="wa-grid" style="--min-column-size: 280px">
+        <Card v-for="f in features" :key="f.icon">
+          <div class="wa-stack wa-gap-s wa-align-items-center" style="text-align: center; padding: var(--wa-space-m)">
+            <Icon :name="f.icon" style="font-size: 2rem; color: var(--wa-color-brand)" />
+            <strong class="wa-heading-s">{{ f.title }}</strong>
+            <p class="wa-body-m" style="color: var(--wa-color-text-quiet)">{{ f.description }}</p>
+          </div>
+        </Card>
+      </div>
+    </section>
+
+    <!-- CTA -- another .wa-dark section -->
+    <section class="wa-dark" style="padding: var(--wa-space-2xl) var(--wa-space-l); background: var(--wa-color-surface-default)">
+      <div class="wa-stack wa-gap-m wa-align-items-center" style="text-align: center">
+        <h2 class="wa-heading-xl" style="color: var(--wa-color-text-normal)">Ready to get started?</h2>
+        <p class="wa-body-l" style="color: var(--wa-color-text-quiet)">
+          Join thousands of developers building with Kigumi.
+        </p>
+        <Button variant="brand" size="large">Get Started Free</Button>
+      </div>
+    </section>
+  </div>
+</template>
 ```
 
 ---
@@ -343,10 +599,11 @@ export function DataBrowser() {
     <div className="wa-flank wa-gap-l" style={{ '--flank-size': '260px' } as React.CSSProperties}>
       {/* Filters sidebar */}
       <aside className="wa-stack wa-gap-m" aria-label="Filters">
+        <h2 className="wa-heading-s">Filters</h2>
         <Input label="Search" type="search" with-clear />
         <Divider />
         <fieldset className="wa-stack wa-gap-xs">
-          <legend>Category</legend>
+          <legend className="wa-body-s wa-font-weight-semibold">Category</legend>
           <Checkbox checked>Electronics</Checkbox>
           <Checkbox checked>Clothing</Checkbox>
           <Checkbox>Books</Checkbox>
@@ -356,14 +613,15 @@ export function DataBrowser() {
         <Button variant="brand" size="small" style={{ width: '100%' }}>Apply Filters</Button>
       </aside>
 
-      {/* Content area */}
+      {/* Content area -- use kigumi-compose-data skill for data tables */}
       <main className="wa-stack wa-gap-m">
+        <h1 className="wa-heading-xl">Products</h1>
         <TabGroup>
           <Tab slot="nav" panel="list">List</Tab>
           <Tab slot="nav" panel="grid">Grid</Tab>
           <TabPanel name="list">
             {/* Data table or list here */}
-            <p>Data table goes here</p>
+            <p className="wa-body-m">Data table goes here</p>
           </TabPanel>
           <TabPanel name="grid">
             <div className="wa-grid" style={{ '--min-column-size': '200px' } as React.CSSProperties}>
@@ -375,6 +633,51 @@ export function DataBrowser() {
     </div>
   );
 }
+```
+
+### Vue
+
+```vue
+<script setup lang="ts">
+import { Button, Checkbox, Divider, Input, Slider, Tab, TabGroup, TabPanel } from '@/components/ui';
+</script>
+
+<template>
+  <div class="wa-flank wa-gap-l" style="--flank-size: 260px">
+    <!-- Filters sidebar -->
+    <aside class="wa-stack wa-gap-m" aria-label="Filters">
+      <h2 class="wa-heading-s">Filters</h2>
+      <Input label="Search" type="search" with-clear />
+      <Divider />
+      <fieldset class="wa-stack wa-gap-xs">
+        <legend class="wa-body-s wa-font-weight-semibold">Category</legend>
+        <Checkbox checked>Electronics</Checkbox>
+        <Checkbox checked>Clothing</Checkbox>
+        <Checkbox>Books</Checkbox>
+      </fieldset>
+      <Divider />
+      <Slider label="Max price" :min="0" :max="1000" :value="500" with-tooltip />
+      <Button variant="brand" size="small" style="width: 100%">Apply Filters</Button>
+    </aside>
+
+    <!-- Content area -- use kigumi-compose-data skill for data tables -->
+    <main class="wa-stack wa-gap-m">
+      <h1 class="wa-heading-xl">Products</h1>
+      <TabGroup>
+        <Tab slot="nav" panel="list">List</Tab>
+        <Tab slot="nav" panel="grid">Grid</Tab>
+        <TabPanel name="list">
+          <p class="wa-body-m">Data table goes here</p>
+        </TabPanel>
+        <TabPanel name="grid">
+          <div class="wa-grid" style="--min-column-size: 200px">
+            <!-- Grid cards here -->
+          </div>
+        </TabPanel>
+      </TabGroup>
+    </main>
+  </div>
+</template>
 ```
 
 ---
@@ -422,7 +725,7 @@ export function AppPageShell({ children }: { children: React.ReactNode }) {
     <Page mobile-breakpoint="768px">
       {/* Header slot -- must use wrapper element */}
       <div slot="header" className="wa-split wa-align-items-center" style={{ padding: 'var(--wa-space-s) var(--wa-space-m)' }}>
-        <strong>My App</strong>
+        <strong className="wa-heading-s">My App</strong>
         <div className="wa-cluster wa-gap-s wa-align-items-center">
           <Button variant="neutral" appearance="plain" size="small">Docs</Button>
           <Avatar initials="M" shape="circle" />
@@ -443,6 +746,9 @@ export function AppPageShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Default slot -> main content */}
+      {/* Use react-router's Outlet for routing:
+          import { Outlet } from 'react-router-dom';
+          Replace {children} with <Outlet /> */}
       {children}
 
       {/* Footer slot */}
@@ -468,7 +774,7 @@ import { Avatar, Button, Divider, Icon, Page } from '@/components/ui';
 <template>
   <Page mobile-breakpoint="768px">
     <div slot="header" class="wa-split wa-align-items-center" style="padding: var(--wa-space-s) var(--wa-space-m)">
-      <strong>My App</strong>
+      <strong class="wa-heading-s">My App</strong>
       <div class="wa-cluster wa-gap-s wa-align-items-center">
         <Button variant="neutral" appearance="plain" size="small">Docs</Button>
         <Avatar initials="M" shape="circle" />
@@ -487,6 +793,8 @@ import { Avatar, Button, Divider, Icon, Page } from '@/components/ui';
       </Button>
     </nav>
 
+    <!-- Use vue-router's RouterView for routing:
+         Replace <slot /> with <RouterView /> -->
     <slot />
 
     <div slot="footer" class="wa-split wa-align-items-center" style="padding: var(--wa-space-s) var(--wa-space-m)">

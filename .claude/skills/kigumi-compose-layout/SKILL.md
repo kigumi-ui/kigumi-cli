@@ -95,8 +95,14 @@ User describes a page
 3. Complete component with semantic HTML + layout utilities
 4. Responsive behavior notes
 
+## Related Skills
+
+- **kigumi-compose-form** -- for settings page form content, validated inputs, multi-step wizards
+- **kigumi-compose-data** -- for dashboard metrics, data browser tables, stats cards, empty states
+- **kigumi-compose-overlay** -- for side panels, notification drawers, confirmation dialogs
+
 ## References
 
-- [Layout Archetypes](references/layout-archetypes.md) -- 5 page archetypes with React + Vue code
-- [Layout Utilities Complete](references/layout-utilities-complete.md) -- all .wa-* classes
+- [Layout Archetypes](references/layout-archetypes.md) -- 6 page archetypes with React + Vue code
+- [Layout Utilities Complete](references/layout-utilities-complete.md) -- all .wa-* classes, typography utilities
 - [Responsive Patterns](references/responsive-patterns.md) -- responsive strategy

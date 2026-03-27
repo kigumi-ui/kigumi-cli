@@ -6,13 +6,13 @@ Complete form patterns with React and Vue code.
 
 Simple form with text inputs and textarea.
 
-**Components needed:** `npx kigumi add input textarea button`
+**Components needed:** `npx kigumi add input textarea button callout`
 
 ### React
 
 ```tsx
 import { useState, type FormEvent } from 'react';
-import { Button, Input, Textarea } from '@/components/ui';
+import { Button, Callout, Input, Textarea } from '@/components/ui';
 
 export function ContactForm() {
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,7 @@ export function ContactForm() {
 
   return (
     <form className="wa-stack wa-gap-l" style={{ maxWidth: '60ch' }} onSubmit={handleSubmit}>
-      {error && <wa-callout variant="danger">{error}</wa-callout>}
+      {error && <Callout variant="danger">{error}</Callout>}
 
       <div className="wa-grid" style={{ '--min-column-size': '200px' } as React.CSSProperties}>
         <Input label="First name" name="firstName" required />
@@ -58,7 +58,7 @@ export function ContactForm() {
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Button, Input, Textarea } from '@/components/ui';
+import { Button, Callout, Input, Textarea } from '@/components/ui';
 
 const loading = ref(false);
 const error = ref('');
@@ -80,7 +80,7 @@ async function handleSubmit(e: Event) {
 
 <template>
   <form class="wa-stack wa-gap-l" style="max-width: 60ch" @submit="handleSubmit">
-    <wa-callout v-if="error" variant="danger">{{ error }}</wa-callout>
+    <Callout v-if="error" variant="danger">{{ error }}</Callout>
 
     <div class="wa-grid" style="--min-column-size: 200px">
       <Input label="First name" name="firstName" required />
@@ -533,3 +533,223 @@ async function handleSubmit(e: Event) {
   </form>
 </template>
 ```
+
+---
+
+## Styling Form Controls
+
+Override form control appearance globally via CSS custom properties:
+
+```css
+:root {
+  /* Layout */
+  --wa-form-control-height: 2.5rem;
+  --wa-form-control-padding-block: 0.5rem;
+  --wa-form-control-padding-inline: 0.75rem;
+  --wa-form-control-toggle-size: 1.125rem;
+
+  /* Borders */
+  --wa-form-control-border-color: var(--wa-color-surface-border);
+  --wa-form-control-border-style: solid;
+  --wa-form-control-border-width: 1px;
+  --wa-form-control-border-radius: var(--wa-border-radius-m);
+
+  /* Colors */
+  --wa-form-control-background-color: var(--wa-color-surface-base);
+  --wa-form-control-activated-color: var(--wa-color-brand-normal);
+
+  /* Label */
+  --wa-form-control-label-color: var(--wa-color-text-normal);
+  --wa-form-control-label-font-weight: var(--wa-font-weight-semibold);
+  --wa-form-control-label-line-height: 1.5;
+
+  /* Value */
+  --wa-form-control-value-color: var(--wa-color-text-normal);
+  --wa-form-control-value-font-weight: var(--wa-font-weight-normal);
+  --wa-form-control-value-line-height: 1.5;
+
+  /* Hint & placeholder */
+  --wa-form-control-hint-color: var(--wa-color-text-quiet);
+  --wa-form-control-placeholder-color: var(--wa-color-text-quiet);
+
+  /* Required indicator */
+  --wa-form-control-required-content: '*';
+  --wa-form-control-required-color: var(--wa-color-danger-normal);
+  --wa-form-control-required-offset: 0.125rem;
+}
+```
+
+For component-specific styling, use `::part()`:
+
+```css
+wa-input::part(base) {
+  background: var(--wa-color-surface-raised);
+}
+
+wa-select::part(combobox) {
+  border-radius: var(--wa-border-radius-l);
+}
+```
+
+---
+
+## Form Control Slots
+
+Form components expose slots for customizing content areas. Use `slot="name"` to place elements.
+
+### Input Slots
+
+| Slot | Description |
+|------|-------------|
+| `start` | Icon or element before the input value |
+| `end` | Icon or element after the input value |
+| `label` | Custom label content (alternative to `label` prop) |
+| `hint` | Custom hint content (alternative to `hint` prop) |
+| `clear-icon` | Custom clear icon |
+| `show-password-icon` | Custom show-password icon |
+| `hide-password-icon` | Custom hide-password icon |
+
+### Select Slots
+
+| Slot | Description |
+|------|-------------|
+| `start` | Icon or element at start of combobox |
+| `end` | Icon or element at end of combobox |
+| `label` | Custom label content |
+| `hint` | Custom hint content |
+| `clear-icon` | Custom clear icon |
+| `expand-icon` | Custom expand/collapse icon |
+
+### Slot Examples
+
+```tsx
+// React: Input with prefix and suffix icons
+import { Icon, Input } from '@/components/ui';
+
+<Input label="Search" type="search">
+  <Icon slot="start" name="search" />
+  <Icon slot="end" name="x-circle" />
+</Input>
+
+// Input with custom label
+<Input>
+  <span slot="label">Email <small>(required)</small></span>
+</Input>
+```
+
+```vue
+<!-- Vue: Input with prefix and suffix icons -->
+<Input label="Search" type="search">
+  <Icon slot="start" name="search" />
+  <Icon slot="end" name="x-circle" />
+</Input>
+```
+
+See the enriched component references for full slot, part, and event details:
+- [Input reference](../../kigumi-react/references/components/input.md)
+- [Select reference](../../kigumi-react/references/components/select.md)
+
+---
+
+## Success State
+
+After a successful form submission, provide feedback to the user. Common approaches:
+
+**Option 1: Inline success Callout** (for forms that stay visible)
+
+```tsx
+const [success, setSuccess] = useState(false);
+
+// In submit handler, after successful response:
+setSuccess(true);
+(e.currentTarget as HTMLFormElement).reset();
+
+// In JSX:
+{success && <Callout variant="success">Your message has been sent.</Callout>}
+```
+
+**Option 2: Toast notification** (for forms in dialogs or settings pages)
+
+Use the Toast component from the `compose-overlay` skill for non-blocking success feedback. See [compose-overlay Toast pattern](../../kigumi-compose-overlay/references/overlay-patterns.md) for the full implementation.
+
+```tsx
+// After successful submit, trigger a toast:
+import { toast } from '@/lib/toast'; // see compose-overlay for setup
+
+await submitForm(data);
+toast('Changes saved successfully.', { variant: 'success' });
+```
+
+**Option 3: Redirect** (for login/signup flows)
+
+```tsx
+// After successful auth:
+window.location.href = '/dashboard';
+```
+
+---
+
+## react-hook-form Integration
+
+Kigumi form controls emit native DOM events, not React synthetic events. To integrate with `react-hook-form`, use `Controller` to bridge the gap:
+
+```tsx
+import { Controller, useForm } from 'react-hook-form';
+import { Button, Input, Select, Option } from '@/components/ui';
+
+interface FormValues {
+  email: string;
+  role: string;
+}
+
+function ControlledForm() {
+  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>();
+
+  const onSubmit = (data: FormValues) => console.log(data);
+
+  return (
+    <form className="wa-stack wa-gap-m" onSubmit={handleSubmit(onSubmit)}>
+      <Controller
+        name="email"
+        control={control}
+        rules={{ required: 'Email is required', pattern: { value: /^\S+@\S+$/, message: 'Invalid email' } }}
+        render={({ field }) => (
+          <Input
+            label="Email"
+            type="email"
+            value={field.value}
+            hint={errors.email?.message}
+            onInput={(e) => field.onChange((e.target as HTMLInputElement).value)}
+            onBlur={field.onBlur}
+          />
+        )}
+      />
+
+      <Controller
+        name="role"
+        control={control}
+        rules={{ required: 'Please select a role' }}
+        render={({ field }) => (
+          <Select
+            label="Role"
+            value={field.value}
+            hint={errors.role?.message}
+            onInput={(e) => field.onChange((e.target as HTMLSelectElement).value)}
+            onBlur={field.onBlur}
+          >
+            <Option value="developer">Developer</Option>
+            <Option value="designer">Designer</Option>
+          </Select>
+        )}
+      />
+
+      <Button variant="brand" type="submit">Save</Button>
+    </form>
+  );
+}
+```
+
+Key points:
+- Use `Controller`, not `register` (web components do not expose a native `ref` that RHF can attach to)
+- Read values from `e.target` in `onInput`/`onChange`, not from `e.detail`
+- Pass `errors.fieldName?.message` to the `hint` prop for inline validation display

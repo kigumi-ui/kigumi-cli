@@ -156,6 +156,11 @@ Always provide:
 
 ## References
 
-- [Form Patterns](references/form-patterns.md) -- 4 complete patterns (Contact, Login, Settings, Wizard)
+- [Form Patterns](references/form-patterns.md) -- 4 complete patterns (Contact, Login, Settings, Wizard), styling tokens, slots, success states, react-hook-form
 - [Validation Patterns](references/validation-patterns.md) -- native, custom, async validation
-- [Form Component Cheatsheet](references/form-component-cheatsheet.md) -- which component for which input type
+- [Form Component Cheatsheet](references/form-component-cheatsheet.md) -- which component for which input type, key slots
+
+## Related Skills
+
+- **compose-overlay** -- Form-in-dialog patterns, success toast notifications after submission
+- **compose-layout** -- Settings page layouts, form placement within app shells and dashboards
