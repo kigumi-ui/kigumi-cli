@@ -164,11 +164,13 @@ export async function installDependencies(
 
   const spinner = output.spinner('Installing dependencies...');
 
-  // Determine Web Awesome package based on tier
+  // Determine Web Awesome package based on tier, with version from config
   const waPackage = getWebAwesomePackage(tier);
+  const waVersion = config.webAwesome?.version;
+  const waSpec = waVersion ? `${waPackage}@${waVersion}` : waPackage;
 
   // Base dependencies
-  const dependencies = [waPackage];
+  const dependencies = [waSpec];
 
   // Framework-specific dependencies
   if (config.framework === 'react') {
