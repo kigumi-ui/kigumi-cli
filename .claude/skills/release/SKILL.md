@@ -55,25 +55,36 @@ CHANGESET_EOF
 
 Replace `minor` with `patch` if appropriate, and replace the summary with the actual release description.
 
-The summary should follow the existing CHANGELOG style. Look at `CHANGELOG.md` for reference. Typical format:
+The summary must use [Keep a Changelog](https://keepachangelog.com/) category headers. Valid categories (in order): `Breaking Changes`, `Added`, `Changed`, `Fixed`. Use `Deprecated`, `Removed`, `Security` only when specifically needed.
+
+Item format: `- **Scope**: Description`
 
 **For a minor release with multiple changes:**
 
 ```markdown
-### Features
-
+### Added
 - **Feature name**: Description of the feature
 - **Another feature**: What it does
 
-### Bug Fixes
+### Fixed
+- **Scope**: What was broken and what changed
+```
 
-- **fix(scope)**: What was fixed
+**For a breaking change:**
+
+```markdown
+### Breaking Changes
+- **Component**: What changed and migration steps
+
+### Added
+- **Feature**: Description
 ```
 
 **For a simple patch:**
 
 ```markdown
-Fix description of what was wrong and what changed.
+### Fixed
+- **Scope**: What was broken and what changed
 ```
 
 ## Step 3: Version bump
@@ -81,14 +92,15 @@ Fix description of what was wrong and what changed.
 Run the version command to consume the changeset and update `package.json` + `CHANGELOG.md`:
 
 ```bash
-pnpm changeset version
+pnpm version
 ```
 
-This will:
+This runs `changeset version` followed by `post-changeset-version.ts` which:
 
-- Delete the changeset file from `.changeset/`
-- Bump the version in `package.json`
-- Prepend the release notes to `CHANGELOG.md`
+- Deletes the changeset file from `.changeset/`
+- Bumps the version in `package.json`
+- Prepends the release notes to `CHANGELOG.md`
+- Transforms the entry into Keep a Changelog format (strips `### Minor/Patch Changes` wrappers, adds ISO date)
 
 ## Step 4: Review
 
@@ -97,6 +109,12 @@ Show the user:
 1. The new version number from `package.json`
 2. The new CHANGELOG entry (first ~30 lines of `CHANGELOG.md`)
 3. The full diff (`git diff`)
+
+Verify the CHANGELOG entry has:
+- Header format: `## [X.Y.Z] - YYYY-MM-DD`
+- Keep a Changelog categories (`### Added`, `### Fixed`, etc.), not `### Minor Changes`
+- No commit hashes
+- Items formatted as `- **Scope**: Description`
 
 Wait for the user to confirm before committing.
 

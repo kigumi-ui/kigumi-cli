@@ -1,407 +1,367 @@
-# kigumi
+# Changelog
 
-## 0.18.1
+All notable changes to this project will be documented in this file.
 
-### Patch Changes
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-- ### Bug Fixes
-  - **Dialog/Drawer templates**: Fix TS2352 compilation error with WA 3.4.0. The `show`/`requestClose` methods are now private in WA's type definitions; use `Omit` to strip conflicting keys before re-declaring them as public for imperative use.
+## [0.18.1] - 2026-03-27
 
-## 0.18.0
+### Fixed
 
-### Minor Changes
+- **Dialog/Drawer templates**: Fix TS2352 compilation error with WA 3.4.0. The `show`/`requestClose` methods are now private in WA's type definitions; use `Omit` to strip conflicting keys before re-declaring them as public for imperative use.
 
-- ### Features
-  - **Web Awesome 3.4.0**: Upgrade internal WA dependency from ^3.3.1 to ^3.4.0
-  - **CLI update notification**: Show a notification when a newer CLI version is available on npm (cached 24h, skipped in CI and non-TTY)
+## [0.18.0] - 2026-03-26
 
-  ### Breaking Changes
-  - **Input**: `autocorrect` prop type changed from `'off' | 'on'` (string union) to `boolean`
-  - **Slider**: `required` prop removed (WA 3.4.0 dropped the attribute)
+### Breaking Changes
 
-  ### Bug Fixes
-  - **React templates**: Add explicit `WaElement | null` type to ref callback parameter for strict-mode compatibility
-  - **version-map**: Fix kigumiVersion entry to match actual release version (was incorrectly set to 0.13.0)
-  - **lint-staged**: Scope eslint to `{src,tests,scripts}/**` so docs/ uses its own config
-  - **Chromatic CI**: Add `--stats-json` to Storybook build for TurboSnap compatibility
+- **Input**: `autocorrect` prop type changed from `'off' | 'on'` (string union) to `boolean`
+- **Slider**: `required` prop removed (WA 3.4.0 dropped the attribute)
 
-## 0.17.2
+### Added
 
-### Patch Changes
+- **Web Awesome 3.4.0**: Upgrade internal WA dependency from ^3.3.1 to ^3.4.0
+- **CLI update notification**: Show a notification when a newer CLI version is available on npm (cached 24h, skipped in CI and non-TTY)
 
-- ### Bug Fixes
-  - **React templates**: Use WaElement type import for React 19 ref compatibility. Templates now import the actual WA element type, use `useRef<WaElement | null>`, and pass a callback ref matching the WA JSX type signature
-  - **Vue templates**: Use WaElement type, remove all `as any` casts from `defineExpose` methods, and remove unused `defineEmits` from no-event components
-  - **Vue init**: Write Vue type references to `src/env.d.ts` instead of `compilerOptions.types` array in `tsconfig.app.json`. Includes `vite/client` reference for CSS module support
-  - **Init options**: Remove unused `--tier` flag from CLI. Tier is detected from package.json dependencies and `.env` token
+### Fixed
 
-## 0.17.1
+- **React templates**: Add explicit `WaElement | null` type to ref callback parameter for strict-mode compatibility
+- **version-map**: Fix kigumiVersion entry to match actual release version (was incorrectly set to 0.13.0)
+- **lint-staged**: Scope eslint to `{src,tests,scripts}/**` so docs/ uses its own config
+- **Chromatic CI**: Add `--stats-json` to Storybook build for TurboSnap compatibility
 
-### Patch Changes
+## [0.17.2] - 2026-03-25
 
-- ### Bug Fixes
-  - **fix(docs)**: Replace Shoelace-era token names with correct Web Awesome API names in theme.css comments, README examples, and generated output (e.g. `--wa-color-brand-600` to `--wa-color-brand-60`, `--wa-font-family-sans` to `--wa-font-family-body`)
-  - **fix(init)**: Fix init output saying "Import Web Awesome" instead of "Import Kigumi"
-  - **fix(update)**: Create snapshot for `no-snapshot-match` status so future three-way merges work correctly
-  - **fix(update)**: Fix conflict status formatting (misplaced closing parenthesis)
+### Fixed
 
-## 0.17.0
+- **React templates**: Use WaElement type import for React 19 ref compatibility. Templates now import the actual WA element type, use `useRef<WaElement | null>`, and pass a callback ref matching the WA JSX type signature
+- **Vue templates**: Use WaElement type, remove all `as any` casts from `defineExpose` methods, and remove unused `defineEmits` from no-event components
+- **Vue init**: Write Vue type references to `src/env.d.ts` instead of `compilerOptions.types` array in `tsconfig.app.json`. Includes `vite/client` reference for CSS module support
 
-### Minor Changes
+### Changed
 
-- ### Bug Fixes
-  - **fix(init)**: Preserve `installedComponents` when re-running `kigumi init`, preventing config from being wiped on re-initialization
-  - **fix(upgrade)**: Auto-install components listed in config during `kigumi upgrade` if they are missing from the project
+- **Init options**: Remove unused `--tier` flag from CLI. Tier is detected from package.json dependencies and `.env` token
 
-## 0.16.0
+## [0.17.1] - 2026-03-19
 
-### Minor Changes
+### Fixed
 
-- ### Features
-  - **`kigumi update` command**: Three-way merge update workflow that intelligently merges upstream template changes with your local component modifications
-  - **"New" badges**: Sidebar and Welcome page cards now display "New" badges for recently added components
+- **Docs**: Replace Shoelace-era token names with correct Web Awesome API names in theme.css comments, README examples, and generated output (e.g. `--wa-color-brand-600` to `--wa-color-brand-60`, `--wa-font-family-sans` to `--wa-font-family-body`)
+- **Init**: Fix output saying "Import Web Awesome" instead of "Import Kigumi"
+- **Update**: Create snapshot for `no-snapshot-match` status so future three-way merges work correctly
+- **Update**: Fix conflict status formatting (misplaced closing parenthesis)
 
-  ### Improvements
-  - **Welcome page**: Refreshed layout, enhanced card structure, and clearer content
-  - **Roadmap board**: Updated visual styling for improved consistency
-  - **Documentation**: Added monorepo setup guide, restructured sidebar navigation, expanded troubleshooting FAQs, and added roadmap page with kanban board
+## [0.17.0] - 2026-03-17
 
-## 0.15.1
+### Fixed
 
-### Patch Changes
+- **Init**: Preserve `installedComponents` when re-running `kigumi init`, preventing config from being wiped on re-initialization
+- **Upgrade**: Auto-install components listed in config during `kigumi upgrade` if they are missing from the project
 
-- ### Features
-  - **Community Registries**: Add Community Registries section to documentation with link from Banner component
-  - **Component Grid images**: Update Storybook component grid with preview images for all components
-  - **Storybook layout**: Change story canvas layout from centered to padded for improved presentation
-  - **Story organisation**: Refine story tags and exclude VueGuide from Storybook navigation
+## [0.16.0] - 2026-03-16
 
-## 0.15.0
+### Added
 
-### Minor Changes
+- **`kigumi update` command**: Three-way merge update workflow that intelligently merges upstream template changes with your local component modifications
+- **"New" badges**: Sidebar and Welcome page cards now display "New" badges for recently added components
 
-- 6ad7c40: ### Vue DX overhaul
-  - **v-model support**: Vue SFC templates now use `defineModel()` for two-way binding on form controls (`Input`, `Select`, `Checkbox`, `Switch`, `Slider`, etc.) and overlay open state (`Dialog`, `Drawer`, `Dropdown`)
-  - **Component-specific events**: Each template forwards its Web Awesome events (e.g. `wa-input`, `wa-change`, `wa-show`, `wa-hide`) instead of only generic `wa-blur`/`wa-focus`
-  - **Named slots**: Templates expose all component slots (`header`, `footer`, `label`, `prefix`, `suffix`, etc.)
-  - **Vue project scaffolding**: `kigumi init` now configures Vite plugin and tsconfig paths for Vue projects
-  - **JSON parser fix**: Replaced regex-based `stripJSONComments` with a state-machine parser that no longer corrupts glob patterns like `src/**/*.ts` in tsconfig files
-  - **New docs**: Vue Guide page, Customize page, framework-aware code blocks in Getting Started
-  - **Style stories migrated to MDX**: All 6 Style category stories converted from `.stories.tsx` to MDX format
+### Changed
 
-## 0.14.0
+- **Welcome page**: Refreshed layout, enhanced card structure, and clearer content
+- **Roadmap board**: Updated visual styling for improved consistency
+- **Documentation**: Added monorepo setup guide, restructured sidebar navigation, expanded troubleshooting FAQs, and added roadmap page with kanban board
 
-### Minor Changes
+## [0.15.1] - 2026-03-15
 
-- ### Breaking Changes
-  - **Node 18 deprecated**: Minimum supported Node.js version is now Node 20. CI no longer tests against Node 18.
-  - **Setup file renamed**: Generated setup file renamed from `webawesome.ts` to `kigumi.ts`. Associated functions renamed (`regenerateWebAwesomeSetup` → `regenerateKigumiSetup`, `updateWebAwesomeImports` → `updateKigumiImports`). Update your import path from `@/lib/webawesome` to `@/lib/kigumi`.
+### Added
 
-  ### Features
-  - **`--json` output**: `kigumi status` and `kigumi list` now accept a `--json` flag for CI/CD-friendly machine-readable output.
-  - **`--verbose` global flag**: Enables debug logging and command timing ("Done in 1.2s" on stderr).
-  - **Storybook documentation**: New Style, Layout, and Design Tokens categories with comprehensive utility class and token reference docs.
-  - **Pro/Experimental badges**: Storybook sidebar now shows Pro and Experimental badges for Web Awesome component stories.
-  - **Chromatic visual regression**: CI now runs Chromatic snapshot tests on pull requests.
+- **Community Registries**: Add Community Registries section to documentation with link from Banner component
+- **Component Grid images**: Update Storybook component grid with preview images for all components
 
-  ### Bug Fixes
-  - Fix broken double-protocol URLs (`https://https://`) in add/validator, init/index, init/installer.
-  - Fix `status --json` intro banner leaking into JSON output.
-  - Fix post-init next steps not showing (switched from `output.log()` to `output.info()`).
-  - Fix 29 silent catch blocks across 19 files.
-  - Fix post-build script referencing removed `skills/` directory.
-  - Fix `loadConfig` incorrectly awaited in status and theme/show commands.
+### Changed
 
-  ### Refactoring
-  - Comprehensive quality audit (Phases 1–6): consolidated `KigumiConfig` type, replaced unsafe `as Error` casts, added `ConfigInvalidError`, consolidated GitHub URLs into constants, escalated ESLint `no-explicit-any` to error, added `no-console` rule.
-  - Build system improvements: `tsup.config.ts` with source maps, `scripts/post-build.ts` replacing fragile shell commands.
-  - Handlebars `precompile()` content validation added to template validation script.
+- **Storybook layout**: Change story canvas layout from centered to padded for improved presentation
+- **Story organisation**: Refine story tags and exclude VueGuide from Storybook navigation
 
-  ### Tests
-  - Added ~350 new unit tests across 20 new test files covering brand, palette, theme, init-installer, init-existing-config, framework-detection, diff, upgrade, regenerate, registry-cache, github-token, status-json, list-json, detect-framework, display-options, token-manager, and registry commands.
-  - Coverage thresholds raised to 68/57/77/68 (lines/branches/functions/statements).
-  - Smoke test added before npm publish in release workflow.
+## [0.15.0] - 2026-03-13
 
-  ### CI/CD
-  - Restructured CI into 10 parallel jobs (lint, test, integration, coverage, typecheck, validate, security, chromatic, license-check, smoke).
-  - Added dependency license check (MIT/ISC/BSD/Apache allowed).
-  - Added npm pack dry-run before publish.
+### Added
 
-  ### Dependencies
-  - Bumped `@eslint/js`, `@types/node`, and various production/development dependencies.
-  - Updated pnpm from 10.28.2 to 10.29.3.
+- **v-model support**: Vue SFC templates now use `defineModel()` for two-way binding on form controls (`Input`, `Select`, `Checkbox`, `Switch`, `Slider`, etc.) and overlay open state (`Dialog`, `Drawer`, `Dropdown`)
+- **Component-specific events**: Each Vue template forwards its Web Awesome events (e.g. `wa-input`, `wa-change`, `wa-show`, `wa-hide`) instead of only generic `wa-blur`/`wa-focus`
+- **Named slots**: Vue templates expose all component slots (`header`, `footer`, `label`, `prefix`, `suffix`, etc.)
+- **Vue project scaffolding**: `kigumi init` now configures Vite plugin and tsconfig paths for Vue projects
+- **New docs**: Vue Guide page, Customize page, framework-aware code blocks in Getting Started
 
-## 0.13.0
+### Fixed
 
-### Minor Changes
+- **JSON parser**: Replaced regex-based `stripJSONComments` with a state-machine parser that no longer corrupts glob patterns like `src/**/*.ts` in tsconfig files
 
-- cbe117d: Add version pinning and migration system
+### Changed
 
-  Projects now track the Kigumi CLI version that generated them via a new `kigumiVersion` field in `kigumi.config.json`. This lets you control when you upgrade and ensures you don't accidentally pull in a Web Awesome dependency update you're not ready for.
+- **Style stories**: All 6 Style category stories converted from `.stories.tsx` to MDX format
 
-  **New commands:**
-  - `kigumi upgrade` — shows a migration guide when your project version differs from the CLI version: breaking changes, WA version changes, affected components, and recommended actions. Updates `kigumiVersion` in config when confirmed.
-  - `kigumi diff` — compares your installed component files against the current templates to see what's changed or locally modified before running `--overwrite`.
-  - `kigumi status` now shows the pinned `kigumiVersion` (or "not pinned" for existing projects).
+## [0.14.0] - 2026-03-12
 
-  **Version mismatch behavior on `kigumi add`:**
-  - Minor version mismatch (e.g. project on 0.11, CLI is 0.12): warning shown, command continues
-  - Major version mismatch (e.g. project on 1.x, CLI is 0.x): hard error with instructions to use `npx kigumi@{version}` or run `kigumi upgrade`
+### Breaking Changes
 
-  **Provenance tracking:** Each installed component now records its `kigumiVersion` in `installedComponents`, so `kigumi diff` can show which version it was generated with.
+- **Node 18 deprecated**: Minimum supported Node.js version is now Node 20. CI no longer tests against Node 18
+- **Setup file renamed**: Generated setup file renamed from `webawesome.ts` to `kigumi.ts`. Associated functions renamed (`regenerateWebAwesomeSetup` to `regenerateKigumiSetup`, `updateWebAwesomeImports` to `updateKigumiImports`). Update your import path from `@/lib/webawesome` to `@/lib/kigumi`
 
-  Existing projects without a pinned version continue to work without changes — all checks are backward-compatible.
+### Added
 
-## 0.12.0
+- **`--json` output**: `kigumi status` and `kigumi list` now accept a `--json` flag for CI/CD-friendly machine-readable output
+- **`--verbose` global flag**: Enables debug logging and command timing ("Done in 1.2s" on stderr)
+- **Storybook documentation**: New Style, Layout, and Design Tokens categories with comprehensive utility class and token reference docs
+- **Pro/Experimental badges**: Storybook sidebar now shows Pro and Experimental badges for Web Awesome component stories
+- **Chromatic visual regression**: CI now runs Chromatic snapshot tests on pull requests
+- **Unit tests**: ~350 new tests across 20 test files covering brand, palette, theme, init, framework-detection, diff, upgrade, registry, and more
+- **CI improvements**: 10 parallel jobs, dependency license check, npm pack dry-run, smoke test before publish
 
-### Minor Changes
+### Fixed
 
-- 9b36951: Upgrade to Web Awesome 3.3.1 with Chart, Toast, and ToastItem components
-  - Bump Web Awesome from 3.2.1 to 3.3.1
-  - Add Chart component (Pro) for bar, line, pie, doughnut, and other chart types
-  - Add Toast component (Pro) for non-blocking notification containers
-  - Add ToastItem component (Pro) for individual notification items
-  - Update Badge templates with start/end slot documentation
-  - Update Popup CSS template with --popup-border-width custom property
-  - Add CSS styling alternative documentation for QrCode
-  - Regenerate component metadata (73 components from custom-elements.json)
-  - Fix metadata generation to prefer newest Web Awesome version
-  - Add new components to Storybook overview grid with Data Display category
+- **URLs**: Fix broken double-protocol URLs (`https://https://`) in add/validator, init/index, init/installer
+- **Status**: Fix `--json` intro banner leaking into JSON output
+- **Init**: Fix post-init next steps not showing (switched from `output.log()` to `output.info()`)
+- **Error handling**: Fix 29 silent catch blocks across 19 files
+- **Post-build**: Fix script referencing removed `skills/` directory
+- **Config**: Fix `loadConfig` incorrectly awaited in status and theme/show commands
 
-## 0.11.0
+### Changed
 
-### Minor Changes
+- **Quality audit**: Consolidated `KigumiConfig` type, replaced unsafe `as Error` casts, added `ConfigInvalidError`, consolidated GitHub URLs into constants, escalated ESLint rules
+- **Build system**: `tsup.config.ts` with source maps, `scripts/post-build.ts` replacing fragile shell commands
+- **Templates**: Handlebars `precompile()` content validation added to template validation script
+- **Coverage thresholds**: Raised to 68/57/77/68 (lines/branches/functions/statements)
+- **Dependencies**: Bumped `@eslint/js`, `@types/node`, and various production/development dependencies. Updated pnpm from 10.28.2 to 10.29.3
 
-- ecece34: Community registry support: connect, install components and themes from GitHub-hosted registries.
+## [0.13.0] - 2026-03-07
 
-  ### New Features
-  - **`kigumi registry connect <url>`** — Connect a community registry to your project
-  - **`kigumi registry list`** — List connected registries
-  - **`kigumi registry remove <name>`** — Remove a connected registry
-  - **`kigumi registry init`** — Scaffold a new community registry
-  - **`kigumi registry validate`** — Validate registry structure
-  - **`kigumi registry add-component`** — Add a component entry to registry.json
-  - **`kigumi registry add-theme`** — Add a theme entry to registry.json
-  - **`kigumi add --from <source>`** — Install components from a community registry (accepts URL or connected name)
-  - **`kigumi theme install --from <source>`** — Install themes from a community registry (accepts URL or connected name)
-  - **Name-based registry lookup** — `--from` accepts saved registry names (e.g. `--from mischa-dev`) in addition to full URLs
+### Added
 
-  ### Bug Fixes
-  - Generated type declarations now include `class?: string` on all `wa-*` elements
-  - Community themes correctly import from local `community-themes/` directory instead of Web Awesome package path
+- **Version pinning**: Projects now track the Kigumi CLI version via `kigumiVersion` in `kigumi.config.json`
+- **`kigumi upgrade` command**: Shows migration guide when project version differs from CLI version (breaking changes, WA version changes, affected components, recommended actions)
+- **`kigumi diff` command**: Compares installed component files against current templates to see what changed before running `--overwrite`
+- **Version mismatch behavior**: Minor mismatch shows warning; major mismatch shows hard error with instructions to pin or upgrade
+- **Provenance tracking**: Each installed component records its `kigumiVersion` in `installedComponents`
 
-## 0.10.0
+## [0.12.0] - 2026-03-07
 
-### Minor Changes
+### Added
 
-- fc5a60e: Add Storybook integration and extend component registry with new props
-  - Registry: add missing props for ColorPicker (`inline`), Combobox (`value`), Dropdown (`size`), DropdownItem (`variant`), IntersectionObserver (`intersect-class`), Popover (`for`, `without-arrow`), Radio (`appearance`), RadioGroup (`orientation`, `disabled`, `invalid`, `help-text`), Rating (`size`), Scroller (`without-scrollbar`, `without-shadow`), Select (`invalid`, `help-text`), TabGroup (`active`), Tooltip (`for`)
-  - Templates: clean up Dialog and Drawer (remove duplicate jsx/tsx files), fix Divider layout, improve Button and ColorPicker CSS
-  - Types: add web-awesome type declarations for `wa-file-input`, `wa-number-input`, `wa-sparkline`
+- **Web Awesome 3.3.1**: Upgrade from 3.2.1 to 3.3.1
+- **Chart component** (Pro): Bar, line, pie, doughnut, and other chart types
+- **Toast component** (Pro): Non-blocking notification containers
+- **ToastItem component** (Pro): Individual notification items
+- **Data Display category**: New components added to Storybook overview grid
 
-## 0.9.2
+### Changed
 
-### Patch Changes
+- **Badge templates**: Updated with start/end slot documentation
+- **Popup CSS template**: Added `--popup-border-width` custom property
+- **QrCode**: Added CSS styling alternative documentation
+- **Component metadata**: Regenerated (73 components from custom-elements.json)
 
-- f5ebe00: Replace wa- events with native events in react.
+### Fixed
 
-## 0.9.1
+- **Metadata generation**: Prefer newest Web Awesome version
 
-### Patch Changes
+## [0.11.0] - 2026-03-05
 
-- 50ff06b: Enhance Dialog and Drawer components with data attributes for declarative usage, improve open/close handling, and update examples for better clarity.
+### Added
 
-## 0.9.0
+- **`kigumi registry connect <url>`**: Connect a community registry to your project
+- **`kigumi registry list`**: List connected registries
+- **`kigumi registry remove <name>`**: Remove a connected registry
+- **`kigumi registry init`**: Scaffold a new community registry
+- **`kigumi registry validate`**: Validate registry structure
+- **`kigumi registry add-component`**: Add a component entry to registry.json
+- **`kigumi registry add-theme`**: Add a theme entry to registry.json
+- **`kigumi add --from <source>`**: Install components from a community registry (accepts URL or connected name)
+- **`kigumi theme install --from <source>`**: Install themes from a community registry
+- **Name-based registry lookup**: `--from` accepts saved registry names (e.g. `--from mischa-dev`) in addition to full URLs
 
-### Minor Changes
+### Fixed
 
-- 9a12c8f: - Fix Web Awesome Pro token URL in generated .env file
-  - Add setup:npmrc script for token configuration (dev only)
-  - Documentation site: Kigumi Studio theme editor, new landing page with announcement banner, improved Getting Started and Troubleshooting with Pro token guidance
+- **Type declarations**: Now include `class?: string` on all `wa-*` elements
+- **Community themes**: Correctly import from local `community-themes/` directory instead of Web Awesome package path
 
-## 0.8.2
+## [0.10.0] - 2026-02-28
 
-### Patch Changes
+### Added
 
-- Dependency updates and build improvements
+- **Storybook integration**: Component stories and documentation
+- **Type declarations**: Added for `wa-file-input`, `wa-number-input`, `wa-sparkline`
+- **Registry props**: Added missing props for ColorPicker, Combobox, Dropdown, DropdownItem, IntersectionObserver, Popover, Radio, RadioGroup, Rating, Scroller, Select, TabGroup, Tooltip
 
-  **Dependencies:**
-  - Update @clack/prompts from 0.11.0 to 1.0.0
-  - Update commander from 11.1.0 to 14.0.3
-  - Update execa from 8.0.1 to 9.6.1
-  - Update GitHub Actions (checkout v6, codecov v5)
+### Changed
 
-  **Improvements:**
-  - Fix build process to prevent unnecessary regeneration of metadata files
-  - Enable automatic GitHub release creation in CI workflow
-  - Fix @clack/prompts API compatibility
+- **Templates**: Clean up Dialog and Drawer (remove duplicate jsx/tsx files), fix Divider layout, improve Button and ColorPicker CSS
 
-## 0.8.1
+## [0.9.2] - 2026-02-19
 
-### Patch Changes
+### Changed
 
-- Fix release process and clean up generated files from validation/transformation scripts
+- **React events**: Replace `wa-` events with native events
 
-## 0.8.0
+## [0.9.1] - 2026-02-18
 
-### Minor Changes
+### Changed
 
-- 906c610: **BREAKING CHANGE**: Simplified event handler naming across all component templates
+- **Dialog/Drawer**: Add data attributes for declarative usage, improve open/close handling, and update examples
 
-  **React (35 components affected):**
-  - Event props renamed from `onWa*` to `on*`
-  - Example: `onWaShow` → `onShow`, `onWaHide` → `onHide`
-  - Handler functions renamed: `handleWaShow` → `handleShow`
-  - DOM event names (`wa-show`, `wa-hide`) remain unchanged internally
+## [0.9.0] - 2026-02-15
 
-  **Vue (35 components affected):**
-  - Emitted events renamed from `wa-*` to simplified names
-  - Example: `@wa-show` → `@show`, `@wa-hide` → `@hide`
-  - DOM event listeners still use original Web Awesome event names
+### Added
 
-  **Migration:**
+- **Kigumi Studio**: Theme editor on documentation site
+- **Landing page**: New design with announcement banner
+- **setup:npmrc script**: Token configuration for development
 
-  ```tsx
-  // Before (React)
-  <Dialog onWaShow={handleOpen} onWaHide={handleClose} />
+### Fixed
 
-  // After (React)
-  <Dialog onShow={handleOpen} onHide={handleClose} />
-  ```
+- **Pro token**: Fix Web Awesome Pro token URL in generated .env file
 
-  ```vue
-  <!-- Before (Vue) -->
-  <Dialog @wa-show="handleOpen" @wa-hide="handleClose" />
+### Changed
 
-  <!-- After (Vue) -->
-  <Dialog @show="handleOpen" @hide="handleClose" />
-  ```
+- **Documentation**: Improved Getting Started and Troubleshooting with Pro token guidance
 
-  **Additional changes:**
-  - Added `for` property to Tooltip component (targets elements by ID)
-  - Added `scripts/validate-components.ts` for registry validation
-  - Added `scripts/transform-event-names.ts` for automated event renaming
+## [0.8.2] - 2026-02-10
 
-## 0.7.0
+### Added
 
-### Minor Changes
+- **CI**: Automatic GitHub release creation in workflow
 
-- 1381a2e: - Fixed 3 critical bugs in validation scripts
-  - Added 75+ unit tests for error handling and component commands
-  - Added automated validation scripts for changes, registry, and templates
-  - Added CI workflows for coverage reporting and security auditing
-  - Updated Web Awesome dependency to 3.2.1
-  - Improved TypeScript type narrowing in add command
+### Fixed
 
-## 0.6.1
+- **Build**: Prevent unnecessary regeneration of metadata files
+- **@clack/prompts**: Fix API compatibility after update
 
-### Patch Changes
+### Changed
 
-- Fix CI build failure by making prebuild script skip gracefully when docs dependencies are unavailable. Update README with corrected og-image URL.
+- **Dependencies**: Update @clack/prompts to 1.0.0, commander to 14.0.3, execa to 9.6.1, GitHub Actions (checkout v6, codecov v5)
 
-## 0.6.0
+## [0.8.1] - 2026-02-10
 
-### Minor Changes
+### Fixed
 
-- Vue.js support is now fully available. You can initialize a Kigumi project with Vue 3 (`npx kigumi init` and select Vue 3), and add Web Awesome components that generate Vue-friendly wrappers. Same components, React or Vue.
+- **Release process**: Fix release and clean up generated files from validation/transformation scripts
 
-## 0.5.0
+## [0.8.0] - 2026-02-10
 
-### Minor Changes
+### Breaking Changes
 
-- **BREAKING CHANGE**: Rename agent skill from `transform-webawesome-to-react` to `kigumi-react`
+- **React events**: Event props renamed from `onWa*` to `on*` across 35 components (e.g. `onWaShow` to `onShow`, `onWaHide` to `onHide`)
+- **Vue events**: Emitted events renamed from `wa-*` to simplified names across 35 components (e.g. `@wa-show` to `@show`)
 
-  Renamed the agent skill to follow new naming convention `kigumi-{purpose}`. This makes it shorter, easier to type, and scalable for multi-framework support.
+### Added
 
-  **Migration:**
-  - Old URL: `npx skills add https://kigumi.style/skills/transform-webawesome-to-react`
-  - New URL: `npx skills add https://kigumi.style/skills/kigumi-react`
+- **Tooltip**: `for` property to target elements by ID
+- **Validation**: `scripts/validate-components.ts` for registry validation
+- **Migration**: `scripts/transform-event-names.ts` for automated event renaming
 
-  **New skill added:**
-  - `kigumi-theme`: Theme customization guidance (CSS variables, dark mode, design tokens)
+## [0.7.0] - 2026-02-09
 
-  **Changes:**
-  - Renamed `skills/transform-webawesome-to-react/` to `skills/kigumi-react/`
-  - Added `skills/kigumi-theme/` with complete theme customization documentation
-  - Updated all references in documentation (skills/README.md, llms.txt)
+### Added
 
-## 0.4.4
+- **Unit tests**: 75+ new tests for error handling and component commands
+- **Validation scripts**: Automated checks for changes, registry, and templates
+- **CI workflows**: Coverage reporting and security auditing
 
-### Patch Changes
+### Fixed
 
-- Fix Vercel deployment and TypeScript build errors
-  - Restore missing **CLI_VERSION** declaration in docs build
-  - Convert docs to pnpm lockfile for consistency with root project
-  - Pin Node.js version to 22 for Vercel compatibility
-  - Add .vercelignore to optimize deployment uploads
-  - Support npm users locally while enforcing pnpm in production
+- **Validation scripts**: 3 critical bugs fixed
 
-  This fixes ERR_INVALID_THIS errors during pnpm install on Vercel and TypeScript compilation errors for **CLI_VERSION**.
+### Changed
 
-## 0.4.3
+- **Web Awesome**: Dependency updated to 3.2.1
+- **Add command**: Improved TypeScript type narrowing
 
-### Patch Changes
+## [0.6.1] - 2026-02-09
 
-- Fix installer
+### Fixed
 
-## 0.4.2
+- **CI build**: Prebuild script skips gracefully when docs dependencies are unavailable
+- **README**: Corrected og-image URL
 
-### Patch Changes
+## [0.6.0] - 2026-02-09
 
-- Add README.md to npm package and update homepage to kigumi.style
+### Added
 
-## 0.4.1
+- **Vue.js support**: Initialize a Kigumi project with Vue 3 (`npx kigumi init` and select Vue 3) and generate Vue-friendly component wrappers
 
-### Patch Changes
+## [0.5.0] - 2026-02-08
 
-- Update README with improved documentation
+### Breaking Changes
 
-## 0.4.0
+- **Agent skill renamed**: `transform-webawesome-to-react` renamed to `kigumi-react` following `kigumi-{purpose}` convention
 
-### Minor Changes
+### Added
 
-- cfceb38: ### New Features
-  - **Simplified Pro Token Setup**: Token is now detected from multiple sources with fallback chain:
-    1. `$WEBAWESOME_NPM_TOKEN` environment variable (for CI/CD)
-    2. Global `~/.npmrc` (recommended for local development)
-    3. Project `.env` file (backwards compatible)
-  - **CSS Cascade Layers**: New `layers.css` file provides predictable CSS specificity control via `@layer` rules
-  - **File Preservation**: Re-running `kigumi init` now preserves your customized `theme.css` and `layers.css`
-  - **Skip Install Flag**: New `--no-install` flag to skip dependency installation during init
+- **`kigumi-theme` skill**: Theme customization guidance (CSS variables, dark mode, design tokens)
 
-  ### Improvements
-  - Better error messages when Pro token is missing with clear setup instructions
-  - Clearer setup instructions in CLI output for Pro tier
-  - Streamlined README with simplified Pro setup guide
+## [0.4.4] - 2026-02-07
 
-  ### Internal
-  - Added CI test matrix (Node 18/20/22 × npm/pnpm/yarn)
-  - Added integration tests for init command
-  - New `src/utils/token.ts` module for centralized token detection
+### Fixed
 
-## 0.3.0
+- **Vercel deployment**: Restore missing `__CLI_VERSION__` declaration in docs build
+- **Vercel**: Fix `ERR_INVALID_THIS` errors during pnpm install
+- **TypeScript**: Fix compilation errors for `__CLI_VERSION__`
 
-### Minor Changes
+### Changed
 
-- 04aa34e: Add Web Awesome Page component template
-  - Added Page component to the registry with full metadata
-  - Created React templates (.tsx.hbs, .jsx.hbs) with imperative methods support
-  - Added comprehensive test files for TypeScript and JavaScript
-  - Included CSS template with all 17 CSS parts documented
-  - Page is a Pro tier component with complex state management
+- **Docs**: Convert to pnpm lockfile for consistency with root project
+- **Vercel**: Pin Node.js to 22, add `.vercelignore` for optimized uploads
 
-## 0.2.2
+## [0.4.3] - 2026-02-07
 
-### Patch Changes
+### Fixed
 
-- 81e7817: CLI output improvements:
-  - Hide debug messages behind DEBUG environment variable
-  - Simplify dependency installation output (no verbose command display)
-  - Add consistent capitalization for themes, palettes, and brand colors
-  - Update post-install instructions with better formatting and Web Awesome resource links
+- **Installer**: Fix broken installer
 
-## 0.2.1
+## [0.4.2] - 2026-02-07
 
-### Patch Changes
+### Changed
 
-- Simplify README - remove unnecessary sections and emoji clutter
+- **npm package**: Add README.md and update homepage to kigumi.style
+
+## [0.4.1] - 2026-02-07
+
+### Changed
+
+- **README**: Improved documentation
+
+## [0.4.0] - 2026-02-07
+
+### Added
+
+- **Pro token detection**: Fallback chain from `$WEBAWESOME_NPM_TOKEN` env var to `~/.npmrc` to `.env` file
+- **CSS Cascade Layers**: New `layers.css` provides predictable CSS specificity control via `@layer` rules
+- **`--no-install` flag**: Skip dependency installation during init
+- **File preservation**: Re-running `kigumi init` preserves customized `theme.css` and `layers.css`
+- **CI test matrix**: Node 18/20/22 x npm/pnpm/yarn
+- **Integration tests**: Added for init command
+
+### Changed
+
+- **Error messages**: Better guidance when Pro token is missing
+- **CLI output**: Clearer setup instructions for Pro tier
+- **README**: Streamlined with simplified Pro setup guide
+
+## [0.3.0] - 2026-01-29
+
+### Added
+
+- **Page component** (Pro): React templates with imperative methods support, CSS template with all 17 CSS parts documented
+
+## [0.2.2] - 2026-01-29
+
+### Changed
+
+- **CLI output**: Hide debug messages behind `DEBUG` env variable, simplify dependency installation output, consistent capitalization for themes/palettes/brand colors, improved post-install instructions
+
+## [0.2.1] - 2026-01-29
+
+### Changed
+
+- **README**: Simplified, removed unnecessary sections
