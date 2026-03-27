@@ -56,8 +56,21 @@ describe('getVersionEntry', () => {
     expect(entry!.breakingChanges).toHaveLength(2);
   });
 
-  it('returns undefined for unknown version', () => {
+  it('falls back to nearest version for patch releases', () => {
+    const entry = getVersionEntry('0.18.1');
+    expect(entry).toBeDefined();
+    expect(entry!.kigumiVersion).toBe('0.18.0');
+    expect(entry!.webAwesomeVersion).toBe('^3.4.0');
+  });
+
+  it('falls back to latest entry for future versions', () => {
     const entry = getVersionEntry('99.99.99');
+    expect(entry).toBeDefined();
+    expect(entry!.kigumiVersion).toBe(VERSION_MAP[0].kigumiVersion);
+  });
+
+  it('returns undefined for version older than all entries', () => {
+    const entry = getVersionEntry('0.0.1');
     expect(entry).toBeUndefined();
   });
 });

@@ -109,9 +109,27 @@ export const VERSION_MAP: VersionEntry[] = [
 
 /**
  * Get the version entry for a specific kigumi version.
+ *
+ * Returns an exact match if one exists, otherwise falls back to the
+ * highest entry whose version is <= the requested version. This ensures
+ * patch releases (e.g. 0.18.1) inherit the Web Awesome version from
+ * their minor release entry (0.18.0) without requiring a dedicated map entry.
  */
 export function getVersionEntry(version: string): VersionEntry | undefined {
-  return VERSION_MAP.find((e) => e.kigumiVersion === version);
+  const exact = VERSION_MAP.find((e) => e.kigumiVersion === version);
+  if (exact) return exact;
+
+  // Fall back to the highest version that is <= the requested version
+  let best: VersionEntry | undefined;
+  for (const entry of VERSION_MAP) {
+    if (
+      compareSemver(entry.kigumiVersion, version) <= 0 &&
+      (!best || compareSemver(entry.kigumiVersion, best.kigumiVersion) > 0)
+    ) {
+      best = entry;
+    }
+  }
+  return best;
 }
 
 /**

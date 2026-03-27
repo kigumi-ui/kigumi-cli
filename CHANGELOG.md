@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.2] - 2026-03-27
+
+### Fixed
+
+- **upgrade**: Fix Web Awesome dependency not being bumped during `kigumi upgrade`. The installer now passes the target WA version from config to the package manager (e.g. `pnpm add @awesome.me/webawesome@^3.4.0`) instead of installing without a version specifier.
+- **version-map**: Fix patch releases (e.g. 0.18.1) not resolving a version entry. `getVersionEntry()` now falls back to the highest entry `<=` the requested version, so patch releases inherit the WA version from their minor release.
+
 ## [0.18.1] - 2026-03-27
 
 ### Fixed
