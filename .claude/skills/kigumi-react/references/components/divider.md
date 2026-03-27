@@ -27,6 +27,14 @@ import { Divider } from '@/components/ui';
 | ------------- | ------ | -------------------------- | ------------ | ------------------- |
 | `orientation` | string | 'horizontal' \| 'vertical' | `horizontal` | Divider orientation |
 
+## CSS Custom Properties
+
+| Property    | Default | Description                 |
+| ----------- | ------- | --------------------------- |
+| `--color`   | -       | The color of the divider.   |
+| `--width`   | -       | The width of the divider.   |
+| `--spacing` | -       | The spacing of the divider. |
+
 ## Installation
 
 ```bash

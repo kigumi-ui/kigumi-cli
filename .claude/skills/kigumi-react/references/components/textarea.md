@@ -43,6 +43,44 @@ import { Textarea } from '@/components/ui';
 | `maxlength`   | number  | -                                                        | `-`        | Maximum length        |
 | `spellcheck`  | boolean | -                                                        | `true`     | Enable spell checking |
 
+## Slots
+
+| Slot    | Description                                                                                |
+| ------- | ------------------------------------------------------------------------------------------ |
+| `label` | The textarea's label. Alternatively, you can use the `label` attribute.                    |
+| `hint`  | Text that describes how to use the input. Alternatively, you can use the `hint` attribute. |
+
+## Events
+
+| Event        | React Handler | Type          | Description                                                                                       |
+| ------------ | ------------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| `blur`       | `onBlur`      | `FocusEvent`  | Emitted when the control loses focus.                                                             |
+| `change`     | `onChange`    | `Event`       | Emitted when an alteration to the control's value is committed by the user.                       |
+| `focus`      | `onFocus`     | `FocusEvent`  | Emitted when the control gains focus.                                                             |
+| `input`      | `onInput`     | `InputEvent`  | Emitted when the control receives input.                                                          |
+| `wa-invalid` | `onWaInvalid` | `CustomEvent` | Emitted when the form control has been checked for validity and its constraints aren't satisfied. |
+
+## CSS Parts
+
+| Part                 | Description                                  |
+| -------------------- | -------------------------------------------- |
+| `label`              | The label                                    |
+| `form-control-input` | The input's wrapper.                         |
+| `hint`               | The hint's wrapper.                          |
+| `textarea`           | The internal `<textarea>` control.           |
+| `base`               | The wrapper around the `<textarea>` control. |
+
+## Methods
+
+| Method                | Parameters                                                                                                      | Description                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `focus()`             | `options: FocusOptions`                                                                                         | Sets focus on the textarea.                                       |
+| `blur()`              | -                                                                                                               | Removes focus from the textarea.                                  |
+| `select()`            | -                                                                                                               | Selects all the text in the textarea.                             |
+| `scrollPosition()`    | `position: { top?: number; left?: number }`                                                                     | Gets or sets the textarea's scroll position.                      |
+| `setSelectionRange()` | `selectionStart: number`, `selectionEnd: number`, `selectionDirection: 'forward' \| 'backward' \| 'none'`       | Sets the start and end positions of the text selection (0-based). |
+| `setRangeText()`      | `replacement: string`, `start: number`, `end: number`, `selectMode: 'select' \| 'start' \| 'end' \| 'preserve'` | Replaces a range of text with a new string.                       |
+
 ## Installation
 
 ```bash

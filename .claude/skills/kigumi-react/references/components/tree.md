@@ -27,6 +27,36 @@ import { Tree } from '@/components/ui';
 | ----------- | ------ | -------------------------------- | -------- | ------------------ |
 | `selection` | string | 'single' \| 'multiple' \| 'leaf' | `single` | Selection behavior |
 
+## Slots
+
+| Slot            | Description                                                                    |
+| --------------- | ------------------------------------------------------------------------------ |
+| _(default)_     | The default slot.                                                              |
+| `expand-icon`   | The icon to show when the tree item is expanded. Works best with `<wa-icon>`.  |
+| `collapse-icon` | The icon to show when the tree item is collapsed. Works best with `<wa-icon>`. |
+
+## Events
+
+| Event                 | React Handler         | Type          | Description                                         |
+| --------------------- | --------------------- | ------------- | --------------------------------------------------- |
+| `wa-selection-change` | `onWaSelectionChange` | `CustomEvent` | Emitted when a tree item is selected or deselected. |
+
+## CSS Parts
+
+| Part   | Description                   |
+| ------ | ----------------------------- |
+| `base` | The component's base wrapper. |
+
+## CSS Custom Properties
+
+| Property                | Default                          | Description                                                                                                     |
+| ----------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `--indent-size`         | `var(--wa-space-m)`              | The size of the indentation for nested items.                                                                   |
+| `--indent-guide-color`  | `var(--wa-color-surface-border)` | The color of the indentation line.                                                                              |
+| `--indent-guide-offset` | `0`                              | The amount of vertical spacing to leave between the top and bottom of the indentation line's starting position. |
+| `--indent-guide-style`  | `solid`                          | The style of the indentation line, e.g. solid, dotted, dashed.                                                  |
+| `--indent-guide-width`  | `0`                              | The width of the indentation line.                                                                              |
+
 ## Installation
 
 ```bash

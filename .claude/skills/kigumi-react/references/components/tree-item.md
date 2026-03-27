@@ -32,6 +32,57 @@ import { TreeItem } from '@/components/ui';
 | `disabled` | boolean | -      | `false` | Disables the item    |
 | `lazy`     | boolean | -      | `false` | Enables lazy loading |
 
+## Slots
+
+| Slot            | Description                                       |
+| --------------- | ------------------------------------------------- |
+| _(default)_     | The default slot.                                 |
+| `expand-icon`   | The icon to show when the tree item is expanded.  |
+| `collapse-icon` | The icon to show when the tree item is collapsed. |
+
+## Events
+
+| Event               | React Handler       | Type          | Description                                                                                                                                                                                                                             |
+| ------------------- | ------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `wa-expand`         | `onWaExpand`        | `CustomEvent` | Emitted when the tree item expands.                                                                                                                                                                                                     |
+| `wa-after-expand`   | `onWaAfterExpand`   | `CustomEvent` | Emitted after the tree item expands and all animations are complete.                                                                                                                                                                    |
+| `wa-collapse`       | `onWaCollapse`      | `CustomEvent` | Emitted when the tree item collapses.                                                                                                                                                                                                   |
+| `wa-after-collapse` | `onWaAfterCollapse` | `CustomEvent` | Emitted after the tree item collapses and all animations are complete.                                                                                                                                                                  |
+| `wa-lazy-change`    | `onWaLazyChange`    | `CustomEvent` | Emitted when the tree item's lazy state changes.                                                                                                                                                                                        |
+| `wa-lazy-load`      | `onWaLazyLoad`      | `CustomEvent` | Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree. |
+
+## CSS Parts
+
+| Part                           | Description                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------- |
+| `base`                         | The component's base wrapper.                                                               |
+| `item`                         | The tree item's container. This element wraps everything except slotted tree item children. |
+| `indentation`                  | The tree item's indentation container.                                                      |
+| `expand-button`                | The container that wraps the tree item's expand button and spinner.                         |
+| `spinner`                      | The spinner that shows when a lazy tree item is in the loading state.                       |
+| `spinner__base`                | The spinner's base part.                                                                    |
+| `label`                        | The tree item's label.                                                                      |
+| `children`                     | The container that wraps the tree item's nested children.                                   |
+| `checkbox`                     | The checkbox that shows when using multiselect.                                             |
+| `checkbox__base`               | The checkbox's exported `base` part.                                                        |
+| `checkbox__control`            | The checkbox's exported `control` part.                                                     |
+| `checkbox__checked-icon`       | The checkbox's exported `checked-icon` part.                                                |
+| `checkbox__indeterminate-icon` | The checkbox's exported `indeterminate-icon` part.                                          |
+| `checkbox__label`              | The checkbox's exported `label` part.                                                       |
+
+## CSS Custom Properties
+
+| Property          | Default | Description                                        |
+| ----------------- | ------- | -------------------------------------------------- |
+| `--show-duration` | `200ms` | The animation duration when expanding tree items.  |
+| `--hide-duration` | `200ms` | The animation duration when collapsing tree items. |
+
+## Methods
+
+| Method               | Parameters                                                  | Description                                  |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------------- |
+| `getChildrenItems()` | `{ includeDisabled = true }: { includeDisabled?: boolean }` | Gets all the nested tree items in this node. |
+
 ## Dependencies
 
 This component requires:

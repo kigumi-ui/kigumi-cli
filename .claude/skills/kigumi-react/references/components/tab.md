@@ -30,6 +30,18 @@ import { Tab } from '@/components/ui';
 | `panel`    | string  | -      | `-`     | Associated panel name |
 | `disabled` | boolean | -      | `false` | Disables the tab      |
 
+## Slots
+
+| Slot        | Description      |
+| ----------- | ---------------- |
+| _(default)_ | The tab's label. |
+
+## CSS Parts
+
+| Part   | Description                   |
+| ------ | ----------------------------- |
+| `base` | The component's base wrapper. |
+
 ## Dependencies
 
 This component requires:

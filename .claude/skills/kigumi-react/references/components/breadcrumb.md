@@ -27,6 +27,19 @@ import { Breadcrumb } from '@/components/ui';
 | ------- | ------ | ------ | ------- | ----------------------------------------------------------------- |
 | `label` | string | -      | `''`    | The label to use for the breadcrumb control for assistive devices |
 
+## Slots
+
+| Slot        | Description                                                                 |
+| ----------- | --------------------------------------------------------------------------- |
+| _(default)_ | One or more breadcrumb items to display.                                    |
+| `separator` | The separator to use between breadcrumb items. Works best with `<wa-icon>`. |
+
+## CSS Parts
+
+| Part   | Description                   |
+| ------ | ----------------------------- |
+| `base` | The component's base wrapper. |
+
 ## Dependencies
 
 This component requires:

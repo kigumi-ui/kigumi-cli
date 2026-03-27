@@ -31,6 +31,33 @@ import { AnimatedImage } from '@/components/ui';
 | `alt`  | string  | -      | `-`     | A description of the image used by assistive devices                          |
 | `play` | boolean | -      | `false` | Plays the animation. When this attribute is removed, the animation will pause |
 
+## Slots
+
+| Slot         | Description                                                                     |
+| ------------ | ------------------------------------------------------------------------------- |
+| `play-icon`  | Optional play icon to use instead of the default. Works best with `<wa-icon>`.  |
+| `pause-icon` | Optional pause icon to use instead of the default. Works best with `<wa-icon>`. |
+
+## Events
+
+| Event      | React Handler | Type          | Description                                |
+| ---------- | ------------- | ------------- | ------------------------------------------ |
+| `wa-load`  | `onWaLoad`    | `CustomEvent` | Emitted when the image loads successfully. |
+| `wa-error` | `onWaError`   | `CustomEvent` | Emitted when the image fails to load.      |
+
+## CSS Parts
+
+| Part          | Description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| `control-box` | The container that surrounds the pause/play icons and provides their background. |
+
+## CSS Custom Properties
+
+| Property             | Default | Description                       |
+| -------------------- | ------- | --------------------------------- |
+| `--control-box-size` | -       | The size of the icon box.         |
+| `--icon-size`        | -       | The size of the play/pause icons. |
+
 ## Dependencies
 
 This component requires:

@@ -104,28 +104,33 @@ See [references/transformation-rules.md](references/transformation-rules.md) for
 
 ### Attribute Transformation
 
-| Web Awesome      | React             | Example                                                          |
-| ---------------- | ----------------- | ---------------------------------------------------------------- |
+| Web Awesome      | React             | Example                                                                       |
+| ---------------- | ----------------- | ----------------------------------------------------------------------------- |
 | `class="..."`    | `className="..."` | ALL elements — both HTML (`<div>`) and Kigumi wrappers (`<Button>`, `<Card>`) |
-| `style="..."`    | `style={{ }}`     | Object syntax                                                    |
-| Kebab-case props | Keep as-is        | `with-caret`, `light-dismiss`                                    |
-| `slot="..."`     | `slot="..."`      | Preserved                                                        |
-| `aria-*`         | `aria-*`          | Preserved                                                        |
-| `data-*`         | `data-*`          | Preserved                                                        |
-| Boolean attrs    | Prop only         | `disabled`, `loading`                                            |
+| `style="..."`    | `style={{ }}`     | Object syntax                                                                 |
+| Kebab-case props | Keep as-is        | `with-caret`, `light-dismiss`                                                 |
+| `slot="..."`     | `slot="..."`      | Preserved                                                                     |
+| `aria-*`         | `aria-*`          | Preserved                                                                     |
+| `data-*`         | `data-*`          | Preserved                                                                     |
+| Boolean attrs    | Prop only         | `disabled`, `loading`                                                         |
 
 **Critical rule:** In React, ALWAYS use `className` -- on both standard HTML elements (`<div>`, `<span>`) AND Kigumi wrapper components (`<Button>`, `<Card>`, etc.). The Kigumi wrapper accepts `className` via its `HTMLAttributes` interface and internally passes it to the web component as `class={clsx('ComponentName', className)}`. Using `class` on a Kigumi React wrapper causes TS2322.
+
+> **Note on CLAUDE.md rule #2:** CLAUDE.md says "`class` not `className` on `<wa-*>` elements." That rule applies to **template/wrapper source code** (the `.tsx.hbs` files that generate the wrapper internals). In **consumer code** (your app code using `<Button>`, `<Card>`, etc.), always use `className` because you are using React wrapper components, not raw `<wa-*>` elements.
 
 ### Event Handlers
 
 See [references/event-mapping.md](references/event-mapping.md) for complete list.
 
-| Web Awesome Event | React Handler | Type                       |
-| ----------------- | ------------- | -------------------------- |
-| `wa-change`       | `onChange`    | `(e: CustomEvent) => void` |
-| `wa-input`        | `onInput`     | `(e: CustomEvent) => void` |
-| `wa-show`         | `onShow`      | `(e: CustomEvent) => void` |
-| `wa-hide`         | `onHide`      | `(e: CustomEvent) => void` |
+| Web Awesome Event | React Handler | Type                                |
+| ----------------- | ------------- | ----------------------------------- |
+| `change`          | `onChange`    | Native `Event` (form controls)      |
+| `input`           | `onInput`     | Native `InputEvent` (form controls) |
+| `blur`            | `onBlur`      | Native `FocusEvent`                 |
+| `focus`           | `onFocus`     | Native `FocusEvent`                 |
+| `wa-show`         | `onWaShow`    | `CustomEvent` (overlays)            |
+| `wa-hide`         | `onWaHide`    | `CustomEvent` (overlays)            |
+| `wa-invalid`      | `onWaInvalid` | `CustomEvent` (form validation)     |
 
 ## Output Format
 
@@ -275,7 +280,7 @@ export default function App() {
 <wa-button disabled loading>Click</wa-button>
 
 <!-- React (Kigumi component) -->
-<Button disabled loading>Click</Button>
+<button disabled loading>Click</button>
 ```
 
 ## Validation Checklist

@@ -30,6 +30,24 @@ import { TabPanel } from '@/components/ui';
 | `name`   | string  | -      | `''`    | The panel name             |
 | `active` | boolean | -      | `false` | Whether the panel is shown |
 
+## Slots
+
+| Slot        | Description              |
+| ----------- | ------------------------ |
+| _(default)_ | The tab panel's content. |
+
+## CSS Parts
+
+| Part   | Description                   |
+| ------ | ----------------------------- |
+| `base` | The component's base wrapper. |
+
+## CSS Custom Properties
+
+| Property    | Default | Description              |
+| ----------- | ------- | ------------------------ |
+| `--padding` | -       | The tab panel's padding. |
+
 ## Installation
 
 ```bash

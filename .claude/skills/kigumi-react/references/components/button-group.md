@@ -30,6 +30,18 @@ import { ButtonGroup } from '@/components/ui';
 | `label`       | string | -                          | `''`         | A label to use for the button group. This won't be displayed on the screen, but it will be announced by assistive devices |
 | `orientation` | string | 'horizontal' \| 'vertical' | `horizontal` | Controls the button group's layout direction                                                                              |
 
+## Slots
+
+| Slot        | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| _(default)_ | One or more `<wa-button>` elements to display in the button group. |
+
+## CSS Parts
+
+| Part   | Description                   |
+| ------ | ----------------------------- |
+| `base` | The component's base wrapper. |
+
 ## Dependencies
 
 This component requires:

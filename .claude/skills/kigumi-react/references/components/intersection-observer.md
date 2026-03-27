@@ -25,12 +25,25 @@ import { IntersectionObserver } from '@/components/ui';
 
 ## Props
 
-| Prop          | Type    | Values | Default | Description                              |
-| ------------- | ------- | ------ | ------- | ---------------------------------------- |
-| `disabled`    | boolean | -      | `false` | Disables the observer                    |
-| `once`        | boolean | -      | `false` | Stops observing after first intersection |
-| `threshold`   | string  | -      | `0`     | Intersection thresholds                  |
-| `root-margin` | string  | -      | `0px`   | Root element margin                      |
+| Prop              | Type    | Values | Default | Description                              |
+| ----------------- | ------- | ------ | ------- | ---------------------------------------- |
+| `disabled`        | boolean | -      | `false` | Disables the observer                    |
+| `once`            | boolean | -      | `false` | Stops observing after first intersection |
+| `threshold`       | string  | -      | `0`     | Intersection thresholds                  |
+| `root-margin`     | string  | -      | `0px`   | Root element margin                      |
+| `intersect-class` | string  | -      | `-`     | CSS class to apply when intersecting     |
+
+## Slots
+
+| Slot        | Description                                                           |
+| ----------- | --------------------------------------------------------------------- |
+| _(default)_ | Elements to track. Only immediate children of the host are monitored. |
+
+## Events
+
+| Event          | React Handler   | Type          | Description                                                 |
+| -------------- | --------------- | ------------- | ----------------------------------------------------------- |
+| `wa-intersect` | `onWaIntersect` | `CustomEvent` | Fired when a tracked element begins or ceases intersecting. |
 
 ## Installation
 

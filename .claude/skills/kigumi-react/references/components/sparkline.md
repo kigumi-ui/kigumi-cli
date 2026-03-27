@@ -11,30 +11,43 @@ React wrapper component for the Web Awesome `wa-sparkline` element.
 
 ```html
 <!-- Web Awesome -->
-<wa-sparkline data="value" type="line">Click me</wa-sparkline>
+<wa-sparkline data="value" label="value">Click me</wa-sparkline>
 ```
 
 ```tsx
 // Kigumi React
 import { Sparkline } from '@/components/ui';
 
-<Sparkline data="value" type="line">
+<Sparkline data="value" label="value">
   Click me
 </Sparkline>;
 ```
 
 ## Props
 
-| Prop           | Type    | Values                    | Default | Description                               |
-| -------------- | ------- | ------------------------- | ------- | ----------------------------------------- |
-| `data`         | string  | -                         | `-`     | Comma-separated data points or JSON array |
-| `type`         | string  | 'line' \| 'bar' \| 'area' | `line`  | Chart type                                |
-| `width`        | number  | -                         | `-`     | Width in pixels                           |
-| `height`       | number  | -                         | `-`     | Height in pixels                          |
-| `color`        | string  | -                         | `-`     | Line/bar color                            |
-| `fill-color`   | string  | -                         | `-`     | Fill color (for area type)                |
-| `line-width`   | number  | -                         | `2`     | Line width in pixels                      |
-| `show-tooltip` | boolean | -                         | `false` | Shows value tooltip on hover              |
+| Prop         | Type   | Values                                | Default   | Description                               |
+| ------------ | ------ | ------------------------------------- | --------- | ----------------------------------------- |
+| `data`       | string | -                                     | `-`       | Space-separated numeric data points       |
+| `label`      | string | -                                     | `-`       | An accessible label for assistive devices |
+| `appearance` | string | 'gradient' \| 'line' \| 'solid'       | `line`    | Visual style of the sparkline             |
+| `trend`      | string | 'positive' \| 'negative' \| 'neutral' | `-`       | Trend direction, used for coloring        |
+| `curve`      | string | 'linear' \| 'natural' \| 'step'       | `natural` | Interpolation curve style                 |
+
+## CSS Parts
+
+| Part   | Description                                                                 |
+| ------ | --------------------------------------------------------------------------- |
+| `base` | The SVG container element.                                                  |
+| `line` | The sparkline stroke path.                                                  |
+| `fill` | The filled area under the line (visible with gradient or solid appearance). |
+
+## CSS Custom Properties
+
+| Property       | Default | Description                                 |
+| -------------- | ------- | ------------------------------------------- |
+| `--fill-color` | -       | The fill color for the area under the line. |
+| `--line-color` | -       | The color of the sparkline stroke.          |
+| `--line-width` | -       | The width of the sparkline stroke.          |
 
 ## Installation
 

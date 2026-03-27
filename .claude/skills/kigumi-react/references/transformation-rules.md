@@ -68,6 +68,17 @@ Complete mapping of Web Awesome components to Kigumi React components.
 | `wa-file-input`            | `<FileInput>`            | Form Controls | pro  | File inputs allow users to select and upload files from their device                                    |
 | `wa-number-input`          | `<NumberInput>`          | Form Controls | pro  | Number inputs allow users to enter numeric values with optional step controls                           |
 | `wa-sparkline`             | `<Sparkline>`            | Display       | pro  | Sparklines are small inline data visualizations for showing trends                                      |
+| `wa-chart`                 | `<Chart>`                | Data Display  | pro  | Renders interactive data visualisations including bars, lines, pies, and more via Chart.js              |
+| `wa-bar-chart`             | `<BarChart>`             | Data Display  | pro  | Displays categorical data as horizontal or vertical rectangular bars scaled to their values             |
+| `wa-line-chart`            | `<LineChart>`            | Data Display  | pro  | Connects sequential data points to reveal trends and patterns over a continuous axis                    |
+| `wa-bubble-chart`          | `<BubbleChart>`          | Data Display  | pro  | Plots three-dimensional data using position and circle size to encode a third variable                  |
+| `wa-doughnut-chart`        | `<DoughnutChart>`        | Data Display  | pro  | Shows proportional segments in a ring shape with an open center for summary content                     |
+| `wa-pie-chart`             | `<PieChart>`             | Data Display  | pro  | Divides a circle into wedges that represent each category's share of the whole                          |
+| `wa-polar-area-chart`      | `<PolarAreaChart>`       | Data Display  | pro  | Arranges segments of equal angle but varying radius around a central point                              |
+| `wa-radar-chart`           | `<RadarChart>`           | Data Display  | pro  | Maps multiple variables onto radial axes to compare profiles at a glance                                |
+| `wa-scatter-chart`         | `<ScatterChart>`         | Data Display  | pro  | Positions individual data points by two numeric axes to expose correlations                             |
+| `wa-toast`                 | `<Toast>`                | Feedback      | pro  | Container that manages and stacks lightweight notification banners at a chosen screen edge              |
+| `wa-toast-item`            | `<ToastItem>`            | Feedback      | pro  | A single notification banner that can be stacked inside a Toast container                               |
 
 ## Core Transformation Patterns
 
@@ -81,8 +92,6 @@ Complete mapping of Web Awesome components to Kigumi React components.
 | `slot="..."`     | `slot="..."` (preserved) |
 | `aria-*`         | `aria-*` (preserved)     |
 | `data-*`         | `data-*` (preserved)     |
-
-> **Note:** `className` applies to ALL elements in React -- both standard HTML elements and Kigumi wrapper components. The Kigumi wrapper's `HTMLAttributes` interface accepts `className` and maps it internally. Never use `class` on a Kigumi React wrapper.
 
 ### Self-Closing Tags
 

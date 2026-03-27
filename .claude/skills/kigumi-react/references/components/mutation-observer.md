@@ -37,6 +37,18 @@ import { MutationObserver } from '@/components/ui';
 | `disabled`            | boolean | -      | `false` | Disables the observer                         |
 | `subtree`             | boolean | -      | `false` | Observes changes in subtree                   |
 
+## Slots
+
+| Slot        | Description                         |
+| ----------- | ----------------------------------- |
+| _(default)_ | The content to watch for mutations. |
+
+## Events
+
+| Event         | React Handler  | Type          | Description                     |
+| ------------- | -------------- | ------------- | ------------------------------- |
+| `wa-mutation` | `onWaMutation` | `CustomEvent` | Emitted when a mutation occurs. |
+
 ## Installation
 
 ```bash

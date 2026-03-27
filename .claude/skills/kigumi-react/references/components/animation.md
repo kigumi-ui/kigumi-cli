@@ -39,6 +39,27 @@ import { Animation } from '@/components/ui';
 | `iteration-start` | number  | -                                                           | `0`        | The offset at which to start the animation                       |
 | `playback-rate`   | number  | -                                                           | `1`        | Sets the animation's playback rate                               |
 
+## Slots
+
+| Slot        | Description                                                                                                                                                                                                          |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _(default)_ | The element to animate. Avoid slotting in more than one element, as subsequent ones will be ignored. To animate multiple elements, either wrap them in a single container or use multiple `<wa-animation>` elements. |
+
+## Events
+
+| Event       | React Handler | Type          | Description                                    |
+| ----------- | ------------- | ------------- | ---------------------------------------------- |
+| `wa-cancel` | `onWaCancel`  | `CustomEvent` | Emitted when the animation is canceled.        |
+| `wa-finish` | `onWaFinish`  | `CustomEvent` | Emitted when the animation finishes.           |
+| `wa-start`  | `onWaStart`   | `CustomEvent` | Emitted when the animation starts or restarts. |
+
+## Methods
+
+| Method     | Parameters | Description                                                                                         |
+| ---------- | ---------- | --------------------------------------------------------------------------------------------------- |
+| `cancel()` | -          | Clears all keyframe effects caused by this animation and aborts its playback.                       |
+| `finish()` | -          | Sets the playback time to the end of the animation corresponding to the current playback direction. |
+
 ## Installation
 
 ```bash

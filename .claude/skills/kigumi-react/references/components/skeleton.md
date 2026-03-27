@@ -27,6 +27,19 @@ import { Skeleton } from '@/components/ui';
 | -------- | ------ | ---------------------------- | ------- | ---------------- |
 | `effect` | string | 'pulse' \| 'sheen' \| 'none' | `none`  | Animation effect |
 
+## CSS Parts
+
+| Part        | Description                                                                |
+| ----------- | -------------------------------------------------------------------------- |
+| `indicator` | The skeleton's indicator which is responsible for its color and animation. |
+
+## CSS Custom Properties
+
+| Property        | Default | Description                                                |
+| --------------- | ------- | ---------------------------------------------------------- |
+| `--color`       | -       | The color of the skeleton.                                 |
+| `--sheen-color` | -       | The sheen color when the skeleton is in its loading state. |
+
 ## Installation
 
 ```bash

@@ -36,6 +36,49 @@ import { Checkbox } from '@/components/ui';
 | `size`          | string  | 'small' \| 'medium' \| 'large' | `medium` | Adjusts checkbox dimensions     |
 | `value`         | string  | -                              | `-`      | Form submission value           |
 
+## Slots
+
+| Slot        | Description                                                                                   |
+| ----------- | --------------------------------------------------------------------------------------------- |
+| _(default)_ | The checkbox's label.                                                                         |
+| `hint`      | Text that describes how to use the checkbox. Alternatively, you can use the `hint` attribute. |
+
+## Events
+
+| Event        | React Handler | Type          | Description                                                                                       |
+| ------------ | ------------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| `change`     | `onChange`    | `Event`       | Emitted when the checked state changes.                                                           |
+| `blur`       | `onBlur`      | `FocusEvent`  | Emitted when the checkbox loses focus.                                                            |
+| `focus`      | `onFocus`     | `FocusEvent`  | Emitted when the checkbox gains focus.                                                            |
+| `input`      | `onInput`     | `InputEvent`  | Emitted when the checkbox receives input.                                                         |
+| `wa-invalid` | `onWaInvalid` | `CustomEvent` | Emitted when the form control has been checked for validity and its constraints aren't satisfied. |
+
+## CSS Parts
+
+| Part                 | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `base`               | The component's label .                                       |
+| `control`            | The square container that wraps the checkbox's checked state. |
+| `checked-icon`       | The checked icon, a `<wa-icon>` element.                      |
+| `indeterminate-icon` | The indeterminate icon, a `<wa-icon>` element.                |
+| `label`              | The container that wraps the checkbox's label.                |
+| `hint`               | The hint's wrapper.                                           |
+
+## CSS Custom Properties
+
+| Property               | Default | Description                                                               |
+| ---------------------- | ------- | ------------------------------------------------------------------------- |
+| `--checked-icon-color` | -       | The color of the checked and indeterminate icons.                         |
+| `--checked-icon-scale` | -       | The size of the checked and indeterminate icons relative to the checkbox. |
+
+## Methods
+
+| Method    | Parameters              | Description                        |
+| --------- | ----------------------- | ---------------------------------- |
+| `click()` | -                       | Simulates a click on the checkbox. |
+| `focus()` | `options: FocusOptions` | Sets focus on the checkbox.        |
+| `blur()`  | -                       | Removes focus from the checkbox.   |
+
 ## Dependencies
 
 This component requires:

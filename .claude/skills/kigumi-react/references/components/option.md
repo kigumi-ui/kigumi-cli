@@ -25,10 +25,29 @@ import { Option } from '@/components/ui';
 
 ## Props
 
-| Prop       | Type    | Values | Default | Description         |
-| ---------- | ------- | ------ | ------- | ------------------- |
-| `value`    | string  | -      | `''`    | The option value    |
-| `disabled` | boolean | -      | `false` | Disables the option |
+| Prop       | Type    | Values | Default | Description                                                    |
+| ---------- | ------- | ------ | ------- | -------------------------------------------------------------- |
+| `value`    | string  | -      | `''`    | The option value                                               |
+| `disabled` | boolean | -      | `false` | Disables the option                                            |
+| `selected` | boolean | -      | `false` | Draws the option in a selected state                           |
+| `label`    | string  | -      | `-`     | A custom label for the option (used by select's display input) |
+
+## Slots
+
+| Slot        | Description                                               |
+| ----------- | --------------------------------------------------------- |
+| _(default)_ | The option's label.                                       |
+| `start`     | An element, such as `<wa-icon>`, placed before the label. |
+| `end`       | An element, such as `<wa-icon>`, placed after the label.  |
+
+## CSS Parts
+
+| Part           | Description                                |
+| -------------- | ------------------------------------------ |
+| `checked-icon` | The checked icon, a `<wa-icon>` element.   |
+| `label`        | The option's label.                        |
+| `start`        | The container that wraps the `start` slot. |
+| `end`          | The container that wraps the `end` slot.   |
 
 ## Dependencies
 

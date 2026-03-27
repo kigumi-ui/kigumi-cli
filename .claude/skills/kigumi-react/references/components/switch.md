@@ -35,6 +35,49 @@ import { Switch } from '@/components/ui';
 | `required` | boolean | -                              | `false`  | Makes the switch required |
 | `hint`     | string  | -                              | `''`     | Hint text                 |
 
+## Slots
+
+| Slot        | Description                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------- |
+| _(default)_ | The switch's label.                                                                         |
+| `hint`      | Text that describes how to use the switch. Alternatively, you can use the `hint` attribute. |
+
+## Events
+
+| Event        | React Handler | Type          | Description                                                                                       |
+| ------------ | ------------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| `change`     | `onChange`    | `Event`       | Emitted when the control's checked state changes.                                                 |
+| `input`      | `onInput`     | `InputEvent`  | Emitted when the control receives input.                                                          |
+| `blur`       | `onBlur`      | `FocusEvent`  | Emitted when the control loses focus.                                                             |
+| `focus`      | `onFocus`     | `FocusEvent`  | Emitted when the control gains focus.                                                             |
+| `wa-invalid` | `onWaInvalid` | `CustomEvent` | Emitted when the form control has been checked for validity and its constraints aren't satisfied. |
+
+## CSS Parts
+
+| Part      | Description                                 |
+| --------- | ------------------------------------------- |
+| `base`    | The component's base wrapper.               |
+| `control` | The control that houses the switch's thumb. |
+| `thumb`   | The switch's thumb.                         |
+| `label`   | The switch's label.                         |
+| `hint`    | The hint's wrapper.                         |
+
+## CSS Custom Properties
+
+| Property       | Default | Description               |
+| -------------- | ------- | ------------------------- |
+| `--width`      | -       | The width of the switch.  |
+| `--height`     | -       | The height of the switch. |
+| `--thumb-size` | -       | The size of the thumb.    |
+
+## Methods
+
+| Method    | Parameters              | Description                      |
+| --------- | ----------------------- | -------------------------------- |
+| `click()` | -                       | Simulates a click on the switch. |
+| `focus()` | `options: FocusOptions` | Sets focus on the switch.        |
+| `blur()`  | -                       | Removes focus from the switch.   |
+
 ## Installation
 
 ```bash

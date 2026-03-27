@@ -25,11 +25,40 @@ import { Radio } from '@/components/ui';
 
 ## Props
 
-| Prop       | Type    | Values                         | Default  | Description        |
-| ---------- | ------- | ------------------------------ | -------- | ------------------ |
-| `value`    | string  | -                              | `-`      | The radio value    |
-| `disabled` | boolean | -                              | `false`  | Disables the radio |
-| `size`     | string  | 'small' \| 'medium' \| 'large' | `medium` | Radio size         |
+| Prop         | Type    | Values                         | Default   | Description            |
+| ------------ | ------- | ------------------------------ | --------- | ---------------------- |
+| `value`      | string  | -                              | `-`       | The radio value        |
+| `disabled`   | boolean | -                              | `false`   | Disables the radio     |
+| `size`       | string  | 'small' \| 'medium' \| 'large' | `medium`  | Radio size             |
+| `appearance` | string  | 'default' \| 'button'          | `default` | Radio appearance style |
+
+## Slots
+
+| Slot        | Description        |
+| ----------- | ------------------ |
+| _(default)_ | The radio's label. |
+
+## Events
+
+| Event   | React Handler | Type         | Description                           |
+| ------- | ------------- | ------------ | ------------------------------------- |
+| `blur`  | `onBlur`      | `FocusEvent` | Emitted when the control loses focus. |
+| `focus` | `onFocus`     | `FocusEvent` | Emitted when the control gains focus. |
+
+## CSS Parts
+
+| Part           | Description                                                  |
+| -------------- | ------------------------------------------------------------ |
+| `control`      | The circular container that wraps the radio's checked state. |
+| `checked-icon` | The checked icon.                                            |
+| `label`        | The container that wraps the radio's label.                  |
+
+## CSS Custom Properties
+
+| Property               | Default | Description                                         |
+| ---------------------- | ------- | --------------------------------------------------- |
+| `--checked-icon-color` | -       | The color of the checked icon.                      |
+| `--checked-icon-scale` | -       | The size of the checked icon relative to the radio. |
 
 ## Dependencies
 

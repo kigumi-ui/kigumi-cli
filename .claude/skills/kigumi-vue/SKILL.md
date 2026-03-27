@@ -38,6 +38,32 @@ import { Button, Card } from '@/components/ui';
 </template>
 ```
 
+## Important: No v-model Support
+
+Web Awesome components do **NOT** support Vue's `v-model`. They emit native DOM events (`input`, `change`), not Vue's `update:modelValue`.
+
+**Wrong:**
+
+```vue
+<!-- BROKEN: v-model does not work on Kigumi components -->
+<Input v-model="name" />
+```
+
+**Correct:**
+
+```vue
+<Input
+  :value="name"
+  @input="(e: Event) => name = (e.target as HTMLInputElement).value"
+/>
+```
+
+For overlays, use `:open` + `@wa-hide`:
+
+```vue
+<Dialog :open="isOpen" @wa-hide="isOpen = false">...</Dialog>
+```
+
 ## How It Works
 
 1. **Read config** -- `kigumi.config.json` must have `framework: "vue"`
@@ -48,49 +74,49 @@ import { Button, Card } from '@/components/ui';
 
 ## Key Differences from React
 
-| Aspect | React | Vue |
-|--------|-------|-----|
-| CSS classes on HTML | `className="..."` | `class="..."` |
-| CSS classes on wa-* | `className="..."` | `class="..."` |
-| Dynamic props | `prop={value}` | `:prop="value"` |
-| Event handlers | `onEvent={handler}` | `@event="handler"` |
-| Custom events | `onWaShow={fn}` | `@wa-show="fn"` |
-| Named slots | `<div slot="name">` | `<template #name>` or `slot="name"` |
-| Conditional | `{cond && <X/>}` | `v-if="cond"` |
-| Lists | `{items.map(i => <X/>)}` | `v-for="i in items"` |
+| Aspect               | React                    | Vue                                 |
+| -------------------- | ------------------------ | ----------------------------------- |
+| CSS classes on HTML  | `className="..."`        | `class="..."`                       |
+| CSS classes on wa-\* | `className="..."`        | `class="..."`                       |
+| Dynamic props        | `prop={value}`           | `:prop="value"`                     |
+| Event handlers       | `onEvent={handler}`      | `@event="handler"`                  |
+| Custom events        | `onWaShow={fn}`          | `@wa-show="fn"`                     |
+| Named slots          | `<div slot="name">`      | `<template #name>` or `slot="name"` |
+| Conditional          | `{cond && <X/>}`         | `v-if="cond"`                       |
+| Lists                | `{items.map(i => <X/>)}` | `v-for="i in items"`                |
 
 **Vue note:** In Vue, `class` works on all elements. In React, `className` works on all elements (including Kigumi wrappers). There is no className/class split in either framework.
 
 ## Attribute Rules
 
-| WA HTML | Vue |
-|---------|-----|
-| `class="..."` | `class="..."` (same!) |
+| WA HTML                   | Vue                                                          |
+| ------------------------- | ------------------------------------------------------------ |
+| `class="..."`             | `class="..."` (same!)                                        |
 | `style="max-width: 60ch"` | `style="max-width: 60ch"` or `:style="{ maxWidth: '60ch' }"` |
-| `disabled` | `disabled` or `:disabled="true"` |
-| `slot="header"` | `slot="header"` or `<template #header>` |
-| `aria-*` / `data-*` | preserved as-is |
+| `disabled`                | `disabled` or `:disabled="true"`                             |
+| `slot="header"`           | `slot="header"` or `<template #header>`                      |
+| `aria-*` / `data-*`       | preserved as-is                                              |
 
 ## Event Mapping
 
 **Form controls -- native events (NOT CustomEvent):**
 
-| Event | Vue | Value Access |
-|-------|-----|-------------|
-| input | `@input="handler"` | `(e.target as HTMLInputElement).value` |
+| Event  | Vue                 | Value Access                                         |
+| ------ | ------------------- | ---------------------------------------------------- |
+| input  | `@input="handler"`  | `(e.target as HTMLInputElement).value`               |
 | change | `@change="handler"` | `(e.target as HTMLInputElement).value` or `.checked` |
-| blur | `@blur="handler"` | - |
-| focus | `@focus="handler"` | - |
+| blur   | `@blur="handler"`   | -                                                    |
+| focus  | `@focus="handler"`  | -                                                    |
 
 **Overlays -- CustomEvent:**
 
-| WA Event | Vue |
-|----------|-----|
-| wa-show | `@wa-show="handler"` |
-| wa-hide | `@wa-hide="handler"` |
+| WA Event      | Vue                        |
+| ------------- | -------------------------- |
+| wa-show       | `@wa-show="handler"`       |
+| wa-hide       | `@wa-hide="handler"`       |
 | wa-after-show | `@wa-after-show="handler"` |
 | wa-after-hide | `@wa-after-hide="handler"` |
-| wa-select | `@wa-select="handler"` |
+| wa-select     | `@wa-select="handler"`     |
 
 ## Slot Syntax
 
@@ -153,8 +179,17 @@ async function handleSubmit(e: Event) {
 
 <template>
   <form class="wa-stack wa-gap-m" @submit="handleSubmit">
-    <Input label="Name" required @input="(e: Event) => form.name = (e.target as HTMLInputElement).value" />
-    <Input label="Email" type="email" required @input="(e: Event) => form.email = (e.target as HTMLInputElement).value" />
+    <Input
+      label="Name"
+      required
+      @input="(e: Event) => (form.name = (e.target as HTMLInputElement).value)"
+    />
+    <Input
+      label="Email"
+      type="email"
+      required
+      @input="(e: Event) => (form.email = (e.target as HTMLInputElement).value)"
+    />
     <Button variant="brand" type="submit" :loading="loading">Submit</Button>
   </form>
 </template>
@@ -181,7 +216,70 @@ async function handleSubmit(e: Event) {
 - [ ] Imports use configured alias
 - [ ] Missing components have install commands
 
+## Event Listener Cleanup
+
+When using template refs to call imperative methods or add native event listeners, always clean up:
+
+```vue
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { Dialog } from '@/components/ui';
+
+const dialogRef = ref<HTMLElement | null>(null);
+
+function handleAfterHide() {
+  // Reset form state after dialog closes
+}
+
+onMounted(() => {
+  dialogRef.value?.addEventListener('wa-after-hide', handleAfterHide);
+});
+
+onBeforeUnmount(() => {
+  dialogRef.value?.removeEventListener('wa-after-hide', handleAfterHide);
+});
+</script>
+
+<template>
+  <Dialog ref="dialogRef" :open="open" @wa-hide="open = false"> ... </Dialog>
+</template>
+```
+
+> Note: For most events, use `@wa-event` in the template. Use `addEventListener` in `onMounted` only when you need to call imperative methods like `.show()` or `.requestClose()` on the underlying web component.
+
+## Troubleshooting
+
+**Config not found:**
+
+- Run `npx kigumi init` first to initialize the project
+
+**Components not detected:**
+
+- Verify `componentsDir` in `kigumi.config.json` points to correct location
+- Ensure components are organized in subdirectories (e.g., `Button/Button.vue`)
+
+**Wrong framework:**
+
+- This skill only works for Vue projects
+- Check `framework` field in `kigumi.config.json`
+- For React projects, use the `kigumi-react` skill instead
+
+**v-model not working:**
+
+- WA components do NOT support `v-model`. Use `:value` + `@input` instead.
+
 ## References
 
 - [Transformation Rules (Vue)](references/transformation-rules-vue.md) -- complete component mapping
+- [Event Mapping (Vue)](references/event-mapping-vue.md) -- native vs custom events
 - [Vue State Patterns](references/vue-state-patterns.md) -- ref, reactive, event handling
+- [Component References](references/components/) -- per-component API docs (props, slots, events, CSS parts, methods)
+
+## Related Skills
+
+For multi-component composition patterns, use:
+
+- **kigumi-compose-form** -- Build complete forms with validation and async submission
+- **kigumi-compose-layout** -- Build page layouts using WA layout utilities
+- **kigumi-compose-overlay** -- Build dialogs, drawers, dropdown menus, toasts
+- **kigumi-compose-data** -- Build data tables, stats dashboards, list views
