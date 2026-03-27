@@ -33,6 +33,32 @@ import { Avatar } from '@/components/ui';
 | `loading`  | string | 'eager' \| 'lazy'                 | `eager`  | Indicates how the browser should load the image            |
 | `shape`    | string | 'circle' \| 'square' \| 'rounded' | `circle` | The shape of the avatar                                    |
 
+## Slots
+
+| Slot   | Description                                                                                 |
+| ------ | ------------------------------------------------------------------------------------------- |
+| `icon` | The default icon to use when no image or initials are present. Works best with `<wa-icon>`. |
+
+## Events
+
+| Event      | React Handler | Type          | Description                                                                                                              |
+| ---------- | ------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `wa-error` | `onWaError`   | `CustomEvent` | The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. |
+
+## CSS Parts
+
+| Part       | Description                                                     |
+| ---------- | --------------------------------------------------------------- |
+| `icon`     | The container that wraps the avatar's icon.                     |
+| `initials` | The container that wraps the avatar's initials.                 |
+| `image`    | The avatar image. Only shown when the `image` attribute is set. |
+
+## CSS Custom Properties
+
+| Property | Default | Description             |
+| -------- | ------- | ----------------------- |
+| `--size` | -       | The size of the avatar. |
+
 ## Dependencies
 
 This component requires:

@@ -35,6 +35,12 @@ import { QrCode } from '@/components/ui';
 | `radius`           | number | -                        | `0`     | Corner radius          |
 | `error-correction` | string | 'L' \| 'M' \| 'Q' \| 'H' | `H`     | Error correction level |
 
+## CSS Parts
+
+| Part   | Description                   |
+| ------ | ----------------------------- |
+| `base` | The component's base wrapper. |
+
 ## Installation
 
 ```bash

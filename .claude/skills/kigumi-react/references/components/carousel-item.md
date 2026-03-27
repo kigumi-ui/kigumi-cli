@@ -21,6 +21,18 @@ import { CarouselItem } from '@/components/ui';
 <CarouselItem>Click me</CarouselItem>;
 ```
 
+## Slots
+
+| Slot        | Description                   |
+| ----------- | ----------------------------- |
+| _(default)_ | The carousel item's content.. |
+
+## CSS Custom Properties
+
+| Property         | Default | Description                                                       |
+| ---------------- | ------- | ----------------------------------------------------------------- |
+| `--aspect-ratio` | -       | The slide's aspect ratio. Inherited from the carousel by default. |
+
 ## Installation
 
 ```bash

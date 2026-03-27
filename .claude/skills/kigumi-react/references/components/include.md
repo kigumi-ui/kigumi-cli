@@ -31,6 +31,13 @@ import { Include } from '@/components/ui';
 | `mode`          | string  | 'cors' \| 'no-cors' \| 'same-origin' | `cors`  | The fetch mode                           |
 | `allow-scripts` | boolean | -                                    | `false` | Allows included scripts to be executed   |
 
+## Events
+
+| Event              | React Handler      | Type          | Description                                                   |
+| ------------------ | ------------------ | ------------- | ------------------------------------------------------------- |
+| `wa-load`          | `onWaLoad`         | `CustomEvent` | Emitted when the included file is loaded.                     |
+| `wa-include-error` | `onWaIncludeError` | `CustomEvent` | Emitted when the included file fails to load due to an error. |
+
 ## Installation
 
 ```bash

@@ -31,6 +31,27 @@ import { Scroller } from '@/components/ui';
 | ----------------------- | ------- | ------------------------------------ | ------- | ----------------------- |
 | `orientation`           | string  | 'horizontal' \| 'vertical' \| 'both' | `both`  | Scroll direction        |
 | `with-scroll-indicator` | boolean | -                                    | `false` | Shows shadow indicators |
+| `without-scrollbar`     | boolean | -                                    | `false` | Hides the scrollbar     |
+| `without-shadow`        | boolean | -                                    | `false` | Hides shadow indicators |
+
+## Slots
+
+| Slot        | Description                              |
+| ----------- | ---------------------------------------- |
+| _(default)_ | The content to show inside the scroller. |
+
+## CSS Parts
+
+| Part      | Description                                   |
+| --------- | --------------------------------------------- |
+| `content` | The container that wraps the slotted content. |
+
+## CSS Custom Properties
+
+| Property         | Default                           | Description                   |
+| ---------------- | --------------------------------- | ----------------------------- |
+| `--shadow-color` | `var(--wa-color-surface-default)` | The base color of the shadow. |
+| `--shadow-size`  | `2rem`                            | The size of the shadow.       |
 
 ## Installation
 

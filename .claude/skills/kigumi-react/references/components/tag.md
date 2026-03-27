@@ -33,6 +33,27 @@ import { Tag } from '@/components/ui';
 | `variant`     | string  | 'brand' \| 'neutral' \| 'success' \| 'warning' \| 'danger' | `neutral`         | Theme variant       |
 | `with-remove` | boolean | -                                                          | `false`           | Shows remove button |
 
+## Slots
+
+| Slot        | Description        |
+| ----------- | ------------------ |
+| _(default)_ | The tag's content. |
+
+## Events
+
+| Event       | React Handler | Type          | Description                                  |
+| ----------- | ------------- | ------------- | -------------------------------------------- |
+| `wa-remove` | `onWaRemove`  | `CustomEvent` | Emitted when the remove button is activated. |
+
+## CSS Parts
+
+| Part                  | Description                               |
+| --------------------- | ----------------------------------------- |
+| `base`                | The component's base wrapper.             |
+| `content`             | The tag's content.                        |
+| `remove-button`       | The tag's remove button, a `<wa-button>`. |
+| `remove-button__base` | The remove button's exported `base` part. |
+
 ## Dependencies
 
 This component requires:

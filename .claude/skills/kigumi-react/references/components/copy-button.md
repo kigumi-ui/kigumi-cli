@@ -36,6 +36,34 @@ import { CopyButton } from '@/components/ui';
 | `feedback-duration` | number  | -                                      | `1000`  | Duration of feedback state in milliseconds |
 | `tooltip-placement` | string  | 'top' \| 'right' \| 'bottom' \| 'left' | `top`   | Tooltip position                           |
 
+## Slots
+
+| Slot           | Description                                                               |
+| -------------- | ------------------------------------------------------------------------- |
+| `copy-icon`    | The icon to show in the default copy state. Works best with `<wa-icon>`.  |
+| `success-icon` | The icon to show when the content is copied. Works best with `<wa-icon>`. |
+| `error-icon`   | The icon to show when a copy error occurs. Works best with `<wa-icon>`.   |
+
+## Events
+
+| Event      | React Handler | Type          | Description                                |
+| ---------- | ------------- | ------------- | ------------------------------------------ |
+| `wa-copy`  | `onWaCopy`    | `CustomEvent` | Emitted when the data has been copied.     |
+| `wa-error` | `onWaError`   | `CustomEvent` | Emitted when the data could not be copied. |
+
+## CSS Parts
+
+| Part                   | Description                                |
+| ---------------------- | ------------------------------------------ |
+| `button`               | The internal `<button>` element.           |
+| `copy-icon`            | The container that holds the copy icon.    |
+| `success-icon`         | The container that holds the success icon. |
+| `error-icon`           | The container that holds the error icon.   |
+| `tooltip__base`        | The tooltip's exported `base` part.        |
+| `tooltip__base__popup` | The tooltip's exported `popup` part.       |
+| `tooltip__base__arrow` | The tooltip's exported `arrow` part.       |
+| `tooltip__body`        | The tooltip's exported `body` part.        |
+
 ## Dependencies
 
 This component requires:

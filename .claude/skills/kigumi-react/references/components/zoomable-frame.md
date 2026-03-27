@@ -38,6 +38,36 @@ import { ZoomableFrame } from '@/components/ui';
 | `sandbox`             | string  | -                 | `-`                                    | Security restrictions     |
 | `referrerpolicy`      | string  | -                 | `-`                                    | Referrer policy           |
 
+## Slots
+
+| Slot            | Description                               |
+| --------------- | ----------------------------------------- |
+| `zoom-in-icon`  | The slot that contains the zoom in icon.  |
+| `zoom-out-icon` | The slot that contains the zoom out icon. |
+
+## Events
+
+| Event   | React Handler | Type    | Description                                                |
+| ------- | ------------- | ------- | ---------------------------------------------------------- |
+| `load`  | `onLoad`      | `Event` | Emitted when the internal iframe when it finishes loading. |
+| `error` | `onError`     | `Event` | Emitted from the internal iframe when it fails to load.    |
+
+## CSS Parts
+
+| Part              | Description                                        |
+| ----------------- | -------------------------------------------------- |
+| `iframe`          | The internal `<iframe>` element.                   |
+| `controls`        | The container that surrounds zoom control buttons. |
+| `zoom-in-button`  | The zoom in button.                                |
+| `zoom-out-button` | The zoom out button.                               |
+
+## Methods
+
+| Method      | Parameters | Description                                     |
+| ----------- | ---------- | ----------------------------------------------- |
+| `zoomIn()`  | -          | Zooms in to the next available zoom level.      |
+| `zoomOut()` | -          | Zooms out to the previous available zoom level. |
+
 ## Dependencies
 
 This component requires:

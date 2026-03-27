@@ -2,16 +2,18 @@
 
 Web Awesome components use two different event systems depending on the component type.
 
-## Form Controls — Native DOM Events
+## Form Controls -- Native DOM Events
 
-`wa-button`, `wa-input`, `wa-number-input`, `wa-file-input`, `wa-textarea`, `wa-select`, `wa-checkbox`, `wa-switch` emit **native browser events** (no `wa-` prefix). Event handlers receive standard `Event` / `FocusEvent` objects — use `e.target.value`, `e.target.files`, etc.
+Components like `wa-button`, `wa-input`, `wa-select`, `wa-checkbox`, `wa-switch` emit **native browser events** (no `wa-` prefix). Event handlers receive standard `Event` / `FocusEvent` objects.
 
 | Native Event | React Handler | Type         |
 | ------------ | ------------- | ------------ |
 | `blur`       | `onBlur`      | `FocusEvent` |
-| `focus`      | `onFocus`     | `FocusEvent` |
-| `input`      | `onInput`     | `Event`      |
 | `change`     | `onChange`    | `Event`      |
+| `error`      | `onError`     | `Event`      |
+| `focus`      | `onFocus`     | `FocusEvent` |
+| `input`      | `onInput`     | `InputEvent` |
+| `load`       | `onLoad`      | `Event`      |
 
 ```tsx
 // Correct: native events
@@ -19,23 +21,45 @@ Web Awesome components use two different event systems depending on the componen
   onInput={(e) => console.log((e.target as HTMLInputElement).value)}
   onChange={(e) => console.log((e.target as HTMLInputElement).value)}
 />
-
-// Wrong: these events don't fire on form controls
-<Input onInput={(e: CustomEvent) => console.log(e.detail.value)} />
 ```
 
-## Overlay / Complex Components — Custom `wa-` Events
+## Overlay / Complex Components -- Custom `wa-` Events
 
-`wa-dialog`, `wa-drawer`, `wa-dropdown`, `wa-popup`, `wa-tooltip`, etc. emit **custom events** prefixed with `wa-`. Event handlers receive `CustomEvent` objects.
+Components like `wa-dialog`, `wa-drawer`, `wa-dropdown`, `wa-tooltip` emit **custom events** prefixed with `wa-`. Event handlers receive `CustomEvent` objects.
 
-| Web Awesome Event | React Handler | Type          |
-| ----------------- | ------------- | ------------- |
-| `wa-show`         | `onShow`      | `CustomEvent` |
-| `wa-hide`         | `onHide`      | `CustomEvent` |
-| `wa-after-show`   | `onAfterShow` | `CustomEvent` |
-| `wa-after-hide`   | `onAfterHide` | `CustomEvent` |
-| `wa-clear`        | `onClear`     | `CustomEvent` |
-| `wa-invalid`      | `onInvalid`   | `CustomEvent` |
+| Web Awesome Event     | React Handler         | Type          |
+| --------------------- | --------------------- | ------------- |
+| `wa-after-collapse`   | `onWaAfterCollapse`   | `CustomEvent` |
+| `wa-after-expand`     | `onWaAfterExpand`     | `CustomEvent` |
+| `wa-after-hide`       | `onWaAfterHide`       | `CustomEvent` |
+| `wa-after-show`       | `onWaAfterShow`       | `CustomEvent` |
+| `wa-cancel`           | `onWaCancel`          | `CustomEvent` |
+| `wa-clear`            | `onWaClear`           | `CustomEvent` |
+| `wa-collapse`         | `onWaCollapse`        | `CustomEvent` |
+| `wa-copy`             | `onWaCopy`            | `CustomEvent` |
+| `wa-create`           | `onWaCreate`          | `CustomEvent` |
+| `wa-error`            | `onWaError`           | `CustomEvent` |
+| `wa-expand`           | `onWaExpand`          | `CustomEvent` |
+| `wa-finish`           | `onWaFinish`          | `CustomEvent` |
+| `wa-hide`             | `onWaHide`            | `CustomEvent` |
+| `wa-hover`            | `onWaHover`           | `CustomEvent` |
+| `wa-include-error`    | `onWaIncludeError`    | `CustomEvent` |
+| `wa-intersect`        | `onWaIntersect`       | `CustomEvent` |
+| `wa-invalid`          | `onWaInvalid`         | `CustomEvent` |
+| `wa-lazy-change`      | `onWaLazyChange`      | `CustomEvent` |
+| `wa-lazy-load`        | `onWaLazyLoad`        | `CustomEvent` |
+| `wa-load`             | `onWaLoad`            | `CustomEvent` |
+| `wa-mutation`         | `onWaMutation`        | `CustomEvent` |
+| `wa-remove`           | `onWaRemove`          | `CustomEvent` |
+| `wa-reposition`       | `onWaReposition`      | `CustomEvent` |
+| `wa-resize`           | `onWaResize`          | `CustomEvent` |
+| `wa-select`           | `onWaSelect`          | `CustomEvent` |
+| `wa-selection-change` | `onWaSelectionChange` | `CustomEvent` |
+| `wa-show`             | `onWaShow`            | `CustomEvent` |
+| `wa-slide-change`     | `onWaSlideChange`     | `CustomEvent` |
+| `wa-start`            | `onWaStart`           | `CustomEvent` |
+| `wa-tab-hide`         | `onWaTabHide`         | `CustomEvent` |
+| `wa-tab-show`         | `onWaTabShow`         | `CustomEvent` |
 
 ```tsx
 import { useState } from 'react';
@@ -49,8 +73,8 @@ function Example() {
       <Button onClick={() => setOpen(true)}>Open Dialog</Button>
       <Dialog
         open={open}
-        onHide={() => setOpen(false)}
-        onAfterShow={(e) => console.log('Dialog shown', e)}
+        onWaHide={() => setOpen(false)}
+        onWaAfterShow={(e) => console.log('Dialog shown', e)}
       >
         Dialog content
       </Dialog>

@@ -33,6 +33,33 @@ import { Card } from '@/components/ui';
 | `with-footer` | boolean | -                                                                  | `false`    | Adds footer section (for SSR) |
 | `with-media`  | boolean | -                                                                  | `false`    | Adds media section (for SSR)  |
 
+## Slots
+
+| Slot             | Description                                                               |
+| ---------------- | ------------------------------------------------------------------------- |
+| _(default)_      | The card's main content.                                                  |
+| `header`         | An optional header for the card.                                          |
+| `footer`         | An optional footer for the card.                                          |
+| `media`          | An optional media section to render at the start of the card.             |
+| `actions`        | An optional actions section to render at the end for the horizontal card. |
+| `header-actions` | An optional actions section to render in the header of the vertical card. |
+| `footer-actions` | An optional actions section to render in the footer of the vertical card. |
+
+## CSS Parts
+
+| Part     | Description                                       |
+| -------- | ------------------------------------------------- |
+| `media`  | The container that wraps the card's media.        |
+| `header` | The container that wraps the card's header.       |
+| `body`   | The container that wraps the card's main content. |
+| `footer` | The container that wraps the card's footer.       |
+
+## CSS Custom Properties
+
+| Property    | Default             | Description                                                                          |
+| ----------- | ------------------- | ------------------------------------------------------------------------------------ |
+| `--spacing` | `var(--wa-space-l)` | The amount of space around and between sections of the card. Expects a single value. |
+
 ## Installation
 
 ```bash

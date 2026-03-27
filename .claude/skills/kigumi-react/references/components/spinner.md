@@ -21,6 +21,21 @@ import { Spinner } from '@/components/ui';
 <Spinner>Click me</Spinner>;
 ```
 
+## CSS Parts
+
+| Part   | Description                   |
+| ------ | ----------------------------- |
+| `base` | The component's base wrapper. |
+
+## CSS Custom Properties
+
+| Property            | Default | Description                                                        |
+| ------------------- | ------- | ------------------------------------------------------------------ |
+| `--track-width`     | -       | The width of the track.                                            |
+| `--track-color`     | -       | The color of the track.                                            |
+| `--indicator-color` | -       | The color of the spinner's indicator.                              |
+| `--speed`           | -       | The time it takes for the spinner to complete one animation cycle. |
+
 ## Installation
 
 ```bash

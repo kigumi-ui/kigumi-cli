@@ -31,6 +31,20 @@ import { Callout } from '@/components/ui';
 | `size`       | string | 'small' \| 'medium' \| 'large'                                     | `medium`          | The callout's size              |
 | `variant`    | string | 'brand' \| 'neutral' \| 'success' \| 'warning' \| 'danger'         | `brand`           | The callout's theme variant     |
 
+## Slots
+
+| Slot        | Description                                                  |
+| ----------- | ------------------------------------------------------------ |
+| _(default)_ | The callout's main content.                                  |
+| `icon`      | An icon to show in the callout. Works best with `<wa-icon>`. |
+
+## CSS Parts
+
+| Part      | Description                                          |
+| --------- | ---------------------------------------------------- |
+| `icon`    | The container that wraps the optional icon.          |
+| `message` | The container that wraps the callout's main content. |
+
 ## Installation
 
 ```bash

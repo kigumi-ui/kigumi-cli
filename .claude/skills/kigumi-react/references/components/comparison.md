@@ -27,6 +27,37 @@ import { Comparison } from '@/components/ui';
 | ---------- | ------ | ------ | ------- | -------------------------------------- |
 | `position` | number | -      | `50`    | Divider location as percentage (0-100) |
 
+## Slots
+
+| Slot     | Description                                              |
+| -------- | -------------------------------------------------------- |
+| `before` | The before content, often an `<img>` or `<svg>` element. |
+| `after`  | The after content, often an `<img>` or `<svg>` element.  |
+| `handle` | The icon used inside the handle.                         |
+
+## Events
+
+| Event    | React Handler | Type    | Description                        |
+| -------- | ------------- | ------- | ---------------------------------- |
+| `change` | `onChange`    | `Event` | Emitted when the position changes. |
+
+## CSS Parts
+
+| Part      | Description                                                 |
+| --------- | ----------------------------------------------------------- |
+| `base`    | The container that wraps the before and after content.      |
+| `before`  | The container that wraps the before content.                |
+| `after`   | The container that wraps the after content.                 |
+| `divider` | The divider that separates the before and after content.    |
+| `handle`  | The handle that the user drags to expose the after content. |
+
+## CSS Custom Properties
+
+| Property          | Default | Description                     |
+| ----------------- | ------- | ------------------------------- |
+| `--divider-width` | -       | The width of the dividing line. |
+| `--handle-size`   | -       | The size of the compare handle. |
+
 ## Dependencies
 
 This component requires:

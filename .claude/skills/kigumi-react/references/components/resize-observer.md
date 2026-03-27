@@ -27,6 +27,18 @@ import { ResizeObserver } from '@/components/ui';
 | ---------- | ------- | ------ | ------- | --------------------- |
 | `disabled` | boolean | -      | `false` | Disables the observer |
 
+## Slots
+
+| Slot        | Description                                 |
+| ----------- | ------------------------------------------- |
+| _(default)_ | One or more elements to watch for resizing. |
+
+## Events
+
+| Event       | React Handler | Type          | Description                          |
+| ----------- | ------------- | ------------- | ------------------------------------ |
+| `wa-resize` | `onWaResize`  | `CustomEvent` | Emitted when the element is resized. |
+
 ## Installation
 
 ```bash
