@@ -1,5 +1,12 @@
 # kigumi
 
+## 0.18.1
+
+### Patch Changes
+
+- ### Bug Fixes
+  - **Dialog/Drawer templates**: Fix TS2352 compilation error with WA 3.4.0. The `show`/`requestClose` methods are now private in WA's type definitions; use `Omit` to strip conflicting keys before re-declaring them as public for imperative use.
+
 ## 0.18.0
 
 ### Minor Changes
