@@ -8,7 +8,7 @@ export function ChangelogContent() {
       <h1 className="wa-heading-2xl" id="changelog">
         Changelog
       </h1>
-      <ReactMarkdown>{changelog.replace(/^# kigumi\n/, '')}</ReactMarkdown>
+      <ReactMarkdown>{changelog.replace(/^[\s\S]*?(?=## )/, '')}</ReactMarkdown>
     </div>
   );
 }
