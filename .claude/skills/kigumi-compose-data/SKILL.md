@@ -17,7 +17,7 @@ Build data-heavy UIs: tables, stats, lists, detail views, loading/empty states.
 ## When to Use
 
 - **Stats dashboard** (metric cards, KPIs)
-- **Data table** (sortable rows, status badges)
+- **Data table** (sortable, paginated, filterable rows with status badges)
 - **List view** (cards with avatar + content + actions)
 - **Detail view** (key-value pairs in a card)
 - **Empty state** (no data placeholder)
@@ -29,6 +29,8 @@ Build data-heavy UIs: tables, stats, lists, detail views, loading/empty states.
 2. **Use formatting components** for data values: FormatNumber, FormatDate, FormatBytes, RelativeTime.
 3. **Use Skeleton** for loading states that match the expected layout shape.
 4. **Use Badge** for status indicators with semantic variants (success, warning, danger).
+5. **All tables must be accessible:** include `<caption>` (use `className="wa-sr-only"` for visually hidden), `scope="col"` on every `<th>`, and `aria-sort` on sortable columns.
+6. **All tables must be responsive:** wrap in `<div style={{ overflowX: 'auto' }}>` with `minWidth` on the table.
 
 ## Component Selection
 
@@ -49,14 +51,39 @@ Build data-heavy UIs: tables, stats, lists, detail views, loading/empty states.
 User needs data display
 |
 +-- Overview metrics? --> Stats Dashboard (A)
-+-- Tabular data? --> HTML Table (B)
-+-- Card-based list? --> List View (D)
-+-- Single item details? --> Detail View (E)
-+-- No data yet? --> Empty State (F)
-+-- Data loading? --> Loading State (G)
++-- Tabular data?
+|   +-- Needs sorting? --> Sortable Table (B2)
+|   +-- Needs pagination? --> Paginated Table (B3)
+|   +-- Needs search/filter? --> Filtered Table (B4)
+|   +-- Needs multiple? --> Combine B2 + B3 + B4
+|   +-- Simple read-only? --> Data Table (B)
++-- Card-based list? --> List View (C)
++-- Single item details? --> Detail View (D)
++-- No data yet? --> Empty State (E)
++-- Data loading? --> Loading State (F)
 ```
+
+## Pattern Index
+
+| ID | Pattern | Features | React | Vue |
+|----|---------|----------|-------|-----|
+| A  | Stats Dashboard | Metric cards, KPIs, trend badges | yes | yes |
+| B  | Data Table | Static rows, status badges, actions | yes | yes |
+| B2 | Sortable Table | Column sort, aria-sort, sort icons | yes | yes |
+| B3 | Paginated Table | Page nav, page size, "Showing X-Y of Z" | yes | yes |
+| B4 | Filtered Table | Debounced search, result count | yes | yes |
+| C  | List View | Avatar + content + actions cards | yes | yes |
+| D  | Detail View | Key-value pairs in a card | yes | yes |
+| E  | Empty State | No-data placeholder with CTA | yes | yes |
+| F  | Loading State | Skeleton screens (table + card grid) | yes | yes |
 
 ## References
 
-- [Data Display Patterns](references/data-display-patterns.md) -- 7 patterns with React + Vue
+- [Data Display Patterns](references/data-display-patterns.md) -- 9 patterns with React + Vue
 - [Formatting Components](references/formatting-components.md) -- FormatNumber, FormatDate, etc.
+
+## Related Skills
+
+- **kigumi-compose-layout** -- use the Data Browser page archetype to wrap a data table with sidebar filters, breadcrumbs, and page-level layout
+- **kigumi-compose-overlay** -- use for detail drawers (slide-out panels) and delete confirmation dialogs triggered from table rows
+- **kigumi-compose-form** -- use for inline editing patterns and filter forms above tables

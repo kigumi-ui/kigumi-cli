@@ -114,15 +114,15 @@ export function CreateItemDialog() {
     <>
       <Button variant="brand" onClick={() => setOpen(true)}>Create Item</Button>
       <Dialog open={open} label="Create New Item" onHide={() => setOpen(false)}>
-        <form className="wa-stack wa-gap-m" onSubmit={handleSubmit}>
+        <form id="create-item" className="wa-stack wa-gap-m" onSubmit={handleSubmit}>
           {error && <Callout variant="danger">{error}</Callout>}
           <Input label="Name" name="name" required />
           <Input label="Description" name="description" />
-          <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
-            <Button variant="neutral" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button variant="brand" type="submit" loading={loading}>Create</Button>
-          </div>
         </form>
+        <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
+          <Button variant="neutral" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="brand" type="submit" form="create-item" loading={loading}>Create</Button>
+        </div>
       </Dialog>
     </>
   );
@@ -297,15 +297,70 @@ import { Button, Icon, Tooltip } from '@/components/ui';
 
 **Components:** `npx kigumi add popover button input`
 
+### Key Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `trigger` | string | `click` | Activation events: `click`, `hover`, `focus` (space-separated for multiple) |
+| `placement` | string | `top` | Position: `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end` |
+| `with-arrow` | boolean | `false` | Shows an arrow pointing to the trigger |
+| `distance` | number | `8` | Distance (px) from the trigger element |
+| `skidding` | number | `0` | Offset (px) along the trigger element |
+| `disabled` | boolean | `false` | Disables the popover |
+
+### Basic Filter Panel
+
 ```tsx
 import { Button, Icon, Input, Popover } from '@/components/ui';
 
-<Popover>
+<Popover placement="bottom-start">
   <Button slot="trigger" variant="neutral"><Icon slot="start" name="filter" />Filters</Button>
   <div className="wa-stack wa-gap-m" style={{ padding: 'var(--wa-space-m)', minWidth: '250px' }}>
     <Input label="Search" type="search" />
     <Button variant="brand" size="small" style={{ width: '100%' }}>Apply</Button>
   </div>
+</Popover>
+```
+
+### Hover Info Popover with Arrow
+
+```tsx
+<Popover trigger="hover focus" placement="top" with-arrow>
+  <Button slot="trigger" variant="neutral" size="small">
+    <Icon name="circle-info" />
+  </Button>
+  <div style={{ padding: 'var(--wa-space-s)' }}>
+    <p style={{ margin: 0 }}>This field determines your display name across the app.</p>
+  </div>
+</Popover>
+```
+
+### Positioned Popover with Distance/Skidding
+
+```tsx
+<Popover placement="right-start" distance={12} skidding={-4} with-arrow>
+  <Button slot="trigger" variant="neutral">Settings</Button>
+  <div className="wa-stack wa-gap-s" style={{ padding: 'var(--wa-space-m)', minWidth: '200px' }}>
+    <Input label="Rows per page" type="number" />
+    <Input label="Default sort" />
+  </div>
+</Popover>
+```
+
+### Canceling Open (Popover-specific)
+
+Unlike Dialog and Drawer, Popover's `wa-show` event is cancelable. You can prevent it from opening:
+
+```tsx
+<Popover
+  onWaShow={(e: CustomEvent) => {
+    if (someCondition) {
+      e.preventDefault(); // Popover will NOT open
+    }
+  }}
+>
+  <Button slot="trigger">Open</Button>
+  <div>Content</div>
 </Popover>
 ```
 
@@ -317,7 +372,7 @@ import { Button, Icon, Input, Popover } from '@/components/ui';
 
 ```tsx
 import { useRef } from 'react';
-import { Button } from '@/components/ui';
+import { Button, Toast } from '@/components/ui';
 
 export function ToastExample() {
   const toastRef = useRef<HTMLElement & { create: (msg: string, opts?: Record<string, unknown>) => void }>(null);
@@ -335,7 +390,7 @@ export function ToastExample() {
           Warning (persistent)
         </Button>
       </div>
-      <wa-toast ref={toastRef} placement="top-end" />
+      <Toast ref={toastRef} placement="top-end" />
     </>
   );
 }
@@ -343,3 +398,55 @@ export function ToastExample() {
 
 Placements: `top-start`, `top-center`, `top-end`, `bottom-start`, `bottom-center`, `bottom-end`.
 Duration `0` = stays until dismissed. Default: 5000ms.
+
+---
+
+## CSS Sizing for Dialog and Drawer
+
+Override these CSS custom properties to control overlay dimensions and animation speed.
+
+### Dialog
+
+| Property | Default | Description |
+|---|---|---|
+| `--width` | - | Preferred width (shrinks on small screens) |
+| `--spacing` | - | Space around and between content |
+| `--show-duration` | `200ms` | Open animation duration |
+| `--hide-duration` | `200ms` | Close animation duration |
+
+```css
+/* Narrow dialog */
+wa-dialog::part(dialog) {
+  --width: 24rem;
+}
+
+/* Wide dialog with more padding */
+wa-dialog.wide::part(dialog) {
+  --width: 48rem;
+  --spacing: var(--wa-space-xl);
+}
+```
+
+### Drawer
+
+| Property | Default | Description |
+|---|---|---|
+| `--size` | - | Width (start/end) or height (top/bottom) depending on placement |
+| `--spacing` | - | Space around and between content |
+| `--show-duration` | `200ms` | Open animation duration |
+| `--hide-duration` | `200ms` | Close animation duration |
+
+```css
+/* Wide side panel */
+wa-drawer::part(dialog) {
+  --size: 40rem;
+}
+
+/* Compact drawer with fast animation */
+wa-drawer.compact::part(dialog) {
+  --size: 20rem;
+  --spacing: var(--wa-space-s);
+  --show-duration: 100ms;
+  --hide-duration: 100ms;
+}
+```

@@ -31,7 +31,7 @@ Build production-ready overlay UIs: Dialog, Drawer, Dropdown, Tooltip, Popover, 
 3. **Always provide `label` prop** on Dialog and Drawer for accessibility.
 4. **Focus trap is automatic.** No manual focus management needed.
 5. **Controlled `open` pattern:** `open={state}` + sync close in handler.
-6. **`className` in React** on ALL elements including Kigumi overlay components. In Vue, use `class`.
+6. **`className` vs `class`:** On Kigumi wrappers (`<Dialog>`, `<Button>`, `<Drawer>`, etc.), use `className`. On raw `<wa-*>` elements, use `class`. In Vue, always use `class`.
 
 ### requestClose() Pattern
 
@@ -94,6 +94,12 @@ User needs overlay
 - [ ] Icon-only trigger buttons have `aria-label`
 - [ ] Danger actions use `variant="danger"`
 - [ ] Forms inside dialogs have `label` on every input
+
+## Related Skills
+
+- **compose-form** -- for form-in-dialog patterns (validation, multi-step wizards inside overlays)
+- **compose-layout** -- for side panel layouts (drawer as persistent navigation, app shell with drawer)
+- **compose-data** -- for detail drawers (data tables that open row details in a Drawer)
 
 ## References
 
