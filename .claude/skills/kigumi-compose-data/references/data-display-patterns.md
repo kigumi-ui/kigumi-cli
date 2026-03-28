@@ -23,7 +23,10 @@ interface Metric {
 
 export function StatsDashboard({ metrics }: { metrics: Metric[] }) {
   return (
-    <div className="wa-grid" style={{ '--min-column-size': '30ch' } as React.CSSProperties}>
+    <div
+      className="wa-grid"
+      style={{ '--min-column-size': '30ch' } as React.CSSProperties}
+    >
       {metrics.map((m) => (
         <Card key={m.label}>
           <div className="wa-flank wa-align-items-start">
@@ -34,11 +37,22 @@ export function StatsDashboard({ metrics }: { metrics: Metric[] }) {
               <h3 className="wa-caption-s">{m.label}</h3>
               <div className="wa-cluster wa-gap-xs">
                 <span className="wa-heading-xl">
-                  <FormatNumber value={m.value} type={m.type || 'decimal'} currency={m.currency} />
+                  <FormatNumber
+                    value={m.value}
+                    type={m.type || 'decimal'}
+                    currency={m.currency}
+                  />
                 </span>
                 {m.change && (
-                  <Badge variant={m.change.trend === 'up' ? 'success' : 'danger'} appearance="filled-outlined" pill>
-                    <Icon name={m.change.trend === 'up' ? 'arrow-up' : 'arrow-down'} label={m.change.trend === 'up' ? 'Up' : 'Down'} />
+                  <Badge
+                    variant={m.change.trend === 'up' ? 'success' : 'danger'}
+                    appearance="filled-outlined"
+                    pill
+                  >
+                    <Icon
+                      name={m.change.trend === 'up' ? 'arrow-up' : 'arrow-down'}
+                      label={m.change.trend === 'up' ? 'Up' : 'Down'}
+                    />
                     {m.change.value}
                   </Badge>
                 )}
@@ -52,11 +66,30 @@ export function StatsDashboard({ metrics }: { metrics: Metric[] }) {
 }
 
 // Usage
-<StatsDashboard metrics={[
-  { label: 'Total Subscribers', value: 81779, icon: 'user-group', change: { value: 212, trend: 'up' } },
-  { label: 'Open Rate', value: 0.6158, type: 'percent', icon: 'envelope-open', change: { value: '4.5%', trend: 'up' } },
-  { label: 'Click Rate', value: 0.2574, type: 'percent', icon: 'arrow-pointer', change: { value: '2.1%', trend: 'down' } },
-]} />
+<StatsDashboard
+  metrics={[
+    {
+      label: 'Total Subscribers',
+      value: 81779,
+      icon: 'user-group',
+      change: { value: 212, trend: 'up' },
+    },
+    {
+      label: 'Open Rate',
+      value: 0.6158,
+      type: 'percent',
+      icon: 'envelope-open',
+      change: { value: '4.5%', trend: 'up' },
+    },
+    {
+      label: 'Click Rate',
+      value: 0.2574,
+      type: 'percent',
+      icon: 'arrow-pointer',
+      change: { value: '2.1%', trend: 'down' },
+    },
+  ]}
+/>;
 ```
 
 ### Vue
@@ -88,7 +121,11 @@ defineProps<{ metrics: Metric[] }>();
           <h3 class="wa-caption-s">{{ m.label }}</h3>
           <div class="wa-cluster wa-gap-xs">
             <span class="wa-heading-xl">
-              <FormatNumber :value="m.value" :type="m.type || 'decimal'" :currency="m.currency" />
+              <FormatNumber
+                :value="m.value"
+                :type="m.type || 'decimal'"
+                :currency="m.currency"
+              />
             </span>
             <Badge
               v-if="m.change"
@@ -96,7 +133,10 @@ defineProps<{ metrics: Metric[] }>();
               appearance="filled-outlined"
               pill
             >
-              <Icon :name="m.change.trend === 'up' ? 'arrow-up' : 'arrow-down'" :label="m.change.trend === 'up' ? 'Up' : 'Down'" />
+              <Icon
+                :name="m.change.trend === 'up' ? 'arrow-up' : 'arrow-down'"
+                :label="m.change.trend === 'up' ? 'Up' : 'Down'"
+              />
               {{ m.change.value }}
             </Badge>
           </div>
@@ -115,7 +155,8 @@ Native HTML table with WA utility classes. No wa-table component exists.
 Use `wa-zebra-rows` for alternating row colors and `wa-hover-rows` for hover highlighting.
 
 All tables must include:
-- `<caption>` (use `className="wa-sr-only"` for visually hidden but accessible captions)
+
+- `<caption>` (use `className="wa-visually-hidden"` for visually hidden but accessible captions)
 - `scope="col"` on every `<th>`
 - A responsive wrapper `<div>` with `overflowX: 'auto'` around the `<table>`
 
@@ -134,17 +175,35 @@ interface User {
   createdAt: string;
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 
-export function UserTable({ users, loading }: { users: User[]; loading?: boolean }) {
+export function UserTable({
+  users,
+  loading,
+}: {
+  users: User[];
+  loading?: boolean;
+}) {
   const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-  const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const };
+  const headerStyle = {
+    ...cellStyle,
+    borderBottom: '2px solid var(--wa-color-surface-border)',
+    textAlign: 'left' as const,
+  };
 
   if (loading) {
     return (
       <div className="wa-stack wa-gap-s">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} effect="sheen" style={{ height: '48px', width: '100%' }} />
+          <Skeleton
+            key={i}
+            effect="sheen"
+            style={{ height: '48px', width: '100%' }}
+          />
         ))}
       </div>
     );
@@ -154,30 +213,64 @@ export function UserTable({ users, loading }: { users: User[]; loading?: boolean
     <div className="wa-stack wa-gap-m">
       <div className="wa-split wa-align-items-center">
         <h2>Users ({users.length})</h2>
-        <Button variant="brand" size="small"><Icon slot="start" name="plus" />Add User</Button>
+        <Button variant="brand" size="small">
+          <Icon slot="start" name="plus" />
+          Add User
+        </Button>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <table className="wa-zebra-rows wa-hover-rows" style={{ width: '100%', minWidth: '600px' }}>
-          <caption className="wa-sr-only">User accounts with status and join date</caption>
+        <table
+          className="wa-zebra-rows wa-hover-rows"
+          style={{ width: '100%', minWidth: '600px' }}
+        >
+          <caption className="wa-visually-hidden">
+            User accounts with status and join date
+          </caption>
           <thead>
             <tr>
-              <th scope="col" style={headerStyle}>Name</th>
-              <th scope="col" style={headerStyle}>Email</th>
-              <th scope="col" style={headerStyle}>Status</th>
-              <th scope="col" style={headerStyle}>Joined</th>
-              <th scope="col" style={headerStyle}><span className="wa-sr-only">Actions</span></th>
+              <th scope="col" style={headerStyle}>
+                Name
+              </th>
+              <th scope="col" style={headerStyle}>
+                Email
+              </th>
+              <th scope="col" style={headerStyle}>
+                Status
+              </th>
+              <th scope="col" style={headerStyle}>
+                Joined
+              </th>
+              <th scope="col" style={headerStyle}>
+                <span className="wa-visually-hidden">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+              <tr
+                key={user.id}
+                style={{
+                  borderBottom: '1px solid var(--wa-color-surface-border)',
+                }}
+              >
                 <td style={cellStyle}>{user.name}</td>
                 <td style={cellStyle}>{user.email}</td>
-                <td style={cellStyle}><Badge variant={statusVariant[user.status]}>{user.status}</Badge></td>
-                <td style={cellStyle}><RelativeTime date={user.createdAt} /></td>
                 <td style={cellStyle}>
-                  <Button variant="neutral" size="small" appearance="plain" aria-label="Edit">
+                  <Badge variant={statusVariant[user.status]}>
+                    {user.status}
+                  </Badge>
+                </td>
+                <td style={cellStyle}>
+                  <RelativeTime date={user.createdAt} />
+                </td>
+                <td style={cellStyle}>
+                  <Button
+                    variant="neutral"
+                    size="small"
+                    appearance="plain"
+                    aria-label="Edit"
+                  >
                     <Icon name="pen" />
                   </Button>
                 </td>
@@ -205,45 +298,80 @@ interface User {
   createdAt: string;
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 
 defineProps<{ users: User[]; loading?: boolean }>();
 
 const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const };
+const headerStyle = {
+  ...cellStyle,
+  borderBottom: '2px solid var(--wa-color-surface-border)',
+  textAlign: 'left' as const,
+};
 </script>
 
 <template>
   <div class="wa-stack wa-gap-s" v-if="loading">
-    <Skeleton v-for="i in 5" :key="i" effect="sheen" style="height: 48px; width: 100%" />
+    <Skeleton
+      v-for="i in 5"
+      :key="i"
+      effect="sheen"
+      style="height: 48px; width: 100%"
+    />
   </div>
 
   <div v-else class="wa-stack wa-gap-m">
     <div class="wa-split wa-align-items-center">
       <h2>Users ({{ users.length }})</h2>
-      <Button variant="brand" size="small"><Icon slot="start" name="plus" />Add User</Button>
+      <Button variant="brand" size="small"
+        ><Icon slot="start" name="plus" />Add User</Button
+      >
     </div>
 
     <div style="overflow-x: auto">
-      <table class="wa-zebra-rows wa-hover-rows" style="width: 100%; min-width: 600px">
-        <caption class="wa-sr-only">User accounts with status and join date</caption>
+      <table
+        class="wa-zebra-rows wa-hover-rows"
+        style="width: 100%; min-width: 600px"
+      >
+        <caption class="wa-visually-hidden">
+          User accounts with status and join date
+        </caption>
         <thead>
           <tr>
             <th scope="col" :style="headerStyle">Name</th>
             <th scope="col" :style="headerStyle">Email</th>
             <th scope="col" :style="headerStyle">Status</th>
             <th scope="col" :style="headerStyle">Joined</th>
-            <th scope="col" :style="headerStyle"><span class="wa-sr-only">Actions</span></th>
+            <th scope="col" :style="headerStyle">
+              <span class="wa-visually-hidden">Actions</span>
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.id" style="border-bottom: 1px solid var(--wa-color-surface-border)">
+          <tr
+            v-for="user in users"
+            :key="user.id"
+            style="border-bottom: 1px solid var(--wa-color-surface-border)"
+          >
             <td :style="cellStyle">{{ user.name }}</td>
             <td :style="cellStyle">{{ user.email }}</td>
-            <td :style="cellStyle"><Badge :variant="statusVariant[user.status]">{{ user.status }}</Badge></td>
+            <td :style="cellStyle">
+              <Badge :variant="statusVariant[user.status]">{{
+                user.status
+              }}</Badge>
+            </td>
             <td :style="cellStyle"><RelativeTime :date="user.createdAt" /></td>
             <td :style="cellStyle">
-              <Button variant="neutral" size="small" appearance="plain" aria-label="Edit">
+              <Button
+                variant="neutral"
+                size="small"
+                appearance="plain"
+                aria-label="Edit"
+              >
                 <Icon name="pen" />
               </Button>
             </td>
@@ -283,13 +411,26 @@ interface SortConfig {
   direction: 'asc' | 'desc';
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 
 export function SortableUserTable({ users }: { users: User[] }) {
-  const [sort, setSort] = useState<SortConfig>({ key: 'name', direction: 'asc' });
+  const [sort, setSort] = useState<SortConfig>({
+    key: 'name',
+    direction: 'asc',
+  });
 
   const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-  const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const, cursor: 'pointer', userSelect: 'none' as const };
+  const headerStyle = {
+    ...cellStyle,
+    borderBottom: '2px solid var(--wa-color-surface-border)',
+    textAlign: 'left' as const,
+    cursor: 'pointer',
+    userSelect: 'none' as const,
+  };
 
   function handleSort(key: keyof User) {
     setSort((prev) => ({
@@ -319,36 +460,99 @@ export function SortableUserTable({ users }: { users: User[] }) {
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <table className="wa-zebra-rows wa-hover-rows" style={{ width: '100%', minWidth: '600px' }}>
-        <caption className="wa-sr-only">Sortable user accounts table</caption>
+      <table
+        className="wa-zebra-rows wa-hover-rows"
+        style={{ width: '100%', minWidth: '600px' }}
+      >
+        <caption className="wa-visually-hidden">
+          Sortable user accounts table
+        </caption>
         <thead>
           <tr>
-            <th scope="col" style={headerStyle} aria-sort={ariaSortValue('name')} onClick={() => handleSort('name')}>
-              Name <Icon name={sortIcon('name')} style={{ fontSize: 'var(--wa-font-size-s)' }} />
+            <th
+              scope="col"
+              style={headerStyle}
+              aria-sort={ariaSortValue('name')}
+              onClick={() => handleSort('name')}
+            >
+              Name{' '}
+              <Icon
+                name={sortIcon('name')}
+                style={{ fontSize: 'var(--wa-font-size-s)' }}
+              />
             </th>
-            <th scope="col" style={headerStyle} aria-sort={ariaSortValue('email')} onClick={() => handleSort('email')}>
-              Email <Icon name={sortIcon('email')} style={{ fontSize: 'var(--wa-font-size-s)' }} />
+            <th
+              scope="col"
+              style={headerStyle}
+              aria-sort={ariaSortValue('email')}
+              onClick={() => handleSort('email')}
+            >
+              Email{' '}
+              <Icon
+                name={sortIcon('email')}
+                style={{ fontSize: 'var(--wa-font-size-s)' }}
+              />
             </th>
-            <th scope="col" style={headerStyle} aria-sort={ariaSortValue('status')} onClick={() => handleSort('status')}>
-              Status <Icon name={sortIcon('status')} style={{ fontSize: 'var(--wa-font-size-s)' }} />
+            <th
+              scope="col"
+              style={headerStyle}
+              aria-sort={ariaSortValue('status')}
+              onClick={() => handleSort('status')}
+            >
+              Status{' '}
+              <Icon
+                name={sortIcon('status')}
+                style={{ fontSize: 'var(--wa-font-size-s)' }}
+              />
             </th>
-            <th scope="col" style={headerStyle} aria-sort={ariaSortValue('createdAt')} onClick={() => handleSort('createdAt')}>
-              Joined <Icon name={sortIcon('createdAt')} style={{ fontSize: 'var(--wa-font-size-s)' }} />
+            <th
+              scope="col"
+              style={headerStyle}
+              aria-sort={ariaSortValue('createdAt')}
+              onClick={() => handleSort('createdAt')}
+            >
+              Joined{' '}
+              <Icon
+                name={sortIcon('createdAt')}
+                style={{ fontSize: 'var(--wa-font-size-s)' }}
+              />
             </th>
-            <th scope="col" style={{ ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)' }}>
-              <span className="wa-sr-only">Actions</span>
+            <th
+              scope="col"
+              style={{
+                ...cellStyle,
+                borderBottom: '2px solid var(--wa-color-surface-border)',
+              }}
+            >
+              <span className="wa-visually-hidden">Actions</span>
             </th>
           </tr>
         </thead>
         <tbody>
           {sorted.map((user) => (
-            <tr key={user.id} style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+            <tr
+              key={user.id}
+              style={{
+                borderBottom: '1px solid var(--wa-color-surface-border)',
+              }}
+            >
               <td style={cellStyle}>{user.name}</td>
               <td style={cellStyle}>{user.email}</td>
-              <td style={cellStyle}><Badge variant={statusVariant[user.status]}>{user.status}</Badge></td>
-              <td style={cellStyle}><RelativeTime date={user.createdAt} /></td>
               <td style={cellStyle}>
-                <Button variant="neutral" size="small" appearance="plain" aria-label="Edit">
+                <Badge variant={statusVariant[user.status]}>
+                  {user.status}
+                </Badge>
+              </td>
+              <td style={cellStyle}>
+                <RelativeTime date={user.createdAt} />
+              </td>
+              <td style={cellStyle}>
+                <Button
+                  variant="neutral"
+                  size="small"
+                  appearance="plain"
+                  aria-label="Edit"
+                >
                   <Icon name="pen" />
                 </Button>
               </td>
@@ -376,7 +580,11 @@ interface User {
   createdAt: string;
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 
 const props = defineProps<{ users: User[] }>();
 
@@ -412,40 +620,106 @@ const sorted = computed(() => {
 });
 
 const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const, cursor: 'pointer', userSelect: 'none' as const };
+const headerStyle = {
+  ...cellStyle,
+  borderBottom: '2px solid var(--wa-color-surface-border)',
+  textAlign: 'left' as const,
+  cursor: 'pointer',
+  userSelect: 'none' as const,
+};
 </script>
 
 <template>
   <div style="overflow-x: auto">
-    <table class="wa-zebra-rows wa-hover-rows" style="width: 100%; min-width: 600px">
-      <caption class="wa-sr-only">Sortable user accounts table</caption>
+    <table
+      class="wa-zebra-rows wa-hover-rows"
+      style="width: 100%; min-width: 600px"
+    >
+      <caption class="wa-visually-hidden">
+        Sortable user accounts table
+      </caption>
       <thead>
         <tr>
-          <th scope="col" :style="headerStyle" :aria-sort="ariaSortValue('name')" @click="handleSort('name')">
-            Name <Icon :name="sortIcon('name')" style="font-size: var(--wa-font-size-s)" />
+          <th
+            scope="col"
+            :style="headerStyle"
+            :aria-sort="ariaSortValue('name')"
+            @click="handleSort('name')"
+          >
+            Name
+            <Icon
+              :name="sortIcon('name')"
+              style="font-size: var(--wa-font-size-s)"
+            />
           </th>
-          <th scope="col" :style="headerStyle" :aria-sort="ariaSortValue('email')" @click="handleSort('email')">
-            Email <Icon :name="sortIcon('email')" style="font-size: var(--wa-font-size-s)" />
+          <th
+            scope="col"
+            :style="headerStyle"
+            :aria-sort="ariaSortValue('email')"
+            @click="handleSort('email')"
+          >
+            Email
+            <Icon
+              :name="sortIcon('email')"
+              style="font-size: var(--wa-font-size-s)"
+            />
           </th>
-          <th scope="col" :style="headerStyle" :aria-sort="ariaSortValue('status')" @click="handleSort('status')">
-            Status <Icon :name="sortIcon('status')" style="font-size: var(--wa-font-size-s)" />
+          <th
+            scope="col"
+            :style="headerStyle"
+            :aria-sort="ariaSortValue('status')"
+            @click="handleSort('status')"
+          >
+            Status
+            <Icon
+              :name="sortIcon('status')"
+              style="font-size: var(--wa-font-size-s)"
+            />
           </th>
-          <th scope="col" :style="headerStyle" :aria-sort="ariaSortValue('createdAt')" @click="handleSort('createdAt')">
-            Joined <Icon :name="sortIcon('createdAt')" style="font-size: var(--wa-font-size-s)" />
+          <th
+            scope="col"
+            :style="headerStyle"
+            :aria-sort="ariaSortValue('createdAt')"
+            @click="handleSort('createdAt')"
+          >
+            Joined
+            <Icon
+              :name="sortIcon('createdAt')"
+              style="font-size: var(--wa-font-size-s)"
+            />
           </th>
-          <th scope="col" :style="{ ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)' }">
-            <span class="wa-sr-only">Actions</span>
+          <th
+            scope="col"
+            :style="{
+              ...cellStyle,
+              borderBottom: '2px solid var(--wa-color-surface-border)',
+            }"
+          >
+            <span class="wa-visually-hidden">Actions</span>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in sorted" :key="user.id" style="border-bottom: 1px solid var(--wa-color-surface-border)">
+        <tr
+          v-for="user in sorted"
+          :key="user.id"
+          style="border-bottom: 1px solid var(--wa-color-surface-border)"
+        >
           <td :style="cellStyle">{{ user.name }}</td>
           <td :style="cellStyle">{{ user.email }}</td>
-          <td :style="cellStyle"><Badge :variant="statusVariant[user.status]">{{ user.status }}</Badge></td>
+          <td :style="cellStyle">
+            <Badge :variant="statusVariant[user.status]">{{
+              user.status
+            }}</Badge>
+          </td>
           <td :style="cellStyle"><RelativeTime :date="user.createdAt" /></td>
           <td :style="cellStyle">
-            <Button variant="neutral" size="small" appearance="plain" aria-label="Edit">
+            <Button
+              variant="neutral"
+              size="small"
+              appearance="plain"
+              aria-label="Edit"
+            >
               <Icon name="pen" />
             </Button>
           </td>
@@ -477,7 +751,11 @@ interface User {
   status: 'active' | 'inactive' | 'pending';
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 export function PaginatedUserTable({ users }: { users: User[] }) {
@@ -499,26 +777,50 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
   }
 
   const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-  const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const };
+  const headerStyle = {
+    ...cellStyle,
+    borderBottom: '2px solid var(--wa-color-surface-border)',
+    textAlign: 'left' as const,
+  };
 
   return (
     <div className="wa-stack wa-gap-m">
       <div style={{ overflowX: 'auto' }}>
-        <table className="wa-zebra-rows wa-hover-rows" style={{ width: '100%', minWidth: '600px' }}>
-          <caption className="wa-sr-only">Paginated user accounts table</caption>
+        <table
+          className="wa-zebra-rows wa-hover-rows"
+          style={{ width: '100%', minWidth: '600px' }}
+        >
+          <caption className="wa-visually-hidden">
+            Paginated user accounts table
+          </caption>
           <thead>
             <tr>
-              <th scope="col" style={headerStyle}>Name</th>
-              <th scope="col" style={headerStyle}>Email</th>
-              <th scope="col" style={headerStyle}>Status</th>
+              <th scope="col" style={headerStyle}>
+                Name
+              </th>
+              <th scope="col" style={headerStyle}>
+                Email
+              </th>
+              <th scope="col" style={headerStyle}>
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
             {paginatedUsers.map((user) => (
-              <tr key={user.id} style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+              <tr
+                key={user.id}
+                style={{
+                  borderBottom: '1px solid var(--wa-color-surface-border)',
+                }}
+              >
                 <td style={cellStyle}>{user.name}</td>
                 <td style={cellStyle}>{user.email}</td>
-                <td style={cellStyle}><Badge variant={statusVariant[user.status]}>{user.status}</Badge></td>
+                <td style={cellStyle}>
+                  <Badge variant={statusVariant[user.status]}>
+                    {user.status}
+                  </Badge>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -527,27 +829,48 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
 
       {/* Pagination controls */}
       <div className="wa-split wa-align-items-center">
-        <span style={{ color: 'var(--wa-color-text-quiet)', fontSize: 'var(--wa-font-size-s)' }}>
+        <span
+          style={{
+            color: 'var(--wa-color-text-quiet)',
+            fontSize: 'var(--wa-font-size-s)',
+          }}
+        >
           Showing {start + 1}-{end} of {users.length}
         </span>
         <div className="wa-cluster wa-gap-s wa-align-items-center">
           <Select
             value={String(pageSize)}
-            onWaChange={(e: CustomEvent) => handlePageSizeChange(Number((e.target as HTMLSelectElement).value))}
+            onWaChange={(e: CustomEvent) =>
+              handlePageSizeChange(
+                Number((e.target as HTMLSelectElement).value)
+              )
+            }
             size="small"
             style={{ width: '80px' }}
           >
             {PAGE_SIZE_OPTIONS.map((size) => (
-              <option key={size} value={size}>{size}</option>
+              <option key={size} value={size}>
+                {size}
+              </option>
             ))}
           </Select>
-          <Button variant="neutral" size="small" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+          <Button
+            variant="neutral"
+            size="small"
+            disabled={page <= 1}
+            onClick={() => setPage(page - 1)}
+          >
             <Icon name="chevron-left" label="Previous page" />
           </Button>
           <span style={{ fontSize: 'var(--wa-font-size-s)' }}>
             Page {page} of {totalPages}
           </span>
-          <Button variant="neutral" size="small" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+          <Button
+            variant="neutral"
+            size="small"
+            disabled={page >= totalPages}
+            onClick={() => setPage(page + 1)}
+          >
             <Icon name="chevron-right" label="Next page" />
           </Button>
         </div>
@@ -571,7 +894,11 @@ interface User {
   status: 'active' | 'inactive' | 'pending';
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 const props = defineProps<{ users: User[] }>();
@@ -579,11 +906,17 @@ const props = defineProps<{ users: User[] }>();
 const page = ref(1);
 const pageSize = ref(10);
 
-const totalPages = computed(() => Math.ceil(props.users.length / pageSize.value));
+const totalPages = computed(() =>
+  Math.ceil(props.users.length / pageSize.value)
+);
 const start = computed(() => (page.value - 1) * pageSize.value);
-const end = computed(() => Math.min(start.value + pageSize.value, props.users.length));
+const end = computed(() =>
+  Math.min(start.value + pageSize.value, props.users.length)
+);
 
-const paginatedUsers = computed(() => props.users.slice(start.value, end.value));
+const paginatedUsers = computed(() =>
+  props.users.slice(start.value, end.value)
+);
 
 function handlePageSizeChange(event: CustomEvent) {
   pageSize.value = Number((event.target as HTMLSelectElement).value);
@@ -591,14 +924,23 @@ function handlePageSizeChange(event: CustomEvent) {
 }
 
 const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const };
+const headerStyle = {
+  ...cellStyle,
+  borderBottom: '2px solid var(--wa-color-surface-border)',
+  textAlign: 'left' as const,
+};
 </script>
 
 <template>
   <div class="wa-stack wa-gap-m">
     <div style="overflow-x: auto">
-      <table class="wa-zebra-rows wa-hover-rows" style="width: 100%; min-width: 600px">
-        <caption class="wa-sr-only">Paginated user accounts table</caption>
+      <table
+        class="wa-zebra-rows wa-hover-rows"
+        style="width: 100%; min-width: 600px"
+      >
+        <caption class="wa-visually-hidden">
+          Paginated user accounts table
+        </caption>
         <thead>
           <tr>
             <th scope="col" :style="headerStyle">Name</th>
@@ -607,10 +949,18 @@ const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surf
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in paginatedUsers" :key="user.id" style="border-bottom: 1px solid var(--wa-color-surface-border)">
+          <tr
+            v-for="user in paginatedUsers"
+            :key="user.id"
+            style="border-bottom: 1px solid var(--wa-color-surface-border)"
+          >
             <td :style="cellStyle">{{ user.name }}</td>
             <td :style="cellStyle">{{ user.email }}</td>
-            <td :style="cellStyle"><Badge :variant="statusVariant[user.status]">{{ user.status }}</Badge></td>
+            <td :style="cellStyle">
+              <Badge :variant="statusVariant[user.status]">{{
+                user.status
+              }}</Badge>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -618,7 +968,9 @@ const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surf
 
     <!-- Pagination controls -->
     <div class="wa-split wa-align-items-center">
-      <span style="color: var(--wa-color-text-quiet); font-size: var(--wa-font-size-s)">
+      <span
+        style="color: var(--wa-color-text-quiet); font-size: var(--wa-font-size-s)"
+      >
         Showing {{ start + 1 }}-{{ end }} of {{ users.length }}
       </span>
       <div class="wa-cluster wa-gap-s wa-align-items-center">
@@ -628,15 +980,27 @@ const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surf
           style="width: 80px"
           @wa-change="handlePageSizeChange"
         >
-          <option v-for="size in PAGE_SIZE_OPTIONS" :key="size" :value="size">{{ size }}</option>
+          <option v-for="size in PAGE_SIZE_OPTIONS" :key="size" :value="size">
+            {{ size }}
+          </option>
         </Select>
-        <Button variant="neutral" size="small" :disabled="page <= 1" @click="page--">
+        <Button
+          variant="neutral"
+          size="small"
+          :disabled="page <= 1"
+          @click="page--"
+        >
           <Icon name="chevron-left" label="Previous page" />
         </Button>
         <span style="font-size: var(--wa-font-size-s)">
           Page {{ page }} of {{ totalPages }}
         </span>
-        <Button variant="neutral" size="small" :disabled="page >= totalPages" @click="page++">
+        <Button
+          variant="neutral"
+          size="small"
+          :disabled="page >= totalPages"
+          @click="page++"
+        >
           <Icon name="chevron-right" label="Next page" />
         </Button>
       </div>
@@ -666,7 +1030,11 @@ interface User {
   status: 'active' | 'inactive' | 'pending';
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 
 export function FilteredUserTable({ users }: { users: User[] }) {
   const [search, setSearch] = useState('');
@@ -682,42 +1050,81 @@ export function FilteredUserTable({ users }: { users: User[] }) {
     if (!search) return users;
     const q = search.toLowerCase();
     return users.filter(
-      (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.status.includes(q)
+      (u) =>
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.status.includes(q)
     );
   }, [users, search]);
 
   const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-  const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const };
+  const headerStyle = {
+    ...cellStyle,
+    borderBottom: '2px solid var(--wa-color-surface-border)',
+    textAlign: 'left' as const,
+  };
 
   return (
     <div className="wa-stack wa-gap-m">
-      <Input placeholder="Search users..." clearable onWaInput={handleSearch} style={{ maxWidth: '320px' }}>
+      <Input
+        placeholder="Search users..."
+        clearable
+        onWaInput={handleSearch}
+        style={{ maxWidth: '320px' }}
+      >
         <Icon slot="start" name="magnifying-glass" />
       </Input>
 
       <div style={{ overflowX: 'auto' }}>
-        <table className="wa-zebra-rows wa-hover-rows" style={{ width: '100%', minWidth: '600px' }}>
-          <caption className="wa-sr-only">Filtered user accounts table</caption>
+        <table
+          className="wa-zebra-rows wa-hover-rows"
+          style={{ width: '100%', minWidth: '600px' }}
+        >
+          <caption className="wa-visually-hidden">
+            Filtered user accounts table
+          </caption>
           <thead>
             <tr>
-              <th scope="col" style={headerStyle}>Name</th>
-              <th scope="col" style={headerStyle}>Email</th>
-              <th scope="col" style={headerStyle}>Status</th>
+              <th scope="col" style={headerStyle}>
+                Name
+              </th>
+              <th scope="col" style={headerStyle}>
+                Email
+              </th>
+              <th scope="col" style={headerStyle}>
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={3} style={{ ...cellStyle, textAlign: 'center', color: 'var(--wa-color-text-quiet)' }}>
+                <td
+                  colSpan={3}
+                  style={{
+                    ...cellStyle,
+                    textAlign: 'center',
+                    color: 'var(--wa-color-text-quiet)',
+                  }}
+                >
                   No matching users found.
                 </td>
               </tr>
             ) : (
               filtered.map((user) => (
-                <tr key={user.id} style={{ borderBottom: '1px solid var(--wa-color-surface-border)' }}>
+                <tr
+                  key={user.id}
+                  style={{
+                    borderBottom: '1px solid var(--wa-color-surface-border)',
+                  }}
+                >
                   <td style={cellStyle}>{user.name}</td>
                   <td style={cellStyle}>{user.email}</td>
-                  <td style={cellStyle}><Badge variant={statusVariant[user.status]}>{user.status}</Badge></td>
+                  <td style={cellStyle}>
+                    <Badge variant={statusVariant[user.status]}>
+                      {user.status}
+                    </Badge>
+                  </td>
                 </tr>
               ))
             )}
@@ -725,7 +1132,12 @@ export function FilteredUserTable({ users }: { users: User[] }) {
         </table>
       </div>
 
-      <span style={{ color: 'var(--wa-color-text-quiet)', fontSize: 'var(--wa-font-size-s)' }}>
+      <span
+        style={{
+          color: 'var(--wa-color-text-quiet)',
+          fontSize: 'var(--wa-font-size-s)',
+        }}
+      >
         {filtered.length} of {users.length} users
       </span>
     </div>
@@ -747,7 +1159,11 @@ interface User {
   status: 'active' | 'inactive' | 'pending';
 }
 
-const statusVariant = { active: 'success', inactive: 'neutral', pending: 'warning' } as const;
+const statusVariant = {
+  active: 'success',
+  inactive: 'neutral',
+  pending: 'warning',
+} as const;
 
 const props = defineProps<{ users: User[] }>();
 
@@ -757,7 +1173,9 @@ let debounceTimer: ReturnType<typeof setTimeout>;
 function handleSearch(event: CustomEvent) {
   const value = (event.target as HTMLInputElement).value;
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => { search.value = value; }, 300);
+  debounceTimer = setTimeout(() => {
+    search.value = value;
+  }, 300);
 }
 
 onUnmounted(() => clearTimeout(debounceTimer));
@@ -766,23 +1184,40 @@ const filtered = computed(() => {
   if (!search.value) return props.users;
   const q = search.value.toLowerCase();
   return props.users.filter(
-    (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.status.includes(q)
+    (u) =>
+      u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      u.status.includes(q)
   );
 });
 
 const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
-const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surface-border)', textAlign: 'left' as const };
+const headerStyle = {
+  ...cellStyle,
+  borderBottom: '2px solid var(--wa-color-surface-border)',
+  textAlign: 'left' as const,
+};
 </script>
 
 <template>
   <div class="wa-stack wa-gap-m">
-    <Input placeholder="Search users..." clearable style="max-width: 320px" @wa-input="handleSearch">
+    <Input
+      placeholder="Search users..."
+      clearable
+      style="max-width: 320px"
+      @wa-input="handleSearch"
+    >
       <Icon slot="start" name="magnifying-glass" />
     </Input>
 
     <div style="overflow-x: auto">
-      <table class="wa-zebra-rows wa-hover-rows" style="width: 100%; min-width: 600px">
-        <caption class="wa-sr-only">Filtered user accounts table</caption>
+      <table
+        class="wa-zebra-rows wa-hover-rows"
+        style="width: 100%; min-width: 600px"
+      >
+        <caption class="wa-visually-hidden">
+          Filtered user accounts table
+        </caption>
         <thead>
           <tr>
             <th scope="col" :style="headerStyle">Name</th>
@@ -792,20 +1227,37 @@ const headerStyle = { ...cellStyle, borderBottom: '2px solid var(--wa-color-surf
         </thead>
         <tbody>
           <tr v-if="filtered.length === 0">
-            <td colspan="3" :style="{ ...cellStyle, textAlign: 'center', color: 'var(--wa-color-text-quiet)' }">
+            <td
+              colspan="3"
+              :style="{
+                ...cellStyle,
+                textAlign: 'center',
+                color: 'var(--wa-color-text-quiet)',
+              }"
+            >
               No matching users found.
             </td>
           </tr>
-          <tr v-for="user in filtered" :key="user.id" style="border-bottom: 1px solid var(--wa-color-surface-border)">
+          <tr
+            v-for="user in filtered"
+            :key="user.id"
+            style="border-bottom: 1px solid var(--wa-color-surface-border)"
+          >
             <td :style="cellStyle">{{ user.name }}</td>
             <td :style="cellStyle">{{ user.email }}</td>
-            <td :style="cellStyle"><Badge :variant="statusVariant[user.status]">{{ user.status }}</Badge></td>
+            <td :style="cellStyle">
+              <Badge :variant="statusVariant[user.status]">{{
+                user.status
+              }}</Badge>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <span style="color: var(--wa-color-text-quiet); font-size: var(--wa-font-size-s)">
+    <span
+      style="color: var(--wa-color-text-quiet); font-size: var(--wa-font-size-s)"
+    >
       {{ filtered.length }} of {{ users.length }} users
     </span>
   </div>
@@ -823,7 +1275,14 @@ Cards in a vertical stack with flank layout per item.
 ### React
 
 ```tsx
-import { Avatar, Badge, Button, Card, Icon, RelativeTime } from '@/components/ui';
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Icon,
+  RelativeTime,
+} from '@/components/ui';
 
 interface Item {
   id: number;
@@ -839,18 +1298,36 @@ export function ListView({ items }: { items: Item[] }) {
     <div className="wa-stack wa-gap-s">
       {items.map((item) => (
         <Card key={item.id}>
-          <div className="wa-flank wa-align-items-center" style={{ '--flank-size': '48px' } as React.CSSProperties}>
+          <div
+            className="wa-flank wa-align-items-center"
+            style={{ '--flank-size': '48px' } as React.CSSProperties}
+          >
             <Avatar image={item.avatar} label={item.name} />
             <div className="wa-split wa-align-items-center" style={{ flex: 1 }}>
               <div className="wa-stack wa-gap-2xs">
                 <strong>{item.name}</strong>
-                <span style={{ color: 'var(--wa-color-text-quiet)', fontSize: 'var(--wa-font-size-s)' }}>
-                  {item.description} &middot; <RelativeTime date={item.updatedAt} />
+                <span
+                  style={{
+                    color: 'var(--wa-color-text-quiet)',
+                    fontSize: 'var(--wa-font-size-s)',
+                  }}
+                >
+                  {item.description} &middot;{' '}
+                  <RelativeTime date={item.updatedAt} />
                 </span>
               </div>
               <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Badge variant={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</Badge>
-                <Button variant="neutral" size="small" appearance="plain" aria-label="More actions">
+                <Badge
+                  variant={item.status === 'active' ? 'success' : 'neutral'}
+                >
+                  {item.status}
+                </Badge>
+                <Button
+                  variant="neutral"
+                  size="small"
+                  appearance="plain"
+                  aria-label="More actions"
+                >
                   <Icon name="ellipsis-vertical" />
                 </Button>
               </div>
@@ -867,7 +1344,14 @@ export function ListView({ items }: { items: Item[] }) {
 
 ```vue
 <script setup lang="ts">
-import { Avatar, Badge, Button, Card, Icon, RelativeTime } from '@/components/ui';
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Icon,
+  RelativeTime,
+} from '@/components/ui';
 
 interface Item {
   id: number;
@@ -889,13 +1373,24 @@ defineProps<{ items: Item[] }>();
         <div class="wa-split wa-align-items-center" style="flex: 1">
           <div class="wa-stack wa-gap-2xs">
             <strong>{{ item.name }}</strong>
-            <span style="color: var(--wa-color-text-quiet); font-size: var(--wa-font-size-s)">
-              {{ item.description }} &middot; <RelativeTime :date="item.updatedAt" />
+            <span
+              style="color: var(--wa-color-text-quiet); font-size: var(--wa-font-size-s)"
+            >
+              {{ item.description }} &middot;
+              <RelativeTime :date="item.updatedAt" />
             </span>
           </div>
           <div class="wa-cluster wa-gap-xs wa-align-items-center">
-            <Badge :variant="item.status === 'active' ? 'success' : 'neutral'">{{ item.status }}</Badge>
-            <Button variant="neutral" size="small" appearance="plain" aria-label="More actions">
+            <Badge
+              :variant="item.status === 'active' ? 'success' : 'neutral'"
+              >{{ item.status }}</Badge
+            >
+            <Button
+              variant="neutral"
+              size="small"
+              appearance="plain"
+              aria-label="More actions"
+            >
               <Icon name="ellipsis-vertical" />
             </Button>
           </div>
@@ -924,10 +1419,20 @@ export function DetailView({ data }: { data: Record<string, string> }) {
     <Card>
       <div slot="header" className="wa-split wa-align-items-center">
         <h3>Details</h3>
-        <Button variant="neutral" size="small">Edit</Button>
+        <Button variant="neutral" size="small">
+          Edit
+        </Button>
       </div>
 
-      <div className="wa-grid" style={{ '--min-column-size': '200px', gap: 'var(--wa-space-m)' } as React.CSSProperties}>
+      <div
+        className="wa-grid"
+        style={
+          {
+            '--min-column-size': '200px',
+            gap: 'var(--wa-space-m)',
+          } as React.CSSProperties
+        }
+      >
         {Object.entries(data).map(([key, value]) => (
           <div key={key} className="wa-stack wa-gap-2xs">
             <small style={{ color: 'var(--wa-color-text-quiet)' }}>{key}</small>
@@ -937,8 +1442,12 @@ export function DetailView({ data }: { data: Record<string, string> }) {
       </div>
 
       <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
-        <Button variant="neutral" size="small">Cancel</Button>
-        <Button variant="brand" size="small">Save</Button>
+        <Button variant="neutral" size="small">
+          Cancel
+        </Button>
+        <Button variant="brand" size="small">
+          Save
+        </Button>
       </div>
     </Card>
   );
@@ -961,7 +1470,10 @@ defineProps<{ data: Record<string, string> }>();
       <Button variant="neutral" size="small">Edit</Button>
     </div>
 
-    <div class="wa-grid" style="--min-column-size: 200px; gap: var(--wa-space-m)">
+    <div
+      class="wa-grid"
+      style="--min-column-size: 200px; gap: var(--wa-space-m)"
+    >
       <div v-for="(value, key) in data" :key="key" class="wa-stack wa-gap-2xs">
         <small style="color: var(--wa-color-text-quiet)">{{ key }}</small>
         <span>{{ value }}</span>
@@ -989,7 +1501,12 @@ Placeholder when no data is available.
 ```tsx
 import { Button, Card, Icon } from '@/components/ui';
 
-export function EmptyState({ title, description, actionLabel, onAction }: {
+export function EmptyState({
+  title,
+  description,
+  actionLabel,
+  onAction,
+}: {
   title: string;
   description: string;
   actionLabel: string;
@@ -997,20 +1514,36 @@ export function EmptyState({ title, description, actionLabel, onAction }: {
 }) {
   return (
     <Card>
-      <div className="wa-stack wa-gap-m wa-align-items-center" style={{ textAlign: 'center', padding: 'var(--wa-space-2xl) var(--wa-space-l)' }}>
-        <Icon name="inbox" style={{ fontSize: '3rem', color: 'var(--wa-color-text-quiet)' }} />
+      <div
+        className="wa-stack wa-gap-m wa-align-items-center"
+        style={{
+          textAlign: 'center',
+          padding: 'var(--wa-space-2xl) var(--wa-space-l)',
+        }}
+      >
+        <Icon
+          name="inbox"
+          style={{ fontSize: '3rem', color: 'var(--wa-color-text-quiet)' }}
+        />
         <div className="wa-stack wa-gap-xs">
           <strong style={{ fontSize: 'var(--wa-font-size-l)' }}>{title}</strong>
           <p style={{ color: 'var(--wa-color-text-quiet)' }}>{description}</p>
         </div>
-        <Button variant="brand" onClick={onAction}>{actionLabel}</Button>
+        <Button variant="brand" onClick={onAction}>
+          {actionLabel}
+        </Button>
       </div>
     </Card>
   );
 }
 
 // Usage
-<EmptyState title="No items yet" description="Create your first item to get started." actionLabel="Create Item" onAction={() => {}} />
+<EmptyState
+  title="No items yet"
+  description="Create your first item to get started."
+  actionLabel="Create Item"
+  onAction={() => {}}
+/>;
 ```
 
 ### Vue
@@ -1030,8 +1563,14 @@ const emit = defineEmits<{ action: [] }>();
 
 <template>
   <Card>
-    <div class="wa-stack wa-gap-m wa-align-items-center" style="text-align: center; padding: var(--wa-space-2xl) var(--wa-space-l)">
-      <Icon name="inbox" style="font-size: 3rem; color: var(--wa-color-text-quiet)" />
+    <div
+      class="wa-stack wa-gap-m wa-align-items-center"
+      style="text-align: center; padding: var(--wa-space-2xl) var(--wa-space-l)"
+    >
+      <Icon
+        name="inbox"
+        style="font-size: 3rem; color: var(--wa-color-text-quiet)"
+      />
       <div class="wa-stack wa-gap-xs">
         <strong style="font-size: var(--wa-font-size-l)">{{ title }}</strong>
         <p style="color: var(--wa-color-text-quiet)">{{ description }}</p>
@@ -1061,7 +1600,11 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
     <div className="wa-stack wa-gap-s">
       <Skeleton effect="sheen" style={{ height: '40px', width: '100%' }} />
       {Array.from({ length: rows }).map((_, i) => (
-        <Skeleton key={i} effect="sheen" style={{ height: '48px', width: '100%' }} />
+        <Skeleton
+          key={i}
+          effect="sheen"
+          style={{ height: '48px', width: '100%' }}
+        />
       ))}
     </div>
   );
@@ -1070,9 +1613,16 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
 // Card grid loading skeleton
 export function CardGridSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="wa-grid" style={{ '--min-column-size': '250px' } as React.CSSProperties}>
+    <div
+      className="wa-grid"
+      style={{ '--min-column-size': '250px' } as React.CSSProperties}
+    >
       {Array.from({ length: count }).map((_, i) => (
-        <Skeleton key={i} effect="sheen" style={{ height: '120px', borderRadius: 'var(--wa-border-radius-m)' }} />
+        <Skeleton
+          key={i}
+          effect="sheen"
+          style={{ height: '120px', borderRadius: 'var(--wa-border-radius-m)' }}
+        />
       ))}
     </div>
   );
@@ -1095,7 +1645,12 @@ withDefaults(defineProps<{ rows?: number; count?: number }>(), {
   <!-- Table loading skeleton -->
   <div class="wa-stack wa-gap-s">
     <Skeleton effect="sheen" style="height: 40px; width: 100%" />
-    <Skeleton v-for="i in rows" :key="i" effect="sheen" style="height: 48px; width: 100%" />
+    <Skeleton
+      v-for="i in rows"
+      :key="i"
+      effect="sheen"
+      style="height: 48px; width: 100%"
+    />
   </div>
 </template>
 ```
@@ -1110,7 +1665,12 @@ withDefaults(defineProps<{ count?: number }>(), { count: 6 });
 
 <template>
   <div class="wa-grid" style="--min-column-size: 250px">
-    <Skeleton v-for="i in count" :key="i" effect="sheen" style="height: 120px; border-radius: var(--wa-border-radius-m)" />
+    <Skeleton
+      v-for="i in count"
+      :key="i"
+      effect="sheen"
+      style="height: 120px; border-radius: var(--wa-border-radius-m)"
+    />
   </div>
 </template>
 ```

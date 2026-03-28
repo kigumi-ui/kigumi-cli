@@ -29,7 +29,7 @@ Invoke this skill when the user asks for:
 
 1. Read `kigumi.config.json` for framework (`react`/`vue`), TypeScript, and `componentsDir`.
 2. List installed components: `ls {componentsDir}/`
-3. Generate install commands for missing form components.
+3. **Install missing form components BEFORE generating code:** `npx kigumi add input switch textarea select checkbox`. Never use raw `<wa-*>` tags.
 
 ## Critical Rule: Native Events
 
@@ -46,12 +46,31 @@ This is the #1 agent mistake with Kigumi forms.
 <Input onInput={(e: CustomEvent) => setValue(e.detail.value)} />
 ```
 
-| Event | Handler | Value Access |
-|-------|---------|-------------|
-| input | onInput / @input | `(e.target as HTMLInputElement).value` |
-| change | onChange / @change | `(e.target as HTMLInputElement).value` or `.checked` |
-| blur | onBlur / @blur | `(e.target as HTMLInputElement).value` |
-| focus | onFocus / @focus | - |
+| Event  | React Handler | Vue Handler | Value Access                                         |
+| ------ | ------------- | ----------- | ---------------------------------------------------- |
+| input  | onInput       | @input      | `(e.target as HTMLInputElement).value`               |
+| change | onChange      | @change     | `(e.target as HTMLInputElement).value` or `.checked` |
+| blur   | onBlur        | @blur       | `(e.target as HTMLInputElement).value`               |
+| focus  | onFocus       | @focus      | -                                                    |
+
+**Vue v-model:** Kigumi Vue wrappers for Input, Textarea, Switch, Checkbox, Select all support `v-model`. Prefer `v-model` over manual event handling in Vue.
+
+```vue
+<!-- Vue: preferred pattern -->
+<Input v-model="name" label="Name" />
+<Switch v-model="darkMode" />
+<Textarea v-model="bio" label="Bio" />
+```
+
+**Vue slots:** Use `slot="header"` attribute on child elements, NOT `<template #header>`.
+
+```vue
+<!-- CORRECT -->
+<Card><div slot="header">Form Section</div></Card>
+
+<!-- WRONG -- content silently disappears -->
+<Card><template #header>Form Section</template></Card>
+```
 
 ## Decision Tree
 
@@ -73,22 +92,22 @@ User needs a form
 
 ## Form Component Selection
 
-| Need | Component | Tier | Key Props |
-|------|-----------|------|-----------|
-| Text input | `Input` | free | type, label, hint, required |
-| Email | `Input type="email"` | free | required, pattern |
-| Password | `Input type="password"` | free | password-toggle |
-| Number | `Input type="number"` (free) or `NumberInput` (pro) | mixed | min, max, step |
-| Multi-line text | `Textarea` | free | rows, resize="auto" |
-| Single select | `Select` + `Option` | free | label, required |
-| Searchable select | `Combobox` + `Option` | pro | allow-custom-value |
-| Toggle | `Switch` | free | checked |
-| Checkbox | `Checkbox` | free | checked, indeterminate |
-| Exclusive choice | `RadioGroup` + `Radio` | free | value, orientation |
-| File upload | `FileInput` | pro | accept, multiple |
-| Color | `ColorPicker` | free | format, opacity |
-| Range | `Slider` | free | min, max, step |
-| Rating | `Rating` | free | max, precision |
+| Need              | Component                                           | Tier  | Key Props                   |
+| ----------------- | --------------------------------------------------- | ----- | --------------------------- |
+| Text input        | `Input`                                             | free  | type, label, hint, required |
+| Email             | `Input type="email"`                                | free  | required, pattern           |
+| Password          | `Input type="password"`                             | free  | password-toggle             |
+| Number            | `Input type="number"` (free) or `NumberInput` (pro) | mixed | min, max, step              |
+| Multi-line text   | `Textarea`                                          | free  | rows, resize="auto"         |
+| Single select     | `Select` + `Option`                                 | free  | label, required             |
+| Searchable select | `Combobox` + `Option`                               | pro   | allow-custom-value          |
+| Toggle            | `Switch`                                            | free  | checked                     |
+| Checkbox          | `Checkbox`                                          | free  | checked, indeterminate      |
+| Exclusive choice  | `RadioGroup` + `Radio`                              | free  | value, orientation          |
+| File upload       | `FileInput`                                         | pro   | accept, multiple            |
+| Color             | `ColorPicker`                                       | free  | format, opacity             |
+| Range             | `Slider`                                            | free  | min, max, step              |
+| Rating            | `Rating`                                            | free  | max, precision              |
 
 ## Layout
 
@@ -108,8 +127,12 @@ Use `.wa-stack` for vertical field flow, `.wa-grid` for multi-column layouts:
 
   {/* Action buttons aligned right */}
   <div className="wa-cluster wa-justify-content-end wa-gap-s">
-    <Button variant="neutral" type="reset">Cancel</Button>
-    <Button variant="brand" type="submit">Submit</Button>
+    <Button variant="neutral" type="reset">
+      Cancel
+    </Button>
+    <Button variant="brand" type="submit">
+      Submit
+    </Button>
   </div>
 </form>
 ```
@@ -119,6 +142,7 @@ Use `.wa-stack` for vertical field flow, `.wa-grid` for multi-column layouts:
 See [references/validation-patterns.md](references/validation-patterns.md) for complete patterns.
 
 Quick summary:
+
 - Use `required`, `minlength`, `maxlength`, `pattern`, `min`, `max` props for native validation
 - Use `setCustomValidity()` on the element ref for custom validation
 - `data-user-invalid` attribute appears after user interaction (not immediately)
@@ -128,11 +152,13 @@ Quick summary:
 ## Framework Adaptation
 
 ### React
+
 - `useState` for form data, `onSubmit` on `<form>`
 - `onInput` for real-time updates, `onChange` for committed values
 - `loading` prop on submit Button during async submission
 
 ### Vue
+
 - `reactive()` for form data, `@submit` on `<form>`
 - `@input` for real-time, `@change` for committed
 - `:loading="loading"` on submit Button
@@ -149,6 +175,7 @@ Quick summary:
 ## Output Format
 
 Always provide:
+
 1. Install commands for missing components
 2. Complete imports
 3. Full functional component with state, validation, and submit handling
