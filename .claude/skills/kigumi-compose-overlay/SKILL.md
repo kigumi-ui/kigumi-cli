@@ -24,14 +24,21 @@ Build production-ready overlay UIs: Dialog, Drawer, Dropdown, Tooltip, Popover, 
 - **Popover** (filter panel, settings)
 - **Toast notification** (success, error, warning)
 
+## Prerequisites
+
+1. **Install overlay components BEFORE generating code.** Never use raw `<wa-dialog>` or `<wa-drawer>`.
+2. Check installed components via `ls {componentsDir}/` and install missing ones.
+
 ## Critical Rules
 
 1. **Overlays emit CustomEvent (`wa-show`, `wa-hide`), NOT native DOM events.**
 2. **Always `requestClose()`, never `hide()`.** requestClose triggers wa-hide (cancelable). hide bypasses it.
 3. **Always provide `label` prop** on Dialog and Drawer for accessibility.
 4. **Focus trap is automatic.** No manual focus management needed.
-5. **Controlled `open` pattern:** `open={state}` + sync close in handler.
-6. **`className` vs `class`:** On Kigumi wrappers (`<Dialog>`, `<Button>`, `<Drawer>`, etc.), use `className`. On raw `<wa-*>` elements, use `class`. In Vue, always use `class`.
+5. **Controlled `open` pattern:** React: `open={state}` + `onHide`. Vue: `v-model:open`.
+6. **React: `className`. Vue: `class`.** Both on HTML elements and Kigumi wrappers.
+7. **Vue slots:** Use `slot="footer"` attribute on child elements, NOT `<template #footer>`. Kigumi Vue wrappers pass content through to the web component's shadow DOM slots.
+8. **Icon + text in `.wa-cluster`:** Add `flex: 1; min-width: 0` to the text element to prevent wrapping.
 
 ### requestClose() Pattern
 
@@ -54,20 +61,20 @@ const [open, setOpen] = useState(false);
   <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
     <Button onClick={() => dialogRef.current?.requestClose()}>Cancel</Button>
   </div>
-</Dialog>
+</Dialog>;
 ```
 
 ## Overlay Selection
 
-| Use Case | Component | Install |
-|---|---|---|
-| Focused task / decision | **Dialog** | `npx kigumi add dialog` |
-| Form in modal | **Dialog** + form controls | `npx kigumi add dialog input button` |
-| Detail panel / sidebar | **Drawer** | `npx kigumi add drawer` |
-| Actions menu | **Dropdown** + **DropdownItem** | `npx kigumi add dropdown dropdown-item` |
-| Brief hint on hover | **Tooltip** | `npx kigumi add tooltip` |
-| Interactive floating content | **Popover** | `npx kigumi add popover` |
-| Transient notification | **Toast** (Pro) | `npx kigumi add toast` |
+| Use Case                     | Component                       | Install                                 |
+| ---------------------------- | ------------------------------- | --------------------------------------- |
+| Focused task / decision      | **Dialog**                      | `npx kigumi add dialog`                 |
+| Form in modal                | **Dialog** + form controls      | `npx kigumi add dialog input button`    |
+| Detail panel / sidebar       | **Drawer**                      | `npx kigumi add drawer`                 |
+| Actions menu                 | **Dropdown** + **DropdownItem** | `npx kigumi add dropdown dropdown-item` |
+| Brief hint on hover          | **Tooltip**                     | `npx kigumi add tooltip`                |
+| Interactive floating content | **Popover**                     | `npx kigumi add popover`                |
+| Transient notification       | **Toast** (Pro)                 | `npx kigumi add toast`                  |
 
 ## Decision Tree
 
@@ -86,7 +93,17 @@ User needs overlay
 ## Framework Adaptation
 
 **React:** `useState` for open, `onHide={() => setOpen(false)}`
-**Vue:** `ref(false)` for open, `@wa-hide="open = false"`
+**Vue:** `v-model:open` (recommended) or `ref(false)` + `@wa-hide="open = false"`
+
+```vue
+<!-- Vue: preferred pattern with v-model -->
+<Dialog v-model:open="dialogOpen" label="Title">
+  <p>Content</p>
+  <div slot="footer">
+    <Button @click="dialogOpen = false">Close</Button>
+  </div>
+</Dialog>
+```
 
 ## Accessibility
 

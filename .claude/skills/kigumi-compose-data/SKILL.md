@@ -29,21 +29,23 @@ Build data-heavy UIs: tables, stats, lists, detail views, loading/empty states.
 2. **Use formatting components** for data values: FormatNumber, FormatDate, FormatBytes, RelativeTime.
 3. **Use Skeleton** for loading states that match the expected layout shape.
 4. **Use Badge** for status indicators with semantic variants (success, warning, danger).
-5. **All tables must be accessible:** include `<caption>` (use `className="wa-sr-only"` for visually hidden), `scope="col"` on every `<th>`, and `aria-sort` on sortable columns.
-6. **All tables must be responsive:** wrap in `<div style={{ overflowX: 'auto' }}>` with `minWidth` on the table.
+5. **All tables must be accessible:** include `<caption>` (use `className="wa-visually-hidden"` in React / `class="wa-visually-hidden"` in Vue for visually hidden), `scope="col"` on every `<th>`, and `aria-sort` on sortable columns.
+6. **All tables must be responsive:** wrap in `<div style={{ overflowX: 'auto' }}>` (React) / `<div style="overflow-x: auto">` (Vue) with `minWidth` on the table.
+7. **Install data components BEFORE generating code:** `npx kigumi add badge format-number skeleton`. Never use raw `<wa-*>` tags.
+8. **Vue slots:** Use `slot="header"` attribute on child elements, NOT `<template #header>`.
 
 ## Component Selection
 
-| Need | Component | Tier |
-|------|-----------|------|
-| Currency, percent, decimal | `FormatNumber` | free |
-| Dates and times | `FormatDate` | free |
-| "5 days ago" | `RelativeTime` | free |
-| File sizes | `FormatBytes` | free |
-| Status indicator | `Badge` | free |
-| Progress | `ProgressBar` / `ProgressRing` | free |
-| Loading placeholder | `Skeleton` | free |
-| Inline chart | `Sparkline` | pro |
+| Need                       | Component                      | Tier |
+| -------------------------- | ------------------------------ | ---- |
+| Currency, percent, decimal | `FormatNumber`                 | free |
+| Dates and times            | `FormatDate`                   | free |
+| "5 days ago"               | `RelativeTime`                 | free |
+| File sizes                 | `FormatBytes`                  | free |
+| Status indicator           | `Badge`                        | free |
+| Progress                   | `ProgressBar` / `ProgressRing` | free |
+| Loading placeholder        | `Skeleton`                     | free |
+| Inline chart               | `Sparkline`                    | pro  |
 
 ## Decision Tree
 
@@ -65,17 +67,17 @@ User needs data display
 
 ## Pattern Index
 
-| ID | Pattern | Features | React | Vue |
-|----|---------|----------|-------|-----|
-| A  | Stats Dashboard | Metric cards, KPIs, trend badges | yes | yes |
-| B  | Data Table | Static rows, status badges, actions | yes | yes |
-| B2 | Sortable Table | Column sort, aria-sort, sort icons | yes | yes |
-| B3 | Paginated Table | Page nav, page size, "Showing X-Y of Z" | yes | yes |
-| B4 | Filtered Table | Debounced search, result count | yes | yes |
-| C  | List View | Avatar + content + actions cards | yes | yes |
-| D  | Detail View | Key-value pairs in a card | yes | yes |
-| E  | Empty State | No-data placeholder with CTA | yes | yes |
-| F  | Loading State | Skeleton screens (table + card grid) | yes | yes |
+| ID  | Pattern         | Features                                | React | Vue |
+| --- | --------------- | --------------------------------------- | ----- | --- |
+| A   | Stats Dashboard | Metric cards, KPIs, trend badges        | yes   | yes |
+| B   | Data Table      | Static rows, status badges, actions     | yes   | yes |
+| B2  | Sortable Table  | Column sort, aria-sort, sort icons      | yes   | yes |
+| B3  | Paginated Table | Page nav, page size, "Showing X-Y of Z" | yes   | yes |
+| B4  | Filtered Table  | Debounced search, result count          | yes   | yes |
+| C   | List View       | Avatar + content + actions cards        | yes   | yes |
+| D   | Detail View     | Key-value pairs in a card               | yes   | yes |
+| E   | Empty State     | No-data placeholder with CTA            | yes   | yes |
+| F   | Loading State   | Skeleton screens (table + card grid)    | yes   | yes |
 
 ## References
 

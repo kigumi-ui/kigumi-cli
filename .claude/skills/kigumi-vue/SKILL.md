@@ -32,36 +32,43 @@ import { Button, Card } from '@/components/ui';
 
 <template>
   <Card>
-    <template #header>My Card</template>
+    <div slot="header">My Card</div>
     <Button variant="brand">Click me</Button>
   </Card>
 </template>
 ```
 
-## Important: No v-model Support
+## v-model Support
 
-Web Awesome components do **NOT** support Vue's `v-model`. They emit native DOM events (`input`, `change`), not Vue's `update:modelValue`.
-
-**Wrong:**
+Kigumi Vue wrappers support `v-model` for form controls and overlays via `defineModel()`:
 
 ```vue
-<!-- BROKEN: v-model does not work on Kigumi components -->
-<Input v-model="name" />
+<!-- Form controls: v-model works -->
+<Input v-model="name" label="Name" />
+<Textarea v-model="bio" label="Bio" />
+<Switch v-model="darkMode" />
+<Checkbox v-model="agreed" />
+
+<!-- Overlays: v-model:open works -->
+<Dialog v-model:open="isOpen" label="Title">...</Dialog>
 ```
 
-**Correct:**
+## Vue Slot Syntax
+
+**Use `slot="name"` attribute, NOT `<template #name>`.** Kigumi Vue wrappers pass content through a single default `<slot />` to the underlying web component. Named slots are handled by the web component's shadow DOM, not Vue's slot system.
 
 ```vue
-<Input
-  :value="name"
-  @input="(e: Event) => name = (e.target as HTMLInputElement).value"
-/>
-```
+<!-- CORRECT: slot attribute targets web component shadow DOM -->
+<Card>
+  <div slot="header">Title</div>
+  <p>Content</p>
+  <div slot="footer">Footer</div>
+</Card>
 
-For overlays, use `:open` + `@wa-hide`:
-
-```vue
-<Dialog :open="isOpen" @wa-hide="isOpen = false">...</Dialog>
+<!-- WRONG: template #header targets Vue named slot (doesn't exist) -->
+<Card>
+  <template #header>Title</template>
+</Card>
 ```
 
 ## How It Works
@@ -74,16 +81,16 @@ For overlays, use `:open` + `@wa-hide`:
 
 ## Key Differences from React
 
-| Aspect               | React                    | Vue                                 |
-| -------------------- | ------------------------ | ----------------------------------- |
-| CSS classes on HTML  | `className="..."`        | `class="..."`                       |
-| CSS classes on wa-\* | `className="..."`        | `class="..."`                       |
-| Dynamic props        | `prop={value}`           | `:prop="value"`                     |
-| Event handlers       | `onEvent={handler}`      | `@event="handler"`                  |
-| Custom events        | `onWaShow={fn}`          | `@wa-show="fn"`                     |
-| Named slots          | `<div slot="name">`      | `<template #name>` or `slot="name"` |
-| Conditional          | `{cond && <X/>}`         | `v-if="cond"`                       |
-| Lists                | `{items.map(i => <X/>)}` | `v-for="i in items"`                |
+| Aspect               | React                    | Vue                         |
+| -------------------- | ------------------------ | --------------------------- |
+| CSS classes on HTML  | `className="..."`        | `class="..."`               |
+| CSS classes on wa-\* | `className="..."`        | `class="..."`               |
+| Dynamic props        | `prop={value}`           | `:prop="value"`             |
+| Event handlers       | `onEvent={handler}`      | `@event="handler"`          |
+| Custom events        | `onWaShow={fn}`          | `@wa-show="fn"`             |
+| Named slots          | `<div slot="name">`      | `<div slot="name">` (same!) |
+| Conditional          | `{cond && <X/>}`         | `v-if="cond"`               |
+| Lists                | `{items.map(i => <X/>)}` | `v-for="i in items"`        |
 
 **Vue note:** In Vue, `class` works on all elements. In React, `className` works on all elements (including Kigumi wrappers). There is no className/class split in either framework.
 
@@ -94,8 +101,21 @@ For overlays, use `:open` + `@wa-hide`:
 | `class="..."`             | `class="..."` (same!)                                        |
 | `style="max-width: 60ch"` | `style="max-width: 60ch"` or `:style="{ maxWidth: '60ch' }"` |
 | `disabled`                | `disabled` or `:disabled="true"`                             |
-| `slot="header"`           | `slot="header"` or `<template #header>`                      |
+| `slot="header"`           | `slot="header"` (NOT `<template #header>`)                   |
 | `aria-*` / `data-*`       | preserved as-is                                              |
+
+## Variant Mapping
+
+WA docs/examples use variant names that differ from Kigumi's prop values:
+
+| WA HTML             | Kigumi Vue          | Notes                              |
+| ------------------- | ------------------- | ---------------------------------- |
+| `variant="primary"` | `variant="brand"`   | "primary" does not exist in Kigumi |
+| `variant="default"` | _(omit prop)_       | Default is the absence of variant  |
+| `variant="success"` | `variant="success"` | Same                               |
+| `variant="warning"` | `variant="warning"` | Same                               |
+| `variant="danger"`  | `variant="danger"`  | Same                               |
+| `variant="neutral"` | `variant="neutral"` | Same                               |
 
 ## Event Mapping
 

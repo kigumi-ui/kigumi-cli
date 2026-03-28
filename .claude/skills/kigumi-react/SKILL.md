@@ -104,15 +104,28 @@ See [references/transformation-rules.md](references/transformation-rules.md) for
 
 ### Attribute Transformation
 
-| Web Awesome      | React             | Example                                                                       |
-| ---------------- | ----------------- | ----------------------------------------------------------------------------- |
-| `class="..."`    | `className="..."` | ALL elements — both HTML (`<div>`) and Kigumi wrappers (`<Button>`, `<Card>`) |
-| `style="..."`    | `style={{ }}`     | Object syntax                                                                 |
-| Kebab-case props | Keep as-is        | `with-caret`, `light-dismiss`                                                 |
-| `slot="..."`     | `slot="..."`      | Preserved                                                                     |
-| `aria-*`         | `aria-*`          | Preserved                                                                     |
-| `data-*`         | `data-*`          | Preserved                                                                     |
-| Boolean attrs    | Prop only         | `disabled`, `loading`                                                         |
+| Web Awesome      | React             | Example                                                                        |
+| ---------------- | ----------------- | ------------------------------------------------------------------------------ |
+| `class="..."`    | `className="..."` | ALL elements -- both HTML (`<div>`) and Kigumi wrappers (`<Button>`, `<Card>`) |
+| `style="..."`    | `style={{ }}`     | Object syntax                                                                  |
+| Kebab-case props | Keep as-is        | `with-caret`, `light-dismiss`                                                  |
+| `slot="..."`     | `slot="..."`      | Preserved                                                                      |
+| `aria-*`         | `aria-*`          | Preserved                                                                      |
+| `data-*`         | `data-*`          | Preserved                                                                      |
+| Boolean attrs    | Prop only         | `disabled`, `loading`                                                          |
+
+### Variant Mapping
+
+WA docs/examples use variant names that differ from Kigumi's prop values:
+
+| WA HTML             | Kigumi React        | Notes                              |
+| ------------------- | ------------------- | ---------------------------------- |
+| `variant="primary"` | `variant="brand"`   | "primary" does not exist in Kigumi |
+| `variant="default"` | _(omit prop)_       | Default is the absence of variant  |
+| `variant="success"` | `variant="success"` | Same                               |
+| `variant="warning"` | `variant="warning"` | Same                               |
+| `variant="danger"`  | `variant="danger"`  | Same                               |
+| `variant="neutral"` | `variant="neutral"` | Same                               |
 
 **Critical rule:** In React, ALWAYS use `className` -- on both standard HTML elements (`<div>`, `<span>`) AND Kigumi wrapper components (`<Button>`, `<Card>`, etc.). The Kigumi wrapper accepts `className` via its `HTMLAttributes` interface and internally passes it to the web component as `class={clsx('ComponentName', className)}`. Using `class` on a Kigumi React wrapper causes TS2322.
 
