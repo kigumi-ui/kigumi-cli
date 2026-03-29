@@ -87,7 +87,7 @@ Kigumi Vue wrappers support `v-model` for form controls and overlays via `define
 | CSS classes on wa-\* | `className="..."`        | `class="..."`               |
 | Dynamic props        | `prop={value}`           | `:prop="value"`             |
 | Event handlers       | `onEvent={handler}`      | `@event="handler"`          |
-| Custom events        | `onWaShow={fn}`          | `@wa-show="fn"`             |
+| Custom events        | `onShow={fn}`            | `@wa-show="fn"`             |
 | Named slots          | `<div slot="name">`      | `<div slot="name">` (same!) |
 | Conditional          | `{cond && <X/>}`         | `v-if="cond"`               |
 | Lists                | `{items.map(i => <X/>)}` | `v-for="i in items"`        |

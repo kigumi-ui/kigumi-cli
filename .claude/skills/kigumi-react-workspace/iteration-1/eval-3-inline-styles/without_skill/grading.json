@@ -1,0 +1,81 @@
+{
+  "expectations": [
+    {
+      "text": "Converts inline style strings to React object syntax (e.g., maxWidth: '60ch')",
+      "passed": true,
+      "evidence": "Line 18 of response.md: `<form style={{ maxWidth: \"60ch\", margin: \"auto\" }}>` and line 23: `style={{ marginTop: \"1rem\" }}`. Both use React object syntax with camelCase property names (maxWidth, marginTop) instead of HTML string syntax."
+    },
+    {
+      "text": "Uses className='wa-grid' on the div (not class)",
+      "passed": true,
+      "evidence": "Line 19 of response.md: `<div className=\"wa-grid\" style={{ \"--min-column-size\": \"200px\" } as React.CSSProperties}>`. Uses `className` as expected. The conversion notes on line 38 also explicitly explain why className is correct here: 'The wa-grid utility class is on a plain <div>, not a wa-* web component, so it uses React\u2019s className attribute.'"
+    },
+    {
+      "text": "Handles CSS custom property --min-column-size in style object",
+      "passed": true,
+      "evidence": "Line 19 of response.md: `style={{ \"--min-column-size\": \"200px\" } as React.CSSProperties}`. The custom property is included in the style object and uses `as React.CSSProperties` type assertion. The conversion notes on lines 36-37 explain this is needed because TypeScript does not recognize CSS custom properties as valid style keys by default."
+    },
+    {
+      "text": "Maps wa-textarea to Textarea, wa-switch to Switch",
+      "passed": true,
+      "evidence": "Line 14: `import { Textarea } from \"@/components/ui/textarea\";` and line 15: `import { Switch } from \"@/components/ui/switch\";`. These are used on line 23 (`<Textarea label=\"Bio\" .../>`) and line 24 (`<Switch checked>Enable notifications</Switch>`). The install command on line 7 also includes `textarea switch`."
+    },
+    {
+      "text": "Preserves boolean attributes (required, checked) as props",
+      "passed": true,
+      "evidence": "Lines 20-21: `<Input label=\"First name\" required />` and `<Input label=\"Last name\" required />` preserve the `required` boolean attribute. Line 24: `<Switch checked>` preserves the `checked` boolean attribute. The notes on line 42 explicitly state: '`required` and `checked` are passed as bare props (equivalent to `true` in JSX).'"
+    },
+    {
+      "text": "Does NOT fabricate onSwitchChange or similar events",
+      "passed": true,
+      "evidence": "The entire code block (lines 12-27) contains no fabricated event handlers. The Switch component on line 24 is rendered as `<Switch checked>Enable notifications</Switch>` with no onChange, onSwitchChange, or other event props. No event handlers appear anywhere in the component."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Each wa-* element is replaced with its Kigumi React wrapper imported from @/components/ui",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Imports on lines 13-15 use @/components/ui/input, @/components/ui/textarea, @/components/ui/switch paths. The code uses Input, Textarea, and Switch components throughout."
+    },
+    {
+      "claim": "TypeScript does not recognize CSS custom properties as valid style keys by default",
+      "type": "factual",
+      "verified": true,
+      "evidence": "This is correct TypeScript behavior. The `as React.CSSProperties` assertion is the standard workaround for CSS custom properties in React style objects."
+    },
+    {
+      "claim": "Kigumi wrappers forward standard HTML attributes",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Cannot verify from available output alone. This is a claim about Kigumi wrapper behavior that would require checking the actual wrapper implementation. However, it is a reasonable claim consistent with how Kigumi wrappers are documented to work."
+    },
+    {
+      "claim": "Install them first with npx kigumi add input textarea switch",
+      "type": "process",
+      "verified": true,
+      "evidence": "Line 7 shows the correct install command: `npx kigumi add input textarea switch`. All three component names match the imports used in the code."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Converts inline style strings to React object syntax (e.g., maxWidth: '60ch')",
+        "reason": "This assertion could be more discriminating by checking for specific camelCase conversions. A response that uses maxWidth but misses marginTop or another property would still pass. Consider checking that ALL inline styles are converted, not just one example."
+      },
+      {
+        "reason": "No assertion checks whether the response includes a kigumi install step (npx kigumi add). This is an important practical detail for usability. The response does include it, but a response that omits it would pass all 6 expectations."
+      },
+      {
+        "reason": "No assertion verifies that the rows attribute on Textarea is passed as a number ({4}) rather than a string ('4'). The response handles this correctly, but it is an easy mistake in HTML-to-JSX conversion that goes untested."
+      }
+    ],
+    "overall": "Solid set of assertions covering the key conversion challenges (style objects, className, custom properties, component mapping, booleans, no fabricated events). The main gap is that no assertion checks for practical completeness like the install step or numeric attribute handling."
+  }
+}

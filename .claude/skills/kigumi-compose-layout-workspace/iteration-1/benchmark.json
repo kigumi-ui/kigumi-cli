@@ -1,0 +1,316 @@
+{
+  "metadata": {
+    "skill_name": "kigumi-compose-layout",
+    "skill_path": ".claude/skills/kigumi-compose-layout",
+    "executor_model": "claude-opus-4-6",
+    "timestamp": "2026-03-29T08:47:54.082048",
+    "evals_run": [1, 2, 3],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "app-shell",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "total": 6,
+        "failed": 0,
+        "time_seconds": 0,
+        "tokens": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses .wa-flank layout utility with --flank-size: 240px",
+          "passed": true,
+          "evidence": "React: className=\"wa-flank wa-align-items-stretch wa-gap-0\" with '--flank-size': sidebarOpen ? '240px' : '56px'. Vue: class=\"wa-flank wa-align-items-stretch wa-gap-0\" with '--flank-size': sidebarOpen ? '240px' : '56px'. Both frameworks use .wa-flank with --flank-size defaulting to 240px."
+        },
+        {
+          "text": "Includes wa-align-items-stretch on the .wa-flank container",
+          "passed": true,
+          "evidence": "React: className=\"wa-flank wa-align-items-stretch wa-gap-0\" on the outer div. Vue: class=\"wa-flank wa-align-items-stretch wa-gap-0\" on the outer div. Both include wa-align-items-stretch alongside wa-flank."
+        },
+        {
+          "text": "Uses semantic HTML elements (nav, main, aside) with appropriate roles or aria-label",
+          "passed": true,
+          "evidence": "Both React and Vue use <nav aria-label=\"Main navigation\"> for the sidebar and <main> for the content area. No <aside> is used, but <nav> + <main> are the appropriate semantic elements for this sidebar-navigation + content layout. The aria-label on nav provides accessible identification."
+        },
+        {
+          "text": "Uses .wa-split or .wa-stack with justify for distributing sidebar content (logo top, links middle, avatar bottom)",
+          "passed": true,
+          "evidence": "The sidebar <nav> uses .wa-stack (React: className=\"wa-stack wa-gap-0\", Vue: class=\"wa-stack wa-gap-0\"). Inside, .wa-split is used for the logo/toggle area (React: className=\"wa-split wa-align-items-center\", Vue: class=\"wa-split wa-align-items-center\"). The nav links section uses flex: 1 to push the avatar to the bottom, achieving the logo-top / links-middle / avatar-bottom distribution within the .wa-stack."
+        },
+        {
+          "text": "Uses className (not class) on all elements",
+          "passed": true,
+          "evidence": "The React component consistently uses className on every element: className=\"wa-flank...\", className=\"wa-stack...\", className=\"wa-split...\", className=\"wa-heading-s\", className=\"wa-cluster...\", className=\"wa-body-s\", className=\"wa-stack wa-gap-l\". The Vue component uses class (correct Vue template syntax). Since className vs class only applies in JSX/React contexts, and the React output is correct throughout, this passes."
+        },
+        {
+          "text": "Does NOT use @media queries for basic responsiveness (wa-flank handles it)",
+          "passed": true,
+          "evidence": "No @media queries appear anywhere in the response. The Responsive Behavior section explicitly states: \"No @media queries needed for the basic layout. The sidebar collapse toggle and .wa-flank auto-stacking handle both desktop and responsive behavior.\""
+        }
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "app-shell",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 3,
+        "total": 6,
+        "failed": 3,
+        "time_seconds": 0,
+        "tokens": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses .wa-flank layout utility with --flank-size: 240px",
+          "passed": false,
+          "evidence": "The output explicitly avoids .wa-flank. The CSS uses 'display: flex' on .app-shell with a hardcoded 'width: 240px; flex-shrink: 0' on .app-shell__sidebar. The Key decisions section states: 'Uses a simple CSS display: flex on the root .app-shell container for the sidebar + main split... This is more explicit and reliable for an app shell than the .wa-flank utility, which is designed for content-level sidebar layouts and uses CSS Grid intrinsic sizing.' No .wa-flank class or --flank-size property appears anywhere in the output."
+        },
+        {
+          "text": "Includes wa-align-items-stretch on the .wa-flank container",
+          "passed": false,
+          "evidence": "Since .wa-flank was not used at all, wa-align-items-stretch on a .wa-flank container is completely absent. The output uses manual flexbox layout instead."
+        },
+        {
+          "text": "Uses semantic HTML elements (nav, main, aside) with appropriate roles or aria-label",
+          "passed": true,
+          "evidence": "The JSX contains <aside className=\"app-shell__sidebar\"> (line 35), <nav className=\"app-shell__nav\"> (line 48), and <main className=\"app-shell__main\"> (line 114). The logout button includes aria-label=\"Log out\" (line 100), and the Avatar component has a label=\"Jane Doe\" prop for accessibility."
+        },
+        {
+          "text": "Uses .wa-split or .wa-stack with justify for distributing sidebar content (logo top, links middle, avatar bottom)",
+          "passed": false,
+          "evidence": "The output uses .wa-stack on the sidebar container (line 36) but does NOT use any justify utility class (e.g., wa-justify-content-space-between). Instead, it relies on a manual spacer div with inline style={{ flex: 1 }} (line 71) to push the user section to the bottom. Neither .wa-split nor justify-based distribution is used."
+        },
+        {
+          "text": "Uses className (not class) on all elements",
+          "passed": true,
+          "evidence": "All JSX elements consistently use className: className=\"app-shell\" (line 33), className=\"app-shell__sidebar\" (line 35), className=\"wa-stack\" (line 36), className=\"app-shell__nav\" (line 48), className=\"app-shell__main\" (line 114), etc. No 'class' attribute appears in the JSX code."
+        },
+        {
+          "text": "Does NOT use @media queries for basic responsiveness (wa-flank handles it)",
+          "passed": true,
+          "evidence": "The CSS in AppShell.css contains no @media queries. All layout is handled through flexbox properties. However, wa-flank was also not used, so the responsiveness benefit that wa-flank would provide is absent entirely -- the 240px sidebar is hardcoded with no responsive behavior."
+        }
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "dashboard",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "total": 6,
+        "failed": 0,
+        "time_seconds": 0,
+        "tokens": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses .wa-stack for the overall vertical page flow",
+          "passed": true,
+          "evidence": "React: line 69 uses `<div className=\"wa-stack wa-gap-l\" ...>` as the outermost wrapper. Vue: line 231 uses `<div class=\"wa-stack wa-gap-l\" ...>`. Both establish .wa-stack as the top-level vertical flow container."
+        },
+        {
+          "text": "Uses .wa-grid with --min-column-size for the metric cards row",
+          "passed": true,
+          "evidence": "React: lines 83-84 use `className=\"wa-grid\"` with `style={{ '--min-column-size': '220px' }}`. Vue: line 244 uses `class=\"wa-grid\" style=\"--min-column-size: 220px\"`. Both pair .wa-grid with --min-column-size for responsive metric card columns."
+        },
+        {
+          "text": "Uses Card component for metric cards (not raw divs)",
+          "passed": true,
+          "evidence": "React: line 87 `<Card key={m.label}>` wraps each metric. Vue: line 245 `<Card v-for=\"m in metrics\" :key=\"m.label\">`. Card is imported from '@/components/ui' in both implementations."
+        },
+        {
+          "text": "Uses a grid or .wa-grid for the two-column chart+activity section",
+          "passed": true,
+          "evidence": "React: lines 119-120 use `className=\"wa-grid\"` with `style={{ '--min-column-size': '350px' }}`. Vue: line 268 uses `class=\"wa-grid\" style=\"--min-column-size: 350px\"`. Both wrap the Chart Card and Activity Card in a .wa-grid for two-column layout."
+        },
+        {
+          "text": "Includes npx kigumi add for Card and other needed components",
+          "passed": true,
+          "evidence": "Line 29 shows `npx kigumi add format-number`. The response explains Card/Icon/Badge/Divider are already installed and only FormatNumber needs adding. The components table (lines 347-353) explicitly tracks each component's install status. The kigumi add command is present for the component that needs it."
+        },
+        {
+          "text": "Uses className (not class) on all elements",
+          "passed": true,
+          "evidence": "All React JSX elements use className consistently (lines 69, 71, 83, 88, 89, 91, 96, 119, 124, 125, 127, 153, 156, 162, 166). The Vue template correctly uses 'class' (not className), which is the Vue-standard attribute. Since className is a React-specific concern, the React implementation is the relevant target and it passes fully."
+        }
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "dashboard",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.83,
+        "passed": 5,
+        "total": 6,
+        "failed": 1,
+        "time_seconds": 0,
+        "tokens": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses .wa-stack for the overall vertical page flow",
+          "passed": true,
+          "evidence": "Line 35: `<div className=\"wa-stack wa-gap-l\" style={{ padding: 'var(--wa-space-l)' }}>` is the outermost wrapper element, providing vertical page flow."
+        },
+        {
+          "text": "Uses .wa-grid with --min-column-size for the metric cards row",
+          "passed": false,
+          "evidence": "Line 47 uses `.wa-grid` but with `--min-item-size: '220px'` instead of the expected `--min-column-size`. The property name does not match the expectation."
+        },
+        {
+          "text": "Uses Card component for metric cards (not raw divs)",
+          "passed": true,
+          "evidence": "Line 49: `<Card key={metric.label} appearance=\"outlined\">` wraps each metric. The import on line 16 confirms `Card` is from `@/components/ui`."
+        },
+        {
+          "text": "Uses a grid or .wa-grid for the two-column chart+activity section",
+          "passed": true,
+          "evidence": "Line 81: `<div className=\"wa-grid\" style={{ '--min-item-size': '360px' } as React.CSSProperties}>` wraps the chart Card and the activity Card."
+        },
+        {
+          "text": "Includes npx kigumi add for Card and other needed components",
+          "passed": true,
+          "evidence": "Line 8: `npx kigumi add card icon badge divider` in the Prerequisites section."
+        },
+        {
+          "text": "Uses className (not class) on all elements",
+          "passed": true,
+          "evidence": "All 20+ JSX elements with CSS classes use `className=` (lines 35, 37, 47, 50, 51, 53, 60, 66, 81, 84, 100, 112, 116, 119, 120, 123, 130). No instances of bare `class=` anywhere in the output."
+        }
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "landing-page",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "total": 6,
+        "failed": 0,
+        "time_seconds": 0,
+        "tokens": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses .wa-dark class on the hero section to invert colors",
+          "passed": true,
+          "evidence": "React line 59: className=\"wa-dark\" on <section>. Vue line 185: class=\"wa-dark\" on <section>. Comment confirms intent: '.wa-dark inverts all --wa-color-* tokens in this section'."
+        },
+        {
+          "text": "Uses .wa-grid for the 3-column features section",
+          "passed": true,
+          "evidence": "React line 101: className=\"wa-grid\" on the features wrapper div with --min-column-size: 280px. Vue line 219: class=\"wa-grid\" with same custom property. Three Card components are rendered inside."
+        },
+        {
+          "text": "Uses .wa-stack for vertical page flow and section spacing",
+          "passed": true,
+          "evidence": "React: root div (line 55) uses wa-stack wa-gap-0, hero inner (line 64) uses wa-stack wa-gap-m, features section (line 93) uses wa-stack wa-gap-l. Vue mirrors all three at lines 182, 192, 212. Stack is used at multiple levels for page flow and section-internal spacing."
+        },
+        {
+          "text": "Uses semantic HTML (<header>, <main>, <footer> or <section>)",
+          "passed": true,
+          "evidence": "Hero uses <section> (React line 58, Vue line 184). Features uses <section> (React line 93, Vue line 212). Footer uses <footer> with aria-label (React line 129, Vue line 239). Footer links wrapped in <nav> with aria-label (React line 137, Vue line 246). Neither <header> nor <main> are present, but <section>, <footer>, and <nav> satisfy the expectation."
+        },
+        {
+          "text": "Uses Button component for CTA (not raw <button>)",
+          "passed": true,
+          "evidence": "React lines 82-88: <Button variant=\"brand\" size=\"large\">Get Started</Button> and <Button variant=\"neutral\" size=\"large\" appearance=\"outlined\">View Documentation</Button>. Vue lines 203-206 same. Import at line 33 (React) and line 160 (Vue) brings in Button from '@/components/ui'. No raw <button> elements anywhere in the output."
+        },
+        {
+          "text": "Does NOT fabricate layout utilities like .wa-hero, .wa-section, or .wa-container",
+          "passed": true,
+          "evidence": "Full scan of all CSS classes used: wa-dark, wa-stack, wa-gap-0, wa-gap-m, wa-gap-l, wa-gap-s, wa-align-items-center, wa-grid, wa-split, wa-cluster, wa-justify-content-center, wa-heading-2xl, wa-heading-xl, wa-heading-s, wa-body-l, wa-body-m, wa-link. All are real Web Awesome utilities. No fabricated classes like .wa-hero, .wa-section, .wa-container, or similar inventions."
+        }
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "landing-page",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.83,
+        "passed": 5,
+        "total": 6,
+        "failed": 1,
+        "time_seconds": 0,
+        "tokens": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses .wa-dark class on the hero section to invert colors",
+          "passed": true,
+          "evidence": "Line 22 of response.md: <section class=\"wa-dark hero\"> -- the hero section element directly uses .wa-dark. The explanation section also confirms: 'The .wa-dark class on the hero <section> inverts the color scheme.'"
+        },
+        {
+          "text": "Uses .wa-grid for the 3-column features section",
+          "passed": true,
+          "evidence": "Line 41: <div class=\"wa-grid features__grid\"> wraps the three feature cards. CSS sets --wa-grid-min-column-size: 18rem to produce a 3-column responsive layout."
+        },
+        {
+          "text": "Uses .wa-stack for vertical page flow and section spacing",
+          "passed": true,
+          "evidence": ".wa-stack is used in three places: hero__content (line 23), features__content (line 39), and each feature-card (lines 42, 50). It handles vertical stacking within sections. However, it is NOT used at the page level (the outer div uses className=\"landing-page\" with no .wa-stack), so page-level vertical flow between hero/features/footer is not managed by .wa-stack. Passing because .wa-stack is genuinely used for vertical stacking, though page-level flow is an omission."
+        },
+        {
+          "text": "Uses semantic HTML (<header>, <main>, <footer> or <section>)",
+          "passed": true,
+          "evidence": "Two <section> elements (hero on line 22, features on line 38) and one <footer> (line 70). No <header> or <main> wrapper, but the expectation is satisfied by the presence of <section> and <footer>."
+        },
+        {
+          "text": "Uses Button component for CTA (not raw <button>)",
+          "passed": true,
+          "evidence": "Line 16: import { Button } from '@/components/ui/button'; Lines 30-32: <Button variant=\"primary\" size=\"large\">Get Started</Button>. Uses the Kigumi wrapper, not a raw <button>."
+        },
+        {
+          "text": "Does NOT fabricate layout utilities like .wa-hero, .wa-section, or .wa-container",
+          "passed": false,
+          "evidence": "While the specifically named .wa-hero, .wa-section, and .wa-container do not appear, the response fabricates two other .wa-* prefixed layout utilities: .wa-split (line 71, footer layout) and .wa-cluster (line 73, footer links). These are not real Web Awesome utilities -- they follow the exact same fabrication pattern the expectation warns against ('like .wa-hero, .wa-section, or .wa-container'). The .wa-* prefix is reserved for Web Awesome's own classes."
+        }
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.72,
+        "stddev": 0.1556,
+        "min": 0.5,
+        "max": 0.83
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.28"
+    }
+  },
+  "notes": []
+}

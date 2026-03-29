@@ -1,0 +1,83 @@
+{
+  "expectations": [
+    {
+      "text": "Uses native events: (e.target as HTMLInputElement).value, NOT e.detail.value or CustomEvent",
+      "passed": true,
+      "evidence": "Line 62: `const target = e.target as HTMLInputElement;` followed by `target.value` on line 63. No use of e.detail.value or CustomEvent anywhere in the output."
+    },
+    {
+      "text": "Uses wa-stack or wa-gap utility classes for vertical layout",
+      "passed": true,
+      "evidence": "Line 119: `<form className=\"wa-stack wa-gap-m\"` on the form element. Also line 102: `className=\"wa-stack wa-gap-m wa-align-items-center\"` on the success state div."
+    },
+    {
+      "text": "Has required prop on name and email inputs",
+      "passed": true,
+      "evidence": "Line 127: `required` on the Name Input component. Line 136: `required` on the Email Input component."
+    },
+    {
+      "text": "Uses type='email' on the email Input",
+      "passed": true,
+      "evidence": "Line 135: `type=\"email\"` on the Email Input component."
+    },
+    {
+      "text": "Has loading prop on submit Button during async submission",
+      "passed": true,
+      "evidence": "Line 156: `loading={isSubmitting}` on the Button. isSubmitting is set true at line 86 before the async call and reset in the finally block at line 96."
+    },
+    {
+      "text": "Wraps fields in a <form> element (not just a div)",
+      "passed": true,
+      "evidence": "Line 118: `<form className=\"wa-stack wa-gap-m\" onSubmit={handleSubmit} noValidate>` wraps all Input, Textarea, and Button elements, closed at line 161."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Components are imported from @/components/ui",
+      "type": "process",
+      "verified": true,
+      "evidence": "Line 17: `import { Button, Input, Textarea } from '@/components/ui';` -- uses the Kigumi wrapper imports, not raw wa-* tags."
+    },
+    {
+      "claim": "Email validation uses regex pattern",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line 31: `return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);` -- standard email regex pattern."
+    },
+    {
+      "claim": "Form resets after successful submission",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Line 93: `setFormData({ name: '', email: '', message: '' });` resets all fields after the async call resolves."
+    },
+    {
+      "claim": "Button is disabled during submission to prevent double-sends",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line 157: `disabled={isSubmitting}` alongside `loading={isSubmitting}` on the Button."
+    },
+    {
+      "claim": "Errors clear as the user types into the affected field",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Lines 66-72: Inside handleInput, if the current field has an error, it is deleted from the errors state on input."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion checks that the event handler parameter type is `Event` (not `React.ChangeEvent`). The native event type matters for web component compatibility -- an output could use `(e: React.ChangeEvent<HTMLInputElement>) => e.target.value` which would satisfy expectation 1 literally but use the wrong event type for wa-* components."
+      },
+      {
+        "reason": "No assertion checks that the prerequisite `npx kigumi add` install step is present. Without it, the imports from @/components/ui would fail. This is important for a form composition skill to verify."
+      }
+    ],
+    "overall": "The six assertions form a solid checklist for core form patterns. The without-skill baseline passed all of them, which suggests the assertions may not be discriminating enough to justify a skill -- consider adding assertions that test for subtler web component patterns (Event vs React.ChangeEvent, data-user-invalid for WA validation styling) that a baseline model is less likely to get right."
+  }
+}

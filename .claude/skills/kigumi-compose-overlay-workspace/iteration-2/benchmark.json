@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "skill_name": "kigumi-compose-overlay",
+    "skill_path": ".claude/skills/kigumi-compose-overlay",
+    "executor_model": "claude-opus-4-6",
+    "timestamp": "2026-03-29T19:25:00Z",
+    "evals_run": [
+      "eval-1-confirm-dialog",
+      "eval-2-form-dialog",
+      "eval-3-dropdown-menu"
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": "eval-1-confirm-dialog",
+      "config": "with_skill",
+      "pass_rate": 1.0,
+      "passed": 6,
+      "failed": 0,
+      "total": 6,
+      "tokens": 28655,
+      "duration_seconds": 42.9,
+      "failures": []
+    },
+    {
+      "eval_id": "eval-1-confirm-dialog",
+      "config": "without_skill",
+      "pass_rate": 1.0,
+      "passed": 6,
+      "failed": 0,
+      "total": 6,
+      "tokens": 24492,
+      "duration_seconds": 39.9,
+      "failures": []
+    },
+    {
+      "eval_id": "eval-2-form-dialog",
+      "config": "with_skill",
+      "pass_rate": 0.83,
+      "passed": 5,
+      "failed": 1,
+      "total": 6,
+      "tokens": 32688,
+      "duration_seconds": 75.0,
+      "failures": ["Includes npx kigumi add for dialog + form components"]
+    },
+    {
+      "eval_id": "eval-2-form-dialog",
+      "config": "without_skill",
+      "pass_rate": 0.67,
+      "passed": 4,
+      "failed": 2,
+      "total": 6,
+      "tokens": 31014,
+      "duration_seconds": 53.5,
+      "failures": [
+        "Footer buttons are in a slot='footer' container",
+        "Includes npx kigumi add for dialog + form components"
+      ]
+    },
+    {
+      "eval_id": "eval-3-dropdown-menu",
+      "config": "with_skill",
+      "pass_rate": 0.83,
+      "passed": 5,
+      "failed": 1,
+      "total": 6,
+      "tokens": 31242,
+      "duration_seconds": 53.3,
+      "failures": [
+        "Includes proper install commands for dropdown + dropdown-item"
+      ]
+    },
+    {
+      "eval_id": "eval-3-dropdown-menu",
+      "config": "without_skill",
+      "pass_rate": 0.83,
+      "passed": 5,
+      "failed": 1,
+      "total": 6,
+      "tokens": 32083,
+      "duration_seconds": 83.9,
+      "failures": [
+        "Includes proper install commands for dropdown + dropdown-item"
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "mean_pass_rate": 0.889,
+      "total_tokens": 92585,
+      "mean_tokens": 30862,
+      "total_duration_seconds": 171.2,
+      "mean_duration_seconds": 57.1
+    },
+    "without_skill": {
+      "mean_pass_rate": 0.833,
+      "total_tokens": 87589,
+      "mean_tokens": 29196,
+      "total_duration_seconds": 177.3,
+      "mean_duration_seconds": 59.1
+    },
+    "delta": {
+      "pass_rate": "+0.056",
+      "time_seconds": "-2.0",
+      "tokens": "+1666"
+    }
+  },
+  "notes": [
+    "with_skill: 16/18 assertions passed (88.9%)",
+    "without_skill: 15/18 assertions passed (83.3%)",
+    "Eval 1 tied at 100% -- both configs handle basic confirmation dialog well",
+    "Eval 2 key difference: without_skill put slot='footer' on individual buttons instead of a container div",
+    "with_skill used requestClose() pattern (more robust); without_skill used direct state setters (works but less idiomatic)",
+    "with_skill used form id + submit button pattern and error handling with Callout -- significantly more production-ready",
+    "Install command assertions failed for both configs across eval 2 and 3 -- systemic issue, not skill-specific"
+  ]
+}

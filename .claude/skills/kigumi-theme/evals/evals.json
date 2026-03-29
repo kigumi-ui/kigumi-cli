@@ -1,0 +1,53 @@
+{
+  "skill_name": "kigumi-theme",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How do I enable dark mode in my Kigumi React project? I want a toggle switch that persists the user's preference.",
+      "expected_output": "Code using .wa-dark class on html element, localStorage persistence, prefers-color-scheme detection. Should NOT use .dark class.",
+      "files": [],
+      "expectations": [
+        "Uses .wa-dark CSS class (not .dark or data-theme='dark')",
+        "Shows classList.toggle('wa-dark', ...) or equivalent",
+        "Mentions prefers-color-scheme media query for system preference detection",
+        "Does not use any fabricated token names like --wa-color-brand-hover or --wa-color-background"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to make all border radius values larger across my whole Kigumi app. Like everything should be more rounded. What's the easiest way?",
+      "expected_output": "Should recommend --wa-border-radius-scale token override at :root, not individual radius tokens.",
+      "files": [],
+      "expectations": [
+        "Recommends --wa-border-radius-scale as the primary approach",
+        "Shows a :root CSS override example",
+        "Explains that scale multiplies all S/M/L radius values",
+        "Does not use fabricated tokens like --wa-border-radius-small or --wa-border-radius-medium"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I customize the look of a specific Button component in my Kigumi project? I want to change its background and add uppercase text.",
+      "expected_output": "Should use ::part(base) CSS selector, not fabricated --wa-button-* tokens.",
+      "files": [],
+      "expectations": [
+        "Uses wa-button::part(base) or similar ::part() selector",
+        "Does NOT recommend --wa-button-background or --wa-button-* tokens (these don't exist)",
+        "Shows valid CSS properties like text-transform, background-color",
+        "May reference the cascade layers (wa-theme-overrides) for proper specificity"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Show me all the color tokens available for theming in Kigumi. I need to understand the color system.",
+      "expected_output": "Lists real WA color tokens: surface, text, variant (brand/success/warning/danger/neutral fill/border/on), utility colors.",
+      "files": [],
+      "expectations": [
+        "Lists --wa-color-surface-default, --wa-color-surface-raised, --wa-color-surface-lowered",
+        "Lists --wa-color-text-normal, --wa-color-text-quiet",
+        "Explains the variant color system (brand/success/warning/danger/neutral x fill/border/on x quiet/normal/loud)",
+        "Does NOT list fabricated tokens like --wa-color-background, --wa-color-text-secondary, --wa-color-border"
+      ]
+    }
+  ]
+}

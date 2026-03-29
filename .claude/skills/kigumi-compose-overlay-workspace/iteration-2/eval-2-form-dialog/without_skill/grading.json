@@ -1,0 +1,36 @@
+{
+  "expectations": [
+    {
+      "text": "Dialog has label prop (e.g., 'Edit Profile')",
+      "passed": true,
+      "evidence": "Line 45: `label=\"Edit Profile\"`"
+    },
+    {
+      "text": "Form fields inside dialog use native events (e.target), NOT CustomEvent/e.detail",
+      "passed": true,
+      "evidence": "Line 50: `onInput={(e) => setDisplayName((e.target as HTMLInputElement).value)}` -- uses e.target (native)"
+    },
+    {
+      "text": "Footer buttons are in a slot='footer' container",
+      "passed": false,
+      "evidence": "Lines 61-76: Each button has `slot=\"footer\"` individually instead of being wrapped in a container div. No grouped layout."
+    },
+    {
+      "text": "Cancel uses requestClose() or state setter, NOT hide()",
+      "passed": true,
+      "evidence": "Line 64: `onClick={onClose}` where onClose is the state setter callback"
+    },
+    {
+      "text": "Save button has loading state during submission",
+      "passed": true,
+      "evidence": "Line 73: `loading={saving}`"
+    },
+    {
+      "text": "Includes npx kigumi add for dialog + form components",
+      "passed": false,
+      "evidence": "No install command in output."
+    }
+  ],
+  "summary": { "passed": 4, "failed": 2, "total": 6, "pass_rate": 0.67 },
+  "timing": { "total_duration_seconds": 53.5 }
+}

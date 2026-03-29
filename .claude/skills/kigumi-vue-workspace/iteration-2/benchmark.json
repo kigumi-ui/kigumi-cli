@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "skill_name": "kigumi-vue",
+    "timestamp": "2026-03-29T20:15:00Z",
+    "evals_run": [
+      "eval-1-form-conversion",
+      "eval-2-dialog-form",
+      "eval-3-select-events"
+    ]
+  },
+  "run_summary": {
+    "with_skill": { "mean_pass_rate": 1.0, "passed": 12, "total": 12 },
+    "without_skill": { "mean_pass_rate": 0.75, "passed": 9, "total": 12 },
+    "delta": { "pass_rate": "+0.25" }
+  }
+}

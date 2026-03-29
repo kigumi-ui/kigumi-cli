@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "dialog-dropdown",
+  "prompt": "I copied this from the Web Awesome docs. Transform it to Kigumi React:\n\n<wa-dialog label=\"Confirm Delete\" class=\"dialog-confirm\">\n  <p>Are you sure you want to delete this item?</p>\n  <div slot=\"footer\" class=\"wa-cluster wa-justify-content-end wa-gap-s\">\n    <wa-button variant=\"neutral\">Cancel</wa-button>\n    <wa-button variant=\"danger\">Delete</wa-button>\n  </div>\n</wa-dialog>\n\n<wa-dropdown>\n  <wa-button slot=\"trigger\" with-caret>Options</wa-button>\n  <wa-dropdown-item>Edit</wa-dropdown-item>\n  <wa-dropdown-item>Duplicate</wa-dropdown-item>\n</wa-dropdown>",
+  "assertions": [
+    "Uses className='dialog-confirm' on Dialog (not class)",
+    "Uses className on the footer div and all Kigumi wrappers",
+    "Preserves kebab-case prop with-caret on Button",
+    "Preserves slot='trigger' and slot='footer'",
+    "Maps wa-dropdown-item to DropdownItem (PascalCase)",
+    "Does NOT fabricate onWaConfirm or similar non-existent events"
+  ]
+}

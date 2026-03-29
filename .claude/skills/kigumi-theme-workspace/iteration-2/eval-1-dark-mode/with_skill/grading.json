@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "Uses .wa-dark CSS class (not .dark or data-theme='dark')",
+      "passed": true,
+      "evidence": "Line 5: .wa-dark CSS class, table at lines 9-13"
+    },
+    {
+      "text": "Shows classList.toggle('wa-dark', ...) or equivalent",
+      "passed": true,
+      "evidence": "Code at lines 25-38 shows useState + classList toggle pattern"
+    },
+    {
+      "text": "Mentions prefers-color-scheme media query for system preference detection",
+      "passed": true,
+      "evidence": "Line 37: window.matchMedia('(prefers-color-scheme: dark)').matches"
+    },
+    {
+      "text": "Does not use any fabricated token names like --wa-color-brand-hover or --wa-color-background",
+      "passed": true,
+      "evidence": "All tokens mentioned are real WA tokens (--wa-color-surface-*, --wa-color-text-*)"
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 }
+}

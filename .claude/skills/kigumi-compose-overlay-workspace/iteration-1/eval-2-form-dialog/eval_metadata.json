@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "form-dialog",
+  "prompt": "Build a form dialog for editing a user profile. It should have fields for display name and bio inside the dialog. Show a save and cancel button in the footer. Close the dialog after successful save. ",
+  "assertions": [
+    "Dialog has label prop (e.g., 'Edit Profile')",
+    "Form fields inside dialog use native events (e.target), NOT CustomEvent/e.detail",
+    "Footer buttons are in a slot='footer' container",
+    "Cancel uses requestClose() or state setter, NOT hide()",
+    "Save button has loading state during submission",
+    "Includes npx kigumi add for dialog + form components"
+  ]
+}

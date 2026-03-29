@@ -1,0 +1,47 @@
+{
+  "skill_name": "kigumi-compose-overlay",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a confirmation dialog that asks 'Are you sure you want to delete this project?' with Cancel and Delete buttons. The delete button should be red/danger. Wire up the open/close state.",
+      "expected_output": "Dialog with controlled open state, label prop, danger variant on delete button, requestClose pattern.",
+      "files": [],
+      "expectations": [
+        "Uses useState for controlled open state with open={state}",
+        "Dialog has a label prop for accessibility",
+        "Uses onHide handler to set state to false",
+        "Delete button uses variant='danger'",
+        "Uses slot='footer' on the button container",
+        "Does NOT use hide() directly -- uses requestClose() or state setter"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Build a form dialog for editing a user profile. It should have fields for display name and bio inside the dialog. Show a save and cancel button in the footer. Close the dialog after successful save.",
+      "expected_output": "Form dialog combining Dialog with form controls. Controlled open state. Form fields use native events. Footer with save/cancel.",
+      "files": [],
+      "expectations": [
+        "Dialog has label prop (e.g., 'Edit Profile')",
+        "Form fields inside dialog use native events (e.target), NOT CustomEvent/e.detail",
+        "Footer buttons are in a slot='footer' container",
+        "Cancel uses requestClose() or state setter, NOT hide()",
+        "Save button has loading state during submission",
+        "Includes npx kigumi add for dialog + form components"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a dropdown menu with options: Edit, Duplicate, and Delete. The trigger should be an icon button with three dots. Delete should be styled as danger.",
+      "expected_output": "Dropdown with IconButton trigger, DropdownItem children, danger variant on delete item.",
+      "files": [],
+      "expectations": [
+        "Uses Dropdown component with Button or IconButton as trigger",
+        "Trigger has slot='trigger' attribute",
+        "Uses DropdownItem for each menu option",
+        "Delete item uses variant='danger' or similar danger styling",
+        "Does NOT fabricate onSelect or onMenuSelect events",
+        "Includes proper install commands for dropdown + dropdown-item"
+      ]
+    }
+  ]
+}

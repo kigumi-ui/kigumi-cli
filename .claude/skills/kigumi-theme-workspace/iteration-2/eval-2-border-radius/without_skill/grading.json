@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "Recommends --wa-border-radius-scale as the primary approach",
+      "passed": true,
+      "evidence": "Lines 7-13: --wa-border-radius-scale: 2 in theme.css"
+    },
+    {
+      "text": "Shows a :root CSS override example",
+      "passed": true,
+      "evidence": "Lines 10-12: :root { --wa-border-radius-scale: 2 }"
+    },
+    {
+      "text": "Explains that scale multiplies all S/M/L radius values",
+      "passed": true,
+      "evidence": "Lines 22-26: shows calc formulas for s/m/l with scale"
+    },
+    {
+      "text": "Does not use fabricated tokens",
+      "passed": true,
+      "evidence": "Uses correct --wa-border-radius-s, -m, -l names"
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 }
+}

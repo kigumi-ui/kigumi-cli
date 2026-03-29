@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "Uses wa-button::part(base) or similar ::part() selector",
+      "passed": true,
+      "evidence": "Lines 14-18: wa-button::part(base) { background; text-transform }"
+    },
+    {
+      "text": "Does NOT recommend --wa-button-background or --wa-button-* tokens",
+      "passed": true,
+      "evidence": "Line 5: explicitly states 'There are no --wa-button-* CSS tokens'"
+    },
+    {
+      "text": "Shows valid CSS properties like text-transform, background-color",
+      "passed": true,
+      "evidence": "Line 16: background: #6d28d9, Line 17: text-transform: uppercase"
+    },
+    {
+      "text": "May reference the cascade layers for proper specificity",
+      "passed": true,
+      "evidence": "Line 14: @layer wa-theme-overrides"
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 }
+}

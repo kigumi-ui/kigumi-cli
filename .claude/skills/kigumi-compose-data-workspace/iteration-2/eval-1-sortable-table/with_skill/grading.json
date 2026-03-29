@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Uses useState for sort key and direction",
+      "passed": true,
+      "evidence": "useState used for sort key and direction state management"
+    },
+    {
+      "text": "Has onClick handler on <th> elements for sorting",
+      "passed": true,
+      "evidence": "onClick handlers on <th> elements for column sorting"
+    },
+    {
+      "text": "Includes aria-sort attribute on the active sort column",
+      "passed": true,
+      "evidence": "aria-sort attribute present on active sort column"
+    },
+    {
+      "text": "Shows sort indicator icon (arrow-up/arrow-down or similar)",
+      "passed": true,
+      "evidence": "Sort indicator icons shown for active column direction"
+    },
+    {
+      "text": "Has <caption> element for accessibility",
+      "passed": true,
+      "evidence": "<caption> element present for table accessibility"
+    },
+    {
+      "text": "Has scope='col' on <th> elements",
+      "passed": true,
+      "evidence": "scope='col' on <th> elements"
+    }
+  ],
+  "summary": { "passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0 }
+}

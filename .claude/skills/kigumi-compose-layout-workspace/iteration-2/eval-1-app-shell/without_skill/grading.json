@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Uses .wa-flank layout utility with --flank-size: 240px",
+      "passed": false,
+      "evidence": "0 matches for wa-flank; uses inline flex CSS instead"
+    },
+    {
+      "text": "Includes wa-align-items-stretch on the .wa-flank container",
+      "passed": false,
+      "evidence": "No wa-align-items-stretch; uses inline styles for alignment"
+    },
+    {
+      "text": "Uses semantic HTML elements (nav, main, aside) with appropriate roles or aria-label",
+      "passed": true,
+      "evidence": "aside and main semantic HTML elements present in code"
+    },
+    {
+      "text": "Uses .wa-split or .wa-stack with justify for distributing sidebar content",
+      "passed": false,
+      "evidence": "Uses inline flex styles, not wa-split or wa-stack utilities"
+    },
+    {
+      "text": "Uses className (not class) on all elements",
+      "passed": true,
+      "evidence": "Uses inline styles via style prop; no incorrect class attribute usage"
+    },
+    {
+      "text": "Does NOT use @media queries for basic responsiveness",
+      "passed": true,
+      "evidence": "No @media queries in output"
+    }
+  ],
+  "summary": { "passed": 3, "failed": 3, "total": 6, "pass_rate": 0.5 }
+}

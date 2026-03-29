@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Uses .wa-stack for the overall vertical page flow",
+      "passed": true,
+      "evidence": "wa-stack confirmed with 6 matches in output"
+    },
+    {
+      "text": "Uses .wa-grid with --min-column-size for the metric cards row",
+      "passed": false,
+      "evidence": "Uses CSS grid repeat(4,1fr) instead of wa-grid with --min-column-size"
+    },
+    {
+      "text": "Uses Card component for metric cards (not raw divs)",
+      "passed": true,
+      "evidence": "Card component used for metric cards"
+    },
+    {
+      "text": "Uses a grid or .wa-grid for the two-column chart+activity section",
+      "passed": true,
+      "evidence": "Grid layout used for two-column section"
+    },
+    {
+      "text": "Includes npx kigumi add for Card and other needed components",
+      "passed": false,
+      "evidence": "No install commands found in output"
+    },
+    {
+      "text": "Uses className (not class) on all elements",
+      "passed": true,
+      "evidence": "WA utility classes applied via className"
+    }
+  ],
+  "summary": { "passed": 4, "failed": 2, "total": 6, "pass_rate": 0.67 }
+}

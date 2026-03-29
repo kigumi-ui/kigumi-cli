@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Uses native events: (e.target as HTMLInputElement).value, NOT e.detail.value or CustomEvent",
+      "passed": true,
+      "evidence": "Uses FormData API for form data extraction (native browser API)"
+    },
+    {
+      "text": "Uses wa-stack or wa-gap utility classes for vertical layout",
+      "passed": true,
+      "evidence": "Uses wa-stack wa-gap-l for vertical field layout"
+    },
+    {
+      "text": "Has required prop on name and email inputs",
+      "passed": true,
+      "evidence": "required prop present on name and email Input components"
+    },
+    {
+      "text": "Uses type='email' on the email Input",
+      "passed": true,
+      "evidence": "type=\"email\" on the email Input component"
+    },
+    {
+      "text": "Has loading prop on submit Button during async submission",
+      "passed": true,
+      "evidence": "loading prop set on Button during async submission"
+    },
+    {
+      "text": "Wraps fields in a <form> element (not just a div)",
+      "passed": true,
+      "evidence": "Fields wrapped in a <form> element"
+    }
+  ],
+  "summary": { "passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0 }
+}
