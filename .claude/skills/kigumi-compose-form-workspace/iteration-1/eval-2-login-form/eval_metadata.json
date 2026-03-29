@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "login-form",
+  "prompt": "Create a login form with email and password fields. Add a 'Remember me' switch and a 'Forgot password?' link. Password field should have the toggle to show/hide. ",
+  "assertions": [
+    "Uses Input with type='password' and password-toggle prop",
+    "Uses Switch component for 'Remember me' (not Checkbox)",
+    "Reads switch state via (e.target as HTMLInputElement).checked, NOT e.detail or CustomEvent",
+    "Has a <form> element with onSubmit handler",
+    "Includes npx kigumi add commands for missing components",
+    "Does NOT fabricate props like onToggle, onSwitch, or wa-change"
+  ]
+}

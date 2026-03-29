@@ -1,0 +1,83 @@
+{
+  "expectations": [
+    {
+      "text": "Uses .wa-flank layout utility with --flank-size: 240px",
+      "passed": true,
+      "evidence": "React: className=\"wa-flank wa-align-items-stretch wa-gap-0\" with '--flank-size': sidebarOpen ? '240px' : '56px'. Vue: class=\"wa-flank wa-align-items-stretch wa-gap-0\" with '--flank-size': sidebarOpen ? '240px' : '56px'. Both frameworks use .wa-flank with --flank-size defaulting to 240px."
+    },
+    {
+      "text": "Includes wa-align-items-stretch on the .wa-flank container",
+      "passed": true,
+      "evidence": "React: className=\"wa-flank wa-align-items-stretch wa-gap-0\" on the outer div. Vue: class=\"wa-flank wa-align-items-stretch wa-gap-0\" on the outer div. Both include wa-align-items-stretch alongside wa-flank."
+    },
+    {
+      "text": "Uses semantic HTML elements (nav, main, aside) with appropriate roles or aria-label",
+      "passed": true,
+      "evidence": "Both React and Vue use <nav aria-label=\"Main navigation\"> for the sidebar and <main> for the content area. No <aside> is used, but <nav> + <main> are the appropriate semantic elements for this sidebar-navigation + content layout. The aria-label on nav provides accessible identification."
+    },
+    {
+      "text": "Uses .wa-split or .wa-stack with justify for distributing sidebar content (logo top, links middle, avatar bottom)",
+      "passed": true,
+      "evidence": "The sidebar <nav> uses .wa-stack (React: className=\"wa-stack wa-gap-0\", Vue: class=\"wa-stack wa-gap-0\"). Inside, .wa-split is used for the logo/toggle area (React: className=\"wa-split wa-align-items-center\", Vue: class=\"wa-split wa-align-items-center\"). The nav links section uses flex: 1 to push the avatar to the bottom, achieving the logo-top / links-middle / avatar-bottom distribution within the .wa-stack."
+    },
+    {
+      "text": "Uses className (not class) on all elements",
+      "passed": true,
+      "evidence": "The React component consistently uses className on every element: className=\"wa-flank...\", className=\"wa-stack...\", className=\"wa-split...\", className=\"wa-heading-s\", className=\"wa-cluster...\", className=\"wa-body-s\", className=\"wa-stack wa-gap-l\". The Vue component uses class (correct Vue template syntax). Since className vs class only applies in JSX/React contexts, and the React output is correct throughout, this passes."
+    },
+    {
+      "text": "Does NOT use @media queries for basic responsiveness (wa-flank handles it)",
+      "passed": true,
+      "evidence": "No @media queries appear anywhere in the response. The Responsive Behavior section explicitly states: \"No @media queries needed for the basic layout. The sidebar collapse toggle and .wa-flank auto-stacking handle both desktop and responsive behavior.\""
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Avatar component needs to be installed via kigumi add avatar",
+      "type": "factual",
+      "verified": true,
+      "evidence": "The response correctly identifies Avatar as not installed and provides install commands for both React and Vue starter repos using npx kigumi add avatar."
+    },
+    {
+      "claim": ".wa-flank auto-stacks vertically on narrow viewports based on --content-percentage",
+      "type": "factual",
+      "verified": true,
+      "evidence": "The Responsive Behavior section describes this behavior, which aligns with how the wa-flank CSS utility works (container-based responsive stacking)."
+    },
+    {
+      "claim": "Sidebar can collapse to 56px icon-only mode",
+      "type": "factual",
+      "verified": true,
+      "evidence": "The code implements this via --flank-size toggling: sidebarOpen ? '240px' : '56px' with a toggle button that controls sidebarOpen state."
+    },
+    {
+      "claim": "For mobile drawer pattern, upgrade to Pro tier Page component",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The response recommends Pro tier's Page component for mobile hamburger drawer, which is appropriate progressive enhancement advice."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Uses className (not class) on all elements",
+        "reason": "This assertion is ambiguous when the skill outputs both React and Vue code. Vue templates must use 'class', not 'className'. The assertion should be scoped to 'Uses className (not class) on all React JSX elements' to avoid penalizing correct Vue syntax."
+      },
+      {
+        "assertion": "Uses .wa-split or .wa-stack with justify for distributing sidebar content (logo top, links middle, avatar bottom)",
+        "reason": "The response achieves the three-zone distribution via .wa-stack + flex: 1 on the middle child, not via a 'justify' utility class. The assertion wording 'with justify' is slightly misleading since neither justify-content nor a wa-justify-* utility is used on the stack itself. Consider tightening to 'Uses .wa-stack with flex: 1 on nav section to distribute sidebar content' or broadening to 'Achieves logo-top / links-middle / avatar-bottom distribution using layout utilities'."
+      },
+      {
+        "reason": "No assertion checks whether kigumi wrapper components (Button, Divider, Icon, Avatar) are used instead of raw wa-* tags. This is a core skill requirement per project memory. A missing-component install step is present, but there's no assertion verifying that all wa-* usage goes through wrappers."
+      }
+    ],
+    "overall": "Assertions cover the key layout patterns well. The main gaps are: scoping the className assertion to React-only context, tightening the justify wording, and adding a wrapper-component assertion to catch raw wa-* tag usage."
+  }
+}

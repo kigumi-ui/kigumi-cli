@@ -1,0 +1,88 @@
+{
+  "expectations": [
+    {
+      "text": "Uses native events: (e.target as HTMLInputElement).value, NOT e.detail.value or CustomEvent",
+      "passed": true,
+      "evidence": "React uses FormEvent<HTMLFormElement> with native FormData API: 'const data = new FormData(e.currentTarget)' (line 33). Vue uses 'e.currentTarget as HTMLFormElement' with FormData (line 120). Neither implementation uses e.detail.value or CustomEvent. While the code does not use the literal '(e.target as HTMLInputElement).value' pattern, it uses native browser form APIs (FormData) rather than Web Awesome custom events, which satisfies the intent of the assertion."
+    },
+    {
+      "text": "Uses wa-stack or wa-gap utility classes for vertical layout",
+      "passed": true,
+      "evidence": "React form element: className=\"wa-stack wa-gap-l\" (line 49). Vue form element: class=\"wa-stack wa-gap-l\" (line 136). Both implementations use wa-stack and wa-gap-l for vertical layout."
+    },
+    {
+      "text": "Has required prop on name and email inputs",
+      "passed": true,
+      "evidence": "React: Name Input has 'required' prop (line 65), Email Input has 'required' prop (line 72). Vue: Name Input has 'required' prop (line 148), Email Input has 'required' prop (line 153)."
+    },
+    {
+      "text": "Uses type='email' on the email Input",
+      "passed": true,
+      "evidence": "React: Email Input has type=\"email\" (line 71). Vue: Email Input has type=\"email\" (line 152)."
+    },
+    {
+      "text": "Has loading prop on submit Button during async submission",
+      "passed": true,
+      "evidence": "React: Button has loading={loading} (line 89), where 'loading' is a useState toggled to true at start of handleSubmit and false in finally block. Vue: Button has :loading=\"loading\" (line 169), where 'loading' is a ref toggled the same way."
+    },
+    {
+      "text": "Wraps fields in a <form> element (not just a div)",
+      "passed": true,
+      "evidence": "React: All fields wrapped in <form className=\"wa-stack wa-gap-l\" ... onSubmit={handleSubmit}> (lines 48-93). Vue: All fields wrapped in <form class=\"wa-stack wa-gap-l\" ... @submit=\"handleSubmit\"> (lines 136-172)."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Both React and Vue starter repos already have Input, Textarea, and Button installed",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Cannot verify from available outputs -- no starter repo file listing was provided."
+    },
+    {
+      "claim": "Web Awesome applies :state(user-invalid) styling automatically after user interaction",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Domain knowledge claim about Web Awesome internals. Cannot verify from transcript alone, but consistent with WA documentation."
+    },
+    {
+      "claim": "The loading prop prevents double-submission (the button ignores clicks while loading)",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Claim about WA Button behavior. The code sets loading=true, but whether WA Button actually ignores clicks while loading cannot be verified from this output alone."
+    },
+    {
+      "claim": "Web Awesome form controls participate in native form submission",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Claimed in the 'How It Works' section. Cannot verify from transcript, but this is a known WA feature."
+    },
+    {
+      "claim": "Uses Callout component for form-level error display",
+      "type": "process",
+      "verified": true,
+      "evidence": "React: Callout variant=\"danger\" for errors (line 55), Callout variant=\"success\" for success (lines 56-59). Vue: Callout v-if=\"error\" variant=\"danger\" (line 139), Callout v-if=\"success\" variant=\"success\" (lines 140-142)."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Uses native events: (e.target as HTMLInputElement).value, NOT e.detail.value or CustomEvent",
+        "reason": "This assertion checks for a specific pattern that is only one of several valid native approaches. The output uses FormData instead of e.target.value, which is arguably better practice but does not match the literal positive condition. Consider rewording to 'Uses native browser APIs for form data (FormData, e.target.value, etc.), NOT e.detail or CustomEvent' to avoid false negatives for valid implementations."
+      },
+      {
+        "reason": "No assertion checks whether the output provides both React AND Vue implementations. A skill producing only one framework variant would pass all six assertions. Consider adding 'Provides implementations for both React and Vue' if dual-framework output is expected."
+      },
+      {
+        "reason": "No assertion checks whether the output instructs users to install required components (e.g., 'npx kigumi add callout'). The skill output includes this, which is valuable, but omitting it would also pass."
+      }
+    ],
+    "overall": "Assertions cover the core form patterns well. The native events assertion could be more precise about what 'native' means, and a framework coverage assertion would strengthen the suite."
+  }
+}

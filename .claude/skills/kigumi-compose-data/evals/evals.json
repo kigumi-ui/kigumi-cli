@@ -1,0 +1,43 @@
+{
+  "skill_name": "kigumi-compose-data",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build me a sortable data table showing a list of users with columns: Name, Email, Role, Last Active. I want to click column headers to sort.",
+      "expected_output": "React component with useState for sort state, onClick on th elements, aria-sort attributes, sort indicator icons.",
+      "files": [],
+      "expectations": [
+        "Uses useState for sort key and direction",
+        "Has onClick handler on <th> elements for sorting",
+        "Includes aria-sort attribute on the active sort column",
+        "Shows sort indicator icon (arrow-up/arrow-down or similar)",
+        "Has <caption> element for accessibility",
+        "Has scope='col' on <th> elements"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a paginated table for displaying product inventory. Show 10 items per page with navigation controls.",
+      "expected_output": "Table with page state, page-size controls, Showing X-Y of Z text, prev/next navigation.",
+      "files": [],
+      "expectations": [
+        "Uses useState for current page",
+        "Shows 'Showing X-Y of Z' pagination info",
+        "Has prev/next navigation buttons",
+        "Slices data based on current page and page size"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Build a stats dashboard with 4 metric cards showing: Total Revenue, Active Users, Conversion Rate, and Average Order Value. Use proper formatting.",
+      "expected_output": "Grid layout with stat cards using FormatNumber/FormatBytes components, Badge for trends.",
+      "files": [],
+      "expectations": [
+        "Uses wa-grid or similar grid layout",
+        "Uses FormatNumber component for currency/number formatting",
+        "Shows trend indicators (Badge or similar)",
+        "Has a responsive layout"
+      ]
+    }
+  ]
+}

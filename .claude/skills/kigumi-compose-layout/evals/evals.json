@@ -1,0 +1,47 @@
+{
+  "skill_name": "kigumi-compose-layout",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build an app shell with a sidebar navigation on the left (240px wide) and a main content area on the right. The sidebar should have a logo at the top, navigation links in the middle, and a user avatar at the bottom.",
+      "expected_output": "App shell using .wa-flank with wa-align-items-stretch. Semantic HTML (nav, main, aside). Sidebar with .wa-split for top/bottom distribution.",
+      "files": [],
+      "expectations": [
+        "Uses .wa-flank layout utility with --flank-size: 240px",
+        "Includes wa-align-items-stretch on the .wa-flank container",
+        "Uses semantic HTML elements (nav, main, aside) with appropriate roles or aria-label",
+        "Uses .wa-split or .wa-stack with justify for distributing sidebar content (logo top, links middle, avatar bottom)",
+        "Uses className (not class) on all elements",
+        "Does NOT use @media queries for basic responsiveness (wa-flank handles it)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a dashboard layout with a header showing the page title 'Analytics', then a row of 4 metric cards (Total Users, Revenue, Conversion, Active Sessions), and below that a two-column grid with a chart area and a recent activity list.",
+      "expected_output": "Dashboard using .wa-stack for vertical flow, .wa-grid for card row and two-column below. Card components for metrics.",
+      "files": [],
+      "expectations": [
+        "Uses .wa-stack for the overall vertical page flow",
+        "Uses .wa-grid with --min-column-size for the metric cards row",
+        "Uses Card component for metric cards (not raw divs)",
+        "Uses a grid or .wa-grid for the two-column chart+activity section",
+        "Includes npx kigumi add for Card and other needed components",
+        "Uses className (not class) on all elements"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Build a landing page with a dark hero section at the top (title, subtitle, CTA button), a 3-column features grid in the middle, and a footer with links.",
+      "expected_output": "Landing page with .wa-dark on hero section, .wa-grid for features, semantic footer. Layout utilities for spacing.",
+      "files": [],
+      "expectations": [
+        "Uses .wa-dark class on the hero section to invert colors",
+        "Uses .wa-grid for the 3-column features section",
+        "Uses .wa-stack for vertical page flow and section spacing",
+        "Uses semantic HTML (<header>, <main>, <footer> or <section>)",
+        "Uses Button component for CTA (not raw <button>)",
+        "Does NOT fabricate layout utilities like .wa-hero, .wa-section, or .wa-container"
+      ]
+    }
+  ]
+}

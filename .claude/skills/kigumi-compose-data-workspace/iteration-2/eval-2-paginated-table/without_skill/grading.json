@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "Uses useState for current page",
+      "passed": true,
+      "evidence": "useState for current page confirmed in output"
+    },
+    {
+      "text": "Shows 'Showing X-Y of Z' pagination info",
+      "passed": true,
+      "evidence": "Pagination info confirmed in output"
+    },
+    {
+      "text": "Has prev/next navigation buttons",
+      "passed": true,
+      "evidence": "Prev/Next buttons confirmed in output"
+    },
+    {
+      "text": "Slices data based on current page and page size",
+      "passed": true,
+      "evidence": "Data slicing by page and size confirmed"
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 }
+}

@@ -1,0 +1,82 @@
+{
+  "expectations": [
+    {
+      "text": "Maps wa-card to Card, wa-icon to Icon, wa-input to Input, wa-button to Button",
+      "passed": true,
+      "evidence": "Code output shows all four mappings: <Card>, <Icon name=\"gear\" />, <Input label=\"Username\" value=\"mischa\" className=\"wa-mb-m\" />, <Button variant=\"brand\" loading>. Import statement confirms: import { Button, Card, Icon, Input } from '@/components/ui'."
+    },
+    {
+      "text": "Uses className (not class) on ALL elements including Kigumi wrapper components",
+      "passed": true,
+      "evidence": "The only element with a CSS class is Input, which uses className=\"wa-mb-m\". No raw 'class' attribute appears anywhere in the output. The transformations summary confirms: 'class=\"wa-mb-m\" on <Input> changed to className=\"wa-mb-m\"'."
+    },
+    {
+      "text": "Maps variant='primary' to variant='brand'",
+      "passed": true,
+      "evidence": "Button in output uses variant=\"brand\". The transformations summary confirms: 'variant=\"primary\" mapped to variant=\"brand\" (Kigumi uses \"brand\" instead of \"primary\")'."
+    },
+    {
+      "text": "Uses self-closing JSX for Icon (<Icon ... />)",
+      "passed": true,
+      "evidence": "Output contains <Icon name=\"gear\" /> as a self-closing tag. Transformations summary confirms: '<wa-icon name=\"gear\"></wa-icon> converted to self-closing <Icon name=\"gear\" />'."
+    },
+    {
+      "text": "Preserves slot='header' attribute",
+      "passed": true,
+      "evidence": "Output contains <div slot=\"header\"> preserving the slot attribute. Transformations summary confirms: 'slot=\"header\" on the <div> preserved as-is'."
+    },
+    {
+      "text": "Includes npx kigumi add command for missing components",
+      "passed": false,
+      "evidence": "No npx kigumi add command appears in the output. The response claims 'All four required components (Card, Icon, Input, Button) are already installed in your project -- no installation needed.' This claim cannot be verified from available outputs, and in an eval context the skill should demonstrate the install command rather than assume components are pre-installed."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.83
+  },
+  "claims": [
+    {
+      "claim": "All four required components are already installed in the project",
+      "type": "factual",
+      "verified": false,
+      "evidence": "No evidence in the output that installation status was actually checked. The claim is asserted without verification and is used to skip the kigumi add command."
+    },
+    {
+      "claim": "class attribute on Input was changed to className",
+      "type": "process",
+      "verified": true,
+      "evidence": "Output shows className=\"wa-mb-m\" on the Input component, consistent with the stated transformation."
+    },
+    {
+      "claim": "variant='primary' was mapped to variant='brand'",
+      "type": "process",
+      "verified": true,
+      "evidence": "Output shows variant=\"brand\" on the Button component, matching the documented mapping."
+    },
+    {
+      "claim": "loading boolean attribute was preserved as a JSX prop",
+      "type": "process",
+      "verified": true,
+      "evidence": "Output shows <Button variant=\"brand\" loading> with the loading prop present."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Includes npx kigumi add command for missing components",
+        "reason": "This assertion is easy to dodge by claiming components are already installed. Consider either (a) making the eval input explicitly state that components are NOT yet installed, or (b) rephrasing to 'mentions npx kigumi add as the install command for any components not yet in the project' so that the skill must at least reference the command even when claiming everything is present."
+      },
+      {
+        "reason": "No assertion checks whether the import path (@/components/ui) is correct for a Kigumi project. An incorrect import path would make the code non-functional even if all other transformations are correct."
+      },
+      {
+        "reason": "No assertion verifies that the output is valid, parseable JSX/TSX. A syntax error in the output would pass all current assertions but produce broken code."
+      }
+    ],
+    "overall": "Assertions cover the core transformations well but are vulnerable to the skill skipping the install step by claiming components are pre-installed. Adding an assertion about import paths would strengthen coverage of real-world correctness."
+  }
+}

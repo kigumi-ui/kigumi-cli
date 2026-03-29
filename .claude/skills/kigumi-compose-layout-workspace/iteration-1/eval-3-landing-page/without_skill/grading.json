@@ -1,0 +1,94 @@
+{
+  "expectations": [
+    {
+      "text": "Uses .wa-dark class on the hero section to invert colors",
+      "passed": true,
+      "evidence": "Line 22 of response.md: <section class=\"wa-dark hero\"> -- the hero section element directly uses .wa-dark. The explanation section also confirms: 'The .wa-dark class on the hero <section> inverts the color scheme.'"
+    },
+    {
+      "text": "Uses .wa-grid for the 3-column features section",
+      "passed": true,
+      "evidence": "Line 41: <div class=\"wa-grid features__grid\"> wraps the three feature cards. CSS sets --wa-grid-min-column-size: 18rem to produce a 3-column responsive layout."
+    },
+    {
+      "text": "Uses .wa-stack for vertical page flow and section spacing",
+      "passed": true,
+      "evidence": ".wa-stack is used in three places: hero__content (line 23), features__content (line 39), and each feature-card (lines 42, 50). It handles vertical stacking within sections. However, it is NOT used at the page level (the outer div uses className=\"landing-page\" with no .wa-stack), so page-level vertical flow between hero/features/footer is not managed by .wa-stack. Passing because .wa-stack is genuinely used for vertical stacking, though page-level flow is an omission."
+    },
+    {
+      "text": "Uses semantic HTML (<header>, <main>, <footer> or <section>)",
+      "passed": true,
+      "evidence": "Two <section> elements (hero on line 22, features on line 38) and one <footer> (line 70). No <header> or <main> wrapper, but the expectation is satisfied by the presence of <section> and <footer>."
+    },
+    {
+      "text": "Uses Button component for CTA (not raw <button>)",
+      "passed": true,
+      "evidence": "Line 16: import { Button } from '@/components/ui/button'; Lines 30-32: <Button variant=\"primary\" size=\"large\">Get Started</Button>. Uses the Kigumi wrapper, not a raw <button>."
+    },
+    {
+      "text": "Does NOT fabricate layout utilities like .wa-hero, .wa-section, or .wa-container",
+      "passed": false,
+      "evidence": "While the specifically named .wa-hero, .wa-section, and .wa-container do not appear, the response fabricates two other .wa-* prefixed layout utilities: .wa-split (line 71, footer layout) and .wa-cluster (line 73, footer links). These are not real Web Awesome utilities -- they follow the exact same fabrication pattern the expectation warns against ('like .wa-hero, .wa-section, or .wa-container'). The .wa-* prefix is reserved for Web Awesome's own classes."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.83
+  },
+  "claims": [
+    {
+      "claim": "npx kigumi add button installs the Button component",
+      "type": "process",
+      "verified": true,
+      "evidence": "The setup section correctly shows the kigumi add command, and the import path @/components/ui/button matches standard kigumi output"
+    },
+    {
+      "claim": ".wa-dark inverts the color scheme giving dark background with light text automatically",
+      "type": "factual",
+      "verified": true,
+      "evidence": ".wa-dark is a real Web Awesome utility class that triggers dark mode color tokens on the element"
+    },
+    {
+      "claim": ".wa-grid with --wa-grid-min-column-size creates responsive columns without media queries",
+      "type": "factual",
+      "verified": true,
+      "evidence": ".wa-grid is a real Web Awesome utility that uses CSS grid with auto-fill and minmax, controlled by the custom property"
+    },
+    {
+      "claim": ".wa-split pushes elements to opposite ends",
+      "type": "factual",
+      "verified": false,
+      "evidence": ".wa-split is not a documented Web Awesome utility class. This is a fabricated class name. Web Awesome does not ship this utility."
+    },
+    {
+      "claim": ".wa-cluster keeps items in a horizontal wrapping row",
+      "type": "factual",
+      "verified": false,
+      "evidence": ".wa-cluster is not a documented Web Awesome utility class. This is a fabricated class name. Web Awesome does not ship this utility."
+    },
+    {
+      "claim": "All spacing uses --wa-spacing-* tokens",
+      "type": "quality",
+      "verified": true,
+      "evidence": "All padding and gap values in the CSS use --wa-spacing-* custom properties (e.g., --wa-spacing-large, --wa-spacing-4x-large). No hardcoded spacing values."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Uses .wa-stack for vertical page flow and section spacing",
+        "reason": "This assertion conflates two distinct usages: page-level flow (stacking sections vertically) and within-section spacing. The response uses .wa-stack inside sections but not at the page level. A more discriminating assertion would test 'Uses .wa-stack as the outermost page-level layout primitive' separately from within-section usage."
+      },
+      {
+        "assertion": "Does NOT fabricate layout utilities like .wa-hero, .wa-section, or .wa-container",
+        "reason": "The assertion lists specific examples but uses 'like' to imply a broader category. This creates ambiguity -- does it fail only for the three named classes or for any fabricated .wa-* utility? Consider either listing all prohibited patterns or rephrasing to 'Does NOT use any .wa-* class names that do not exist in Web Awesome' for clarity."
+      },
+      {
+        "reason": "No assertion checks for the className vs class attribute mixing bug. The response inconsistently uses className (React) on some elements and class (HTML attribute) on others. Lines 20, 25, 27 use className while lines 22-24, 38-42 use class. On web components (wa-*) class is correct, but on plain HTML elements in React JSX, className is required. This is a real code quality issue that no expectation catches."
+      }
+    ],
+    "overall": "Assertions cover the key layout patterns well. The main gap is the className/class inconsistency in the JSX output, which is a real bug that would cause runtime issues in React. The .wa-stack assertion could be more precise about page-level vs section-level usage."
+  }
+}

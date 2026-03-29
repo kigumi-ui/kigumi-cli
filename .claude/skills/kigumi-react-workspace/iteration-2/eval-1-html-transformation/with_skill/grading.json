@@ -1,0 +1,43 @@
+{
+  "expectations": [
+    {
+      "text": "Maps wa-card to Card, wa-icon to Icon, wa-input to Input, wa-button to Button",
+      "passed": true,
+      "evidence": "Line 1: `import { Button, Card, Icon, Input } from '@/components/ui'` - all four wrappers imported and used correctly"
+    },
+    {
+      "text": "Uses className (not class) on ALL elements including Kigumi wrapper components",
+      "passed": true,
+      "evidence": "Line 10: `className=\"wa-mb-m\"` on Input - correct React attribute"
+    },
+    {
+      "text": "Maps variant='primary' to variant='brand'",
+      "passed": true,
+      "evidence": "Line 11: `<Button variant=\"brand\" loading>` - correctly mapped from primary"
+    },
+    {
+      "text": "Uses self-closing JSX for Icon (<Icon ... />)",
+      "passed": true,
+      "evidence": "Line 7: `<Icon name=\"gear\" />` - self-closing"
+    },
+    {
+      "text": "Preserves slot='header' attribute",
+      "passed": true,
+      "evidence": "Line 6: `<div slot=\"header\">` - preserved"
+    },
+    {
+      "text": "Mentions npx kigumi add as the install command for the required components",
+      "passed": false,
+      "evidence": "No install command in output. Agent determined components were already installed and omitted it."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.83
+  },
+  "timing": {
+    "total_duration_seconds": 43.1
+  }
+}

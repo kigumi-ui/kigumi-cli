@@ -1,0 +1,81 @@
+{
+  "expectations": [
+    {
+      "text": "Uses Input with type='password' and password-toggle prop",
+      "passed": true,
+      "evidence": "React (line 66-69): <Input label=\"Password\" name=\"password\" type=\"password\" required password-toggle ... />. Vue (line 147-152): identical props. Both use type=\"password\" and password-toggle."
+    },
+    {
+      "text": "Uses Switch component for 'Remember me' (not Checkbox)",
+      "passed": true,
+      "evidence": "React (line 73-76): <Switch onChange={...}>Remember me</Switch>. Vue (line 156): <Switch v-model=\"remember\">Remember me</Switch>. No Checkbox component used anywhere."
+    },
+    {
+      "text": "Reads switch state via (e.target as HTMLInputElement).checked, NOT e.detail or CustomEvent",
+      "passed": true,
+      "evidence": "React (line 74): onChange={(e) => setRemember((e.target as HTMLInputElement).checked)}. Vue uses v-model which is the standard Vue binding mechanism. Neither e.detail nor CustomEvent appear anywhere in the output."
+    },
+    {
+      "text": "Has a <form> element with onSubmit handler",
+      "passed": true,
+      "evidence": "React (line 48-49): <form className=\"wa-stack wa-gap-l\" ... onSubmit={handleSubmit}>. Vue (line 129-133): <form class=\"wa-stack wa-gap-l\" ... @submit=\"handleSubmit\">. Both have async handleSubmit functions with e.preventDefault()."
+    },
+    {
+      "text": "Includes npx kigumi add commands for missing components",
+      "passed": true,
+      "evidence": "Lines 7-9: 'Both projects already have Input, Switch, and Button installed. You need to add Callout for form-level error display: npx kigumi add callout'. The skill correctly identifies which components are already present and provides an install command only for the missing one."
+    },
+    {
+      "text": "Does NOT fabricate props like onToggle, onSwitch, or wa-change",
+      "passed": true,
+      "evidence": "Full text search of the response: no instances of 'onToggle', 'onSwitch', or 'wa-change' appear. Event handling uses standard DOM patterns: onChange (React Switch), onInput (React Input), @submit (Vue form), and v-model (Vue inputs)."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Both projects already have Input, Switch, and Button installed",
+      "type": "process",
+      "verified": false,
+      "evidence": "The skill states this but we cannot verify what is actually installed in the target projects from the transcript alone. However, the skill correctly scopes the install command to only the missing component (Callout), which is a reasonable approach."
+    },
+    {
+      "claim": "password-toggle prop adds a built-in show/hide eye icon button",
+      "type": "factual",
+      "verified": true,
+      "evidence": "This is a documented Web Awesome / Shoelace feature for wa-input with type=password. The password-toggle attribute enables the visibility toggle."
+    },
+    {
+      "claim": "The Switch uses a native change event",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line 184: 'The Switch uses a native change event. In React, read (e.target as HTMLInputElement).checked.' This is correct for wa-switch which fires standard DOM change events."
+    },
+    {
+      "claim": "Layout uses .wa-stack for vertical field spacing and .wa-cluster to place the Switch and link side-by-side",
+      "type": "factual",
+      "verified": true,
+      "evidence": "React line 48: className=\"wa-stack wa-gap-l\" on form. React line 72: className=\"wa-cluster wa-justify-content-space-between wa-align-items-center\" on the Switch/link container. Both are valid Web Awesome utility classes."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Reads switch state via (e.target as HTMLInputElement).checked, NOT e.detail or CustomEvent",
+        "reason": "This assertion only checks the React pattern. The Vue implementation uses v-model, which is correct but sidesteps the check entirely. Consider splitting into two assertions: one for React's explicit event handling and one verifying Vue uses v-model (not a fabricated event pattern)."
+      },
+      {
+        "reason": "No assertion checks whether the response provides BOTH React and Vue implementations. The skill is expected to output dual-framework code, and a response with only one framework would pass all current assertions."
+      },
+      {
+        "reason": "No assertion checks that className is NOT used on wa-* elements (a critical Kigumi rule). The React code correctly uses className only on plain div/form elements, not on wa-* wrapper components, but this is not validated."
+      }
+    ],
+    "overall": "Assertions cover the key form composition patterns well, especially the Switch event handling anti-pattern. Adding a dual-framework check and a className-on-wa-elements check would strengthen the eval."
+  }
+}

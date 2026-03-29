@@ -1,0 +1,76 @@
+{
+  "expectations": [
+    {
+      "text": "Uses Input for name fields, Textarea for bio, Switch for toggles, Select+Option for frequency",
+      "passed": true,
+      "evidence": "Input used for 'First name' and 'Last name' (lines 26-37), Textarea for 'Bio' (lines 40-46), Switch for 'Email notifications' and 'SMS notifications' (lines 56-63), Select+Option for 'Notification frequency' with Daily/Weekly/Monthly options (lines 65-73)."
+    },
+    {
+      "text": "Groups fields into visual sections (headings, Details, or Card sections)",
+      "passed": true,
+      "evidence": "Entire form wrapped in <Card> (line 18). Two <section> elements with <h2> headings: 'Profile' (line 23) and 'Notifications' (line 53). Sections separated by <Divider /> components (line 49)."
+    },
+    {
+      "text": "Uses wa-stack for vertical field flow",
+      "passed": true,
+      "evidence": "Multiple wa-stack utility classes used: className=\"wa-stack wa-gap-l\" on main wrapper (line 19), className=\"wa-stack wa-gap-m\" on Profile section (line 22) and Notifications section (line 52), className=\"wa-stack wa-gap-s\" on switches container (line 55). These achieve vertical stacking layout."
+    },
+    {
+      "text": "Select has Option children with value props (Daily, Weekly, Monthly)",
+      "passed": true,
+      "evidence": "Lines 65-73 show <Select label=\"Notification frequency\"> with three <Option> children: <Option value=\"daily\">Daily</Option>, <Option value=\"weekly\">Weekly</Option>, <Option value=\"monthly\">Monthly</Option>."
+    },
+    {
+      "text": "Installs all needed components via npx kigumi add",
+      "passed": true,
+      "evidence": "Line 7: 'npx kigumi add Input Textarea Button Select Option Switch Divider Card' covers every component used in the code."
+    },
+    {
+      "text": "Every form control has a label prop",
+      "passed": false,
+      "evidence": "Input has label=\"First name\" and label=\"Last name\". Textarea has label=\"Bio\". Select has label=\"Notification frequency\". However, Switch components (lines 56-62) use children text ('Email notifications', 'SMS notifications') instead of a label prop. Strictly, they lack a label prop."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.83
+  },
+  "claims": [
+    {
+      "claim": "No custom CSS needed -- layout handled by WA utility classes",
+      "type": "quality",
+      "verified": true,
+      "evidence": "SettingsForm.css is empty (just a comment). All layout uses wa-stack, wa-cluster, wa-gap-*, wa-heading-s, and wa-justify-content-end utility classes. Only inline styles are for Card width (560px) and margin."
+    },
+    {
+      "claim": "First name / Last name sit side-by-side using wa-cluster",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line 25: <div className=\"wa-cluster wa-gap-m\"> wraps both Input components, each with style={{ flex: 1 }}."
+    },
+    {
+      "claim": "Components are imported from @/components/ui",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Lines 12-13 show imports from '@/components/ui' and '@/components/ui/Option/Option'. Note the inconsistent import path for Option (direct file import vs barrel export)."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Every form control has a label prop",
+        "reason": "This assertion is ambiguous for Switch, which in Web Awesome uses children as its label (not a label prop). The eval should clarify whether children-based labeling counts, or explicitly state 'label prop or visible label text' to avoid false failures for correct patterns."
+      },
+      {
+        "reason": "No assertion checks whether the output avoids className on wa-* elements (a critical Kigumi rule: use class, not className on web components). This output uses className on plain HTML divs and sections, which is fine, but the distinction is not tested."
+      },
+      {
+        "reason": "No assertion verifies the import paths are correct. The output imports Option from '@/components/ui/Option/Option' separately from other components, which may indicate the barrel export was missed or the agent was unsure. This kind of structural issue goes unchecked."
+      }
+    ],
+    "overall": "Assertions cover component selection and layout patterns well. The label-prop assertion could be more precise about Switch's labeling pattern. Consider adding an assertion for import correctness since that is a common failure mode."
+  }
+}

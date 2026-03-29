@@ -1,0 +1,36 @@
+{
+  "expectations": [
+    {
+      "text": "Uses Dropdown component with Button or IconButton as trigger",
+      "passed": true,
+      "evidence": "Lines 20-23: `<Dropdown onSelect={handleSelect}><Button slot=\"trigger\" ...><Icon name=\"ellipsis-vertical\" /></Button>`"
+    },
+    {
+      "text": "Trigger has slot='trigger' attribute",
+      "passed": true,
+      "evidence": "Line 21: `slot=\"trigger\"`"
+    },
+    {
+      "text": "Uses DropdownItem for each menu option",
+      "passed": true,
+      "evidence": "Lines 24-36: Three DropdownItem components for Edit, Duplicate, Delete"
+    },
+    {
+      "text": "Delete item uses variant='danger' or similar danger styling",
+      "passed": true,
+      "evidence": "Line 33: `<DropdownItem value=\"delete\" variant=\"danger\">`"
+    },
+    {
+      "text": "Does NOT fabricate onSelect or onMenuSelect events",
+      "passed": true,
+      "evidence": "Line 20: `onSelect` is the correct Kigumi React handler for `wa-select` event (not fabricated). No onMenuSelect present."
+    },
+    {
+      "text": "Includes proper install commands for dropdown + dropdown-item",
+      "passed": false,
+      "evidence": "No install command in output."
+    }
+  ],
+  "summary": { "passed": 5, "failed": 1, "total": 6, "pass_rate": 0.83 },
+  "timing": { "total_duration_seconds": 53.3 }
+}

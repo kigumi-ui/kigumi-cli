@@ -141,9 +141,9 @@ See [shared/react-api-surface.md](../shared/react-api-surface.md) for complete e
 | `input`           | `onInput`     | Native `InputEvent` (form controls) |
 | `blur`            | `onBlur`      | Native `FocusEvent`                 |
 | `focus`           | `onFocus`     | Native `FocusEvent`                 |
-| `wa-show`         | `onWaShow`    | `CustomEvent` (overlays)            |
-| `wa-hide`         | `onWaHide`    | `CustomEvent` (overlays)            |
-| `wa-invalid`      | `onWaInvalid` | `CustomEvent` (form validation)     |
+| `wa-show`         | `onShow`      | `CustomEvent` (overlays)            |
+| `wa-hide`         | `onHide`      | `CustomEvent` (overlays)            |
+| `wa-invalid`      | `onInvalid`   | `CustomEvent` (form validation)     |
 
 ## Output Format
 

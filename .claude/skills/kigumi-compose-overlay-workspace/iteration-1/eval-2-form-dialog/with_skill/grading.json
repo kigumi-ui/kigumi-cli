@@ -1,0 +1,88 @@
+{
+  "expectations": [
+    {
+      "text": "Dialog has label prop (e.g., 'Edit Profile')",
+      "passed": true,
+      "evidence": "React: label=\"Edit Profile\" on line 59. Vue: label=\"Edit Profile\" on line 183. Both frameworks set the label prop correctly."
+    },
+    {
+      "text": "Form fields inside dialog use native events (e.target), NOT CustomEvent/e.detail",
+      "passed": true,
+      "evidence": "React uses native FormEvent with e.currentTarget + FormData API (lines 37-43). Vue uses native @submit.prevent with v-model bindings (lines 163-164). Neither framework reads CustomEvent or e.detail for form field values."
+    },
+    {
+      "text": "Footer buttons are in a slot='footer' container",
+      "passed": true,
+      "evidence": "React: <div slot=\"footer\" className=\"wa-cluster ...\"> on line 82. Vue: <div slot=\"footer\" class=\"wa-cluster ...\"> on line 208. Both Cancel and Save buttons are children of the slot=\"footer\" container."
+    },
+    {
+      "text": "Cancel uses requestClose() or state setter, NOT hide()",
+      "passed": true,
+      "evidence": "React Cancel: onClick={() => dialogRef.current?.requestClose()} on line 83. Vue Cancel: @click=\"dialogOpen = false\" on line 209. Neither uses .hide()."
+    },
+    {
+      "text": "Save button has loading state during submission",
+      "passed": true,
+      "evidence": "React: loading={loading} on Save button (line 86), with setLoading(true) at submit start (line 39) and setLoading(false) in finally block (line 54). Vue: :loading=\"loading\" on Save button (line 214), with loading.value toggled in handleSubmit (lines 165, 177)."
+    },
+    {
+      "text": "Includes npx kigumi add for dialog + form components",
+      "passed": true,
+      "evidence": "Line 6: npx kigumi add dialog input textarea button. Covers dialog and all three form-related components used in the example."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "All four components (Dialog, Input, Textarea, Button) are already installed in both starter projects",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Unverifiable from transcript alone -- this depends on the state of external starter repos."
+    },
+    {
+      "claim": "Focus trap is handled automatically by the Dialog component",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Plausible given Web Awesome Dialog behavior, but not demonstrated in the code output."
+    },
+    {
+      "claim": "ESC key closes the dialog through the built-in wa-hide event",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Reasonable claim about Web Awesome Dialog, but not demonstrated or tested in the output."
+    },
+    {
+      "claim": "Error message uses role=\"alert\" for live region announcement",
+      "type": "factual",
+      "verified": true,
+      "evidence": "React line 62: <p role=\"alert\">. Vue line 185-188: role=\"alert\" on the error paragraph."
+    },
+    {
+      "claim": "Vue Cancel closes via v-model (dialogOpen = false) which is equivalent to requestClose()",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Setting dialogOpen = false directly bypasses the wa-hide event lifecycle. The explanation section (line 271) acknowledges this is a v-model pattern, but it skips requestClose() unlike the React version. Whether this is truly equivalent depends on whether wa-hide interception is needed."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Form fields inside dialog use native events (e.target), NOT CustomEvent/e.detail",
+        "reason": "This assertion is satisfied by any code that avoids e.detail, even if the form handling is broken. Consider also checking that form data is actually extracted and passed to the onSave/emit handler with the correct field names."
+      },
+      {
+        "reason": "No assertion checks that the form includes a visible error state for failed submissions. The output does include error handling (role=\"alert\" paragraph), which is a meaningful UX detail worth verifying."
+      },
+      {
+        "reason": "No assertion verifies the form-outside-button pattern (form=\"edit-profile\" on the Save button + id=\"edit-profile\" on the form). This is a non-trivial implementation detail required because the submit button lives in a different slot than the form."
+      }
+    ],
+    "overall": "Assertions cover the key structural and behavioral requirements well. The main gap is that assertions check for the presence of patterns but not their correctness -- a form with the right attributes but broken data flow would still pass."
+  }
+}

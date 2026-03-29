@@ -1,0 +1,41 @@
+{
+  "skill_name": "kigumi-vue",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Convert this Web Awesome HTML to Kigumi Vue:\n<wa-input label=\"Name\" required></wa-input>\n<wa-input label=\"Email\" type=\"email\" required></wa-input>\n<wa-button variant=\"brand\" type=\"submit\">Submit</wa-button>",
+      "expected_output": "Vue SFC with <script setup>, proper event handling, NO v-model on Kigumi components.",
+      "files": [],
+      "expectations": [
+        "Uses @input event handler (not v-model) for Input components",
+        "Uses <script setup lang='ts'> format",
+        "Uses class (not className) on all elements",
+        "Imports from '@/components/ui'"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Build a Dialog with a form inside it in Vue using Kigumi components. The dialog should have Save and Cancel buttons in the footer.",
+      "expected_output": "Vue SFC with controlled open state via :open and @wa-hide, proper slot usage for footer.",
+      "files": [],
+      "expectations": [
+        "Uses :open='isOpen' and @wa-hide='isOpen = false' pattern (NOT v-model)",
+        "Has slot='footer' as a direct child of Dialog (not nested inside form)",
+        "Uses ref() from vue for state management",
+        "Cancel button closes the dialog"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What events does the Select component emit in Vue? I need to handle selection changes.",
+      "expected_output": "Lists both native events (@input, @change) and custom events (@wa-show, @wa-hide, etc.) with correct Vue syntax.",
+      "files": [],
+      "expectations": [
+        "Lists @change as a native Event (not CustomEvent)",
+        "Lists @wa-show and @wa-hide as custom overlay events",
+        "Uses @ prefix for Vue event syntax (not on* React syntax)",
+        "Shows how to access the selected value from the event"
+      ]
+    }
+  ]
+}

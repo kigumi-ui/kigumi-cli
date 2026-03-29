@@ -1,0 +1,88 @@
+{
+  "expectations": [
+    {
+      "text": "Uses useState for controlled open state with open={state}",
+      "passed": true,
+      "evidence": "Line 49: `const [open, setOpen] = useState(false);` and line 65-66: `<ConfirmDialog open={open} ...>` which passes through to line 34: `<Dialog open={open} ...>`. The dialog is fully controlled via React state."
+    },
+    {
+      "text": "Dialog has a label prop for accessibility",
+      "passed": true,
+      "evidence": "Line 34: `<Dialog open={open} label={title} onHide={onClose}>`. The label prop is present and bound to the title prop, providing an accessible name for screen readers."
+    },
+    {
+      "text": "Uses onHide handler to set state to false",
+      "passed": true,
+      "evidence": "Line 34: `onHide={onClose}` where onClose is the callback prop. In the usage component, line 67: `onClose={() => setOpen(false)}`. The onHide event triggers setOpen(false) via the callback chain."
+    },
+    {
+      "text": "Delete button uses variant='danger'",
+      "passed": true,
+      "evidence": "Line 38: `<Button variant=\"danger\" onClick={onConfirm} loading={loading}>Delete</Button>`."
+    },
+    {
+      "text": "Uses slot='footer' on the button container",
+      "passed": true,
+      "evidence": "Line 36: `<div slot=\"footer\" className=\"wa-cluster wa-justify-content-end wa-gap-s\">`. The button container div uses slot=\"footer\" to project into the Dialog's footer slot."
+    },
+    {
+      "text": "Does NOT use hide() directly -- uses requestClose() or state setter",
+      "passed": true,
+      "evidence": "No call to .hide() appears anywhere in the output. All dialog closing is handled through the React state setter: `setOpen(false)` on line 57 (after async delete) and line 67 (onClose callback). The dialog is fully controlled via the open prop."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Install via `npx kigumi add dialog button`",
+      "type": "process",
+      "verified": true,
+      "evidence": "Line 8 shows the correct kigumi add command for installing the required components."
+    },
+    {
+      "claim": "Vue uses slot=\"footer\" attribute (not template #footer)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line 103: `<div slot=\"footer\" class=\"wa-cluster wa-justify-content-end wa-gap-s\">`. Matches the Kigumi Vue slot convention documented in project memory."
+    },
+    {
+      "claim": "Vue uses @wa-hide event for dialog close",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line 101: `<Dialog :open=\"open\" :label=\"title\" @wa-hide=\"emit('close')\">`. Uses the wa-hide event name which is the web component event, appropriate for the Vue wrapper."
+    },
+    {
+      "claim": "No light-dismiss on the Dialog for destructive confirmation",
+      "type": "quality",
+      "verified": true,
+      "evidence": "No light-dismiss prop appears on any Dialog instance. The Key Decisions section (line 153) explicitly explains this is intentional for destructive action dialogs."
+    },
+    {
+      "claim": "Loading prop prevents double-submits",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Lines 50-59 show loading state management: setLoading(true) before the async call, setLoading(false) in finally block, and the loading prop is passed through to the Delete button (line 38)."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Uses onHide handler to set state to false",
+        "reason": "This assertion passes for the indirect pattern (onHide={onClose} with onClose={() => setOpen(false)}) which is good. However, a reusable component that hides the state setter behind a callback is arguably better design. The assertion could be more precise: 'onHide ultimately calls setOpen(false)' to distinguish from patterns where onHide does something else entirely."
+      },
+      {
+        "reason": "No assertion checks whether the output provides both React and Vue implementations. The skill produced both, which is a meaningful quality signal for a framework-agnostic design system CLI. Consider adding: 'Provides both React and Vue examples'."
+      },
+      {
+        "reason": "No assertion checks that the Vue example uses @wa-hide (not @hide) for the event name. This is a common mistake with web component wrappers and would be a discriminating assertion."
+      }
+    ],
+    "overall": "Assertions cover the core React patterns well. The main gap is framework coverage -- the skill produced a quality Vue variant with correct slot and event conventions, but no assertions validate it."
+  }
+}

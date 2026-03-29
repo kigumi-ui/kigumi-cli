@@ -19,13 +19,24 @@ interface ConfirmDialogProps {
   loading?: boolean;
 }
 
-export function ConfirmDialog({ open, onClose, onConfirm, title, message, loading }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  loading,
+}: ConfirmDialogProps) {
   return (
     <Dialog open={open} label={title} onHide={onClose}>
       <p>{message}</p>
       <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
-        <Button variant="neutral" onClick={onClose}>Cancel</Button>
-        <Button variant="danger" onClick={onConfirm} loading={loading}>Delete</Button>
+        <Button variant="neutral" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="danger" onClick={onConfirm} loading={loading}>
+          Delete
+        </Button>
       </div>
     </Dialog>
   );
@@ -36,11 +47,16 @@ function Example() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button variant="danger" onClick={() => setOpen(true)}>Delete Item</Button>
+      <Button variant="danger" onClick={() => setOpen(true)}>
+        Delete Item
+      </Button>
       <ConfirmDialog
         open={open}
         onClose={() => setOpen(false)}
-        onConfirm={async () => { await deleteItem(); setOpen(false); }}
+        onConfirm={async () => {
+          await deleteItem();
+          setOpen(false);
+        }}
         title="Delete Item"
         message="Are you sure? This action cannot be undone."
       />
@@ -73,7 +89,9 @@ async function handleConfirm() {
     <p>Are you sure? This action cannot be undone.</p>
     <div slot="footer" class="wa-cluster wa-justify-content-end wa-gap-s">
       <Button variant="neutral" @click="open = false">Cancel</Button>
-      <Button variant="danger" :loading="loading" @click="handleConfirm">Delete</Button>
+      <Button variant="danger" :loading="loading" @click="handleConfirm"
+        >Delete</Button
+      >
     </div>
   </Dialog>
 </template>
@@ -101,7 +119,10 @@ export function CreateItemDialog() {
     setLoading(true);
     setError('');
     try {
-      await fetch('/api/items', { method: 'POST', body: new FormData(e.currentTarget as HTMLFormElement) });
+      await fetch('/api/items', {
+        method: 'POST',
+        body: new FormData(e.currentTarget as HTMLFormElement),
+      });
       setOpen(false);
     } catch {
       setError('Failed to create item.');
@@ -112,16 +133,34 @@ export function CreateItemDialog() {
 
   return (
     <>
-      <Button variant="brand" onClick={() => setOpen(true)}>Create Item</Button>
+      <Button variant="brand" onClick={() => setOpen(true)}>
+        Create Item
+      </Button>
       <Dialog open={open} label="Create New Item" onHide={() => setOpen(false)}>
-        <form id="create-item" className="wa-stack wa-gap-m" onSubmit={handleSubmit}>
+        <form
+          id="create-item"
+          className="wa-stack wa-gap-m"
+          onSubmit={handleSubmit}
+        >
           {error && <Callout variant="danger">{error}</Callout>}
           <Input label="Name" name="name" required />
           <Input label="Description" name="description" />
         </form>
-        <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
-          <Button variant="neutral" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="brand" type="submit" form="create-item" loading={loading}>Create</Button>
+        <div
+          slot="footer"
+          className="wa-cluster wa-justify-content-end wa-gap-s"
+        >
+          <Button variant="neutral" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="brand"
+            type="submit"
+            form="create-item"
+            loading={loading}
+          >
+            Create
+          </Button>
         </div>
       </Dialog>
     </>
@@ -141,7 +180,13 @@ export function CreateItemDialog() {
 import { useState } from 'react';
 import { Button, Divider, Drawer } from '@/components/ui';
 
-export function DetailPanel({ item, onClose }: { item: Record<string, string>; onClose: () => void }) {
+export function DetailPanel({
+  item,
+  onClose,
+}: {
+  item: Record<string, string>;
+  onClose: () => void;
+}) {
   return (
     <Drawer open={!!item} label="Item Details" placement="end" onHide={onClose}>
       <div className="wa-stack wa-gap-m">
@@ -153,7 +198,9 @@ export function DetailPanel({ item, onClose }: { item: Record<string, string>; o
         ))}
       </div>
       <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
-        <Button variant="neutral" onClick={onClose}>Close</Button>
+        <Button variant="neutral" onClick={onClose}>
+          Close
+        </Button>
         <Button variant="brand">Edit</Button>
       </div>
     </Drawer>
@@ -174,17 +221,34 @@ export function DetailPanel({ item, onClose }: { item: Record<string, string>; o
 ```tsx
 import { Button, Dropdown, DropdownItem, Icon } from '@/components/ui';
 
-export function ActionsMenu({ onAction }: { onAction: (action: string) => void }) {
+export function ActionsMenu({
+  onAction,
+}: {
+  onAction: (action: string) => void;
+}) {
   return (
-    <Dropdown onSelect={(e: CustomEvent) => onAction((e.detail.item as HTMLElement).getAttribute('value') || '')}>
+    <Dropdown
+      onSelect={(e: CustomEvent) =>
+        onAction((e.detail.item as HTMLElement).getAttribute('value') || '')
+      }
+    >
       <Button slot="trigger" variant="neutral" with-caret>
         <Icon slot="start" name="ellipsis-vertical" />
         Actions
       </Button>
-      <DropdownItem value="edit"><Icon slot="icon" name="pen" />Edit</DropdownItem>
-      <DropdownItem value="duplicate"><Icon slot="icon" name="copy" />Duplicate</DropdownItem>
+      <DropdownItem value="edit">
+        <Icon slot="icon" name="pen" />
+        Edit
+      </DropdownItem>
+      <DropdownItem value="duplicate">
+        <Icon slot="icon" name="copy" />
+        Duplicate
+      </DropdownItem>
       <wa-divider />
-      <DropdownItem value="delete" variant="danger"><Icon slot="icon" name="trash" />Delete</DropdownItem>
+      <DropdownItem value="delete" variant="danger">
+        <Icon slot="icon" name="trash" />
+        Delete
+      </DropdownItem>
     </Dropdown>
   );
 }
@@ -206,10 +270,16 @@ function handleSelect(e: CustomEvent) {
     <Button slot="trigger" variant="neutral" with-caret>
       <Icon slot="start" name="ellipsis-vertical" />Actions
     </Button>
-    <DropdownItem value="edit"><Icon slot="icon" name="pen" />Edit</DropdownItem>
-    <DropdownItem value="duplicate"><Icon slot="icon" name="copy" />Duplicate</DropdownItem>
+    <DropdownItem value="edit"
+      ><Icon slot="icon" name="pen" />Edit</DropdownItem
+    >
+    <DropdownItem value="duplicate"
+      ><Icon slot="icon" name="copy" />Duplicate</DropdownItem
+    >
     <wa-divider />
-    <DropdownItem value="delete" variant="danger"><Icon slot="icon" name="trash" />Delete</DropdownItem>
+    <DropdownItem value="delete" variant="danger"
+      ><Icon slot="icon" name="trash" />Delete</DropdownItem
+    >
   </Dropdown>
 </template>
 ```
@@ -230,20 +300,42 @@ export function GroupedMenu() {
       </Button>
 
       {/* Group: Content */}
-      <small style={{ padding: 'var(--wa-space-xs) var(--wa-space-m)', color: 'var(--wa-color-text-quiet)' }}>
+      <small
+        style={{
+          padding: 'var(--wa-space-xs) var(--wa-space-m)',
+          color: 'var(--wa-color-text-quiet)',
+        }}
+      >
         Content
       </small>
-      <DropdownItem value="page"><Icon slot="icon" name="file" />Page</DropdownItem>
-      <DropdownItem value="post"><Icon slot="icon" name="pen-nib" />Blog Post</DropdownItem>
+      <DropdownItem value="page">
+        <Icon slot="icon" name="file" />
+        Page
+      </DropdownItem>
+      <DropdownItem value="post">
+        <Icon slot="icon" name="pen-nib" />
+        Blog Post
+      </DropdownItem>
 
       <wa-divider />
 
       {/* Group: Media */}
-      <small style={{ padding: 'var(--wa-space-xs) var(--wa-space-m)', color: 'var(--wa-color-text-quiet)' }}>
+      <small
+        style={{
+          padding: 'var(--wa-space-xs) var(--wa-space-m)',
+          color: 'var(--wa-color-text-quiet)',
+        }}
+      >
         Media
       </small>
-      <DropdownItem value="image"><Icon slot="icon" name="image" />Image</DropdownItem>
-      <DropdownItem value="video"><Icon slot="icon" name="video" />Video</DropdownItem>
+      <DropdownItem value="image">
+        <Icon slot="icon" name="image" />
+        Image
+      </DropdownItem>
+      <DropdownItem value="video">
+        <Icon slot="icon" name="video" />
+        Video
+      </DropdownItem>
     </Dropdown>
   );
 }
@@ -259,7 +351,12 @@ Use the `hoist` prop when the Dropdown is inside an overflow-constrained contain
     <h3>Card Title</h3>
     {/* hoist prevents the dropdown from being clipped by the Card's overflow */}
     <Dropdown hoist>
-      <Button slot="trigger" variant="neutral" size="small" aria-label="More actions">
+      <Button
+        slot="trigger"
+        variant="neutral"
+        size="small"
+        aria-label="More actions"
+      >
         <Icon name="ellipsis-vertical" />
       </Button>
       <DropdownItem>Edit</DropdownItem>
@@ -270,6 +367,7 @@ Use the `hoist` prop when the Dropdown is inside an overflow-constrained contain
 ```
 
 **When to use `hoist`:**
+
 - Dropdown inside `<Card>`, `<Dialog>`, `<Drawer>`, or `<Details>`
 - Dropdown inside table cells
 - Any container with `overflow: hidden` or `overflow: auto`
@@ -283,11 +381,12 @@ Use the `hoist` prop when the Dropdown is inside an overflow-constrained contain
 ```tsx
 import { Button, Icon, Tooltip } from '@/components/ui';
 
-// Tooltip wrapping a button
-<Tooltip content="Copy to clipboard" placement="top">
-  <Button variant="neutral" aria-label="Copy">
-    <Icon name="copy" />
-  </Button>
+// Tooltip using `for` attribute to target a button by ID
+<Button id="copy-btn" variant="neutral" aria-label="Copy">
+  <Icon name="copy" />
+</Button>
+<Tooltip for="copy-btn" placement="top">
+  Copy to clipboard
 </Tooltip>
 ```
 
@@ -299,14 +398,14 @@ import { Button, Icon, Tooltip } from '@/components/ui';
 
 ### Key Props
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `trigger` | string | `click` | Activation events: `click`, `hover`, `focus` (space-separated for multiple) |
-| `placement` | string | `top` | Position: `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end` |
-| `with-arrow` | boolean | `false` | Shows an arrow pointing to the trigger |
-| `distance` | number | `8` | Distance (px) from the trigger element |
-| `skidding` | number | `0` | Offset (px) along the trigger element |
-| `disabled` | boolean | `false` | Disables the popover |
+| Prop         | Type    | Default | Description                                                                                                                                            |
+| ------------ | ------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `trigger`    | string  | `click` | Activation events: `click`, `hover`, `focus` (space-separated for multiple)                                                                            |
+| `placement`  | string  | `top`   | Position: `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end` |
+| `with-arrow` | boolean | `false` | Shows an arrow pointing to the trigger                                                                                                                 |
+| `distance`   | number  | `8`     | Distance (px) from the trigger element                                                                                                                 |
+| `skidding`   | number  | `0`     | Offset (px) along the trigger element                                                                                                                  |
+| `disabled`   | boolean | `false` | Disables the popover                                                                                                                                   |
 
 ### Basic Filter Panel
 
@@ -314,12 +413,20 @@ import { Button, Icon, Tooltip } from '@/components/ui';
 import { Button, Icon, Input, Popover } from '@/components/ui';
 
 <Popover placement="bottom-start">
-  <Button slot="trigger" variant="neutral"><Icon slot="start" name="filter" />Filters</Button>
-  <div className="wa-stack wa-gap-m" style={{ padding: 'var(--wa-space-m)', minWidth: '250px' }}>
+  <Button slot="trigger" variant="neutral">
+    <Icon slot="start" name="filter" />
+    Filters
+  </Button>
+  <div
+    className="wa-stack wa-gap-m"
+    style={{ padding: 'var(--wa-space-m)', minWidth: '250px' }}
+  >
     <Input label="Search" type="search" />
-    <Button variant="brand" size="small" style={{ width: '100%' }}>Apply</Button>
+    <Button variant="brand" size="small" style={{ width: '100%' }}>
+      Apply
+    </Button>
   </div>
-</Popover>
+</Popover>;
 ```
 
 ### Hover Info Popover with Arrow
@@ -330,7 +437,9 @@ import { Button, Icon, Input, Popover } from '@/components/ui';
     <Icon name="circle-info" />
   </Button>
   <div style={{ padding: 'var(--wa-space-s)' }}>
-    <p style={{ margin: 0 }}>This field determines your display name across the app.</p>
+    <p style={{ margin: 0 }}>
+      This field determines your display name across the app.
+    </p>
   </div>
 </Popover>
 ```
@@ -339,8 +448,13 @@ import { Button, Icon, Input, Popover } from '@/components/ui';
 
 ```tsx
 <Popover placement="right-start" distance={12} skidding={-4} with-arrow>
-  <Button slot="trigger" variant="neutral">Settings</Button>
-  <div className="wa-stack wa-gap-s" style={{ padding: 'var(--wa-space-m)', minWidth: '200px' }}>
+  <Button slot="trigger" variant="neutral">
+    Settings
+  </Button>
+  <div
+    className="wa-stack wa-gap-s"
+    style={{ padding: 'var(--wa-space-m)', minWidth: '200px' }}
+  >
     <Input label="Rows per page" type="number" />
     <Input label="Default sort" />
   </div>
@@ -353,7 +467,7 @@ Unlike Dialog and Drawer, Popover's `wa-show` event is cancelable. You can preve
 
 ```tsx
 <Popover
-  onWaShow={(e: CustomEvent) => {
+  onShow={(e: CustomEvent) => {
     if (someCondition) {
       e.preventDefault(); // Popover will NOT open
     }
@@ -375,18 +489,46 @@ import { useRef } from 'react';
 import { Button, Toast } from '@/components/ui';
 
 export function ToastExample() {
-  const toastRef = useRef<HTMLElement & { create: (msg: string, opts?: Record<string, unknown>) => void }>(null);
+  const toastRef = useRef<
+    HTMLElement & {
+      create: (msg: string, opts?: Record<string, unknown>) => void;
+    }
+  >(null);
 
   return (
     <>
       <div className="wa-cluster wa-gap-s">
-        <Button variant="success" onClick={() => toastRef.current?.create('Saved!', { variant: 'success', duration: 3000 })}>
+        <Button
+          variant="success"
+          onClick={() =>
+            toastRef.current?.create('Saved!', {
+              variant: 'success',
+              duration: 3000,
+            })
+          }
+        >
           Success
         </Button>
-        <Button variant="danger" onClick={() => toastRef.current?.create('Error occurred.', { variant: 'danger', duration: 5000 })}>
+        <Button
+          variant="danger"
+          onClick={() =>
+            toastRef.current?.create('Error occurred.', {
+              variant: 'danger',
+              duration: 5000,
+            })
+          }
+        >
           Error
         </Button>
-        <Button variant="warning" onClick={() => toastRef.current?.create('Cannot undo.', { variant: 'warning', duration: 0 })}>
+        <Button
+          variant="warning"
+          onClick={() =>
+            toastRef.current?.create('Cannot undo.', {
+              variant: 'warning',
+              duration: 0,
+            })
+          }
+        >
           Warning (persistent)
         </Button>
       </div>
@@ -407,12 +549,12 @@ Override these CSS custom properties to control overlay dimensions and animation
 
 ### Dialog
 
-| Property | Default | Description |
-|---|---|---|
-| `--width` | - | Preferred width (shrinks on small screens) |
-| `--spacing` | - | Space around and between content |
-| `--show-duration` | `200ms` | Open animation duration |
-| `--hide-duration` | `200ms` | Close animation duration |
+| Property          | Default | Description                                |
+| ----------------- | ------- | ------------------------------------------ |
+| `--width`         | -       | Preferred width (shrinks on small screens) |
+| `--spacing`       | -       | Space around and between content           |
+| `--show-duration` | `200ms` | Open animation duration                    |
+| `--hide-duration` | `200ms` | Close animation duration                   |
 
 ```css
 /* Narrow dialog */
@@ -429,12 +571,12 @@ wa-dialog.wide::part(dialog) {
 
 ### Drawer
 
-| Property | Default | Description |
-|---|---|---|
-| `--size` | - | Width (start/end) or height (top/bottom) depending on placement |
-| `--spacing` | - | Space around and between content |
-| `--show-duration` | `200ms` | Open animation duration |
-| `--hide-duration` | `200ms` | Close animation duration |
+| Property          | Default | Description                                                     |
+| ----------------- | ------- | --------------------------------------------------------------- |
+| `--size`          | -       | Width (start/end) or height (top/bottom) depending on placement |
+| `--spacing`       | -       | Space around and between content                                |
+| `--show-duration` | `200ms` | Open animation duration                                         |
+| `--hide-duration` | `200ms` | Close animation duration                                        |
 
 ```css
 /* Wide side panel */

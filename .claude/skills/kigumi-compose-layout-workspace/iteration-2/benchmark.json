@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "skill_name": "kigumi-compose-layout",
+    "timestamp": "2026-03-29T20:15:00Z",
+    "evals_run": ["eval-1-app-shell", "eval-2-dashboard", "eval-3-landing-page"]
+  },
+  "run_summary": {
+    "with_skill": { "mean_pass_rate": 1.0, "passed": 18, "total": 18 },
+    "without_skill": { "mean_pass_rate": 0.56, "passed": 10, "total": 18 },
+    "delta": { "pass_rate": "+0.44" }
+  }
+}

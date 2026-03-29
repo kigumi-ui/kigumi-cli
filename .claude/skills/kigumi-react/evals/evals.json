@@ -1,0 +1,47 @@
+{
+  "skill_name": "kigumi-react",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Convert this Web Awesome HTML to Kigumi React:\n\n<wa-card>\n  <div slot=\"header\">\n    <wa-icon name=\"gear\"></wa-icon>\n    Settings\n  </div>\n  <wa-input label=\"Username\" value=\"mischa\" class=\"wa-mb-m\"></wa-input>\n  <wa-button variant=\"primary\" loading>Save Changes</wa-button>\n</wa-card>",
+      "expected_output": "React component with Card, Icon, Input, Button imports. className on all elements. variant='primary' mapped to variant='brand'. Self-closing Icon tag.",
+      "files": [],
+      "expectations": [
+        "Maps wa-card to Card, wa-icon to Icon, wa-input to Input, wa-button to Button",
+        "Uses className (not class) on ALL elements including Kigumi wrapper components",
+        "Maps variant='primary' to variant='brand'",
+        "Uses self-closing JSX for Icon (<Icon ... />)",
+        "Preserves slot='header' attribute",
+        "Mentions npx kigumi add as the install command for the required components"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I copied this from the Web Awesome docs. Transform it to Kigumi React:\n\n<wa-dialog label=\"Confirm Delete\" class=\"dialog-confirm\">\n  <p>Are you sure you want to delete this item?</p>\n  <div slot=\"footer\" class=\"wa-cluster wa-justify-content-end wa-gap-s\">\n    <wa-button variant=\"neutral\">Cancel</wa-button>\n    <wa-button variant=\"danger\">Delete</wa-button>\n  </div>\n</wa-dialog>\n\n<wa-dropdown>\n  <wa-button slot=\"trigger\" with-caret>Options</wa-button>\n  <wa-dropdown-item>Edit</wa-dropdown-item>\n  <wa-dropdown-item>Duplicate</wa-dropdown-item>\n</wa-dropdown>",
+      "expected_output": "React component with Dialog and Dropdown. className on wrappers. Kebab-case props preserved. Controlled open state for Dialog.",
+      "files": [],
+      "expectations": [
+        "Uses className='dialog-confirm' on Dialog (not class)",
+        "Uses className on the footer div and all Kigumi wrappers",
+        "Preserves kebab-case prop with-caret on Button",
+        "Preserves slot='trigger' and slot='footer'",
+        "Maps wa-dropdown-item to DropdownItem (PascalCase)",
+        "Does NOT fabricate onWaConfirm or similar non-existent events"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Convert this WA HTML with inline styles to Kigumi React:\n\n<form style=\"max-width: 60ch; margin: auto\">\n  <div class=\"wa-grid\" style=\"--min-column-size: 200px\">\n    <wa-input label=\"First name\" required></wa-input>\n    <wa-input label=\"Last name\" required></wa-input>\n  </div>\n  <wa-textarea label=\"Bio\" rows=\"4\" style=\"margin-top: 1rem\"></wa-textarea>\n  <wa-switch checked>Enable notifications</wa-switch>\n</form>",
+      "expected_output": "React component with object-style syntax for inline styles. className on div. camelCase CSS properties.",
+      "files": [],
+      "expectations": [
+        "Converts inline style strings to React object syntax (e.g., maxWidth: '60ch')",
+        "Uses className='wa-grid' on the div (not class)",
+        "Handles CSS custom property --min-column-size in style object",
+        "Maps wa-textarea to Textarea, wa-switch to Switch",
+        "Preserves boolean attributes (required, checked) as props",
+        "Does NOT fabricate onSwitchChange or similar events"
+      ]
+    }
+  ]
+}

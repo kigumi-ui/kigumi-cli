@@ -1,0 +1,47 @@
+{
+  "skill_name": "kigumi-compose-form",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build me a contact form with fields for name, email, and message. Include validation -- name and email are required, email must be valid. Show a submit button that shows loading state while submitting.",
+      "expected_output": "React form component with Input, Textarea, Button. Native event handling via e.target. Loading state on submit button. wa-stack layout.",
+      "files": [],
+      "expectations": [
+        "Uses native events: (e.target as HTMLInputElement).value, NOT e.detail.value or CustomEvent",
+        "Uses wa-stack or wa-gap utility classes for vertical layout",
+        "Has required prop on name and email inputs",
+        "Uses type='email' on the email Input",
+        "Has loading prop on submit Button during async submission",
+        "Wraps fields in a <form> element (not just a div)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a login form with email and password fields. Add a 'Remember me' switch and a 'Forgot password?' link. Password field should have the toggle to show/hide.",
+      "expected_output": "Login form with Input type=email, Input type=password with password-toggle, Switch, and link. Proper form layout.",
+      "files": [],
+      "expectations": [
+        "Uses Input with type='password' and password-toggle prop",
+        "Uses Switch component for 'Remember me' (not Checkbox)",
+        "Reads switch state via (e.target as HTMLInputElement).checked, NOT e.detail or CustomEvent",
+        "Has a <form> element with onSubmit handler",
+        "Includes npx kigumi add commands for missing components",
+        "Does NOT fabricate props like onToggle, onSwitch, or wa-change"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Build a settings form with two sections: 'Profile' (first name, last name, bio textarea) and 'Notifications' (email notifications switch, SMS notifications switch, notification frequency select with options Daily/Weekly/Monthly). Use a grouped layout.",
+      "expected_output": "Settings form with section grouping, mixed form controls (Input, Textarea, Switch, Select+Option), proper layout.",
+      "files": [],
+      "expectations": [
+        "Uses Input for name fields, Textarea for bio, Switch for toggles, Select+Option for frequency",
+        "Groups fields into visual sections (headings, Details, or Card sections)",
+        "Uses wa-stack for vertical field flow",
+        "Select has Option children with value props (Daily, Weekly, Monthly)",
+        "Installs all needed components via npx kigumi add",
+        "Every form control has a label prop"
+      ]
+    }
+  ]
+}

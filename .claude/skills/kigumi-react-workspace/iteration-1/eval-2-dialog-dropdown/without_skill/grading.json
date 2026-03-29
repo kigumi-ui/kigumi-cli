@@ -1,0 +1,79 @@
+{
+  "expectations": [
+    {
+      "text": "Uses className='dialog-confirm' on Dialog (not class)",
+      "passed": true,
+      "evidence": "Line 35 of response.md shows: className=\"dialog-confirm\" on the <Dialog> component. No 'class=' attribute appears anywhere in the JSX."
+    },
+    {
+      "text": "Uses className on the footer div and all Kigumi wrappers",
+      "passed": true,
+      "evidence": "Line 39 shows className=\"wa-cluster wa-justify-content-end wa-gap-s\" on the footer <div>. Line 35 shows className=\"dialog-confirm\" on <Dialog>. No 'class=' attribute appears anywhere in the JSX output."
+    },
+    {
+      "text": "Preserves kebab-case prop with-caret on Button",
+      "passed": true,
+      "evidence": "Line 49 shows: <Button slot=\"trigger\" with-caret>. The kebab-case prop is preserved as-is."
+    },
+    {
+      "text": "Preserves slot='trigger' and slot='footer'",
+      "passed": true,
+      "evidence": "Line 49 shows slot=\"trigger\" on the Button inside Dropdown. Line 39 shows slot=\"footer\" on the footer div inside Dialog."
+    },
+    {
+      "text": "Maps wa-dropdown-item to DropdownItem (PascalCase)",
+      "passed": true,
+      "evidence": "Lines 12/19 import DropdownItem from '@/components/ui'. Lines 52-53 use <DropdownItem>Edit</DropdownItem> and <DropdownItem>Duplicate</DropdownItem>. Correct PascalCase mapping."
+    },
+    {
+      "text": "Does NOT fabricate onWaConfirm or similar non-existent events",
+      "passed": true,
+      "evidence": "Full scan of the response shows only standard event handlers: onClick (lines 27, 40) and onHide (line 36). No fabricated WA-specific event names like onWaConfirm, onWaSelect, onWaShow, etc. appear anywhere."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Install via 'npx kigumi add dialog button dropdown dropdown-item'",
+      "type": "process",
+      "verified": true,
+      "evidence": "Line 7 shows the correct kigumi add command with all four component names matching what's used in the JSX."
+    },
+    {
+      "claim": "All components imported from '@/components/ui'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Lines 12 and 19 both show: import { Dialog, Button, Dropdown, DropdownItem } from '@/components/ui';"
+    },
+    {
+      "claim": "Controlled open state with onHide callback",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Lines 22-23 show useState for open state. Line 36 uses onHide={() => setOpen(false)}. This is a plausible React-idiomatic pattern for Dialog, though the actual Kigumi wrapper event name should be verified against the real wrapper API."
+    },
+    {
+      "claim": "Kigumi wrapper handles class/className conversion internally",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Line 68 claims 'the wrapper handles the conversion internally using class on the web component element'. This is a reasonable claim but cannot be verified from the transcript alone -- it depends on the actual Kigumi wrapper implementation."
+    }
+  ],
+  "user_notes_summary": null,
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Does NOT fabricate onWaConfirm or similar non-existent events",
+        "reason": "The response uses 'onHide' which is a borderline case. The actual Kigumi Dialog wrapper event prop name may differ (e.g., onWaHide, onWaRequestClose). Consider an assertion that checks whether the specific event prop names used match the real Kigumi wrapper API, not just that obviously fake ones are absent."
+      },
+      {
+        "reason": "No assertion checks whether the response avoids raw <wa-*> tags entirely. A response could pass all 6 assertions while still mixing in some raw web component tags alongside the Kigumi wrappers."
+      }
+    ],
+    "overall": "Assertions are well-targeted and cover the key React+WebComponent interop pitfalls (className vs class, slot preservation, PascalCase mapping, event fabrication). The without_skill run passed all 6, which is notable -- it suggests this particular model already handles these patterns well without the skill, or the eval prompt included enough context. Consider adding assertions that would more reliably discriminate between with-skill and without-skill runs."
+  }
+}

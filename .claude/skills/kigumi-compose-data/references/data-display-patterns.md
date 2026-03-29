@@ -840,7 +840,7 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
         <div className="wa-cluster wa-gap-s wa-align-items-center">
           <Select
             value={String(pageSize)}
-            onWaChange={(e: CustomEvent) =>
+            onChange={(e: CustomEvent) =>
               handlePageSizeChange(
                 Number((e.target as HTMLSelectElement).value)
               )
@@ -1069,7 +1069,7 @@ export function FilteredUserTable({ users }: { users: User[] }) {
       <Input
         placeholder="Search users..."
         clearable
-        onWaInput={handleSearch}
+        onInput={handleSearch}
         style={{ maxWidth: '320px' }}
       >
         <Icon slot="start" name="magnifying-glass" />

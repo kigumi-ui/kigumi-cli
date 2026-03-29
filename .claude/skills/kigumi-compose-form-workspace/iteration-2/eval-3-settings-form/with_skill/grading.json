@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Uses Input for name fields, Textarea for bio, Switch for toggles, Select+Option for frequency",
+      "passed": true,
+      "evidence": "All correct Kigumi wrapper components used: Input, Textarea, Switch, Select+Option"
+    },
+    {
+      "text": "Groups fields into visual sections (headings, Details, or Card sections)",
+      "passed": true,
+      "evidence": "Uses Details component for grouping fields into sections"
+    },
+    {
+      "text": "Uses wa-stack for vertical field flow",
+      "passed": true,
+      "evidence": "wa-stack used for vertical field layout"
+    },
+    {
+      "text": "Select has Option children with value props (Daily, Weekly, Monthly)",
+      "passed": true,
+      "evidence": "Select contains Option children with Daily, Weekly, Monthly values"
+    },
+    {
+      "text": "Installs all needed components via npx kigumi add",
+      "passed": true,
+      "evidence": "Install command included in file header comment"
+    },
+    {
+      "text": "Every form control has a label prop",
+      "passed": true,
+      "evidence": "All form controls have label props"
+    }
+  ],
+  "summary": { "passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0 }
+}

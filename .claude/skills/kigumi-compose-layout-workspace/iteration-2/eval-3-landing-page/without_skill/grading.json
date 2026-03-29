@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Uses .wa-dark class on the hero section to invert colors",
+      "passed": false,
+      "evidence": "0 matches for wa-dark; uses --wa-color-neutral-95 background instead"
+    },
+    {
+      "text": "Uses .wa-grid for the 3-column features section",
+      "passed": false,
+      "evidence": "Uses CSS auto-fit grid instead of .wa-grid utility class"
+    },
+    {
+      "text": "Uses .wa-stack for vertical page flow and section spacing",
+      "passed": true,
+      "evidence": "wa-stack and wa-gap utility classes used for vertical flow"
+    },
+    {
+      "text": "Uses semantic HTML (<header>, <main>, <footer> or <section>)",
+      "passed": true,
+      "evidence": "Semantic HTML elements present in output"
+    },
+    {
+      "text": "Uses Button component for CTA (not raw <button>)",
+      "passed": true,
+      "evidence": "Button component used for CTA"
+    },
+    {
+      "text": "Does NOT fabricate layout utilities like .wa-hero, .wa-section, or .wa-container",
+      "passed": false,
+      "evidence": "Uses fabricated or non-standard layout patterns instead of WA utilities"
+    }
+  ],
+  "summary": { "passed": 3, "failed": 3, "total": 6, "pass_rate": 0.5 }
+}
