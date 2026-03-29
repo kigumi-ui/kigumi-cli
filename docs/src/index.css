@@ -21,3 +21,5 @@
 @import 'styles/Troubleshooting.css' layer(kigumi-pages);
 @import 'styles/Footer.css' layer(kigumi-pages);
 @import 'styles/Banner.css' layer(kigumi-pages);
+@import 'styles/FeatureCards.css' layer(kigumi-pages);
+@import 'styles/Ecosystem.css' layer(kigumi-pages);

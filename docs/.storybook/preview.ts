@@ -43,7 +43,13 @@ const preview: Preview = {
       storySort: {
         order: [
           'General',
-          ['Welcome', 'Getting Started', 'Roadmap', 'Changelog'],
+          [
+            'Welcome',
+            'Getting Started',
+            'Roadmap',
+            'Troubleshooting',
+            'Changelog',
+          ],
           'Guides',
           [
             'Customize',

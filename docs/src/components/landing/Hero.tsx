@@ -1,40 +1,13 @@
 import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
+import stacksImg from '@/assets/stacks.png';
 import { Badge, Button, ButtonGroup, Icon } from '@/components/ui';
-import stacks from '@/assets/stacks.png';
-import { useEffect, useRef } from 'react';
-import { CompatibilityInfo } from '@/components/landing/CompatibilityInfo';
 
 export function Hero() {
-  const stacksRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    const stacksElement = stacksRef.current;
-    if (!stacksElement) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            stacksElement.classList.add('stacks--animate');
-            observer.disconnect();
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(stacksElement);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
   return (
-    <div slot="main-header" className="wa-align-items-start wa-stack">
-      <div className="wa-grid wa-align-items-start">
-        <div className="wa-stack wa-align-items-start">
-          <div className="wa-stack wa-align-items-start wa-gap-xl">
+    <div slot="main-header" className="hero">
+      <div className="hero__layout">
+        <div className="hero__content wa-stack wa-align-items-start wa-gap-xl">
+          <div className="wa-stack">
             <a
               href={
                 import.meta.env.DEV
@@ -49,57 +22,57 @@ export function Hero() {
                 <Icon name="tag" />v{__CLI_VERSION__}
               </Badge>
             </a>
-            <h1 className="wa-heading-4xl heading-1">
+            <h1 className="wa-heading-4xl hero__heading">
               Build framework-agnostic UIs
             </h1>
-            <h2 className="wa-caption-2xl heading-2">
-              Ready-made web components for your design system via CLI.{' '}
+            <h2 className="wa-caption-2xl hero__subheading wa-stack wa-gap-xs">
+              Ready-made web components for your design system.{' '}
               <strong>Same components, any stack.</strong>
             </h2>
           </div>
 
-          <div className="wa-stack wa-gap-2xl wa-align-items-start">
-            <div className="wa-cluster wa-gap-m">
-              <ButtonGroup>
-                <Button variant="brand" size="medium" href="#getting-started">
-                  Get started
-                </Button>
-                <Button
-                  variant="brand"
-                  appearance="outlined"
-                  size="medium"
-                  href="/kigumi-studio"
-                >
-                  Customize theme
-                </Button>
-              </ButtonGroup>
-              <Button
-                variant="neutral"
-                size="medium"
-                appearance="plain"
-                href={
-                  import.meta.env.DEV
-                    ? 'http://localhost:6006'
-                    : 'https://docs.kigumi.style'
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Read docs
+          <div className="wa-cluster">
+            <ButtonGroup>
+              <Button variant="brand" size="medium" href="#getting-started">
+                Get started
               </Button>
-            </div>
-            <div className="wa-stack wa-gap-m">
-              <InstallCommandExample />
-              <CompatibilityInfo />
-            </div>
+              <Button
+                variant="brand"
+                appearance="outlined"
+                size="medium"
+                href="/kigumi-studio"
+              >
+                Customize theme
+              </Button>
+            </ButtonGroup>
+            <Button
+              variant="neutral"
+              size="medium"
+              appearance="plain"
+              href={
+                import.meta.env.DEV
+                  ? 'http://localhost:6006'
+                  : 'https://docs.kigumi.style'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read docs
+            </Button>
+          </div>
+
+          <div className="hero__install">
+            <InstallCommandExample />
           </div>
         </div>
-        <img
-          ref={stacksRef}
-          src={stacks}
-          alt="React, Vue, and TypeScript logos connected with Web Awesome components"
-          className="stacks"
-        />
+
+        <div className="hero__visual">
+          <img
+            src={stacksImg}
+            alt="React, Vue, Angular, Svelte framework logos stacked"
+            className="hero__stacks-img"
+          />
+        </div>
       </div>
     </div>
   );

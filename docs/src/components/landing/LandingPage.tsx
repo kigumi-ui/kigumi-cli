@@ -1,7 +1,8 @@
 import { Hero } from '@/components/landing/Hero';
 import { ExampleGrid } from '@/components/landing/ExampleGrid';
-import { GettingStarted } from '@/components/landing/GettingStarted';
-import { Troubleshooting } from '@/components/landing/Troubleshooting';
+import { FeatureCards } from '@/components/landing/FeatureCards';
+import { Ecosystem } from '@/components/landing/Ecosystem';
+import { GettingStartedLanding } from '@/components/landing/GettingStartedLanding';
 import { Page } from '@/components/ui/Page/Page';
 import { Footer } from '@/components/landing/Footer';
 import { Header } from '@/components/landing/Header';
@@ -18,11 +19,13 @@ export function LandingPage() {
         <Header />
         <Hero />
         <Divider className="section-divider" />
+        <FeatureCards />
+        <Divider className="section-divider" />
+        <Ecosystem />
+        <Divider className="section-divider" />
         <ExampleGrid />
         <Divider className="section-divider" />
-        <GettingStarted />
-        <Divider className="section-divider" />
-        <Troubleshooting />
+        <GettingStartedLanding />
         <Divider className="section-divider" />
         <Footer />
       </Page>
