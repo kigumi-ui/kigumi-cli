@@ -29,7 +29,6 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
     <Card appearance="outlined" style={{ '--spacing': '0' }}>
       <TabGroup
         activation="auto"
-        without-scroll-controls={true}
         active={framework}
         onTabShow={(e: CustomEvent) => {
           const name = e.detail.name;

@@ -24,7 +24,6 @@ export function MonorepoPatternBlock({ snippets }: MonorepoPatternBlockProps) {
     <Card appearance="outlined" style={{ '--spacing': '0' }}>
       <TabGroup
         activation="auto"
-        without-scroll-controls={true}
         active={pattern}
         onTabShow={(e: CustomEvent) => {
           const name = e.detail.name;
