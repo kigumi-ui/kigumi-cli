@@ -28,6 +28,7 @@
     "setup:npmrc": "node scripts/setup-npmrc.mjs",
     "dev": "tsx watch src/index.ts",
     "generate:metadata": "tsx scripts/parse-custom-elements.ts",
+    "generate:skill-refs": "tsx scripts/generate-skill-references.ts",
     "prebuild": "test -f src/utils/component-metadata.ts || pnpm generate:metadata",
     "build": "tsup && tsx scripts/post-build.ts",
     "start": "node dist/index.js",

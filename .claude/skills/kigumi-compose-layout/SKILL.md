@@ -141,6 +141,7 @@ User describes a page
 
 ## References
 
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
 - [Layout Archetypes](references/layout-archetypes.md) -- 6 page archetypes with React + Vue code
 - [Layout Utilities Complete](references/layout-utilities-complete.md) -- all .wa-\* classes, typography utilities
 - [Responsive Patterns](references/responsive-patterns.md) -- responsive strategy

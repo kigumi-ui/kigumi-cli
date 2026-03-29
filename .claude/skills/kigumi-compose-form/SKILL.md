@@ -183,6 +183,7 @@ Always provide:
 
 ## References
 
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
 - [Form Patterns](references/form-patterns.md) -- 4 complete patterns (Contact, Login, Settings, Wizard), styling tokens, slots, success states, react-hook-form
 - [Validation Patterns](references/validation-patterns.md) -- native, custom, async validation
 - [Form Component Cheatsheet](references/form-component-cheatsheet.md) -- which component for which input type, key slots

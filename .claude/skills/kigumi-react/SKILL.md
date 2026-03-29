@@ -92,7 +92,7 @@ npx kigumi add dialog
 
 ### Component Mapping
 
-See [references/transformation-rules.md](references/transformation-rules.md) for complete mapping.
+See [shared/react-api-surface.md](../shared/react-api-surface.md) for complete component API reference.
 
 | Web Awesome   | Kigumi React   | Notes                    |
 | ------------- | -------------- | ------------------------ |
@@ -133,7 +133,7 @@ WA docs/examples use variant names that differ from Kigumi's prop values:
 
 ### Event Handlers
 
-See [references/event-mapping.md](references/event-mapping.md) for complete list.
+See [shared/react-api-surface.md](../shared/react-api-surface.md) for complete event mapping.
 
 | Web Awesome Event | React Handler | Type                                |
 | ----------------- | ------------- | ----------------------------------- |
@@ -310,16 +310,11 @@ After transformation, verify:
 - [ ] Missing components have installation commands
 - [ ] TypeScript/JavaScript matches config
 
-## Component References
+## Component API Reference
 
-For detailed component APIs, props, and examples, see individual component references:
+For complete component APIs (props, events, slots, methods, CSS parts, CSS custom properties):
 
-- [Button](references/components/button.md)
-- [Card](references/components/card.md)
-- [Dialog](references/components/dialog.md)
-- [Input](references/components/input.md)
-- [Icon](references/components/icon.md)
-- [Full component list](references/transformation-rules.md)
+- [React API Surface](../shared/react-api-surface.md) -- all 73 components in one compact reference
 
 ## Troubleshooting
 
