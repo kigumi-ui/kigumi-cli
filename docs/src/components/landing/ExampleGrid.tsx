@@ -9,9 +9,10 @@ export function ExampleGrid() {
   return (
     <section className="example-grid section">
       <div className="example-header wa-stack wa-gap-xs">
-        <h2 className="wa-heading-2xl">Showcase</h2>
+        <h2 className="wa-heading-2xl">Build any interface</h2>
         <p className="wa-color-text-quiet">
-          Some examples of Kigumi patterns in action
+          Layouts, forms, data views and more. Composable patterns for real
+          applications
         </p>
       </div>
 

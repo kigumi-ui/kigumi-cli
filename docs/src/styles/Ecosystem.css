@@ -1,0 +1,70 @@
+.ecosystem {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: var(--wa-space-l);
+}
+
+@media (min-width: 768px) {
+  .ecosystem {
+    padding-inline: var(--wa-space-3xl);
+  }
+}
+
+.ecosystem__split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--wa-space-2xl);
+  align-items: start;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ecosystem__logos {
+  flex-wrap: wrap;
+}
+
+.ecosystem__logo {
+  width: 36px;
+  height: 36px;
+}
+
+.ecosystem__starters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--wa-space-m);
+}
+
+@media (min-width: 640px) {
+  .ecosystem__starters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* HeroPreview code highlighting */
+.wa-dark .hero-preview__pre {
+  --code-keyword: #c792ea;
+  --code-tag: #89ddff;
+  --code-attr: #ffcb6b;
+  --code-string: #c3e88d;
+  --code-punct: #89ddff;
+  --code-text: #a6accd;
+}
+.hero-preview__pre {
+  /* Make it work with wa-light and wa-dark by targeting body classes */
+  --code-keyword: #7b3fd9;
+  --code-tag: #237292;
+  --code-attr: #957113;
+  --code-string: #466d36;
+  --code-punct: #237292;
+  --code-text: #34374a;
+
+  margin: 0;
+  padding: var(--wa-space-s);
+  font-size: var(--wa-font-size-xs);
+  line-height: 1.6;
+  white-space: pre;
+  color: var(--code-text);
+  font-family: var(--wa-font-family-mono);
+}
