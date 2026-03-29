@@ -24,10 +24,12 @@ export function GettingStartedLanding() {
             </div>
             <Card
               appearance="outlined"
-              style={{
-                '--spacing': '0',
-                '--wa-panel-border-radius': 'var(--wa-border-radius-m)',
-              }}
+              style={
+                {
+                  '--spacing': '0',
+                  '--wa-panel-border-radius': 'var(--wa-border-radius-m)',
+                } as React.CSSProperties
+              }
             >
               <div
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
@@ -86,10 +88,12 @@ export function GettingStartedLanding() {
             </div>
             <Card
               appearance="outlined"
-              style={{
-                '--spacing': '0',
-                '--wa-panel-border-radius': 'var(--wa-border-radius-m)',
-              }}
+              style={
+                {
+                  '--spacing': '0',
+                  '--wa-panel-border-radius': 'var(--wa-border-radius-m)',
+                } as React.CSSProperties
+              }
             >
               <div
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
