@@ -138,6 +138,17 @@ function createStoreErrorMessage(cwd: string): string {
 }
 
 /**
+ * Detect npm ERESOLVE peer-dependency conflict errors.
+ */
+function isEresolveError(error: unknown): boolean {
+  if (error && typeof error === 'object' && 'stderr' in error) {
+    const stderr = String((error as { stderr: unknown }).stderr);
+    return /ERESOLVE/.test(stderr);
+  }
+  return false;
+}
+
+/**
  * Install project dependencies
  *
  * @param options - Installation options
@@ -201,11 +212,28 @@ export async function installDependencies(
     const installCmd = packageManager === 'npm' ? 'install' : 'add';
     const args = [installCmd, ...dependencies];
 
-    await execa(packageManager, args, {
-      cwd,
-      stdio: 'pipe',
-      env,
-    });
+    try {
+      await execa(packageManager, args, {
+        cwd,
+        stdio: 'pipe',
+        env,
+      });
+    } catch (firstError) {
+      // npm ERESOLVE: retry with --legacy-peer-deps to bypass unrelated
+      // peer-dependency conflicts in the project's existing tree
+      if (packageManager === 'npm' && isEresolveError(firstError)) {
+        output.warn(
+          'Peer dependency conflict detected, retrying with --legacy-peer-deps'
+        );
+        await execa(packageManager, [...args, '--legacy-peer-deps'], {
+          cwd,
+          stdio: 'pipe',
+          env,
+        });
+      } else {
+        throw firstError;
+      }
+    }
 
     // Install devDependencies separately if needed
     if (devDependencies.length > 0) {
@@ -214,11 +242,26 @@ export async function installDependencies(
           ? ['install', '--save-dev', ...devDependencies]
           : ['add', '-D', ...devDependencies];
 
-      await execa(packageManager, devArgs, {
-        cwd,
-        stdio: 'pipe',
-        env,
-      });
+      try {
+        await execa(packageManager, devArgs, {
+          cwd,
+          stdio: 'pipe',
+          env,
+        });
+      } catch (firstError) {
+        if (packageManager === 'npm' && isEresolveError(firstError)) {
+          output.warn(
+            'Peer dependency conflict detected, retrying with --legacy-peer-deps'
+          );
+          await execa(packageManager, [...devArgs, '--legacy-peer-deps'], {
+            cwd,
+            stdio: 'pipe',
+            env,
+          });
+        } else {
+          throw firstError;
+        }
+      }
     }
 
     spinner.stop('Dependencies installed');
