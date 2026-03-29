@@ -81,6 +81,7 @@ User needs data display
 
 ## References
 
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
 - [Data Display Patterns](references/data-display-patterns.md) -- 9 patterns with React + Vue
 - [Formatting Components](references/formatting-components.md) -- FormatNumber, FormatDate, etc.
 

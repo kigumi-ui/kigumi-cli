@@ -153,13 +153,23 @@ async function parseCustomElements(): Promise<
       const componentKey = tagName.replace('wa-', '');
 
       // Extract events
+      // Derive reactName from the raw event name (strip wa- prefix, camelCase, prepend on)
+      // Never use reactName from custom-elements.json — it says "onWaHide" but templates use "onHide"
       const events = (declaration.events || [])
-        .map((event) => ({
-          name: event.name || '',
-          description: event.description || '',
-          reactName: event.reactName,
-          eventType: event.eventName || event.type?.text || 'Event',
-        }))
+        .map((event) => {
+          const name = event.name || '';
+          const stripped = name.startsWith('wa-') ? name.slice(3) : name;
+          const camel = stripped
+            .split('-')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join('');
+          return {
+            name,
+            description: event.description || '',
+            reactName: `on${camel}`,
+            eventType: event.eventName || event.type?.text || 'Event',
+          };
+        })
         .filter((e) => e.name);
 
       // Extract slots

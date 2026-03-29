@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+/* eslint-disable no-console */
 /**
  * React Template Generator
  *
@@ -22,18 +23,18 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 const TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates', 'react');
 
 /**
- * Convert event name to React style (e.g., 'wa-show' → 'onWaShow', 'blur' → 'onBlur')
+ * Convert event name to React style (e.g., 'wa-show' → 'onShow', 'blur' → 'onBlur')
+ * Strips the 'wa-' prefix since Kigumi wrappers expose simplified handler names.
  */
 function toReactEventName(eventName: string): string {
-  // Split by dash and capitalize each part
-  const parts = eventName.split('-');
+  const stripped = eventName.startsWith('wa-') ? eventName.slice(3) : eventName;
+  const parts = stripped.split('-');
   const camelCase = parts
     .map((part, index) =>
       index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)
     )
     .join('');
 
-  // Add 'on' prefix and capitalize first letter
   return 'on' + camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
 }
 

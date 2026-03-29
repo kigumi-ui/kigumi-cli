@@ -290,10 +290,8 @@ onBeforeUnmount(() => {
 
 ## References
 
-- [Transformation Rules (Vue)](references/transformation-rules-vue.md) -- complete component mapping
-- [Event Mapping (Vue)](references/event-mapping-vue.md) -- native vs custom events
+- [Vue API Surface](../shared/vue-api-surface.md) -- all 73 components (props, events, slots, methods, CSS parts)
 - [Vue State Patterns](references/vue-state-patterns.md) -- ref, reactive, event handling
-- [Component References](references/components/) -- per-component API docs (props, slots, events, CSS parts, methods)
 
 ## Related Skills
 

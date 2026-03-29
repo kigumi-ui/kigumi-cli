@@ -120,5 +120,6 @@ User needs overlay
 
 ## References
 
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
 - [Overlay Patterns](references/overlay-patterns.md) -- 7 patterns with React + Vue
 - [State Management](references/overlay-state-management.md) -- controlled pattern, event lifecycle, focus

@@ -3,44 +3,22 @@
 /**
  * Generate Agent Skill Reference Files
  *
- * This script generates markdown reference files for kigumi-react and kigumi-vue
- * skills by reading component definitions from LOCAL_REGISTRY and enriching them
- * with metadata from Web Awesome's custom-elements.json.
+ * Generates compact API surface files for agent skills by combining:
+ * - LOCAL_REGISTRY (props, names, descriptions, tier)
+ * - custom-elements.json (events, slots, CSS parts, CSS custom properties)
+ * - Template verification (event handler names verified against .tsx.hbs files)
  *
- * Generates:
- * - skills/kigumi-react/references/components/{component}.md (enriched)
- * - skills/kigumi-react/references/transformation-rules.md
- * - skills/kigumi-react/references/event-mapping.md (data-driven)
- * - skills/kigumi-vue/references/components/{component}.md (NEW)
- * - skills/kigumi-vue/references/transformation-rules-vue.md (NEW)
- * - skills/kigumi-vue/references/event-mapping-vue.md (NEW)
+ * Output:
+ * - .claude/skills/shared/react-api-surface.md
+ * - .claude/skills/shared/vue-api-surface.md
  */
 
 import { mkdir, writeFile, readFile, readdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import prettier from 'prettier';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 
 const PROJECT_ROOT = process.cwd();
-
-const REACT_SKILLS_DIR = join(
-  PROJECT_ROOT,
-  '.claude',
-  'skills',
-  'kigumi-react',
-  'references'
-);
-const REACT_COMPONENTS_DIR = join(REACT_SKILLS_DIR, 'components');
-
-const VUE_SKILLS_DIR = join(
-  PROJECT_ROOT,
-  '.claude',
-  'skills',
-  'kigumi-vue',
-  'references'
-);
-const VUE_COMPONENTS_DIR = join(VUE_SKILLS_DIR, 'components');
 
 // ---------------------------------------------------------------------------
 // Types for custom-elements.json
@@ -149,35 +127,16 @@ function toPascalCase(str: string): string {
 
 /**
  * Derive a React handler name from a WA event name.
- * If reactName is present in CE data, use it.
- * Otherwise: strip "wa-" prefix, camelCase, prepend "on".
+ * Always derives from the raw event name: strip "wa-" prefix, camelCase, prepend "on".
+ * Never uses reactName from custom-elements.json (it says "onWaHide" but templates use "onHide").
  */
-function deriveReactName(eventName: string, reactName?: string): string {
-  if (reactName) return reactName;
+function deriveReactName(eventName: string): string {
   const stripped = eventName.startsWith('wa-') ? eventName.slice(3) : eventName;
   const camel = stripped
     .split('-')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('');
   return `on${camel}`;
-}
-
-/**
- * Map eventName field to a friendlier type string.
- * Native events: BlurEvent -> FocusEvent, FocusEvent -> FocusEvent, etc.
- * Custom events: use CustomEvent.
- */
-function friendlyEventType(event: CEEvent): string {
-  const en = event.eventName || '';
-  if (en === 'FocusEvent' || en === 'BlurEvent') return 'FocusEvent';
-  if (en === 'InputEvent') return 'InputEvent';
-  if (en === 'ChangeEvent' || en === 'Event') return 'Event';
-  if (en === 'LoadEvent') return 'Event';
-  if (en === 'ErrorEvent') return 'Event';
-  // Everything starting with wa- is a CustomEvent
-  if (event.name.startsWith('wa-')) return 'CustomEvent';
-  // Fallback for native events without known eventName
-  return 'Event';
 }
 
 /**
@@ -215,18 +174,6 @@ function isPublicMethod(member: CEMember): boolean {
  */
 function escapeTableCell(text: string): string {
   return text.replace(/\|/g, '\\|').replace(/\n/g, ' ').trim();
-}
-
-/**
- * Collapse multi-line descriptions into a single line for table cells.
- * Takes only the first sentence if the description is very long.
- */
-function sanitizeDescription(desc: string): string {
-  // Collapse newlines
-  let result = desc.replace(/\n/g, ' ').trim();
-  // Escape pipes
-  result = result.replace(/\|/g, '\\|');
-  return result;
 }
 
 /**
@@ -366,647 +313,265 @@ async function loadCustomElementsMetadata(): Promise<
   return metadata;
 }
 
-// ---------------------------------------------------------------------------
-// React Component Reference Generator
-// ---------------------------------------------------------------------------
-
-function generateReactComponentReference(
-  key: string,
-  ceMap: Map<string, ComponentCEMetadata>
+/**
+ * Format props as a compact inline list: open(bool=false), label(string, required)
+ */
+function formatCompactProps(
+  props: Array<{
+    name: string;
+    type: string;
+    values?: string[];
+    default?: string;
+    required?: boolean;
+  }>
 ): string {
-  const component = LOCAL_REGISTRY[key];
-  const webAwesomeTag = component.tagName;
-  const kigumiName = component.name;
-  const ce = ceMap.get(webAwesomeTag);
-
-  const genericDescription = `React wrapper component for the Web Awesome \`${webAwesomeTag}\` element.`;
-
-  let md = `# ${kigumiName}\n\n`;
-  md += `**Web Awesome**: \`${webAwesomeTag}\`  \n`;
-  md += `**Kigumi React**: \`<${kigumiName}>\`  \n`;
-  md += `**Category**: ${component.category}  \n`;
-  md += `**Tier**: ${component.tier}  \n\n`;
-  md += `${genericDescription}\n\n`;
-
-  // Transformation example
-  md += `## Transformation Example\n\n`;
-  md += `\`\`\`html\n`;
-  md += `<!-- Web Awesome -->\n`;
-  md += `<${webAwesomeTag}`;
-
-  const exampleProps = component.props.slice(0, 2);
-  if (exampleProps.length > 0) {
-    exampleProps.forEach((prop) => {
-      const value = prop.values
-        ? prop.values[0]
-        : prop.type === 'boolean'
-          ? ''
-          : `"${prop.default || 'value'}"`;
-      if (prop.type === 'boolean') {
-        md += ` ${prop.name}`;
-      } else {
-        md += ` ${prop.name}=${value}`;
-      }
-    });
-  }
-
-  md += `>Click me</${webAwesomeTag}>\n`;
-  md += `\`\`\`\n\n`;
-
-  md += `\`\`\`tsx\n`;
-  md += `// Kigumi React\n`;
-  md += `import { ${kigumiName} } from '@/components/ui';\n\n`;
-  md += `<${kigumiName}`;
-
-  if (exampleProps.length > 0) {
-    exampleProps.forEach((prop) => {
-      const value = prop.values
-        ? `"${prop.values[0]}"`
-        : prop.type === 'boolean'
-          ? `{true}`
-          : `"${prop.default || 'value'}"`;
-      md += `\n  ${prop.name}=${value}`;
-    });
-  }
-
-  md += `\n>\n  Click me\n</${kigumiName}>\n`;
-  md += `\`\`\`\n\n`;
-
-  // Props table
-  if (component.props.length > 0) {
-    md += `## Props\n\n`;
-    md += `| Prop | Type | Values | Default | Description |\n`;
-    md += `|------|------|--------|---------|-------------|\n`;
-
-    component.props.forEach((prop) => {
-      const type = prop.type;
-      const values = prop.values
-        ? prop.values.map((v) => `'${v}'`).join(' \\| ')
-        : '-';
-      const defaultVal = prop.default || '-';
-      const desc = prop.description || '';
-      md += `| \`${prop.name}\` | ${type} | ${values} | \`${defaultVal}\` | ${desc} |\n`;
-    });
-
-    md += `\n`;
-  }
-
-  // --- Enriched sections from custom-elements.json ---
-
-  if (ce) {
-    // Slots
-    if (ce.slots.length > 0) {
-      md += `## Slots\n\n`;
-      md += `| Slot | Description |\n`;
-      md += `|------|-------------|\n`;
-      ce.slots.forEach((slot) => {
-        const slotName = slot.name === '' ? '*(default)*' : `\`${slot.name}\``;
-        md += `| ${slotName} | ${sanitizeDescription(slot.description || '')} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // Events
-    if (ce.events.length > 0) {
-      md += `## Events\n\n`;
-      md += `| Event | React Handler | Type | Description |\n`;
-      md += `|-------|---------------|------|-------------|\n`;
-      ce.events.forEach((event) => {
-        const handler = deriveReactName(event.name, event.reactName);
-        const type = friendlyEventType(event);
-        const desc = sanitizeDescription(event.description || '');
-        md += `| \`${event.name}\` | \`${handler}\` | \`${type}\` | ${desc} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // CSS Parts
-    if (ce.cssParts.length > 0) {
-      md += `## CSS Parts\n\n`;
-      md += `| Part | Description |\n`;
-      md += `|------|-------------|\n`;
-      ce.cssParts.forEach((part) => {
-        md += `| \`${part.name}\` | ${sanitizeDescription(part.description || '')} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // CSS Custom Properties
-    if (ce.cssProperties.length > 0) {
-      md += `## CSS Custom Properties\n\n`;
-      md += `| Property | Default | Description |\n`;
-      md += `|----------|---------|-------------|\n`;
-      ce.cssProperties.forEach((prop) => {
-        const defaultVal = prop.default ? `\`${prop.default}\`` : '-';
-        md += `| \`${prop.name}\` | ${defaultVal} | ${sanitizeDescription(prop.description || '')} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // Methods
-    if (ce.methods.length > 0) {
-      md += `## Methods\n\n`;
-      md += `| Method | Parameters | Description |\n`;
-      md += `|--------|-----------|-------------|\n`;
-      ce.methods.forEach((method) => {
-        md += `| \`${method.name}()\` | ${method.parameters} | ${sanitizeDescription(method.description)} |\n`;
-      });
-      md += `\n`;
-    }
-  }
-
-  // Dependencies
-  if (component.dependencies.length > 0) {
-    md += `## Dependencies\n\n`;
-    md += `This component requires:\n\n`;
-    component.dependencies.forEach((dep) => {
-      const depComponent = LOCAL_REGISTRY[dep];
-      const depName = depComponent ? depComponent.name : toPascalCase(dep);
-      md += `- [\`${depName}\`](${dep}.md)\n`;
-    });
-    md += `\n`;
-  }
-
-  md += `## Installation\n\n`;
-  md += `\`\`\`bash\n`;
-  md += `npx kigumi add ${key}\n`;
-  md += `\`\`\`\n\n`;
-
-  md += `---\n\n`;
-  md += `**Documentation**: [webawesome.com/docs/components/${key.replace('_', '-')}](https://webawesome.com/docs/components/${key.replace('_', '-')})\n`;
-
-  return md;
+  if (props.length === 0) return 'none';
+  return props
+    .map((p) => {
+      const type = p.values ? p.values.join('|') : p.type;
+      const def = p.default ? `=${p.default}` : '';
+      const req = p.required ? ', required' : '';
+      return `${p.name}(${type}${def}${req})`;
+    })
+    .join(', ');
 }
 
-// ---------------------------------------------------------------------------
-// Vue Component Reference Generator
-// ---------------------------------------------------------------------------
-
-function generateVueComponentReference(
-  key: string,
-  ceMap: Map<string, ComponentCEMetadata>
+/**
+ * Generate a compact React API surface for all components.
+ */
+function generateCompactReactSurface(
+  ceMap: Map<string, ComponentCEMetadata>,
+  unimplemented: Set<string> = new Set()
 ): string {
-  const component = LOCAL_REGISTRY[key];
-  const webAwesomeTag = component.tagName;
-  const kigumiName = component.name;
-  const ce = ceMap.get(webAwesomeTag);
+  let md = `# Kigumi React API Surface\n\n`;
+  md += `> Auto-generated from registry + custom-elements.json + templates.\n`;
+  md += `> Event handler names derived from templates (wa-hide -> onHide, not onWaHide).\n\n`;
 
-  const genericDescription = `Vue wrapper component for the Web Awesome \`${webAwesomeTag}\` element.`;
-
-  let md = `# ${kigumiName}\n\n`;
-  md += `**Web Awesome**: \`${webAwesomeTag}\`  \n`;
-  md += `**Kigumi Vue**: \`<${kigumiName}>\`  \n`;
-  md += `**Category**: ${component.category}  \n`;
-  md += `**Tier**: ${component.tier}  \n\n`;
-  md += `${genericDescription}\n\n`;
-
-  // Transformation example (Vue syntax)
-  md += `## Transformation Example\n\n`;
-  md += `\`\`\`html\n`;
-  md += `<!-- Web Awesome -->\n`;
-  md += `<${webAwesomeTag}`;
-
-  const exampleProps = component.props.slice(0, 2);
-  if (exampleProps.length > 0) {
-    exampleProps.forEach((prop) => {
-      const value = prop.values
-        ? prop.values[0]
-        : prop.type === 'boolean'
-          ? ''
-          : `"${prop.default || 'value'}"`;
-      if (prop.type === 'boolean') {
-        md += ` ${prop.name}`;
-      } else {
-        md += ` ${prop.name}=${value}`;
-      }
-    });
-  }
-
-  md += `>Click me</${webAwesomeTag}>\n`;
-  md += `\`\`\`\n\n`;
-
-  md += `\`\`\`vue\n`;
-  md += `<!-- Kigumi Vue -->\n`;
-  md += `<script setup lang="ts">\n`;
-  md += `import { ${kigumiName} } from '@/components/ui';\n`;
-  md += `</script>\n\n`;
-  md += `<template>\n`;
-  md += `  <${kigumiName}`;
-
-  if (exampleProps.length > 0) {
-    exampleProps.forEach((prop) => {
-      const value = prop.values
-        ? `"${prop.values[0]}"`
-        : prop.type === 'boolean'
-          ? ''
-          : `"${prop.default || 'value'}"`;
-      if (prop.type === 'boolean') {
-        md += `\n    ${prop.name}`;
-      } else {
-        md += `\n    ${prop.name}=${value}`;
-      }
-    });
-  }
-
-  md += `\n  >\n    Click me\n  </${kigumiName}>\n`;
-  md += `</template>\n`;
-  md += `\`\`\`\n\n`;
-
-  // Props table
-  if (component.props.length > 0) {
-    md += `## Props\n\n`;
-    md += `| Prop | Type | Values | Default | Description |\n`;
-    md += `|------|------|--------|---------|-------------|\n`;
-
-    component.props.forEach((prop) => {
-      const type = prop.type;
-      const values = prop.values
-        ? prop.values.map((v) => `'${v}'`).join(' \\| ')
-        : '-';
-      const defaultVal = prop.default || '-';
-      const desc = prop.description || '';
-      md += `| \`${prop.name}\` | ${type} | ${values} | \`${defaultVal}\` | ${desc} |\n`;
-    });
-
-    md += `\n`;
-  }
-
-  // --- Enriched sections from custom-elements.json ---
-
-  if (ce) {
-    // Slots
-    if (ce.slots.length > 0) {
-      md += `## Slots\n\n`;
-      md += `| Slot | Description |\n`;
-      md += `|------|-------------|\n`;
-      ce.slots.forEach((slot) => {
-        const slotName = slot.name === '' ? '*(default)*' : `\`${slot.name}\``;
-        md += `| ${slotName} | ${sanitizeDescription(slot.description || '')} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // Events (Vue syntax: @event-name)
-    if (ce.events.length > 0) {
-      md += `## Events\n\n`;
-      md += `| Event | Vue Handler | Type | Description |\n`;
-      md += `|-------|------------|------|-------------|\n`;
-      ce.events.forEach((event) => {
-        const handler = `@${event.name}`;
-        const type = friendlyEventType(event);
-        const desc = sanitizeDescription(event.description || '');
-        md += `| \`${event.name}\` | \`${handler}\` | \`${type}\` | ${desc} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // CSS Parts
-    if (ce.cssParts.length > 0) {
-      md += `## CSS Parts\n\n`;
-      md += `| Part | Description |\n`;
-      md += `|------|-------------|\n`;
-      ce.cssParts.forEach((part) => {
-        md += `| \`${part.name}\` | ${sanitizeDescription(part.description || '')} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // CSS Custom Properties
-    if (ce.cssProperties.length > 0) {
-      md += `## CSS Custom Properties\n\n`;
-      md += `| Property | Default | Description |\n`;
-      md += `|----------|---------|-------------|\n`;
-      ce.cssProperties.forEach((prop) => {
-        const defaultVal = prop.default ? `\`${prop.default}\`` : '-';
-        md += `| \`${prop.name}\` | ${defaultVal} | ${sanitizeDescription(prop.description || '')} |\n`;
-      });
-      md += `\n`;
-    }
-
-    // Methods
-    if (ce.methods.length > 0) {
-      md += `## Methods\n\n`;
-      md += `| Method | Parameters | Description |\n`;
-      md += `|--------|-----------|-------------|\n`;
-      ce.methods.forEach((method) => {
-        md += `| \`${method.name}()\` | ${method.parameters} | ${sanitizeDescription(method.description)} |\n`;
-      });
-      md += `\n`;
-    }
-  }
-
-  // Dependencies
-  if (component.dependencies.length > 0) {
-    md += `## Dependencies\n\n`;
-    md += `This component requires:\n\n`;
-    component.dependencies.forEach((dep) => {
-      const depComponent = LOCAL_REGISTRY[dep];
-      const depName = depComponent ? depComponent.name : toPascalCase(dep);
-      md += `- [\`${depName}\`](${dep}.md)\n`;
-    });
-    md += `\n`;
-  }
-
-  md += `## Installation\n\n`;
-  md += `\`\`\`bash\n`;
-  md += `npx kigumi add ${key}\n`;
-  md += `\`\`\`\n\n`;
-
-  md += `---\n\n`;
-  md += `**Documentation**: [webawesome.com/docs/components/${key.replace('_', '-')}](https://webawesome.com/docs/components/${key.replace('_', '-')})\n`;
-
-  return md;
-}
-
-// ---------------------------------------------------------------------------
-// React Transformation Rules (unchanged logic)
-// ---------------------------------------------------------------------------
-
-function generateTransformationRules(): string {
-  let md = `# Transformation Rules\n\n`;
-  md += `Complete mapping of Web Awesome components to Kigumi React components.\n\n`;
-  md += `## Component Mapping\n\n`;
-  md += `| Web Awesome | Kigumi React | Category | Tier | Description |\n`;
-  md += `|-------------|--------------|----------|------|-------------|\n`;
-
-  Object.entries(LOCAL_REGISTRY).forEach(([_, component]) => {
-    md += `| \`${component.tagName}\` | \`<${component.name}>\` | ${component.category} | ${component.tier} | ${component.description} |\n`;
-  });
-
-  md += `\n## Core Transformation Patterns\n\n`;
-  md += `### Attributes\n\n`;
-  md += `| Web Awesome | React |\n`;
-  md += `|-------------|-------|\n`;
+  // Transformation quick-ref
+  md += `## Transformation Rules\n\n`;
+  md += `| HTML | React |\n`;
+  md += `|------|-------|\n`;
   md += `| \`class="..."\` | \`className="..."\` |\n`;
-  md += `| \`style="..."\` | \`style={{ ... }}\` |\n`;
-  md += `| Kebab-case props | Keep as-is |\n`;
-  md += `| \`slot="..."\` | \`slot="..."\` (preserved) |\n`;
-  md += `| \`aria-*\` | \`aria-*\` (preserved) |\n`;
-  md += `| \`data-*\` | \`data-*\` (preserved) |\n\n`;
+  md += `| \`style="max-width: 60ch"\` | \`style={{ maxWidth: '60ch' }}\` |\n`;
+  md += `| Kebab-case props (\`with-caret\`) | Keep as-is |\n`;
+  md += `| \`slot="header"\` | \`slot="header"\` (preserved) |\n`;
+  md += `| Self-closing: \`<wa-icon></wa-icon>\` | \`<Icon />\` |\n`;
+  md += `| Native events (change, input) | \`onChange\`, \`onInput\` via \`e.target\` |\n`;
+  md += `| Custom events (wa-hide, wa-show) | \`onHide\`, \`onShow\` via CustomEvent |\n\n`;
+  md += `---\n\n`;
 
-  md += `### Self-Closing Tags\n\n`;
-  md += `\`\`\`html\n`;
-  md += `<!-- Web Awesome -->\n`;
-  md += `<wa-icon name="star"></wa-icon>\n\n`;
-  md += `<!-- React -->\n`;
-  md += `<Icon name="star" />\n`;
-  md += `\`\`\`\n\n`;
+  // Components
+  for (const [, component] of Object.entries(LOCAL_REGISTRY)) {
+    const ce = ceMap.get(component.tagName);
 
-  md += `### Inline Styles\n\n`;
-  md += `\`\`\`html\n`;
-  md += `<!-- Web Awesome -->\n`;
-  md += `<wa-button style="max-width: 200px; margin: auto">Button</wa-button>\n\n`;
-  md += `<!-- React -->\n`;
-  md += `<Button style={{ maxWidth: '200px', margin: 'auto' }}>Button</Button>\n`;
-  md += `\`\`\`\n\n`;
+    md += `## ${component.name}\n`;
+    md += `${component.category} | ${component.tier} | ${component.description}\n`;
+    md += `${component.tagName} -> <${component.name}>\n\n`;
 
-  md += `### Slots\n\n`;
-  md += `Slots are preserved with the \`slot\` attribute:\n\n`;
-  md += `\`\`\`tsx\n`;
-  md += `<Card>\n`;
-  md += `  <div slot="header">Header Content</div>\n`;
-  md += `  Main content\n`;
-  md += `  <div slot="footer">Footer Content</div>\n`;
-  md += `</Card>\n`;
-  md += `\`\`\`\n`;
+    // Props
+    md += `**Props:** ${formatCompactProps(component.props)}\n`;
 
-  return md;
-}
-
-// ---------------------------------------------------------------------------
-// Vue Transformation Rules
-// ---------------------------------------------------------------------------
-
-function generateVueTransformationRules(): string {
-  let md = `# Transformation Rules (Vue)\n\n`;
-  md += `Complete mapping of Web Awesome components to Kigumi Vue components.\n\n`;
-  md += `## Component Mapping\n\n`;
-  md += `| Web Awesome | Kigumi Vue | Category | Tier |\n`;
-  md += `|-------------|------------|----------|------|\n`;
-
-  Object.entries(LOCAL_REGISTRY).forEach(([_, component]) => {
-    md += `| \`${component.tagName}\` | \`<${component.name}>\` | ${component.category} | ${component.tier} |\n`;
-  });
-
-  md += `\n## Vue Attribute Transformation\n\n`;
-  md += `| WA HTML | Vue Template |\n`;
-  md += `|---------|-------------|\n`;
-  md += `| \`class="wa-stack"\` | \`class="wa-stack"\` |\n`;
-  md += `| \`style="max-width: 60ch"\` | \`style="max-width: 60ch"\` |\n`;
-  md += `| \`variant="brand"\` | \`variant="brand"\` (static) or \`:variant="myVar"\` (dynamic) |\n`;
-  md += `| \`disabled\` | \`disabled\` or \`:disabled="isDisabled"\` |\n`;
-  md += `| \`open\` | \`:open="isOpen"\` (always dynamic for controlled state) |\n`;
-  md += `| \`slot="header"\` | \`slot="header"\` or \`<template #header>\` |\n`;
-  md += `| \`aria-label="Close"\` | \`aria-label="Close"\` |\n`;
-  md += `| \`data-testid="btn"\` | \`data-testid="btn"\` |\n\n`;
-
-  md += `## Self-Closing Tags\n\n`;
-  md += `\`\`\`html\n`;
-  md += `<!-- WA -->\n`;
-  md += `<wa-icon name="star"></wa-icon>\n`;
-  md += `<!-- Vue -->\n`;
-  md += `<Icon name="star" />\n`;
-  md += `\`\`\`\n\n`;
-
-  md += `## Inline Styles\n\n`;
-  md += `\`\`\`html\n`;
-  md += `<!-- WA -->\n`;
-  md += `<wa-button style="max-width: 200px">Button</wa-button>\n`;
-  md += `<!-- Vue (string) -->\n`;
-  md += `<Button style="max-width: 200px">Button</Button>\n`;
-  md += `<!-- Vue (object, for dynamic values) -->\n`;
-  md += `<Button :style="{ maxWidth: '200px' }">Button</Button>\n`;
-  md += `\`\`\`\n`;
-
-  return md;
-}
-
-// ---------------------------------------------------------------------------
-// React Event Mapping (data-driven from custom-elements.json)
-// ---------------------------------------------------------------------------
-
-function generateReactEventMapping(
-  ceMap: Map<string, ComponentCEMetadata>
-): string {
-  // Collect all unique events across all components
-  const nativeEvents = new Map<
-    string,
-    { reactName: string; type: string; components: string[] }
-  >();
-  const customEvents = new Map<
-    string,
-    { reactName: string; type: string; components: string[] }
-  >();
-
-  for (const [tagName, meta] of ceMap) {
-    for (const event of meta.events) {
-      const isNative = !event.name.startsWith('wa-');
-      const target = isNative ? nativeEvents : customEvents;
-      const handler = deriveReactName(event.name, event.reactName);
-      const type = friendlyEventType(event);
-
-      if (!target.has(event.name)) {
-        target.set(event.name, {
-          reactName: handler,
-          type,
-          components: [],
-        });
+    // Events (React handler names, excluding unimplemented)
+    if (ce && ce.events.length > 0) {
+      const implementedEvents = ce.events.filter(
+        (e) => !unimplemented.has(`${component.tagName}:${e.name}`)
+      );
+      if (implementedEvents.length > 0) {
+        const handlers = implementedEvents
+          .map((e) => deriveReactName(e.name))
+          .join(', ');
+        md += `**Events:** ${handlers}\n`;
       }
-      target.get(event.name)!.components.push(tagName);
+    }
+
+    // Slots
+    if (ce && ce.slots.length > 0) {
+      const slotNames = ce.slots
+        .map((s) => (s.name === '' ? 'default' : s.name))
+        .join(', ');
+      md += `**Slots:** ${slotNames}\n`;
+    }
+
+    // Methods
+    if (ce && ce.methods.length > 0) {
+      const methodNames = ce.methods.map((m) => `${m.name}()`).join(', ');
+      md += `**Methods:** ${methodNames}\n`;
+    }
+
+    // CSS Parts
+    if (ce && ce.cssParts.length > 0) {
+      const partNames = ce.cssParts.map((p) => p.name).join(', ');
+      md += `**Parts:** ${partNames}\n`;
+    }
+
+    // CSS Custom Properties
+    if (ce && ce.cssProperties.length > 0) {
+      const cssProps = ce.cssProperties
+        .map((p) => {
+          const def = p.default ? `(${p.default})` : '';
+          return `${p.name}${def}`;
+        })
+        .join(', ');
+      md += `**CSS:** ${cssProps}\n`;
+    }
+
+    // Dependencies
+    if (component.dependencies.length > 0) {
+      const deps = component.dependencies
+        .map((d) => LOCAL_REGISTRY[d]?.name || toPascalCase(d))
+        .join(', ');
+      md += `**Requires:** ${deps}\n`;
+    }
+
+    md += `\n`;
+  }
+
+  return md;
+}
+
+/**
+ * Generate a compact Vue API surface for all components.
+ */
+function generateCompactVueSurface(
+  ceMap: Map<string, ComponentCEMetadata>,
+  unimplemented: Set<string> = new Set()
+): string {
+  let md = `# Kigumi Vue API Surface\n\n`;
+  md += `> Auto-generated from registry + custom-elements.json + templates.\n`;
+  md += `> Vue uses @event-name syntax. Custom events keep the wa- prefix.\n\n`;
+
+  // Transformation quick-ref
+  md += `## Transformation Rules\n\n`;
+  md += `| HTML | Vue |\n`;
+  md += `|------|-----|\n`;
+  md += `| \`class="..."\` | \`class="..."\` (no change) |\n`;
+  md += `| \`style="..."\` | \`style="..."\` or \`:style="{ ... }"\` |\n`;
+  md += `| Kebab-case props (\`with-caret\`) | Keep as-is |\n`;
+  md += `| \`slot="header"\` | \`slot="header"\` (attribute, NOT \`<template #header>\`) |\n`;
+  md += `| Boolean prop (\`open\`) | \`:open="isOpen"\` (dynamic) |\n`;
+  md += `| Native events (change, input) | \`@change\`, \`@input\` via \`e.target\` |\n`;
+  md += `| Custom events (wa-hide, wa-show) | \`@wa-hide\`, \`@wa-show\` via CustomEvent |\n`;
+  md += `| v-model | Supported on form controls (Input, Select, etc.) |\n\n`;
+  md += `---\n\n`;
+
+  // Components
+  for (const [, component] of Object.entries(LOCAL_REGISTRY)) {
+    const ce = ceMap.get(component.tagName);
+
+    md += `## ${component.name}\n`;
+    md += `${component.category} | ${component.tier} | ${component.description}\n`;
+    md += `${component.tagName} -> <${component.name}>\n\n`;
+
+    // Props
+    md += `**Props:** ${formatCompactProps(component.props)}\n`;
+
+    // Events (Vue syntax: @event-name, excluding unimplemented)
+    if (ce && ce.events.length > 0) {
+      const implementedEvents = ce.events.filter(
+        (e) => !unimplemented.has(`${component.tagName}:${e.name}`)
+      );
+      if (implementedEvents.length > 0) {
+        const handlers = implementedEvents.map((e) => `@${e.name}`).join(', ');
+        md += `**Events:** ${handlers}\n`;
+      }
+    }
+
+    // Slots
+    if (ce && ce.slots.length > 0) {
+      const slotNames = ce.slots
+        .map((s) => (s.name === '' ? 'default' : s.name))
+        .join(', ');
+      md += `**Slots:** ${slotNames}\n`;
+    }
+
+    // Methods
+    if (ce && ce.methods.length > 0) {
+      const methodNames = ce.methods.map((m) => `${m.name}()`).join(', ');
+      md += `**Methods:** ${methodNames}\n`;
+    }
+
+    // CSS Parts
+    if (ce && ce.cssParts.length > 0) {
+      const partNames = ce.cssParts.map((p) => p.name).join(', ');
+      md += `**Parts:** ${partNames}\n`;
+    }
+
+    // CSS Custom Properties
+    if (ce && ce.cssProperties.length > 0) {
+      const cssProps = ce.cssProperties
+        .map((p) => {
+          const def = p.default ? `(${p.default})` : '';
+          return `${p.name}${def}`;
+        })
+        .join(', ');
+      md += `**CSS:** ${cssProps}\n`;
+    }
+
+    // Dependencies
+    if (component.dependencies.length > 0) {
+      const deps = component.dependencies
+        .map((d) => LOCAL_REGISTRY[d]?.name || toPascalCase(d))
+        .join(', ');
+      md += `**Requires:** ${deps}\n`;
+    }
+
+    md += `\n`;
+  }
+
+  return md;
+}
+
+// ---------------------------------------------------------------------------
+// Verification: check generated event names against actual templates
+// ---------------------------------------------------------------------------
+
+/**
+ * Verify derived event names against actual templates.
+ * Returns a set of "tagName:eventName" pairs that are NOT in the template
+ * (WA exposes them but the Kigumi wrapper does not implement them).
+ */
+async function verifyEventNamesAgainstTemplates(
+  ceMap: Map<string, ComponentCEMetadata>
+): Promise<{
+  unimplemented: Set<string>;
+  warnings: string[];
+  verified: number;
+}> {
+  const unimplemented = new Set<string>();
+  const warnings: string[] = [];
+  let verified = 0;
+  const templatesDir = join(PROJECT_ROOT, 'templates', 'react');
+
+  for (const [, component] of Object.entries(LOCAL_REGISTRY)) {
+    const ce = ceMap.get(component.tagName);
+    if (!ce || ce.events.length === 0) continue;
+
+    const templatePath = join(
+      templatesDir,
+      component.name,
+      `${component.name}.tsx.hbs`
+    );
+    if (!existsSync(templatePath)) continue;
+
+    const templateContent = await readFile(templatePath, 'utf-8');
+
+    for (const event of ce.events) {
+      const reactName = deriveReactName(event.name);
+      if (
+        !templateContent.includes(`${reactName}?:`) &&
+        !templateContent.includes(`${reactName}:`)
+      ) {
+        unimplemented.add(`${component.tagName}:${event.name}`);
+        warnings.push(
+          `${component.name}: '${event.name}' (${reactName}) not exposed by wrapper`
+        );
+      } else {
+        verified++;
+      }
     }
   }
 
-  let md = `# Event Mapping\n\n`;
-  md += `Web Awesome components use two different event systems depending on the component type.\n\n`;
-
-  // Native DOM events
-  md += `## Form Controls -- Native DOM Events\n\n`;
-  md += `Components like \`wa-button\`, \`wa-input\`, \`wa-select\`, \`wa-checkbox\`, \`wa-switch\` emit **native browser events** (no \`wa-\` prefix). Event handlers receive standard \`Event\` / \`FocusEvent\` objects.\n\n`;
-  md += `| Native Event | React Handler | Type |\n`;
-  md += `|--------------|---------------|------|\n`;
-
-  // Sort native events alphabetically
-  const sortedNative = [...nativeEvents.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0])
-  );
-  for (const [name, data] of sortedNative) {
-    md += `| \`${name}\` | \`${data.reactName}\` | \`${data.type}\` |\n`;
-  }
-
-  md += `\n\`\`\`tsx\n`;
-  md += `// Correct: native events\n`;
-  md += `<Input\n`;
-  md += `  onInput={(e) => console.log((e.target as HTMLInputElement).value)}\n`;
-  md += `  onChange={(e) => console.log((e.target as HTMLInputElement).value)}\n`;
-  md += `/>\n`;
-  md += `\`\`\`\n\n`;
-
-  // Custom WA events
-  md += `## Overlay / Complex Components -- Custom \`wa-\` Events\n\n`;
-  md += `Components like \`wa-dialog\`, \`wa-drawer\`, \`wa-dropdown\`, \`wa-tooltip\` emit **custom events** prefixed with \`wa-\`. Event handlers receive \`CustomEvent\` objects.\n\n`;
-  md += `| Web Awesome Event | React Handler | Type |\n`;
-  md += `|-------------------|---------------|------|\n`;
-
-  const sortedCustom = [...customEvents.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0])
-  );
-  for (const [name, data] of sortedCustom) {
-    md += `| \`${name}\` | \`${data.reactName}\` | \`${data.type}\` |\n`;
-  }
-
-  md += `\n\`\`\`tsx\n`;
-  md += `import { useState } from 'react';\n`;
-  md += `import { Dialog, Button } from '@/components/ui';\n\n`;
-  md += `function Example() {\n`;
-  md += `  const [open, setOpen] = useState(false);\n\n`;
-  md += `  return (\n`;
-  md += `    <>\n`;
-  md += `      <Button onClick={() => setOpen(true)}>Open Dialog</Button>\n`;
-  md += `      <Dialog\n`;
-  md += `        open={open}\n`;
-  md += `        onWaHide={() => setOpen(false)}\n`;
-  md += `        onWaAfterShow={(e) => console.log('Dialog shown', e)}\n`;
-  md += `      >\n`;
-  md += `        Dialog content\n`;
-  md += `      </Dialog>\n`;
-  md += `    </>\n`;
-  md += `  );\n`;
-  md += `}\n`;
-  md += `\`\`\`\n`;
-
-  return md;
-}
-
-// ---------------------------------------------------------------------------
-// Vue Event Mapping (data-driven from custom-elements.json)
-// ---------------------------------------------------------------------------
-
-function generateVueEventMapping(
-  ceMap: Map<string, ComponentCEMetadata>
-): string {
-  // Collect all unique events
-  const nativeEvents = new Map<
-    string,
-    { type: string; components: string[] }
-  >();
-  const customEvents = new Map<
-    string,
-    { type: string; components: string[] }
-  >();
-
-  for (const [tagName, meta] of ceMap) {
-    for (const event of meta.events) {
-      const isNative = !event.name.startsWith('wa-');
-      const target = isNative ? nativeEvents : customEvents;
-      const type = friendlyEventType(event);
-
-      if (!target.has(event.name)) {
-        target.set(event.name, { type, components: [] });
-      }
-      target.get(event.name)!.components.push(tagName);
-    }
-  }
-
-  let md = `# Event Mapping (Vue)\n\n`;
-  md += `Web Awesome components use two different event systems. Vue uses \`@event-name\` syntax for both.\n\n`;
-
-  // Native DOM events
-  md += `## Native DOM Events\n\n`;
-  md += `Form controls (\`wa-input\`, \`wa-select\`, \`wa-checkbox\`, etc.) emit native browser events.\n\n`;
-  md += `| Web Awesome Event | Vue Handler | Type |\n`;
-  md += `|-------------------|------------|------|\n`;
-
-  const sortedNative = [...nativeEvents.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0])
-  );
-  for (const [name, data] of sortedNative) {
-    md += `| \`${name}\` | \`@${name}\` | \`${data.type}\` |\n`;
-  }
-
-  md += `\n\`\`\`vue\n`;
-  md += `<script setup lang="ts">\n`;
-  md += `import { Input } from '@/components/ui';\n\n`;
-  md += `function handleInput(e: Event) {\n`;
-  md += `  console.log((e.target as HTMLInputElement).value);\n`;
-  md += `}\n`;
-  md += `</script>\n\n`;
-  md += `<template>\n`;
-  md += `  <Input @input="handleInput" @change="handleInput" />\n`;
-  md += `</template>\n`;
-  md += `\`\`\`\n\n`;
-
-  // Custom WA events
-  md += `## Custom \`wa-\` Events\n\n`;
-  md += `Overlay and complex components emit custom events prefixed with \`wa-\`.\n\n`;
-  md += `| Web Awesome Event | Vue Handler | Type |\n`;
-  md += `|-------------------|------------|------|\n`;
-
-  const sortedCustom = [...customEvents.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0])
-  );
-  for (const [name, data] of sortedCustom) {
-    md += `| \`${name}\` | \`@${name}\` | \`${data.type}\` |\n`;
-  }
-
-  md += `\n\`\`\`vue\n`;
-  md += `<script setup lang="ts">\n`;
-  md += `import { ref } from 'vue';\n`;
-  md += `import { Dialog, Button } from '@/components/ui';\n\n`;
-  md += `const isOpen = ref(false);\n`;
-  md += `</script>\n\n`;
-  md += `<template>\n`;
-  md += `  <Button @click="isOpen = true">Open Dialog</Button>\n`;
-  md += `  <Dialog\n`;
-  md += `    :open="isOpen"\n`;
-  md += `    @wa-hide="isOpen = false"\n`;
-  md += `    @wa-after-show="console.log('Dialog shown')"\n`;
-  md += `  >\n`;
-  md += `    Dialog content\n`;
-  md += `  </Dialog>\n`;
-  md += `</template>\n`;
-  md += `\`\`\`\n`;
-
-  return md;
+  return { unimplemented, warnings, verified };
 }
 
 // ---------------------------------------------------------------------------
@@ -1014,123 +579,61 @@ function generateVueEventMapping(
 // ---------------------------------------------------------------------------
 
 /**
- * Format markdown content with prettier.
- * Pass filePath so Prettier resolves .prettierrc (singleQuote, etc.).
+ * Write file, creating parent directories as needed
  */
-async function formatMarkdown(
-  content: string,
-  filePath: string
-): Promise<string> {
-  return await prettier.format(content, {
-    parser: 'markdown',
-    filepath: filePath,
-  });
-}
-
-/**
- * Write file only if content has changed
- */
-async function writeIfChanged(
-  filePath: string,
-  newContent: string
-): Promise<boolean> {
-  const formattedContent = await formatMarkdown(newContent, filePath);
-
-  if (existsSync(filePath)) {
-    const existingContent = await readFile(filePath, 'utf-8');
-    if (existingContent === formattedContent) {
-      return false; // No change
-    }
-  }
-  await writeFile(filePath, formattedContent, 'utf-8');
-  return true; // Written
+async function writeOutput(filePath: string, content: string): Promise<void> {
+  await mkdir(join(filePath, '..'), { recursive: true });
+  await writeFile(filePath, content, 'utf-8');
 }
 
 // ---------------------------------------------------------------------------
 // Main execution
 // ---------------------------------------------------------------------------
 
+const SHARED_DIR = join(PROJECT_ROOT, '.claude', 'skills', 'shared');
+
 async function main() {
-  console.log('Generating Agent Skill reference files...\n');
+  console.log('Generating compact Agent Skill API surface files...\n');
 
   // Load custom-elements.json metadata
   const ceMap = await loadCustomElementsMetadata();
   console.log(
-    `  Loaded metadata for ${ceMap.size} components from custom-elements.json\n`
+    `  Loaded metadata for ${ceMap.size} components from custom-elements.json`
   );
-
-  // Create output directories
-  await mkdir(REACT_COMPONENTS_DIR, { recursive: true });
-  await mkdir(VUE_COMPONENTS_DIR, { recursive: true });
-
-  let totalFiles = 0;
-  let changedCount = 0;
-
-  // ---- React component reference files ----
-  console.log('  [React] Component references:');
-  for (const [key] of Object.entries(LOCAL_REGISTRY)) {
-    const content = generateReactComponentReference(key, ceMap);
-    const filePath = join(REACT_COMPONENTS_DIR, `${key}.md`);
-    const wasWritten = await writeIfChanged(filePath, content);
-    if (wasWritten) {
-      console.log(`    + components/${key}.md`);
-      changedCount++;
-    }
-    totalFiles++;
-  }
-
-  // ---- React transformation rules ----
-  const reactTransform = generateTransformationRules();
-  const reactTransformPath = join(REACT_SKILLS_DIR, 'transformation-rules.md');
-  if (await writeIfChanged(reactTransformPath, reactTransform)) {
-    console.log(`    + transformation-rules.md`);
-    changedCount++;
-  }
-  totalFiles++;
-
-  // ---- React event mapping (data-driven) ----
-  const reactEvents = generateReactEventMapping(ceMap);
-  const reactEventsPath = join(REACT_SKILLS_DIR, 'event-mapping.md');
-  if (await writeIfChanged(reactEventsPath, reactEvents)) {
-    console.log(`    + event-mapping.md`);
-    changedCount++;
-  }
-  totalFiles++;
-
-  // ---- Vue component reference files ----
-  console.log('  [Vue] Component references:');
-  for (const [key] of Object.entries(LOCAL_REGISTRY)) {
-    const content = generateVueComponentReference(key, ceMap);
-    const filePath = join(VUE_COMPONENTS_DIR, `${key}.md`);
-    const wasWritten = await writeIfChanged(filePath, content);
-    if (wasWritten) {
-      console.log(`    + components/${key}.md`);
-      changedCount++;
-    }
-    totalFiles++;
-  }
-
-  // ---- Vue transformation rules ----
-  const vueTransform = generateVueTransformationRules();
-  const vueTransformPath = join(VUE_SKILLS_DIR, 'transformation-rules-vue.md');
-  if (await writeIfChanged(vueTransformPath, vueTransform)) {
-    console.log(`    + transformation-rules-vue.md`);
-    changedCount++;
-  }
-  totalFiles++;
-
-  // ---- Vue event mapping ----
-  const vueEvents = generateVueEventMapping(ceMap);
-  const vueEventsPath = join(VUE_SKILLS_DIR, 'event-mapping-vue.md');
-  if (await writeIfChanged(vueEventsPath, vueEvents)) {
-    console.log(`    + event-mapping-vue.md`);
-    changedCount++;
-  }
-  totalFiles++;
-
   console.log(
-    `\nDone: ${changedCount}/${totalFiles} files updated (${totalFiles - changedCount} unchanged)\n`
+    `  Registry has ${Object.keys(LOCAL_REGISTRY).length} components\n`
   );
+
+  // Verify event names against templates (always runs)
+  console.log('  Verifying event names against templates...');
+  const { unimplemented, warnings, verified } =
+    await verifyEventNamesAgainstTemplates(ceMap);
+  if (warnings.length > 0) {
+    console.log(
+      `  ${warnings.length} events not exposed by wrappers (excluded from output):`
+    );
+    warnings.forEach((w) => console.log(`    - ${w}`));
+  }
+  console.log(`  ${verified} event handler names verified against templates\n`);
+
+  // Generate compact API surface files
+  await mkdir(SHARED_DIR, { recursive: true });
+
+  const reactSurface = generateCompactReactSurface(ceMap, unimplemented);
+  const reactPath = join(SHARED_DIR, 'react-api-surface.md');
+  await writeOutput(reactPath, reactSurface);
+  console.log(
+    `  [React] ${reactPath.replace(PROJECT_ROOT + '/', '')} (${reactSurface.split('\n').length} lines)`
+  );
+
+  const vueSurface = generateCompactVueSurface(ceMap, unimplemented);
+  const vuePath = join(SHARED_DIR, 'vue-api-surface.md');
+  await writeOutput(vuePath, vueSurface);
+  console.log(
+    `  [Vue]   ${vuePath.replace(PROJECT_ROOT + '/', '')} (${vueSurface.split('\n').length} lines)`
+  );
+
+  console.log('\nDone.\n');
 }
 
 main().catch(console.error);
