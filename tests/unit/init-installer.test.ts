@@ -352,6 +352,104 @@ describe('installDependencies', () => {
       ).rejects.toThrow(DependencyInstallError);
     });
 
+    it('should retry with --legacy-peer-deps on npm ERESOLVE error', async () => {
+      const { installDependencies } =
+        await import('../../src/commands/init/installer.js');
+
+      mockExeca
+        .mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 0 }) // lockfile check
+        .mockRejectedValueOnce(
+          Object.assign(new Error('peer conflict'), {
+            exitCode: 1,
+            stderr:
+              'npm error code ERESOLVE\nnpm error ERESOLVE could not resolve',
+            stdout: '',
+          })
+        )
+        .mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 0 }); // retry succeeds
+
+      await installDependencies({
+        cwd: tempDir,
+        config: createConfig(),
+        tier: 'free',
+        packageManager: 'npm',
+        output: mockOutput,
+      });
+
+      // Verify retry included --legacy-peer-deps
+      const retryCalls = mockExeca.mock.calls.filter(
+        (call: unknown[]) =>
+          call[0] === 'npm' &&
+          Array.isArray(call[1]) &&
+          (call[1] as string[]).includes('--legacy-peer-deps')
+      );
+      expect(retryCalls.length).toBe(1);
+      expect(mockOutput.warn).toHaveBeenCalledWith(
+        expect.stringContaining('--legacy-peer-deps')
+      );
+    });
+
+    it('should not retry with --legacy-peer-deps for non-npm package managers', async () => {
+      const { installDependencies } =
+        await import('../../src/commands/init/installer.js');
+      const { DependencyInstallError } =
+        await import('../../src/errors/index.js');
+
+      mockExeca
+        .mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 0 }) // lockfile check
+        .mockRejectedValueOnce(
+          Object.assign(new Error('conflict'), {
+            exitCode: 1,
+            stderr: 'ERESOLVE could not resolve',
+            stdout: '',
+          })
+        );
+
+      await expect(
+        installDependencies({
+          cwd: tempDir,
+          config: createConfig(),
+          tier: 'free',
+          packageManager: 'pnpm',
+          output: mockOutput,
+        })
+      ).rejects.toThrow(DependencyInstallError);
+    });
+
+    it('should throw if npm ERESOLVE retry also fails', async () => {
+      const { installDependencies } =
+        await import('../../src/commands/init/installer.js');
+      const { DependencyInstallError } =
+        await import('../../src/errors/index.js');
+
+      mockExeca
+        .mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 0 }) // lockfile check
+        .mockRejectedValueOnce(
+          Object.assign(new Error('peer conflict'), {
+            exitCode: 1,
+            stderr: 'npm error code ERESOLVE',
+            stdout: '',
+          })
+        )
+        .mockRejectedValueOnce(
+          Object.assign(new Error('still fails'), {
+            exitCode: 1,
+            stderr: 'some other error',
+            stdout: '',
+          })
+        );
+
+      await expect(
+        installDependencies({
+          cwd: tempDir,
+          config: createConfig(),
+          tier: 'free',
+          packageManager: 'npm',
+          output: mockOutput,
+        })
+      ).rejects.toThrow(DependencyInstallError);
+    });
+
     it('should detect pnpm store version mismatch and throw', async () => {
       const { installDependencies } =
         await import('../../src/commands/init/installer.js');
