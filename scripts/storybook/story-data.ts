@@ -47,12 +47,18 @@ export interface StoryData {
 // ─── Event Name Helpers ──────────────────────────────────────────────────────
 
 /**
- * Simplify React event names.
- * Since parse-custom-elements.ts now derives correct names (onShow, not onWaShow),
- * this is a no-op identity function. Kept for backwards compatibility.
- * @deprecated - reactName in metadata is now correct; remove in next cleanup
+ * Simplify React event names by stripping the onWa prefix.
+ * e.g. onWaShow → onShow, onWaAfterHide → onAfterHide
+ * Native events (onBlur, onChange) pass through unchanged.
  */
 export function simplifyReactEventName(reactName: string): string {
+  if (
+    reactName.startsWith('onWa') &&
+    reactName.length > 4 &&
+    reactName[4] === reactName[4].toUpperCase()
+  ) {
+    return 'on' + reactName.slice(4);
+  }
   return reactName;
 }
 
