@@ -229,7 +229,6 @@ export function HeroPreview() {
     >
       <TabGroup
         activation="auto"
-        without-scroll-controls={true}
         active={framework}
         onTabShow={(e: CustomEvent) => {
           const name = e.detail.name;

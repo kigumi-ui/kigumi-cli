@@ -21,7 +21,6 @@ export function InstallCommandExample() {
     <Card appearance="outlined" style={{ '--spacing': '0' }}>
       <TabGroup
         activation="auto"
-        without-scroll-controls={true}
         active={activeTab}
         onTabShow={(e: CustomEvent) => setActiveTab(e.detail.name)}
       >
