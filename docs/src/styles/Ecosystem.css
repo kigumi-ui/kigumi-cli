@@ -15,6 +15,10 @@
   grid-template-columns: 1fr;
   gap: var(--wa-space-2xl);
   align-items: start;
+}
+
+.ecosystem__preview {
+  overflow: hidden;
 
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 1fr;
