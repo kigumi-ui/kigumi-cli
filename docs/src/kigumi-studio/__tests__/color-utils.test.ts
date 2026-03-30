@@ -151,12 +151,12 @@ describe('generateBrandVariables', () => {
     expect(vars['--wa-color-brand-on-quiet']).toBeDefined();
   });
 
-  it('generates --wa-color-focus', () => {
+  it('generates --wa-color-focus as step-60 for both modes', () => {
     const lightVars = generateBrandVariables('#3b82f6', 'light');
     const darkVars = generateBrandVariables('#3b82f6', 'dark');
-    // Light uses step 50, dark uses step 60
+    // Both modes use step-60 per WA default.css
     expect(lightVars['--wa-color-focus']).toBe(
-      lightVars['--wa-color-brand-50']
+      lightVars['--wa-color-brand-60']
     );
     expect(darkVars['--wa-color-focus']).toBe(darkVars['--wa-color-brand-60']);
   });
@@ -166,21 +166,33 @@ describe('generateBrandVariables', () => {
     expect(vars['--wa-color-brand']).toBe('#ff5722');
   });
 
-  it('uses color-mix for quiet fills and borders', () => {
+  it('uses direct step references for fills and borders (WA default)', () => {
     const lightVars = generateBrandVariables('#3b82f6', 'light');
-    expect(lightVars['--wa-color-brand-fill-quiet']).toContain('color-mix');
-    expect(lightVars['--wa-color-brand-border-quiet']).toContain('color-mix');
+    // WA default uses direct hex values, not color-mix
+    expect(lightVars['--wa-color-brand-fill-quiet']).toBe(
+      lightVars['--wa-color-brand-95']
+    );
+    expect(lightVars['--wa-color-brand-border-quiet']).toBe(
+      lightVars['--wa-color-brand-90']
+    );
   });
 
   it('dark mode uses different step mappings than light', () => {
     const lightVars = generateBrandVariables('#3b82f6', 'light');
     const darkVars = generateBrandVariables('#3b82f6', 'dark');
-    // fill-loud: light uses step 40, dark uses step 50
+    // fill-loud: both light and dark use step-50 per WA default
     expect(lightVars['--wa-color-brand-fill-loud']).toBe(
-      lightVars['--wa-color-brand-40']
+      lightVars['--wa-color-brand-50']
     );
     expect(darkVars['--wa-color-brand-fill-loud']).toBe(
       darkVars['--wa-color-brand-50']
+    );
+    // fill-quiet: light uses step-95, dark uses step-10
+    expect(lightVars['--wa-color-brand-fill-quiet']).toBe(
+      lightVars['--wa-color-brand-95']
+    );
+    expect(darkVars['--wa-color-brand-fill-quiet']).toBe(
+      darkVars['--wa-color-brand-10']
     );
   });
 });
