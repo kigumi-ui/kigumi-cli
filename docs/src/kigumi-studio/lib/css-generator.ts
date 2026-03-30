@@ -104,6 +104,59 @@ function processShadowProperties(
 }
 
 /**
+ * Sort CSS properties for readable output.
+ * Order: base colors -> palette steps -> semantic vars -> focus -> surfaces -> text -> other.
+ */
+function sortProperties(
+  properties: Record<string, string>
+): Record<string, string> {
+  const orderKey = (key: string): number => {
+    // Base color declarations
+    if (/^--wa-color-(brand|success|warning|danger|neutral)$/.test(key))
+      return 0;
+    // Palette steps (e.g. --wa-color-brand-50)
+    if (/^--wa-color-[\w]+-\d{2}$/.test(key)) return 1;
+    // Semantic color variants (fill, border, on)
+    if (/^--wa-color-[\w]+-(fill|border|on)-/.test(key)) return 2;
+    // "on" shorthand (e.g. --wa-color-brand-on)
+    if (/^--wa-color-[\w]+-on$/.test(key)) return 3;
+    // Focus
+    if (key === '--wa-color-focus') return 4;
+    // Surfaces
+    if (key.startsWith('--wa-color-surface-')) return 5;
+    // Text
+    if (key.startsWith('--wa-color-text-')) return 6;
+    // Shadows
+    if (key.includes('shadow')) return 7;
+    // Form controls
+    if (key.startsWith('--wa-form-control-')) return 8;
+    // Typography
+    if (key.startsWith('--wa-font-')) return 9;
+    if (key.startsWith('--wa-line-height-')) return 9;
+    // Spacing
+    if (key.startsWith('--wa-space-')) return 10;
+    // Borders
+    if (key.startsWith('--wa-border-')) return 11;
+    // Everything else
+    return 20;
+  };
+
+  const entries = Object.entries(properties);
+  entries.sort((a, b) => {
+    const oa = orderKey(a[0]);
+    const ob = orderKey(b[0]);
+    if (oa !== ob) return oa - ob;
+    return a[0].localeCompare(b[0]);
+  });
+
+  const sorted: Record<string, string> = {};
+  for (const [key, val] of entries) {
+    sorted[key] = val;
+  }
+  return sorted;
+}
+
+/**
  * Generate a CSS theme string from modified light and dark properties.
  * Only includes properties that differ from defaults.
  *
@@ -123,8 +176,8 @@ export function generateThemeCSS(
   const { shadowComponents = [], customCSS = null } = options;
 
   const fontImports = extractFontImports(light, dark);
-  const processedLight = processShadowProperties(light);
-  const processedDark = processShadowProperties(dark);
+  const processedLight = sortProperties(processShadowProperties(light));
+  const processedDark = sortProperties(processShadowProperties(dark));
 
   const rootBlock = formatBlock(':root', processedLight);
   const darkBlock = formatBlock('.wa-dark', processedDark);

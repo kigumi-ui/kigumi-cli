@@ -17,8 +17,11 @@ import {
 import { DEFAULT_VALUES, type ThemeValue } from '../lib/defaults';
 import { AVAILABLE_FONTS } from '../lib/font-definitions';
 import {
+  generateBrandPalette,
   generateBrandVariables,
   generateSemanticVariables,
+  generateSurfaceVariables,
+  generateTextVariables,
   type SemanticColorGroup,
 } from '../lib/color-utils';
 
@@ -275,6 +278,37 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      // Auto-derive surface colors from neutral palette and text colors from neutral+brand.
+      // Only inject if user hasn't manually set them (compare against defaults).
+      const neutralValue = style['--wa-color-neutral'];
+      if (neutralValue) {
+        const surfaceVars = generateSurfaceVariables(neutralValue, mode);
+        for (const [key, val] of Object.entries(surfaceVars)) {
+          const current = values[key];
+          const defaults = DEFAULT_VALUES[key];
+          const isUserModified =
+            current && defaults && current[mode] !== defaults[mode];
+          if (!isUserModified) {
+            style[key] = val;
+          }
+        }
+
+        const textVars = generateTextVariables(
+          neutralValue,
+          brandValue ?? style['--wa-color-brand'],
+          mode
+        );
+        for (const [key, val] of Object.entries(textVars)) {
+          const current = values[key];
+          const defaults = DEFAULT_VALUES[key];
+          const isUserModified =
+            current && defaults && current[mode] !== defaults[mode];
+          if (!isUserModified) {
+            style[key] = val;
+          }
+        }
+      }
+
       // Post-processing: combine shadow color + opacity into a single value.
       // WA expects --wa-color-shadow as a full color (e.g. rgb(0 0 0 / 0.2)),
       // not a bare hex. --wa-shadow-opacity is a Studio abstraction, not a real WA var.
@@ -311,6 +345,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     const light: Record<string, string> = {};
     const dark: Record<string, string> = {};
 
+    // 1. Collect explicitly modified base properties
     for (const prop of PROPERTY_DEFINITIONS) {
       const current = values[prop.cssVar];
       const defaults = DEFAULT_VALUES[prop.cssVar];
@@ -322,6 +357,115 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
       if (current.dark !== defaults.dark) {
         dark[prop.cssVar] = `${current.dark}${suffix}`;
+      }
+    }
+
+    // 2. For each modified color group, generate derived palette + semantic vars
+    const isBaseModified = (cssVar: string): boolean => {
+      const current = values[cssVar];
+      const defaults = DEFAULT_VALUES[cssVar];
+      if (!current || !defaults) return false;
+      return current.light !== defaults.light || current.dark !== defaults.dark;
+    };
+
+    // For mode-independent properties (like brand), editing in one mode may leave
+    // the other at default. Use the modified value regardless of which mode it's in.
+    const getEffectiveHex = (cssVar: string): string => {
+      const current = values[cssVar];
+      const defaults = DEFAULT_VALUES[cssVar];
+      if (!current || !defaults) return current?.light ?? '';
+      if (current.light !== defaults.light) return current.light;
+      if (current.dark !== defaults.dark) return current.dark;
+      return current.light;
+    };
+
+    const paletteStepRegex = /--wa-color-[\w]+-\d{2}$/;
+
+    // Brand
+    if (isBaseModified('--wa-color-brand')) {
+      const baseHex = getEffectiveHex('--wa-color-brand');
+      // Ensure the base color appears in :root even if only dark was edited
+      if (!light['--wa-color-brand']) {
+        light['--wa-color-brand'] = baseHex;
+      }
+      const lightVars = generateBrandVariables(baseHex, 'light');
+      const darkVars = generateBrandVariables(baseHex, 'dark');
+
+      for (const [key, val] of Object.entries(lightVars)) {
+        if (key === '--wa-color-brand') continue;
+        light[key] = val;
+      }
+      // Dark: skip palette steps (already in light/root), only add semantic vars
+      for (const [key, val] of Object.entries(darkVars)) {
+        if (key === '--wa-color-brand') continue;
+        if (paletteStepRegex.test(key)) continue;
+        dark[key] = val;
+      }
+    }
+
+    // Semantic groups (success, warning, danger, neutral)
+    const semanticGroups: SemanticColorGroup[] = [
+      'success',
+      'warning',
+      'danger',
+      'neutral',
+    ];
+    for (const group of semanticGroups) {
+      const cssVar = `--wa-color-${group}`;
+      if (!isBaseModified(cssVar)) continue;
+
+      const baseHex = getEffectiveHex(cssVar);
+      if (!light[cssVar]) {
+        light[cssVar] = baseHex;
+      }
+      const lightVars = generateSemanticVariables(baseHex, group, 'light');
+      const darkVars = generateSemanticVariables(baseHex, group, 'dark');
+
+      for (const [key, val] of Object.entries(lightVars)) {
+        if (key === cssVar) continue;
+        light[key] = val;
+      }
+      for (const [key, val] of Object.entries(darkVars)) {
+        if (key === cssVar) continue;
+        if (paletteStepRegex.test(key)) continue;
+        dark[key] = val;
+      }
+    }
+
+    // 3. Auto-derive surface/text from neutral (only for unmodified properties)
+    const neutralModified = isBaseModified('--wa-color-neutral');
+    const brandModified = isBaseModified('--wa-color-brand');
+
+    if (neutralModified) {
+      const neutralHex = values['--wa-color-neutral'].light;
+      const brandHex = values['--wa-color-brand'].light;
+
+      const surfaceLight = generateSurfaceVariables(neutralHex, 'light');
+      const surfaceDark = generateSurfaceVariables(neutralHex, 'dark');
+      const textLight = generateTextVariables(neutralHex, brandHex, 'light');
+      const textDark = generateTextVariables(neutralHex, brandHex, 'dark');
+
+      for (const [key, val] of Object.entries({
+        ...surfaceLight,
+        ...textLight,
+      })) {
+        if (!light[key]) light[key] = val;
+      }
+      for (const [key, val] of Object.entries({
+        ...surfaceDark,
+        ...textDark,
+      })) {
+        if (!dark[key]) dark[key] = val;
+      }
+    } else if (brandModified) {
+      // Only brand changed: auto-derive text-link and focus from brand palette
+      const brandHex = values['--wa-color-brand'].light;
+      const brandPalette = generateBrandPalette(brandHex);
+
+      const isLinkModified = isBaseModified('--wa-color-text-link');
+      if (!isLinkModified) {
+        light['--wa-color-text-link'] = brandPalette['40'];
+        dark['--wa-color-text-link'] = brandPalette['70'];
       }
     }
 

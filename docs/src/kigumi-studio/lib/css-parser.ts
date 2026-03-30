@@ -7,6 +7,19 @@ export interface ParseResult {
 }
 
 /**
+ * Check if a CSS variable is a derived color variable that gets auto-generated
+ * from a base color (e.g. --wa-color-brand-50, --wa-color-brand-fill-loud).
+ * These are silently skipped during import since they'll be regenerated from the base color.
+ */
+const DERIVED_COLOR_PATTERN =
+  /^--wa-color-(brand|success|warning|danger|neutral)-(0[5]|[1-9]0|95|fill-(?:quiet|normal|loud)|border-(?:quiet|normal|loud)|on-(?:quiet|normal|loud)|on)$/;
+
+function isDerivedColorVar(varName: string): boolean {
+  if (varName === '--wa-color-focus') return true;
+  return DERIVED_COLOR_PATTERN.test(varName);
+}
+
+/**
  * Extract CSS custom property declarations from a block body string.
  * Handles values with parentheses (oklch(), calc(), var(), etc.)
  */
@@ -74,6 +87,8 @@ export function parseThemeCSS(css: string): ParseResult {
       if (!varName.startsWith('--wa-')) continue;
       if (PROPERTIES_BY_VAR.has(varName)) {
         light[varName] = value;
+      } else if (isDerivedColorVar(varName)) {
+        // Silently skip derived vars -- they'll be regenerated from the base color
       } else {
         warnings.push(`Unknown property: ${varName}`);
       }
@@ -88,6 +103,8 @@ export function parseThemeCSS(css: string): ParseResult {
       if (!varName.startsWith('--wa-')) continue;
       if (PROPERTIES_BY_VAR.has(varName)) {
         dark[varName] = value;
+      } else if (isDerivedColorVar(varName)) {
+        // Silently skip derived vars
       } else {
         warnings.push(`Unknown property: ${varName}`);
       }
