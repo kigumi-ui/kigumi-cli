@@ -251,55 +251,49 @@ export function generateBrandPalette(
 // ── Semantic Variable Generation ──
 // The theme maps semantic variables to palette steps.
 // Light and dark modes have different mappings.
-// These mappings follow the tailspin theme pattern (the most common WA theme).
+// These mappings follow the WA default theme (direct step references, no color-mix).
 
 interface SemanticMapping {
-  /** Direct reference to a step (no color-mix) */
+  /** Direct reference to a palette step */
   step?: PaletteStep;
-  /** For color-mix: the step to mix, plus the amount and target */
-  colorMix?: {
-    step: PaletteStep;
-    amount?: string; // e.g. '85%', '60%', '70%'
-    with?: string; // defaults to 'transparent'
-  };
   /** Literal value (e.g. 'white') */
   literal?: string;
 }
 
+// Matches WA default.css light mode semantic mappings
 const LIGHT_SEMANTICS: Record<string, SemanticMapping> = {
-  'fill-quiet': {
-    colorMix: { step: '95', amount: '85%', with: 'transparent' },
-  },
+  'fill-quiet': { step: '95' },
   'fill-normal': { step: '90' },
-  'fill-loud': { step: '40' },
-  'border-quiet': { colorMix: { step: '80', with: 'transparent' } },
-  'border-normal': {
-    colorMix: { step: '70', amount: '60%', with: 'transparent' },
-  },
-  'border-loud': {
-    colorMix: { step: '60', amount: '70%', with: 'transparent' },
-  },
+  'fill-loud': { step: '50' },
+  'border-quiet': { step: '90' },
+  'border-normal': { step: '80' },
+  'border-loud': { step: '60' },
   'on-quiet': { step: '40' },
   'on-normal': { step: '30' },
   'on-loud': { literal: 'white' },
 };
 
+// Matches WA default.css dark mode semantic mappings
 const DARK_SEMANTICS: Record<string, SemanticMapping> = {
-  'fill-quiet': {
-    colorMix: { step: '10', amount: '90%', with: 'transparent' },
-  },
+  'fill-quiet': { step: '10' },
   'fill-normal': { step: '20' },
   'fill-loud': { step: '50' },
-  'border-quiet': { colorMix: { step: '20', with: 'transparent' } },
-  'border-normal': {
-    colorMix: { step: '30', amount: '60%', with: 'transparent' },
-  },
-  'border-loud': {
-    colorMix: { step: '40', amount: '70%', with: 'transparent' },
-  },
+  'border-quiet': { step: '20' },
+  'border-normal': { step: '30' },
+  'border-loud': { step: '40' },
   'on-quiet': { step: '60' },
   'on-normal': { step: '70' },
   'on-loud': { literal: 'white' },
+};
+
+// Neutral has different fill-loud and on-loud values than other color groups
+const LIGHT_NEUTRAL_OVERRIDES: Record<string, SemanticMapping> = {
+  'fill-loud': { step: '20' },
+};
+
+const DARK_NEUTRAL_OVERRIDES: Record<string, SemanticMapping> = {
+  'fill-loud': { step: '90' },
+  'on-loud': { step: '05' },
 };
 
 function resolveSemanticValue(
@@ -308,13 +302,6 @@ function resolveSemanticValue(
 ): string {
   if (mapping.literal) return mapping.literal;
   if (mapping.step) return palette[mapping.step];
-  if (mapping.colorMix) {
-    const { step, amount, with: target } = mapping.colorMix;
-    const color = palette[step];
-    const mixTarget = target ?? 'transparent';
-    const mixAmount = amount ? ` ${amount}` : '';
-    return `color-mix(in oklab, ${color}${mixAmount}, ${mixTarget})`;
-  }
   return '';
 }
 
@@ -350,8 +337,8 @@ export function generateBrandVariables(
     vars[`--wa-color-brand-${key}`] = resolveSemanticValue(mapping, palette);
   }
 
-  // Focus color
-  vars['--wa-color-focus'] = mode === 'light' ? palette['50'] : palette['60'];
+  // Focus color (step-60 for both modes, per WA default.css)
+  vars['--wa-color-focus'] = palette['60'];
 
   return vars;
 }
@@ -373,7 +360,16 @@ export function generateSemanticVariables(
   mode: 'light' | 'dark'
 ): Record<string, string> {
   const palette = generateBrandPalette(baseHex);
-  const semantics = mode === 'light' ? LIGHT_SEMANTICS : DARK_SEMANTICS;
+  const baseSemantics = mode === 'light' ? LIGHT_SEMANTICS : DARK_SEMANTICS;
+
+  // Apply neutral-specific overrides
+  const neutralOverrides =
+    group === 'neutral'
+      ? mode === 'light'
+        ? LIGHT_NEUTRAL_OVERRIDES
+        : DARK_NEUTRAL_OVERRIDES
+      : {};
+  const semantics = { ...baseSemantics, ...neutralOverrides };
 
   const vars: Record<string, string> = {};
 
@@ -391,4 +387,234 @@ export function generateSemanticVariables(
   }
 
   return vars;
+}
+
+// ── Surface and Text Color Generation ──
+// Surface colors derive from the neutral palette, text colors from neutral + brand.
+// Follows WA default.css mappings.
+
+/**
+ * Darken a hex color by mixing with black in OKLab space.
+ * Equivalent to `color-mix(in oklab, hex, black amount)`.
+ */
+export function darkenHex(hex: string, amount: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  const [L, a, bv] = srgbToOklab(r, g, b);
+  // Mix with black (L=0, a=0, b=0) by the given amount
+  const mixedL = L * (1 - amount);
+  const mixedA = a * (1 - amount);
+  const mixedB = bv * (1 - amount);
+  const [outR, outG, outB] = oklabToSrgb(mixedL, mixedA, mixedB);
+  return rgbToHex(outR, outG, outB);
+}
+
+/**
+ * Generate surface color CSS variables from a neutral base color.
+ * Surfaces derive from the neutral palette per WA default.css.
+ */
+export function generateSurfaceVariables(
+  neutralHex: string,
+  mode: 'light' | 'dark'
+): Record<string, string> {
+  const palette = generateBrandPalette(neutralHex);
+  const vars: Record<string, string> = {};
+
+  if (mode === 'light') {
+    vars['--wa-color-surface-raised'] = '#ffffff';
+    vars['--wa-color-surface-default'] = '#ffffff';
+    vars['--wa-color-surface-lowered'] = palette['95'];
+    vars['--wa-color-surface-border'] = palette['90'];
+  } else {
+    vars['--wa-color-surface-raised'] = palette['10'];
+    vars['--wa-color-surface-default'] = palette['05'];
+    vars['--wa-color-surface-lowered'] = darkenHex(palette['05'], 0.2);
+    vars['--wa-color-surface-border'] = palette['20'];
+  }
+
+  return vars;
+}
+
+/**
+ * Generate text color CSS variables from neutral and brand palettes.
+ * Text colors derive from neutral (normal, quiet) and brand (link) per WA default.css.
+ */
+export function generateTextVariables(
+  neutralHex: string,
+  brandHex: string,
+  mode: 'light' | 'dark'
+): Record<string, string> {
+  const neutralPalette = generateBrandPalette(neutralHex);
+  const brandPalette = generateBrandPalette(brandHex);
+  const vars: Record<string, string> = {};
+
+  if (mode === 'light') {
+    vars['--wa-color-text-normal'] = neutralPalette['10'];
+    vars['--wa-color-text-quiet'] = neutralPalette['40'];
+    vars['--wa-color-text-link'] = brandPalette['40'];
+  } else {
+    vars['--wa-color-text-normal'] = neutralPalette['95'];
+    vars['--wa-color-text-quiet'] = neutralPalette['60'];
+    vars['--wa-color-text-link'] = brandPalette['70'];
+  }
+
+  return vars;
+}
+
+// ── Light/Dark Mode Conversion ──
+// OKLCH-based color inversion for generating one mode from the other.
+// Preserves hue, inverts lightness, adjusts chroma for perceptual consistency.
+
+/**
+ * WCAG 2.1 relative luminance from sRGB [0-1] values.
+ */
+function relativeLuminance(r: number, g: number, b: number): number {
+  const lr = srgbToLinear(r);
+  const lg = srgbToLinear(g);
+  const lb = srgbToLinear(b);
+  return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+}
+
+/**
+ * WCAG 2.1 contrast ratio between two hex colors.
+ */
+export function contrastRatio(hex1: string, hex2: string): number {
+  const [r1, g1, b1] = hexToRgb(hex1);
+  const [r2, g2, b2] = hexToRgb(hex2);
+  const l1 = relativeLuminance(r1, g1, b1);
+  const l2 = relativeLuminance(r2, g2, b2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * Format an OKLCH color as a CSS oklch() value.
+ * More precise than hex and natively supported in modern browsers.
+ */
+export function formatOklch(L: number, C: number, H: number): string {
+  const pct = (L * 100).toFixed(2);
+  const chroma = C.toFixed(4);
+  const hue = H.toFixed(2);
+  return `oklch(${pct}% ${chroma} ${hue})`;
+}
+
+/**
+ * Map lightness from one mode to the other using asymmetric scaling.
+ *
+ * Light and dark mode use different lightness ranges:
+ * - Light mode surfaces: L 0.90-1.00 (near-white)
+ * - Dark mode surfaces: L 0.05-0.25 (near-black)
+ * - Light mode text: L 0.10-0.45 (dark)
+ * - Dark mode text: L 0.60-0.95 (light)
+ *
+ * Simple 1-L inversion maps dark surfaces (0.18) to medium gray (0.82),
+ * not to near-white where light surfaces belong. This piecewise mapping
+ * handles the asymmetry correctly.
+ */
+function mapLightness(L: number, targetMode: 'light' | 'dark'): number {
+  if (targetMode === 'light') {
+    // Dark -> Light: dark colors become very light, mid-tones shift up
+    if (L < 0.35) {
+      // Dark surfaces/backgrounds (0.05-0.35) -> light surfaces (0.90-1.00)
+      return 0.9 + ((0.35 - L) / 0.35) * 0.1;
+    }
+    // Mid to light range: scale proportionally
+    return Math.min(0.98, 0.45 + (L - 0.35) * 0.85);
+  } else {
+    // Light -> Dark: light colors become very dark, mid-tones shift down
+    if (L > 0.85) {
+      // Light surfaces/backgrounds (0.85-1.00) -> dark surfaces (0.05-0.25)
+      return 0.05 + ((1.0 - L) / 0.15) * 0.2;
+    }
+    // Mid to dark range: scale proportionally
+    return Math.max(0.05, L * 0.55 + 0.03);
+  }
+}
+
+/**
+ * Convert a hex color to its opposite-mode equivalent using OKLCH.
+ *
+ * Algorithm:
+ * 1. Convert to OKLCH
+ * 2. Map lightness using asymmetric scaling (not simple inversion)
+ * 3. Adjust chroma: dark mode gets ~15% less saturation (perceptual compensation)
+ * 4. Preserve hue exactly (brand recognition)
+ *
+ * Returns an oklch() CSS value string for maximum precision.
+ */
+export function invertColorForMode(
+  hex: string,
+  targetMode: 'light' | 'dark'
+): string {
+  const [L, C, H] = hexToOklch(hex);
+
+  const mappedL = mapLightness(L, targetMode);
+
+  // Adjust chroma: dark mode needs less saturation for readability,
+  // light mode can handle more saturation
+  const chromaFactor = targetMode === 'dark' ? 0.85 : 1 / 0.85;
+  const adjustedC = C * chromaFactor;
+
+  // Gamut-clip to ensure valid sRGB
+  const [clippedL, clippedC] = gamutClipOklch(mappedL, adjustedC, H);
+
+  return formatOklch(clippedL, clippedC, H);
+}
+
+/**
+ * Generate opposite-mode color values following Web Awesome's architecture.
+ *
+ * WA's approach: the palette (11 OKLCH steps per hue) is IDENTICAL between light
+ * and dark mode. Only the MAPPING of steps to semantic roles changes.
+ * This means "generating the other mode" uses the existing palette steps,
+ * mapped through WA's light/dark semantic system.
+ *
+ * Requires the actual neutral and brand base hex colors to generate correct palettes.
+ * Do NOT try to extract these from surface colors -- pass them from the values state.
+ */
+export function generateOppositeMode(
+  neutralHex: string,
+  brandHex: string,
+  targetMode: 'light' | 'dark',
+  sourceColors: Record<string, string>
+): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  // Generate palette from the neutral base color
+  const neutralPalette = generateBrandPalette(neutralHex);
+
+  // Surfaces from neutral palette (WA default.css architecture)
+  const surfaceVars = generateSurfaceVariables(neutralHex, targetMode);
+  Object.assign(result, surfaceVars);
+
+  // Text from neutral + brand palettes
+  const textVars = generateTextVariables(neutralHex, brandHex, targetMode);
+  Object.assign(result, textVars);
+
+  // Form controls derive from surfaces and neutral palette
+  if (targetMode === 'light') {
+    result['--wa-form-control-background-color'] = '#ffffff';
+    result['--wa-form-control-border-color'] = neutralPalette['60'];
+    result['--wa-form-control-placeholder-color'] = neutralPalette['50'];
+  } else {
+    result['--wa-form-control-background-color'] = neutralPalette['05'];
+    result['--wa-form-control-border-color'] = neutralPalette['40'];
+    result['--wa-form-control-placeholder-color'] = neutralPalette['50'];
+  }
+
+  // Shadow: dark mode needs stronger shadows for depth perception
+  const sourceOpacity = sourceColors['--wa-shadow-opacity'];
+  if (sourceOpacity) {
+    const opacity = parseFloat(sourceOpacity);
+    if (!isNaN(opacity)) {
+      result['--wa-shadow-opacity'] =
+        targetMode === 'dark'
+          ? String(Math.min(0.6, Math.max(0.3, opacity * 2.5)))
+          : String(Math.max(0.1, Math.min(0.3, opacity / 2.5)));
+    }
+  }
+
+  result['--wa-color-shadow'] = '#000000';
+
+  return result;
 }
