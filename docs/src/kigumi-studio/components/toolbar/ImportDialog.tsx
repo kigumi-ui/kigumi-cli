@@ -147,7 +147,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           <code>:root {'{}'}</code> and/or <code>.wa-dark {'{}'}</code> blocks
           with{' '}
           <a
-            href="https://webawesome.com/docs/tokens"
+            href="https://docs.kigumi.style/?path=/docs/design-tokens-color--docs"
             target="_blank"
             rel="noopener noreferrer"
           >
