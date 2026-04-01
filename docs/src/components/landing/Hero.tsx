@@ -6,7 +6,7 @@ export function Hero() {
   return (
     <div slot="main-header" className="hero">
       <div className="hero__layout">
-        <div className="hero__content wa-stack wa-align-items-start wa-gap-xl">
+        <div className="hero__content wa-stack wa-align-items-start wa-gap-4xl">
           <div className="wa-stack">
             <a
               href={
@@ -26,8 +26,7 @@ export function Hero() {
               Build framework-agnostic UIs
             </h1>
             <h2 className="wa-caption-2xl hero__subheading wa-stack wa-gap-xs">
-              Ready-made web components for your design system.{' '}
-              <strong>Same components, any stack.</strong>
+              Same components, any stack.
             </h2>
           </div>
 
