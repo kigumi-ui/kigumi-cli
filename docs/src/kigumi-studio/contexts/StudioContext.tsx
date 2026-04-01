@@ -482,6 +482,45 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     [values]
   );
 
+  // Persist state to localStorage. Extracted so it can be called both
+  // from the debounced effect and synchronously on unmount.
+  const persistState = useCallback(() => {
+    try {
+      const modified = getModifiedProperties();
+      const hasModifications =
+        Object.keys(modified.light).length > 0 ||
+        Object.keys(modified.dark).length > 0 ||
+        shadowComponents.length > 0 ||
+        customCSS !== null;
+
+      if (!hasModifications) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+
+      const state: PersistedState = {
+        version: STORAGE_VERSION,
+        editMode,
+        previewMode,
+        modifiedProperties: modified,
+        shadowComponents,
+        customCSS,
+        selectedPreset,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      console.warn('Failed to save theme to localStorage:', err);
+    }
+  }, [
+    editMode,
+    previewMode,
+    shadowComponents,
+    customCSS,
+    selectedPreset,
+    getModifiedProperties,
+  ]);
+
   // Save to localStorage on change (debounced)
   useEffect(() => {
     // Skip the first render — state already matches localStorage
@@ -490,46 +529,19 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const timeoutId = setTimeout(() => {
-      try {
-        const modified = getModifiedProperties();
-        const hasModifications =
-          Object.keys(modified.light).length > 0 ||
-          Object.keys(modified.dark).length > 0 ||
-          shadowComponents.length > 0 ||
-          customCSS !== null;
-
-        if (!hasModifications) {
-          localStorage.removeItem(STORAGE_KEY);
-          return;
-        }
-
-        const state: PersistedState = {
-          version: STORAGE_VERSION,
-          editMode,
-          previewMode,
-          modifiedProperties: modified,
-          shadowComponents,
-          customCSS,
-          selectedPreset,
-          timestamp: Date.now(),
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (err) {
-        console.warn('Failed to save theme to localStorage:', err);
-      }
-    }, 1500);
-
+    const timeoutId = setTimeout(persistState, 1500);
     return () => clearTimeout(timeoutId);
-  }, [
-    values,
-    editMode,
-    previewMode,
-    shadowComponents,
-    customCSS,
-    selectedPreset,
-    getModifiedProperties,
-  ]);
+  }, [values, persistState]);
+
+  // Keep a ref to the latest persistState so the unmount cleanup always
+  // calls the most recent version (not the one captured at mount time).
+  const persistRef = useRef(persistState);
+  persistRef.current = persistState;
+
+  // Flush pending state to localStorage on unmount
+  useEffect(() => {
+    return () => persistRef.current();
+  }, []);
 
   // Dynamically load Bunny Fonts when font family values change
   useEffect(() => {
