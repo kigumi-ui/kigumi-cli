@@ -114,7 +114,7 @@ export function StudioSidebar({
                     appearance={editMode === 'light' ? 'accent' : 'outlined'}
                     onClick={() => handleModeChange('light')}
                   >
-                    <Icon name="sun" label="Light" />
+                    <Icon name="sun" label="Light" slot="start" /> Light
                   </Button>
                   <Button
                     size="small"
@@ -122,7 +122,7 @@ export function StudioSidebar({
                     appearance={editMode === 'dark' ? 'accent' : 'outlined'}
                     onClick={() => handleModeChange('dark')}
                   >
-                    <Icon name="moon" label="Dark" />
+                    <Icon name="moon" label="Dark" slot="start" /> Dark
                   </Button>
                 </ButtonGroup>
               </div>
