@@ -5,8 +5,8 @@
  * It imports Web Awesome styles with cascade layers and applies theme classes.
  *
  * Current theme: tailspin
- * Current palette: rudimentary
- * Current brand: purple
+ * Current palette: default
+ * Current brand: blue
  *
  * To change themes, use: kigumi theme <name>
  * To change brand color, use: kigumi brand <color>
@@ -40,8 +40,8 @@ if (typeof document !== 'undefined') {
 
   // Add new theme classes
   html.classList.add('wa-theme-tailspin');
-  html.classList.add('wa-palette-rudimentary');
-  html.classList.add('wa-brand-purple');
+  html.classList.add('wa-palette-default');
+  html.classList.add('wa-brand-blue');
 }
 
 export {};

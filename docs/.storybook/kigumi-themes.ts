@@ -12,8 +12,8 @@ export const kigumiLight = create({
   brandImage: '/logo-on-light.svg',
   brandTarget: '_blank',
 
-  colorPrimary: '#9952db',
-  colorSecondary: '#9952db',
+  colorPrimary: '#746abd',
+  colorSecondary: '#746abd',
 
   appBg: '#ffffff',
   appContentBg: '#ffffff',
@@ -25,7 +25,7 @@ export const kigumiLight = create({
   textMutedColor: '#6b7280',
 
   buttonBg: 'white',
-  buttonBorder: '#8b5cf6',
+  buttonBorder: '#584c9d',
 
   inputBorderRadius: 255,
 });
@@ -38,7 +38,7 @@ export const kigumiDark = create({
   brandTarget: '_blank',
 
   colorPrimary: 'red',
-  colorSecondary: '#9952db',
+  colorSecondary: '#746abd',
 
   appBg: '#101219',
   appContentBg: '#101219',
@@ -50,13 +50,13 @@ export const kigumiDark = create({
   textInverseColor: '#fff',
   textMutedColor: 'rgb(145, 148, 162)',
 
-  barTextColor: '#9952db',
-  barHoverColor: '#9952db',
-  barSelectedColor: '#9952db',
+  barTextColor: '#746abd',
+  barHoverColor: '#746abd',
+  barSelectedColor: '#746abd',
   barBg: '#101219',
 
-  buttonBg: '#9952db',
-  buttonBorder: '#9952db',
+  buttonBg: '#746abd',
+  buttonBorder: '#746abd',
 
   inputBg: '#101219',
   inputBorder: 'rgba(118, 118, 118, 0)',

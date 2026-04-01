@@ -25,75 +25,137 @@
  */
 
 :root {
-  /*
-   * Brand Color Override
-   * ---------------------------------------------------------------------------
-   * The brand color is used for primary buttons, links, focus rings, etc.
-   * You can use any valid CSS color value.
-   *
-   * Examples:
-   *   --wa-color-brand-60: #6366f1;
-   *   --wa-color-brand-60: hsl(239 84% 67%);
-   *   --wa-color-brand-60: oklch(0.65 0.25 265);
-   */
-
-  /*
-   * Typography
-   * ---------------------------------------------------------------------------
-   * --wa-font-family-body: 'Inter', system-ui, sans-serif;
-   * --wa-font-family-code: 'JetBrains Mono', monospace;
-   * --wa-font-size-m: 1rem;
-   * --wa-line-height-normal: 1.5;
-   */
-
-  /*
-   * Border Radius
-   * ---------------------------------------------------------------------------
-   * --wa-border-radius-s: 0.1875rem;
-   * --wa-border-radius-m: 0.375rem;
-   * --wa-border-radius-l: 0.75rem;
-   * --wa-border-radius-pill: 9999px;
-   */
-
-  /*
-   * Spacing (scales via --wa-space-scale)
-   * ---------------------------------------------------------------------------
-   * --wa-space-3xs: 0.125rem;
-   * --wa-space-2xs: 0.25rem;
-   * --wa-space-xs: 0.5rem;
-   * --wa-space-s: 0.75rem;
-   * --wa-space-m: 1rem;
-   * --wa-space-l: 1.5rem;
-   * --wa-space-xl: 2rem;
-   * --wa-space-2xl: 2.5rem;
-   * --wa-space-3xl: 3rem;
-   */
-
-  /*
-   * Shadows
-   * ---------------------------------------------------------------------------
-   * --wa-shadow-s: 0 1px 3px rgba(0, 0, 0, 0.1);
-   * --wa-shadow-m: 0 4px 6px rgba(0, 0, 0, 0.1);
-   * --wa-shadow-l: 0 10px 15px rgba(0, 0, 0, 0.1);
-   */
-
-  /*
-   * Focus Ring
-   * ---------------------------------------------------------------------------
-   * --wa-color-focus: var(--wa-color-brand-60);
-   * --wa-focus-ring-width: 3px;
-   * --wa-focus-ring-offset: 2px;
-   */
+  --wa-color-brand-05: #160046;
+  --wa-color-brand-10: #210756;
+  --wa-color-brand-20: #352471;
+  --wa-color-brand-30: #463886;
+  --wa-color-brand-40: #584c9d;
+  --wa-color-brand-50: #746abd;
+  --wa-color-brand-60: #948be1;
+  --wa-color-brand-70: #ada4fd;
+  --wa-color-brand-80: #c6c0ff;
+  --wa-color-brand-90: #e3e1ff;
+  --wa-color-brand-95: #f1f0ff;
+  --wa-color-brand: #746abd;
+  --wa-color-brand-on: #210756;
+  font-family: var(--wa-font-family-body);
+  --wa-font-family-body: system-ui, sans-serif;
+  --wa-font-family-heading: var(--wa-font-family-body);
+  --wa-font-family-code: ui-monospace, monospace;
+  --wa-font-family-longform: ui-serif, serif;
+  --wa-font-size-scale: 0.875;
+  --wa-font-weight-light: 300;
+  --wa-font-weight-normal: 400;
+  --wa-font-weight-semibold: 500;
+  --wa-font-weight-bold: 700;
+  --wa-font-weight-body: var(--wa-font-weight-normal);
+  --wa-font-weight-heading: var(--wa-font-weight-bold);
+  --wa-font-weight-code: var(--wa-font-weight-normal);
+  --wa-font-weight-longform: var(--wa-font-weight-normal);
+  --wa-font-weight-action: var(--wa-font-weight-semibold);
+  --wa-line-height-condensed: 1.2;
+  --wa-line-height-normal: 1.6;
+  --wa-line-height-expanded: 2;
+  --wa-link-decoration-default: none;
+  --wa-link-decoration-hover: none;
+  --wa-space-scale: 0.875;
+  --wa-space-3xs: calc(var(--wa-space-scale) * 0.125rem);
+  --wa-space-2xs: calc(var(--wa-space-scale) * 0.25rem);
+  --wa-space-xs: calc(var(--wa-space-scale) * 0.5rem);
+  --wa-space-s: calc(var(--wa-space-scale) * 0.75rem);
+  --wa-space-m: calc(var(--wa-space-scale) * 1rem);
+  --wa-space-l: calc(var(--wa-space-scale) * 1.5rem);
+  --wa-space-xl: calc(var(--wa-space-scale) * 2rem);
+  --wa-space-2xl: calc(var(--wa-space-scale) * 2.5rem);
+  --wa-space-3xl: calc(var(--wa-space-scale) * 3rem);
+  --wa-space-4xl: calc(var(--wa-space-scale) * 4rem);
+  --wa-content-spacing: var(--wa-space-l);
+  --wa-border-style: solid;
+  --wa-border-width-scale: 1;
+  --wa-border-width-s: calc(var(--wa-border-width-scale) * 0.0625rem);
+  --wa-border-width-m: calc(var(--wa-border-width-scale) * 0.125rem);
+  --wa-border-width-l: calc(var(--wa-border-width-scale) * 0.1875rem);
+  --wa-border-radius-scale: 1;
+  --wa-border-radius-s: calc(var(--wa-border-radius-scale) * 0.1875rem);
+  --wa-border-radius-m: calc(var(--wa-border-radius-scale) * 0.375rem);
+  --wa-border-radius-l: calc(var(--wa-border-radius-scale) * 0.75rem);
+  --wa-border-radius-pill: 9999px;
+  --wa-border-radius-circle: 50%;
+  --wa-border-radius-square: 0px;
+  --wa-focus-ring-style: solid;
+  --wa-focus-ring-width: 0.125rem;
+  --wa-focus-ring: var(--wa-focus-ring-style) var(--wa-focus-ring-width)
+    var(--wa-color-focus);
+  --wa-focus-ring-offset: 0;
+  --wa-shadow-offset-x-scale: 0;
+  --wa-shadow-offset-x-s: calc(var(--wa-shadow-offset-x-scale) * 0.125rem);
+  --wa-shadow-offset-x-m: calc(var(--wa-shadow-offset-x-scale) * 0.25rem);
+  --wa-shadow-offset-x-l: calc(var(--wa-shadow-offset-x-scale) * 0.5rem);
+  --wa-shadow-offset-y-scale: 0.5;
+  --wa-shadow-offset-y-s: calc(var(--wa-shadow-offset-y-scale) * 0.125rem);
+  --wa-shadow-offset-y-m: calc(var(--wa-shadow-offset-y-scale) * 0.25rem);
+  --wa-shadow-offset-y-l: calc(var(--wa-shadow-offset-y-scale) * 0.5rem);
+  --wa-shadow-blur-scale: 0.5;
+  --wa-shadow-blur-s: calc(var(--wa-shadow-blur-scale) * 0.125rem);
+  --wa-shadow-blur-m: calc(var(--wa-shadow-blur-scale) * 0.25rem);
+  --wa-shadow-blur-l: calc(var(--wa-shadow-blur-scale) * 0.5rem);
+  --wa-shadow-spread-scale: 0;
+  --wa-shadow-spread-s: calc(var(--wa-shadow-spread-scale) * 0.125rem);
+  --wa-shadow-spread-m: calc(var(--wa-shadow-spread-scale) * 0.25rem);
+  --wa-shadow-spread-l: calc(var(--wa-shadow-spread-scale) * 0.5rem);
+  --wa-shadow-s: var(--wa-shadow-offset-x-s) var(--wa-shadow-offset-y-s)
+    var(--wa-shadow-blur-s) var(--wa-shadow-spread-s) var(--wa-color-shadow);
+  --wa-shadow-m: var(--wa-shadow-offset-x-m) var(--wa-shadow-offset-y-m)
+    var(--wa-shadow-blur-m) var(--wa-shadow-spread-m) var(--wa-color-shadow);
+  --wa-shadow-l: var(--wa-shadow-offset-x-l) var(--wa-shadow-offset-y-l)
+    var(--wa-shadow-blur-l) var(--wa-shadow-spread-l) var(--wa-color-shadow);
+  --wa-transition-easing: ease;
+  --wa-transition-slow: 0.3s;
+  --wa-transition-normal: 0.15s;
+  --wa-transition-fast: 75ms;
+  --wa-form-control-background-color: color-mix(
+    in oklab,
+    var(--wa-color-surface-raised),
+    transparent
+  );
+  --wa-form-control-border-color: var(--wa-color-neutral-border-normal);
+  --wa-form-control-border-style: var(--wa-border-style);
+  --wa-form-control-border-width: var(--wa-border-width-s);
+  --wa-form-control-border-radius: var(--wa-border-radius-m);
+  --wa-form-control-activated-color: var(--wa-color-brand-fill-loud);
+  --wa-form-control-label-color: var(--wa-color-text-normal);
+  --wa-form-control-label-font-weight: var(--wa-font-weight-semibold);
+  --wa-form-control-label-line-height: var(--wa-line-height-normal);
+  --wa-form-control-value-color: var(--wa-color-text-normal);
+  --wa-form-control-value-font-weight: var(--wa-font-weight-body);
+  --wa-form-control-value-line-height: var(--wa-line-height-condensed);
+  --wa-form-control-hint-color: var(--wa-color-text-quiet);
+  --wa-form-control-hint-font-weight: var(--wa-font-weight-body);
+  --wa-form-control-hint-line-height: var(--wa-line-height-normal);
+  --wa-form-control-placeholder-color: var(--wa-color-gray-50);
+  --wa-form-control-required-content: '*';
+  --wa-form-control-required-content-color: inherit;
+  --wa-form-control-required-content-offset: 0.1em;
+  --wa-form-control-padding-block: 0.75em;
+  --wa-form-control-padding-inline: 1em;
+  --wa-form-control-height: round(
+    calc(
+      2 * var(--wa-form-control-padding-block) + 1em *
+        var(--wa-form-control-value-line-height)
+    ),
+    1px
+  );
+  --wa-form-control-toggle-size: round(1.25em, 1px);
+  --wa-panel-border-style: var(--wa-border-style);
+  --wa-panel-border-width: var(--wa-border-width-s);
+  --wa-panel-border-radius: var(--wa-border-radius-l);
+  --wa-tooltip-arrow-size: 0.375rem;
+  --wa-tooltip-background-color: var(--wa-color-text-normal);
+  --wa-tooltip-border-color: var(--wa-tooltip-background-color);
+  --wa-tooltip-border-style: var(--wa-border-style);
+  --wa-tooltip-border-width: var(--wa-border-width-s);
+  --wa-tooltip-border-radius: var(--wa-border-radius-s);
+  --wa-tooltip-content-color: var(--wa-color-surface-default);
+  --wa-tooltip-font-size: var(--wa-font-size-s);
+  --wa-tooltip-line-height: var(--wa-line-height-normal);
 }
-
-/*
- * Dark Mode Overrides
- * ---------------------------------------------------------------------------
- * Web Awesome supports dark mode via the .wa-theme-dark class on <html>.
- * Override tokens for dark mode below.
- */
-/*
-.wa-theme-dark {
-  --wa-color-brand-60: #818cf8;
-}
-*/

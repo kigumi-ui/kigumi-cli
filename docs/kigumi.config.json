@@ -6,8 +6,8 @@
   "stylesDir": "src/styles",
   "theme": {
     "selected": "tailspin",
-    "palette": "rudimentary",
-    "brandColor": "purple"
+    "palette": "default",
+    "brandColor": "blue"
   },
   "aliases": {
     "@/components": "./src/components",
