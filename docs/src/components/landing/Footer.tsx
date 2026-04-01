@@ -55,8 +55,8 @@ export const Footer = () => {
             </a>
           </div>
           <p className="wa-caption-s" style={{ textAlign: 'center' }}>
-            Kigumi was created because I am a big fan of Web Awesome and see it
-            as the right library to make the web truly cross-platform.
+            No framework lock-in, no utility-class dependencies. Kigumi uses
+            CSS and Web Components to build UIs that work everywhere.
           </p>
         </div>
       </footer>
