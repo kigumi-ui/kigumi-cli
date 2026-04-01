@@ -147,6 +147,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
     {
       children,
       className,
+      value,
       onInput,
       onChange,
       onFocus,
@@ -211,6 +212,33 @@ export const Select = forwardRef<SelectRef, SelectProps>(
       }),
       []
     );
+
+    // Sync value after wa-select and its wa-option children have fully initialized.
+    // WA caches an optionValues Set on first value getter access. If that happens
+    // before options register, the cache is empty and filters out every value.
+    // We invalidate the cache, set value, then trigger the display update.
+    useEffect(() => {
+      const el = selectRef.current as HTMLElement & {
+        value?: string;
+        optionValues?: Set<string>;
+        updateComplete?: Promise<boolean>;
+        getAllOptions?: () => Array<
+          HTMLElement & { updateComplete?: Promise<boolean> }
+        >;
+        handleValueChange?: () => void;
+      };
+      if (!el || value === undefined) return;
+
+      const sync = async () => {
+        await el.updateComplete;
+        const options = el.getAllOptions?.() ?? [];
+        await Promise.all(options.map((o) => o.updateComplete));
+        el.optionValues = undefined;
+        el.value = value;
+        el.handleValueChange?.();
+      };
+      sync();
+    }, [value]);
 
     useEffect(() => {
       const el = selectRef.current;
