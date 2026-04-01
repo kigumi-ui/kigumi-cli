@@ -5,7 +5,7 @@ import { Badge, Button, ButtonGroup, Icon } from '@/components/ui';
 export function Hero() {
   return (
     <div slot="main-header" className="hero">
-      <div className="hero__layout">
+      <div className="hero__layout wa-gap-4xl">
         <div className="hero__content wa-stack wa-align-items-start wa-gap-4xl">
           <div className="wa-stack">
             <a
@@ -25,42 +25,31 @@ export function Hero() {
             <h1 className="wa-heading-4xl hero__heading">
               Build framework-agnostic UIs
             </h1>
-            <h2 className="wa-caption-2xl hero__subheading wa-stack wa-gap-xs">
+            <h2 className="wa-caption-2xl hero__subheading">
               Same components, any stack.
             </h2>
+            <div className="wa-cluster">
+              <ButtonGroup>
+                <Button variant="brand" size="medium" href="#getting-started">
+                  Get started
+                </Button>
+                <Button
+                  variant="brand"
+                  appearance="outlined"
+                  size="medium"
+                  href="/kigumi-studio"
+                >
+                  Customize theme
+                </Button>
+              </ButtonGroup>
+            </div>
           </div>
 
-          <div className="wa-cluster">
-            <ButtonGroup>
-              <Button variant="brand" size="medium" href="#getting-started">
-                Get started
-              </Button>
-              <Button
-                variant="brand"
-                appearance="outlined"
-                size="medium"
-                href="/kigumi-studio"
-              >
-                Customize theme
-              </Button>
-            </ButtonGroup>
-            <Button
-              variant="neutral"
-              size="medium"
-              appearance="plain"
-              href={
-                import.meta.env.DEV
-                  ? 'http://localhost:6006'
-                  : 'https://docs.kigumi.style'
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read docs
-            </Button>
-          </div>
-
-          <div className="hero__install">
+          <div
+            className="wa-stack wa-gap-s"
+            style={{ minWidth: '100%', maxWidth: '480px' }}
+          >
+            <h3 className="wa-caption-l">One command to get you started:</h3>
             <InstallCommandExample />
           </div>
         </div>

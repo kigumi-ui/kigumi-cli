@@ -1,4 +1,4 @@
-import { Card, Icon, Tooltip } from '@/components/ui';
+import { Card, CopyButton, Icon, Tooltip } from '@/components/ui';
 import { HeroPreview } from '@/components/landing/HeroPreview';
 import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';
@@ -17,14 +17,14 @@ const frameworks = [
 const starters = [
   {
     title: 'React Starter',
-    description: 'React + Vite + Kigumi — ready to go.',
+    description: 'React + Vite + Kigumi',
     href: 'https://github.com/kigumi-ui/kigumi-react-starter',
     icon: 'react',
     iconFamily: 'brands',
   },
   {
     title: 'Vue Starter',
-    description: 'Vue + Vite + Kigumi — ready to go.',
+    description: 'Vue + Vite + Kigumi',
     href: 'https://github.com/kigumi-ui/kigumi-vue-starter',
     icon: 'vuejs',
     iconFamily: 'brands',
@@ -42,7 +42,7 @@ export function Ecosystem() {
           </p>
         </div>
 
-        <div className="ecosystem__split">
+        <div className="wa-grid wa-align-items-start wa-gap-4xl">
           <div className="ecosystem__info wa-stack wa-gap-xl">
             <div className="ecosystem__logos wa-cluster wa-gap-m wa-align-items-center">
               {frameworks.map((fw) => (
@@ -66,7 +66,12 @@ export function Ecosystem() {
             </div>
 
             <div className="wa-stack wa-gap-s">
-              <h3 className="wa-heading-l">Starter Templates</h3>
+              <div className="wa-stack wa-gap-2xs">
+                <h3 className="wa-heading-l">Starter Templates</h3>
+                <p className="wa-color-text-quiet">
+                  Get started with a pre-configured project template
+                </p>
+              </div>
               <div className="ecosystem__starters">
                 {starters.map((starter) => (
                   <a
@@ -97,6 +102,89 @@ export function Ecosystem() {
                   </a>
                 ))}
               </div>
+            </div>
+
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-stack wa-gap-2xs">
+                <h3 className="wa-heading-l">Extensions</h3>
+                <p className="wa-color-text-quiet">
+                  Extensions for Cursor and VSCode to help you use Kigumi
+                </p>
+              </div>
+              <p className="wa-color-text-quiet">
+                <a
+                  href="https://marketplace.visualstudio.com/items?itemName=Kigumi.kigumi-intellisense"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Card
+                    appearance="outlined"
+                    className="ecosystem__starter-card"
+                  >
+                    <div className="wa-cluster wa-gap-s wa-align-items-center">
+                      <Icon
+                        name="code"
+                        family="solid"
+                        style={{ fontSize: 'var(--wa-font-size-xl)' }}
+                      />
+                      <div className="wa-stack wa-gap-2xs">
+                        <span className="wa-heading-s">
+                          Kigumi IntelliSense
+                        </span>
+                        <span className="wa-caption-xs wa-color-text-quiet">
+                          IntelliSense for Kigumi components
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                </a>
+              </p>
+            </div>
+            <div className="wa-stack wa-gap-s">
+              <div className="wa-stack wa-gap-2xs">
+                <h3 className="wa-heading-l">Agent skills</h3>
+                <p className="wa-color-text-quiet">
+                  Instantly teach your agent how to use Kigumi
+                </p>
+              </div>
+              <p className="wa-color-text-quiet">
+                <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                  <div
+                    className="wa-flank:end wa-align-items-center wa-gap-xs"
+                    style={{ position: 'relative', overflow: 'auto' }}
+                  >
+                    <pre>
+                      <code>
+                        <span
+                          style={{
+                            opacity: 0.6,
+                            pointerEvents: 'none',
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontSize: 'inherit',
+                            zIndex: 1,
+                            userSelect: 'none',
+                          }}
+                          aria-hidden="true"
+                        >
+                          ${' '}
+                        </span>
+                        <span
+                          style={{
+                            paddingLeft: 'var(--wa-space-m)',
+                            display: 'inline-block',
+                          }}
+                        >
+                          npx skills add https://docs.kigumi.style/skills/kigumi
+                        </span>
+                      </code>
+                    </pre>
+                  </div>
+                </Card>
+              </p>
             </div>
           </div>
 
