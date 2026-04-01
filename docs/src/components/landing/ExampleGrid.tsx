@@ -46,7 +46,7 @@ export function ExampleGrid() {
       <div className="example-grid-expand wa-stack">
         <Button
           variant="brand"
-          appearance="filled-outlined"
+          appearance="outlined"
           size="medium"
           onClick={() => setExpanded(!expanded)}
         >

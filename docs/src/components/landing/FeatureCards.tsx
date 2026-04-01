@@ -9,16 +9,16 @@ const features = [
       'Same components for React, Vue, and more. Built on Web Components that work everywhere.',
   },
   {
+    icon: 'terminal',
+    title: 'CLI-Powered',
+    description:
+      'Add components, change themes, work with other registries, and much more via the CLI.',
+  },
+  {
     icon: 'universal-access',
     title: 'Accessible by Default',
     description:
       'WCAG 2.1 AA built into every component. Keyboard navigation, screen readers, focus management.',
-  },
-  {
-    icon: 'terminal',
-    title: 'CLI-Powered',
-    description:
-      'Add components individually via CLI. No monolithic installs — full control over your code.',
   },
   {
     icon: 'palette',

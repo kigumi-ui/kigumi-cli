@@ -147,7 +147,7 @@ export function GettingStartedLanding() {
         </div>
 
         <Button
-          variant="neutral"
+          variant="brand"
           appearance="outlined"
           size="medium"
           href={
