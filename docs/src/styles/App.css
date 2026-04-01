@@ -62,7 +62,6 @@ section.section {
     width: 16.5px;
     height: 16.5px;
     background-color: var(--wa-color-surface-default);
-    border-radius: var(--wa-border-radius-l);
     border: var(--wa-border-width-s) solid var(--wa-color-surface-border);
   }
 }

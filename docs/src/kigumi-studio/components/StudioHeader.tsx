@@ -24,7 +24,10 @@ export function StudioHeader() {
             <span className="studio-header__logo-text">Kigumi</span>
             <span className="studio-header__logo-studio">Studio</span>
           </span>
-          <Badge pill>Beta</Badge>
+          <Badge pill>
+            <Icon name="tag" />
+            v0.2.0
+          </Badge>
         </span>
       </div>
       <div className="wa-cluster wa-gap-s">
