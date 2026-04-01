@@ -38,33 +38,32 @@ export function Ecosystem() {
         <div className="wa-stack wa-gap-xs">
           <h2 className="wa-heading-2xl">Works with your stack</h2>
           <p className="wa-color-text-quiet">
-            Compatible with Node 20+ and modern frontend tooling
+            Compatible with Node 20+ and modern frontend tooling:
           </p>
+          <div className="ecosystem__logos wa-cluster wa-gap-m wa-align-items-center">
+            {frameworks.map((fw) => (
+              <span key={fw.id}>
+                {!fw.available && (
+                  <Tooltip for={`${fw.id}-logo`}>Coming soon</Tooltip>
+                )}
+                <img
+                  id={`${fw.id}-logo`}
+                  src={fw.src}
+                  alt={fw.alt}
+                  className="ecosystem__logo"
+                  style={
+                    !fw.available
+                      ? { filter: 'grayscale(1)', opacity: 0.5 }
+                      : undefined
+                  }
+                />
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="wa-grid wa-align-items-start wa-gap-4xl">
           <div className="ecosystem__info wa-stack wa-gap-xl">
-            <div className="ecosystem__logos wa-cluster wa-gap-m wa-align-items-center">
-              {frameworks.map((fw) => (
-                <span key={fw.id}>
-                  {!fw.available && (
-                    <Tooltip for={`${fw.id}-logo`}>Coming soon</Tooltip>
-                  )}
-                  <img
-                    id={`${fw.id}-logo`}
-                    src={fw.src}
-                    alt={fw.alt}
-                    className="ecosystem__logo"
-                    style={
-                      !fw.available
-                        ? { filter: 'grayscale(1)', opacity: 0.5 }
-                        : undefined
-                    }
-                  />
-                </span>
-              ))}
-            </div>
-
             <div className="wa-stack wa-gap-s">
               <div className="wa-stack wa-gap-2xs">
                 <h3 className="wa-heading-l">Starter Templates</h3>
