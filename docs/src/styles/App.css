@@ -99,6 +99,37 @@ section.section {
   }
 }
 
+.example-grid-collapse {
+  max-height: 50vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.example-grid-collapse::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 12rem;
+  background: linear-gradient(to bottom, transparent, var(--wa-color-surface));
+  pointer-events: none;
+}
+
+.example-grid-collapse.is-expanded {
+  max-height: none;
+}
+
+.example-grid-collapse.is-expanded::after {
+  display: none;
+}
+
+.example-grid-expand {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--wa-space-l);
+}
+
 .example-masonry-item {
   break-inside: avoid;
   margin-bottom: var(--wa-space-l, 1.5rem);

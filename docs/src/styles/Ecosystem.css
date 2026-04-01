@@ -10,13 +10,6 @@
   }
 }
 
-.ecosystem__split {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--wa-space-2xl);
-  align-items: start;
-}
-
 .ecosystem__preview {
   overflow: hidden;
 

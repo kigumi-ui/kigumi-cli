@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Button, Icon } from '@/components/ui';
 import { ActionPanelExample } from './examples/ActionPanelExample';
 import { ActivityLogExample } from './examples/ActivityLogExample';
 import { CommentsExample } from './examples/CommentsExample';
@@ -6,6 +8,8 @@ import { PaginationButtonGroupExample } from './examples/PaginationButtonGroupEx
 import { ContactExample } from './examples/ContactExample';
 
 export function ExampleGrid() {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <section className="example-grid section">
       <div className="example-header wa-stack wa-gap-xs">
@@ -16,7 +20,7 @@ export function ExampleGrid() {
         </p>
       </div>
 
-      <div>
+      <div className={`example-grid-collapse${expanded ? ' is-expanded' : ''}`}>
         <div className="example-masonry">
           <div className="example-masonry-item">
             <ActionPanelExample />
@@ -37,6 +41,18 @@ export function ExampleGrid() {
             <ContactExample />
           </div>
         </div>
+      </div>
+
+      <div className="example-grid-expand wa-stack">
+        <Button
+          variant="brand"
+          appearance="filled-outlined"
+          size="medium"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? 'Show less' : 'Show more examples'}
+          <Icon slot="suffix" name={expanded ? 'chevron-up' : 'chevron-down'} />
+        </Button>
       </div>
     </section>
   );

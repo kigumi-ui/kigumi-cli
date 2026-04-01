@@ -22,7 +22,7 @@ import svelteLogo from '@/assets/svelte-logo.svg';
 
 function ExampleCard() {
   return (
-    <div style={{ width: '100%', maxWidth: '380px', marginLeft: 'auto' }}>
+    <div style={{ width: '100%', maxWidth: '300px' }}>
       <Card with-header with-footer>
         <div slot="header">
           <h3 className="wa-heading-m">New project</h3>
