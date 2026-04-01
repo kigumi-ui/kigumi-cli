@@ -1,5 +1,4 @@
 import { Card, Icon } from '@/components/ui';
-import { Link } from 'react-router-dom';
 
 const features = [
   {
@@ -34,6 +33,10 @@ export function FeatureCards() {
       <div className="wa-stack wa-gap-xl">
         <div className="wa-stack wa-gap-xs">
           <h2 className="wa-heading-2xl">Why Kigumi</h2>
+          <p className="wa-color-text-quiet">
+            Everything you need for modern design systems, projects and
+            products.
+          </p>
         </div>
         <div className="feature-cards__grid">
           {features.map((feature) => (
