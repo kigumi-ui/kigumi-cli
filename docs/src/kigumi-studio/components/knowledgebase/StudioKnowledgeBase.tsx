@@ -194,6 +194,24 @@ const ITEMS: KnowledgeItem[] = [
       </div>
     ),
   },
+  {
+    id: 'color-mode-fill',
+    summary: 'What is the color mode generator?',
+    contentText:
+      'The color mode generator is a feature that will automatically fill the colors for the dark mode based on the current light mode and vice versa. The colors are generated to be accessible and readable.',
+    content: (
+      <div className="wa-stack wa-gap-m">
+        <p>
+          The color mode generator <Icon name="wand-magic-sparkles" /> is a
+          feature that will use the colors from the current mode to generate the
+          colors for the opposite mode. The colors are generated to be
+          accessible and readable. This is useful to quickly generate the colors
+          for the opposite mode when you are working on a new project or when
+          you are migrating an existing project to the new color mode system.
+        </p>
+      </div>
+    ),
+  },
 ];
 
 function useDebouncedValue<T>(value: T, delayMs: number): T {
