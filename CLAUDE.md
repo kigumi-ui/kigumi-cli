@@ -23,6 +23,7 @@ Sub-guides: [src/AGENTS.md](src/AGENTS.md) | [templates/AGENTS.md](templates/AGE
 6. **Tier from `.env`**: Never store tier in config. Always detect via `detectTier()`.
 7. **No `any`**: Use `unknown` or proper types.
 8. **KigumiConfig type**: Import from `src/schemas/config.ts` (Zod-inferred, complete), NOT from `src/utils/config.ts` (old interface, incomplete).
+9. **`@/components/ui` in docs/**: The docs site uses Kigumi wrappers from `@/components/ui`, not raw `wa-*` tags.
 
 ## Keep Docs in Sync
 
