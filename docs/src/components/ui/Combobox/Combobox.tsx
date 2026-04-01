@@ -144,6 +144,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
     {
       children,
       className,
+      value,
       onInput,
       onChange,
       onFocus,
@@ -208,6 +209,31 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       }),
       []
     );
+
+    // Sync value after wa-combobox and its wa-option children have fully initialized.
+    // See Select.tsx for detailed explanation of the optionValues cache bug.
+    useEffect(() => {
+      const el = comboboxRef.current as HTMLElement & {
+        value?: string | string[];
+        optionValues?: Set<string>;
+        updateComplete?: Promise<boolean>;
+        getAllOptions?: () => Array<
+          HTMLElement & { updateComplete?: Promise<boolean> }
+        >;
+        handleValueChange?: () => void;
+      };
+      if (!el || value === undefined) return;
+
+      const sync = async () => {
+        await el.updateComplete;
+        const options = el.getAllOptions?.() ?? [];
+        await Promise.all(options.map((o) => o.updateComplete));
+        el.optionValues = undefined;
+        el.value = value;
+        el.handleValueChange?.();
+      };
+      sync();
+    }, [value]);
 
     useEffect(() => {
       const el = comboboxRef.current;
