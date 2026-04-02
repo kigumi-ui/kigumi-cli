@@ -1,0 +1,53 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * A component for displaying animated GIFs and WEBPs that play and pause on interaction
+ *
+ * @see https://webawesome.com/docs/components/animated-image
+ */
+@Component({
+  selector: 'k-animated-image',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.src]="src"
+        [attr.alt]="alt"
+        [attr.play]="play || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './animated-image.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The path to the image to load */
+  @Input() src?: string;
+  /** A description of the image used by assistive devices */
+  @Input() alt?: string;
+  /** Plays the animation. When this attribute is removed, the animation will pause */
+  @Input() play?: boolean;
+
+  @Output() load = new EventEmitter<CustomEvent>();
+  @Output() error = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
+    el.addEventListener('wa-load', handleLoad);
+    this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
+    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    el.addEventListener('wa-error', handleError);
+    this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

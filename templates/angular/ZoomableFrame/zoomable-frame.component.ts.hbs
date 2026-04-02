@@ -1,0 +1,81 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Zoomable frames display iframe content with zoom controls
+ *
+ * @see https://webawesome.com/docs/components/zoomable-frame
+ */
+@Component({
+  selector: 'k-zoomable-frame',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.src]="src"
+        [attr.srcdoc]="srcdoc"
+        [attr.zoom]="zoom"
+        [attr.zoom-levels]="zoomLevels"
+        [attr.allowfullscreen]="allowfullscreen || null"
+        [attr.loading]="loading"
+        [attr.without-controls]="withoutControls || null"
+        [attr.without-interaction]="withoutInteraction || null"
+        [attr.sandbox]="sandbox"
+        [attr.referrerpolicy]="referrerpolicy">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './zoomable-frame.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** URL of content to display */
+  @Input() src?: string;
+  /** Inline HTML to render */
+  @Input() srcdoc?: string;
+  /** Current zoom level */
+  @Input() zoom?: number;
+  /** Available zoom levels */
+  @Input() zoomLevels?: string;
+  /** Enables fullscreen */
+  @Input() allowfullscreen?: boolean;
+  /** Loading behavior */
+  @Input() loading?: 'eager' | 'lazy';
+  /** Hides zoom controls */
+  @Input() withoutControls?: boolean;
+  /** Disables interaction */
+  @Input() withoutInteraction?: boolean;
+  /** Security restrictions */
+  @Input() sandbox?: string;
+  /** Referrer policy */
+  @Input() referrerpolicy?: string;
+
+  @Output() load = new EventEmitter<CustomEvent>();
+  @Output() error = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
+    el.addEventListener('load', handleLoad);
+    this.cleanups.push(() => el.removeEventListener('load', handleLoad));
+    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    el.addEventListener('error', handleError);
+    this.cleanups.push(() => el.removeEventListener('error', handleError));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  zoomIn(): void {
+    (this.elementRef.nativeElement as unknown as { zoomIn: Function }).zoomIn();
+  }
+  zoomOut(): void {
+    (this.elementRef.nativeElement as unknown as { zoomOut: Function }).zoomOut();
+  }
+}

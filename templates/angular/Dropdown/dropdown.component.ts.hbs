@@ -1,0 +1,80 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Dropdowns expose additional content that pops up when the user interacts with a trigger
+ *
+ * @see https://webawesome.com/docs/components/dropdown
+ */
+@Component({
+  selector: 'k-dropdown',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.open]="open || null"
+        [attr.placement]="placement"
+        [attr.disabled]="disabled || null"
+        [attr.stay-open-on-select]="stayOpenOnSelect || null"
+        [attr.distance]="distance"
+        [attr.skidding]="skidding"
+        [attr.hoist]="hoist || null"
+        [attr.size]="size">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './dropdown.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Indicates whether the dropdown is open */
+  @Input() open?: boolean;
+  /** Preferred placement of the dropdown panel */
+  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  /** Disables the dropdown */
+  @Input() disabled?: boolean;
+  /** Keeps the dropdown open when an item is selected */
+  @Input() stayOpenOnSelect?: boolean;
+  /** Distance from the panel to the trigger */
+  @Input() distance?: number;
+  /** Offset along the trigger */
+  @Input() skidding?: number;
+  /** Hoists the dropdown panel to the body */
+  @Input() hoist?: boolean;
+  /** Dropdown size */
+  @Input() size?: 'small' | 'medium' | 'large';
+
+  @Output() show = new EventEmitter<CustomEvent>();
+  @Output() afterShow = new EventEmitter<CustomEvent>();
+  @Output() hide = new EventEmitter<CustomEvent>();
+  @Output() afterHide = new EventEmitter<CustomEvent>();
+  @Output() select = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
+    el.addEventListener('wa-show', handleShow);
+    this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
+    const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
+    el.addEventListener('wa-after-show', handleAfterShow);
+    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
+    el.addEventListener('wa-hide', handleHide);
+    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
+    const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
+    el.addEventListener('wa-after-hide', handleAfterHide);
+    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    const handleSelect = (e: Event) => this.select.emit(e as CustomEvent);
+    el.addEventListener('wa-select', handleSelect);
+    this.cleanups.push(() => el.removeEventListener('wa-select', handleSelect));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

@@ -39,6 +39,7 @@ import { saveSnapshot } from '../../utils/snapshot.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../utils/config.js';
+import { toKebabCase } from '../../utils/naming.js';
 
 export interface InstallResult {
   name: string;
@@ -122,19 +123,25 @@ export class ComponentInstaller {
     );
 
     const ext =
-      this.config.framework === 'vue'
-        ? this.config.typescript
-          ? 'vue'
-          : 'js.vue'
-        : this.config.typescript
-          ? 'tsx'
-          : 'jsx';
+      this.config.framework === 'angular'
+        ? 'component.ts'
+        : this.config.framework === 'vue'
+          ? this.config.typescript
+            ? 'vue'
+            : 'js.vue'
+          : this.config.typescript
+            ? 'tsx'
+            : 'jsx';
     const componentDir = path.join(
       this.cwd,
       this.config.componentsDir,
       component.name
     );
-    const componentPath = path.join(componentDir, `${component.name}.${ext}`);
+    const fileName =
+      this.config.framework === 'angular'
+        ? toKebabCase(component.name)
+        : component.name;
+    const componentPath = path.join(componentDir, `${fileName}.${ext}`);
     const cssPath = getComponentCSSPath(component, this.config, this.cwd);
 
     const hasTestSetup = await this.checkTestSetup();
@@ -227,19 +234,30 @@ export class ComponentInstaller {
     // Only for builtin template-generated components, not community --from installs
     if (!options.from) {
       const testExt =
-        this.config.framework === 'vue'
-          ? this.config.typescript
-            ? 'test.ts'
-            : 'test.js'
-          : this.config.typescript
-            ? 'test.tsx'
-            : 'test.jsx';
+        this.config.framework === 'angular'
+          ? 'component.spec.ts'
+          : this.config.framework === 'vue'
+            ? this.config.typescript
+              ? 'test.ts'
+              : 'test.js'
+            : this.config.typescript
+              ? 'test.tsx'
+              : 'test.jsx';
+
+      const snapshotFileName =
+        this.config.framework === 'angular'
+          ? toKebabCase(component.name)
+          : component.name;
+      const snapshotCSSName =
+        this.config.framework === 'angular'
+          ? `${toKebabCase(component.name)}.component.css`
+          : `${component.name}.css`;
 
       await saveSnapshot(this.cwd, component.name, {
-        [`${component.name}.${ext}`]: componentContent,
-        [`${component.name}.css`]: cssContent,
+        [`${snapshotFileName}.${ext}`]: componentContent,
+        [snapshotCSSName]: cssContent,
         ...(testContent
-          ? { [`${component.name}.${testExt}`]: testContent }
+          ? { [`${snapshotFileName}.${testExt}`]: testContent }
           : {}),
       });
     }

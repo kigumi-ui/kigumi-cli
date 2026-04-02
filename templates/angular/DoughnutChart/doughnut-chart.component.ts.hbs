@@ -1,0 +1,43 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Shows proportional segments in a ring shape with an open center for summary content
+ *
+ * @see https://webawesome.com/docs/components/doughnut-chart
+ */
+@Component({
+  selector: 'k-doughnut-chart',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.label]="label"
+        [attr.description]="description"
+        [attr.legend-position]="legendPosition"
+        [attr.without-animation]="withoutAnimation || null"
+        [attr.without-legend]="withoutLegend || null"
+        [attr.without-tooltip]="withoutTooltip || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './doughnut-chart.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Accessible name announced by assistive technology */
+  @Input() label?: string;
+  /** Extended accessible description for the chart */
+  @Input() description?: string;
+  /** Placement of the dataset legend relative to the chart */
+  @Input() legendPosition?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  /** Disables entrance and update motion effects */
+  @Input() withoutAnimation?: boolean;
+  /** Hides the dataset legend entirely */
+  @Input() withoutLegend?: boolean;
+  /** Prevents hover tooltips from appearing on data points */
+  @Input() withoutTooltip?: boolean;
+}

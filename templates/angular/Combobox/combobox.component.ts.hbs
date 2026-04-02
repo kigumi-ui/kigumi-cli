@@ -1,0 +1,187 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Combines a text input with a listbox for filtering and selecting options
+ *
+ * @see https://webawesome.com/docs/components/combobox
+ */
+@Component({
+  selector: 'k-combobox',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.allow-custom-value]="allowCustomValue || null"
+        [attr.appearance]="appearance"
+        [attr.autocomplete]="autocomplete"
+        [attr.disabled]="disabled || null"
+        [attr.hint]="hint"
+        [attr.label]="label"
+        [attr.max-options-visible]="maxOptionsVisible"
+        [attr.multiple]="multiple || null"
+        [attr.name]="name"
+        [attr.open]="open || null"
+        [attr.pill]="pill || null"
+        [attr.placeholder]="placeholder"
+        [attr.placement]="placement"
+        [attr.required]="required || null"
+        [attr.size]="size"
+        [attr.with-clear]="withClear || null"
+        [attr.value]="value">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './combobox.component.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => {{name}}Component),
+      multi: true,
+    },
+  ],
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValueAccessor {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Allows entering custom values */
+  @Input() allowCustomValue?: boolean;
+  /** Visual appearance style */
+  @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  /** Autocomplete behavior */
+  @Input() autocomplete?: 'list' | 'none';
+  /** Disables the combobox */
+  @Input() disabled?: boolean;
+  /** Hint text */
+  @Input() hint?: string;
+  /** Label text */
+  @Input() label?: string;
+  /** Maximum visible options before scrolling */
+  @Input() maxOptionsVisible?: number;
+  /** Allows multiple selections */
+  @Input() multiple?: boolean;
+  /** Form field name */
+  @Input() name?: string;
+  /** Whether the listbox is open */
+  @Input() open?: boolean;
+  /** Rounded edges style */
+  @Input() pill?: boolean;
+  /** Placeholder text */
+  @Input() placeholder?: string;
+  /** Listbox placement */
+  @Input() placement?: 'top' | 'bottom';
+  /** Makes field mandatory */
+  @Input() required?: boolean;
+  /** Combobox size */
+  @Input() size?: 'small' | 'medium' | 'large';
+  /** Shows clear button */
+  @Input() withClear?: boolean;
+  /** Current value of the combobox */
+  @Input() value?: string;
+
+  @Output() inputEvent = new EventEmitter<CustomEvent>();
+  @Output() change = new EventEmitter<CustomEvent>();
+  @Output() focus = new EventEmitter<CustomEvent>();
+  @Output() blur = new EventEmitter<CustomEvent>();
+  @Output() clear = new EventEmitter<CustomEvent>();
+  @Output() show = new EventEmitter<CustomEvent>();
+  @Output() afterShow = new EventEmitter<CustomEvent>();
+  @Output() hide = new EventEmitter<CustomEvent>();
+  @Output() afterHide = new EventEmitter<CustomEvent>();
+  @Output() invalid = new EventEmitter<CustomEvent>();
+
+  private onChangeCallback: (value: unknown) => void = () => {};
+  private onTouchedCallback: () => void = () => {};
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    el.addEventListener('input', handleInputEvent);
+    this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
+    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    el.addEventListener('change', handleChange);
+    this.cleanups.push(() => el.removeEventListener('change', handleChange));
+    const handleFocus = (e: Event) => this.focus.emit(e as CustomEvent);
+    el.addEventListener('focus', handleFocus);
+    this.cleanups.push(() => el.removeEventListener('focus', handleFocus));
+    const handleBlur = (e: Event) => this.blur.emit(e as CustomEvent);
+    el.addEventListener('blur', handleBlur);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlur));
+    const handleClear = (e: Event) => this.clear.emit(e as CustomEvent);
+    el.addEventListener('wa-clear', handleClear);
+    this.cleanups.push(() => el.removeEventListener('wa-clear', handleClear));
+    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
+    el.addEventListener('wa-show', handleShow);
+    this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
+    const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
+    el.addEventListener('wa-after-show', handleAfterShow);
+    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
+    el.addEventListener('wa-hide', handleHide);
+    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
+    const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
+    el.addEventListener('wa-after-hide', handleAfterHide);
+    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    el.addEventListener('wa-invalid', handleInvalid);
+    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+
+    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    el.addEventListener('input', handleValueChange);
+    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    const handleBlurTouch = () => this.onTouchedCallback();
+    el.addEventListener('blur', handleBlurTouch);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  writeValue(value: unknown): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+    }
+  }
+
+  registerOnChange(fn: (value: unknown) => void): void {
+    this.onChangeCallback = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouchedCallback = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+    }
+  }
+
+  show(): void {
+    (this.elementRef.nativeElement as unknown as { show: Function }).show();
+  }
+  hide(): void {
+    (this.elementRef.nativeElement as unknown as { hide: Function }).hide();
+  }
+  focus(options?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { focus: Function }).focus(options);
+  }
+  blur(): void {
+    (this.elementRef.nativeElement as unknown as { blur: Function }).blur();
+  }
+  setCustomValidity(message?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: Function }).setCustomValidity(message);
+  }
+  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: Function }).formStateRestoreCallback(state, reason);
+  }
+  resetValidity(): void {
+    (this.elementRef.nativeElement as unknown as { resetValidity: Function }).resetValidity();
+  }
+}

@@ -1,0 +1,77 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Displays an arbitrary number of content slides along a horizontal or vertical axis
+ *
+ * @see https://webawesome.com/docs/components/carousel
+ */
+@Component({
+  selector: 'k-carousel',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.autoplay]="autoplay || null"
+        [attr.autoplay-interval]="autoplayInterval"
+        [attr.loop]="loop || null"
+        [attr.mouse-dragging]="mouseDragging || null"
+        [attr.navigation]="navigation || null"
+        [attr.orientation]="orientation"
+        [attr.pagination]="pagination || null"
+        [attr.slides-per-move]="slidesPerMove"
+        [attr.slides-per-page]="slidesPerPage">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './carousel.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Automatically scrolls slides when user isn't interacting */
+  @Input() autoplay?: boolean;
+  /** Milliseconds between automatic scrolls */
+  @Input() autoplayInterval?: number;
+  /** Allows infinite navigation in same direction */
+  @Input() loop?: boolean;
+  /** Enables dragging slides with mouse */
+  @Input() mouseDragging?: boolean;
+  /** Shows previous/next buttons */
+  @Input() navigation?: boolean;
+  /** Carousel layout direction */
+  @Input() orientation?: 'horizontal' | 'vertical';
+  /** Shows slide indicator dots */
+  @Input() pagination?: boolean;
+  /** Number of slides to advance per scroll */
+  @Input() slidesPerMove?: number;
+  /** Number of slides visible at once */
+  @Input() slidesPerPage?: number;
+
+  @Output() slideChange = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleSlideChange = (e: Event) => this.slideChange.emit(e as CustomEvent);
+    el.addEventListener('wa-slide-change', handleSlideChange);
+    this.cleanups.push(() => el.removeEventListener('wa-slide-change', handleSlideChange));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  previous(behavior?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { previous: Function }).previous(behavior);
+  }
+  next(behavior?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { next: Function }).next(behavior);
+  }
+  goToSlide(index?: unknown, behavior?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { goToSlide: Function }).goToSlide(index, behavior);
+  }
+}

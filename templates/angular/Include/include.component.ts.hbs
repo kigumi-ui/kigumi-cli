@@ -1,0 +1,53 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Includes give you the power to embed external HTML files into the page
+ *
+ * @see https://webawesome.com/docs/components/include
+ */
+@Component({
+  selector: 'k-include',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.src]="src"
+        [attr.mode]="mode"
+        [attr.allow-scripts]="allowScripts || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './include.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The location of the HTML file to include */
+  @Input() src?: string;
+  /** The fetch mode */
+  @Input() mode?: 'cors' | 'no-cors' | 'same-origin';
+  /** Allows included scripts to be executed */
+  @Input() allowScripts?: boolean;
+
+  @Output() load = new EventEmitter<CustomEvent>();
+  @Output() includeError = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
+    el.addEventListener('wa-load', handleLoad);
+    this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
+    const handleIncludeError = (e: Event) => this.includeError.emit(e as CustomEvent);
+    el.addEventListener('wa-include-error', handleIncludeError);
+    this.cleanups.push(() => el.removeEventListener('wa-include-error', handleIncludeError));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

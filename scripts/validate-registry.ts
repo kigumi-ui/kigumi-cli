@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Registry Validation Script
  *
@@ -23,6 +24,7 @@ import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
+import { toKebabCase } from '../src/utils/naming.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,7 +108,7 @@ function validateNoDuplicates(
 async function validateTemplateFiles(
   component: ComponentDefinition,
   key: string,
-  framework: 'react' | 'vue'
+  framework: 'react' | 'vue' | 'angular'
 ): Promise<string[]> {
   const errors: string[] = [];
   const componentDir = path.join(TEMPLATES_DIR, framework, component.name);
@@ -119,30 +121,40 @@ async function validateTemplateFiles(
   }
 
   // Check for required template files
-  const extensions = {
+  const extensions: Record<string, string[]> = {
     react: ['tsx', 'jsx'],
     vue: ['vue', 'js.vue'],
+    angular: ['component.ts'],
   };
 
-  const testExtensions = {
+  const testExtensions: Record<string, string[]> = {
     react: ['test.tsx', 'test.jsx'],
     vue: ['test.ts', 'test.js'],
+    angular: ['component.spec.ts'],
   };
 
   const requiredFiles: string[] = [];
 
+  // Angular uses kebab-case file names
+  const fileName =
+    framework === 'angular' ? toKebabCase(component.name) : component.name;
+
   // Component files
   for (const ext of extensions[framework]) {
-    requiredFiles.push(`${component.name}.${ext}.hbs`);
+    requiredFiles.push(`${fileName}.${ext}.hbs`);
   }
 
   // Test files
   for (const ext of testExtensions[framework]) {
-    requiredFiles.push(`${component.name}.${ext}.hbs`);
+    requiredFiles.push(`${fileName}.${ext}.hbs`);
   }
 
   // CSS file
-  requiredFiles.push(`${component.name}.css.hbs`);
+  const cssName =
+    framework === 'angular'
+      ? `${fileName}.component.css`
+      : `${component.name}.css`;
+  requiredFiles.push(`${cssName}.hbs`);
 
   for (const file of requiredFiles) {
     const filePath = path.join(componentDir, file);
@@ -286,7 +298,7 @@ async function validateRegistry(): Promise<ValidationResult> {
     result.errors.push(...tagErrors);
 
     // Template files validation (React and Vue)
-    for (const framework of ['react', 'vue'] as const) {
+    for (const framework of ['react', 'vue', 'angular'] as const) {
       const templateErrors = await validateTemplateFiles(
         component,
         key,
@@ -329,7 +341,7 @@ function printResults(result: ValidationResult): void {
   console.log(`  Free components:  ${result.stats.freeComponents}`);
   console.log(`  Pro components:   ${result.stats.proComponents}`);
   console.log(
-    `  Validated templates: ${result.stats.validatedTemplates * 2} frameworks × ${result.stats.validatedTemplates} components`
+    `  Validated templates: ${result.stats.validatedTemplates * 3} frameworks × ${result.stats.validatedTemplates} components`
   );
   console.log('');
 

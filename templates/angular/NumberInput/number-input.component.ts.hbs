@@ -1,0 +1,155 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Number inputs allow users to enter numeric values with optional step controls
+ *
+ * @see https://webawesome.com/docs/components/number-input
+ */
+@Component({
+  selector: 'k-number-input',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.label]="label"
+        [attr.hint]="hint"
+        [attr.value]="value"
+        [attr.min]="min"
+        [attr.max]="max"
+        [attr.step]="step"
+        [attr.disabled]="disabled || null"
+        [attr.required]="required || null"
+        [attr.placeholder]="placeholder"
+        [attr.size]="size"
+        [attr.appearance]="appearance"
+        [attr.without-steppers]="withoutSteppers || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './number-input.component.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => {{name}}Component),
+      multi: true,
+    },
+  ],
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValueAccessor {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Accessible label */
+  @Input() label?: string;
+  /** Descriptive hint text */
+  @Input() hint?: string;
+  /** Current value */
+  @Input() value?: number;
+  /** Minimum value */
+  @Input() min?: number;
+  /** Maximum value */
+  @Input() max?: number;
+  /** Step increment */
+  @Input() step?: number;
+  /** Disables the input */
+  @Input() disabled?: boolean;
+  /** Makes field mandatory */
+  @Input() required?: boolean;
+  /** Placeholder text */
+  @Input() placeholder?: string;
+  /** Input size */
+  @Input() size?: 'small' | 'medium' | 'large';
+  /** Visual appearance */
+  @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  /** Hides the stepper buttons */
+  @Input() withoutSteppers?: boolean;
+
+  @Output() inputEvent = new EventEmitter<CustomEvent>();
+  @Output() change = new EventEmitter<CustomEvent>();
+  @Output() blur = new EventEmitter<CustomEvent>();
+  @Output() focus = new EventEmitter<CustomEvent>();
+  @Output() invalid = new EventEmitter<CustomEvent>();
+
+  private onChangeCallback: (value: unknown) => void = () => {};
+  private onTouchedCallback: () => void = () => {};
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    el.addEventListener('input', handleInputEvent);
+    this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
+    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    el.addEventListener('change', handleChange);
+    this.cleanups.push(() => el.removeEventListener('change', handleChange));
+    const handleBlur = (e: Event) => this.blur.emit(e as CustomEvent);
+    el.addEventListener('blur', handleBlur);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlur));
+    const handleFocus = (e: Event) => this.focus.emit(e as CustomEvent);
+    el.addEventListener('focus', handleFocus);
+    this.cleanups.push(() => el.removeEventListener('focus', handleFocus));
+    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    el.addEventListener('wa-invalid', handleInvalid);
+    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+
+    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    el.addEventListener('input', handleValueChange);
+    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    const handleBlurTouch = () => this.onTouchedCallback();
+    el.addEventListener('blur', handleBlurTouch);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  writeValue(value: unknown): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+    }
+  }
+
+  registerOnChange(fn: (value: unknown) => void): void {
+    this.onChangeCallback = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouchedCallback = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+    }
+  }
+
+  focus(options?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { focus: Function }).focus(options);
+  }
+  blur(): void {
+    (this.elementRef.nativeElement as unknown as { blur: Function }).blur();
+  }
+  select(): void {
+    (this.elementRef.nativeElement as unknown as { select: Function }).select();
+  }
+  stepUp(): void {
+    (this.elementRef.nativeElement as unknown as { stepUp: Function }).stepUp();
+  }
+  stepDown(): void {
+    (this.elementRef.nativeElement as unknown as { stepDown: Function }).stepDown();
+  }
+  setCustomValidity(message?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: Function }).setCustomValidity(message);
+  }
+  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: Function }).formStateRestoreCallback(state, reason);
+  }
+  resetValidity(): void {
+    (this.elementRef.nativeElement as unknown as { resetValidity: Function }).resetValidity();
+  }
+}

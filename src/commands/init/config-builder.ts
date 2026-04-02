@@ -106,7 +106,7 @@ export async function buildConfigNonInteractive(
   existingConfig?: KigumiConfig | null
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
   // Framework selection
-  const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue'];
+  const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue', 'angular'];
   let framework: Framework;
 
   if (options.framework && SUPPORTED_FRAMEWORKS.includes(options.framework)) {
@@ -129,7 +129,11 @@ export async function buildConfigNonInteractive(
       : 'react';
   }
 
-  const typescript = options.typescript ?? projectInfo.typescript;
+  // Angular is TypeScript-only
+  const typescript =
+    framework === 'angular'
+      ? true
+      : (options.typescript ?? projectInfo.typescript);
 
   // Token provided via CLI flag (will be written to .env later)
   const proToken = options.token;
@@ -199,7 +203,7 @@ export async function buildConfigInteractive(
   const detectedTier = detectTierSync(cwd);
 
   // Framework selection
-  const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue'];
+  const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue', 'angular'];
   const detectedFramework = SUPPORTED_FRAMEWORKS.includes(
     projectInfo.framework as Framework
   )
@@ -213,25 +217,31 @@ export async function buildConfigInteractive(
       options: [
         { value: 'react', label: 'React' },
         { value: 'vue', label: 'Vue 3' },
+        { value: 'angular', label: 'Angular 17+' },
       ],
       initialValue: existingConfig?.framework || detectedFramework,
     }));
   const framework = ensureString(frameworkResult) as Framework;
 
-  // TypeScript
-  const getInitialTypescript = (): boolean => {
-    if (existingConfig?.typescript !== undefined)
-      return existingConfig.typescript;
-    return projectInfo.typescript;
-  };
+  // TypeScript (Angular is always TypeScript)
+  let typescript: boolean;
+  if (framework === 'angular') {
+    typescript = true;
+  } else {
+    const getInitialTypescript = (): boolean => {
+      if (existingConfig?.typescript !== undefined)
+        return existingConfig.typescript;
+      return projectInfo.typescript;
+    };
 
-  const typescriptResult =
-    options.typescript ??
-    (await p.confirm({
-      message: 'Use TypeScript?',
-      initialValue: getInitialTypescript(),
-    }));
-  const typescript = ensureBoolean(typescriptResult);
+    const typescriptResult =
+      options.typescript ??
+      (await p.confirm({
+        message: 'Use TypeScript?',
+        initialValue: getInitialTypescript(),
+      }));
+    typescript = ensureBoolean(typescriptResult);
+  }
 
   // Pro Token (optional - if provided, enables Pro tier)
   let proToken = options.token;

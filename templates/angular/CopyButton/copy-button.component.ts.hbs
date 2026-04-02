@@ -1,0 +1,68 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Copies text data to the clipboard when clicked
+ *
+ * @see https://webawesome.com/docs/components/copy-button
+ */
+@Component({
+  selector: 'k-copy-button',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.value]="value"
+        [attr.from]="from"
+        [attr.disabled]="disabled || null"
+        [attr.copy-label]="copyLabel"
+        [attr.success-label]="successLabel"
+        [attr.error-label]="errorLabel"
+        [attr.feedback-duration]="feedbackDuration"
+        [attr.tooltip-placement]="tooltipPlacement">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './copy-button.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The text to copy */
+  @Input() value?: string;
+  /** Element selector to copy text from */
+  @Input() from?: string;
+  /** Disables the button */
+  @Input() disabled?: boolean;
+  /** Tooltip label for copy state */
+  @Input() copyLabel?: string;
+  /** Tooltip label for success state */
+  @Input() successLabel?: string;
+  /** Tooltip label for error state */
+  @Input() errorLabel?: string;
+  /** Duration of feedback state in milliseconds */
+  @Input() feedbackDuration?: number;
+  /** Tooltip position */
+  @Input() tooltipPlacement?: 'top' | 'right' | 'bottom' | 'left';
+
+  @Output() copy = new EventEmitter<CustomEvent>();
+  @Output() error = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleCopy = (e: Event) => this.copy.emit(e as CustomEvent);
+    el.addEventListener('wa-copy', handleCopy);
+    this.cleanups.push(() => el.removeEventListener('wa-copy', handleCopy));
+    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    el.addEventListener('wa-error', handleError);
+    this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

@@ -1,0 +1,77 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Shows a brief summary and expands to show additional content
+ *
+ * @see https://webawesome.com/docs/components/details
+ */
+@Component({
+  selector: 'k-details',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.open]="open || null"
+        [attr.summary]="summary"
+        [attr.disabled]="disabled || null"
+        [attr.appearance]="appearance"
+        [attr.icon-placement]="iconPlacement"
+        [attr.name]="name">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './details.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Whether the details are expanded */
+  @Input() open?: boolean;
+  /** Summary text shown in header */
+  @Input() summary?: string;
+  /** Disables the details */
+  @Input() disabled?: boolean;
+  /** Visual appearance style */
+  @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined' | 'plain';
+  /** Position of the expand icon */
+  @Input() iconPlacement?: 'start' | 'end';
+  /** Name for accordion grouping */
+  @Input() name?: string;
+
+  @Output() show = new EventEmitter<CustomEvent>();
+  @Output() afterShow = new EventEmitter<CustomEvent>();
+  @Output() hide = new EventEmitter<CustomEvent>();
+  @Output() afterHide = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
+    el.addEventListener('wa-show', handleShow);
+    this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
+    const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
+    el.addEventListener('wa-after-show', handleAfterShow);
+    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
+    el.addEventListener('wa-hide', handleHide);
+    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
+    const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
+    el.addEventListener('wa-after-hide', handleAfterHide);
+    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  show(): void {
+    (this.elementRef.nativeElement as unknown as { show: Function }).show();
+  }
+  hide(): void {
+    (this.elementRef.nativeElement as unknown as { hide: Function }).hide();
+  }
+}

@@ -1,0 +1,34 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Progress bars are used to show the completion of a task or operation
+ *
+ * @see https://webawesome.com/docs/components/progress-bar
+ */
+@Component({
+  selector: 'k-progress-bar',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.value]="value"
+        [attr.indeterminate]="indeterminate || null"
+        [attr.label]="label">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './progress-bar.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Current progress (0-100) */
+  @Input() value?: number;
+  /** Shows indeterminate state */
+  @Input() indeterminate?: boolean;
+  /** Accessible label */
+  @Input() label?: string;
+}

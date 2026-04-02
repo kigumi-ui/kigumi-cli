@@ -1,0 +1,64 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Formats a date/time using the Intl.DateTimeFormat API
+ *
+ * @see https://webawesome.com/docs/components/format-date
+ */
+@Component({
+  selector: 'k-format-date',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.date]="date"
+        [attr.weekday]="weekday"
+        [attr.era]="era"
+        [attr.year]="year"
+        [attr.month]="month"
+        [attr.day]="day"
+        [attr.hour]="hour"
+        [attr.minute]="minute"
+        [attr.second]="second"
+        [attr.hour-format]="hourFormat"
+        [attr.time-zone-name]="timeZoneName"
+        [attr.time-zone]="timeZone"
+        [attr.lang]="lang">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './format-date.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The date/time to format */
+  @Input() date?: string;
+  /** How to display the weekday */
+  @Input() weekday?: 'narrow' | 'short' | 'long';
+  /** How to display the era */
+  @Input() era?: 'narrow' | 'short' | 'long';
+  /** How to display the year */
+  @Input() year?: 'numeric' | '2-digit';
+  /** How to display the month */
+  @Input() month?: 'numeric' | '2-digit' | 'narrow' | 'short' | 'long';
+  /** How to display the day */
+  @Input() day?: 'numeric' | '2-digit';
+  /** How to display the hour */
+  @Input() hour?: 'numeric' | '2-digit';
+  /** How to display the minute */
+  @Input() minute?: 'numeric' | '2-digit';
+  /** How to display the second */
+  @Input() second?: 'numeric' | '2-digit';
+  /** 12 or 24 hour format */
+  @Input() hourFormat?: 'auto' | '12' | '24';
+  /** How to display the time zone */
+  @Input() timeZoneName?: 'short' | 'long';
+  /** The time zone to use */
+  @Input() timeZone?: string;
+  /** The locale to use when formatting */
+  @Input() lang?: string;
+}

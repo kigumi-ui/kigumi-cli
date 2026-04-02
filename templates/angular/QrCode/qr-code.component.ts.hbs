@@ -1,0 +1,46 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Generates QR codes for encoding text, URLs, or data
+ *
+ * @see https://webawesome.com/docs/components/qr-code
+ */
+@Component({
+  selector: 'k-qr-code',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.value]="value"
+        [attr.label]="label"
+        [attr.size]="size"
+        [attr.fill]="fill"
+        [attr.background]="background"
+        [attr.radius]="radius"
+        [attr.error-correction]="errorCorrection">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './qr-code.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The data to encode */
+  @Input() value?: string;
+  /** Accessible label */
+  @Input() label?: string;
+  /** Size in pixels */
+  @Input() size?: number;
+  /** Fill color */
+  @Input() fill?: string;
+  /** Background color */
+  @Input() background?: string;
+  /** Corner radius */
+  @Input() radius?: number;
+  /** Error correction level */
+  @Input() errorCorrection?: 'L' | 'M' | 'Q' | 'H';
+}

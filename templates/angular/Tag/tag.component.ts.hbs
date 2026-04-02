@@ -1,0 +1,55 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Tags are used as labels to organize things or indicate selections
+ *
+ * @see https://webawesome.com/docs/components/tag
+ */
+@Component({
+  selector: 'k-tag',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.appearance]="appearance"
+        [attr.pill]="pill || null"
+        [attr.size]="size"
+        [attr.variant]="variant"
+        [attr.with-remove]="withRemove || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './tag.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Visual appearance */
+  @Input() appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  /** Rounded edges */
+  @Input() pill?: boolean;
+  /** Tag size */
+  @Input() size?: 'small' | 'medium' | 'large';
+  /** Theme variant */
+  @Input() variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  /** Shows remove button */
+  @Input() withRemove?: boolean;
+
+  @Output() remove = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleRemove = (e: Event) => this.remove.emit(e as CustomEvent);
+    el.addEventListener('wa-remove', handleRemove);
+    this.cleanups.push(() => el.removeEventListener('wa-remove', handleRemove));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

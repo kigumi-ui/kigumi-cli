@@ -16,6 +16,7 @@ import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { handleError, ConfigNotFoundError } from '../errors/index.js';
 import { getComponent } from '../utils/registry.js';
+import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
@@ -186,21 +187,25 @@ async function processComponent(
 
   // Determine file extensions
   const ext =
-    config.framework === 'vue'
-      ? config.typescript
-        ? 'vue'
-        : 'js.vue'
-      : config.typescript
-        ? 'tsx'
-        : 'jsx';
+    config.framework === 'angular'
+      ? 'component.ts'
+      : config.framework === 'vue'
+        ? config.typescript
+          ? 'vue'
+          : 'js.vue'
+        : config.typescript
+          ? 'tsx'
+          : 'jsx';
   const testExt =
-    config.framework === 'vue'
-      ? config.typescript
-        ? 'test.ts'
-        : 'test.js'
-      : config.typescript
-        ? 'test.tsx'
-        : 'test.jsx';
+    config.framework === 'angular'
+      ? 'component.spec.ts'
+      : config.framework === 'vue'
+        ? config.typescript
+          ? 'test.ts'
+          : 'test.js'
+        : config.typescript
+          ? 'test.tsx'
+          : 'test.jsx';
 
   const componentDir = path.join(cwd, config.componentsDir, component.name);
 
@@ -339,9 +344,13 @@ async function buildFileSpecs(
   cwd: string
 ): Promise<FileSpec[]> {
   const specs: FileSpec[] = [];
+  const fileBaseName =
+    config.framework === 'angular'
+      ? toKebabCase(component.name)
+      : component.name;
 
   // Component file
-  const componentFileName = `${component.name}.${ext}`;
+  const componentFileName = `${fileBaseName}.${ext}`;
   specs.push({
     fileName: componentFileName,
     oursPath: path.join(componentDir, componentFileName),
@@ -350,7 +359,10 @@ async function buildFileSpecs(
   });
 
   // CSS file
-  const cssFileName = `${component.name}.css`;
+  const cssFileName =
+    config.framework === 'angular'
+      ? `${fileBaseName}.component.css`
+      : `${component.name}.css`;
   specs.push({
     fileName: cssFileName,
     oursPath: path.join(componentDir, cssFileName),
@@ -358,7 +370,7 @@ async function buildFileSpecs(
   });
 
   // Test file
-  const testFileName = `${component.name}.${testExt}`;
+  const testFileName = `${fileBaseName}.${testExt}`;
   const testPath = path.join(componentDir, testFileName);
   if (await fs.pathExists(testPath)) {
     specs.push({

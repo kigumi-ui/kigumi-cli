@@ -1,0 +1,32 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Container that manages and stacks lightweight notification banners at a chosen screen edge
+ *
+ * @see https://webawesome.com/docs/components/toast
+ */
+@Component({
+  selector: 'k-toast',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.placement]="placement">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './toast.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Screen corner or edge where notifications are anchored */
+  @Input() placement?: 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
+
+  create(message?: unknown, options?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { create: Function }).create(message, options);
+  }
+}

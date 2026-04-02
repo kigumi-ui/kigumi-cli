@@ -1,0 +1,31 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Progress rings are used to show the completion of a task in a circular format
+ *
+ * @see https://webawesome.com/docs/components/progress-ring
+ */
+@Component({
+  selector: 'k-progress-ring',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.value]="value"
+        [attr.label]="label">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './progress-ring.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Current progress (0-100) */
+  @Input() value?: number;
+  /** Accessible label */
+  @Input() label?: string;
+}
