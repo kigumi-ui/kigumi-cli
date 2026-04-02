@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Visual diff output in `kigumi update` and `kigumi add --overwrite` showing colored line-by-line changes
+- `kigumi diff` now shows line-level differences for changed files
+- Snapshots for community registry components (`--from` installs now support `kigumi update`)
+- Cleanup of partially written files on community component download failure
+
+### Changed
+
+- `kigumi add --overwrite` shows a colored diff before the confirmation prompt
+- `kigumi update --dry-run` shows diffs without writing files
+- `kigumi update --force` shows diffs before overwriting
+
 ## [0.18.3] - 2026-03-29
 
 ### Fixed

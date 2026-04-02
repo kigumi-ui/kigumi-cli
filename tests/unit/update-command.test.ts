@@ -65,6 +65,11 @@ vi.mock('../../src/output/index.js', () => ({
   ConsoleOutput: vi.fn(),
 }));
 
+// Mock diff renderer
+vi.mock('../../src/utils/diff-renderer.js', () => ({
+  renderDiff: vi.fn().mockReturnValue('mocked diff output'),
+}));
+
 // Mock template generation (pass through real utility functions)
 vi.mock('../../src/utils/template.js', async () => {
   const actual = await vi.importActual<
@@ -556,5 +561,184 @@ describe('updateCommand', () => {
 
     expect(mockOutput.intro).toHaveBeenCalledWith('kigumi update');
     expect(mockOutput.outro).toHaveBeenCalledWith('Done');
+  });
+
+  // ── Test 15: safe-overwrite calls renderDiff with correct arguments ──
+
+  it('should call renderDiff for safe-overwrite files', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    expect(renderDiff).toHaveBeenCalledWith(
+      '// old generated component',
+      '// generated component',
+      'Button.tsx'
+    );
+  });
+
+  // ── Test 16: up-to-date does NOT call renderDiff ──
+
+  it('should not call renderDiff for up-to-date files', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// user modified component',
+      'Button.css': '/* generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// generated component',
+      'Button.css': '/* generated css */',
+    });
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    expect(renderDiff).not.toHaveBeenCalled();
+  });
+
+  // ── Test 17: conflict does NOT call renderDiff ──
+
+  it('should not call renderDiff for conflict files', async () => {
+    const base = 'line1\nshared line\nline3';
+    const ours = 'line1\nuser change\nline3';
+    const theirs = 'line1\ntemplate change\nline3';
+
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': ours,
+      'Button.css': '/* generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': base,
+      'Button.css': '/* generated css */',
+    });
+
+    const { generateComponent } = await import('../../src/utils/template.js');
+    vi.mocked(generateComponent).mockResolvedValue(theirs);
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    expect(renderDiff).not.toHaveBeenCalled();
+  });
+
+  // ── Test 18: dry-run shows diff but does not write ──
+
+  it('should show diff in dry-run mode without writing files', async () => {
+    await createConfig();
+    // base === ours (user didn't edit), theirs differs -> safe-overwrite
+    await installComponent('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// old generated component',
+      'Button.css': '/* old generated css */',
+    });
+
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    const callsBefore = vi.mocked(renderDiff).mock.calls.length;
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir, dryRun: true });
+
+    // renderDiff should be called (diff shown even in dry-run)
+    expect(vi.mocked(renderDiff).mock.calls.length).toBeGreaterThan(
+      callsBefore
+    );
+
+    // But file should NOT be modified
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toBe('// old generated component');
+  });
+
+  // ── Test 19: force mode shows diff even for would-be conflicts ──
+
+  it('should show diff and overwrite in force mode', async () => {
+    const base = 'line1\nshared\nline3';
+    const ours = 'line1\nuser change\nline3';
+
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': ours,
+      'Button.css': '/* generated css */',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': base,
+      'Button.css': '/* generated css */',
+    });
+
+    // Reset generateComponent to default (may have been overridden by prior tests)
+    const { generateComponent } = await import('../../src/utils/template.js');
+    vi.mocked(generateComponent).mockResolvedValue('// generated component');
+
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    const callsBefore = vi.mocked(renderDiff).mock.calls.length;
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir, force: true });
+
+    // renderDiff called (force shows diff of ours -> theirs)
+    expect(vi.mocked(renderDiff).mock.calls.length).toBeGreaterThan(
+      callsBefore
+    );
+
+    // File overwritten with generated content
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toBe('// generated component');
+  });
+
+  // ── Test 20: user declines snapshot creation ──
+
+  it('should not create snapshot when user declines', async () => {
+    await createConfig();
+    // No snapshot exists, ours differs from theirs -> no-snapshot-differ
+    await installComponent('Button', {
+      'Button.tsx': '// user custom code',
+      'Button.css': '/* generated css */',
+    });
+    // No createSnapshot call -> no snapshot on disk
+
+    // Mock confirm to return false
+    const prompts = await import('@clack/prompts');
+    vi.mocked(prompts.confirm).mockResolvedValueOnce(false);
+
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    const callsBefore = vi.mocked(renderDiff).mock.calls.length;
+
+    const { updateCommand } = await import('../../src/commands/update.js');
+    await updateCommand(['Button'], { cwd: testDir });
+
+    // renderDiff NOT called (no-snapshot-differ doesn't show diff)
+    expect(vi.mocked(renderDiff).mock.calls.length).toBe(callsBefore);
+
+    // File unchanged
+    const content = await fs.readFile(
+      path.join(testDir, 'src/components/Button/Button.tsx'),
+      'utf-8'
+    );
+    expect(content).toBe('// user custom code');
+
+    // No snapshot created
+    const snapshotDir = path.join(testDir, '.kigumi/snapshots/Button');
+    expect(await fs.pathExists(snapshotDir)).toBe(false);
   });
 });

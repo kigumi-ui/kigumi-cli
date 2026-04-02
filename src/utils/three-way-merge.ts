@@ -47,6 +47,8 @@ export interface FileMergeResult {
   status: FileStatus;
   /** New file content to write, or null if no write needed */
   newContent: string | null;
+  /** Previous file content before update (for diff display) */
+  previousContent?: string | null;
   /** Merge details (only for clean-merge/conflict statuses) */
   merge?: MergeResult;
 }

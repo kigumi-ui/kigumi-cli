@@ -128,6 +128,11 @@ vi.mock('../../src/utils/tier.js', () => ({
   getProToken: vi.fn().mockResolvedValue(null),
 }));
 
+// Mock diff renderer
+vi.mock('../../src/utils/diff-renderer.js', () => ({
+  renderDiff: vi.fn().mockReturnValue('mocked diff output'),
+}));
+
 describe('diffCommand', () => {
   let testDir: string;
   let originalCwd: string;
@@ -434,6 +439,17 @@ describe('diffCommand', () => {
     expect(componentCountLine).toContain('1');
   });
 
+  async function createSnapshot(
+    name: string,
+    files: Record<string, string>
+  ): Promise<void> {
+    const snapshotDir = path.join(testDir, '.kigumi/snapshots', name);
+    await fs.ensureDir(snapshotDir);
+    for (const [fileName, content] of Object.entries(files)) {
+      await fs.writeFile(path.join(snapshotDir, fileName), content, 'utf-8');
+    }
+  }
+
   it('should call intro and outro', async () => {
     await createConfig();
     await fs.ensureDir(path.join(testDir, 'src/components'));
@@ -443,5 +459,48 @@ describe('diffCommand', () => {
 
     expect(mockOutput.intro).toHaveBeenCalledWith('kigumi diff');
     expect(mockOutput.outro).toHaveBeenCalledWith('Done');
+  });
+
+  // ── Test: diff always shows renderDiff for template-changed files ──
+
+  it('should call renderDiff for template-changed files', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// my installed component',
+      'Button.css': '/* generated css */',
+      'Button.test.tsx': '// generated test',
+    });
+    await createSnapshot('Button', {
+      'Button.tsx': '// my installed component',
+      'Button.css': '/* generated css */',
+      'Button.test.tsx': '// generated test',
+    });
+
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    const { diffCommand } = await import('../../src/commands/diff.js');
+    await diffCommand(['Button'], { cwd: testDir });
+
+    expect(renderDiff).toHaveBeenCalledWith(
+      '// my installed component',
+      '// generated component',
+      'Button.tsx'
+    );
+  });
+
+  // ── Test: diff does NOT call renderDiff for unchanged files ──
+
+  it('should not call renderDiff for unchanged files', async () => {
+    await createConfig();
+    await installComponent('Button', {
+      'Button.tsx': '// generated component',
+      'Button.css': '/* generated css */',
+      'Button.test.tsx': '// generated test',
+    });
+
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    const { diffCommand } = await import('../../src/commands/diff.js');
+    await diffCommand(['Button'], { cwd: testDir });
+
+    expect(renderDiff).not.toHaveBeenCalled();
   });
 });

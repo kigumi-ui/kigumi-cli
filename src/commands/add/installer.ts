@@ -39,6 +39,7 @@ import {
   type FileModificationCheck,
 } from '../../utils/file-diff.js';
 import { saveSnapshot } from '../../utils/snapshot.js';
+import { renderDiff } from '../../utils/diff-renderer.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../schemas/config.js';
@@ -182,10 +183,34 @@ export class ComponentInstaller {
           `${pc.yellow('!')} ${pc.cyan(component.name)} has local modifications`
         );
 
-        // Show which files are modified vs unchanged
+        // Map file paths to generated content for diff rendering
+        const contentByPath = new Map<string, string>([
+          [componentPath, componentContent],
+          [cssPath, cssContent],
+        ]);
+        if (testContent && testPath) {
+          contentByPath.set(testPath, testContent);
+        }
+
+        // Show which files are modified vs unchanged, with diffs
         for (const check of checks) {
           if (check.modified) {
             this.output.warn(`  Modified:  ${pc.yellow(check.fileName)}`);
+            const newContent = contentByPath.get(check.filePath);
+            if (newContent) {
+              const existingContent = await fs.readFile(
+                check.filePath,
+                'utf-8'
+              );
+              const diff = renderDiff(
+                existingContent,
+                newContent,
+                check.fileName
+              );
+              if (diff) {
+                this.output.info(diff);
+              }
+            }
           } else if (check.exists) {
             this.output.info(`  Unchanged: ${pc.dim(check.fileName)}`);
           }

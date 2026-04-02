@@ -26,12 +26,12 @@ import {
   getFileBaseName,
 } from '../utils/template.js';
 import { loadSnapshot } from '../utils/snapshot.js';
+import { renderDiff } from '../utils/diff-renderer.js';
 import type { KigumiConfig } from '../schemas/config.js';
 import type { ComponentDefinition } from '../utils/registry.js';
 
 interface DiffOptions {
   cwd?: string;
-  verbose?: boolean;
 }
 
 interface ComponentDiffResult {
@@ -48,6 +48,8 @@ interface FileDiffResult {
     | 'locally-modified'
     | 'both-changed'
     | 'missing';
+  existingContent?: string;
+  generatedContent?: string;
 }
 
 /**
@@ -98,28 +100,43 @@ export async function diffCommand(
         ? ` (installed: ${result.installedVersion})`
         : '';
 
-      const fileStatuses = result.files.map((f) => {
-        switch (f.status) {
-          case 'unchanged':
-            return `    ${pc.green('✓')} ${f.fileName} — unchanged`;
-          case 'template-changed':
-            templateChangedCount++;
-            return `    ${pc.yellow('~')} ${f.fileName} — ${pc.yellow('template changed')}`;
-          case 'locally-modified':
-            locallyModifiedCount++;
-            return `    ${pc.blue('*')} ${f.fileName} — ${pc.blue('locally modified')}`;
-          case 'both-changed':
-            bothChangedCount++;
-            return `    ${pc.magenta('⚡')} ${f.fileName} — ${pc.magenta('both changed')}`;
-          case 'missing':
-            return `    ${pc.dim('-')} ${f.fileName} — not found`;
-        }
-      });
-
       output.info('');
       output.info(pc.bold(`${result.name}`) + pc.dim(versionInfo));
-      for (const line of fileStatuses) {
-        output.info(line);
+
+      for (const f of result.files) {
+        let statusLine = '';
+        switch (f.status) {
+          case 'unchanged':
+            statusLine = `    ${pc.green('✓')} ${f.fileName} — unchanged`;
+            break;
+          case 'template-changed':
+            templateChangedCount++;
+            statusLine = `    ${pc.yellow('~')} ${f.fileName} — ${pc.yellow('template changed')}`;
+            break;
+          case 'locally-modified':
+            locallyModifiedCount++;
+            statusLine = `    ${pc.blue('*')} ${f.fileName} — ${pc.blue('locally modified')}`;
+            break;
+          case 'both-changed':
+            bothChangedCount++;
+            statusLine = `    ${pc.magenta('⚡')} ${f.fileName} — ${pc.magenta('both changed')}`;
+            break;
+          case 'missing':
+            statusLine = `    ${pc.dim('-')} ${f.fileName} — not found`;
+            break;
+        }
+        output.info(statusLine);
+
+        if (f.existingContent && f.generatedContent) {
+          const diff = renderDiff(
+            f.existingContent,
+            f.generatedContent,
+            f.fileName
+          );
+          if (diff) {
+            output.info(diff);
+          }
+        }
       }
     }
 
@@ -319,18 +336,38 @@ async function compareFile(
 
     // base === ours, template changed → template-changed
     if (baseTrimmed === existingTrimmed) {
-      return { fileName, status: 'template-changed' };
+      return {
+        fileName,
+        status: 'template-changed',
+        existingContent,
+        generatedContent,
+      };
     }
 
     // base === theirs, user edited → locally-modified
     if (baseTrimmed === generatedTrimmed) {
-      return { fileName, status: 'locally-modified' };
+      return {
+        fileName,
+        status: 'locally-modified',
+        existingContent,
+        generatedContent,
+      };
     }
 
     // All three differ → both-changed
-    return { fileName, status: 'both-changed' };
+    return {
+      fileName,
+      status: 'both-changed',
+      existingContent,
+      generatedContent,
+    };
   }
 
   // No snapshot — fall back to previous behavior
-  return { fileName, status: 'template-changed' };
+  return {
+    fileName,
+    status: 'template-changed',
+    existingContent,
+    generatedContent,
+  };
 }

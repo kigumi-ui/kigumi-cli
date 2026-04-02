@@ -47,8 +47,9 @@ src/
 │   ├── regenerate.ts     # Auto-generate kigumi.ts, theme.css
 │   ├── json.ts           # JSON with comments support
 │   ├── github-fetcher.ts # GitHub URL parsing + raw content fetch
+│   ├── diff-renderer.ts  # Colored unified diff for terminal (node-diff3)
 │   ├── file-diff.ts      # Detect local modifications before overwriting
-│   ├── snapshot.ts       # Snapshot CRUD for .kigumi/snapshots/ (three-way merge base)
+│   ├── snapshot.ts       # Snapshot CRUD for .kigumi/snapshots/ (three-way merge base; also saved for community --from installs)
 │   ├── three-way-merge.ts # Three-way merge logic using node-diff3
 │   ├── version-check.ts  # CLI vs project version compatibility check
 │   ├── version-map.ts    # Version history + breaking changes data

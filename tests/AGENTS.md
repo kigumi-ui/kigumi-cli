@@ -11,6 +11,7 @@ tests/
 │   ├── add-validator.test.ts        # Component validation
 │   ├── brand-command.test.ts        # Brand color command
 │   ├── check-runner.test.ts         # Pre-flight check runner
+│   ├── component-installer.test.ts  # Component installer logic
 │   ├── community-registry.test.ts   # Registry schema, URL parsing, deps
 │   ├── config.test.ts               # Config loading/saving
 │   ├── config-checks.test.ts        # Config validation checks
@@ -18,6 +19,7 @@ tests/
 │   ├── dependency-checks.test.ts    # Dependency validation
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
 │   ├── diff-command.test.ts         # Diff command (component comparison)
+│   ├── diff-roundtrip.test.ts       # Diff renderer round-trip fidelity
 │   ├── display-options.test.ts      # Theme/palette/brand display data
 │   ├── doctor.test.ts               # Doctor command (import fixes)
 │   ├── edge-cases.test.ts           # Edge case handling
@@ -37,12 +39,14 @@ tests/
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── regenerate.test.ts           # File regeneration utilities
+│   ├── remote-installer.test.ts     # Remote (community) component installer
 │   ├── registry.test.ts             # Component registry lookups
 │   ├── registry-cache.test.ts       # Disk cache for registries
 │   ├── registry-init-command.test.ts      # Registry init command
 │   ├── registry-list-remove-command.test.ts # Registry list/remove
 │   ├── registry-validate-command.test.ts  # Registry validate command
 │   ├── status.test.ts               # Status command
+│   ├── snapshot.test.ts             # Snapshot CRUD and community install snapshots
 │   ├── status-json.test.ts          # Status --json output
 │   ├── storybook-generator.test.ts  # Storybook story generation
 │   ├── template.test.ts             # Handlebars template rendering
@@ -55,6 +59,8 @@ tests/
 │   ├── token.test.ts                # Token handling
 │   ├── token-manager.test.ts        # Token validation, loading, saving
 │   ├── type-installation.test.ts    # TypeScript type installation
+│   ├── update-check.test.ts         # CLI update notification check
+│   ├── update-command.test.ts       # Update command (three-way merge)
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
