@@ -1,0 +1,53 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Pages offer an easy way to scaffold entire page layouts using minimal markup
+ *
+ * @see https://webawesome.com/docs/components/page
+ */
+@Component({
+  selector: 'k-page',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.disable-navigation-toggle]="disableNavigationToggle || null"
+        [attr.mobile-breakpoint]="mobileBreakpoint"
+        [attr.navigation-placement]="navigationPlacement"
+        [attr.nav-open]="navOpen || null"
+        [attr.view]="view">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './page.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Hide default hamburger button; auto-sets true if custom toggle element present */
+  @Input() disableNavigationToggle?: boolean;
+  /** Viewport width threshold for navigation collapse; accepts numbers (px) or CSS lengths */
+  @Input() mobileBreakpoint?: string;
+  /** Navigation drawer position on mobile */
+  @Input() navigationPlacement?: 'start' | 'end';
+  /** Mobile navigation drawer open state */
+  @Input() navOpen?: boolean;
+  /** Current viewport classification relative to breakpoint */
+  @Input() view?: 'mobile' | 'desktop';
+
+  visiblePixelsInViewport(element?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { visiblePixelsInViewport: Function }).visiblePixelsInViewport(element);
+  }
+  showNavigation(): void {
+    (this.elementRef.nativeElement as unknown as { showNavigation: Function }).showNavigation();
+  }
+  hideNavigation(): void {
+    (this.elementRef.nativeElement as unknown as { hideNavigation: Function }).hideNavigation();
+  }
+  toggleNavigation(): void {
+    (this.elementRef.nativeElement as unknown as { toggleNavigation: Function }).toggleNavigation();
+  }
+}

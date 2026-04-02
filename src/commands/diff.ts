@@ -17,6 +17,7 @@ import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { handleError, ConfigNotFoundError } from '../errors/index.js';
 import { getComponent } from '../utils/registry.js';
+import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
@@ -222,14 +223,20 @@ async function diffComponentFiles(
 
   // Component file
   const ext =
-    config.framework === 'vue'
-      ? config.typescript
-        ? 'vue'
-        : 'js.vue'
-      : config.typescript
-        ? 'tsx'
-        : 'jsx';
-  const componentFileName = `${component.name}.${ext}`;
+    config.framework === 'angular'
+      ? 'component.ts'
+      : config.framework === 'vue'
+        ? config.typescript
+          ? 'vue'
+          : 'js.vue'
+        : config.typescript
+          ? 'tsx'
+          : 'jsx';
+  const fileBaseName =
+    config.framework === 'angular'
+      ? toKebabCase(component.name)
+      : component.name;
+  const componentFileName = `${fileBaseName}.${ext}`;
   const componentFilePath = path.join(componentDir, componentFileName);
 
   try {
@@ -253,7 +260,10 @@ async function diffComponentFiles(
   }
 
   // CSS file
-  const cssFileName = `${component.name}.css`;
+  const cssFileName =
+    config.framework === 'angular'
+      ? `${toKebabCase(component.name)}.component.css`
+      : `${component.name}.css`;
   const cssFilePath = path.join(componentDir, cssFileName);
   try {
     const generatedCSS = await generateComponentCSSContent(component, config);
@@ -267,14 +277,16 @@ async function diffComponentFiles(
 
   // Test file
   const testExt =
-    config.framework === 'vue'
-      ? config.typescript
-        ? 'test.ts'
-        : 'test.js'
-      : config.typescript
-        ? 'test.tsx'
-        : 'test.jsx';
-  const testFileName = `${component.name}.${testExt}`;
+    config.framework === 'angular'
+      ? 'component.spec.ts'
+      : config.framework === 'vue'
+        ? config.typescript
+          ? 'test.ts'
+          : 'test.js'
+        : config.typescript
+          ? 'test.tsx'
+          : 'test.jsx';
+  const testFileName = `${fileBaseName}.${testExt}`;
   const testFilePath = path.join(componentDir, testFileName);
   try {
     const generatedTest = await generateComponentTestContent(component, config);

@@ -1,0 +1,28 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Skeletons are used to provide a visual representation of where content will eventually load
+ *
+ * @see https://webawesome.com/docs/components/skeleton
+ */
+@Component({
+  selector: 'k-skeleton',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.effect]="effect">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './skeleton.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Animation effect */
+  @Input() effect?: 'pulse' | 'sheen' | 'none';
+}

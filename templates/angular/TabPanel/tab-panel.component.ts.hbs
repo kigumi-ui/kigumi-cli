@@ -1,0 +1,31 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Tab panels are used inside tab groups to display content for each tab
+ *
+ * @see https://webawesome.com/docs/components/tab-panel
+ */
+@Component({
+  selector: 'k-tab-panel',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.name]="name"
+        [attr.active]="active || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './tab-panel.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The panel name */
+  @Input() name?: string;
+  /** Whether the panel is shown */
+  @Input() active?: boolean;
+}

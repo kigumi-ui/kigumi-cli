@@ -1,0 +1,40 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Cards can be used to group related subjects in a container
+ *
+ * @see https://webawesome.com/docs/components/card
+ */
+@Component({
+  selector: 'k-card',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.appearance]="appearance"
+        [attr.orientation]="orientation"
+        [attr.with-header]="withHeader || null"
+        [attr.with-footer]="withFooter || null"
+        [attr.with-media]="withMedia || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './card.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Visual appearance style */
+  @Input() appearance?: 'outlined' | 'filled-outlined' | 'plain' | 'filled' | 'accent';
+  /** Card layout orientation */
+  @Input() orientation?: 'vertical' | 'horizontal';
+  /** Adds header section (for SSR) */
+  @Input() withHeader?: boolean;
+  /** Adds footer section (for SSR) */
+  @Input() withFooter?: boolean;
+  /** Adds media section (for SSR) */
+  @Input() withMedia?: boolean;
+}

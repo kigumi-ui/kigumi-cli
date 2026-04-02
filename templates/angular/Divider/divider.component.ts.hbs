@@ -1,0 +1,28 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Dividers are used to visually separate content
+ *
+ * @see https://webawesome.com/docs/components/divider
+ */
+@Component({
+  selector: 'k-divider',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.orientation]="orientation">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './divider.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Divider orientation */
+  @Input() orientation?: 'horizontal' | 'vertical';
+}

@@ -27,6 +27,7 @@ import { fileURLToPath } from 'url';
 import type { ComponentDefinition } from './registry.js';
 import type { KigumiConfig } from './config.js';
 import { generateCSSTemplate } from './css-metadata.js';
+import { toKebabCase } from './naming.js';
 
 // Register Handlebars helper to quote property names with hyphens
 Handlebars.registerHelper('quoteProp', function (propName: string) {
@@ -92,6 +93,7 @@ const TEMPLATES_DIR = path.join(PACKAGE_ROOT, 'templates');
 
 interface TemplateContext {
   name: string;
+  kebabName: string;
   tagName: string;
   description: string;
   importPath: string;
@@ -136,6 +138,7 @@ export function buildTemplateContext(
 ): TemplateContext {
   return {
     name: component.name,
+    kebabName: toKebabCase(component.name),
     tagName: component.tagName,
     description: component.description,
     importPath: component.importPath,
@@ -147,6 +150,9 @@ export function buildTemplateContext(
  * Get file extension for component based on framework and typescript setting
  */
 function getComponentExtension(framework: string, typescript: boolean): string {
+  if (framework === 'angular') {
+    return 'component.ts';
+  }
   if (framework === 'vue') {
     return typescript ? 'vue' : 'js.vue';
   }
@@ -157,6 +163,9 @@ function getComponentExtension(framework: string, typescript: boolean): string {
  * Get test file extension based on framework and typescript setting
  */
 function getTestExtension(framework: string, typescript: boolean): string {
+  if (framework === 'angular') {
+    return 'component.spec.ts';
+  }
   if (framework === 'vue') {
     return typescript ? 'test.ts' : 'test.js';
   }
@@ -197,11 +206,16 @@ export async function generateComponent(
 
   // Use component-specific template if it exists
   const fileExtension = getComponentExtension(config.framework, typescript);
+  // Angular uses kebab-case file names in templates
+  const templateFileName =
+    config.framework === 'angular'
+      ? toKebabCase(component.name)
+      : component.name;
   const componentTemplatePath = path.join(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${component.name}.${fileExtension}.hbs`
+    `${templateFileName}.${fileExtension}.hbs`
   );
 
   const templatePath = (await fs.pathExists(componentTemplatePath))
@@ -353,13 +367,18 @@ export async function updateComponentIndex(
   }
 
   // Component is now in its own directory
-  // Vue uses default exports from .vue files, React uses named exports
-  const ext =
-    config.framework === 'vue' ? (config.typescript ? '.vue' : '.js.vue') : '';
-  const exportStatement =
-    config.framework === 'vue'
-      ? `export { default as ${component.name} } from './${component.name}/${component.name}${ext}';\n`
-      : `export * from './${component.name}/${component.name}';\n`;
+  // Vue uses default exports from .vue files, React uses named exports,
+  // Angular uses named class exports with Component suffix
+  let exportStatement: string;
+  if (config.framework === 'angular') {
+    const kebabName = toKebabCase(component.name);
+    exportStatement = `export { ${component.name}Component } from './${component.name}/${kebabName}.component';\n`;
+  } else if (config.framework === 'vue') {
+    const ext = config.typescript ? '.vue' : '.js.vue';
+    exportStatement = `export { default as ${component.name} } from './${component.name}/${component.name}${ext}';\n`;
+  } else {
+    exportStatement = `export * from './${component.name}/${component.name}';\n`;
+  }
 
   // Check if already exported
   if (content.includes(exportStatement.trim())) {
@@ -379,6 +398,12 @@ export function getComponentCSSPath(
   cwd: string
 ): string {
   const componentDir = path.join(cwd, config.componentsDir, component.name);
+  if (config.framework === 'angular') {
+    return path.join(
+      componentDir,
+      `${toKebabCase(component.name)}.component.css`
+    );
+  }
   return path.join(componentDir, `${component.name}.css`);
 }
 
@@ -389,11 +414,15 @@ export async function generateComponentCSSContent(
   component: ComponentDefinition,
   config: KigumiConfig
 ): Promise<string> {
+  const cssFileName =
+    config.framework === 'angular'
+      ? `${toKebabCase(component.name)}.component.css`
+      : `${component.name}.css`;
   const componentCSSTemplatePath = path.join(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${component.name}.css.hbs`
+    `${cssFileName}.hbs`
   );
 
   if (await fs.pathExists(componentCSSTemplatePath)) {
@@ -429,7 +458,11 @@ export function getComponentTestPath(
 ): string {
   const componentDir = path.join(cwd, config.componentsDir, component.name);
   const ext = getTestExtension(config.framework, config.typescript);
-  return path.join(componentDir, `${component.name}.${ext}`);
+  const fileName =
+    config.framework === 'angular'
+      ? toKebabCase(component.name)
+      : component.name;
+  return path.join(componentDir, `${fileName}.${ext}`);
 }
 
 /**
@@ -456,6 +489,37 @@ export async function generateComponentTestContent(
   }
 
   // Fallback to generic test
+  if (config.framework === 'angular') {
+    const kebabName = toKebabCase(component.name);
+    return `import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ${component.name}Component } from './${kebabName}.component';
+
+describe('${component.name}Component', () => {
+  let component: ${component.name}Component;
+  let fixture: ComponentFixture<${component.name}Component>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [${component.name}Component],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(${component.name}Component);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should render the web component', () => {
+    const el = fixture.nativeElement.querySelector('${component.tagName}');
+    expect(el).toBeTruthy();
+  });
+});
+`;
+  }
+
   if (config.framework === 'vue') {
     const vueExt = config.typescript ? '.vue' : '.js.vue';
     return `import { describe, it, expect } from 'vitest';

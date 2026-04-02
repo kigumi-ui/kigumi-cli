@@ -1,0 +1,25 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Spinners are used to show the progress of an indeterminate operation
+ *
+ * @see https://webawesome.com/docs/components/spinner
+ */
+@Component({
+  selector: 'k-spinner',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element>
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './spinner.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+}

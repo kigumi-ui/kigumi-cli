@@ -1,0 +1,34 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Breadcrumb Items are used inside breadcrumbs to represent different links
+ *
+ * @see https://webawesome.com/docs/components/breadcrumb-item
+ */
+@Component({
+  selector: 'k-breadcrumb-item',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.href]="href"
+        [attr.target]="target"
+        [attr.rel]="rel">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './breadcrumb-item.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Optional URL to direct the user to when activated */
+  @Input() href?: string;
+  /** Tells the browser where to open the link */
+  @Input() target?: '_blank' | '_parent' | '_self' | '_top';
+  /** The rel attribute to use on the link */
+  @Input() rel?: string;
+}

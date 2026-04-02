@@ -1,8 +1,8 @@
 /**
- * Angular Framework Plugin (Stub)
+ * Angular Framework Plugin
  *
- * Minimal implementation for Angular support.
- * Will be fully implemented when Angular templates are ready.
+ * Implements the FrameworkPlugin interface for Angular 17+ projects.
+ * Supports standalone components with CUSTOM_ELEMENTS_SCHEMA.
  */
 import type { KigumiConfig } from '../../schemas/config.js';
 
@@ -17,6 +17,8 @@ import type {
   ValidationResult,
   ComponentDefinition,
 } from '../types.js';
+import type { ComponentDefinition as RegistryComponentDefinition } from '../../utils/registry.js';
+import { toKebabCase } from '../../utils/naming.js';
 
 export class AngularPlugin implements FrameworkPlugin {
   readonly name = 'angular' as const;
@@ -62,23 +64,77 @@ export class AngularPlugin implements FrameworkPlugin {
   }
 
   async generateComponent(
-    _cwd: string,
-    _config: KigumiConfig,
-    _component: ComponentDefinition,
-    _options: GenerateOptions
+    cwd: string,
+    config: KigumiConfig,
+    component: ComponentDefinition,
+    options: GenerateOptions
   ): Promise<GeneratedFile[]> {
-    throw new Error(
-      'Angular component generation is not yet implemented. Coming soon!'
+    const {
+      generateComponent,
+      generateComponentCSSContent,
+      generateComponentTestContent,
+    } = await import('../../utils/template.js');
+
+    const files: GeneratedFile[] = [];
+    const kebabName = toKebabCase(component.name);
+    const componentDir = path.join(cwd, config.componentsDir, component.name);
+
+    // Generate main component file
+    const componentContent = await generateComponent(
+      component as unknown as RegistryComponentDefinition,
+      config,
+      true, // Angular is always TypeScript
+      cwd
     );
+
+    files.push({
+      path: path.join(componentDir, `${kebabName}.component.ts`),
+      content: componentContent,
+      overwrite: options.overwrite,
+    });
+
+    // Generate CSS file
+    const cssContent = await generateComponentCSSContent(
+      component as unknown as RegistryComponentDefinition,
+      config
+    );
+
+    files.push({
+      path: path.join(componentDir, `${kebabName}.component.css`),
+      content: cssContent,
+      overwrite: options.overwrite,
+    });
+
+    // Generate test file
+    if (options.tests) {
+      const testContent = await generateComponentTestContent(
+        component as unknown as RegistryComponentDefinition,
+        config
+      );
+
+      files.push({
+        path: path.join(componentDir, `${kebabName}.component.spec.ts`),
+        content: testContent,
+        overwrite: options.overwrite,
+      });
+    }
+
+    return files;
   }
 
   async generateSetupFiles(
-    _cwd: string,
-    _config: KigumiConfig
+    cwd: string,
+    config: KigumiConfig
   ): Promise<GeneratedFile[]> {
-    throw new Error(
-      'Angular setup files are not yet implemented. Coming soon!'
-    );
+    // Angular uses the same kigumi.ts setup as React/Vue
+    // for CSS imports and theme registration
+    const { regenerateKigumiSetup } = await import('../../utils/regenerate.js');
+    const utilsDir = config.utilsDir || 'src/lib';
+    await regenerateKigumiSetup(cwd, config, utilsDir);
+
+    // No vite-env.d.ts needed (Angular uses angular.json, not Vite)
+    // No web-awesome.d.ts needed (Angular uses CUSTOM_ELEMENTS_SCHEMA)
+    return [];
   }
 
   async installDependencies(
@@ -86,7 +142,9 @@ export class AngularPlugin implements FrameworkPlugin {
     packageManager: string,
     additionalDeps: string[] = []
   ): Promise<void> {
+    // Angular does not need clsx or other extra dependencies
     const deps = [...additionalDeps];
+    if (deps.length === 0) return;
 
     const installArgs =
       packageManager === 'npm' ? ['install', ...deps] : ['add', ...deps];
@@ -94,17 +152,37 @@ export class AngularPlugin implements FrameworkPlugin {
     await execa(packageManager, installArgs, { cwd, stdio: 'inherit' });
   }
 
-  validateConfig(_config: Partial<KigumiConfig>): ValidationResult {
+  validateConfig(config: Partial<KigumiConfig>): ValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    // Angular requires TypeScript
+    if (config.typescript === false) {
+      errors.push(
+        'Angular projects require TypeScript. Set typescript: true in kigumi.config.json.'
+      );
+    }
+
+    if (config.componentsDir && !config.componentsDir.includes('components')) {
+      warnings.push(
+        `componentsDir "${config.componentsDir}" doesn't contain "components". Is this intentional?`
+      );
+    }
+
     return {
-      valid: true,
+      valid: errors.length === 0,
+      errors: errors.length > 0 ? errors : undefined,
+      warnings: warnings.length > 0 ? warnings : undefined,
     };
   }
 
   getTypeScriptConfig(): Partial<Record<string, unknown>> {
+    // Angular 17+ CLI handles decorators via esbuild natively.
+    // No experimentalDecorators needed.
     return {
       compilerOptions: {
-        experimentalDecorators: true,
-        emitDecoratorMetadata: true,
+        target: 'ES2022',
+        useDefineForClassFields: false,
       },
     };
   }

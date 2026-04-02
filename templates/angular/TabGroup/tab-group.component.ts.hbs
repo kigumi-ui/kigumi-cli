@@ -1,0 +1,56 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Tab groups organize content into a container that shows one section at a time
+ *
+ * @see https://webawesome.com/docs/components/tab-group
+ */
+@Component({
+  selector: 'k-tab-group',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.placement]="placement"
+        [attr.activation]="activation"
+        [attr.without-scroll-controls]="withoutScrollControls || null"
+        [attr.active]="active">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './tab-group.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Tab position */
+  @Input() placement?: 'top' | 'bottom' | 'start' | 'end';
+  /** Panel activation method */
+  @Input() activation?: 'auto' | 'manual';
+  /** Disables scroll buttons */
+  @Input() withoutScrollControls?: boolean;
+  /** The name of the active tab */
+  @Input() active?: string;
+
+  @Output() tabShow = new EventEmitter<CustomEvent>();
+  @Output() tabHide = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleTabShow = (e: Event) => this.tabShow.emit(e as CustomEvent);
+    el.addEventListener('wa-tab-show', handleTabShow);
+    this.cleanups.push(() => el.removeEventListener('wa-tab-show', handleTabShow));
+    const handleTabHide = (e: Event) => this.tabHide.emit(e as CustomEvent);
+    el.addEventListener('wa-tab-hide', handleTabHide);
+    this.cleanups.push(() => el.removeEventListener('wa-tab-hide', handleTabHide));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

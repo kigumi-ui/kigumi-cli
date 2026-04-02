@@ -1,0 +1,25 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Represents an individual slide within a carousel component
+ *
+ * @see https://webawesome.com/docs/components/carousel-item
+ */
+@Component({
+  selector: 'k-carousel-item',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element>
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './carousel-item.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+}

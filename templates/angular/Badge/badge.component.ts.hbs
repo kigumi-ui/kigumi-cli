@@ -1,0 +1,37 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ *
+ * @see https://webawesome.com/docs/components/badge
+ */
+@Component({
+  selector: 'k-badge',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.variant]="variant"
+        [attr.appearance]="appearance"
+        [attr.pill]="pill || null"
+        [attr.attention]="attention">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './badge.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The badge's theme variant */
+  @Input() variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  /** The badge's visual appearance */
+  @Input() appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  /** Draws a pill-style badge with rounded edges */
+  @Input() pill?: boolean;
+  /** Adds an animation to draw attention to the badge */
+  @Input() attention?: 'none' | 'pulse' | 'bounce';
+}

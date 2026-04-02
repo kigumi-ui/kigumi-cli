@@ -1,0 +1,31 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Tabs are used inside tab groups to represent selectable tabs
+ *
+ * @see https://webawesome.com/docs/components/tab
+ */
+@Component({
+  selector: 'k-tab',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.panel]="panel"
+        [attr.disabled]="disabled || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './tab.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Associated panel name */
+  @Input() panel?: string;
+  /** Disables the tab */
+  @Input() disabled?: boolean;
+}

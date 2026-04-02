@@ -1,0 +1,76 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Tree items are used inside trees to represent hierarchical items
+ *
+ * @see https://webawesome.com/docs/components/tree-item
+ */
+@Component({
+  selector: 'k-tree-item',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.expanded]="expanded || null"
+        [attr.selected]="selected || null"
+        [attr.disabled]="disabled || null"
+        [attr.lazy]="lazy || null">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './tree-item.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Expands the item */
+  @Input() expanded?: boolean;
+  /** Selects the item */
+  @Input() selected?: boolean;
+  /** Disables the item */
+  @Input() disabled?: boolean;
+  /** Enables lazy loading */
+  @Input() lazy?: boolean;
+
+  @Output() expand = new EventEmitter<CustomEvent>();
+  @Output() afterExpand = new EventEmitter<CustomEvent>();
+  @Output() collapse = new EventEmitter<CustomEvent>();
+  @Output() afterCollapse = new EventEmitter<CustomEvent>();
+  @Output() lazyChange = new EventEmitter<CustomEvent>();
+  @Output() lazyLoad = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleExpand = (e: Event) => this.expand.emit(e as CustomEvent);
+    el.addEventListener('wa-expand', handleExpand);
+    this.cleanups.push(() => el.removeEventListener('wa-expand', handleExpand));
+    const handleAfterExpand = (e: Event) => this.afterExpand.emit(e as CustomEvent);
+    el.addEventListener('wa-after-expand', handleAfterExpand);
+    this.cleanups.push(() => el.removeEventListener('wa-after-expand', handleAfterExpand));
+    const handleCollapse = (e: Event) => this.collapse.emit(e as CustomEvent);
+    el.addEventListener('wa-collapse', handleCollapse);
+    this.cleanups.push(() => el.removeEventListener('wa-collapse', handleCollapse));
+    const handleAfterCollapse = (e: Event) => this.afterCollapse.emit(e as CustomEvent);
+    el.addEventListener('wa-after-collapse', handleAfterCollapse);
+    this.cleanups.push(() => el.removeEventListener('wa-after-collapse', handleAfterCollapse));
+    const handleLazyChange = (e: Event) => this.lazyChange.emit(e as CustomEvent);
+    el.addEventListener('wa-lazy-change', handleLazyChange);
+    this.cleanups.push(() => el.removeEventListener('wa-lazy-change', handleLazyChange));
+    const handleLazyLoad = (e: Event) => this.lazyLoad.emit(e as CustomEvent);
+    el.addEventListener('wa-lazy-load', handleLazyLoad);
+    this.cleanups.push(() => el.removeEventListener('wa-lazy-load', handleLazyLoad));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  getChildrenItems({ includeDisabled = true }?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { getChildrenItems: Function }).getChildrenItems({ includeDisabled = true });
+  }
+}

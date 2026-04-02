@@ -1,0 +1,40 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Outputs a localized time phrase relative to the current date and time
+ *
+ * @see https://webawesome.com/docs/components/relative-time
+ */
+@Component({
+  selector: 'k-relative-time',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.date]="date"
+        [attr.format]="format"
+        [attr.numeric]="numeric"
+        [attr.sync]="sync || null"
+        [attr.lang]="lang">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './relative-time.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The date/time to calculate from */
+  @Input() date?: string;
+  /** The formatting style */
+  @Input() format?: 'long' | 'short' | 'narrow';
+  /** When to use numeric values */
+  @Input() numeric?: 'always' | 'auto';
+  /** Keeps time in sync */
+  @Input() sync?: boolean;
+  /** The locale to use */
+  @Input() lang?: string;
+}

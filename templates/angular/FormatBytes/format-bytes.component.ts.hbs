@@ -1,0 +1,37 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Formats a number as a human-readable byte value
+ *
+ * @see https://webawesome.com/docs/components/format-bytes
+ */
+@Component({
+  selector: 'k-format-bytes',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.value]="value"
+        [attr.unit]="unit"
+        [attr.display]="display"
+        [attr.lang]="lang">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './format-bytes.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The number to format in bytes */
+  @Input() value?: number;
+  /** The unit to format the value in */
+  @Input() unit?: 'byte' | 'bit';
+  /** Determines how to display the result */
+  @Input() display?: 'long' | 'short' | 'narrow';
+  /** The locale to use when formatting */
+  @Input() lang?: string;
+}

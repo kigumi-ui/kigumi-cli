@@ -1,0 +1,134 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Checkboxes allow the user to toggle an option on or off
+ *
+ * @see https://webawesome.com/docs/components/checkbox
+ */
+@Component({
+  selector: 'k-checkbox',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.checked]="checked || null"
+        [attr.disabled]="disabled || null"
+        [attr.hint]="hint"
+        [attr.indeterminate]="indeterminate || null"
+        [attr.name]="name"
+        [attr.required]="required || null"
+        [attr.size]="size"
+        [attr.value]="value">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './checkbox.component.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => {{name}}Component),
+      multi: true,
+    },
+  ],
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValueAccessor {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Draws checkbox in checked state */
+  @Input() checked?: boolean;
+  /** Disables the checkbox */
+  @Input() disabled?: boolean;
+  /** Descriptive helper text */
+  @Input() hint?: string;
+  /** Mixed/parent selection state */
+  @Input() indeterminate?: boolean;
+  /** Form submission identifier */
+  @Input() name?: string;
+  /** Makes field mandatory */
+  @Input() required?: boolean;
+  /** Adjusts checkbox dimensions */
+  @Input() size?: 'small' | 'medium' | 'large';
+  /** Form submission value */
+  @Input() value?: string;
+
+  @Output() change = new EventEmitter<CustomEvent>();
+  @Output() blur = new EventEmitter<CustomEvent>();
+  @Output() focus = new EventEmitter<CustomEvent>();
+  @Output() inputEvent = new EventEmitter<CustomEvent>();
+  @Output() invalid = new EventEmitter<CustomEvent>();
+
+  private onChangeCallback: (value: unknown) => void = () => {};
+  private onTouchedCallback: () => void = () => {};
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    el.addEventListener('change', handleChange);
+    this.cleanups.push(() => el.removeEventListener('change', handleChange));
+    const handleBlur = (e: Event) => this.blur.emit(e as CustomEvent);
+    el.addEventListener('blur', handleBlur);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlur));
+    const handleFocus = (e: Event) => this.focus.emit(e as CustomEvent);
+    el.addEventListener('focus', handleFocus);
+    this.cleanups.push(() => el.removeEventListener('focus', handleFocus));
+    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    el.addEventListener('input', handleInputEvent);
+    this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
+    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    el.addEventListener('wa-invalid', handleInvalid);
+    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+
+    const handleCheckedChange = () => this.onChangeCallback((el as unknown as { checked: boolean }).checked);
+    el.addEventListener('change', handleCheckedChange);
+    this.cleanups.push(() => el.removeEventListener('change', handleCheckedChange));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  writeValue(value: unknown): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { checked: boolean }).checked = !!value;
+    }
+  }
+
+  registerOnChange(fn: (value: unknown) => void): void {
+    this.onChangeCallback = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouchedCallback = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+    }
+  }
+
+  click(): void {
+    (this.elementRef.nativeElement as unknown as { click: Function }).click();
+  }
+  focus(options?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { focus: Function }).focus(options);
+  }
+  blur(): void {
+    (this.elementRef.nativeElement as unknown as { blur: Function }).blur();
+  }
+  setCustomValidity(message?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: Function }).setCustomValidity(message);
+  }
+  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: Function }).formStateRestoreCallback(state, reason);
+  }
+  resetValidity(): void {
+    (this.elementRef.nativeElement as unknown as { resetValidity: Function }).resetValidity();
+  }
+}

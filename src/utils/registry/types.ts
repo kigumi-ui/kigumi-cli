@@ -41,6 +41,7 @@ export interface ComponentDefinition {
     react?: string[];
     vue?: string[];
     svelte?: string[];
+    angular?: string[];
   };
   props: ComponentProp[];
   importPath: string; // e.g., '@awesome.me/webawesome-pro/dist/components/button/button.js'

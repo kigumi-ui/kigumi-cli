@@ -1,0 +1,34 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Callouts are used to display important messages inline
+ *
+ * @see https://webawesome.com/docs/components/callout
+ */
+@Component({
+  selector: 'k-callout',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.appearance]="appearance"
+        [attr.size]="size"
+        [attr.variant]="variant">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './callout.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The callout's visual appearance */
+  @Input() appearance?: 'accent' | 'filled' | 'outlined' | 'plain' | 'filled-outlined';
+  /** The callout's size */
+  @Input() size?: 'small' | 'medium' | 'large';
+  /** The callout's theme variant */
+  @Input() variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+}

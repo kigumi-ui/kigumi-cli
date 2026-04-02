@@ -54,6 +54,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       react: ['components/Button.tsx', 'types/button.d.ts'],
       vue: ['components/Button.vue'],
       svelte: ['components/Button.svelte'],
+      angular: ['components/Button/button.component.ts'],
     },
     props: [
       {
@@ -189,6 +190,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['button'],
     files: {
       react: ['components/ButtonGroup.tsx', 'types/button-group.d.ts'],
+      angular: ['components/ButtonGroup/button-group.component.ts'],
     },
     props: [
       {
@@ -220,6 +222,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       react: ['components/Input.tsx', 'types/input.d.ts'],
       vue: ['components/Input.vue'],
       svelte: ['components/Input.svelte'],
+      angular: ['components/Input/input.component.ts'],
     },
     props: [
       {
@@ -431,6 +434,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       react: ['components/Card.tsx', 'types/card.d.ts'],
       vue: ['components/Card.vue'],
       svelte: ['components/Card.svelte'],
+      angular: ['components/Card/card.component.ts'],
     },
     props: [
       {
@@ -482,6 +486,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       react: ['components/Dialog.tsx', 'types/dialog.d.ts'],
       vue: ['components/Dialog.vue'],
       svelte: ['components/Dialog.svelte'],
+      angular: ['components/Dialog/dialog.component.ts'],
     },
     props: [
       {
@@ -523,6 +528,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/AnimatedImage.tsx', 'types/animated-image.d.ts'],
+      angular: ['components/AnimatedImage/animated-image.component.ts'],
     },
     props: [
       {
@@ -557,6 +563,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Animation.tsx', 'types/animation.d.ts'],
+      angular: ['components/Animation/animation.component.ts'],
     },
     props: [
       {
@@ -644,6 +651,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Avatar.tsx', 'types/avatar.d.ts'],
+      angular: ['components/Avatar/avatar.component.ts'],
     },
     props: [
       {
@@ -693,6 +701,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Badge.tsx', 'types/badge.d.ts'],
+      angular: ['components/Badge/badge.component.ts'],
     },
     props: [
       {
@@ -735,6 +744,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Breadcrumb.tsx', 'types/breadcrumb.d.ts'],
+      angular: ['components/Breadcrumb/breadcrumb.component.ts'],
     },
     props: [
       {
@@ -757,6 +767,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/BreadcrumbItem.tsx', 'types/breadcrumb-item.d.ts'],
+      angular: ['components/BreadcrumbItem/breadcrumb-item.component.ts'],
     },
     props: [
       {
@@ -789,6 +800,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Icon.tsx', 'types/icon.d.ts'],
+      angular: ['components/Icon/icon.component.ts'],
     },
     props: [
       {
@@ -868,6 +880,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['carousel-item'],
     files: {
       react: ['components/Carousel.tsx', 'types/carousel.d.ts'],
+      angular: ['components/Carousel/carousel.component.ts'],
     },
     props: [
       {
@@ -937,6 +950,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/CarouselItem.tsx', 'types/carousel-item.d.ts'],
+      angular: ['components/CarouselItem/carousel-item.component.ts'],
     },
     props: [],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/carousel-item/carousel-item.js`,
@@ -950,6 +964,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Checkbox.tsx', 'types/checkbox.d.ts'],
+      angular: ['components/Checkbox/checkbox.component.ts'],
     },
     props: [
       {
@@ -1012,6 +1027,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['button', 'icon', 'input', 'popup'],
     files: {
       react: ['components/ColorPicker.tsx', 'types/color-picker.d.ts'],
+      angular: ['components/ColorPicker/color-picker.component.ts'],
     },
     props: [
       {
@@ -1111,6 +1127,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['button', 'icon', 'option', 'popup', 'tag'],
     files: {
       react: ['components/Combobox.tsx', 'types/combobox.d.ts'],
+      angular: ['components/Combobox/combobox.component.ts'],
     },
     props: [
       {
@@ -1232,6 +1249,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Comparison.tsx', 'types/comparison.d.ts'],
+      angular: ['components/Comparison/comparison.component.ts'],
     },
     props: [
       {
@@ -1253,6 +1271,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Page.tsx', 'types/page.d.ts'],
+      angular: ['components/Page/page.component.ts'],
     },
     props: [
       {
@@ -1302,6 +1321,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon', 'tooltip'],
     files: {
       react: ['components/CopyButton.tsx', 'types/copy-button.d.ts'],
+      angular: ['components/CopyButton/copy-button.component.ts'],
     },
     props: [
       {
@@ -1365,6 +1385,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Details.tsx', 'types/details.d.ts'],
+      angular: ['components/Details/details.component.ts'],
     },
     props: [
       {
@@ -1415,6 +1436,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Divider.tsx', 'types/divider.d.ts'],
+      angular: ['components/Divider/divider.component.ts'],
     },
     props: [
       {
@@ -1437,6 +1459,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Drawer.tsx', 'types/drawer.d.ts'],
+      angular: ['components/Drawer/drawer.component.ts'],
     },
     props: [
       {
@@ -1483,6 +1506,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['popup'],
     files: {
       react: ['components/Dropdown.tsx', 'types/dropdown.d.ts'],
+      angular: ['components/Dropdown/dropdown.component.ts'],
     },
     props: [
       {
@@ -1561,6 +1585,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/DropdownItem.tsx', 'types/dropdown-item.d.ts'],
+      angular: ['components/DropdownItem/dropdown-item.component.ts'],
     },
     props: [
       {
@@ -1613,6 +1638,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/FormatBytes.tsx', 'types/format-bytes.d.ts'],
+      angular: ['components/FormatBytes/format-bytes.component.ts'],
     },
     props: [
       {
@@ -1652,6 +1678,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/FormatDate.tsx', 'types/format-date.d.ts'],
+      angular: ['components/FormatDate/format-date.component.ts'],
     },
     props: [
       {
@@ -1742,6 +1769,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/FormatNumber.tsx', 'types/format-number.d.ts'],
+      angular: ['components/FormatNumber/format-number.component.ts'],
     },
     props: [
       {
@@ -1819,6 +1847,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Include.tsx', 'types/include.d.ts'],
+      angular: ['components/Include/include.component.ts'],
     },
     props: [
       {
@@ -1854,6 +1883,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       react: [
         'components/IntersectionObserver.tsx',
         'types/intersection-observer.d.ts',
+      ],
+      angular: [
+        'components/IntersectionObserver/intersection-observer.component.ts',
       ],
     },
     props: [
@@ -1902,6 +1934,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         'components/MutationObserver.tsx',
         'types/mutation-observer.d.ts',
       ],
+      angular: ['components/MutationObserver/mutation-observer.component.ts'],
     },
     props: [
       {
@@ -1957,6 +1990,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/ResizeObserver.tsx', 'types/resize-observer.d.ts'],
+      angular: ['components/ResizeObserver/resize-observer.component.ts'],
     },
     props: [
       {
@@ -1978,6 +2012,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['popup'],
     files: {
       react: ['components/Popover.tsx', 'types/popover.d.ts'],
+      angular: ['components/Popover/popover.component.ts'],
     },
     props: [
       {
@@ -2060,6 +2095,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Popup.tsx', 'types/popup.d.ts'],
+      angular: ['components/Popup/popup.component.ts'],
     },
     props: [
       {
@@ -2198,6 +2234,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/ProgressBar.tsx', 'types/progress-bar.d.ts'],
+      angular: ['components/ProgressBar/progress-bar.component.ts'],
     },
     props: [
       {
@@ -2231,6 +2268,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/ProgressRing.tsx', 'types/progress-ring.d.ts'],
+      angular: ['components/ProgressRing/progress-ring.component.ts'],
     },
     props: [
       {
@@ -2257,6 +2295,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/QrCode.tsx', 'types/qr-code.d.ts'],
+      angular: ['components/QrCode/qr-code.component.ts'],
     },
     props: [
       {
@@ -2315,6 +2354,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['button-group'],
     files: {
       react: ['components/RadioGroup.tsx', 'types/radio-group.d.ts'],
+      angular: ['components/RadioGroup/radio-group.component.ts'],
     },
     props: [
       {
@@ -2391,6 +2431,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Radio.tsx', 'types/radio.d.ts'],
+      angular: ['components/Radio/radio.component.ts'],
     },
     props: [
       {
@@ -2431,6 +2472,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Rating.tsx', 'types/rating.d.ts'],
+      angular: ['components/Rating/rating.component.ts'],
     },
     props: [
       {
@@ -2489,6 +2531,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/RelativeTime.tsx', 'types/relative-time.d.ts'],
+      angular: ['components/RelativeTime/relative-time.component.ts'],
     },
     props: [
       {
@@ -2533,6 +2576,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Scroller.tsx', 'types/scroller.d.ts'],
+      angular: ['components/Scroller/scroller.component.ts'],
     },
     props: [
       {
@@ -2573,6 +2617,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon', 'option', 'popup', 'tag'],
     files: {
       react: ['components/Select.tsx', 'types/select.d.ts'],
+      angular: ['components/Select/select.component.ts'],
     },
     props: [
       {
@@ -2698,6 +2743,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Option.tsx', 'types/option.d.ts'],
+      angular: ['components/Option/option.component.ts'],
     },
     props: [
       {
@@ -2738,6 +2784,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Skeleton.tsx', 'types/skeleton.d.ts'],
+      angular: ['components/Skeleton/skeleton.component.ts'],
     },
     props: [
       {
@@ -2759,6 +2806,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Slider.tsx', 'types/slider.d.ts'],
+      angular: ['components/Slider/slider.component.ts'],
     },
     props: [
       {
@@ -2866,6 +2914,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Spinner.tsx', 'types/spinner.d.ts'],
+      angular: ['components/Spinner/spinner.component.ts'],
     },
     props: [],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/spinner/spinner.js`,
@@ -2880,6 +2929,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/SplitPanel.tsx', 'types/split-panel.d.ts'],
+      angular: ['components/SplitPanel/split-panel.component.ts'],
     },
     props: [
       {
@@ -2936,6 +2986,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Switch.tsx', 'types/switch.d.ts'],
+      angular: ['components/Switch/switch.component.ts'],
     },
     props: [
       {
@@ -2992,6 +3043,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/TabGroup.tsx', 'types/tab-group.d.ts'],
+      angular: ['components/TabGroup/tab-group.component.ts'],
     },
     props: [
       {
@@ -3031,6 +3083,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Tab.tsx', 'types/tab.d.ts'],
+      angular: ['components/Tab/tab.component.ts'],
     },
     props: [
       {
@@ -3057,6 +3110,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/TabPanel.tsx', 'types/tab-panel.d.ts'],
+      angular: ['components/TabPanel/tab-panel.component.ts'],
     },
     props: [
       {
@@ -3084,6 +3138,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon'],
     files: {
       react: ['components/Tag.tsx', 'types/tag.d.ts'],
+      angular: ['components/Tag/tag.component.ts'],
     },
     props: [
       {
@@ -3131,6 +3186,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Textarea.tsx', 'types/textarea.d.ts'],
+      angular: ['components/Textarea/textarea.component.ts'],
     },
     props: [
       {
@@ -3236,6 +3292,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['popup'],
     files: {
       react: ['components/Tooltip.tsx', 'types/tooltip.d.ts'],
+      angular: ['components/Tooltip/tooltip.component.ts'],
     },
     props: [
       {
@@ -3324,6 +3381,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Tree.tsx', 'types/tree.d.ts'],
+      angular: ['components/Tree/tree.component.ts'],
     },
     props: [
       {
@@ -3346,6 +3404,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['icon', 'checkbox', 'spinner'],
     files: {
       react: ['components/TreeItem.tsx', 'types/tree-item.d.ts'],
+      angular: ['components/TreeItem/tree-item.component.ts'],
     },
     props: [
       {
@@ -3384,6 +3443,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: ['button-group', 'icon'],
     files: {
       react: ['components/ZoomableFrame.tsx', 'types/zoomable-frame.d.ts'],
+      angular: ['components/ZoomableFrame/zoomable-frame.component.ts'],
     },
     props: [
       {
@@ -3455,6 +3515,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Callout.tsx'],
+      angular: ['components/Callout/callout.component.ts'],
     },
     props: [
       {
@@ -3492,6 +3553,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/FileInput.tsx', 'types/file-input.d.ts'],
       vue: ['components/FileInput.vue'],
+      angular: ['components/FileInput/file-input.component.ts'],
     },
     props: [
       {
@@ -3551,6 +3613,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/NumberInput.tsx', 'types/number-input.d.ts'],
       vue: ['components/NumberInput.vue'],
+      angular: ['components/NumberInput/number-input.component.ts'],
     },
     props: [
       {
@@ -3641,6 +3704,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/Sparkline.tsx', 'types/sparkline.d.ts'],
       vue: ['components/Sparkline.vue'],
+      angular: ['components/Sparkline/sparkline.component.ts'],
     },
     props: [
       {
@@ -3690,6 +3754,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/Chart.tsx', 'types/chart.d.ts'],
       vue: ['components/Chart.vue'],
+      angular: ['components/Chart/chart.component.ts'],
     },
     props: [
       {
@@ -3798,6 +3863,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/BarChart.tsx'],
       vue: ['components/BarChart.vue'],
+      angular: ['components/BarChart/bar-chart.component.ts'],
     },
     props: [
       {
@@ -3897,6 +3963,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/LineChart.tsx'],
       vue: ['components/LineChart.vue'],
+      angular: ['components/LineChart/line-chart.component.ts'],
     },
     props: [
       {
@@ -3989,6 +4056,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/BubbleChart.tsx'],
       vue: ['components/BubbleChart.vue'],
+      angular: ['components/BubbleChart/bubble-chart.component.ts'],
     },
     props: [
       {
@@ -4081,6 +4149,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/DoughnutChart.tsx'],
       vue: ['components/DoughnutChart.vue'],
+      angular: ['components/DoughnutChart/doughnut-chart.component.ts'],
     },
     props: [
       {
@@ -4132,6 +4201,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/PieChart.tsx'],
       vue: ['components/PieChart.vue'],
+      angular: ['components/PieChart/pie-chart.component.ts'],
     },
     props: [
       {
@@ -4183,6 +4253,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/PolarAreaChart.tsx'],
       vue: ['components/PolarAreaChart.vue'],
+      angular: ['components/PolarAreaChart/polar-area-chart.component.ts'],
     },
     props: [
       {
@@ -4234,6 +4305,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/RadarChart.tsx'],
       vue: ['components/RadarChart.vue'],
+      angular: ['components/RadarChart/radar-chart.component.ts'],
     },
     props: [
       {
@@ -4308,6 +4380,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/ScatterChart.tsx'],
       vue: ['components/ScatterChart.vue'],
+      angular: ['components/ScatterChart/scatter-chart.component.ts'],
     },
     props: [
       {
@@ -4386,6 +4459,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/Toast.tsx', 'types/toast.d.ts'],
       vue: ['components/Toast.vue'],
+      angular: ['components/Toast/toast.component.ts'],
     },
     props: [
       {
@@ -4416,6 +4490,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/ToastItem.tsx', 'types/toast-item.d.ts'],
       vue: ['components/ToastItem.vue'],
+      angular: ['components/ToastItem/toast-item.component.ts'],
     },
     props: [
       {

@@ -1,0 +1,88 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
+ *
+ * @see https://webawesome.com/docs/components/animation
+ */
+@Component({
+  selector: 'k-animation',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.name]="name"
+        [attr.play]="play || null"
+        [attr.delay]="delay"
+        [attr.direction]="direction"
+        [attr.duration]="duration"
+        [attr.easing]="easing"
+        [attr.end-delay]="endDelay"
+        [attr.fill]="fill"
+        [attr.iterations]="iterations"
+        [attr.iteration-start]="iterationStart"
+        [attr.playback-rate]="playbackRate">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './animation.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The name of the built-in animation to use */
+  @Input() name?: string;
+  /** Plays the animation. When omitted, the animation will be paused */
+  @Input() play?: boolean;
+  /** The number of milliseconds to delay the start of the animation */
+  @Input() delay?: number;
+  /** Determines the direction of playback */
+  @Input() direction?: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse';
+  /** The number of milliseconds each iteration takes to complete */
+  @Input() duration?: number;
+  /** The easing function to use */
+  @Input() easing?: string;
+  /** The number of milliseconds to delay after the active period */
+  @Input() endDelay?: number;
+  /** Sets how the animation applies styles before and after execution */
+  @Input() fill?: 'auto' | 'backwards' | 'both' | 'forwards' | 'none';
+  /** The number of iterations to run before completing */
+  @Input() iterations?: number;
+  /** The offset at which to start the animation */
+  @Input() iterationStart?: number;
+  /** Sets the animation's playback rate */
+  @Input() playbackRate?: number;
+
+  @Output() cancel = new EventEmitter<CustomEvent>();
+  @Output() finish = new EventEmitter<CustomEvent>();
+  @Output() start = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleCancel = (e: Event) => this.cancel.emit(e as CustomEvent);
+    el.addEventListener('wa-cancel', handleCancel);
+    this.cleanups.push(() => el.removeEventListener('wa-cancel', handleCancel));
+    const handleFinish = (e: Event) => this.finish.emit(e as CustomEvent);
+    el.addEventListener('wa-finish', handleFinish);
+    this.cleanups.push(() => el.removeEventListener('wa-finish', handleFinish));
+    const handleStart = (e: Event) => this.start.emit(e as CustomEvent);
+    el.addEventListener('wa-start', handleStart);
+    this.cleanups.push(() => el.removeEventListener('wa-start', handleStart));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  cancel(): void {
+    (this.elementRef.nativeElement as unknown as { cancel: Function }).cancel();
+  }
+  finish(): void {
+    (this.elementRef.nativeElement as unknown as { finish: Function }).finish();
+  }
+}

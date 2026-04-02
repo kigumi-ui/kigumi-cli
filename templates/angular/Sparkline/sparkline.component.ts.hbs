@@ -1,0 +1,40 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Sparklines are small inline data visualizations for showing trends
+ *
+ * @see https://webawesome.com/docs/components/sparkline
+ */
+@Component({
+  selector: 'k-sparkline',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.data]="data"
+        [attr.label]="label"
+        [attr.appearance]="appearance"
+        [attr.trend]="trend"
+        [attr.curve]="curve">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './sparkline.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Space-separated numeric data points */
+  @Input() data?: string;
+  /** An accessible label for assistive devices */
+  @Input() label?: string;
+  /** Visual style of the sparkline */
+  @Input() appearance?: 'gradient' | 'line' | 'solid';
+  /** Trend direction, used for coloring */
+  @Input() trend?: 'positive' | 'negative' | 'neutral';
+  /** Interpolation curve style */
+  @Input() curve?: 'linear' | 'natural' | 'step';
+}

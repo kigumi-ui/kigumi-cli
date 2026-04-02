@@ -1,0 +1,43 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Compare visual differences between similar content with a sliding panel
+ *
+ * @see https://webawesome.com/docs/components/comparison
+ */
+@Component({
+  selector: 'k-comparison',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.position]="position">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './comparison.component.css',
+})
+export class {{name}}Component implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** Divider location as percentage (0-100) */
+  @Input() position?: number;
+
+  @Output() change = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    el.addEventListener('change', handleChange);
+    this.cleanups.push(() => el.removeEventListener('change', handleChange));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

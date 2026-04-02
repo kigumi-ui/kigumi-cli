@@ -1,0 +1,28 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
+ *
+ * @see https://webawesome.com/docs/components/breadcrumb
+ */
+@Component({
+  selector: 'k-breadcrumb',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #element
+        [attr.label]="label">
+      <ng-content />
+    </{{tagName}}>
+  `,
+  styleUrl: './breadcrumb.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+
+  /** The label to use for the breadcrumb control for assistive devices */
+  @Input() label?: string;
+}
