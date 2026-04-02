@@ -15,6 +15,7 @@ import type {
 import type { GitHubRegistrySource } from '../../utils/github-fetcher.js';
 import { fetchFile } from '../../utils/github-fetcher.js';
 import { getRegistryCache } from '../../utils/registry-cache.js';
+import { saveSnapshot } from '../../utils/snapshot.js';
 import type { OutputInterface } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig, Framework } from '../../schemas/config.js';
@@ -152,39 +153,49 @@ export class RemoteComponentInstaller {
 
     await fs.ensureDir(componentDir);
 
-    // Download all files in parallel
-    const downloads: Promise<void>[] = [];
+    try {
+      // Download core files and collect content for snapshot
+      const [componentContent, cssContent, testContent] = await Promise.all([
+        this.downloadAndWrite(files.component, componentDir),
+        files.css
+          ? this.downloadAndWrite(files.css, componentDir)
+          : Promise.resolve(null),
+        files.test
+          ? this.downloadAndWrite(files.test, componentDir)
+          : Promise.resolve(null),
+      ]);
 
-    // Main component file
-    downloads.push(this.downloadAndWrite(files.component, componentDir));
+      // Download extra files (no snapshot needed)
+      for (const extra of files.extras) {
+        await this.downloadAndWrite(extra, componentDir);
+      }
 
-    // CSS file
-    if (files.css) {
-      downloads.push(this.downloadAndWrite(files.css, componentDir));
+      // Save snapshot for three-way merge support (kigumi update)
+      const snapshotFiles: Record<string, string> = {};
+      snapshotFiles[path.basename(files.component)] = componentContent;
+      if (cssContent && files.css) {
+        snapshotFiles[path.basename(files.css)] = cssContent;
+      }
+      if (testContent && files.test) {
+        snapshotFiles[path.basename(files.test)] = testContent;
+      }
+      await saveSnapshot(this.cwd, component.name, snapshotFiles);
+    } catch (error) {
+      // Clean up partially written files to avoid broken state
+      await fs.remove(componentDir);
+      throw error;
     }
-
-    // Test file
-    if (files.test) {
-      downloads.push(this.downloadAndWrite(files.test, componentDir));
-    }
-
-    // Extra files
-    for (const extra of files.extras) {
-      downloads.push(this.downloadAndWrite(extra, componentDir));
-    }
-
-    await Promise.all(downloads);
 
     return false;
   }
 
   /**
-   * Download a file and write it to the component directory
+   * Download a file, write it to the component directory, and return the content
    */
   private async downloadAndWrite(
     remotePath: string,
     localDir: string
-  ): Promise<void> {
+  ): Promise<string> {
     // Check cache first
     let content = await this.cache.getFile(this.source, remotePath);
 
@@ -196,6 +207,8 @@ export class RemoteComponentInstaller {
     const fileName = path.basename(remotePath);
     const localPath = path.join(localDir, fileName);
     await fs.writeFile(localPath, content);
+
+    return content;
   }
 
   /**

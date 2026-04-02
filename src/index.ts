@@ -129,7 +129,6 @@ program
   .command('diff')
   .description('Compare installed components against current templates')
   .argument('[components...]', 'Specific components to diff')
-  .option('--verbose', 'Show line-by-line differences')
   .action(diffCommand);
 
 program

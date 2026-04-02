@@ -47,6 +47,7 @@ node dist/index.js add button --overwrite
 | `src/commands/upgrade.ts` | Version upgrade + dependency installation |
 | `src/commands/diff.ts` | Compare installed components vs current templates |
 | `src/commands/update.ts` | Three-way merge update for installed components |
+| `src/utils/diff-renderer.ts` | Colored unified diff output using node-diff3 diffPatch |
 | `src/utils/snapshot.ts` | Snapshot CRUD for `.kigumi/snapshots/` |
 | `src/utils/three-way-merge.ts` | Three-way merge logic using `node-diff3` |
 | `src/utils/version-check.ts` | CLI vs project version compatibility check |

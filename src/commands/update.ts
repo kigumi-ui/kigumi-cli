@@ -30,6 +30,7 @@ import {
   type FileMergeResult,
   type FileStatus,
 } from '../utils/three-way-merge.js';
+import { renderDiff } from '../utils/diff-renderer.js';
 import type { KigumiConfig } from '../schemas/config.js';
 import type { ComponentDefinition } from '../utils/registry.js';
 
@@ -114,6 +115,22 @@ export async function updateCommand(
       output.info(pc.bold(result.name));
       for (const file of result.files) {
         output.info(`  ${formatFileStatus(file)}`);
+
+        // Show diff for updated files
+        if (
+          (file.status === 'safe-overwrite' || file.status === 'clean-merge') &&
+          file.previousContent != null &&
+          file.newContent != null
+        ) {
+          const diff = renderDiff(
+            file.previousContent,
+            file.newContent,
+            file.fileName
+          );
+          if (diff) {
+            output.info(diff);
+          }
+        }
       }
     }
 
@@ -226,11 +243,13 @@ async function processComponent(
         fileName: spec.fileName,
         status: 'safe-overwrite',
         newContent: theirs,
+        previousContent: ours,
       });
       continue;
     }
 
     const result = mergeFile(base, ours, theirs, spec.fileName);
+    result.previousContent = ours;
     mergeResults.push(result);
   }
 

@@ -163,6 +163,8 @@ npx kigumi diff button card    # Diff specific components
 
 Useful before running `--overwrite` to understand which files have local modifications.
 
+For files with differences, a colored line-by-line diff is displayed automatically.
+
 ### `update` — Smart Component Updates
 
 Three-way merge: applies template updates while preserving your local edits.
@@ -235,6 +237,8 @@ npx kigumi add button --from https://github.com/user/my-registry
 ```
 
 Private GitHub repos are supported via `GITHUB_TOKEN` or `gh auth`.
+
+Community components get snapshots on install, enabling `kigumi update` to apply future changes via three-way merge.
 
 ### Create Your Own Registry
 
