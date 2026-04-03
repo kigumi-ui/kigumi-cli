@@ -8,6 +8,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
+import * as p from '@clack/prompts';
 import type {
   CommunityRegistry,
   CommunityComponent,
@@ -16,7 +17,8 @@ import type { GitHubRegistrySource } from '../../utils/github-fetcher.js';
 import { fetchFile } from '../../utils/github-fetcher.js';
 import { getRegistryCache } from '../../utils/registry-cache.js';
 import { saveSnapshot } from '../../utils/snapshot.js';
-import type { OutputInterface } from '../../output/types.js';
+import { renderDiff } from '../../utils/diff-renderer.js';
+import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig, Framework } from '../../schemas/config.js';
 import {
@@ -90,7 +92,8 @@ export class RemoteComponentInstaller {
           componentKey,
           component,
           framework,
-          options
+          options,
+          spinner
         );
 
         if (wasSkipped) {
@@ -127,7 +130,8 @@ export class RemoteComponentInstaller {
     key: string,
     component: CommunityComponent,
     framework: Framework,
-    options: AddOptions
+    options: AddOptions,
+    spinner: OutputSpinner
   ): Promise<boolean> {
     const files = component.files[framework];
     if (!files) {
@@ -143,18 +147,97 @@ export class RemoteComponentInstaller {
     // Check if main component file exists
     const componentFileName = path.basename(files.component);
     const componentPath = path.join(componentDir, componentFileName);
+    const componentExists = await fs.pathExists(componentPath);
 
-    if ((await fs.pathExists(componentPath)) && !options.overwrite) {
-      if (options.all) {
+    if (componentExists) {
+      // --all without --force: silently skip
+      if (options.all && !options.force) {
         return true;
       }
-      throw new Error('Component already exists. Use --overwrite to replace.');
+
+      // Download content first (without writing) for diff comparison
+      const [newComponentContent, newCssContent, newTestContent] =
+        await Promise.all([
+          this.downloadContent(files.component),
+          files.css ? this.downloadContent(files.css) : Promise.resolve(null),
+          files.test ? this.downloadContent(files.test) : Promise.resolve(null),
+        ]);
+
+      // Compare against existing files
+      const existingContent = await fs.readFile(componentPath, 'utf-8');
+      const hasChanges = existingContent !== newComponentContent;
+
+      if (hasChanges) {
+        spinner.stop(
+          `${pc.yellow('!')} ${pc.cyan(component.name)} has local modifications`
+        );
+
+        const diff = renderDiff(
+          existingContent,
+          newComponentContent,
+          componentFileName
+        );
+        if (diff) {
+          this.output.info(diff);
+        }
+
+        // --force or --yes: skip prompt
+        if (!options.force && !options.yes) {
+          const confirmed = await p.confirm({
+            message: `Overwrite all files for ${component.name}?`,
+            initialValue: false,
+          });
+
+          if (p.isCancel(confirmed) || !confirmed) {
+            return true;
+          }
+        }
+
+        spinner.start(`Overwriting ${pc.cyan(component.name)}...`);
+      } else if (!options.force && !options.yes) {
+        // Files identical -- skip silently
+        return true;
+      }
+
+      // Write the already-downloaded content
+      await fs.ensureDir(componentDir);
+      await fs.writeFile(componentPath, newComponentContent);
+      if (newCssContent && files.css) {
+        await fs.writeFile(
+          path.join(componentDir, path.basename(files.css)),
+          newCssContent
+        );
+      }
+      if (newTestContent && files.test) {
+        await fs.writeFile(
+          path.join(componentDir, path.basename(files.test)),
+          newTestContent
+        );
+      }
+
+      // Download extra files
+      for (const extra of files.extras) {
+        await this.downloadAndWrite(extra, componentDir);
+      }
+
+      // Save snapshot
+      const snapshotFiles: Record<string, string> = {};
+      snapshotFiles[componentFileName] = newComponentContent;
+      if (newCssContent && files.css) {
+        snapshotFiles[path.basename(files.css)] = newCssContent;
+      }
+      if (newTestContent && files.test) {
+        snapshotFiles[path.basename(files.test)] = newTestContent;
+      }
+      await saveSnapshot(this.cwd, component.name, snapshotFiles);
+
+      return false;
     }
 
+    // Fresh install -- download and write directly
     await fs.ensureDir(componentDir);
 
     try {
-      // Download core files and collect content for snapshot
       const [componentContent, cssContent, testContent] = await Promise.all([
         this.downloadAndWrite(files.component, componentDir),
         files.css
@@ -172,7 +255,7 @@ export class RemoteComponentInstaller {
 
       // Save snapshot for three-way merge support (kigumi update)
       const snapshotFiles: Record<string, string> = {};
-      snapshotFiles[path.basename(files.component)] = componentContent;
+      snapshotFiles[componentFileName] = componentContent;
       if (cssContent && files.css) {
         snapshotFiles[path.basename(files.css)] = cssContent;
       }
@@ -187,6 +270,20 @@ export class RemoteComponentInstaller {
     }
 
     return false;
+  }
+
+  /**
+   * Download content from remote without writing to disk
+   */
+  private async downloadContent(remotePath: string): Promise<string> {
+    let content = await this.cache.getFile(this.source, remotePath);
+
+    if (!content) {
+      content = await fetchFile(this.source, remotePath);
+      await this.cache.setFile(this.source, remotePath, content);
+    }
+
+    return content;
   }
 
   /**

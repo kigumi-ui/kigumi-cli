@@ -16,7 +16,7 @@ pnpm lint && pnpm type-check  # Verify code quality
 
 ```bash
 node dist/index.js init --framework=react --theme=awesome --yes
-node dist/index.js add button --overwrite
+node dist/index.js add button --force
 ```
 
 ## Repository Structure
@@ -83,7 +83,7 @@ node dist/index.js add button --overwrite
 **NEVER edit generated code. ALWAYS update `.hbs` templates.**
 
 ```
-Edit .hbs → pnpm build → node dist/index.js add {component} --overwrite → Test
+Edit .hbs → pnpm build → node dist/index.js add {component} --force → Test
 ```
 
 - TypeScript: `.tsx.hbs` (with interfaces)
@@ -453,7 +453,7 @@ sequenceDiagram
     CLI-->>User: Success + next steps
 
     Note over User,FS: === kigumi add button ===
-    User->>CLI: kigumi add button [--overwrite]
+    User->>CLI: kigumi add button [--force]
     CLI->>Checks: ConfigExistsCheck + ConfigValidCheck
     Checks-->>CLI: pass/fail
     CLI->>Config: loadConfig(cwd) → KigumiConfig
@@ -661,7 +661,7 @@ START: User requests component change
 │  │  └─ ACTION: Edit .hbs template
 │  │     └─ Path: templates/{framework}/{ComponentName}/
 │  │     └─ Rebuild: pnpm build
-│  │     └─ Test: node dist/index.js add {component} --overwrite
+│  │     └─ Test: node dist/index.js add {component} --force
 │  │
 │  └─ Check: Issue in CLI logic?
 │     └─ ACTION: Edit src/ files
@@ -717,7 +717,7 @@ START: Change affects tier detection or packages
   - Check: `dist/templates/` updated
 
 - [ ] **Generated & tested component**
-  - `node dist/index.js add {component} --overwrite`
+  - `node dist/index.js add {component} --force`
   - Visual check: Component renders correctly
   - Browser test: Events work, styles apply
 

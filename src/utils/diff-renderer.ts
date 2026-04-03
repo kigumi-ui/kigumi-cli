@@ -2,7 +2,7 @@
  * Diff Renderer
  *
  * Renders a colored unified diff in the terminal using node-diff3's
- * diffPatch algorithm. Used by `add --overwrite`, `update`, and `diff`
+ * diffPatch algorithm. Used by `add --force`, `update`, and `diff`
  * commands to show what changed.
  *
  * @public

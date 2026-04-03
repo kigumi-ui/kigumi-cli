@@ -184,7 +184,7 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
     output.note(
       'Next steps',
       'Component files are not automatically regenerated.\n' +
-        'Run "npx kigumi add <component> --overwrite" to update specific components.'
+        'Run "npx kigumi add <component> --force" to update specific components.'
     );
 
     output.outro('Upgrade complete');

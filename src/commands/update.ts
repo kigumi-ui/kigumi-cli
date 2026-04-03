@@ -263,7 +263,7 @@ async function processComponent(
       `  ${pc.yellow('!')} ${componentName}: no snapshot found, files differ from template`
     );
     output.info(
-      `  ${pc.dim('Run')} kigumi add ${componentName.toLowerCase()} --overwrite ${pc.dim('to reset, or update will create a snapshot for future merges.')}`
+      `  ${pc.dim('Run')} kigumi add ${componentName.toLowerCase()} --force ${pc.dim('to reset, or update will create a snapshot for future merges.')}`
     );
 
     if (!options.yes) {

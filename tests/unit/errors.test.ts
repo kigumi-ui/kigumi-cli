@@ -438,14 +438,14 @@ describe('Error Classes', () => {
   });
 
   describe('ComponentExistsError', () => {
-    it('should suggest --overwrite flag', () => {
+    it('should suggest --force flag', () => {
       const error = new ComponentExistsError(
         'Button',
         '/src/components/Button'
       );
       const suggestions = error.formatSuggestions();
 
-      expect(suggestions).toContain('--overwrite');
+      expect(suggestions).toContain('--force');
     });
   });
 

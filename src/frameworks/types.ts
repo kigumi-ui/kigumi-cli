@@ -27,14 +27,14 @@ export interface DetectionResult {
 export interface GeneratedFile {
   path: string;
   content: string;
-  overwrite?: boolean;
+  force?: boolean;
 }
 
 /**
  * Options for component generation
  */
 export interface GenerateOptions {
-  overwrite: boolean;
+  force: boolean;
   typescript: boolean;
   tests: boolean;
 }

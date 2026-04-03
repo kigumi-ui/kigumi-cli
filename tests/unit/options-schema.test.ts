@@ -49,7 +49,7 @@ describe('validators.init', () => {
 describe('validators.add', () => {
   it('validates empty options with defaults', () => {
     const result = validators.add({});
-    expect(result.overwrite).toBe(false);
+    expect(result.force).toBe(false);
     expect(result.all).toBe(false);
     expect(result.tests).toBe(false);
   });
@@ -59,9 +59,9 @@ describe('validators.add', () => {
     expect(result.from).toBe('https://github.com/user/repo');
   });
 
-  it('validates overwrite and all flags', () => {
-    const result = validators.add({ overwrite: true, all: true });
-    expect(result.overwrite).toBe(true);
+  it('validates force and all flags', () => {
+    const result = validators.add({ force: true, all: true });
+    expect(result.force).toBe(true);
     expect(result.all).toBe(true);
   });
 });

@@ -9,14 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Visual diff output in `kigumi update` and `kigumi add --overwrite` showing colored line-by-line changes
+- Visual diff output in `kigumi update` and `kigumi add --force` showing colored line-by-line changes
+- Smart-add: `kigumi add` now shows a diff and prompts before overwriting existing components
 - `kigumi diff` now shows line-level differences for changed files
 - Snapshots for community registry components (`--from` installs now support `kigumi update`)
 - Cleanup of partially written files on community component download failure
 
 ### Changed
 
-- `kigumi add --overwrite` shows a colored diff before the confirmation prompt
+- `--overwrite` flag renamed to `--force` (overwrites without prompting)
+- `kigumi add` with existing component now shows diff + prompt instead of erroring
 - `kigumi update --dry-run` shows diffs without writing files
 - `kigumi update --force` shows diffs before overwriting
 
@@ -170,7 +172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Version pinning**: Projects now track the Kigumi CLI version via `kigumiVersion` in `kigumi.config.json`
 - **`kigumi upgrade` command**: Shows migration guide when project version differs from CLI version (breaking changes, WA version changes, affected components, recommended actions)
-- **`kigumi diff` command**: Compares installed component files against current templates to see what changed before running `--overwrite`
+- **`kigumi diff` command**: Compares installed component files against current templates to see what changed before running `--force`
 - **Version mismatch behavior**: Minor mismatch shows warning; major mismatch shows hard error with instructions to pin or upgrade
 - **Provenance tracking**: Each installed component records its `kigumiVersion` in `installedComponents`
 

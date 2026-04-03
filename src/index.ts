@@ -83,7 +83,7 @@ program
   .description('Add a component to your project')
   .argument('[components...]', 'Components to add')
   .option('--all', 'Add all available components')
-  .option('--overwrite', 'Overwrite existing components')
+  .option('--force', 'Overwrite existing components without prompting')
   .option('--from <source>', 'Registry URL or connected registry name')
   .option('--no-types', 'Skip TypeScript type definitions')
   .option('-y, --yes', 'Skip all prompts (non-interactive mode)')
@@ -136,7 +136,7 @@ program
   .description('Update installed components with three-way merge')
   .argument('[components...]', 'Specific components to update')
   .option('--dry-run', 'Show what would change without writing')
-  .option('--force', 'Overwrite without merge (like add --overwrite)')
+  .option('--force', 'Overwrite without merge')
   .option('-y, --yes', 'Auto-confirm prompts')
   .action(updateCommand);
 

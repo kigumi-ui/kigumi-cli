@@ -67,7 +67,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
     // Overwrite
     const result = await execa(
       'node',
-      [CLI_PATH, 'add', 'button', '--overwrite', '--yes'],
+      [CLI_PATH, 'add', 'button', '--force', '--yes'],
       {
         cwd: TEST_DIR,
         env: { ...process.env, CI: 'true' },
@@ -88,7 +88,7 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
     });
 
     expect(result.stdout).toContain('Button');
-    // After overwrite, file should match template
+    // After force, file should match template
     expect(result.stdout).toContain('unchanged');
   }, 60000);
 });

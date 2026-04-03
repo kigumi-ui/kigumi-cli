@@ -10,6 +10,17 @@ import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
 
+// Mock @clack/prompts for interactive prompt tests
+vi.mock('@clack/prompts', async () => {
+  const actual =
+    await vi.importActual<typeof import('@clack/prompts')>('@clack/prompts');
+  return {
+    ...actual,
+    confirm: vi.fn().mockResolvedValue(false),
+    isCancel: actual.isCancel,
+  };
+});
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const _PROJECT_ROOT = path.resolve(__dirname, '../..');
 
@@ -174,11 +185,11 @@ import '../styles/layers.css';
       ).toBe(true);
     });
 
-    it('should skip existing components without --overwrite', async () => {
+    it('should show diff and skip when user declines prompt', async () => {
       await createConfig();
       await setupProject();
 
-      // Create existing component
+      // Create existing component with different content
       const buttonDir = path.join(tempDir, 'src/components/Button');
       await fs.ensureDir(buttonDir);
       await fs.writeFile(
@@ -186,9 +197,10 @@ import '../styles/layers.css';
         '// Existing content'
       );
 
+      // confirm mock returns false (user declines)
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir, overwrite: false });
+      await addCommand(['button'], { cwd: tempDir, force: false });
 
       // Check content was NOT overwritten
       const content = await fs.readFile(
@@ -198,7 +210,7 @@ import '../styles/layers.css';
       expect(content).toBe('// Existing content');
     });
 
-    it('should overwrite existing components with --overwrite', async () => {
+    it('should overwrite existing components with --force', async () => {
       await createConfig();
       await setupProject();
 
@@ -211,7 +223,7 @@ import '../styles/layers.css';
 
       await addCommand(['button'], {
         cwd: tempDir,
-        overwrite: true,
+        force: true,
         yes: true,
       });
 
