@@ -59,7 +59,8 @@ tests/
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── version-error.test.ts        # Version error classes
-│   └── version-map.test.ts          # Version history data
+│   ├── version-map.test.ts          # Version history data
+│   └── angular-templates.test.ts    # Angular template generation validation
 ├── integration/             # Integration tests (build + run CLI)
 │   └── *.test.ts            # Tests that require built CLI
 ├── e2e/                     # Full CLI integration
@@ -268,4 +269,4 @@ describe('myFeature', () => {
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-04-03

@@ -71,6 +71,6 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   getChildrenItems({ includeDisabled = true }?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { getChildrenItems: Function }).getChildrenItems({ includeDisabled = true });
+    (this.elementRef.nativeElement as unknown as { getChildrenItems: ({ includeDisabled = true }: unknown) => void }).getChildrenItems({ includeDisabled = true });
   }
 }

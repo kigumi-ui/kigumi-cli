@@ -61,9 +61,9 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   openSubmenu(): void {
-    (this.elementRef.nativeElement as unknown as { openSubmenu: Function }).openSubmenu();
+    (this.elementRef.nativeElement as unknown as { openSubmenu: () => void }).openSubmenu();
   }
   closeSubmenu(): void {
-    (this.elementRef.nativeElement as unknown as { closeSubmenu: Function }).closeSubmenu();
+    (this.elementRef.nativeElement as unknown as { closeSubmenu: () => void }).closeSubmenu();
   }
 }

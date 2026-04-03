@@ -1,6 +1,6 @@
 # Kigumi CLI - AI Agent Guide
 
-> **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Svelte wrappers around Web Awesome components.
+> **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Angular wrappers around Web Awesome components.
 
 **Version**: 0.13.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
 
@@ -319,7 +319,7 @@ flowchart TD
         FW_INDEX["index.ts\nFrameworkRegistry\nlazy-loaded Map"]
         react["react/ReactPlugin"]
         vue["vue/VuePlugin"]
-        angular["angular/AngularPlugin (stub)"]
+        angular["angular/AngularPlugin"]
         svelte["svelte/SveltePlugin (stub)"]
     end
 
@@ -555,7 +555,7 @@ flowchart TB
     subgraph Plugins["Plugin Implementations"]
         R["ReactPlugin\ndetects: react in package.json\ngenerates: .tsx/.jsx + .test + .css\nsetup: kigumi.ts, vite-env.d.ts"]
         V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: kigumi.ts, shims-vue.d.ts"]
-        A["AngularPlugin\ndetects: @angular/core\nSTUB — not fully implemented"]
+        A["AngularPlugin\ndetects: @angular/core\ngenerates: .component.ts + .component.spec.ts + .component.css\nsetup: CUSTOM_ELEMENTS_SCHEMA"]
         S["SveltePlugin\ndetects: svelte\nSTUB — not fully implemented"]
     end
 
@@ -994,4 +994,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-03-16
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-03

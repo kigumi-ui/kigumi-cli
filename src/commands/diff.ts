@@ -17,11 +17,13 @@ import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { handleError, ConfigNotFoundError } from '../errors/index.js';
 import { getComponent } from '../utils/registry.js';
-import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
   generateComponentTestContent,
+  getComponentExtension,
+  getTestExtension,
+  getFileBaseName,
 } from '../utils/template.js';
 import { loadSnapshot } from '../utils/snapshot.js';
 import type { KigumiConfig } from '../schemas/config.js';
@@ -222,20 +224,8 @@ async function diffComponentFiles(
   const snapshot = await loadSnapshot(cwd, component.name);
 
   // Component file
-  const ext =
-    config.framework === 'angular'
-      ? 'component.ts'
-      : config.framework === 'vue'
-        ? config.typescript
-          ? 'vue'
-          : 'js.vue'
-        : config.typescript
-          ? 'tsx'
-          : 'jsx';
-  const fileBaseName =
-    config.framework === 'angular'
-      ? toKebabCase(component.name)
-      : component.name;
+  const ext = getComponentExtension(config.framework, config.typescript);
+  const fileBaseName = getFileBaseName(config.framework, component.name);
   const componentFileName = `${fileBaseName}.${ext}`;
   const componentFilePath = path.join(componentDir, componentFileName);
 
@@ -262,7 +252,7 @@ async function diffComponentFiles(
   // CSS file
   const cssFileName =
     config.framework === 'angular'
-      ? `${toKebabCase(component.name)}.component.css`
+      ? `${fileBaseName}.component.css`
       : `${component.name}.css`;
   const cssFilePath = path.join(componentDir, cssFileName);
   try {
@@ -276,16 +266,7 @@ async function diffComponentFiles(
   }
 
   // Test file
-  const testExt =
-    config.framework === 'angular'
-      ? 'component.spec.ts'
-      : config.framework === 'vue'
-        ? config.typescript
-          ? 'test.ts'
-          : 'test.js'
-        : config.typescript
-          ? 'test.tsx'
-          : 'test.jsx';
+  const testExt = getTestExtension(config.framework, config.typescript);
   const testFileName = `${fileBaseName}.${testExt}`;
   const testFilePath = path.join(componentDir, testFileName);
   try {

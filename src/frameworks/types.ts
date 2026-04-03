@@ -6,6 +6,7 @@
  */
 
 import type { KigumiConfig } from '../schemas/config.js';
+import type { ComponentDefinition } from '../utils/registry/types.js';
 
 /**
  * Detection result from framework.detect()
@@ -48,27 +49,10 @@ export interface ValidationResult {
 }
 
 /**
- * Component definition from registry
+ * Component definition - re-exported from the canonical registry types.
+ * Plugins receive the full registry type since that's what callers pass.
  */
-export interface ComponentDefinition {
-  name: string;
-  tagName: string;
-  category: string;
-  tier: 'free' | 'pro';
-  props: ComponentProp[];
-  description?: string;
-}
-
-/**
- * Component property definition
- */
-export interface ComponentProp {
-  name: string;
-  type: string;
-  description?: string;
-  required?: boolean;
-  default?: string | number | boolean;
-}
+export type { ComponentDefinition };
 
 /**
  * Framework Plugin Interface

@@ -39,15 +39,15 @@ export class {{name}}Component {
   @Input() view?: 'mobile' | 'desktop';
 
   visiblePixelsInViewport(element?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { visiblePixelsInViewport: Function }).visiblePixelsInViewport(element);
+    (this.elementRef.nativeElement as unknown as { visiblePixelsInViewport: (element: unknown) => void }).visiblePixelsInViewport(element);
   }
   showNavigation(): void {
-    (this.elementRef.nativeElement as unknown as { showNavigation: Function }).showNavigation();
+    (this.elementRef.nativeElement as unknown as { showNavigation: () => void }).showNavigation();
   }
   hideNavigation(): void {
-    (this.elementRef.nativeElement as unknown as { hideNavigation: Function }).hideNavigation();
+    (this.elementRef.nativeElement as unknown as { hideNavigation: () => void }).hideNavigation();
   }
   toggleNavigation(): void {
-    (this.elementRef.nativeElement as unknown as { toggleNavigation: Function }).toggleNavigation();
+    (this.elementRef.nativeElement as unknown as { toggleNavigation: () => void }).toggleNavigation();
   }
 }

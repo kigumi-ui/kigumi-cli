@@ -138,24 +138,24 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
   }
 
   focus(): void {
-    (this.elementRef.nativeElement as unknown as { focus: Function }).focus();
+    (this.elementRef.nativeElement as unknown as { focus: () => void }).focus();
   }
   blur(): void {
-    (this.elementRef.nativeElement as unknown as { blur: Function }).blur();
+    (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
   stepDown(): void {
-    (this.elementRef.nativeElement as unknown as { stepDown: Function }).stepDown();
+    (this.elementRef.nativeElement as unknown as { stepDown: () => void }).stepDown();
   }
   stepUp(): void {
-    (this.elementRef.nativeElement as unknown as { stepUp: Function }).stepUp();
+    (this.elementRef.nativeElement as unknown as { stepUp: () => void }).stepUp();
   }
   setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: Function }).setCustomValidity(message);
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
   }
   formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: Function }).formStateRestoreCallback(state, reason);
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown; reason: unknown) => void }).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: Function }).resetValidity();
+    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
   }
 }

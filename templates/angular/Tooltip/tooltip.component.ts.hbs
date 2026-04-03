@@ -81,9 +81,9 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   show(): void {
-    (this.elementRef.nativeElement as unknown as { show: Function }).show();
+    (this.elementRef.nativeElement as unknown as { show: () => void }).show();
   }
   hide(): void {
-    (this.elementRef.nativeElement as unknown as { hide: Function }).hide();
+    (this.elementRef.nativeElement as unknown as { hide: () => void }).hide();
   }
 }

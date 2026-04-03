@@ -104,21 +104,21 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   click(): void {
-    (this.elementRef.nativeElement as unknown as { click: Function }).click();
+    (this.elementRef.nativeElement as unknown as { click: () => void }).click();
   }
   focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: Function }).focus(options);
+    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
   }
   blur(): void {
-    (this.elementRef.nativeElement as unknown as { blur: Function }).blur();
+    (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
   setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: Function }).setCustomValidity(message);
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
   }
   formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: Function }).formStateRestoreCallback(state, reason);
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown; reason: unknown) => void }).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: Function }).resetValidity();
+    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
   }
 }

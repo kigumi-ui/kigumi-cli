@@ -181,36 +181,36 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
   }
 
   focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: Function }).focus(options);
+    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
   }
   blur(): void {
-    (this.elementRef.nativeElement as unknown as { blur: Function }).blur();
+    (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
   select(): void {
-    (this.elementRef.nativeElement as unknown as { select: Function }).select();
+    (this.elementRef.nativeElement as unknown as { select: () => void }).select();
   }
   setSelectionRange(selectionStart?: unknown, selectionEnd?: unknown, selectionDirection?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setSelectionRange: Function }).setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+    (this.elementRef.nativeElement as unknown as { setSelectionRange: (selectionStart: unknown; selectionEnd: unknown; selectionDirection: unknown) => void }).setSelectionRange(selectionStart, selectionEnd, selectionDirection);
   }
   setRangeText(replacement?: unknown, start?: unknown, end?: unknown, selectMode?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setRangeText: Function }).setRangeText(replacement, start, end, selectMode);
+    (this.elementRef.nativeElement as unknown as { setRangeText: (replacement: unknown; start: unknown; end: unknown; selectMode: unknown) => void }).setRangeText(replacement, start, end, selectMode);
   }
   showPicker(): void {
-    (this.elementRef.nativeElement as unknown as { showPicker: Function }).showPicker();
+    (this.elementRef.nativeElement as unknown as { showPicker: () => void }).showPicker();
   }
   stepUp(): void {
-    (this.elementRef.nativeElement as unknown as { stepUp: Function }).stepUp();
+    (this.elementRef.nativeElement as unknown as { stepUp: () => void }).stepUp();
   }
   stepDown(): void {
-    (this.elementRef.nativeElement as unknown as { stepDown: Function }).stepDown();
+    (this.elementRef.nativeElement as unknown as { stepDown: () => void }).stepDown();
   }
   setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: Function }).setCustomValidity(message);
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
   }
   formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: Function }).formStateRestoreCallback(state, reason);
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown; reason: unknown) => void }).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: Function }).resetValidity();
+    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
   }
 }

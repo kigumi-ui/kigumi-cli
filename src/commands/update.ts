@@ -16,11 +16,13 @@ import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { handleError, ConfigNotFoundError } from '../errors/index.js';
 import { getComponent } from '../utils/registry.js';
-import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
   generateComponentTestContent,
+  getComponentExtension,
+  getTestExtension,
+  getFileBaseName,
 } from '../utils/template.js';
 import { loadSnapshot, saveSnapshot } from '../utils/snapshot.js';
 import {
@@ -186,26 +188,8 @@ async function processComponent(
   const snapshot = await loadSnapshot(cwd, componentName);
 
   // Determine file extensions
-  const ext =
-    config.framework === 'angular'
-      ? 'component.ts'
-      : config.framework === 'vue'
-        ? config.typescript
-          ? 'vue'
-          : 'js.vue'
-        : config.typescript
-          ? 'tsx'
-          : 'jsx';
-  const testExt =
-    config.framework === 'angular'
-      ? 'component.spec.ts'
-      : config.framework === 'vue'
-        ? config.typescript
-          ? 'test.ts'
-          : 'test.js'
-        : config.typescript
-          ? 'test.tsx'
-          : 'test.jsx';
+  const ext = getComponentExtension(config.framework, config.typescript);
+  const testExt = getTestExtension(config.framework, config.typescript);
 
   const componentDir = path.join(cwd, config.componentsDir, component.name);
 
@@ -344,10 +328,7 @@ async function buildFileSpecs(
   cwd: string
 ): Promise<FileSpec[]> {
   const specs: FileSpec[] = [];
-  const fileBaseName =
-    config.framework === 'angular'
-      ? toKebabCase(component.name)
-      : component.name;
+  const fileBaseName = getFileBaseName(config.framework, component.name);
 
   // Component file
   const componentFileName = `${fileBaseName}.${ext}`;

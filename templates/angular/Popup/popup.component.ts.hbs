@@ -93,6 +93,6 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   reposition(): void {
-    (this.elementRef.nativeElement as unknown as { reposition: Function }).reposition();
+    (this.elementRef.nativeElement as unknown as { reposition: () => void }).reposition();
   }
 }

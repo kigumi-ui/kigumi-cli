@@ -66,12 +66,12 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   previous(behavior?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { previous: Function }).previous(behavior);
+    (this.elementRef.nativeElement as unknown as { previous: (behavior: unknown) => void }).previous(behavior);
   }
   next(behavior?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { next: Function }).next(behavior);
+    (this.elementRef.nativeElement as unknown as { next: (behavior: unknown) => void }).next(behavior);
   }
   goToSlide(index?: unknown, behavior?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { goToSlide: Function }).goToSlide(index, behavior);
+    (this.elementRef.nativeElement as unknown as { goToSlide: (index: unknown; behavior: unknown) => void }).goToSlide(index, behavior);
   }
 }

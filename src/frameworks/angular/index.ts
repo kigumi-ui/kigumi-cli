@@ -17,7 +17,6 @@ import type {
   ValidationResult,
   ComponentDefinition,
 } from '../types.js';
-import type { ComponentDefinition as RegistryComponentDefinition } from '../../utils/registry.js';
 import { toKebabCase } from '../../utils/naming.js';
 
 export class AngularPlugin implements FrameworkPlugin {
@@ -81,7 +80,7 @@ export class AngularPlugin implements FrameworkPlugin {
 
     // Generate main component file
     const componentContent = await generateComponent(
-      component as unknown as RegistryComponentDefinition,
+      component,
       config,
       true, // Angular is always TypeScript
       cwd
@@ -94,10 +93,7 @@ export class AngularPlugin implements FrameworkPlugin {
     });
 
     // Generate CSS file
-    const cssContent = await generateComponentCSSContent(
-      component as unknown as RegistryComponentDefinition,
-      config
-    );
+    const cssContent = await generateComponentCSSContent(component, config);
 
     files.push({
       path: path.join(componentDir, `${kebabName}.component.css`),
@@ -107,10 +103,7 @@ export class AngularPlugin implements FrameworkPlugin {
 
     // Generate test file
     if (options.tests) {
-      const testContent = await generateComponentTestContent(
-        component as unknown as RegistryComponentDefinition,
-        config
-      );
+      const testContent = await generateComponentTestContent(component, config);
 
       files.push({
         path: path.join(componentDir, `${kebabName}.component.spec.ts`),
