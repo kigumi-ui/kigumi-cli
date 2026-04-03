@@ -4,8 +4,8 @@
  * Tests for src/commands/add/installer.ts
  *
  * Covers:
- * - renderDiff called for modified files on --overwrite
- * - renderDiff NOT called for unchanged files on --overwrite
+ * - renderDiff called for modified files on --force
+ * - renderDiff NOT called for unchanged files on --force
  * - Snapshot saved after a fresh install
  */
 
@@ -146,7 +146,7 @@ describe('ComponentInstaller', () => {
 
   // ── Test 1: renderDiff called for modified file, not for unchanged ──
 
-  it('calls renderDiff for modified files but not for unchanged files on --overwrite', async () => {
+  it('calls renderDiff for modified files but not for unchanged files on --force', async () => {
     const componentDir = path.join(testDir, 'src/components/Button');
     await fs.ensureDir(componentDir);
 
@@ -171,7 +171,7 @@ describe('ComponentInstaller', () => {
     const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
 
     await installer.installComponents(['Button'], {
-      overwrite: true,
+      force: true,
       yes: true,
     });
 
@@ -190,7 +190,7 @@ describe('ComponentInstaller', () => {
 
   // ── Test 2: renderDiff NOT called when no modifications exist ──
 
-  it('does not call renderDiff when all files match generated content on --overwrite', async () => {
+  it('does not call renderDiff when all files match generated content on --force', async () => {
     const componentDir = path.join(testDir, 'src/components/Button');
     await fs.ensureDir(componentDir);
 
@@ -214,7 +214,7 @@ describe('ComponentInstaller', () => {
     const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
 
     await installer.installComponents(['Button'], {
-      overwrite: true,
+      force: true,
       yes: true,
     });
 
@@ -240,9 +240,9 @@ describe('ComponentInstaller', () => {
     expect(snapshot!['Button.tsx']).toBe('// generated component');
   });
 
-  // ── Test 4: User declines overwrite -> file unchanged, snapshot unchanged ──
+  // ── Test 4: User declines prompt -> file unchanged, snapshot unchanged ──
 
-  it('preserves original file and shows diff when user declines overwrite', async () => {
+  it('preserves original file and shows diff when user declines prompt', async () => {
     const componentDir = path.join(testDir, 'src/components/Button');
     await fs.ensureDir(componentDir);
 
@@ -269,9 +269,8 @@ describe('ComponentInstaller', () => {
     const output = createMockOutput();
     const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
 
-    const results = await installer.installComponents(['Button'], {
-      overwrite: true,
-    });
+    // No --force: smart-add shows diff + prompt
+    const results = await installer.installComponents(['Button'], {});
 
     // Skipped
     expect(results[0].skipped).toBe(true);

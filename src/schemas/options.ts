@@ -33,7 +33,7 @@ export type InitOptions = z.infer<typeof initOptionsSchema>;
  * Add command options schema
  */
 export const addOptionsSchema = z.object({
-  overwrite: z.boolean().optional().default(false),
+  force: z.boolean().optional().default(false),
   all: z.boolean().optional().default(false),
   typescript: z.boolean().optional(),
   tests: z.boolean().optional().default(false),

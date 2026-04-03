@@ -226,9 +226,9 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
     expect(snapshot).toBeNull();
   });
 
-  // ── Bug 2: Community --overwrite silently overwrites (no diff) ──
+  // ── Bug 2: Community --force silently overwrites (no diff) ──
 
-  it('overwrites existing files without diff on --overwrite', async () => {
+  it('overwrites existing files without diff on --force', async () => {
     const { RemoteComponentInstaller } =
       await import('../../src/commands/add/remote-installer.js');
     const { loadSnapshot } = await import('../../src/utils/snapshot.js');
@@ -250,7 +250,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       createMockOutput()
     );
 
-    await installer.installComponents(['my-card'], { overwrite: true });
+    await installer.installComponents(['my-card'], { force: true });
 
     // File overwritten with fetched content
     const content = await fs.readFile(
@@ -263,7 +263,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
     const snapshot = await loadSnapshot(tempDir, 'MyCard');
     expect(snapshot!['MyCard.tsx']).toBe('// fetched component');
 
-    // TODO: Community --overwrite does not show diff (unlike builtin installer).
+    // TODO: Community --force does not show diff (unlike builtin installer).
     // This is a known limitation since community components are pre-rendered.
   });
 

@@ -153,16 +153,14 @@ export class ComponentInstaller {
     // Check if component already exists
     const componentExists = await fs.pathExists(componentPath);
 
-    if (componentExists && !options.overwrite) {
-      if (options.all) {
+    // When component exists, show diff + prompt (or auto-overwrite with --force)
+    let modifiedFileNames: string[] | undefined;
+    if (componentExists) {
+      // --all without --force: silently skip existing components
+      if (options.all && !options.force) {
         return { name: component.name, success: true, skipped: true };
       }
-      throw new Error('Component already exists. Use --overwrite to replace.');
-    }
 
-    // When overwriting, check for local modifications
-    let modifiedFileNames: string[] | undefined;
-    if (componentExists && options.overwrite) {
       const checks = await Promise.all(
         [
           checkFileModification(componentPath, componentContent),
@@ -178,7 +176,7 @@ export class ComponentInstaller {
       if (modified.length > 0) {
         modifiedFileNames = modified.map((m) => m.fileName);
 
-        // Stop spinner before prompting
+        // Stop spinner before showing diff
         spinner.stop(
           `${pc.yellow('!')} ${pc.cyan(component.name)} has local modifications`
         );
@@ -216,8 +214,8 @@ export class ComponentInstaller {
           }
         }
 
-        // Auto-confirm with --yes, otherwise prompt
-        if (!options.yes) {
+        // --force or --yes: skip prompt
+        if (!options.force && !options.yes) {
           const confirmed = await p.confirm({
             message: `Overwrite all files for ${component.name}?`,
             initialValue: false,
@@ -230,6 +228,9 @@ export class ComponentInstaller {
 
         // Restart spinner for the write phase
         spinner.start(`Overwriting ${pc.cyan(component.name)}...`);
+      } else if (!options.force && !options.yes) {
+        // Files exist but are identical to template -- skip silently
+        return { name: component.name, success: true, skipped: true };
       }
     }
 

@@ -100,7 +100,7 @@ export class VuePlugin implements FrameworkPlugin {
     files.push({
       path: path.join(componentDir, `${component.name}.${fileExtension}`),
       content: componentContent,
-      overwrite: options.overwrite,
+      force: options.force,
     });
 
     // Generate CSS file
@@ -109,7 +109,7 @@ export class VuePlugin implements FrameworkPlugin {
       files.push({
         path: path.join(componentDir, `${component.name}.css`),
         content: cssContent,
-        overwrite: options.overwrite,
+        force: options.force,
       });
     }
 
@@ -121,7 +121,7 @@ export class VuePlugin implements FrameworkPlugin {
         files.push({
           path: path.join(componentDir, `${component.name}.${testExt}`),
           content: testContent,
-          overwrite: options.overwrite,
+          force: options.force,
         });
       }
     }

@@ -242,7 +242,7 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 5. **Build and test:**
    ```bash
    pnpm build
-   node dist/index.js add {name} --overwrite
+   node dist/index.js add {name} --force
    ```
 
 ---

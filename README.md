@@ -161,7 +161,7 @@ npx kigumi diff                # Diff all installed components
 npx kigumi diff button card    # Diff specific components
 ```
 
-Useful before running `--overwrite` to understand which files have local modifications.
+Useful before running `--force` to understand which files have local modifications.
 
 For files with differences, a colored line-by-line diff is displayed automatically.
 

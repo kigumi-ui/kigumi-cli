@@ -134,7 +134,7 @@ async function checkVersionAlignment(
         `To update, run: npm install ${installedPackage}@${DEFAULT_WEBAWESOME_VERSION}`
       );
       output.warning(
-        'Then regenerate components: npx kigumi add --all --overwrite'
+        'Then regenerate components: npx kigumi add --all --force'
       );
     }
   }

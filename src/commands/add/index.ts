@@ -54,7 +54,7 @@ export async function addCommand(components: string[], options?: AddOptions) {
   try {
     // 1. Validate options with defaults
     const validatedOptions = validators.add({
-      overwrite: options?.overwrite ?? false,
+      force: options?.force ?? false,
       all: options?.all ?? false,
       tests: options?.tests ?? true,
       typescript: options?.typescript,

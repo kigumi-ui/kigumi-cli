@@ -145,10 +145,10 @@ export class ComponentExistsError extends KigumiError {
   constructor(componentName: string, componentPath: string) {
     const suggestions: ErrorSuggestion[] = [
       {
-        title: 'Use the --overwrite flag',
+        title: 'Use the --force flag',
         steps: [
           `Component "${componentName}" already exists at: ${componentPath}`,
-          'To replace it, run the command with --overwrite flag',
+          'To replace it, run the command with --force flag',
           'This will overwrite existing files',
         ],
       },

@@ -114,7 +114,7 @@ export class ReactPlugin implements FrameworkPlugin {
     files.push({
       path: path.join(componentDir, `${component.name}.${fileExtension}`),
       content: componentContent,
-      overwrite: options.overwrite,
+      force: options.force,
     });
 
     // Generate CSS file
@@ -123,7 +123,7 @@ export class ReactPlugin implements FrameworkPlugin {
       files.push({
         path: path.join(componentDir, `${component.name}.css`),
         content: cssContent,
-        overwrite: options.overwrite,
+        force: options.force,
       });
     }
 
@@ -137,7 +137,7 @@ export class ReactPlugin implements FrameworkPlugin {
             `${component.name}.test.${fileExtension}`
           ),
           content: testContent,
-          overwrite: options.overwrite,
+          force: options.force,
         });
       }
     }
