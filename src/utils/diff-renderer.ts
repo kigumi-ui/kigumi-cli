@@ -32,7 +32,7 @@ export function renderDiff(
   const newLines = newContent.split('\n');
 
   // Fast path: identical content
-  if (oldContent.trim() === newContent.trim()) {
+  if (oldContent === newContent) {
     return '';
   }
 

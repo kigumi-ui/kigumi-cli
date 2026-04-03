@@ -26,7 +26,7 @@ sequenceDiagram
     CLI-->>User: Success + next steps
 
     Note over User,FS: === kigumi add button ===
-    User->>CLI: kigumi add button [--overwrite]
+    User->>CLI: kigumi add button [--force]
     CLI->>Checks: ConfigExistsCheck + ConfigValidCheck
     Checks-->>CLI: pass/fail
     CLI->>Config: loadConfig(cwd) → KigumiConfig

@@ -228,7 +228,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
 
   // ── Bug 2: Community --force silently overwrites (no diff) ──
 
-  it('overwrites existing files without diff on --force', async () => {
+  it('overwrites existing files with per-file labels on --force', async () => {
     const { RemoteComponentInstaller } =
       await import('../../src/commands/add/remote-installer.js');
     const { loadSnapshot } = await import('../../src/utils/snapshot.js');
@@ -242,12 +242,13 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       'utf-8'
     );
 
+    const output = createMockOutput();
     const installer = new RemoteComponentInstaller(
       tempDir,
       testConfig,
       testSource,
       baseRegistry,
-      createMockOutput()
+      output
     );
 
     await installer.installComponents(['my-card'], { force: true });
@@ -263,8 +264,164 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
     const snapshot = await loadSnapshot(tempDir, 'MyCard');
     expect(snapshot!['MyCard.tsx']).toBe('// fetched component');
 
-    // TODO: Community --force does not show diff (unlike builtin installer).
-    // This is a known limitation since community components are pre-rendered.
+    // Per-file labels are shown for modified files
+    const warnCalls = vi.mocked(output.warn).mock.calls.flat();
+    expect(warnCalls.some((c) => c.includes('Modified'))).toBe(true);
+  });
+
+  // ── Per-file modification detection ──
+
+  it('shows per-file Modified/Unchanged labels when only CSS differs', async () => {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    // Pre-create component with matching component but different CSS
+    const componentDir = path.join(tempDir, 'src/components/MyCard');
+    await fs.ensureDir(componentDir);
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.tsx'),
+      '// fetched component',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.css'),
+      '/* user modified css */',
+      'utf-8'
+    );
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      baseRegistry,
+      output
+    );
+
+    await installer.installComponents(['my-card'], { force: true });
+
+    const warnCalls = vi.mocked(output.warn).mock.calls.flat();
+    const infoCalls = vi.mocked(output.info).mock.calls.flat();
+
+    // CSS is modified, component is unchanged
+    expect(
+      warnCalls.some((c) => c.includes('Modified') && c.includes('MyCard.css'))
+    ).toBe(true);
+    expect(
+      infoCalls.some((c) => c.includes('Unchanged') && c.includes('MyCard.tsx'))
+    ).toBe(true);
+  });
+
+  it('skips silently when all files are identical', async () => {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    // Pre-create component with identical content
+    const componentDir = path.join(tempDir, 'src/components/MyCard');
+    await fs.ensureDir(componentDir);
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.tsx'),
+      '// fetched component',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.css'),
+      '/* fetched css */',
+      'utf-8'
+    );
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      baseRegistry,
+      output
+    );
+
+    const results = await installer.installComponents(['my-card'], {});
+
+    // Should be skipped since all files are identical
+    expect(results[0].skipped).toBe(true);
+
+    // No Modified/Unchanged labels shown (skipped entirely)
+    const warnCalls = vi.mocked(output.warn).mock.calls.flat();
+    expect(warnCalls.some((c) => c.includes('Modified'))).toBe(false);
+  });
+
+  it('skips when all files are identical even with --force', async () => {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    // Pre-create component with identical content
+    const componentDir = path.join(tempDir, 'src/components/MyCard');
+    await fs.ensureDir(componentDir);
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.tsx'),
+      '// fetched component',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.css'),
+      '/* fetched css */',
+      'utf-8'
+    );
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      baseRegistry,
+      output
+    );
+
+    const results = await installer.installComponents(['my-card'], {
+      force: true,
+    });
+
+    // Should still skip -- force bypasses prompts, not identity checks
+    expect(results[0].skipped).toBe(true);
+  });
+
+  it('shows diffs for multiple modified files', async () => {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    // Pre-create component with both files different
+    const componentDir = path.join(tempDir, 'src/components/MyCard');
+    await fs.ensureDir(componentDir);
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.tsx'),
+      '// user modified component',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.css'),
+      '/* user modified css */',
+      'utf-8'
+    );
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      baseRegistry,
+      output
+    );
+
+    await installer.installComponents(['my-card'], { force: true });
+
+    const warnCalls = vi.mocked(output.warn).mock.calls.flat();
+
+    // Both files shown as modified
+    expect(
+      warnCalls.some((c) => c.includes('Modified') && c.includes('MyCard.tsx'))
+    ).toBe(true);
+    expect(
+      warnCalls.some((c) => c.includes('Modified') && c.includes('MyCard.css'))
+    ).toBe(true);
   });
 
   // ── Edge: Community component without CSS ──

@@ -118,7 +118,9 @@ export async function updateCommand(
 
         // Show diff for updated files
         if (
-          (file.status === 'safe-overwrite' || file.status === 'clean-merge') &&
+          (file.status === 'safe-overwrite' ||
+            file.status === 'clean-merge' ||
+            file.status === 'conflict') &&
           file.previousContent != null &&
           file.newContent != null
         ) {
@@ -249,8 +251,7 @@ async function processComponent(
     }
 
     const result = mergeFile(base, ours, theirs, spec.fileName);
-    result.previousContent = ours;
-    mergeResults.push(result);
+    mergeResults.push({ ...result, previousContent: ours });
   }
 
   // Handle no-snapshot-differ: prompt user

@@ -2030,14 +2030,14 @@ npx kigumi add <component...> [options]
 
 | Flag | Description |
 |------|-------------|
-| `--overwrite` | Overwrite existing components |
+| `--force` | Overwrite existing components |
 | `--from <registry>` | Install from community registry |
 | `--all` | Add all available components |
 
 Examples:
 ```bash
 npx kigumi add button card dialog
-npx kigumi add button --overwrite
+npx kigumi add button --force
 npx kigumi add --all
 npx kigumi add custom-card --from my-registry
 ```

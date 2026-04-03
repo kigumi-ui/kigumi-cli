@@ -782,7 +782,7 @@ export function Troubleshooting() {
             <div className="wa-stack wa-gap-m">
               <p>
                 If you've customized a generated component and then ran{' '}
-                <code>kigumi add --overwrite</code>, your changes may have been
+                <code>kigumi add --force</code>, your changes may have been
                 replaced. Before overwriting, use <code>kigumi diff</code> to
                 preview what would change:
               </p>
@@ -809,34 +809,14 @@ export function Troubleshooting() {
                   </span>
                 </div>
               </Card>
-              <p>For a detailed line-by-line comparison:</p>
-              <Card appearance="outlined" style={{ '--spacing': '0' }}>
-                <div
-                  className="wa-flank:end wa-align-items-center wa-gap-xs"
-                  style={{ position: 'relative' }}
-                >
-                  <pre>
-                    <code>npx kigumi diff --verbose</code>
-                  </pre>
-                  <span
-                    style={{
-                      position: 'absolute',
-                      right: 'var(--wa-space-xs)',
-                      top: '0',
-                      bottom: '0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <CopyButton value="npx kigumi diff --verbose" />
-                  </span>
-                </div>
-              </Card>
+              <p>
+                This shows a line-by-line comparison of your local file against
+                the current template output.
+              </p>
               <p>
                 <strong>Tip:</strong> Back up your changes before running{' '}
-                <code>--overwrite</code>. We're working on a smarter merge flow
-                — for now, <code>kigumi diff</code> is the best way to check
+                <code>--force</code>. We're working on a smarter merge flow —
+                for now, <code>kigumi diff</code> is the best way to check
                 before you overwrite.
               </p>
             </div>

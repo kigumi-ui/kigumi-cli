@@ -26,8 +26,9 @@ describe('renderDiff', () => {
     expect(renderDiff(content, content, 'test.ts')).toBe('');
   });
 
-  it('returns empty string for whitespace-only differences', () => {
-    expect(renderDiff('hello\n', 'hello', 'test.ts')).toBe('');
+  it('returns non-empty diff for whitespace-only differences', () => {
+    const result = renderDiff('hello\n', 'hello', 'test.ts');
+    expect(result).not.toBe('');
   });
 
   it('returns empty string when both inputs are empty', () => {

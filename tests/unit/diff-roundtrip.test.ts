@@ -201,6 +201,10 @@ describe('diff roundtrip', () => {
       'Button.css': '/* generated css */',
     });
 
+    // Ensure template mock returns default value (may have been overridden by prior tests)
+    const { generateComponent } = await import('../../src/utils/template.js');
+    vi.mocked(generateComponent).mockResolvedValue('// generated component');
+
     const { updateCommand } = await import('../../src/commands/update.js');
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const callsBefore = vi.mocked(renderDiff).mock.calls.length;
