@@ -27,6 +27,6 @@ export class {{name}}Component {
   @Input() placement?: 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
 
   create(message?: unknown, options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { create: (message: unknown; options: unknown) => void }).create(message, options);
+    (this.elementRef.nativeElement as unknown as { create: (message: unknown, options: unknown) => void }).create(message, options);
   }
 }

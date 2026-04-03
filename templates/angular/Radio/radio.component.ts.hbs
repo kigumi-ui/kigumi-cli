@@ -58,7 +58,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
     (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
   }
   formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown; reason: unknown) => void }).formStateRestoreCallback(state, reason);
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
     (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
