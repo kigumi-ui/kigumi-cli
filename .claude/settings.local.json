@@ -1,4 +1,13 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm type-check:*)",
+      "Bash(pnpm validate:registry)",
+      "Bash(pnpm validate:templates)"
+    ]
+  },
   "hooks": {
     "Stop": [
       {
