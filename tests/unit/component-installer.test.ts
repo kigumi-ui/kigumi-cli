@@ -59,6 +59,11 @@ vi.mock('../../src/utils/template.js', () => ({
       ) =>
         path.join(cwd, config.componentsDir, comp.name, `${comp.name}.test.tsx`)
     ),
+  getComponentExtension: vi.fn().mockReturnValue('tsx'),
+  getTestExtension: vi.fn().mockReturnValue('test.tsx'),
+  getFileBaseName: vi
+    .fn()
+    .mockImplementation((_fw: string, name: string) => name),
   updateTypeDeclarations: vi.fn().mockResolvedValue(undefined),
   updateComponentIndex: vi.fn().mockResolvedValue(undefined),
 }));

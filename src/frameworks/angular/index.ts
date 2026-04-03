@@ -89,7 +89,7 @@ export class AngularPlugin implements FrameworkPlugin {
     files.push({
       path: path.join(componentDir, `${kebabName}.component.ts`),
       content: componentContent,
-      overwrite: options.overwrite,
+      force: options.force,
     });
 
     // Generate CSS file
@@ -98,7 +98,7 @@ export class AngularPlugin implements FrameworkPlugin {
     files.push({
       path: path.join(componentDir, `${kebabName}.component.css`),
       content: cssContent,
-      overwrite: options.overwrite,
+      force: options.force,
     });
 
     // Generate test file
@@ -108,7 +108,7 @@ export class AngularPlugin implements FrameworkPlugin {
       files.push({
         path: path.join(componentDir, `${kebabName}.component.spec.ts`),
         content: testContent,
-        overwrite: options.overwrite,
+        force: options.force,
       });
     }
 
