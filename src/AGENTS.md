@@ -70,7 +70,7 @@ src/
 │   ├── version.ts        # VersionMismatchError (exit code 7)
 │   └── ...
 ├── output/               # Console formatting (@clack/prompts)
-├── frameworks/           # Framework adapters (React, Vue, Svelte)
+├── frameworks/           # Framework adapters (React, Vue, Angular, Svelte)
 └── checks/               # Pre-flight validation
 ```
 
@@ -142,7 +142,7 @@ Loads/saves `kigumi.config.json`. **Never stores tier** - always detected.
 
 ```typescript
 interface KigumiConfig {
-  framework: 'react' | 'vue' | 'svelte';
+  framework: 'react' | 'vue' | 'angular' | 'svelte';
   typescript: boolean;
   componentsDir: string;
   utilsDir: string;
@@ -205,6 +205,18 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, and `vite-env.d.ts`.
 
 - `layers.css` + `kigumi.ts`: All theme/brand/palette commands
 - `theme.css`: Only `init` (if file doesn't exist)
+
+### `utils/naming.ts` - Naming Conventions
+
+Converts between PascalCase and kebab-case. Used for Angular's lowercase file naming convention (`ButtonGroup` -> `button-group`).
+
+### `utils/template.ts` - Extension Utilities
+
+In addition to Handlebars rendering, exports shared file extension helpers used by all commands:
+
+- `getComponentExtension(framework, typescript)` - e.g. Angular: `component.ts`, Vue: `vue`, React: `tsx`
+- `getTestExtension(framework, typescript)` - e.g. Angular: `component.spec.ts`, Vue: `test.ts`, React: `test.tsx`
+- `getFileBaseName(framework, componentName)` - Angular: kebab-case, others: PascalCase
 
 ---
 
@@ -367,4 +379,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-03-16
+**Last Updated:** 2026-04-03

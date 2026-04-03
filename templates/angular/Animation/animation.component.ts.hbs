@@ -80,9 +80,9 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   cancel(): void {
-    (this.elementRef.nativeElement as unknown as { cancel: Function }).cancel();
+    (this.elementRef.nativeElement as unknown as { cancel: () => void }).cancel();
   }
   finish(): void {
-    (this.elementRef.nativeElement as unknown as { finish: Function }).finish();
+    (this.elementRef.nativeElement as unknown as { finish: () => void }).finish();
   }
 }

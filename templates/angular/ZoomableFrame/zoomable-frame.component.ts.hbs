@@ -73,9 +73,9 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   }
 
   zoomIn(): void {
-    (this.elementRef.nativeElement as unknown as { zoomIn: Function }).zoomIn();
+    (this.elementRef.nativeElement as unknown as { zoomIn: () => void }).zoomIn();
   }
   zoomOut(): void {
-    (this.elementRef.nativeElement as unknown as { zoomOut: Function }).zoomOut();
+    (this.elementRef.nativeElement as unknown as { zoomOut: () => void }).zoomOut();
   }
 }

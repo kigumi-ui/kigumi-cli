@@ -17,7 +17,6 @@ import type {
   ValidationResult,
   ComponentDefinition,
 } from '../types.js';
-import type { ComponentDefinition as RegistryComponentDefinition } from '../../utils/registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,7 +105,7 @@ export class ReactPlugin implements FrameworkPlugin {
 
     // Generate main component file
     const componentContent = await generateComponent(
-      component as unknown as RegistryComponentDefinition,
+      component,
       config,
       options.typescript,
       cwd

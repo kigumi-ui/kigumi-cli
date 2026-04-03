@@ -15,6 +15,9 @@
  * - generateComponentTest() - Generate test file (content + write)
  * - getComponentCSSPath() - Get CSS file path for a component
  * - getComponentTestPath() - Get test file path for a component
+ * - getComponentExtension() - Get component file extension for framework
+ * - getTestExtension() - Get test file extension for framework
+ * - getFileBaseName() - Get file base name (kebab for Angular, PascalCase otherwise)
  *
  * @see AGENTS.md Rule #2 for templates-first development
  */
@@ -149,7 +152,10 @@ export function buildTemplateContext(
 /**
  * Get file extension for component based on framework and typescript setting
  */
-function getComponentExtension(framework: string, typescript: boolean): string {
+export function getComponentExtension(
+  framework: string,
+  typescript: boolean
+): string {
   if (framework === 'angular') {
     return 'component.ts';
   }
@@ -162,7 +168,10 @@ function getComponentExtension(framework: string, typescript: boolean): string {
 /**
  * Get test file extension based on framework and typescript setting
  */
-function getTestExtension(framework: string, typescript: boolean): string {
+export function getTestExtension(
+  framework: string,
+  typescript: boolean
+): string {
   if (framework === 'angular') {
     return 'component.spec.ts';
   }
@@ -170,6 +179,16 @@ function getTestExtension(framework: string, typescript: boolean): string {
     return typescript ? 'test.ts' : 'test.js';
   }
   return typescript ? 'test.tsx' : 'test.jsx';
+}
+
+/**
+ * Get the base file name for a component (Angular uses kebab-case, others use PascalCase)
+ */
+export function getFileBaseName(
+  framework: string,
+  componentName: string
+): string {
+  return framework === 'angular' ? toKebabCase(componentName) : componentName;
 }
 
 /**

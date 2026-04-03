@@ -341,7 +341,7 @@ function printResults(result: ValidationResult): void {
   console.log(`  Free components:  ${result.stats.freeComponents}`);
   console.log(`  Pro components:   ${result.stats.proComponents}`);
   console.log(
-    `  Validated templates: ${result.stats.validatedTemplates * 3} frameworks × ${result.stats.validatedTemplates} components`
+    `  Validated templates: ${result.stats.validatedTemplates} components across 3 frameworks (${result.stats.validatedTemplates * 3} total)`
   );
   console.log('');
 

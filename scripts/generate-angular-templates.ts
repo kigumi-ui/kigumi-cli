@@ -315,6 +315,11 @@ function generateComponentTS(
       lines.push(
         "    this.cleanups.push(() => el.removeEventListener('change', handleCheckedChange));"
       );
+      lines.push('    const handleBlurTouch = () => this.onTouchedCallback();');
+      lines.push("    el.addEventListener('blur', handleBlurTouch);");
+      lines.push(
+        "    this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));"
+      );
     }
 
     lines.push('  }');
@@ -368,16 +373,25 @@ function generateComponentTS(
   if (methods.length > 0) {
     lines.push('');
     for (const method of methods) {
+      const argNames = method.signature
+        ? method.signature
+            .split(',')
+            .map((p) => p.split(':')[0].replace('?', '').trim())
+            .join(', ')
+        : '';
+      const argTypes = method.signature
+        ? method.signature
+            .split(',')
+            .map((p) => {
+              const parts = p.trim().split(':');
+              const paramName = parts[0].replace('?', '').trim();
+              return `${paramName}: ${parts[1]?.trim() || 'unknown'}`;
+            })
+            .join('; ')
+        : '';
       lines.push(`  ${method.name}(${method.signature}): void {`);
       lines.push(
-        `    (this.elementRef.nativeElement as unknown as { ${method.name}: Function }).${method.name}(${
-          method.signature
-            ? method.signature
-                .split(',')
-                .map((p) => p.split(':')[0].replace('?', '').trim())
-                .join(', ')
-            : ''
-        });`
+        `    (this.elementRef.nativeElement as unknown as { ${method.name}: (${argTypes}) => void }).${method.name}(${argNames});`
       );
       lines.push('  }');
     }

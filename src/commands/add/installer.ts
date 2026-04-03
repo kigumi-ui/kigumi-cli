@@ -27,6 +27,9 @@ import {
   generateComponentTestContent,
   getComponentCSSPath,
   getComponentTestPath,
+  getComponentExtension,
+  getTestExtension,
+  getFileBaseName,
   updateTypeDeclarations,
   updateComponentIndex,
 } from '../../utils/template.js';
@@ -38,8 +41,7 @@ import {
 import { saveSnapshot } from '../../utils/snapshot.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
-import type { KigumiConfig } from '../../utils/config.js';
-import { toKebabCase } from '../../utils/naming.js';
+import type { KigumiConfig } from '../../schemas/config.js';
 
 export interface InstallResult {
   name: string;
@@ -122,25 +124,16 @@ export class ComponentInstaller {
       this.cwd
     );
 
-    const ext =
-      this.config.framework === 'angular'
-        ? 'component.ts'
-        : this.config.framework === 'vue'
-          ? this.config.typescript
-            ? 'vue'
-            : 'js.vue'
-          : this.config.typescript
-            ? 'tsx'
-            : 'jsx';
+    const ext = getComponentExtension(
+      this.config.framework,
+      this.config.typescript
+    );
     const componentDir = path.join(
       this.cwd,
       this.config.componentsDir,
       component.name
     );
-    const fileName =
-      this.config.framework === 'angular'
-        ? toKebabCase(component.name)
-        : component.name;
+    const fileName = getFileBaseName(this.config.framework, component.name);
     const componentPath = path.join(componentDir, `${fileName}.${ext}`);
     const cssPath = getComponentCSSPath(component, this.config, this.cwd);
 
@@ -233,24 +226,18 @@ export class ComponentInstaller {
     // Save snapshot for three-way merge support (kigumi update)
     // Only for builtin template-generated components, not community --from installs
     if (!options.from) {
-      const testExt =
-        this.config.framework === 'angular'
-          ? 'component.spec.ts'
-          : this.config.framework === 'vue'
-            ? this.config.typescript
-              ? 'test.ts'
-              : 'test.js'
-            : this.config.typescript
-              ? 'test.tsx'
-              : 'test.jsx';
+      const testExt = getTestExtension(
+        this.config.framework,
+        this.config.typescript
+      );
 
-      const snapshotFileName =
-        this.config.framework === 'angular'
-          ? toKebabCase(component.name)
-          : component.name;
+      const snapshotFileName = getFileBaseName(
+        this.config.framework,
+        component.name
+      );
       const snapshotCSSName =
         this.config.framework === 'angular'
-          ? `${toKebabCase(component.name)}.component.css`
+          ? `${snapshotFileName}.component.css`
           : `${component.name}.css`;
 
       await saveSnapshot(this.cwd, component.name, {

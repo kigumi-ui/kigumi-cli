@@ -25,7 +25,7 @@ const definedProps = computed(() => {
 const elementRef = ref<WaElement | null>(null);
 
 defineExpose({
-  create: (message: string, options: ToastCreateOptions) => elementRef.value?.create?.(message, options),
+  create: (message: string, options?: Record<string, unknown>) => elementRef.value?.create?.(message, options),
   element: elementRef,
 });
 </script>

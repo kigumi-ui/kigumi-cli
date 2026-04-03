@@ -65,12 +65,24 @@ vi.mock('../../src/output/index.js', () => ({
   ConsoleOutput: vi.fn(),
 }));
 
-// Mock template generation
-vi.mock('../../src/utils/template.js', () => ({
-  generateComponent: vi.fn().mockResolvedValue('// generated component'),
-  generateComponentCSSContent: vi.fn().mockResolvedValue('/* generated css */'),
-  generateComponentTestContent: vi.fn().mockResolvedValue('// generated test'),
-}));
+// Mock template generation (pass through real utility functions)
+vi.mock('../../src/utils/template.js', async () => {
+  const actual = await vi.importActual<
+    typeof import('../../src/utils/template.js')
+  >('../../src/utils/template.js');
+  return {
+    generateComponent: vi.fn().mockResolvedValue('// generated component'),
+    generateComponentCSSContent: vi
+      .fn()
+      .mockResolvedValue('/* generated css */'),
+    generateComponentTestContent: vi
+      .fn()
+      .mockResolvedValue('// generated test'),
+    getComponentExtension: actual.getComponentExtension,
+    getTestExtension: actual.getTestExtension,
+    getFileBaseName: actual.getFileBaseName,
+  };
+});
 
 // Mock registry
 vi.mock('../../src/utils/registry.js', () => ({
