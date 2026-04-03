@@ -53,6 +53,20 @@ function compareSemver(a: string, b: string): number {
  */
 export const VERSION_MAP: VersionEntry[] = [
   {
+    kigumiVersion: '0.19.0',
+    webAwesomeVersion: '^3.5.0',
+    releasedAt: '2026-04-03',
+    breakingChanges: [
+      {
+        description:
+          'Combobox: `autocomplete` prop removed (WA 3.4.0 dropped the attribute)',
+        affectedComponents: ['combobox'],
+        migrationGuide:
+          'Remove the `autocomplete` prop from Combobox. Filtering is now automatic. Use `allow-create` for custom entries.',
+      },
+    ],
+  },
+  {
     kigumiVersion: '0.18.0',
     webAwesomeVersion: '^3.4.0',
     releasedAt: '2026-03-25',

@@ -1,0 +1,49 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+import './Markdown.css';
+
+/**
+ * Renders markdown content in plain HTML
+ */
+export interface MarkdownProps {
+  'tab-size'?: number;
+}
+
+const props = defineProps<MarkdownProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+type MarkdownElement = WaElement & {
+  renderMarkdown?: () => void;
+  getMarked?: () => unknown;
+  constructor: { updateAll?: () => void };
+};
+
+const elementRef = ref<MarkdownElement | null>(null);
+
+defineExpose({
+  renderMarkdown: () => elementRef.value?.renderMarkdown?.(),
+  getMarked: () => elementRef.value?.getMarked?.(),
+  updateAll: () => (elementRef.value?.constructor as { updateAll?: () => void })?.updateAll?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-markdown
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="['Markdown', $attrs.class]"
+  >
+    <slot />
+  </wa-markdown>
+</template>

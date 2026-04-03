@@ -1,0 +1,20 @@
+import React from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import './Markdown.css';
+
+export const Markdown = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <wa-markdown
+        ref={ref}
+        class={clsx('Markdown', className)}
+        {...props}
+      >
+        {children}
+      </wa-markdown>
+    );
+  }
+);
+
+Markdown.displayName = 'Markdown';

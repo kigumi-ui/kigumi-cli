@@ -39,11 +39,18 @@ const meta = {
       description: 'Visual appearance style',
       table: { defaultValue: { summary: 'outlined' } },
     },
-    autocomplete: {
+    'allow-create': {
+      control: 'boolean',
+      description: 'Allows creating new options not in the list',
+    },
+    autocapitalize: {
       control: 'select',
-      options: ['list', 'none'],
-      description: 'Autocomplete behavior',
-      table: { defaultValue: { summary: 'list' } },
+      options: ['off', 'none', 'on', 'sentences', 'words', 'characters'],
+      description: 'Controls autocapitalization',
+    },
+    autocorrect: {
+      control: 'boolean',
+      description: 'Enable or disable autocorrect',
     },
     disabled: {
       control: 'boolean',
@@ -95,6 +102,29 @@ const meta = {
       control: 'boolean',
       description: 'Shows clear button',
       table: { defaultValue: { summary: 'false' } },
+    },
+    enterkeyhint: {
+      control: 'select',
+      options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+      description: 'Keyboard Enter key label',
+    },
+    inputmode: {
+      control: 'select',
+      options: [
+        'none',
+        'text',
+        'decimal',
+        'numeric',
+        'tel',
+        'search',
+        'email',
+        'url',
+      ],
+      description: 'Virtual keyboard type',
+    },
+    spellcheck: {
+      control: 'boolean',
+      description: 'Enable or disable spellchecking',
     },
     value: { control: 'text', description: 'Current value of the combobox' },
     onInput: {
@@ -150,6 +180,11 @@ const meta = {
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
+    onCreate: {
+      action: 'wa-create',
+      description: 'Emitted when creating new option via allow-create',
+      table: { category: 'Events' },
+    },
   },
   args: {
     onInput: fn(),
@@ -162,6 +197,7 @@ const meta = {
     onHide: fn(),
     onAfterHide: fn(),
     onInvalid: fn(),
+    onCreate: fn(),
   },
 } satisfies Meta<typeof Combobox>;
 

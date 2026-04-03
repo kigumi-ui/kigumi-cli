@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- **Combobox**: `autocomplete` prop removed (dropped in Web Awesome 3.4.0). Filtering is now automatic. Use `allow-create` for custom entries.
+
+### Added
+
+- **Web Awesome 3.5.0**: Upgrade dependency from ^3.4.0 to ^3.5.0
+- **New component: Markdown**: Renders markdown content in plain HTML (`wa-markdown`, free tier, experimental)
+- **Combobox**: New props `allow-create`, `autocapitalize`, `autocorrect`, `enterkeyhint`, `inputmode`, `spellcheck`; new `onCreate` event for custom option creation
+- **ColorPicker**: New `placement` prop for panel positioning
+- **Textarea**: New `with-count` prop for character count display (requires `maxlength`)
+- **Rating**: Now form-associated with new `name` and `required` props for form submission
+- **CopyButton**: Default slot now supports custom button content
+
+### Changed
+
+- **Page**: Component moved from Pro-only to Free tier (now available to all users)
+
 ### Added
 
 - Visual diff output in `kigumi update` and `kigumi add --force` showing colored line-by-line changes

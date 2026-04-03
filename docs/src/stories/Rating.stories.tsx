@@ -34,6 +34,11 @@ const meta = {
       description: 'Disables the rating',
       table: { defaultValue: { summary: 'false' } },
     },
+    name: { control: 'text', description: 'Form field name' },
+    required: {
+      control: 'boolean',
+      description: 'Required for form submission',
+    },
     size: {
       control: 'select',
       options: ['small', 'medium', 'large'],
@@ -51,10 +56,16 @@ const meta = {
         "Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value.",
       table: { category: 'Events' },
     },
+    onInvalid: {
+      action: 'wa-invalid',
+      description: 'Emitted on invalid form state',
+      table: { category: 'Events' },
+    },
   },
   args: {
     onChange: fn(),
     onHover: fn(),
+    onInvalid: fn(),
   },
 } satisfies Meta<typeof Rating>;
 

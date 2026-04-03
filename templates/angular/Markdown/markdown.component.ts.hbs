@@ -1,0 +1,34 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+
+/**
+ * Renders markdown content in plain HTML
+ *
+ * @see https://webawesome.com/docs/components/markdown
+ */
+@Component({
+  selector: 'k-markdown',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <{{tagName}}
+        #el
+        [attr.tab-size]="tabSize">
+      <ng-content></ng-content>
+    </{{tagName}}>
+  `,
+  styleUrl: './markdown.component.css',
+})
+export class {{name}}Component {
+  @ViewChild('el') elementRef!: ElementRef<WaElement>;
+
+  /** Tab stop width for whitespace normalization */
+  @Input('tab-size') tabSize?: number;
+
+  /** Re-renders the markdown content */
+  renderMarkdown(): void {
+    const el = this.elementRef?.nativeElement as unknown as { renderMarkdown?: () => void };
+    el?.renderMarkdown?.();
+  }
+}

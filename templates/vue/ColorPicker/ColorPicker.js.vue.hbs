@@ -19,7 +19,8 @@ const props = defineProps({
     swatches: { type: String, required: false, default: '' },
     uppercase: { type: Boolean, required: false, default: false },
     'without-format-toggle': { type: Boolean, required: false, default: false },
-    inline: { type: Boolean, required: false, default: false }
+    inline: { type: Boolean, required: false, default: false },
+    placement: { type: String, required: false }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

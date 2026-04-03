@@ -76,7 +76,6 @@ export const TIER_RESTRICTIONS: TierRestrictions = {
   components: {
     free: [], // Will be dynamically populated (all components except pro-only)
     pro: [
-      'page',
       'charts',
       'combobox',
       'data-grid',

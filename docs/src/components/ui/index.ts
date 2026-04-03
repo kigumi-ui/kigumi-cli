@@ -26,6 +26,7 @@ export * from './Icon/Icon';
 export * from './Include/Include';
 export * from './Input/Input';
 export * from './IntersectionObserver/IntersectionObserver';
+export * from './Markdown/Markdown';
 export * from './MutationObserver/MutationObserver';
 export * from './Option/Option';
 export * from './Popover/Popover';

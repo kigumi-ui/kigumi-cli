@@ -120,7 +120,6 @@ describe('tier restrictions', () => {
     });
 
     it('should deny pro-only components for free tier', () => {
-      expect(isComponentAvailable('page', 'free')).toBe(false);
       expect(isComponentAvailable('charts', 'free')).toBe(false);
       expect(isComponentAvailable('combobox', 'free')).toBe(false);
       expect(isComponentAvailable('data-grid', 'free')).toBe(false);
@@ -138,7 +137,6 @@ describe('tier restrictions', () => {
       expect(isComponentAvailable('dialog', 'pro')).toBe(true);
 
       // Pro-only components
-      expect(isComponentAvailable('page', 'pro')).toBe(true);
       expect(isComponentAvailable('charts', 'pro')).toBe(true);
       expect(isComponentAvailable('combobox', 'pro')).toBe(true);
       expect(isComponentAvailable('data-grid', 'pro')).toBe(true);
@@ -149,10 +147,10 @@ describe('tier restrictions', () => {
     });
 
     it('should handle case-insensitive component names', () => {
-      expect(isComponentAvailable('PAGE', 'free')).toBe(false);
-      expect(isComponentAvailable('Page', 'free')).toBe(false);
-      expect(isComponentAvailable('PAGE', 'pro')).toBe(true);
-      expect(isComponentAvailable('Page', 'pro')).toBe(true);
+      expect(isComponentAvailable('CHARTS', 'free')).toBe(false);
+      expect(isComponentAvailable('Charts', 'free')).toBe(false);
+      expect(isComponentAvailable('CHARTS', 'pro')).toBe(true);
+      expect(isComponentAvailable('Charts', 'pro')).toBe(true);
     });
 
     it('should allow unknown components (assumed free)', () => {
@@ -253,7 +251,6 @@ describe('tier restrictions', () => {
       // For free tier, it returns pro-only components (what's NOT available)
       const components = getAvailableComponents('free');
 
-      expect(components).toContain('page');
       expect(components).toContain('charts');
       expect(components).toContain('combobox');
       expect(components).toContain('data-grid');
@@ -283,9 +280,8 @@ describe('tier restrictions', () => {
       );
     });
 
-    it('should have 10 pro-only components', () => {
-      expect(TIER_RESTRICTIONS.components.pro).toHaveLength(10);
-      expect(TIER_RESTRICTIONS.components.pro).toContain('page');
+    it('should have 9 pro-only components', () => {
+      expect(TIER_RESTRICTIONS.components.pro).toHaveLength(9);
       expect(TIER_RESTRICTIONS.components.pro).toContain('charts');
       expect(TIER_RESTRICTIONS.components.pro).toContain('combobox');
       expect(TIER_RESTRICTIONS.components.pro).toContain('data-grid');

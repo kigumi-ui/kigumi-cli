@@ -9,9 +9,11 @@ import './Rating.css';
  */
 export interface RatingProps {
   label?: string;
+  name?: string;
   max?: number;
   precision?: number;
   readonly?: boolean;
+  required?: boolean;
   disabled?: boolean;
   size?: 'small' | 'medium' | 'large';
 }

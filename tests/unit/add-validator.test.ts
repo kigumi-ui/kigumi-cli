@@ -31,7 +31,7 @@ describe('add validator', () => {
     });
 
     it('should pass validation for pro components with pro tier', async () => {
-      const components = ['page', 'combobox'];
+      const components = ['combobox', 'file-input'];
 
       await expect(
         validateComponents(components, 'pro', output)
@@ -47,7 +47,7 @@ describe('add validator', () => {
     });
 
     it('should throw TierRestrictionError for pro components with free tier', async () => {
-      const components = ['page']; // Pro-only component
+      const components = ['combobox']; // Pro-only component
 
       await expect(
         validateComponents(components, 'free', output)
@@ -55,7 +55,7 @@ describe('add validator', () => {
     });
 
     it('should throw TierRestrictionError for multiple pro components with free tier', async () => {
-      const components = ['page', 'combobox', 'file-input']; // Pro-only components
+      const components = ['combobox', 'file-input', 'number-input']; // Pro-only components
 
       await expect(
         validateComponents(components, 'free', output)
@@ -90,7 +90,6 @@ describe('add validator', () => {
     it('should validate all pro-only components correctly', async () => {
       // All actual pro-only components in registry
       const proComponents = [
-        'page',
         'combobox',
         'file-input',
         'number-input',
@@ -113,7 +112,7 @@ describe('add validator', () => {
     });
 
     it('should provide helpful error message for tier restriction', async () => {
-      const components = ['page'];
+      const components = ['combobox'];
 
       try {
         await validateComponents(components, 'free', output);
@@ -122,7 +121,7 @@ describe('add validator', () => {
         expect(error).toBeInstanceOf(TierRestrictionError);
         if (error instanceof TierRestrictionError) {
           expect(error.message.toLowerCase()).toContain('pro');
-          expect(error.message).toContain('Page');
+          expect(error.message).toContain('Combobox');
         }
       }
     });

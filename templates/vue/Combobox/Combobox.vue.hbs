@@ -9,11 +9,15 @@ import './Combobox.css';
  */
 export interface ComboboxProps {
   'allow-custom-value'?: boolean;
+  'allow-create'?: boolean;
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
-  autocomplete?: 'list' | 'none';
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  autocorrect?: boolean;
   disabled?: boolean;
+  enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
   hint?: string;
   label?: string;
+  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
   'max-options-visible'?: number;
   multiple?: boolean;
   name?: string;
@@ -23,6 +27,7 @@ export interface ComboboxProps {
   placement?: 'top' | 'bottom';
   required?: boolean;
   size?: 'small' | 'medium' | 'large';
+  spellcheck?: boolean;
   'with-clear'?: boolean;
 }
 
@@ -48,6 +53,7 @@ const emit = defineEmits<{
   'wa-hide': [event: CustomEvent];
   'wa-after-hide': [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
+  'wa-create': [event: CustomEvent];
 }>();
 
 const model = defineModel<string>();
@@ -69,6 +75,7 @@ const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
 const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
 const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaCreate = (e: Event) => emit('wa-create', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -84,6 +91,7 @@ onMounted(() => {
   el.addEventListener('wa-hide', handleWaHide);
   el.addEventListener('wa-after-hide', handleWaAfterHide);
   el.addEventListener('wa-invalid', handleWaInvalid);
+  el.addEventListener('wa-create', handleWaCreate);
 });
 
 onUnmounted(() => {
@@ -100,6 +108,7 @@ onUnmounted(() => {
   el.removeEventListener('wa-hide', handleWaHide);
   el.removeEventListener('wa-after-hide', handleWaAfterHide);
   el.removeEventListener('wa-invalid', handleWaInvalid);
+  el.removeEventListener('wa-create', handleWaCreate);
 });
 
 defineExpose({

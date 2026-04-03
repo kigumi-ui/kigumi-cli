@@ -60,6 +60,9 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onC
   /** Inline display (always visible) */
   inline?: boolean;
 
+  /** Preferred placement of the color picker panel */
+  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+
   /** Displays hex values in uppercase */
   uppercase?: boolean;
 

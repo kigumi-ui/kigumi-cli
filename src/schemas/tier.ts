@@ -60,7 +60,6 @@ export const AVAILABLE_BRAND_COLORS = [
  * Pro-only components
  */
 export const PRO_COMPONENTS = [
-  'page',
   'charts',
   'combobox',
   'data-grid',

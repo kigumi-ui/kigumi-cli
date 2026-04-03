@@ -73,6 +73,9 @@ export interface TextareaProps extends Omit<
   /** Maximum length */
   maxlength?: number;
 
+  /** Shows a character count when maxlength is set */
+  'with-count'?: boolean;
+
   /** Enable spell checking */
   spellcheck?: boolean;
 
