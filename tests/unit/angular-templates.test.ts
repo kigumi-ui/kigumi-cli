@@ -63,9 +63,17 @@ describe('Angular template generator', () => {
     // afterShow/afterHide are events with no matching method
     expect(dialog).toContain('@Output() afterShow');
     expect(dialog).toContain('@Output() afterHide');
-    // Should NOT be suffixed
     expect(dialog).not.toContain('@Output() afterShowEvent');
     expect(dialog).not.toContain('@Output() afterHideEvent');
+
+    // Details has both renamed (showEvent/hideEvent) and non-renamed (afterShow/afterHide)
+    const details = readTemplate('Details');
+    expect(details).toContain('@Output() showEvent');
+    expect(details).toContain('@Output() hideEvent');
+    expect(details).toContain('@Output() afterShow');
+    expect(details).toContain('@Output() afterHide');
+    expect(details).not.toContain('@Output() afterShowEvent');
+    expect(details).not.toContain('@Output() afterHideEvent');
   });
 
   // A4: inputEvent preserved (collision with @Input decorator)
