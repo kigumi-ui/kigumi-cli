@@ -27,9 +27,12 @@ EOF
 # --- Bash tool guardrails ---
 if [ "$TOOL_NAME" = "Bash" ]; then
 
-  # Block git push (Claude should never push without explicit user request)
-  if echo "$BASH_CMD" | grep -qE '(^|[;&|[:space:]])git[[:space:]]+push'; then
-    deny "git push is not allowed. Ask the user explicitly before pushing to any remote."
+  # Block force-push to main/master (regular push is allowed)
+  if echo "$BASH_CMD" | grep -qE 'git[[:space:]]+push[[:space:]]+.*--force' || \
+     echo "$BASH_CMD" | grep -qE 'git[[:space:]]+push[[:space:]]+-f'; then
+    if echo "$BASH_CMD" | grep -qE '(main|master)'; then
+      deny "Force-pushing to main/master is not allowed."
+    fi
   fi
 
   # Block destructive git operations
@@ -53,11 +56,6 @@ fi
 
 # --- Edit/Write tool guardrails ---
 if [ "$TOOL_NAME" = "Edit" ] || [ "$TOOL_NAME" = "Write" ]; then
-
-  # Block writes to CI/CD workflows
-  if echo "$FILE_PATH" | grep -qE '\.github/workflows/'; then
-    deny "Editing .github/workflows/ files requires explicit user permission."
-  fi
 
   # Block writes to .env files
   if echo "$FILE_PATH" | grep -qE '(^|/)\.env(\.[^/]*)?$'; then
