@@ -65,6 +65,11 @@ vi.mock('../../src/utils/template.js', () => ({
   generateComponent: vi.fn().mockResolvedValue('// generated component'),
   generateComponentCSSContent: vi.fn().mockResolvedValue('/* generated css */'),
   generateComponentTestContent: vi.fn().mockResolvedValue('// generated test'),
+  getComponentExtension: vi.fn().mockReturnValue('tsx'),
+  getTestExtension: vi.fn().mockReturnValue('test.tsx'),
+  getFileBaseName: vi
+    .fn()
+    .mockImplementation((_fw: string, name: string) => name),
 }));
 
 vi.mock('../../src/utils/registry.js', () => ({
