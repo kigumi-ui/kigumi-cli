@@ -29,10 +29,13 @@ import './Rating.css';
  */
 export interface RatingProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onChange' | 'onHover' | 'dir'
+  'onChange' | 'onHover' | 'onInvalid' | 'dir'
 > {
   /** Accessible label */
   label?: string;
+
+  /** Form field name */
+  name?: string;
 
   /** Current rating value */
   value?: number;
@@ -49,6 +52,9 @@ export interface RatingProps extends Omit<
   /** Makes the rating readonly */
   readonly?: boolean;
 
+  /** Makes the rating required for form submission */
+  required?: boolean;
+
   /** Disables the rating */
   disabled?: boolean;
 
@@ -57,6 +63,9 @@ export interface RatingProps extends Omit<
 
   /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
   onHover?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface RatingRef {
@@ -70,7 +79,7 @@ export interface RatingRef {
 }
 
 export const Rating = forwardRef<RatingRef, RatingProps>(
-  ({ children, className, onChange, onHover, ...props }, ref) => {
+  ({ children, className, onChange, onHover, onInvalid, ...props }, ref) => {
     const ratingRef = useRef<
       HTMLElement & {
         focus?: (options: FocusOptions) => void;
@@ -116,14 +125,20 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
         if (onHover) onHover(e as CustomEvent);
       };
 
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
       el.addEventListener('change', handleChange);
       el.addEventListener('wa-hover', handleHover);
+      el.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
         el.removeEventListener('wa-hover', handleHover);
+        el.removeEventListener('wa-invalid', handleInvalid);
       };
-    }, [onChange, onHover]);
+    }, [onChange, onHover, onInvalid]);
 
     return (
       <wa-rating

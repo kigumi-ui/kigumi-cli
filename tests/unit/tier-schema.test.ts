@@ -104,12 +104,12 @@ describe('isComponentAllowedForTier', () => {
   });
 
   it('disallows pro components for free tier', () => {
-    expect(isComponentAllowedForTier('page', 'free')).toBe(false);
     expect(isComponentAllowedForTier('combobox', 'free')).toBe(false);
+    expect(isComponentAllowedForTier('charts', 'free')).toBe(false);
   });
 
   it('allows everything for pro tier', () => {
-    expect(isComponentAllowedForTier('page', 'pro')).toBe(true);
+    expect(isComponentAllowedForTier('combobox', 'pro')).toBe(true);
     expect(isComponentAllowedForTier('button', 'pro')).toBe(true);
   });
 });
@@ -146,8 +146,8 @@ describe('getAvailableBrandColors', () => {
 
 describe('isProComponent', () => {
   it('identifies pro components', () => {
-    expect(isProComponent('page')).toBe(true);
     expect(isProComponent('combobox')).toBe(true);
+    expect(isProComponent('charts')).toBe(true);
   });
 
   it('identifies free components', () => {
@@ -158,7 +158,7 @@ describe('isProComponent', () => {
 describe('getProComponents', () => {
   it('returns all pro components', () => {
     const pros = getProComponents();
-    expect(pros).toContain('page');
+    expect(pros).toContain('combobox');
     expect(pros.length).toBe(PRO_COMPONENTS.length);
   });
 });
@@ -184,20 +184,22 @@ describe('validateComponentForTier', () => {
   });
 
   it('returns not allowed for pro component on free tier', () => {
-    const result = validateComponentForTier('page', 'free');
+    const result = validateComponentForTier('combobox', 'free');
     expect(result.allowed).toBe(false);
     expect(result.requiredTier).toBe('pro');
   });
 
   it('returns allowed for pro component on pro tier', () => {
-    expect(validateComponentForTier('page', 'pro')).toEqual({ allowed: true });
+    expect(validateComponentForTier('combobox', 'pro')).toEqual({
+      allowed: true,
+    });
   });
 });
 
 describe('validateComponentsForTier', () => {
   it('validates multiple components', () => {
     const results = validateComponentsForTier(
-      ['button', 'page', 'dialog'],
+      ['button', 'combobox', 'dialog'],
       'free'
     );
     expect(results).toHaveLength(3);
@@ -207,7 +209,7 @@ describe('validateComponentsForTier', () => {
   });
 
   it('all allowed for pro tier', () => {
-    const results = validateComponentsForTier(['page', 'combobox'], 'pro');
+    const results = validateComponentsForTier(['charts', 'combobox'], 'pro');
     expect(results.every((r) => r.result.allowed)).toBe(true);
   });
 });

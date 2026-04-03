@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@awesome.me/webawesome-pro':
-        specifier: ^3.3.1
-        version: 3.3.1(@floating-ui/utils@0.2.10)(@types/react@19.2.14)
+        specifier: ^3.5.0
+        version: 3.5.0(@floating-ui/utils@0.2.10)(@types/react@19.2.14)
       '@storybook/addon-themes':
         specifier: ^10.2.11
         version: 10.2.11(storybook@10.2.10(@testing-library/dom@10.4.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
@@ -135,8 +135,8 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@awesome.me/webawesome-pro@3.3.1':
-    resolution: {integrity: sha512-MeDDXApCmMboDNBVeRiCf2HWEmu0hFLz81etmPuP+VQkxe9cdGKlUmiBpxLjv5C1ma6UaVQ1izcx5Zffeh0zGA==}
+  '@awesome.me/webawesome-pro@3.5.0':
+    resolution: {integrity: sha512-+oAk/U32D2T/OM+UGtal1XIvnW6g9Vs7/c2kMqOJnmGlko1EnAXR5ciIN/kofz40sxv+YpkKs1PvRn3lcVVpKA==}
     engines: {node: '>=14.17.0'}
 
   '@babel/code-frame@7.29.0':
@@ -1704,6 +1704,11 @@ packages:
   map-or-similar@1.5.0:
     resolution: {integrity: sha512-0aF7ZmVon1igznGI4VS30yugpduQW3y3GkcgGJOp7d8x8QrizhigUxjI/m2UojsXXto+jLAH3KSz+xOJTiORjg==}
 
+  marked@11.2.0:
+    resolution: {integrity: sha512-HR0m3bvu0jAPYiIvLUUQtdg1g6D247//lvcekpHO1WMvbwDlwSkZAX9Lw4F4YHE1T0HaaNve0tuAWuV1UJ6vtw==}
+    engines: {node: '>= 18'}
+    hasBin: true
+
   mdast-util-from-markdown@2.0.3:
     resolution: {integrity: sha512-W4mAWTvSlKvf8L6J+VN9yLSqQ9AOAAvHuoDAmPkz4dHf553m5gVj2ejadHJhoJmcmxEnOv6Pa8XJhpxE93kb8Q==}
 
@@ -2443,7 +2448,7 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@awesome.me/webawesome-pro@3.3.1(@floating-ui/utils@0.2.10)(@types/react@19.2.14)':
+  '@awesome.me/webawesome-pro@3.5.0(@floating-ui/utils@0.2.10)(@types/react@19.2.14)':
     dependencies:
       '@ctrl/tinycolor': 4.1.0
       '@floating-ui/dom': 1.7.5
@@ -2453,6 +2458,7 @@ snapshots:
       chart.js: 4.5.1
       composed-offset-position: 0.0.6(@floating-ui/utils@0.2.10)
       lit: 3.3.2
+      marked: 11.2.0
       nanoid: 5.1.6
       qr-creator: 1.0.0
       style-observer: 0.1.2
@@ -3988,6 +3994,8 @@ snapshots:
       semver: 7.7.4
 
   map-or-similar@1.5.0: {}
+
+  marked@11.2.0: {}
 
   mdast-util-from-markdown@2.0.3:
     dependencies:

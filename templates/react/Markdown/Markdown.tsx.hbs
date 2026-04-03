@@ -1,0 +1,89 @@
+import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
+import './Markdown.css';
+
+/**
+ * Renders markdown content in plain HTML
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Markdown>
+ *   <script type="text/markdown"># Hello World</script>
+ * </Markdown>
+ *
+ * // With tab size
+ * <Markdown tab-size={2}>
+ *   <script type="text/markdown">	Indented content</script>
+ * </Markdown>
+ *
+ * // With ref methods
+ * const ref = useRef<MarkdownRef>(null);
+ * <button onClick={() => ref.current?.renderMarkdown()}>Re-render</button>
+ * <Markdown ref={ref}>
+ *   <script type="text/markdown"># Hello</script>
+ * </Markdown>
+ * ```
+ */
+export interface MarkdownProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** Tab stop width for whitespace normalization */
+  'tab-size'?: number;
+}
+
+export interface MarkdownRef {
+  /** Re-renders the markdown content */
+  renderMarkdown: () => void;
+  /** Returns the marked instance used for rendering */
+  getMarked: () => unknown;
+  /** Updates all wa-markdown elements on the page */
+  updateAll: () => void;
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
+  ({ children, className, ...props }, ref) => {
+    const markdownRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        renderMarkdown: () => {
+          if (markdownRef.current && typeof (markdownRef.current as unknown as { renderMarkdown: () => void }).renderMarkdown === 'function') {
+            (markdownRef.current as unknown as { renderMarkdown: () => void }).renderMarkdown();
+          }
+        },
+        getMarked: () => {
+          const el = markdownRef.current as unknown as { getMarked?: () => unknown };
+          if (el && typeof el.getMarked === 'function') {
+            return el.getMarked();
+          }
+        },
+        updateAll: () => {
+          const el = markdownRef.current as unknown as { constructor?: { updateAll?: () => void } };
+          if (el?.constructor && typeof el.constructor.updateAll === 'function') {
+            el.constructor.updateAll();
+          }
+        },
+        get element() {
+          return markdownRef.current;
+        },
+      }),
+      []
+    );
+
+    return (
+      <wa-markdown
+        ref={(el: WaElement | null) => { markdownRef.current = el; }}
+        class={clsx('Markdown', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-markdown>
+    );
+  }
+);
+
+Markdown.displayName = 'Markdown';

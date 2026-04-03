@@ -33,14 +33,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-load',
         description:
           'Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit.',
-        reactName: 'onWaLoad',
+        reactName: 'onLoad',
         eventType: 'WaLoadEvent',
       },
       {
         name: 'wa-error',
         description:
           'Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit.',
-        reactName: 'onWaError',
+        reactName: 'onError',
         eventType: 'WaErrorEvent',
       },
     ],
@@ -79,7 +79,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -160,40 +160,40 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-expand',
         description: 'Emitted when the tree item expands.',
-        reactName: 'onWaExpand',
+        reactName: 'onExpand',
         eventType: 'WaExpandEvent',
       },
       {
         name: 'wa-after-expand',
         description:
           'Emitted after the tree item expands and all animations are complete.',
-        reactName: 'onWaAfterExpand',
+        reactName: 'onAfterExpand',
         eventType: 'WaAfterExpandEvent',
       },
       {
         name: 'wa-collapse',
         description: 'Emitted when the tree item collapses.',
-        reactName: 'onWaCollapse',
+        reactName: 'onCollapse',
         eventType: 'WaCollapseEvent',
       },
       {
         name: 'wa-after-collapse',
         description:
           'Emitted after the tree item collapses and all animations are complete.',
-        reactName: 'onWaAfterCollapse',
+        reactName: 'onAfterCollapse',
         eventType: 'WaAfterCollapseEvent',
       },
       {
         name: 'wa-lazy-change',
         description: "Emitted when the tree item's lazy state changes.",
-        reactName: 'onWaLazyChange',
+        reactName: 'onLazyChange',
         eventType: 'WaLazyChangeEvent',
       },
       {
         name: 'wa-lazy-load',
         description:
           'Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree.',
-        reactName: 'onWaLazyLoad',
+        reactName: 'onLazyLoad',
         eventType: 'WaLazyLoadEvent',
       },
     ],
@@ -256,7 +256,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -334,13 +334,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-load',
         description: 'Emitted when the image loads successfully.',
-        reactName: 'onWaLoad',
+        reactName: 'onLoad',
         eventType: 'WaLoadEvent',
       },
       {
         name: 'wa-error',
         description: 'Emitted when the image fails to load.',
-        reactName: 'onWaError',
+        reactName: 'onError',
         eventType: 'WaErrorEvent',
       },
     ],
@@ -365,19 +365,19 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-cancel',
         description: 'Emitted when the animation is canceled.',
-        reactName: 'onWaCancel',
+        reactName: 'onCancel',
         eventType: 'WaCancelEvent',
       },
       {
         name: 'wa-finish',
         description: 'Emitted when the animation finishes.',
-        reactName: 'onWaFinish',
+        reactName: 'onFinish',
         eventType: 'WaFinishEvent',
       },
       {
         name: 'wa-start',
         description: 'Emitted when the animation starts or restarts.',
-        reactName: 'onWaStart',
+        reactName: 'onStart',
         eventType: 'WaStartEvent',
       },
     ],
@@ -409,7 +409,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-error',
         description:
           'The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause.',
-        reactName: 'onWaError',
+        reactName: 'onError',
         eventType: 'WaErrorEvent',
       },
     ],
@@ -563,7 +563,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-slide-change',
         description: 'Emitted when the active slide changes.',
-        reactName: 'onWaSlideChange',
+        reactName: 'onSlideChange',
         eventType: 'WaSlideChangeEvent',
       },
     ],
@@ -653,14 +653,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-clear',
         description: 'Emitted when the clear button is activated.',
-        reactName: 'onWaClear',
+        reactName: 'onClear',
         eventType: 'WaClearEvent',
       },
       {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -816,7 +816,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-reposition',
         description:
           'Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive operations in your listener or consider debouncing it.',
-        reactName: 'onWaReposition',
+        reactName: 'onReposition',
         eventType: 'WaRepositionEvent',
       },
     ],
@@ -857,25 +857,25 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-show',
         description: '',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description: '',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description: '',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description: '',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
       {
@@ -894,7 +894,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -1039,27 +1039,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-show',
         description: 'Emitted when the tooltip begins to show.',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description:
           'Emitted after the tooltip has shown and all animations are complete.',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the tooltip begins to hide.',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description:
           'Emitted after the tooltip has hidden and all animations are complete.',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
     ],
@@ -1088,17 +1088,22 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-copy',
         description: 'Emitted when the data has been copied.',
-        reactName: 'onWaCopy',
+        reactName: 'onCopy',
         eventType: 'WaCopyEvent',
       },
       {
         name: 'wa-error',
         description: 'Emitted when the data could not be copied.',
-        reactName: 'onWaError',
+        reactName: 'onError',
         eventType: 'WaErrorEvent',
       },
     ],
     slots: [
+      {
+        name: '',
+        description:
+          'The trigger element. By default, a copy icon button is rendered so this is optional. If desired, you can slot in a custom element such as `<wa-button>` or `<button>`.',
+      },
       {
         name: 'copy-icon',
         description:
@@ -1124,27 +1129,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-show',
         description: 'Emitted when the details opens.',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description:
           'Emitted after the details opens and all animations are complete.',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the details closes.',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description:
           'Emitted after the details closes and all animations are complete.',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
     ],
@@ -1187,28 +1192,28 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-show',
         description: 'Emitted when the dialog opens.',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description:
           'Emitted after the dialog opens and all animations are complete.',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description:
           'Emitted when the dialog is requested to close. Calling `event.preventDefault()` will prevent the dialog from closing. You can inspect `event.detail.source` to see which element caused the dialog to close. If the source is the dialog element itself, the user has pressed [[Escape]] or the dialog has been closed programmatically. Avoid using this unless closing the dialog will result in destructive behavior such as data loss.',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description:
           'Emitted after the dialog closes and all animations are complete.',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
     ],
@@ -1258,28 +1263,28 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-show',
         description: 'Emitted when the drawer opens.',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description:
           'Emitted after the drawer opens and all animations are complete.',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description:
           'Emitted when the drawer is requesting to close. Calling `event.preventDefault()` will prevent the drawer from closing. You can inspect `event.detail.source` to see which element caused the drawer to close. If the source is the drawer element itself, the user has pressed [[Escape]] or the drawer has been closed programmatically. Avoid using this unless closing the drawer will result in destructive behavior such as data loss.',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description:
           'Emitted after the drawer closes and all animations are complete.',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
     ],
@@ -1370,31 +1375,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-show',
         description: 'Emitted when the dropdown is about to show.',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description: 'Emitted after the dropdown has been shown.',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the dropdown is about to hide.',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description: 'Emitted after the dropdown has been hidden.',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
       {
         name: 'wa-select',
         description: 'Emitted when an item in the dropdown is selected.',
-        reactName: 'onWaSelect',
+        reactName: 'onSelect',
         eventType: 'WaSelectEvent',
       },
     ],
@@ -1440,14 +1445,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-load',
         description: 'Emitted when the included file is loaded.',
-        reactName: 'onWaLoad',
+        reactName: 'onLoad',
         eventType: 'WaLoadEvent',
       },
       {
         name: 'wa-include-error',
         description:
           'Emitted when the included file fails to load due to an error.',
-        reactName: 'onWaIncludeError',
+        reactName: 'onIncludeError',
         eventType: 'WaIncludeErrorEvent',
       },
     ],
@@ -1462,7 +1467,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-intersect',
         description:
           'Fired when a tracked element begins or ceases intersecting.',
-        reactName: 'onWaIntersect',
+        reactName: 'onIntersect',
         eventType: 'WaIntersectEvent',
       },
     ],
@@ -1482,7 +1487,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-mutation',
         description: 'Emitted when a mutation occurs.',
-        reactName: 'onWaMutation',
+        reactName: 'onMutation',
         eventType: 'WaMutationEvent',
       },
     ],
@@ -1527,7 +1532,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -1628,7 +1633,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-remove',
         description: 'Emitted when the remove button is activated.',
-        reactName: 'onWaRemove',
+        reactName: 'onRemove',
         eventType: 'WaRemoveEvent',
       },
     ],
@@ -1636,27 +1641,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: '',
         description: "The tag's content.",
-      },
-    ],
-    methods: [],
-  },
-  option: {
-    tagName: 'wa-option',
-    className: 'WaOption',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The option's label.",
-      },
-      {
-        name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed before the label.',
-      },
-      {
-        name: 'end',
-        description: 'An element, such as `<wa-icon>`, placed after the label.',
       },
     ],
     methods: [],
@@ -1692,40 +1676,40 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-clear',
         description: "Emitted when the control's value is cleared.",
-        reactName: 'onWaClear',
+        reactName: 'onClear',
         eventType: 'WaClearEvent',
       },
       {
         name: 'wa-show',
         description: "Emitted when the select's menu opens.",
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description:
           "Emitted after the select's menu opens and all animations are complete.",
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description: "Emitted when the select's menu closes.",
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description:
           "Emitted after the select's menu closes and all animations are complete.",
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
       {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -1821,6 +1805,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
     ],
   },
+  option: {
+    tagName: 'wa-option',
+    className: 'WaOption',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The option's label.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed before the label.',
+      },
+      {
+        name: 'end',
+        description: 'An element, such as `<wa-icon>`, placed after the label.',
+      },
+    ],
+    methods: [],
+  },
   popover: {
     tagName: 'wa-popover',
     className: 'WaPopover',
@@ -1829,28 +1834,28 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-show',
         description:
           'Emitted when the popover begins to show. Canceling this event will stop the popover from showing.',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description:
           'Emitted after the popover has shown and all animations are complete.',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description:
           'Emitted when the popover begins to hide. Canceling this event will stop the popover from hiding.',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description:
           'Emitted after the popover has hidden and all animations are complete.',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
     ],
@@ -1980,7 +1985,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -2058,25 +2063,49 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-hover',
         description:
           "Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value.",
-        reactName: 'onWaHover',
+        reactName: 'onHover',
         eventType: 'WaHoverEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onInvalid',
+        eventType: 'WaInvalidEvent',
       },
     ],
     slots: [],
     methods: [
       {
-        name: 'focus',
-        description: 'Sets focus on the rating.',
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
-            name: 'options',
-            type: 'FocusOptions',
+            name: 'message',
+            type: 'string',
           },
         ],
       },
       {
-        name: 'blur',
-        description: 'Removes focus from the rating.',
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+          {
+            name: 'reason',
+            type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -2106,7 +2135,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-resize',
         description: 'Emitted when the element is resized.',
-        reactName: 'onWaResize',
+        reactName: 'onResize',
         eventType: 'WaResizeEvent',
       },
     ],
@@ -2158,7 +2187,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -2263,7 +2292,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -2349,7 +2378,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-reposition',
         description: "Emitted when the divider's position changes.",
-        reactName: 'onWaReposition',
+        reactName: 'onReposition',
         eventType: 'WaRepositionEvent',
       },
     ],
@@ -2389,13 +2418,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-tab-show',
         description: 'Emitted when a tab is shown.',
-        reactName: 'onWaTabShow',
+        reactName: 'onTabShow',
         eventType: 'WaTabShowEvent',
       },
       {
         name: 'wa-tab-hide',
         description: 'Emitted when a tab is hidden.',
-        reactName: 'onWaTabHide',
+        reactName: 'onTabHide',
         eventType: 'WaTabHideEvent',
       },
     ],
@@ -2446,7 +2475,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -2572,7 +2601,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-selection-change',
         description: 'Emitted when a tree item is selected or deselected.',
-        reactName: 'onWaSelectionChange',
+        reactName: 'onSelectionChange',
         eventType: 'WaSelectionChangeEvent',
       },
     ],
@@ -2630,6 +2659,133 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'zoomOut',
         description: 'Zooms out to the previous available zoom level.',
+      },
+    ],
+  },
+  markdown: {
+    tagName: 'wa-markdown',
+    className: 'WaMarkdown',
+    events: [],
+    slots: [],
+    methods: [
+      {
+        name: 'getMarked',
+        description:
+          'Returns the shared Marked instance used by all `<wa-markdown>` components.',
+      },
+      {
+        name: 'updateAll',
+        description:
+          'Re-renders all connected `<wa-markdown>` instances. Call this after changing the Marked configuration.',
+      },
+      {
+        name: 'renderMarkdown',
+        description:
+          'Reads the script content, normalizes whitespace, parses markdown, and injects the result.',
+      },
+    ],
+  },
+  page: {
+    tagName: 'wa-page',
+    className: 'WaPage',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The page's main content.",
+      },
+      {
+        name: 'banner',
+        description:
+          'The banner that gets display above the header. The banner will not be shown if no content is provided.',
+      },
+      {
+        name: 'header',
+        description:
+          'The header to display at the top of the page. If a banner is present, the header will appear below the banner. The header will not be shown if there is no content.',
+      },
+      {
+        name: 'subheader',
+        description:
+          'A subheader to display below the `header`. This is a good place to put things like breadcrumbs.',
+      },
+      {
+        name: 'menu',
+        description:
+          'The left side of the page. If you slot an element in here, you will override the default `navigation` slot and will be handling navigation on your own. This also will not disable the fallback behavior of the navigation button. This section "sticks" to the top as the page scrolls.',
+      },
+      {
+        name: 'navigation-header',
+        description:
+          'The header for a navigation area. On mobile this will be the header for `<wa-drawer>`.',
+      },
+      {
+        name: 'navigation',
+        description:
+          'The main content to display in the navigation area. This is displayed on the left side of the page, if `menu` is not used. This section "sticks" to the top as the page scrolls.',
+      },
+      {
+        name: 'navigation-footer',
+        description:
+          'The footer for a navigation area. On mobile this will be the footer for `<wa-drawer>`.',
+      },
+      {
+        name: 'navigation-toggle',
+        description:
+          'Use this slot to slot in your own button + icon for toggling the navigation drawer. By default it is a `<wa-button>` + a 3 bars `<wa-icon>`',
+      },
+      {
+        name: 'navigation-toggle-icon',
+        description:
+          'Use this to slot in your own icon for toggling the navigation drawer. By default it is 3 bars `<wa-icon>`.',
+      },
+      {
+        name: 'main-header',
+        description: 'Header to display inline above the main content.',
+      },
+      {
+        name: 'main-footer',
+        description: 'Footer to display inline below the main content.',
+      },
+      {
+        name: 'aside',
+        description:
+          'Content to be shown on the right side of the page. Typically contains a table of contents, ads, etc. This section "sticks" to the top as the page scrolls.',
+      },
+      {
+        name: 'skip-to-content',
+        description:
+          'The "skip to content" slot. You can override this If you would like to override the `Skip to content` button and add additional "Skip to X", they can be inserted here.',
+      },
+      {
+        name: 'footer',
+        description:
+          'The content to display in the footer. This is always displayed underneath the viewport so will always make the page "scrollable".',
+      },
+    ],
+    methods: [
+      {
+        name: 'visiblePixelsInViewport',
+        description:
+          'https://stackoverflow.com/a/26831113\nThis prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps.',
+        parameters: [
+          {
+            name: 'element',
+            type: 'HTMLElement | null',
+          },
+        ],
+      },
+      {
+        name: 'showNavigation',
+        description: 'Shows the mobile navigation drawer',
+      },
+      {
+        name: 'hideNavigation',
+        description: 'Hides the mobile navigation drawer',
+      },
+      {
+        name: 'toggleNavigation',
+        description: 'Toggles the mobile navigation drawer',
       },
     ],
   },
@@ -2703,40 +2859,47 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-clear',
         description: "Emitted when the control's value is cleared.",
-        reactName: 'onWaClear',
+        reactName: 'onClear',
         eventType: 'WaClearEvent',
       },
       {
         name: 'wa-show',
         description: "Emitted when the combobox's menu opens.",
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description:
           "Emitted after the combobox's menu opens and all animations are complete.",
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description: "Emitted when the combobox's menu closes.",
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description:
           "Emitted after the combobox's menu closes and all animations are complete.",
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
+      },
+      {
+        name: 'wa-create',
+        description:
+          'Emitted when the user selects the "create" option. Call `event.preventDefault()` to handle creation yourself. The event `detail` contains `{ inputValue: string }`.',
+        reactName: 'onCreate',
+        eventType: 'WaCreateEvent',
       },
       {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -2877,7 +3040,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-        reactName: 'onWaInvalid',
+        reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
     ],
@@ -2962,110 +3125,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     ],
     methods: [],
   },
-  page: {
-    tagName: 'wa-page',
-    className: 'WaPage',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The page's main content.",
-      },
-      {
-        name: 'banner',
-        description:
-          'The banner that gets display above the header. The banner will not be shown if no content is provided.',
-      },
-      {
-        name: 'header',
-        description:
-          'The header to display at the top of the page. If a banner is present, the header will appear below the banner. The header will not be shown if there is no content.',
-      },
-      {
-        name: 'subheader',
-        description:
-          'A subheader to display below the `header`. This is a good place to put things like breadcrumbs.',
-      },
-      {
-        name: 'menu',
-        description:
-          'The left side of the page. If you slot an element in here, you will override the default `navigation` slot and will be handling navigation on your own. This also will not disable the fallback behavior of the navigation button. This section "sticks" to the top as the page scrolls.',
-      },
-      {
-        name: 'navigation-header',
-        description:
-          'The header for a navigation area. On mobile this will be the header for `<wa-drawer>`.',
-      },
-      {
-        name: 'navigation',
-        description:
-          'The main content to display in the navigation area. This is displayed on the left side of the page, if `menu` is not used. This section "sticks" to the top as the page scrolls.',
-      },
-      {
-        name: 'navigation-footer',
-        description:
-          'The footer for a navigation area. On mobile this will be the footer for `<wa-drawer>`.',
-      },
-      {
-        name: 'navigation-toggle',
-        description:
-          'Use this slot to slot in your own button + icon for toggling the navigation drawer. By default it is a `<wa-button>` + a 3 bars `<wa-icon>`',
-      },
-      {
-        name: 'navigation-toggle-icon',
-        description:
-          'Use this to slot in your own icon for toggling the navigation drawer. By default it is 3 bars `<wa-icon>`.',
-      },
-      {
-        name: 'main-header',
-        description: 'Header to display inline above the main content.',
-      },
-      {
-        name: 'main-footer',
-        description: 'Footer to display inline below the main content.',
-      },
-      {
-        name: 'aside',
-        description:
-          'Content to be shown on the right side of the page. Typically contains a table of contents, ads, etc. This section "sticks" to the top as the page scrolls.',
-      },
-      {
-        name: 'skip-to-content',
-        description:
-          'The "skip to content" slot. You can override this If you would like to override the `Skip to content` button and add additional "Skip to X", they can be inserted here.',
-      },
-      {
-        name: 'footer',
-        description:
-          'The content to display in the footer. This is always displayed underneath the viewport so will always make the page "scrollable".',
-      },
-    ],
-    methods: [
-      {
-        name: 'visiblePixelsInViewport',
-        description:
-          'https://stackoverflow.com/a/26831113\nThis prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps.',
-        parameters: [
-          {
-            name: 'element',
-            type: 'HTMLElement | null',
-          },
-        ],
-      },
-      {
-        name: 'showNavigation',
-        description: 'Shows the mobile navigation drawer',
-      },
-      {
-        name: 'hideNavigation',
-        description: 'Hides the mobile navigation drawer',
-      },
-      {
-        name: 'toggleNavigation',
-        description: 'Toggles the mobile navigation drawer',
-      },
-    ],
-  },
   'pie-chart': {
     tagName: 'wa-pie-chart',
     className: 'WaPieChart',
@@ -3132,25 +3191,25 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'wa-show',
         description: 'Emitted when the toast item begins to show.',
-        reactName: 'onWaShow',
+        reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
         description: 'Emitted after the toast item has finished showing.',
-        reactName: 'onWaAfterShow',
+        reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
         description: 'Emitted when the toast item begins to hide.',
-        reactName: 'onWaHide',
+        reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
         description: 'Emitted after the toast item has finished hiding.',
-        reactName: 'onWaAfterHide',
+        reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
     ],

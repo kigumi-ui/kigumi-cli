@@ -8,11 +8,15 @@ import './Combobox.css';
  */
 const props = defineProps({
     'allow-custom-value': { type: Boolean, required: false, default: false },
+    'allow-create': { type: Boolean, required: false, default: false },
     appearance: { type: String, required: false, default: outlined },
-    autocomplete: { type: String, required: false, default: list },
+    autocapitalize: { type: String, required: false, default: undefined },
+    autocorrect: { type: Boolean, required: false, default: undefined },
     disabled: { type: Boolean, required: false, default: false },
+    enterkeyhint: { type: String, required: false, default: undefined },
     hint: { type: String, required: false, default: '' },
     label: { type: String, required: false, default: '' },
+    inputmode: { type: String, required: false, default: undefined },
     'max-options-visible': { type: Number, required: false, default: 3 },
     multiple: { type: Boolean, required: false, default: false },
     name: { type: String, required: false, default: '' },
@@ -22,6 +26,7 @@ const props = defineProps({
     placement: { type: String, required: false, default: bottom },
     required: { type: Boolean, required: false, default: false },
     size: { type: String, required: false, default: medium },
+    spellcheck: { type: Boolean, required: false, default: undefined },
     'with-clear': { type: Boolean, required: false, default: false }
 });
 
@@ -34,7 +39,7 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-invalid']);
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-invalid', 'wa-create']);
 
 const model = defineModel();
 
@@ -55,6 +60,7 @@ const handleWaAfterShow = (e) => emit('wa-after-show', e);
 const handleWaHide = (e) => emit('wa-hide', e);
 const handleWaAfterHide = (e) => emit('wa-after-hide', e);
 const handleWaInvalid = (e) => emit('wa-invalid', e);
+const handleWaCreate = (e) => emit('wa-create', e);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -70,6 +76,7 @@ onMounted(() => {
   el.addEventListener('wa-hide', handleWaHide);
   el.addEventListener('wa-after-hide', handleWaAfterHide);
   el.addEventListener('wa-invalid', handleWaInvalid);
+  el.addEventListener('wa-create', handleWaCreate);
 });
 
 onUnmounted(() => {
@@ -86,6 +93,7 @@ onUnmounted(() => {
   el.removeEventListener('wa-hide', handleWaHide);
   el.removeEventListener('wa-after-hide', handleWaAfterHide);
   el.removeEventListener('wa-invalid', handleWaInvalid);
+  el.removeEventListener('wa-create', handleWaCreate);
 });
 
 defineExpose({

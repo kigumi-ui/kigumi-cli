@@ -58,6 +58,10 @@ const meta = {
       description: 'Enable spell checking',
       table: { defaultValue: { summary: 'true' } },
     },
+    'with-count': {
+      control: 'boolean',
+      description: 'Shows character count when maxlength is set',
+    },
     onBlur: {
       action: 'blur',
       description: 'Emitted when the control loses focus.',

@@ -70,6 +70,21 @@ export interface ColorPickerProps extends Omit<
   /** Whether the panel is open */
   open?: boolean;
 
+  /** Preferred placement of the color picker panel */
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
+
   /** Predefined color swatches */
   swatches?: string | string[];
 

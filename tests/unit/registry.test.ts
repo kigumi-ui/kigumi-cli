@@ -145,7 +145,6 @@ describe('component registry', () => {
 
       // These are the actual pro-only components in registry
       const knownProComponents = [
-        'page',
         'combobox',
         'file-input',
         'number-input',

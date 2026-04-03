@@ -8,9 +8,11 @@ import './Rating.css';
  */
 const props = defineProps({
     label: { type: String, required: false, default: '' },
+    name: { type: String, required: false },
     max: { type: Number, required: false, default: 5 },
     precision: { type: Number, required: false, default: 1 },
     readonly: { type: Boolean, required: false, default: false },
+    required: { type: Boolean, required: false, default: false },
     disabled: { type: Boolean, required: false, default: false },
     size: { type: String, required: false, default: medium }
 });

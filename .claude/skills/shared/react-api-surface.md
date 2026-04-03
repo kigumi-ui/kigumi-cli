@@ -184,7 +184,7 @@ wa-checkbox -> <Checkbox>
 Form Controls | free | Color pickers allow the user to select a color
 wa-color-picker -> <ColorPicker>
 
-**Props:** value(string), format(hex|rgb|hsl|hsv=hex), opacity(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large=medium), label(string=''), hint(string=''), name(string), open(boolean=false), swatches(string=''), uppercase(boolean=false), without-format-toggle(boolean=false), inline(boolean=false)
+**Props:** value(string), format(hex|rgb|hsl|hsv=hex), opacity(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large=medium), label(string=''), hint(string=''), name(string), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), swatches(string=''), uppercase(boolean=false), without-format-toggle(boolean=false), inline(boolean=false)
 **Events:** onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid
 **Slots:** label, hint
 **Methods:** getHexString(), focus(), blur(), getFormattedValue(), show(), hide()
@@ -197,8 +197,8 @@ wa-color-picker -> <ColorPicker>
 Form Controls | pro | Combines a text input with a listbox for filtering and selecting options
 wa-combobox -> <Combobox>
 
-**Props:** allow-custom-value(boolean=false), appearance(filled|outlined|filled-outlined=outlined), autocomplete(list|none=list), disabled(boolean=false), hint(string=''), label(string=''), max-options-visible(number=3), multiple(boolean=false), name(string=''), open(boolean=false), pill(boolean=false), placeholder(string=''), placement(top|bottom=bottom), required(boolean=false), size(small|medium|large=medium), with-clear(boolean=false), value(string='')
-**Events:** onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid
+**Props:** allow-custom-value(boolean=false), appearance(filled|outlined|filled-outlined=outlined), allow-create(boolean=false), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), disabled(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), hint(string=''), inputmode(none|text|decimal|numeric|tel|search|email|url), label(string=''), max-options-visible(number=3), multiple(boolean=false), name(string=''), open(boolean=false), pill(boolean=false), placeholder(string=''), placement(top|bottom=bottom), required(boolean=false), size(small|medium|large=medium), spellcheck(boolean), with-clear(boolean=false), value(string='')
+**Events:** onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onCreate, onInvalid
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
 **Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag**content, tag**remove-button, tag**remove-button**base, clear-button, expand-icon
@@ -219,7 +219,7 @@ wa-comparison -> <Comparison>
 
 ## Page
 
-Layout | pro | Pages offer an easy way to scaffold entire page layouts using minimal markup
+Layout | free | Pages offer an easy way to scaffold entire page layouts using minimal markup
 wa-page -> <Page>
 
 **Props:** disable-navigation-toggle(boolean=false), mobile-breakpoint(string=768px), navigation-placement(start|end=start), nav-open(boolean=false), view(mobile|desktop=desktop)
@@ -235,7 +235,7 @@ wa-copy-button -> <CopyButton>
 
 **Props:** value(string=''), from(string=''), disabled(boolean=false), copy-label(string=''), success-label(string=''), error-label(string=''), feedback-duration(number=1000), tooltip-placement(top|right|bottom|left=top)
 **Events:** onCopy, onError
-**Slots:** copy-icon, success-icon, error-icon
+**Slots:** default, copy-icon, success-icon, error-icon
 **Parts:** button, copy-icon, success-icon, error-icon, tooltip**base, tooltip**base**popup, tooltip**base**arrow, tooltip**body
 **Requires:** Icon, Tooltip
 
@@ -334,6 +334,14 @@ wa-intersection-observer -> <IntersectionObserver>
 **Props:** disabled(boolean=false), once(boolean=false), threshold(string=0), root-margin(string=0px), intersect-class(string)
 **Events:** onIntersect
 **Slots:** default
+
+## Markdown
+
+Display | free | Renders markdown content in plain HTML
+wa-markdown -> <Markdown>
+
+**Props:** tab-size(number=4)
+**Methods:** getMarked(), updateAll(), renderMarkdown()
 
 ## MutationObserver
 
@@ -435,9 +443,8 @@ wa-radio -> <Radio>
 Form Controls | free | Ratings give users a way to quickly view and provide feedback
 wa-rating -> <Rating>
 
-**Props:** label(string=''), value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), size(small|medium|large=medium)
+**Props:** label(string=''), value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string=''), required(boolean=false), size(small|medium|large=medium)
 **Events:** onChange, onHover
-**Methods:** focus(), blur()
 **Parts:** base
 **CSS:** --symbol-color, --symbol-color-active, --symbol-spacing
 **Requires:** Icon
@@ -584,11 +591,11 @@ wa-tag -> <Tag>
 Form Controls | free | Textareas collect multi-line text data from the user
 wa-textarea -> <Textarea>
 
-**Props:** name(string), value(string=''), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large=medium), label(string=''), hint(string=''), placeholder(string=''), rows(number=4), resize(none|vertical|horizontal|both|auto=vertical), disabled(boolean=false), readonly(boolean=false), required(boolean=false), minlength(number), maxlength(number), spellcheck(boolean=true)
+**Props:** name(string), value(string=''), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large=medium), label(string=''), hint(string=''), placeholder(string=''), rows(number=4), resize(none|vertical|horizontal|both|auto=vertical), disabled(boolean=false), readonly(boolean=false), required(boolean=false), minlength(number), maxlength(number), spellcheck(boolean=true), with-count(boolean=false)
 **Events:** onBlur, onChange, onFocus, onInput, onInvalid
 **Slots:** label, hint
 **Methods:** focus(), blur(), select(), scrollPosition(), setSelectionRange(), setRangeText()
-**Parts:** label, form-control-input, hint, textarea, base
+**Parts:** label, form-control-input, hint, textarea, base, count
 
 ## Tooltip
 
