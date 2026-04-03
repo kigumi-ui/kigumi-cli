@@ -151,7 +151,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
   }
 
   getHexString(hue?: unknown, saturation?: unknown, brightness?: unknown, alpha?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { getHexString: (hue: unknown; saturation: unknown; brightness: unknown; alpha: unknown) => void }).getHexString(hue, saturation, brightness, alpha);
+    (this.elementRef.nativeElement as unknown as { getHexString: (hue: unknown, saturation: unknown, brightness: unknown, alpha: unknown) => void }).getHexString(hue, saturation, brightness, alpha);
   }
   focus(options?: unknown): void {
     (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
@@ -175,7 +175,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
     (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
   }
   formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown; reason: unknown) => void }).formStateRestoreCallback(state, reason);
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
     (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();

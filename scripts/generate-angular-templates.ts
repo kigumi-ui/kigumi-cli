@@ -387,7 +387,7 @@ function generateComponentTS(
               const paramName = parts[0].replace('?', '').trim();
               return `${paramName}: ${parts[1]?.trim() || 'unknown'}`;
             })
-            .join('; ')
+            .join(', ')
         : '';
       lines.push(`  ${method.name}(${method.signature}): void {`);
       lines.push(
