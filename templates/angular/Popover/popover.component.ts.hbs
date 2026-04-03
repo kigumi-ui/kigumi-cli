@@ -50,24 +50,24 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   /** The ID of the element the popover is anchored to */
   @Input() for?: string;
 
-  @Output() show = new EventEmitter<CustomEvent>();
+  @Output() showEvent = new EventEmitter<CustomEvent>();
   @Output() afterShow = new EventEmitter<CustomEvent>();
-  @Output() hide = new EventEmitter<CustomEvent>();
+  @Output() hideEvent = new EventEmitter<CustomEvent>();
   @Output() afterHide = new EventEmitter<CustomEvent>();
 
   private cleanups: (() => void)[] = [];
 
   ngAfterViewInit(): void {
     const el = this.elementRef.nativeElement;
-    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
-    el.addEventListener('wa-show', handleShow);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
+    const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-show', handleShowEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
-    const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
-    el.addEventListener('wa-hide', handleHide);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
+    const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-hide', handleHideEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));

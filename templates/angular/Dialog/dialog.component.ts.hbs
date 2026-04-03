@@ -35,7 +35,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   /** When enabled, the dialog will be closed when the user clicks outside of it */
   @Input() lightDismiss?: boolean;
 
-  @Output() show = new EventEmitter<CustomEvent>();
+  @Output() showEvent = new EventEmitter<CustomEvent>();
   @Output() afterShow = new EventEmitter<CustomEvent>();
   @Output() hide = new EventEmitter<CustomEvent>();
   @Output() afterHide = new EventEmitter<CustomEvent>();
@@ -44,9 +44,9 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     const el = this.elementRef.nativeElement;
-    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
-    el.addEventListener('wa-show', handleShow);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
+    const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-show', handleShowEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));

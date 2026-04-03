@@ -77,8 +77,8 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
   @Input() autofocus?: boolean;
 
   @Output() change = new EventEmitter<CustomEvent>();
-  @Output() blur = new EventEmitter<CustomEvent>();
-  @Output() focus = new EventEmitter<CustomEvent>();
+  @Output() blurEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<CustomEvent>();
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
@@ -92,12 +92,12 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleBlur = (e: Event) => this.blur.emit(e as CustomEvent);
-    el.addEventListener('blur', handleBlur);
-    this.cleanups.push(() => el.removeEventListener('blur', handleBlur));
-    const handleFocus = (e: Event) => this.focus.emit(e as CustomEvent);
-    el.addEventListener('focus', handleFocus);
-    this.cleanups.push(() => el.removeEventListener('focus', handleFocus));
+    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
+    el.addEventListener('blur', handleBlurEvent);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
+    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    el.addEventListener('focus', handleFocusEvent);
+    this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));

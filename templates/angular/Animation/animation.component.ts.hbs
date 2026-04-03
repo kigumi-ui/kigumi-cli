@@ -56,20 +56,20 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   /** Sets the animation's playback rate */
   @Input() playbackRate?: number;
 
-  @Output() cancel = new EventEmitter<CustomEvent>();
-  @Output() finish = new EventEmitter<CustomEvent>();
+  @Output() cancelEvent = new EventEmitter<CustomEvent>();
+  @Output() finishEvent = new EventEmitter<CustomEvent>();
   @Output() start = new EventEmitter<CustomEvent>();
 
   private cleanups: (() => void)[] = [];
 
   ngAfterViewInit(): void {
     const el = this.elementRef.nativeElement;
-    const handleCancel = (e: Event) => this.cancel.emit(e as CustomEvent);
-    el.addEventListener('wa-cancel', handleCancel);
-    this.cleanups.push(() => el.removeEventListener('wa-cancel', handleCancel));
-    const handleFinish = (e: Event) => this.finish.emit(e as CustomEvent);
-    el.addEventListener('wa-finish', handleFinish);
-    this.cleanups.push(() => el.removeEventListener('wa-finish', handleFinish));
+    const handleCancelEvent = (e: Event) => this.cancelEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-cancel', handleCancelEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-cancel', handleCancelEvent));
+    const handleFinishEvent = (e: Event) => this.finishEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-finish', handleFinishEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-finish', handleFinishEvent));
     const handleStart = (e: Event) => this.start.emit(e as CustomEvent);
     el.addEventListener('wa-start', handleStart);
     this.cleanups.push(() => el.removeEventListener('wa-start', handleStart));

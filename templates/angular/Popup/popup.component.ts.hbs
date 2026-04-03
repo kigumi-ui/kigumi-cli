@@ -77,15 +77,15 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   /** Auto-size boundary padding */
   @Input() autoSizePadding?: number;
 
-  @Output() reposition = new EventEmitter<CustomEvent>();
+  @Output() repositionEvent = new EventEmitter<CustomEvent>();
 
   private cleanups: (() => void)[] = [];
 
   ngAfterViewInit(): void {
     const el = this.elementRef.nativeElement;
-    const handleReposition = (e: Event) => this.reposition.emit(e as CustomEvent);
-    el.addEventListener('wa-reposition', handleReposition);
-    this.cleanups.push(() => el.removeEventListener('wa-reposition', handleReposition));
+    const handleRepositionEvent = (e: Event) => this.repositionEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-reposition', handleRepositionEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-reposition', handleRepositionEvent));
   }
 
   ngOnDestroy(): void {
