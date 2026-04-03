@@ -11,8 +11,13 @@ set -uo pipefail
 INPUT=$(cat)
 
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
-BASH_CMD=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+BASH_CMD_RAW=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // ""')
+
+# Only check the first line, strip quoted strings to avoid false positives
+# (e.g., "git reset --hard" inside a PR body, commit message, or heredoc)
+# Real dangerous commands are single-line; heredoc/argument content is on line 2+.
+BASH_CMD=$(printf '%s' "$BASH_CMD_RAW" | head -1 | sed "s/'[^']*'//g" | sed 's/"[^"]*"//g')
 
 deny() {
   local reason="$1"
