@@ -87,7 +87,7 @@ async function main() {
         'dialog',
         'input',
         '--yes',
-        '--overwrite',
+        '--force',
       ],
       { cwd: TEST_APP_DIR, stdio: 'pipe' }
     );
