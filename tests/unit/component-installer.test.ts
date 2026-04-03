@@ -190,7 +190,7 @@ describe('ComponentInstaller', () => {
 
   // ── Test 2: renderDiff NOT called when no modifications exist ──
 
-  it('does not call renderDiff when all files match generated content on --force', async () => {
+  it('skips when all files are identical even with --force', async () => {
     const componentDir = path.join(testDir, 'src/components/Button');
     await fs.ensureDir(componentDir);
 
@@ -213,12 +213,13 @@ describe('ComponentInstaller', () => {
     const output = createMockOutput();
     const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
 
-    await installer.installComponents(['Button'], {
+    const results = await installer.installComponents(['Button'], {
       force: true,
       yes: true,
     });
 
     expect(renderDiff).not.toHaveBeenCalled();
+    expect(results[0].skipped).toBe(true);
   });
 
   // ── Test 3: Snapshot saved after fresh install ──

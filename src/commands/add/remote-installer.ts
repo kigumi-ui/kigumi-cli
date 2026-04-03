@@ -18,6 +18,11 @@ import { fetchFile } from '../../utils/github-fetcher.js';
 import { getRegistryCache } from '../../utils/registry-cache.js';
 import { saveSnapshot } from '../../utils/snapshot.js';
 import { renderDiff } from '../../utils/diff-renderer.js';
+import {
+  checkFileModification,
+  getModifiedFiles,
+  type FileModificationCheck,
+} from '../../utils/file-diff.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig, Framework } from '../../schemas/config.js';
@@ -163,22 +168,62 @@ export class RemoteComponentInstaller {
           files.test ? this.downloadContent(files.test) : Promise.resolve(null),
         ]);
 
-      // Compare against existing files
-      const existingContent = await fs.readFile(componentPath, 'utf-8');
-      const hasChanges = existingContent !== newComponentContent;
+      // Compare all existing files against downloaded content
+      const cssPath = files.css
+        ? path.join(componentDir, path.basename(files.css))
+        : null;
+      const testPath = files.test
+        ? path.join(componentDir, path.basename(files.test))
+        : null;
 
-      if (hasChanges) {
+      const checks = await Promise.all(
+        [
+          checkFileModification(componentPath, newComponentContent),
+          newCssContent && cssPath
+            ? checkFileModification(cssPath, newCssContent)
+            : null,
+          newTestContent && testPath
+            ? checkFileModification(testPath, newTestContent)
+            : null,
+        ].filter((c): c is Promise<FileModificationCheck> => c !== null)
+      );
+
+      const modified = getModifiedFiles(checks);
+
+      if (modified.length > 0) {
         spinner.stop(
           `${pc.yellow('!')} ${pc.cyan(component.name)} has local modifications`
         );
 
-        const diff = renderDiff(
-          existingContent,
-          newComponentContent,
-          componentFileName
-        );
-        if (diff) {
-          this.output.info(diff);
+        // Map file paths to downloaded content for diff rendering
+        const contentByPath = new Map<string, string>([
+          [componentPath, newComponentContent],
+        ]);
+        if (newCssContent && cssPath) {
+          contentByPath.set(cssPath, newCssContent);
+        }
+        if (newTestContent && testPath) {
+          contentByPath.set(testPath, newTestContent);
+        }
+
+        // Show per-file status labels with diffs
+        for (const check of checks) {
+          if (check.modified) {
+            this.output.warn(`  Modified:  ${pc.yellow(check.fileName)}`);
+            const newContent = contentByPath.get(check.filePath);
+            if (newContent && check.existingContent) {
+              const diff = renderDiff(
+                check.existingContent,
+                newContent,
+                check.fileName
+              );
+              if (diff) {
+                this.output.info(diff);
+              }
+            }
+          } else if (check.exists) {
+            this.output.info(`  Unchanged: ${pc.dim(check.fileName)}`);
+          }
         }
 
         // --force or --yes: skip prompt
@@ -194,8 +239,8 @@ export class RemoteComponentInstaller {
         }
 
         spinner.start(`Overwriting ${pc.cyan(component.name)}...`);
-      } else if (!options.force && !options.yes) {
-        // Files identical -- skip silently
+      } else {
+        // All files identical -- skip regardless of flags
         return true;
       }
 
@@ -221,14 +266,13 @@ export class RemoteComponentInstaller {
       }
 
       // Save snapshot
-      const snapshotFiles: Record<string, string> = {};
-      snapshotFiles[componentFileName] = newComponentContent;
-      if (newCssContent && files.css) {
-        snapshotFiles[path.basename(files.css)] = newCssContent;
-      }
-      if (newTestContent && files.test) {
-        snapshotFiles[path.basename(files.test)] = newTestContent;
-      }
+      const snapshotFiles = this.buildSnapshotFiles(
+        componentFileName,
+        newComponentContent,
+        files,
+        newCssContent,
+        newTestContent
+      );
       await saveSnapshot(this.cwd, component.name, snapshotFiles);
 
       return false;
@@ -254,14 +298,13 @@ export class RemoteComponentInstaller {
       }
 
       // Save snapshot for three-way merge support (kigumi update)
-      const snapshotFiles: Record<string, string> = {};
-      snapshotFiles[componentFileName] = componentContent;
-      if (cssContent && files.css) {
-        snapshotFiles[path.basename(files.css)] = cssContent;
-      }
-      if (testContent && files.test) {
-        snapshotFiles[path.basename(files.test)] = testContent;
-      }
+      const snapshotFiles = this.buildSnapshotFiles(
+        componentFileName,
+        componentContent,
+        files,
+        cssContent,
+        testContent
+      );
       await saveSnapshot(this.cwd, component.name, snapshotFiles);
     } catch (error) {
       // Clean up partially written files to avoid broken state
@@ -306,6 +349,27 @@ export class RemoteComponentInstaller {
     await fs.writeFile(localPath, content);
 
     return content;
+  }
+
+  /**
+   * Build the snapshot file map for saving after install
+   */
+  private buildSnapshotFiles(
+    componentFileName: string,
+    componentContent: string,
+    files: { css?: string; test?: string },
+    cssContent: string | null,
+    testContent: string | null
+  ): Record<string, string> {
+    const snapshotFiles: Record<string, string> = {};
+    snapshotFiles[componentFileName] = componentContent;
+    if (cssContent && files.css) {
+      snapshotFiles[path.basename(files.css)] = cssContent;
+    }
+    if (testContent && files.test) {
+      snapshotFiles[path.basename(files.test)] = testContent;
+    }
+    return snapshotFiles;
   }
 
   /**

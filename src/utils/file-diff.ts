@@ -22,6 +22,8 @@ export interface FileModificationCheck {
   exists: boolean;
   /** Whether existing content differs from generated content */
   modified: boolean;
+  /** Existing file content (undefined when file does not exist) */
+  existingContent?: string;
 }
 
 /**
@@ -44,7 +46,7 @@ export async function checkFileModification(
   const existingContent = await fs.readFile(filePath, 'utf-8');
   const modified = existingContent.trim() !== generatedContent.trim();
 
-  return { filePath, fileName, exists, modified };
+  return { filePath, fileName, exists, modified, existingContent };
 }
 
 /**

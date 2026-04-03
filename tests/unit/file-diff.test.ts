@@ -70,6 +70,38 @@ describe('file-diff', () => {
       expect(result.modified).toBe(false);
     });
 
+    it('should include existingContent when file exists and is modified', async () => {
+      const content = '.Button { color: blue; }\n';
+      const filePath = path.join(tempDir, 'Button.css');
+      await fs.writeFile(filePath, content);
+
+      const result = await checkFileModification(
+        filePath,
+        '.Button { color: red; }\n'
+      );
+
+      expect(result.existingContent).toBe(content);
+    });
+
+    it('should include existingContent when file exists and is unmodified', async () => {
+      const content = '.Button { color: red; }\n';
+      const filePath = path.join(tempDir, 'Button.css');
+      await fs.writeFile(filePath, content);
+
+      const result = await checkFileModification(filePath, content);
+
+      expect(result.existingContent).toBe(content);
+    });
+
+    it('should not include existingContent when file does not exist', async () => {
+      const result = await checkFileModification(
+        path.join(tempDir, 'missing.tsx'),
+        'generated content'
+      );
+
+      expect(result.existingContent).toBeUndefined();
+    });
+
     it('should return the correct fileName', async () => {
       const filePath = path.join(tempDir, 'sub', 'Page.css');
       // File does not exist, but fileName should still be extracted

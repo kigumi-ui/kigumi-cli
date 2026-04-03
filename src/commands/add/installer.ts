@@ -195,13 +195,9 @@ export class ComponentInstaller {
           if (check.modified) {
             this.output.warn(`  Modified:  ${pc.yellow(check.fileName)}`);
             const newContent = contentByPath.get(check.filePath);
-            if (newContent) {
-              const existingContent = await fs.readFile(
-                check.filePath,
-                'utf-8'
-              );
+            if (newContent && check.existingContent) {
               const diff = renderDiff(
-                existingContent,
+                check.existingContent,
                 newContent,
                 check.fileName
               );
@@ -228,8 +224,8 @@ export class ComponentInstaller {
 
         // Restart spinner for the write phase
         spinner.start(`Overwriting ${pc.cyan(component.name)}...`);
-      } else if (!options.force && !options.yes) {
-        // Files exist but are identical to template -- skip silently
+      } else {
+        // All files identical -- skip regardless of flags
         return { name: component.name, success: true, skipped: true };
       }
     }

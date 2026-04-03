@@ -607,9 +607,9 @@ describe('updateCommand', () => {
     expect(renderDiff).not.toHaveBeenCalled();
   });
 
-  // ── Test 17: conflict does NOT call renderDiff ──
+  // ── Test 17: conflict calls renderDiff ──
 
-  it('should not call renderDiff for conflict files', async () => {
+  it('should call renderDiff for conflict files', async () => {
     const base = 'line1\nshared line\nline3';
     const ours = 'line1\nuser change\nline3';
     const theirs = 'line1\ntemplate change\nline3';
@@ -631,7 +631,11 @@ describe('updateCommand', () => {
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     await updateCommand(['Button'], { cwd: testDir });
 
-    expect(renderDiff).not.toHaveBeenCalled();
+    expect(renderDiff).toHaveBeenCalledWith(
+      ours,
+      expect.any(String),
+      'Button.tsx'
+    );
   });
 
   // ── Test 18: dry-run shows diff but does not write ──

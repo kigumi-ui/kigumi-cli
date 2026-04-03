@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `kigumi update --dry-run` shows diffs without writing files
 - `kigumi update --force` shows diffs before overwriting
 
+### Removed
+
+- `--verbose` flag from `kigumi diff` (line-level diffs are now always shown)
+
 ## [0.18.3] - 2026-03-29
 
 ### Fixed
