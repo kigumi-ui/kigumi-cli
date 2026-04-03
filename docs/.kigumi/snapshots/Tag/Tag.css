@@ -1,0 +1,13 @@
+/**
+ * Tag Component Styles
+ * Documentation: https://webawesome.com/docs/components/tag
+ *
+ * CSS Parts:
+ * base — Root wrapper element
+ * content — Tag's text content
+ * remove-button — Button to remove the tag
+ * remove-button__base — Inner base element of the remove button
+ */
+.Tag {
+  /* Add your custom styles here */
+}

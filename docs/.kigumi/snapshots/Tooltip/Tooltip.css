@@ -1,0 +1,16 @@
+/**
+ * Tooltip Component Styles
+ * Documentation: https://webawesome.com/docs/components/tooltip
+ *
+ * CSS Custom Properties:
+ * --max-width: Maximum width before tooltip content wraps
+ *
+ * CSS Parts:
+ * base — Root wrapper element, a wa-popup element
+ * base__popup — Popup container inside the tooltip
+ * base__arrow — Arrow element pointing to the target
+ * body — Tooltip body content area
+ */
+.Tooltip {
+  /* Add your custom styles here */
+}

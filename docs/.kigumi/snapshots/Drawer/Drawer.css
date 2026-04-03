@@ -1,0 +1,23 @@
+/**
+ * Drawer Component Styles
+ * Documentation: https://webawesome.com/docs/components/drawer
+ *
+ * CSS Custom Properties:
+ * --spacing: Internal padding of the drawer sections
+ * --size: Width (or height for top/bottom placement) of the drawer panel
+ * --show-duration: Duration of the open animation
+ * --hide-duration: Duration of the close animation
+ *
+ * CSS Parts:
+ * dialog — Drawer panel element
+ * header — Header section containing the title and actions
+ * header-actions — Action buttons area in the header
+ * title — Drawer title text
+ * close-button — Header close button
+ * close-button__base — Close button's inner base element
+ * body — Drawer body content area
+ * footer — Drawer footer section
+ */
+.Drawer {
+  /* Add your custom styles here */
+}

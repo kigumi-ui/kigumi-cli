@@ -1,0 +1,86 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/comparison/comparison.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/comparison/comparison.js';
+import './Comparison.css';
+
+/**
+ * Compare visual differences between similar content with a sliding panel
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Comparison />
+ *
+ * // With event handlers
+ * <Comparison
+ *   onChange={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface ComparisonProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'dir'
+> {
+  /** Divider location as percentage (0-100) */
+  position?: number;
+
+  /** Emitted when the position changes. */
+  onChange?: (event: CustomEvent) => void;
+}
+
+export interface ComparisonRef {
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
+  ({ children, className, onChange, ...props }, ref) => {
+    const comparisonRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return comparisonRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = comparisonRef.current;
+      if (!el) return;
+
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      el.addEventListener('change', handleChange);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+      };
+    }, [onChange]);
+
+    return (
+      <wa-comparison
+        ref={(el: WaElement | null) => {
+          comparisonRef.current = el;
+        }}
+        class={clsx('Comparison', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-comparison>
+    );
+  }
+);
+
+Comparison.displayName = 'Comparison';

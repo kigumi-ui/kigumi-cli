@@ -1,0 +1,17 @@
+/**
+ * Tree Component Styles
+ * Documentation: https://webawesome.com/docs/components/tree
+ *
+ * CSS Custom Properties:
+ * --indent-size: Horizontal indentation per nesting level
+ * --indent-guide-color: Color of the vertical indent guides
+ * --indent-guide-offset: Vertical offset for indent guide alignment
+ * --indent-guide-style: Border style for indent guides
+ * --indent-guide-width: Stroke width of indent guides
+ *
+ * CSS Parts:
+ * base — Root wrapper element
+ */
+.Tree {
+  /* Add your custom styles here */
+}

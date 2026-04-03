@@ -1,0 +1,101 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/include/include.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/include/include.js';
+import './Include.css';
+
+/**
+ * Includes give you the power to embed external HTML files into the page
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Include />
+ *
+ * // With event handlers
+ * <Include
+ *   onLoad={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface IncludeProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onLoad' | 'onIncludeError' | 'dir'
+> {
+  /** The location of the HTML file to include */
+  src?: string;
+
+  /** The fetch mode */
+  mode?: 'cors' | 'no-cors' | 'same-origin';
+
+  /** Allows included scripts to be executed */
+  'allow-scripts'?: boolean;
+
+  /** Emitted when the included file is loaded. */
+  onLoad?: (event: CustomEvent) => void;
+
+  /** Emitted when the included file fails to load due to an error. */
+  onIncludeError?: (event: CustomEvent) => void;
+}
+
+export interface IncludeRef {
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Include = forwardRef<IncludeRef, IncludeProps>(
+  ({ children, className, onLoad, onIncludeError, ...props }, ref) => {
+    const includeRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return includeRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = includeRef.current;
+      if (!el) return;
+
+      const handleLoad = (e: Event) => {
+        if (onLoad) onLoad(e as CustomEvent);
+      };
+
+      const handleIncludeError = (e: Event) => {
+        if (onIncludeError) onIncludeError(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-load', handleLoad);
+      el.addEventListener('wa-include-error', handleIncludeError);
+
+      return () => {
+        el.removeEventListener('wa-load', handleLoad);
+        el.removeEventListener('wa-include-error', handleIncludeError);
+      };
+    }, [onLoad, onIncludeError]);
+
+    return (
+      <wa-include
+        ref={(el: WaElement | null) => {
+          includeRef.current = el;
+        }}
+        class={clsx('Include', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-include>
+    );
+  }
+);
+
+Include.displayName = 'Include';

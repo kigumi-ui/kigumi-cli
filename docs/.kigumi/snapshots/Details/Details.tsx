@@ -1,0 +1,156 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/details/details.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/details/details.js';
+import './Details.css';
+
+/**
+ * Shows a brief summary and expands to show additional content
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Details />
+ *
+ * // With event handlers
+ * <Details
+ *   onShow={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<DetailsRef>(null);
+ * <button onClick={() => ref.current?.show()}>Call Method</button>
+ * <Details ref={ref} />
+ * ```
+ */
+export interface DetailsProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
+  /** Whether the details are expanded */
+  open?: boolean;
+
+  /** Summary text shown in header */
+  summary?: string;
+
+  /** Disables the details */
+  disabled?: boolean;
+
+  /** Visual appearance style */
+  appearance?: 'filled' | 'outlined' | 'filled-outlined' | 'plain';
+
+  /** Position of the expand icon */
+  'icon-placement'?: 'start' | 'end';
+
+  /** Name for accordion grouping */
+  name?: string;
+
+  /** Emitted when the details opens. */
+  onShow?: (event: CustomEvent) => void;
+
+  /** Emitted after the details opens and all animations are complete. */
+  onAfterShow?: (event: CustomEvent) => void;
+
+  /** Emitted when the details closes. */
+  onHide?: (event: CustomEvent) => void;
+
+  /** Emitted after the details closes and all animations are complete. */
+  onAfterHide?: (event: CustomEvent) => void;
+}
+
+export interface DetailsRef {
+  /** Shows the details. */
+  show: () => void;
+
+  /** Hides the details */
+  hide: () => void;
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Details = forwardRef<DetailsRef, DetailsProps>(
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
+    const detailsRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        show: () => {
+          if (
+            detailsRef.current &&
+            typeof detailsRef.current.show === 'function'
+          ) {
+            detailsRef.current.show();
+          }
+        },
+        hide: () => {
+          if (
+            detailsRef.current &&
+            typeof detailsRef.current.hide === 'function'
+          ) {
+            detailsRef.current.hide();
+          }
+        },
+        get element() {
+          return detailsRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = detailsRef.current;
+      if (!el) return;
+
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-details
+        ref={(el: WaElement | null) => {
+          detailsRef.current = el;
+        }}
+        class={clsx('Details', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-details>
+    );
+  }
+);
+
+Details.displayName = 'Details';

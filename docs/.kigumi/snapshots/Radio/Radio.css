@@ -1,0 +1,16 @@
+/**
+ * Radio Component Styles
+ * Documentation: https://webawesome.com/docs/components/radio
+ *
+ * CSS Custom Properties:
+ * --checked-icon-color: Color of the checked state dot
+ * --checked-icon-scale: Scale of the checked state dot
+ *
+ * CSS Parts:
+ * control — Radio control element (the visual circle)
+ * checked-icon — Dot shown in the checked state
+ * label — Radio label text
+ */
+.Radio {
+  /* Add your custom styles here */
+}

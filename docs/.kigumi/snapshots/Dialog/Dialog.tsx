@@ -1,0 +1,175 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import { createPortal } from 'react-dom';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/dialog/dialog.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/dialog/dialog.js';
+import './Dialog.css';
+
+/** WaDialog declares show/requestClose as private; redeclare as public for imperative use */
+type DialogElement = Omit<WaElement, 'open' | 'show' | 'requestClose'> & {
+  open?: boolean;
+  show?: () => Promise<void>;
+  requestClose?: (source?: Element) => Promise<void>;
+};
+
+/**
+ * Dialogs display important prompts and information
+ *
+ * @example
+ * ```tsx
+ * // Using open prop (recommended)
+ * import { useState } from 'react';
+ *
+ * function App() {
+ *   const [open, setOpen] = useState(false);
+ *
+ *   return (
+ *     <>
+ *       <Button onClick={() => setOpen(true)}>Open Dialog</Button>
+ *       <Dialog open={open} label="Dialog Title" onHide={() => setOpen(false)}>
+ *         <p>Dialog content</p>
+ *         <Button slot="footer" variant="brand" onClick={() => setOpen(false)}>
+ *           Close
+ *         </Button>
+ *       </Dialog>
+ *     </>
+ *   );
+ * }
+ *
+ * // Using ref methods (alternative)
+ * import { useRef } from 'react';
+ * const dialogRef = useRef<DialogRef>(null);
+ *
+ * <Button onClick={() => dialogRef.current?.show()}>Open Dialog</Button>
+ * <Dialog ref={(el: WaElement | null) => { dialogRef.current = el; }} label="Dialog Title">
+ *   <p>Dialog content</p>
+ *   <Button slot="footer" variant="brand" onClick={() => dialogRef.current?.hide()}>
+ *     Close
+ *   </Button>
+ * </Dialog>
+ * ```
+ */
+export interface DialogProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
+  /** Indicates whether or not the dialog is open */
+  open?: boolean;
+
+  /** The dialog's label as displayed in the header */
+  label: string;
+
+  /** Disables the header and removes the default close button */
+  'without-header'?: boolean;
+
+  /** When enabled, the dialog will be closed when the user clicks outside of it */
+  'light-dismiss'?: boolean;
+
+  /** Emitted when the dialog opens. */
+  onShow?: (event: CustomEvent) => void;
+
+  /** Emitted after the dialog opens and all animations are complete. */
+  onAfterShow?: (event: CustomEvent) => void;
+
+  /** Emitted when the dialog is requested to close. Calling `event.preventDefault()` will prevent the dialog from closing. You can inspect `event.detail.source` to see which element caused the dialog to close. If the source is the dialog element itself, the user has pressed [[Escape]] or the dialog has been closed programmatically. Avoid using this unless closing the dialog will result in destructive behavior such as data loss. */
+  onHide?: (event: CustomEvent) => void;
+
+  /** Emitted after the dialog closes and all animations are complete. */
+  onAfterHide?: (event: CustomEvent) => void;
+}
+
+export interface DialogRef {
+  show: () => void;
+  hide: () => void;
+  requestClose: () => void;
+  /** Reference to the underlying element */
+  element: DialogElement | null;
+}
+
+export const Dialog = forwardRef<DialogRef, DialogProps>(
+  (
+    {
+      children,
+      className,
+      open,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      ...props
+    },
+    ref
+  ) => {
+    const dialogRef = useRef<DialogElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        show: () => dialogRef.current?.show?.(),
+        hide: () => dialogRef.current?.requestClose?.(),
+        requestClose: () => dialogRef.current?.requestClose?.(),
+        get element() {
+          return dialogRef.current;
+        },
+      }),
+      []
+    );
+
+    // Sync open prop with dialog element
+    useEffect(() => {
+      const el = dialogRef.current;
+      if (!el || open === undefined) return;
+
+      const isOpen = el.open ?? false;
+      if (open && !isOpen) {
+        el.show?.();
+      } else if (!open && isOpen) {
+        el.requestClose?.();
+      }
+    }, [open]);
+
+    // Setup event listeners
+    useEffect(() => {
+      const el = dialogRef.current;
+      if (!el) return;
+
+      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
+      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
+      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return createPortal(
+      <wa-dialog
+        ref={(el: WaElement | null) => {
+          dialogRef.current = el as unknown as DialogElement;
+        }}
+        class={clsx('Dialog', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-dialog>,
+      document.body
+    );
+  }
+);
+
+Dialog.displayName = 'Dialog';

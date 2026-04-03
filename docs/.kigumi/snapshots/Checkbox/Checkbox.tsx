@@ -1,0 +1,191 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/checkbox/checkbox.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/checkbox/checkbox.js';
+import './Checkbox.css';
+
+/**
+ * Checkboxes allow the user to toggle an option on or off
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Checkbox />
+ *
+ * // With event handlers
+ * <Checkbox
+ *   onChange={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<CheckboxRef>(null);
+ * <button onClick={() => ref.current?.click()}>Call Method</button>
+ * <Checkbox ref={ref} />
+ * ```
+ */
+export interface CheckboxProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'onBlur' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'
+> {
+  /** Draws checkbox in checked state */
+  checked?: boolean;
+
+  /** Disables the checkbox */
+  disabled?: boolean;
+
+  /** Descriptive helper text */
+  hint?: string;
+
+  /** Mixed/parent selection state */
+  indeterminate?: boolean;
+
+  /** Form submission identifier */
+  name?: string;
+
+  /** Makes field mandatory */
+  required?: boolean;
+
+  /** Adjusts checkbox dimensions */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Form submission value */
+  value?: string;
+
+  /** Emitted when the checked state changes. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the checkbox loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when the checkbox gains focus. */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the checkbox receives input. */
+  onInput?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface CheckboxRef {
+  /** Simulates a click on the checkbox. */
+  click: () => void;
+
+  /** Sets focus on the checkbox. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the checkbox. */
+  blur: () => void;
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
+  (
+    {
+      children,
+      className,
+      onChange,
+      onBlur,
+      onFocus,
+      onInput,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
+    const checkboxRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        click: () => {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.click === 'function'
+          ) {
+            checkboxRef.current.click();
+          }
+        },
+        focus: (options: FocusOptions) => {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.focus === 'function'
+          ) {
+            checkboxRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.blur === 'function'
+          ) {
+            checkboxRef.current.blur();
+          }
+        },
+        get element() {
+          return checkboxRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = checkboxRef.current;
+      if (!el) return;
+
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
+
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('input', handleInput);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onChange, onBlur, onFocus, onInput, onInvalid]);
+
+    return (
+      <wa-checkbox
+        ref={(el: WaElement | null) => {
+          checkboxRef.current = el;
+        }}
+        class={clsx('Checkbox', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-checkbox>
+    );
+  }
+);
+
+Checkbox.displayName = 'Checkbox';
