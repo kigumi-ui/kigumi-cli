@@ -1,0 +1,272 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/textarea/textarea.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/textarea/textarea.js';
+import './Textarea.css';
+
+/**
+ * Textareas collect multi-line text data from the user
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Textarea />
+ *
+ * // With event handlers
+ * <Textarea
+ *   onBlur={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<TextareaRef>(null);
+ * <button onClick={() => ref.current?.focus()}>Call Method</button>
+ * <Textarea ref={ref} />
+ * ```
+ */
+export interface TextareaProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onBlur' | 'onChange' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'
+> {
+  /** Form field name */
+  name?: string;
+
+  /** Current value */
+  value?: string;
+
+  /** Visual appearance */
+  appearance?: 'filled' | 'outlined' | 'filled-outlined';
+
+  /** Textarea size */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Label text */
+  label?: string;
+
+  /** Hint text */
+  hint?: string;
+
+  /** Placeholder text */
+  placeholder?: string;
+
+  /** Visible rows */
+  rows?: number;
+
+  /** Resize behavior */
+  resize?: 'none' | 'vertical' | 'horizontal' | 'both' | 'auto';
+
+  /** Disables the textarea */
+  disabled?: boolean;
+
+  /** Makes it readonly */
+  readonly?: boolean;
+
+  /** Makes it required */
+  required?: boolean;
+
+  /** Minimum length */
+  minlength?: number;
+
+  /** Maximum length */
+  maxlength?: number;
+
+  /** Enable spell checking */
+  spellcheck?: boolean;
+
+  /** Emitted when the control loses focus. */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** Emitted when an alteration to the control's value is committed by the user. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the control gains focus. */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted when the control receives input. */
+  onInput?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface TextareaRef {
+  /** Sets focus on the textarea. */
+  focus: (options: FocusOptions) => void;
+
+  /** Removes focus from the textarea. */
+  blur: () => void;
+
+  /** Selects all the text in the textarea. */
+  select: () => void;
+
+  /** Gets or sets the textarea's scroll position. */
+  scrollPosition: (position: { top?: number; left?: number }) => void;
+
+  /** Sets the start and end positions of the text selection (0-based). */
+  setSelectionRange: (
+    selectionStart: number,
+    selectionEnd: number,
+    selectionDirection: 'forward' | 'backward' | 'none'
+  ) => void;
+
+  /** Replaces a range of text with a new string. */
+  setRangeText: (
+    replacement: string,
+    start: number,
+    end: number,
+    selectMode: 'select' | 'start' | 'end' | 'preserve'
+  ) => void;
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Textarea = forwardRef<TextareaRef, TextareaProps>(
+  (
+    {
+      children,
+      className,
+      onBlur,
+      onChange,
+      onFocus,
+      onInput,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
+    const textareaRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options: FocusOptions) => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.focus === 'function'
+          ) {
+            textareaRef.current.focus(options);
+          }
+        },
+        blur: () => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.blur === 'function'
+          ) {
+            textareaRef.current.blur();
+          }
+        },
+        select: () => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.select === 'function'
+          ) {
+            textareaRef.current.select();
+          }
+        },
+        scrollPosition: (position: { top?: number; left?: number }) => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.scrollPosition === 'function'
+          ) {
+            textareaRef.current.scrollPosition(position);
+          }
+        },
+        setSelectionRange: (
+          selectionStart: number,
+          selectionEnd: number,
+          selectionDirection: 'forward' | 'backward' | 'none'
+        ) => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.setSelectionRange === 'function'
+          ) {
+            textareaRef.current.setSelectionRange(
+              selectionStart,
+              selectionEnd,
+              selectionDirection
+            );
+          }
+        },
+        setRangeText: (
+          replacement: string,
+          start: number,
+          end: number,
+          selectMode: 'select' | 'start' | 'end' | 'preserve'
+        ) => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.setRangeText === 'function'
+          ) {
+            textareaRef.current.setRangeText(
+              replacement,
+              start,
+              end,
+              selectMode
+            );
+          }
+        },
+        get element() {
+          return textareaRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+
+      const handleBlur = (e: Event) => {
+        if (onBlur) onBlur(e as FocusEvent);
+      };
+
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleFocus = (e: Event) => {
+        if (onFocus) onFocus(e as FocusEvent);
+      };
+
+      const handleInput = (e: Event) => {
+        if (onInput) onInput(e as CustomEvent);
+      };
+
+      const handleInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('input', handleInput);
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onBlur, onChange, onFocus, onInput, onInvalid]);
+
+    return (
+      <wa-textarea
+        ref={(el: WaElement | null) => {
+          textareaRef.current = el;
+        }}
+        class={clsx('Textarea', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-textarea>
+    );
+  }
+);
+
+Textarea.displayName = 'Textarea';

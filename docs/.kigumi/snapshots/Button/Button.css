@@ -1,0 +1,15 @@
+/**
+ * Button Component Styles
+ * Documentation: https://webawesome.com/docs/components/button
+ *
+ * CSS Parts:
+ * base — Root wrapper element
+ * start — Wrapper for start slot content
+ * label — Button's text label
+ * end — Wrapper for end slot content
+ * caret — Caret icon element, a wa-icon
+ * spinner — Spinner shown during loading state
+ */
+.Button {
+  /* Add your custom styles here */
+}

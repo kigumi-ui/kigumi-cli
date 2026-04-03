@@ -1,0 +1,17 @@
+/**
+ * Sparkline Component Styles
+ * Documentation: https://webawesome.com/docs/components/sparkline
+ *
+ * CSS Custom Properties:
+ * --fill-color: Fill color below the sparkline
+ * --line-color: Stroke color of the sparkline
+ * --line-width: Stroke width of the sparkline
+ *
+ * CSS Parts:
+ * base — Root SVG wrapper element
+ * line — Sparkline path element
+ * fill — Fill area below the line
+ */
+.Sparkline {
+  /* Add your custom styles here */
+}

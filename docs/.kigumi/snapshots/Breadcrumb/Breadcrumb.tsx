@@ -1,0 +1,66 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/breadcrumb/breadcrumb.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/breadcrumb/breadcrumb.js';
+import './Breadcrumb.css';
+
+/**
+ * Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Breadcrumb />
+ *
+ * // With event handlers
+ * <Breadcrumb />
+ *
+ * ```
+ */
+export interface BreadcrumbProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
+  /** The label to use for the breadcrumb control for assistive devices */
+  label?: string;
+}
+
+export interface BreadcrumbRef {
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Breadcrumb = forwardRef<BreadcrumbRef, BreadcrumbProps>(
+  ({ children, className, ...props }, ref) => {
+    const breadcrumbRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return breadcrumbRef.current;
+        },
+      }),
+      []
+    );
+
+    return (
+      <wa-breadcrumb
+        ref={(el: WaElement | null) => {
+          breadcrumbRef.current = el;
+        }}
+        class={clsx('Breadcrumb', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-breadcrumb>
+    );
+  }
+);
+
+Breadcrumb.displayName = 'Breadcrumb';

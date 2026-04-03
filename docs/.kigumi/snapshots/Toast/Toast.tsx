@@ -1,0 +1,79 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  type HTMLAttributes,
+} from 'react';
+import { createPortal } from 'react-dom';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/toast/toast.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/toast/toast.js';
+import './Toast.css';
+
+/**
+ * Container that manages and stacks lightweight notification banners at a chosen screen edge
+ *
+ * @example
+ * ```tsx
+ * // Declarative usage with ToastItem children
+ * <Toast placement="top-end">
+ *   <ToastItem variant="success">File saved!</ToastItem>
+ * </Toast>
+ *
+ * // Programmatic usage with ref
+ * const toastRef = useRef<ToastRef>(null);
+ * toastRef.current?.create('Hello!', { variant: 'brand' });
+ * <Toast ref={(el: WaElement | null) => { toastRef.current = el; }} />
+ * ```
+ */
+export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+  /** Screen corner or edge where notifications are anchored */
+  placement?:
+    | 'top-start'
+    | 'top-center'
+    | 'top-end'
+    | 'bottom-start'
+    | 'bottom-center'
+    | 'bottom-end';
+}
+
+export interface ToastRef {
+  /** Creates a toast notification programmatically */
+  create: (message: string, options?: Record<string, unknown>) => void;
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Toast = forwardRef<ToastRef, ToastProps>(
+  ({ children, className, ...props }, ref) => {
+    const toastRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        create: (message: string, options?: Record<string, unknown>) => {
+          toastRef.current?.create?.(message, options);
+        },
+        get element() {
+          return toastRef.current;
+        },
+      }),
+      []
+    );
+
+    return createPortal(
+      <wa-toast
+        ref={(el: WaElement | null) => {
+          toastRef.current = el;
+        }}
+        class={clsx('Toast', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-toast>,
+      document.body
+    );
+  }
+);
+
+Toast.displayName = 'Toast';

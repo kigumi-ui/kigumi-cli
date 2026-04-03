@@ -1,0 +1,167 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/dropdown/dropdown.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/dropdown/dropdown.js';
+import './Dropdown.css';
+
+/**
+ * Dropdowns expose additional content that pops up when the user interacts with a trigger
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Dropdown />
+ *
+ * // With event handlers
+ * <Dropdown
+ *   onShow={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface DropdownProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onSelect' | 'dir'
+> {
+  /** Indicates whether the dropdown is open */
+  open?: boolean;
+
+  /** Dropdown size */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Preferred placement of the dropdown panel */
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
+
+  /** Disables the dropdown */
+  disabled?: boolean;
+
+  /** Keeps the dropdown open when an item is selected */
+  'stay-open-on-select'?: boolean;
+
+  /** Distance from the panel to the trigger */
+  distance?: number;
+
+  /** Offset along the trigger */
+  skidding?: number;
+
+  /** Hoists the dropdown panel to the body */
+  hoist?: boolean;
+
+  /** Emitted when the dropdown is about to show. */
+  onShow?: (event: CustomEvent) => void;
+
+  /** Emitted after the dropdown has been shown. */
+  onAfterShow?: (event: CustomEvent) => void;
+
+  /** Emitted when the dropdown is about to hide. */
+  onHide?: (event: CustomEvent) => void;
+
+  /** Emitted after the dropdown has been hidden. */
+  onAfterHide?: (event: CustomEvent) => void;
+
+  /** Emitted when an item in the dropdown is selected. */
+  onSelect?: (event: CustomEvent) => void;
+}
+
+export interface DropdownRef {
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
+  (
+    {
+      children,
+      className,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onSelect,
+      ...props
+    },
+    ref
+  ) => {
+    const dropdownRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return dropdownRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = dropdownRef.current;
+      if (!el) return;
+
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
+
+      const handleSelect = (e: Event) => {
+        if (onSelect) onSelect(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-select', handleSelect);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-select', handleSelect);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide, onSelect]);
+
+    return (
+      <wa-dropdown
+        ref={(el: WaElement | null) => {
+          dropdownRef.current = el;
+        }}
+        class={clsx('Dropdown', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-dropdown>
+    );
+  }
+);
+
+Dropdown.displayName = 'Dropdown';

@@ -1,0 +1,36 @@
+/**
+ * Page Component Styles
+ * Documentation: https://webawesome.com/docs/components/page
+ *
+ * CSS Custom Properties:
+ * --menu-width: Width of the navigation menu sidebar
+ * --main-width: Max width of the main content area
+ * --aside-width: Width of the aside panel
+ * --banner-height: Height of the top banner area
+ * --header-height: Height of the main header
+ * --subheader-height: Height of the subheader row
+ *
+ * CSS Parts:
+ * base — Root page layout wrapper
+ * banner — Top banner area
+ * header — Main header section
+ * subheader — Subheader row below the main header
+ * body — Page body containing menu, main, and aside
+ * menu — Navigation menu sidebar
+ * navigation — Navigation content inside the menu
+ * navigation-header — Header area inside the navigation
+ * navigation-footer — Footer area inside the navigation
+ * navigation-toggle — Button to toggle the navigation open/closed
+ * navigation-toggle-icon — Icon inside the navigation toggle button
+ * main-header — Header above the main content
+ * main-content — Primary page content area
+ * main-footer — Footer below the main content
+ * aside — Aside panel for supplementary content
+ * skip-links — Skip-to-content link container
+ * skip-link — Individual skip-to-content link
+ * footer — Page footer section
+ * dialog-wrapper — Overlay container for dialogs
+ */
+.Page {
+  /* Add your custom styles here */
+}

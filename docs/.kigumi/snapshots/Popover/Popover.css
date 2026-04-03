@@ -1,0 +1,20 @@
+/**
+ * Popover Component Styles
+ * Documentation: https://webawesome.com/docs/components/popover
+ *
+ * CSS Custom Properties:
+ * --arrow-size: Size of the popover arrow
+ * --max-width: Maximum width of the popover panel
+ * --show-duration: Duration of the open animation
+ * --hide-duration: Duration of the close animation
+ *
+ * CSS Parts:
+ * dialog — Popover dialog panel
+ * body — Popover body content area
+ * popup — Popup positioning container, a wa-popup element
+ * popup__popup — Popup's inner popup part
+ * popup__arrow — Popup's arrow element
+ */
+.Popover {
+  /* Add your custom styles here */
+}

@@ -1,0 +1,190 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/popover/popover.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/popover/popover.js';
+import './Popover.css';
+
+/**
+ * Popovers display additional content when users interact with a trigger element
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Popover />
+ *
+ * // With event handlers
+ * <Popover
+ *   onShow={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<PopoverRef>(null);
+ * <button onClick={() => ref.current?.show()}>Call Method</button>
+ * <Popover ref={ref} />
+ * ```
+ */
+export interface PopoverProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
+  /** ID of the target element the popover is attached to */
+  for?: string;
+
+  /** Indicates whether the popover is open */
+  open?: boolean;
+
+  /** Disables the popover */
+  disabled?: boolean;
+
+  /** Preferred placement */
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
+
+  /** Activation events (click, hover, focus) */
+  trigger?: string;
+
+  /** Distance from trigger */
+  distance?: number;
+
+  /** Offset along trigger */
+  skidding?: number;
+
+  /** Shows an arrow */
+  'with-arrow'?: boolean;
+
+  /** Hides the arrow (alias: sets with-arrow to false) */
+  'without-arrow'?: boolean;
+
+  /** Emitted when the popover begins to show. Canceling this event will stop the popover from showing. */
+  onShow?: (event: CustomEvent) => void;
+
+  /** Emitted after the popover has shown and all animations are complete. */
+  onAfterShow?: (event: CustomEvent) => void;
+
+  /** Emitted when the popover begins to hide. Canceling this event will stop the popover from hiding. */
+  onHide?: (event: CustomEvent) => void;
+
+  /** Emitted after the popover has hidden and all animations are complete. */
+  onAfterHide?: (event: CustomEvent) => void;
+}
+
+export interface PopoverRef {
+  /** Shows the popover. */
+  show: () => void;
+
+  /** Hides the popover. */
+  hide: () => void;
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Popover = forwardRef<PopoverRef, PopoverProps>(
+  (
+    {
+      children,
+      className,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      'without-arrow': withoutArrow,
+      ...props
+    },
+    ref
+  ) => {
+    const passThrough = {
+      ...props,
+      ...(withoutArrow !== undefined && { 'with-arrow': !withoutArrow }),
+    };
+    const popoverRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        show: () => {
+          if (
+            popoverRef.current &&
+            typeof popoverRef.current.show === 'function'
+          ) {
+            popoverRef.current.show();
+          }
+        },
+        hide: () => {
+          if (
+            popoverRef.current &&
+            typeof popoverRef.current.hide === 'function'
+          ) {
+            popoverRef.current.hide();
+          }
+        },
+        get element() {
+          return popoverRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = popoverRef.current;
+      if (!el) return;
+
+      const handleShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
+
+      const handleAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-popover
+        ref={(el: WaElement | null) => {
+          popoverRef.current = el;
+        }}
+        class={clsx('Popover', className)}
+        {...(passThrough as Record<string, unknown>)}
+      >
+        {children}
+      </wa-popover>
+    );
+  }
+);
+
+Popover.displayName = 'Popover';

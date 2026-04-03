@@ -17,7 +17,7 @@
   "webAwesome": {
     "version": "^3.4.0"
   },
-  "kigumiVersion": "0.18.0",
+  "kigumiVersion": "0.18.3",
   "installedComponents": {
     "Input": {
       "source": "builtin",

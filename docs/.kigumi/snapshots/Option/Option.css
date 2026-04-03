@@ -1,0 +1,13 @@
+/**
+ * Option Component Styles
+ * Documentation: https://webawesome.com/docs/components/option
+ *
+ * CSS Parts:
+ * checked-icon — Checkmark shown when this option is selected
+ * label — Option's text label
+ * start — Wrapper for start slot content
+ * end — Wrapper for end slot content
+ */
+.Option {
+  /* Add your custom styles here */
+}

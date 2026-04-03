@@ -1,0 +1,16 @@
+/**
+ * Spinner Component Styles
+ * Documentation: https://webawesome.com/docs/components/spinner
+ *
+ * CSS Custom Properties:
+ * --track-width: Stroke width of the spinner track
+ * --track-color: Color of the spinner background track
+ * --indicator-color: Color of the spinning indicator arc
+ * --speed: Duration of one full rotation
+ *
+ * CSS Parts:
+ * base — Root wrapper element
+ */
+.Spinner {
+  /* Add your custom styles here */
+}

@@ -1,0 +1,23 @@
+/**
+ * Dialog Component Styles
+ * Documentation: https://webawesome.com/docs/components/dialog
+ *
+ * CSS Custom Properties:
+ * --spacing: Internal padding of the dialog sections
+ * --width: Preferred width of the dialog panel
+ * --show-duration: Duration of the open animation
+ * --hide-duration: Duration of the close animation
+ *
+ * CSS Parts:
+ * dialog — Dialog panel element
+ * header — Header section containing the title and actions
+ * header-actions — Action buttons area in the header
+ * title — Dialog title text
+ * close-button — Header close button
+ * close-button__base — Close button's inner base element
+ * body — Dialog body content area
+ * footer — Dialog footer section
+ */
+.Dialog {
+  /* Add your custom styles here */
+}

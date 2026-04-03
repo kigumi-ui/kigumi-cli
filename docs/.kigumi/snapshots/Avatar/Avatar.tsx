@@ -1,0 +1,98 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/avatar/avatar.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/avatar/avatar.js';
+import './Avatar.css';
+
+/**
+ * Avatars are used to represent a person or object
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Avatar />
+ *
+ * // With event handlers
+ * <Avatar
+ *   onError={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface AvatarProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onError' | 'dir'
+> {
+  /** The image source to use for the avatar */
+  image?: string;
+
+  /** A label to use to describe the avatar to assistive devices */
+  label?: string;
+
+  /** Initials to use as a fallback when no image is available */
+  initials?: string;
+
+  /** Indicates how the browser should load the image */
+  loading?: 'eager' | 'lazy';
+
+  /** The shape of the avatar */
+  shape?: 'circle' | 'square' | 'rounded';
+
+  /** The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. */
+  onError?: (event: CustomEvent) => void;
+}
+
+export interface AvatarRef {
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Avatar = forwardRef<AvatarRef, AvatarProps>(
+  ({ children, className, onError, ...props }, ref) => {
+    const avatarRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return avatarRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = avatarRef.current;
+      if (!el) return;
+
+      const handleError = (e: Event) => {
+        if (onError) onError(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-error', handleError);
+
+      return () => {
+        el.removeEventListener('wa-error', handleError);
+      };
+    }, [onError]);
+
+    return (
+      <wa-avatar
+        ref={(el: WaElement | null) => {
+          avatarRef.current = el;
+        }}
+        class={clsx('Avatar', className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-avatar>
+    );
+  }
+);
+
+Avatar.displayName = 'Avatar';

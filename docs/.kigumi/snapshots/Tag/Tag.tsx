@@ -1,0 +1,105 @@
+import {
+  forwardRef,
+  useRef,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
+import clsx from 'clsx';
+import '@awesome.me/webawesome-pro/dist/components/tag/tag.js';
+import type WaElement from '@awesome.me/webawesome-pro/dist/components/tag/tag.js';
+import './Tag.css';
+
+/**
+ * Tags are used as labels to organize things or indicate selections
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Tag />
+ *
+ * // With event handlers
+ * <Tag
+ *   onRemove={(e) => console.log(e)} />
+ *
+ * ```
+ */
+export interface TagProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onRemove' | 'dir'
+> {
+  /** Visual appearance */
+  appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+
+  /** Rounded edges */
+  pill?: boolean;
+
+  /** Tag size */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Theme variant */
+  variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+
+  /** Shows remove button */
+  'with-remove'?: boolean;
+
+  /** Alias for with-remove (camelCase) */
+  withRemove?: boolean;
+
+  /** Emitted when the remove button is activated. */
+  onRemove?: (event: CustomEvent) => void;
+}
+
+export interface TagRef {
+  /** Reference to the underlying element */
+  element: WaElement | null;
+}
+
+export const Tag = forwardRef<TagRef, TagProps>(
+  ({ children, className, onRemove, withRemove, ...props }, ref) => {
+    const passThrough = {
+      ...props,
+      ...(withRemove !== undefined && { 'with-remove': withRemove }),
+    };
+    const tagRef = useRef<WaElement | null>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return tagRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      const el = tagRef.current;
+      if (!el) return;
+
+      const handleRemove = (e: Event) => {
+        if (onRemove) onRemove(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-remove', handleRemove);
+
+      return () => {
+        el.removeEventListener('wa-remove', handleRemove);
+      };
+    }, [onRemove]);
+
+    return (
+      <wa-tag
+        ref={(el: WaElement | null) => {
+          tagRef.current = el;
+        }}
+        class={clsx('Tag', className)}
+        {...(passThrough as Record<string, unknown>)}
+      >
+        {children}
+      </wa-tag>
+    );
+  }
+);
+
+Tag.displayName = 'Tag';
