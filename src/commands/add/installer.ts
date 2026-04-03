@@ -269,6 +269,11 @@ export class ComponentInstaller {
    * Check if project has test setup (Vitest or Jest)
    */
   private async checkTestSetup(): Promise<boolean> {
+    // Angular CLI always includes test infrastructure (Karma + Jasmine)
+    if (this.config.framework === 'angular') {
+      return true;
+    }
+
     try {
       const packageJsonPath = path.join(this.cwd, 'package.json');
       if (!(await fs.pathExists(packageJsonPath))) {

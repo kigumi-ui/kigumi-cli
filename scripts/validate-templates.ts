@@ -257,10 +257,13 @@ async function validateTemplates(): Promise<ValidationResult> {
  * Print validation results
  */
 function printResults(result: ValidationResult): void {
+  const total = Object.keys(getAllComponents()).length;
   console.log(pc.bold('Statistics:'));
-  console.log(`  React components:   ${result.stats.reactComponents}/62`);
-  console.log(`  Vue components:     ${result.stats.vueComponents}/62`);
-  console.log(`  Angular components: ${result.stats.angularComponents}/62`);
+  console.log(`  React components:   ${result.stats.reactComponents}/${total}`);
+  console.log(`  Vue components:     ${result.stats.vueComponents}/${total}`);
+  console.log(
+    `  Angular components: ${result.stats.angularComponents}/${total}`
+  );
   console.log('');
 
   if (result.stats.missingReactTS > 0) {

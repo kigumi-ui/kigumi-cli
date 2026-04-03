@@ -134,6 +134,15 @@ function generateComponentTS(
   const kebabName = toKebabCase(component.name);
   const events = getEvents(componentKey);
   const methods = getMethods(componentKey);
+
+  // Rename @Output names that collide with method names
+  const methodNames = new Set(methods.map((m) => m.name));
+  for (const event of events) {
+    if (methodNames.has(event.outputName)) {
+      event.outputName = event.outputName + 'Event';
+    }
+  }
+
   const needsCVA =
     CVA_VALUE_COMPONENTS.has(componentKey) ||
     CVA_CHECKED_COMPONENTS.has(componentKey);

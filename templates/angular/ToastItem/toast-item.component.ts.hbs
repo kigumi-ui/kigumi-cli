@@ -34,7 +34,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
 
   @Output() show = new EventEmitter<CustomEvent>();
   @Output() afterShow = new EventEmitter<CustomEvent>();
-  @Output() hide = new EventEmitter<CustomEvent>();
+  @Output() hideEvent = new EventEmitter<CustomEvent>();
   @Output() afterHide = new EventEmitter<CustomEvent>();
 
   private cleanups: (() => void)[] = [];
@@ -47,9 +47,9 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
-    const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
-    el.addEventListener('wa-hide', handleHide);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
+    const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-hide', handleHideEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
