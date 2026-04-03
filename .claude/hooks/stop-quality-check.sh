@@ -4,9 +4,12 @@
 # Runs after Claude finishes responding. If source files changed,
 # runs type-check, lint, and validators. Blocks Claude from stopping
 # if any check fails, feeding errors back as a prompt to fix.
+#
+# Checks run in parallel where possible for speed.
 set -uo pipefail
 
-cd "$(git rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")"
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")"
+cd "$PROJECT_ROOT"
 
 # Read stdin (hook input JSON)
 INPUT=$(cat)
@@ -25,45 +28,87 @@ if [ -z "$CHANGED_FILES" ]; then
   exit 0
 fi
 
-# Only run checks if source/template/test files changed
+# Detect which areas changed
 HAS_SRC_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^(src/|templates/|scripts/|tests/)' || true)
-if [ -z "$HAS_SRC_CHANGES" ]; then
+HAS_DOCS_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^docs/(src/|\.storybook/)' || true)
+
+if [ -z "$HAS_SRC_CHANGES" ] && [ -z "$HAS_DOCS_CHANGES" ]; then
   exit 0
 fi
 
 ERRORS=""
+TMPDIR_HOOKS=$(mktemp -d)
 
-# 1. Type check (fastest, catches most issues)
-TC_OUTPUT=$(pnpm type-check 2>&1) || ERRORS="${ERRORS}--- TypeScript Errors ---\n${TC_OUTPUT}\n\n"
+# Cleanup on exit: kill background jobs + remove temp dir
+cleanup() {
+  kill "${TC_PID:-}" "${LINT_PID:-}" "${VC_PID:-}" "${TC_DOCS_PID:-}" "${TEST_PID:-}" 2>/dev/null
+  rm -rf "$TMPDIR_HOOKS"
+}
+trap cleanup EXIT
 
-# 2. Lint
-LINT_OUTPUT=$(pnpm lint 2>&1) || ERRORS="${ERRORS}--- ESLint Errors ---\n${LINT_OUTPUT}\n\n"
+# --- Parallel checks ---
 
-# 3. Validate changes (AI guard rails)
-VC_OUTPUT=$(pnpm validate:changes 2>&1) || ERRORS="${ERRORS}--- Validation Errors (validate:changes) ---\n${VC_OUTPUT}\n\n"
+if [ -n "$HAS_SRC_CHANGES" ]; then
+  pnpm type-check >"$TMPDIR_HOOKS/tc.out" 2>&1 &
+  TC_PID=$!
 
-# 4. Validate registry (only if registry files changed)
+  pnpm lint >"$TMPDIR_HOOKS/lint.out" 2>&1 &
+  LINT_PID=$!
+
+  pnpm validate:changes >"$TMPDIR_HOOKS/vc.out" 2>&1 &
+  VC_PID=$!
+fi
+
+if [ -n "$HAS_DOCS_CHANGES" ]; then
+  (cd "$PROJECT_ROOT/docs" && ./node_modules/.bin/tsc -p tsconfig.app.json) >"$TMPDIR_HOOKS/tc_docs.out" 2>&1 &
+  TC_DOCS_PID=$!
+fi
+
+if echo "$CHANGED_FILES" | grep -qE '^(src/|tests/)'; then
+  pnpm test >"$TMPDIR_HOOKS/test.out" 2>&1 &
+  TEST_PID=$!
+fi
+
+# --- Wait and collect errors ---
+
+if [ -n "${TC_PID:-}" ]; then
+  wait "$TC_PID" || ERRORS="${ERRORS}--- TypeScript Errors ---\n$(cat "$TMPDIR_HOOKS/tc.out")\n\n"
+fi
+
+if [ -n "${LINT_PID:-}" ]; then
+  wait "$LINT_PID" || ERRORS="${ERRORS}--- ESLint Errors ---\n$(cat "$TMPDIR_HOOKS/lint.out")\n\n"
+fi
+
+if [ -n "${VC_PID:-}" ]; then
+  wait "$VC_PID" || ERRORS="${ERRORS}--- Validation Errors (validate:changes) ---\n$(cat "$TMPDIR_HOOKS/vc.out")\n\n"
+fi
+
+if [ -n "${TC_DOCS_PID:-}" ]; then
+  wait "$TC_DOCS_PID" || ERRORS="${ERRORS}--- Docs TypeScript Errors ---\n$(cat "$TMPDIR_HOOKS/tc_docs.out")\n\n"
+fi
+
+if [ -n "${TEST_PID:-}" ]; then
+  wait "$TEST_PID" || ERRORS="${ERRORS}--- Unit Test Failures ---\n$(cat "$TMPDIR_HOOKS/test.out")\n\n"
+fi
+
+# --- Sequential conditional checks (fast, file-scoped) ---
+
 if echo "$CHANGED_FILES" | grep -q 'registry'; then
   VR_OUTPUT=$(pnpm validate:registry 2>&1) || ERRORS="${ERRORS}--- Registry Validation Errors ---\n${VR_OUTPUT}\n\n"
 fi
 
-# 5. Validate templates (only if templates/ changed)
 if echo "$CHANGED_FILES" | grep -q 'templates/'; then
   VT_OUTPUT=$(pnpm validate:templates 2>&1) || ERRORS="${ERRORS}--- Template Validation Errors ---\n${VT_OUTPUT}\n\n"
 fi
 
-# 6. Unit tests (only if src/ or tests/ changed)
-if echo "$CHANGED_FILES" | grep -qE '^(src/|tests/)'; then
-  TEST_OUTPUT=$(pnpm test 2>&1) || ERRORS="${ERRORS}--- Unit Test Failures ---\n${TEST_OUTPUT}\n\n"
-fi
+# --- Report ---
 
 if [ -n "$ERRORS" ]; then
   REASON=$(printf "Quality checks failed. Please fix these errors:\n\n%b" "$ERRORS")
-  # Escape for JSON
   REASON_JSON=$(echo "$REASON" | jq -Rs .)
   echo "{\"decision\": \"block\", \"reason\": ${REASON_JSON}}"
   exit 0
 fi
 
-# All checks passed — allow Claude to stop
+# All checks passed
 exit 0
