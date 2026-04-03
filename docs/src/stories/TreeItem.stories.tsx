@@ -178,39 +178,3 @@ export const Nested: Story = {
     </Tree>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '2rem',
-        padding: '1.5rem',
-      }}
-    >
-      <Tree style={{ maxWidth: '300px' }}>
-        <TreeItem expanded>
-          Parent
-          <TreeItem>Child 1</TreeItem>
-          <TreeItem selected>Child 2 (selected)</TreeItem>
-          <TreeItem disabled>Child 3 (disabled)</TreeItem>
-        </TreeItem>
-        <TreeItem>
-          <Icon name="folder" slot="expand-icon" />
-          <Icon name="folder-open" slot="collapse-icon" />
-          With Icons
-          <TreeItem>
-            <Icon name="file-earmark" slot="expand-icon" />
-            file.txt
-          </TreeItem>
-        </TreeItem>
-      </Tree>
-    </div>
-  ),
-};

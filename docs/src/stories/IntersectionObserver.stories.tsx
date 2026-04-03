@@ -166,37 +166,3 @@ export const LazyLoad: Story = {
     );
   },
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <p
-        style={{
-          marginBottom: '1rem',
-          color: 'var(--wa-color-neutral-text-subtle)',
-          fontSize: '0.875rem',
-        }}
-      >
-        IntersectionObserver triggers events based on element visibility and is
-        not directly visual.
-      </p>
-      <IntersectionObserver>
-        <div
-          style={{
-            padding: '2rem',
-            background: 'var(--wa-color-neutral-fill-subtle)',
-            borderRadius: '0.5rem',
-            textAlign: 'center',
-          }}
-        >
-          Observed Element
-        </div>
-      </IntersectionObserver>
-    </div>
-  ),
-};

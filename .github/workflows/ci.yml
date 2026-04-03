@@ -3,6 +3,7 @@ name: CI
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_call:
     inputs:
       chromatic-skip:
@@ -122,27 +123,29 @@ jobs:
   chromatic:
     name: Visual Regression (Chromatic)
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
+    if: github.actor != 'dependabot[bot]' && github.event.pull_request.draft != true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Detect docs changes
-        id: docs-filter
+      - name: Detect visual changes
+        id: visual-filter
         uses: dorny/paths-filter@v4
         with:
           filters: |
-            docs:
-              - 'docs/**'
+            visual:
+              - 'docs/src/stories/**'
+              - 'docs/src/components/**'
+              - 'docs/.storybook/**'
 
       - name: Setup pnpm
-        if: steps.docs-filter.outputs.docs == 'true' || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        if: steps.docs-filter.outputs.docs == 'true' || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
         uses: actions/setup-node@v6
         with:
           node-version: 20
@@ -150,26 +153,26 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Configure Pro registry for docs
-        if: steps.docs-filter.outputs.docs == 'true' && inputs.chromatic-skip != true
+        if: (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')) && inputs.chromatic-skip != true
         run: |
           printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
-        if: steps.docs-filter.outputs.docs == 'true' || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
         run: pnpm install --frozen-lockfile
 
       - name: Install docs dependencies
-        if: steps.docs-filter.outputs.docs == 'true' && inputs.chromatic-skip != true
+        if: (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')) && inputs.chromatic-skip != true
         working-directory: docs
         run: pnpm install --frozen-lockfile
 
       - name: Build Storybook
-        if: steps.docs-filter.outputs.docs == 'true' && inputs.chromatic-skip != true
+        if: (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')) && inputs.chromatic-skip != true
         working-directory: docs
         run: pnpm build-storybook --stats-json
 
       - name: Run Chromatic
-        if: steps.docs-filter.outputs.docs == 'true' || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
         uses: chromaui/action@latest
         with:
           workingDir: docs

@@ -113,25 +113,3 @@ export const SameOrigin: Story = {
     </div>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <p
-        style={{
-          color: 'var(--wa-color-neutral-text-subtle)',
-          fontSize: '0.875rem',
-        }}
-      >
-        Include fetches external HTML content and is not testable in a static
-        Chromatic snapshot.
-      </p>
-      <Include src="https://non-existent.invalid/page.html" />
-    </div>
-  ),
-};
