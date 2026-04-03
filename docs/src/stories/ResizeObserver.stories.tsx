@@ -125,39 +125,3 @@ export const Disabled: Story = {
     </div>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <p
-        style={{
-          marginBottom: '1rem',
-          color: 'var(--wa-color-neutral-text-subtle)',
-          fontSize: '0.875rem',
-        }}
-      >
-        ResizeObserver triggers events on element resize and is not directly
-        visual.
-      </p>
-      <ResizeObserver>
-        <div
-          style={{
-            padding: '2rem',
-            background: 'var(--wa-color-neutral-fill-subtle)',
-            borderRadius: '0.5rem',
-            resize: 'both',
-            overflow: 'auto',
-            minWidth: '200px',
-          }}
-        >
-          Resizable Element (drag corner to resize)
-        </div>
-      </ResizeObserver>
-    </div>
-  ),
-};

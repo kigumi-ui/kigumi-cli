@@ -158,37 +158,3 @@ export const AttributeObserver: Story = {
     );
   },
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div style={{ padding: '1.5rem' }}>
-      <p
-        style={{
-          marginBottom: '1rem',
-          color: 'var(--wa-color-neutral-text-subtle)',
-          fontSize: '0.875rem',
-        }}
-      >
-        MutationObserver observes DOM changes and is not directly visual.
-      </p>
-      <MutationObserver attr="class">
-        <div
-          style={{
-            padding: '2rem',
-            background: 'var(--wa-color-neutral-fill-subtle)',
-            borderRadius: '0.5rem',
-            textAlign: 'center',
-          }}
-        >
-          Observed Element
-        </div>
-      </MutationObserver>
-      <Button style={{ marginTop: '1rem' }}>Add Mutation</Button>
-    </div>
-  ),
-};

@@ -141,38 +141,3 @@ export const WithIcon: Story = {
     </div>
   ),
 };
-
-/** Static snapshot for visual regression testing. */
-export const ChromaticOnly: Story = {
-  tags: ['!dev', '!autodocs'],
-  parameters: {
-    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
-  },
-  render: () => (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        padding: '1.5rem',
-        maxWidth: '400px',
-      }}
-    >
-      <ToastItem variant="brand" duration={0}>
-        Brand
-      </ToastItem>
-      <ToastItem variant="success" duration={0}>
-        Success
-      </ToastItem>
-      <ToastItem variant="warning" duration={0}>
-        Warning
-      </ToastItem>
-      <ToastItem variant="danger" duration={0}>
-        Danger
-      </ToastItem>
-      <ToastItem variant="neutral" duration={0}>
-        Neutral
-      </ToastItem>
-    </div>
-  ),
-};
