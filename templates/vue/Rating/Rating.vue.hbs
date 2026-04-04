@@ -41,10 +41,10 @@ const elementRef = ref<WaElement | null>(null);
 
 watch(model, (val) => {
   const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? '';
+  if (el && el.value !== val) el.value = val ?? 0;
 });
 
-const handleChange = (e: Event) => { model.value = (e.target as HTMLInputElement).value; emit('change', e as CustomEvent); };
+const handleChange = (e: Event) => { model.value = Number((e.target as HTMLInputElement).value); emit('change', e as CustomEvent); };
 const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 

@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Dropdown.css';
+
+type DropdownElement = HTMLElement & {
+  open?: boolean;
+  show?: () => Promise<void>;
+  hide?: () => Promise<void>;
+};
 
 /**
  * Dropdowns expose additional content that pops up when the user interacts with a trigger
@@ -38,7 +43,7 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>('open', { default: false });
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<DropdownElement | null>(null);
 
 watch(open, (newOpen) => {
   const el = elementRef.value;
