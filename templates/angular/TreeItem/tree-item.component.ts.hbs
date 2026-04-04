@@ -70,7 +70,8 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
     this.cleanups.forEach((fn) => fn());
   }
 
-  getChildrenItems({ includeDisabled = true }?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { getChildrenItems: ({ includeDisabled = true }: unknown) => void }).getChildrenItems({ includeDisabled = true });
+  getChildrenItems(options?: { includeDisabled?: boolean }): void {
+    const el = this.elementRef.nativeElement as unknown as { getChildrenItems: (opts: { includeDisabled: boolean }) => void };
+    el.getChildrenItems({ includeDisabled: options?.includeDisabled ?? true });
   }
 }

@@ -34,10 +34,10 @@ const elementRef = ref(null);
 
 watch(model, (val) => {
   const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? '';
+  if (el && el.value !== val) el.value = val ?? 0;
 });
 
-const handleChange = (e) => { model.value = e.target.value; emit('change', e); };
+const handleChange = (e) => { model.value = Number(e.target.value); emit('change', e); };
 const handleWaHover = (e) => emit('wa-hover', e);
 const handleWaInvalid = (e) => emit('wa-invalid', e);
 
