@@ -18,7 +18,7 @@
 @import '@awesome.me/webawesome-pro/dist/styles/webawesome.css' layer(base);
 
 /* Layer 1: Web Awesome theme styles */
-@import '@awesome.me/webawesome-pro/dist/styles/themes/tailspin.css' layer(base);
+@import '@awesome.me/webawesome-pro/dist/styles/themes/default.css' layer(base);
 
 /* Layer 2: Your custom CSS overrides */
 @import '@/styles/theme.css' layer(theme);
