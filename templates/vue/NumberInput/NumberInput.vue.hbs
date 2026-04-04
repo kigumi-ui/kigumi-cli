@@ -46,10 +46,10 @@ const elementRef = ref<WaElement | null>(null);
 
 watch(model, (val) => {
   const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? '';
+  if (el && Number(el.value) !== val) (el as unknown as { value: number }).value = val ?? 0;
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as HTMLInputElement).value; emit('input', e as CustomEvent); };
+const handleInput = (e: Event) => { model.value = Number((e.target as HTMLInputElement).value); emit('input', e as CustomEvent); };
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);

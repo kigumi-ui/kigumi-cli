@@ -39,7 +39,7 @@ const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
 const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
 
 onMounted(() => {
-  const el = elementRef.value;
+  const el = elementRef.value as HTMLElement | null;
   if (!el) return;
 
   el.addEventListener('wa-show', handleWaShow);
@@ -49,7 +49,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  const el = elementRef.value;
+  const el = elementRef.value as HTMLElement | null;
   if (!el) return;
 
   el.removeEventListener('wa-show', handleWaShow);
@@ -59,7 +59,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  hide: () => elementRef.value?.hide?.(),
+  hide: () => (elementRef.value as unknown as { hide?: () => void })?.hide?.(),
   element: elementRef,
 });
 </script>

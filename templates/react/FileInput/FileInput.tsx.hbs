@@ -99,6 +99,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
     useEffect(() => {
       const el = fileinputRef.current;
       if (!el) return;
+      const htmlEl = el as unknown as HTMLElement;
 
       const handleInput = (e: Event) => {
         if (onInput) onInput(e as CustomEvent);
@@ -120,18 +121,18 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
-      el.addEventListener('input', handleInput);
-      el.addEventListener('change', handleChange);
-      el.addEventListener('focus', handleFocus);
-      el.addEventListener('blur', handleBlur);
-      el.addEventListener('wa-invalid', handleInvalid);
+      htmlEl.addEventListener('input', handleInput);
+      htmlEl.addEventListener('change', handleChange);
+      htmlEl.addEventListener('focus', handleFocus);
+      htmlEl.addEventListener('blur', handleBlur);
+      htmlEl.addEventListener('wa-invalid', handleInvalid);
 
       return () => {
-        el.removeEventListener('input', handleInput);
-        el.removeEventListener('change', handleChange);
-        el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('blur', handleBlur);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        htmlEl.removeEventListener('input', handleInput);
+        htmlEl.removeEventListener('change', handleChange);
+        htmlEl.removeEventListener('focus', handleFocus);
+        htmlEl.removeEventListener('blur', handleBlur);
+        htmlEl.removeEventListener('wa-invalid', handleInvalid);
       };
     }, [onInput, onChange, onFocus, onBlur, onInvalid]);
 

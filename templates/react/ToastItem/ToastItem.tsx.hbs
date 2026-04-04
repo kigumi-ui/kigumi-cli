@@ -76,22 +76,23 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
     useEffect(() => {
       const el = toastItemRef.current;
       if (!el) return;
+      const htmlEl = el as unknown as HTMLElement;
 
       const handleShow = (e: Event) => onShow?.(e as CustomEvent);
       const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
       const handleHide = (e: Event) => onHide?.(e as CustomEvent);
       const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
 
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-after-show', handleAfterShow);
-      el.addEventListener('wa-hide', handleHide);
-      el.addEventListener('wa-after-hide', handleAfterHide);
+      htmlEl.addEventListener('wa-show', handleShow);
+      htmlEl.addEventListener('wa-after-show', handleAfterShow);
+      htmlEl.addEventListener('wa-hide', handleHide);
+      htmlEl.addEventListener('wa-after-hide', handleAfterHide);
 
       return () => {
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-after-show', handleAfterShow);
-        el.removeEventListener('wa-hide', handleHide);
-        el.removeEventListener('wa-after-hide', handleAfterHide);
+        htmlEl.removeEventListener('wa-show', handleShow);
+        htmlEl.removeEventListener('wa-after-show', handleAfterShow);
+        htmlEl.removeEventListener('wa-hide', handleHide);
+        htmlEl.removeEventListener('wa-after-hide', handleAfterHide);
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 

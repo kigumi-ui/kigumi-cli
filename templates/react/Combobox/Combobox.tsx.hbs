@@ -178,6 +178,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
     useEffect(() => {
       const el = comboboxRef.current;
       if (!el) return;
+      const htmlEl = el as unknown as HTMLElement;
 
       const handleInput = (e: Event) => {
         if (onInput) onInput(e as CustomEvent);
@@ -223,30 +224,30 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
         if (onCreate) onCreate(e as CustomEvent);
       };
 
-      el.addEventListener('input', handleInput);
-      el.addEventListener('change', handleChange);
-      el.addEventListener('focus', handleFocus);
-      el.addEventListener('blur', handleBlur);
-      el.addEventListener('wa-clear', handleClear);
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-after-show', handleAfterShow);
-      el.addEventListener('wa-hide', handleHide);
-      el.addEventListener('wa-after-hide', handleAfterHide);
-      el.addEventListener('wa-invalid', handleInvalid);
-      el.addEventListener('wa-create', handleCreate);
+      htmlEl.addEventListener('input', handleInput);
+      htmlEl.addEventListener('change', handleChange);
+      htmlEl.addEventListener('focus', handleFocus);
+      htmlEl.addEventListener('blur', handleBlur);
+      htmlEl.addEventListener('wa-clear', handleClear);
+      htmlEl.addEventListener('wa-show', handleShow);
+      htmlEl.addEventListener('wa-after-show', handleAfterShow);
+      htmlEl.addEventListener('wa-hide', handleHide);
+      htmlEl.addEventListener('wa-after-hide', handleAfterHide);
+      htmlEl.addEventListener('wa-invalid', handleInvalid);
+      htmlEl.addEventListener('wa-create', handleCreate);
 
       return () => {
-        el.removeEventListener('input', handleInput);
-        el.removeEventListener('change', handleChange);
-        el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('blur', handleBlur);
-        el.removeEventListener('wa-clear', handleClear);
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-after-show', handleAfterShow);
-        el.removeEventListener('wa-hide', handleHide);
-        el.removeEventListener('wa-after-hide', handleAfterHide);
-        el.removeEventListener('wa-invalid', handleInvalid);
-        el.removeEventListener('wa-create', handleCreate);
+        htmlEl.removeEventListener('input', handleInput);
+        htmlEl.removeEventListener('change', handleChange);
+        htmlEl.removeEventListener('focus', handleFocus);
+        htmlEl.removeEventListener('blur', handleBlur);
+        htmlEl.removeEventListener('wa-clear', handleClear);
+        htmlEl.removeEventListener('wa-show', handleShow);
+        htmlEl.removeEventListener('wa-after-show', handleAfterShow);
+        htmlEl.removeEventListener('wa-hide', handleHide);
+        htmlEl.removeEventListener('wa-after-hide', handleAfterHide);
+        htmlEl.removeEventListener('wa-invalid', handleInvalid);
+        htmlEl.removeEventListener('wa-create', handleCreate);
       };
     }, [onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, onCreate]);
 
