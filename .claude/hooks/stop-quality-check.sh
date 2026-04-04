@@ -101,6 +101,10 @@ if echo "$CHANGED_FILES" | grep -q 'templates/'; then
   VT_OUTPUT=$(pnpm validate:templates 2>&1) || ERRORS="${ERRORS}--- Template Validation Errors ---\n${VT_OUTPUT}\n\n"
 fi
 
+if echo "$CHANGED_FILES" | grep -qE 'AGENTS\.md|registry\.ts|tests/unit/'; then
+  VA_OUTPUT=$(pnpm validate:agents 2>&1) || ERRORS="${ERRORS}--- AGENTS.md Validation Errors ---\n${VA_OUTPUT}\n\n"
+fi
+
 # --- Report ---
 
 if [ -n "$ERRORS" ]; then

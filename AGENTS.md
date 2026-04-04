@@ -2,7 +2,7 @@
 
 > **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Angular wrappers around Web Awesome components.
 
-**Version**: 0.13.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
+**Version**: 0.19.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
 
 ## Quick Start
 
@@ -54,8 +54,26 @@ node dist/index.js add button --force
 | `src/utils/version-map.ts` | Version history + breaking changes data |
 | `src/utils/github-fetcher.ts` | GitHub API integration for registries |
 | `src/schemas/community-registry.ts` | Community registry schema validation |
-| `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json → `component-metadata.ts` (events, slots, methods) |
+| `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json ��� `component-metadata.ts` (events, slots, methods) |
+| `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
+| `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
 | `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
+| `scripts/generate-skill-references.ts` | Generate skill reference documentation |
+| `scripts/generate-skills-index.mjs` | Generate `.claude/skills/` index file |
+| `scripts/post-build.ts` | Post-build tasks (copy templates to dist) |
+| `scripts/post-changeset-version.ts` | Update version references after changeset version bump |
+| `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
+| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality |
+| `scripts/validate-cem-sync.ts` | Validate CEM metadata is in sync with registry |
+| `scripts/validate-changes.ts` | Validate changeset entries |
+| `scripts/validate-parity.ts` | Validate React/Vue/Angular template parity |
+| `scripts/validate-registry.ts` | Validate registry definitions are complete |
+| `scripts/validate-templates.ts` | Validate template rendering for all components |
+| `scripts/verify-test-app.ts` | Verify test app output after build |
+| `scripts/storybook/overrides.ts` | Storybook story overrides |
+| `scripts/storybook/patch-stories.ts` | Patch generated Storybook stories |
+| `scripts/storybook/story-data.ts` | Storybook story data helpers |
+| `scripts/storybook/validate-stories.ts` | Validate Storybook story structure |
 
 ---
 
@@ -73,6 +91,8 @@ node dist/index.js add button --force
 | `generate-theme-preset`      | `.claude/skills/generate-theme-preset/`      | Contributor | Create Studio theme presets           |
 | `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates  |
 | `release`                    | `.claude/skills/release/`                    | Contributor | Prepare and publish releases          |
+| `kigumi-feature-spec`        | `.claude/skills/kigumi-feature-spec/`        | Contributor | Create feature specs and plans        |
+| `apply-theme-to-figma`       | `.claude/skills/apply-theme-to-figma/`       | Contributor | Apply CSS tokens to Figma UI Kit      |
 
 ---
 
@@ -193,14 +213,14 @@ Reference: https://webawesome.com/docs/utilities/ and https://webawesome.com/doc
 
 ## Tier System
 
-**Single source of truth:** `.env` file determines tier, NOT config.
+**Single source of truth:** `package.json` determines tier (with token fallback), NOT config.
 
-| Tier | Detection                        | Package                      | Themes    |
-| ---- | -------------------------------- | ---------------------------- | --------- |
-| Free | No token in `.env`               | `@awesome.me/webawesome`     | 3 themes  |
-| Pro  | `WEBAWESOME_NPM_TOKEN` in `.env` | `@awesome.me/webawesome-pro` | 11 themes |
+| Tier | Detection                                    | Package                      | Themes    |
+| ---- | -------------------------------------------- | ---------------------------- | --------- |
+| Free | `@awesome.me/webawesome` in package.json     | `@awesome.me/webawesome`     | 3 themes  |
+| Pro  | `@awesome.me/webawesome-pro` in package.json | `@awesome.me/webawesome-pro` | 11 themes |
 
-**Pro-only components:** page, chart, bar-chart, line-chart, bubble-chart, doughnut-chart, pie-chart, polar-area-chart, radar-chart, scatter-chart, combobox, data-grid, date-picker, file-input, number-input, sparkline, toast, toast-item, video
+**Pro-only components:** chart, bar-chart, line-chart, bubble-chart, doughnut-chart, pie-chart, polar-area-chart, radar-chart, scatter-chart, combobox, file-input, number-input, sparkline, toast, toast-item
 
 ### Tier Detection Logic
 
@@ -325,7 +345,7 @@ flowchart TD
     end
 
     subgraph Utils["utils/"]
-        registry["registry.ts\n73+ ComponentDefinitions\nprops, events, slots, methods"]
+        registry["registry.ts\n74 ComponentDefinitions\nprops, events, slots, methods"]
         template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
         tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
@@ -366,8 +386,9 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 73 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
-        tpl_vue["vue/ — 73 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
+        tpl_react["react/ — 74 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
+        tpl_vue["vue/ — 74 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
+        tpl_angular["angular/ — 74 components\n.component.ts.hbs, .module.ts.hbs"]
     end
 
     CLI --> Commands
@@ -408,7 +429,7 @@ flowchart TD
     FW_INDEX --> react & vue & angular & svelte
     react --> template
     vue --> template
-    template --> tpl_react & tpl_vue
+    template --> tpl_react & tpl_vue & tpl_angular
     template --> registry
     template --> css_meta
 
@@ -995,4 +1016,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-03
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-04
