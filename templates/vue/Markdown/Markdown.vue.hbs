@@ -32,7 +32,7 @@ const elementRef = ref<MarkdownElement | null>(null);
 
 defineExpose({
   renderMarkdown: () => elementRef.value?.renderMarkdown?.(),
-  getMarked: () => elementRef.value?.getMarked?.(),
+  getMarked: () => (elementRef.value as unknown as { marked?: unknown })?.marked,
   updateAll: () => (elementRef.value?.constructor as { updateAll?: () => void })?.updateAll?.(),
   element: elementRef,
 });

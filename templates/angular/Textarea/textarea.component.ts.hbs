@@ -29,7 +29,8 @@ import type WaElement from '{{{importPath}}}';
         [attr.required]="required || null"
         [attr.minlength]="minlength"
         [attr.maxlength]="maxlength"
-        [attr.spellcheck]="spellcheck || null">
+        [attr.spellcheck]="spellcheck || null"
+        [attr.with-count]="withCount || null">
       <ng-content />
     </{{tagName}}>
   `,
@@ -76,6 +77,8 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
   @Input() maxlength?: number;
   /** Enable spell checking */
   @Input() spellcheck?: boolean;
+  /** Shows a character count when maxlength is set */
+  @Input() withCount?: boolean;
 
   @Output() blurEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();

@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Combobox**: New props `allow-create`, `autocapitalize`, `autocorrect`, `enterkeyhint`, `inputmode`, `spellcheck`; new `onCreate` event for custom option creation
 - **ColorPicker**: New `placement` prop for panel positioning
 - **Textarea**: New `with-count` prop for character count display (requires `maxlength`)
-- **Rating**: Now form-associated with new `name` and `required` props for form submission
+- **Rating**: Now form-associated with new `name`, `required` props and `onInvalid` event for form submission
 - Visual diff output in `kigumi update` and `kigumi add --force` showing colored line-by-line changes
 - Smart-add: `kigumi add` now shows a diff and prompts before overwriting existing components
 - `kigumi diff` now shows line-level differences for changed files

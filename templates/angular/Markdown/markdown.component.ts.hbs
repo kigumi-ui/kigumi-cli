@@ -15,7 +15,7 @@ import type WaElement from '{{{importPath}}}';
     <{{tagName}}
         #element
         [attr.tab-size]="tabSize">
-      <ng-content></ng-content>
+      <ng-content />
     </{{tagName}}>
   `,
   styleUrl: './markdown.component.css',
@@ -25,7 +25,7 @@ export class {{name}}Component implements AfterViewInit {
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Tab stop width for whitespace normalization */
-  @Input('tab-size') tabSize?: number;
+  @Input() tabSize?: number;
 
   ngAfterViewInit(): void {
     const el = this.elementRef.nativeElement;
@@ -43,21 +43,19 @@ export class {{name}}Component implements AfterViewInit {
     }
   }
 
-  /** Re-renders the markdown content */
-  renderMarkdown(): void {
-    const el = this.elementRef?.nativeElement as unknown as { renderMarkdown?: () => void };
-    el?.renderMarkdown?.();
-  }
-
-  /** Returns the shared Marked instance used by all wa-markdown components */
+  /** Returns the shared Marked instance */
   getMarked(): unknown {
-    const el = this.elementRef?.nativeElement as unknown as { marked?: unknown };
-    return el?.marked;
+    return (this.elementRef.nativeElement as unknown as { marked?: unknown }).marked;
   }
 
   /** Re-renders all connected wa-markdown instances */
   updateAll(): void {
-    const El = this.elementRef?.nativeElement?.constructor as unknown as { updateAll?: () => void };
+    const El = this.elementRef.nativeElement.constructor as unknown as { updateAll?: () => void };
     El?.updateAll?.();
+  }
+
+  /** Re-renders the markdown content */
+  renderMarkdown(): void {
+    (this.elementRef.nativeElement as unknown as { renderMarkdown?: () => void }).renderMarkdown?.();
   }
 }
