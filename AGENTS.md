@@ -177,7 +177,7 @@ Components must be imported in `src/lib/kigumi.ts`:
 import '@awesome.me/webawesome/dist/components/button/button.js';
 ```
 
-Auto-managed by `updateKigumiImports()` in `src/commands/add.ts`.
+Auto-managed by `updateKigumiImports()` in `src/commands/add/installer.ts`.
 
 ### 7. Dialog API: `requestClose()` not `hide()`
 
