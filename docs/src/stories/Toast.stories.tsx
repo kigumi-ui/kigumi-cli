@@ -7,7 +7,7 @@ import type { ToastRef } from '@/components/ui/Toast/Toast';
 const meta = {
   title: 'Components/Toast',
   component: Toast,
-  tags: ['autodocs', 'pro'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     placement: {
       control: 'select',

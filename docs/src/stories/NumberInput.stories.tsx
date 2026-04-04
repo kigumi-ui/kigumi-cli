@@ -6,7 +6,7 @@ import { NumberInput } from '@/components/ui';
 const meta = {
   title: 'Components/Number Input',
   component: NumberInput,
-  tags: ['autodocs', 'pro'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     label: { control: 'text', description: 'Accessible label' },
     hint: { control: 'text', description: 'Descriptive hint text' },

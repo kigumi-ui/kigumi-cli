@@ -5,7 +5,7 @@ import { Markdown } from '@/components/ui/Markdown/Markdown';
 const meta = {
   title: 'Components/Markdown',
   component: Markdown,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'beta'],
   argTypes: {
     'tab-size': {
       control: 'number',
