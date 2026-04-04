@@ -7,36 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.19.0] - 2026-04-04
 
-## [Unreleased]
-
-### Breaking Changes
-
-- **Combobox**: `autocomplete` prop removed (dropped in Web Awesome 3.4.0). Filtering is now automatic. Use `allow-create` for custom entries.
-
 ### Added
 
 - **Web Awesome 3.5.0**: Upgrade dependency from ^3.4.0 to ^3.5.0
-- **New component: Markdown**: Renders markdown content in plain HTML (`wa-markdown`, free tier, experimental)
-- **Combobox**: New props `allow-create`, `autocapitalize`, `autocorrect`, `enterkeyhint`, `inputmode`, `spellcheck`; new `onCreate` event for custom option creation
-- **ColorPicker**: New `placement` prop for panel positioning
-- **Textarea**: New `with-count` prop for character count display (requires `maxlength`)
-- **Rating**: Now form-associated with new `name`, `required` props and `onInvalid` event for form submission
-- Visual diff output in `kigumi update` and `kigumi add --force` showing colored line-by-line changes
-- Smart-add: `kigumi add` now shows a diff and prompts before overwriting existing components
-- `kigumi diff` now shows line-level differences for changed files
-- Snapshots for community registry components (`--from` installs now support `kigumi update`)
-- Cleanup of partially written files on community component download failure
+- **Markdown**: New free component (experimental)
+- **Page**: Moved from Pro to Free tier
+- **Combobox**: New props allow-create, autocapitalize, autocorrect, enterkeyhint, inputmode, spellcheck and wa-create event
+- **ColorPicker**: New placement prop
+- **Textarea**: New with-count prop
+- **Rating**: Now form-associated with name and required props
+- **Angular**: Host attribute forwarding and AfterViewInit lifecycle for all 74 components
 
 ### Changed
 
-- `--overwrite` flag renamed to `--force` (overwrites without prompting)
-- `kigumi add` with existing component now shows diff + prompt instead of erroring
-- `kigumi update --dry-run` shows diffs without writing files
-- `kigumi update --force` shows diffs before overwriting
+- **Combobox**: Removed deprecated autocomplete prop (upstream breaking change)
 
-### Removed
+### Fixed
 
-- `--verbose` flag from `kigumi diff` (line-level diffs are now always shown)
+- **Templates**: Resolved pre-existing type errors across React, Vue, and Angular via starter repo testing
+- **Templates**: Angular prop sync and Markdown getMarked instance fix
+- **Templates**: NumberInput Vue JS variant uses numeric fallback (val ?? 0) instead of string
+
+## [Unreleased]
 
 ## [0.18.3] - 2026-03-29
 
