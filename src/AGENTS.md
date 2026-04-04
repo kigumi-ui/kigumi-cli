@@ -247,7 +247,7 @@ Modular initialization with separate concerns:
 
 ```typescript
 const previousTier = await detectPreviousTier(cwd); // from package.json
-const newTier = await detectTier(cwd); // from .env
+const newTier = await detectTier(cwd); // package.json first, then token fallback
 
 if (previousTier !== newTier) {
   await migratePackageReferences(cwd, previousTier, newTier);
