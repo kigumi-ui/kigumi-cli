@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, Input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
 
@@ -32,8 +32,9 @@ import type WaElement from '{{{importPath}}}';
   `,
   styleUrl: './line-chart.component.css',
 })
-export class {{name}}Component {
+export class {{name}}Component implements AfterViewInit {
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Accessible name announced by assistive technology */
   @Input() label?: string;
@@ -61,4 +62,20 @@ export class {{name}}Component {
   @Input() withoutLegend?: boolean;
   /** Prevents hover tooltips from appearing on data points */
   @Input() withoutTooltip?: boolean;
+
+  ngAfterViewInit(): void {
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+  }
 }

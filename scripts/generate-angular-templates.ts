@@ -154,11 +154,13 @@ function generateComponentTS(
     'CUSTOM_ELEMENTS_SCHEMA',
     'ElementRef',
     'ViewChild',
+    'AfterViewInit',
+    'inject',
   ];
   if (component.props.length > 0 || needsCVA) coreImports.push('Input');
   if (events.length > 0) coreImports.push('Output', 'EventEmitter');
   if (events.length > 0 || needsCVA) {
-    coreImports.push('AfterViewInit', 'OnDestroy');
+    coreImports.push('OnDestroy');
   }
   if (needsCVA) coreImports.push('forwardRef');
 
@@ -224,17 +226,17 @@ function generateComponentTS(
   lines.push('})');
 
   // Build class
-  const interfaces: string[] = [];
+  const interfaces: string[] = ['AfterViewInit'];
   if (events.length > 0 || needsCVA) {
-    interfaces.push('AfterViewInit', 'OnDestroy');
+    interfaces.push('OnDestroy');
   }
   if (needsCVA) interfaces.push('ControlValueAccessor');
 
-  const implementsStr =
-    interfaces.length > 0 ? ` implements ${interfaces.join(', ')}` : '';
+  const implementsStr = ` implements ${interfaces.join(', ')}`;
 
   lines.push(`export class {{name}}Component${implementsStr} {`);
   lines.push("  @ViewChild('element') elementRef!: ElementRef<WaElement>;");
+  lines.push('  private hostRef = inject(ElementRef<HTMLElement>);');
   lines.push('');
 
   // @Input() for each prop
@@ -283,11 +285,27 @@ function generateComponentTS(
     lines.push('  private cleanups: (() => void)[] = [];');
   }
 
-  // ngAfterViewInit
+  // ngAfterViewInit -- always present for host attribute forwarding
+  lines.push('');
+  lines.push('  ngAfterViewInit(): void {');
+  lines.push('    const el = this.elementRef.nativeElement;');
+  lines.push('');
+  lines.push('    // Forward host attributes to inner wa-* element');
+  lines.push('    const host = this.hostRef.nativeElement;');
+  lines.push("    const hostStyle = host.getAttribute('style');");
+  lines.push('    if (hostStyle) {');
+  lines.push("      el.setAttribute('style', hostStyle);");
+  lines.push("      host.removeAttribute('style');");
+  lines.push('    }');
+  lines.push(
+    '    // When slotted, override display:contents so ::slotted() margins apply'
+  );
+  lines.push("    if (host.hasAttribute('slot')) {");
+  lines.push("      host.style.display = 'inline';");
+  lines.push('    }');
+
   if (events.length > 0 || needsCVA) {
     lines.push('');
-    lines.push('  ngAfterViewInit(): void {');
-    lines.push('    const el = this.elementRef.nativeElement;');
 
     for (const event of events) {
       const handlerName = `handle${event.outputName.charAt(0).toUpperCase()}${event.outputName.slice(1)}`;
@@ -330,9 +348,9 @@ function generateComponentTS(
         "    this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));"
       );
     }
-
-    lines.push('  }');
   }
+
+  lines.push('  }');
 
   // ngOnDestroy
   if (events.length > 0 || needsCVA) {
