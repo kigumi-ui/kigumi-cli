@@ -45,7 +45,7 @@ const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 
 onMounted(() => {
-  const el = elementRef.value;
+  const el = elementRef.value as HTMLElement | null;
   if (!el) return;
 
   el.addEventListener('input', handleInput);
@@ -56,7 +56,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  const el = elementRef.value;
+  const el = elementRef.value as HTMLElement | null;
   if (!el) return;
 
   el.removeEventListener('input', handleInput);
@@ -66,12 +66,13 @@ onUnmounted(() => {
   el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
+type WaExposed = { setCustomValidity?: (m: string) => void; formStateRestoreCallback?: (s: string | File | FormData | null, r: string) => void; resetValidity?: () => void };
 defineExpose({
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
-  blur: () => elementRef.value?.blur?.(),
-  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => elementRef.value?.resetValidity?.(),
+  focus: (options: FocusOptions) => (elementRef.value as HTMLElement | null)?.focus?.(options),
+  blur: () => (elementRef.value as HTMLElement | null)?.blur?.(),
+  setCustomValidity: (message: string) => (elementRef.value as unknown as WaExposed)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as unknown as WaExposed)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as unknown as WaExposed)?.resetValidity?.(),
   element: elementRef,
 });
 </script>
