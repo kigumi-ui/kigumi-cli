@@ -1986,6 +1986,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     dependencies: [],
     files: {
       react: ['components/Markdown.tsx', 'types/markdown.d.ts'],
+      vue: ['components/Markdown.vue'],
       angular: ['components/Markdown/markdown.component.ts'],
     },
     props: [

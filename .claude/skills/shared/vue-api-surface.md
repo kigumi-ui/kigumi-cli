@@ -445,7 +445,7 @@ Form Controls | free | Ratings give users a way to quickly view and provide feed
 wa-rating -> <Rating>
 
 **Props:** label(string=''), value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string=''), required(boolean=false), size(small|medium|large=medium)
-**Events:** @change, @wa-hover
+**Events:** @change, @wa-hover, @wa-invalid
 **Parts:** base
 **CSS:** --symbol-color, --symbol-color-active, --symbol-spacing
 **Requires:** Icon
