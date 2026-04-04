@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (53 files, 906 tests)
+├── unit/                    # Fast, isolated tests (67 files, 1070 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-validator.test.ts        # Component validation
 │   ├── brand-command.test.ts        # Brand color command
@@ -19,6 +19,7 @@ tests/
 │   ├── dependency-checks.test.ts    # Dependency validation
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
 │   ├── diff-command.test.ts         # Diff command (component comparison)
+│   ├── diff-renderer.test.ts        # Diff renderer terminal output
 │   ├── diff-roundtrip.test.ts       # Diff renderer round-trip fidelity
 │   ├── display-options.test.ts      # Theme/palette/brand display data
 │   ├── doctor.test.ts               # Doctor command (import fixes)
@@ -28,8 +29,10 @@ tests/
 │   ├── file-diff.test.ts            # File modification detection
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
+│   ├── init-config-preservation.test.ts # Init with config preservation scenarios
 │   ├── init-existing-config.test.ts # Init with existing project
 │   ├── init-installer.test.ts       # Init installer logic
+│   ├── json.test.ts                 # JSON with comments parsing
 │   ├── list.test.ts                 # List command
 │   ├── list-json.test.ts            # List --json output
 │   ├── migration.test.ts            # Free↔Pro migration
@@ -53,7 +56,9 @@ tests/
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
+│   ├── three-way-merge.test.ts      # Three-way merge algorithm
 │   ├── tier.test.ts                 # Tier detection
+│   ├── tier-consistency.test.ts     # Registry/tier consistency validation
 │   ├── tier-restrictions.test.ts    # Tier restriction logic
 │   ├── tier-schema.test.ts          # Tier schema validation
 │   ├── token.test.ts                # Token handling
@@ -62,6 +67,8 @@ tests/
 │   ├── update-check.test.ts         # CLI update notification check
 │   ├── update-command.test.ts       # Update command (three-way merge)
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)
+│   ├── validate-cem-sync.test.ts    # CEM sync validation
+│   ├── validate-parity.test.ts      # Template parity validation
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── version-error.test.ts        # Version error classes
@@ -275,4 +282,4 @@ describe('myFeature', () => {
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-03
+**Last Updated:** 2026-04-04

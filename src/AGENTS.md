@@ -9,6 +9,8 @@ src/
 ├── index.ts              # CLI entry (Commander.js routing)
 ├── constants.ts          # Magic strings, regex patterns, WA version
 ├── commands/             # CLI command handlers
+│   ├── add.ts            # Add command entry (updateKigumiImports)
+│   ├── init.ts           # Init command entry
 │   ├── init/             # Project initialization
 │   ├── add/              # Component installation
 │   │   ├── index.ts              # Main add logic (built-in + remote branching)
@@ -40,7 +42,7 @@ src/
 │   └── ...
 ├── utils/                # Business logic
 │   ├── registry.ts       # Component definitions (SOURCE OF TRUTH)
-│   ├── tier.ts           # Tier detection from .env
+│   ├── tier.ts           # Tier detection (package.json priority, token fallback)
 │   ├── tier-restrictions.ts
 │   ├── config.ts         # kigumi.config.json handling
 │   ├── template.ts       # Handlebars rendering
@@ -60,7 +62,11 @@ src/
 │   ├── project-config.ts # Project configuration helpers (configureVueCustomElements, configureVueTypes)
 │   ├── component-metadata.ts # Auto-generated component metadata (events, slots, methods) — used by Vue template generator
 │   ├── detect-framework.ts # Framework, TypeScript, package manager detection
-│   └── token-manager.ts  # Token validation, loading, saving, prompting
+│   ├── token-manager.ts  # Token validation, loading, saving, prompting
+│   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
+│   ├── update-check.ts   # CLI update notification
+│   └── registry/
+│       └── types.ts      # Registry type definitions
 ├── schemas/              # Zod validation schemas
 │   ├── config.ts         # KigumiConfig schema
 │   ├── options.ts        # Command options schemas
@@ -89,7 +95,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: '@awesome.me/webawesome/dist/components/button/button.js',
     tier: 'free',
   },
-  // ... 73 components
+  // ... 74 components
 };
 ```
 
@@ -97,17 +103,19 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
 
 ### `utils/tier.ts` - Tier Detection
 
-Detects tier from `.env` file, NOT from config.
+Detects tier from `package.json` (primary) with token fallback, NOT from config.
 
 ```typescript
 export async function detectTier(cwd: string): Promise<Tier> {
-  const envPath = path.join(cwd, '.env');
-  if (!(await fs.pathExists(envPath))) return 'free';
+  // 1. Check package.json first (installed package is source of truth)
+  const pkg = await readJSON(join(cwd, 'package.json'));
+  const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+  if (deps['@awesome.me/webawesome-pro']) return 'pro';
+  if (deps['@awesome.me/webawesome']) return 'free';
 
-  const content = await fs.readFile(envPath, 'utf-8');
-  const tokenMatch = content.match(/^\s*WEBAWESOME_NPM_TOKEN\s*=\s*(.+?)\s*$/m);
-
-  return tokenMatch && tokenMatch[1]?.length >= 10 ? 'pro' : 'free';
+  // 2. Fallback to token detection ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
+  const token = await detectProToken(cwd);
+  return token ? 'pro' : 'free';
 }
 ```
 
@@ -380,4 +388,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-03
+**Last Updated:** 2026-04-04
