@@ -177,7 +177,7 @@ export function Ecosystem() {
                             display: 'inline-block',
                           }}
                         >
-                          npx skills add https://docs.kigumi.style/skills/kigumi
+                          npx skills add https://kigumi.style/skills/kigumi
                         </span>
                       </code>
                     </pre>

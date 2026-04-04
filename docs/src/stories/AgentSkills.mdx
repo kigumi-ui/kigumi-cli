@@ -35,11 +35,11 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
             <pre>
               <code>
                 <span style={{ opacity: 0.6, pointerEvents: 'none', position: 'absolute', top: 0, bottom: 0, display: 'flex', alignItems: 'center', fontSize: 'inherit', zIndex: 1, userSelect: 'none' }} aria-hidden="true">$ </span>
-                <span style={{ paddingLeft: 'var(--wa-space-m)', display: 'inline-block' }}>npx skills add https://docs.kigumi.style/skills/kigumi</span>
+                <span style={{ paddingLeft: 'var(--wa-space-m)', display: 'inline-block' }}>npx skills add https://kigumi.style/skills/kigumi</span>
               </code>
             </pre>
             <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx skills add https://docs.kigumi.style/skills/kigumi" />
+              <CopyButton value="npx skills add https://kigumi.style/skills/kigumi" />
             </span>
           </div>
         </Card>
@@ -212,42 +212,43 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
           <div className="wa-flank:end wa-align-items-start wa-gap-xs" style={{ position: 'relative' }}>
             <pre style={{ overflowX: 'auto' }}>
               <code>{`import { useState } from 'react';
+
 import { Button, Callout, Checkbox, Input } from '@/components/ui';
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        body: new FormData(e.currentTarget),
-      });
-      if (!res.ok) throw new Error('Invalid credentials');
-      window.location.href = '/dashboard';
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+e.preventDefault();
+setLoading(true);
+setError('');
+try {
+const res = await fetch('/api/login', {
+method: 'POST',
+body: new FormData(e.currentTarget),
+});
+if (!res.ok) throw new Error('Invalid credentials');
+window.location.href = '/dashboard';
+} catch (err) {
+setError(err.message);
+} finally {
+setLoading(false);
+}
+};
 
-  return (
-    <form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
-      {error && <Callout variant="danger">{error}</Callout>}
-      <Input label="Email" name="email" type="email" required />
-      <Input label="Password" name="password" type="password"
+return (
+<form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
+{error && <Callout variant="danger">{error}</Callout>}
+<Input label="Email" name="email" type="email" required />
+<Input label="Password" name="password" type="password"
         required password-toggle />
-      <Checkbox name="remember">Remember me</Checkbox>
-      <Button variant="brand" type="submit" loading={loading}>
-        Sign In
-      </Button>
-    </form>
-  );
+<Checkbox name="remember">Remember me</Checkbox>
+<Button variant="brand" type="submit" loading={loading}>
+Sign In
+</Button>
+</form>
+);
 }`}</code>
             </pre>
             <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: 'var(--wa-space-xs)' }}>
@@ -258,42 +259,43 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        body: new FormData(e.currentTarget),
-      });
-      if (!res.ok) throw new Error('Invalid credentials');
-      window.location.href = '/dashboard';
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+e.preventDefault();
+setLoading(true);
+setError('');
+try {
+const res = await fetch('/api/login', {
+method: 'POST',
+body: new FormData(e.currentTarget),
+});
+if (!res.ok) throw new Error('Invalid credentials');
+window.location.href = '/dashboard';
+} catch (err) {
+setError(err.message);
+} finally {
+setLoading(false);
+}
+};
 
-  return (
-    <form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
-      {error && <Callout variant="danger">{error}</Callout>}
-      <Input label="Email" name="email" type="email" required />
-      <Input label="Password" name="password" type="password"
+return (
+<form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
+{error && <Callout variant="danger">{error}</Callout>}
+<Input label="Email" name="email" type="email" required />
+<Input label="Password" name="password" type="password"
         required password-toggle />
-      <Checkbox name="remember">Remember me</Checkbox>
-      <Button variant="brand" type="submit" loading={loading}>
-        Sign In
-      </Button>
-    </form>
-  );
+<Checkbox name="remember">Remember me</Checkbox>
+<Button variant="brand" type="submit" loading={loading}>
+Sign In
+</Button>
+</form>
+);
 }`} />
-            </span>
-          </div>
-        </Card>
-      </div>
+</span>
+</div>
+</Card>
+</div>
 
     </div>
+
   </div>
 </Unstyled>
