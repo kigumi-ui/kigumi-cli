@@ -31,4 +31,16 @@ export class {{name}}Component {
     const el = this.elementRef?.nativeElement as unknown as { renderMarkdown?: () => void };
     el?.renderMarkdown?.();
   }
+
+  /** Returns the shared Marked instance used by all wa-markdown components */
+  getMarked(): unknown {
+    const el = this.elementRef?.nativeElement as unknown as { marked?: unknown };
+    return el?.marked;
+  }
+
+  /** Re-renders all connected wa-markdown instances */
+  updateAll(): void {
+    const El = this.elementRef?.nativeElement?.constructor as unknown as { updateAll?: () => void };
+    El?.updateAll?.();
+  }
 }

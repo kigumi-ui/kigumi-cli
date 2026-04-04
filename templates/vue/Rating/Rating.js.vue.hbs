@@ -26,7 +26,7 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['change', 'wa-hover']);
+const emit = defineEmits(['change', 'wa-hover', 'wa-invalid']);
 
 const model = defineModel();
 
@@ -39,6 +39,7 @@ watch(model, (val) => {
 
 const handleChange = (e) => { model.value = e.target.value; emit('change', e); };
 const handleWaHover = (e) => emit('wa-hover', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -46,6 +47,7 @@ onMounted(() => {
 
   el.addEventListener('change', handleChange);
   el.addEventListener('wa-hover', handleWaHover);
+  el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
 onUnmounted(() => {
@@ -54,6 +56,7 @@ onUnmounted(() => {
 
   el.removeEventListener('change', handleChange);
   el.removeEventListener('wa-hover', handleWaHover);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
 defineExpose({

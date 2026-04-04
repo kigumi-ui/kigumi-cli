@@ -301,7 +301,7 @@ describe('component registry', () => {
         (c) => c.tier === 'pro'
       ).length;
 
-      // Current pro components: page, combobox, file-input, number-input, sparkline
+      // Current pro components: combobox, file-input, number-input, sparkline, charts, etc.
       expect(proCount).toBeGreaterThanOrEqual(5);
     });
 
