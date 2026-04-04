@@ -3,5 +3,11 @@
   "buildCommand": "cd .. && pnpm run build-storybook:vercel",
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && node scripts/setup-npmrc.mjs && cd docs && pnpm install",
-  "framework": null
+  "framework": null,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
+  ]
 }

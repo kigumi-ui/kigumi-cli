@@ -23,7 +23,7 @@
       "destination": "/skills/:path*"
     },
     {
-      "source": "/((?!assets|favicon|llms\\.txt).*)",
+      "source": "/((?!assets|favicon|llms\\.txt|robots\\.txt|sitemap\\.xml|og-image\\.png).*)",
       "destination": "/index.html"
     }
   ]
