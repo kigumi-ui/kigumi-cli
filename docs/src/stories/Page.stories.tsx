@@ -5,7 +5,7 @@ import { Page, Button, Icon } from '@/components/ui';
 const meta = {
   title: 'Components/Page',
   component: Page,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
   argTypes: {
     'disable-navigation-toggle': {

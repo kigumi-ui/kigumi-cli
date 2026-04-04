@@ -6,7 +6,7 @@ import { ToastItem } from '@/components/ui';
 const meta = {
   title: 'Components/Toast Item',
   component: ToastItem,
-  tags: ['autodocs', 'pro'],
+  tags: ['autodocs', 'pro', 'beta'],
   argTypes: {
     variant: {
       control: 'select',
