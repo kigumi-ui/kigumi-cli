@@ -65,12 +65,8 @@ export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
           }
         },
         getMarked: () => {
-          if (
-            markdownRef.current &&
-            typeof markdownRef.current.getMarked === 'function'
-          ) {
-            return markdownRef.current.getMarked();
-          }
+          return (markdownRef.current as unknown as { marked?: unknown })
+            ?.marked;
         },
         updateAll: () => {
           const el = markdownRef.current;
