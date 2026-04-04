@@ -37,10 +37,10 @@ const elementRef = ref(null);
 
 watch(model, (val) => {
   const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? '';
+  if (el && el.value !== val) el.value = val ?? 0;
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => { model.value = Number(e.target.value); emit('input', e); };
 const handleChange = (e) => emit('change', e);
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);
