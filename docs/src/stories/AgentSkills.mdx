@@ -1,5 +1,6 @@
 import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
-import { Card, CopyButton, Callout, Icon } from '@/components/ui';
+import { Card, Callout, Icon } from '@/components/ui';
+import { CodeBlock } from '@/components/CodeBlock';
 
 <Meta title="Guides / Agent Skills" tags={['new']} />
 
@@ -30,19 +31,7 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
           available Kigumi skills. You will be presented with a selection of
           skills to choose from.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre>
-              <code>
-                <span style={{ opacity: 0.6, pointerEvents: 'none', position: 'absolute', top: 0, bottom: 0, display: 'flex', alignItems: 'center', fontSize: 'inherit', zIndex: 1, userSelect: 'none' }} aria-hidden="true">$ </span>
-                <span style={{ paddingLeft: 'var(--wa-space-m)', display: 'inline-block' }}>npx skills add https://kigumi.style/skills/kigumi</span>
-              </code>
-            </pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx skills add https://kigumi.style/skills/kigumi" />
-            </span>
-          </div>
-        </Card>
+        <CodeBlock value="npx skills add https://kigumi.style/skills/kigumi" />
       </div>
 
       {/* How Skills Work */}

@@ -1,11 +1,10 @@
 import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
 import {
-  Card,
-  CopyButton,
   Button,
   Callout,
   Icon,
 } from '@/components/ui';
+import { CodeBlock } from '@/components/CodeBlock';
 
 <Meta title="Guides / Customize" />
 
@@ -26,55 +25,7 @@ import {
           See which theme, palette, and brand color are currently active in your
           project.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-flank:end wa-align-items-center wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>
-                <span
-                  style={{
-                    opacity: 0.6,
-                    pointerEvents: 'none',
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: 'inherit',
-                    zIndex: 1,
-                    userSelect: 'none',
-                  }}
-                  aria-hidden="true"
-                >
-                  ${' '}
-                </span>
-                <span
-                  style={{
-                    paddingLeft: 'var(--wa-space-m)',
-                    display: 'inline-block',
-                  }}
-                >
-                  npx kigumi theme show
-                </span>
-              </code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: '0',
-                bottom: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value="npx kigumi theme show" />
-            </span>
-          </div>
-        </Card>
+        <CodeBlock value="npx kigumi theme show" />
       </div>
 
       {/* Step 2: Switch themes, palettes, and brand colors */}
@@ -87,153 +38,9 @@ import {
           Quickly swap visual presets via the CLI. Leave out the argument to get
           an interactive selector.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-flank:end wa-align-items-center wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>
-                <span
-                  style={{
-                    opacity: 0.6,
-                    pointerEvents: 'none',
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: 'inherit',
-                    zIndex: 1,
-                    userSelect: 'none',
-                  }}
-                  aria-hidden="true"
-                >
-                  ${' '}
-                </span>
-                <span
-                  style={{
-                    paddingLeft: 'var(--wa-space-m)',
-                    display: 'inline-block',
-                  }}
-                >
-                  npx kigumi theme [name]
-                </span>
-              </code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: '0',
-                bottom: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value="npx kigumi theme" />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-flank:end wa-align-items-center wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>
-                <span
-                  style={{
-                    opacity: 0.6,
-                    pointerEvents: 'none',
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: 'inherit',
-                    zIndex: 1,
-                    userSelect: 'none',
-                  }}
-                  aria-hidden="true"
-                >
-                  ${' '}
-                </span>
-                <span
-                  style={{
-                    paddingLeft: 'var(--wa-space-m)',
-                    display: 'inline-block',
-                  }}
-                >
-                  npx kigumi palette [name]
-                </span>
-              </code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: '0',
-                bottom: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value="npx kigumi palette" />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-flank:end wa-align-items-center wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>
-                <span
-                  style={{
-                    opacity: 0.6,
-                    pointerEvents: 'none',
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: 'inherit',
-                    zIndex: 1,
-                    userSelect: 'none',
-                  }}
-                  aria-hidden="true"
-                >
-                  ${' '}
-                </span>
-                <span
-                  style={{
-                    paddingLeft: 'var(--wa-space-m)',
-                    display: 'inline-block',
-                  }}
-                >
-                  npx kigumi brand [color]
-                </span>
-              </code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: '0',
-                bottom: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value="npx kigumi brand" />
-            </span>
-          </div>
-        </Card>
+        <CodeBlock value={"npx kigumi theme [name]"} copyValue="npx kigumi theme" />
+        <CodeBlock value={"npx kigumi palette [name]"} copyValue="npx kigumi palette" />
+        <CodeBlock value={"npx kigumi brand [color]"} copyValue="npx kigumi brand" />
         <p className="wa-caption-m">
           Run <code>npx kigumi theme list</code> to see all available options.
         </p>
@@ -251,13 +58,7 @@ import {
           ensure your overrides win automatically — no{' '}
           <code>!important</code> needed.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-flank:end wa-align-items-start wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>{`:root {
+        <CodeBlock value={`:root {
 
 --wa-color-brand: oklch(0.6 0.25 280);
 --wa-font-family: 'Inter', sans-serif;
@@ -266,20 +67,7 @@ import {
 
 .wa-dark {
 --wa-color-surface: oklch(0.15 0.01 280);
-}`}</code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: 'var(--wa-space-xs)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton
-                value={`:root {
+}`} copyValue={`:root {
 --wa-color-brand: oklch(0.6 0.25 280);
 --wa-font-family: 'Inter', sans-serif;
 --wa-border-radius-m: 0.5rem;
@@ -287,18 +75,13 @@ import {
 
 .wa-dark {
 --wa-color-surface: oklch(0.15 0.01 280);
-}`}
-/>
-
-</span>
-</div>
-</Card>
-<Callout appearance="outlined">
-<Icon name="info-circle" slot="icon" />
-See the <a href="/?path=/docs/design-tokens-color--docs">Design Tokens</a> section
-for the full list of available tokens.
-</Callout>
-</div>
+}`} multiline />
+        <Callout appearance="outlined">
+          <Icon name="info-circle" slot="icon" />
+          See the <a href="/?path=/docs/design-tokens-color--docs">Design Tokens</a> section
+          for the full list of available tokens.
+        </Callout>
+      </div>
 
       {/* Step 4: Use Kigumi Studio */}
       <div className="wa-stack wa-gap-m">

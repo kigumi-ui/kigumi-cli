@@ -1,5 +1,6 @@
 import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
-import { Badge, Callout, Card, CopyButton, Icon } from '@/components/ui';
+import { Badge, Callout, Icon } from '@/components/ui';
+import { CodeBlock } from '@/components/CodeBlock';
 import { FrameworkCodeBlock } from '@/components/landing/FrameworkCodeBlock';
 import { MonorepoPatternBlock } from '@/components/landing/MonorepoPatternBlock';
 
@@ -153,105 +154,15 @@ export const themeImport = `@import '@repo/theme/theme.css';
         <p className="wa-caption-m">
           Extract shared design tokens into a theme package so every app stays in sync.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-caption-xs"
-            style={{
-              padding: 'var(--wa-space-xs) var(--wa-space-m)',
-              borderBottom: '1px solid var(--wa-color-border)',
-              color: 'var(--wa-color-text-subdued)',
-            }}
-          >
-            packages/theme/package.json
-          </div>
-          <div
-            className="wa-flank:end wa-align-items-start wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>{themePackageJson}</code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: 'var(--wa-space-xs)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value={themePackageJson} />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-caption-xs"
-            style={{
-              padding: 'var(--wa-space-xs) var(--wa-space-m)',
-              borderBottom: '1px solid var(--wa-color-border)',
-              color: 'var(--wa-color-text-subdued)',
-            }}
-          >
-            packages/theme/theme.css
-          </div>
-          <div
-            className="wa-flank:end wa-align-items-start wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>{themeCss}</code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: 'var(--wa-space-xs)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value={themeCss} />
-            </span>
-          </div>
-        </Card>
+        <p className="wa-caption-xs" style={{ color: 'var(--wa-color-text-subdued)', marginBottom: 'var(--wa-space-2xs)' }}>packages/theme/package.json</p>
+        <CodeBlock value={themePackageJson} multiline />
+        <p className="wa-caption-xs" style={{ color: 'var(--wa-color-text-subdued)', marginBottom: 'var(--wa-space-2xs)' }}>packages/theme/theme.css</p>
+        <CodeBlock value={themeCss} multiline />
         <p className="wa-caption-m">
           In each workspace's <code>theme.css</code>, replace the content with:
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div
-            className="wa-caption-xs"
-            style={{
-              padding: 'var(--wa-space-xs) var(--wa-space-m)',
-              borderBottom: '1px solid var(--wa-color-border)',
-              color: 'var(--wa-color-text-subdued)',
-            }}
-          >
-            apps/web/src/styles/theme.css
-          </div>
-          <div
-            className="wa-flank:end wa-align-items-start wa-gap-xs"
-            style={{ position: 'relative' }}
-          >
-            <pre>
-              <code>{themeImport}</code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: 'var(--wa-space-xs)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value={themeImport} />
-            </span>
-          </div>
-        </Card>
+        <p className="wa-caption-xs" style={{ color: 'var(--wa-color-text-subdued)', marginBottom: 'var(--wa-space-2xs)' }}>apps/web/src/styles/theme.css</p>
+        <CodeBlock value={themeImport} multiline />
         <Callout appearance="outlined">
           <Icon name="info-circle" slot="icon" />
           <code>layers.css</code> stays per-workspace — it's tied to the WA package version and tier.
