@@ -24,9 +24,9 @@ export function GettingStarted() {
               </h3>
             </div>
             <p className="wa-caption-m">
-              Set up Kigumi in your React or Vue project. Choose your framework
-              and optionally add your Web Awesome Pro token. If you have a Pro
-              token, add it to <code>.env</code> before init or use{' '}
+              Set up Kigumi in your React, Vue, or Angular project. Choose your
+              framework and optionally add your Web Awesome Pro token. If you
+              have a Pro token, add it to <code>.env</code> before init or use{' '}
               <code>npx kigumi init --token YOUR_TOKEN</code>. See{' '}
               <a href="/#troubleshooting">Troubleshooting</a> for 401 errors.
             </p>
@@ -85,7 +85,7 @@ export function GettingStarted() {
             </h4>
             <p className="wa-caption-m">
               Install Kigumi skills for AI assistants to convert Web Awesome
-              HTML to React or Vue components and customize themes.
+              HTML to React, Vue, or Angular components and customize themes.
             </p>
             <pre>
               <code>npx skills add https://kigumi.style/skills/kigumi</code>
@@ -178,6 +178,10 @@ export function GettingStarted() {
                   code: "import '@/lib/kigumi';",
                   filename: 'src/main.ts',
                 },
+                angular: {
+                  code: "import '@/lib/kigumi';",
+                  filename: 'src/main.ts',
+                },
               }}
             />
           </div>
@@ -192,7 +196,7 @@ export function GettingStarted() {
             </div>
 
             <p className="wa-caption-m">
-              Import and use components in your React or Vue code:
+              Import and use components in your React, Vue, or Angular code:
             </p>
 
             <FrameworkCodeBlock
@@ -244,6 +248,33 @@ function onSubmit(e) {
   </form>
 </template>`,
                   filename: 'src/components/LoginForm.vue',
+                },
+                angular: {
+                  code: `import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonComponent } from '@/components/ui/Button/button.component';
+import { InputComponent } from '@/components/ui/Input/input.component';
+
+@Component({
+  selector: 'app-login-form',
+  standalone: true,
+  imports: [FormsModule, ButtonComponent, InputComponent],
+  template: \`
+    <form (submit)="onSubmit($event)">
+      <k-input type="email" label="Email" name="email" [(ngModel)]="email" [required]="true" />
+      <k-button type="submit" variant="brand">Sign In</k-button>
+    </form>
+  \`,
+})
+export class LoginFormComponent {
+  email = '';
+
+  onSubmit(e: Event) {
+    e.preventDefault();
+    console.log('Email:', this.email);
+  }
+}`,
+                  filename: 'src/app/login-form.component.ts',
                 },
               }}
             />
