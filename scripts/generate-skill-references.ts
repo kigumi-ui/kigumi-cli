@@ -11,12 +11,14 @@
  * Output:
  * - .claude/skills/shared/react-api-surface.md
  * - .claude/skills/shared/vue-api-surface.md
+ * - .claude/skills/shared/angular-api-surface.md
  */
 
 import { mkdir, writeFile, readFile, readdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
+import { toKebabCase } from '../src/utils/naming.js';
 
 const PROJECT_ROOT = process.cwd();
 
@@ -575,6 +577,213 @@ async function verifyEventNamesAgainstTemplates(
 }
 
 // ---------------------------------------------------------------------------
+// Angular: verify @Output() names + detect ControlValueAccessor
+// ---------------------------------------------------------------------------
+
+/**
+ * Extract Angular @Output() names from templates and map CE events to them.
+ * Returns Map<tagName, Map<ceEventName, angularOutputName>>.
+ */
+async function extractAngularOutputMap(): Promise<
+  Map<string, Map<string, string>>
+> {
+  const result = new Map<string, Map<string, string>>();
+  const templatesDir = join(PROJECT_ROOT, 'templates', 'angular');
+
+  for (const [, component] of Object.entries(LOCAL_REGISTRY)) {
+    const kebab = toKebabCase(component.name);
+    const templatePath = join(
+      templatesDir,
+      component.name,
+      `${kebab}.component.ts.hbs`
+    );
+
+    if (!existsSync(templatePath)) continue;
+
+    const content = await readFile(templatePath, 'utf-8');
+
+    // Extract all @Output() names
+    const outputMatches = [...content.matchAll(/@Output\(\)\s+(\w+)/g)];
+    const outputNames = new Set(outputMatches.map((m) => m[1]));
+
+    if (outputNames.size === 0) continue;
+
+    // Map addEventListener calls to @Output names:
+    // el.addEventListener('wa-show', ... this.showEvent.emit
+    // el.addEventListener('blur', ... this.blurEvent.emit
+    const listenerMatches = [
+      ...content.matchAll(
+        /addEventListener\(\s*'([^']+)'\s*,\s*\(?.*?\)?\s*(?:=>|{)\s*(?:{\s*)?this\.(\w+)\.emit/gs
+      ),
+    ];
+
+    const eventMap = new Map<string, string>();
+    for (const m of listenerMatches) {
+      const ceEvent = m[1]; // e.g. 'wa-show', 'blur'
+      const outputName = m[2]; // e.g. 'showEvent', 'blurEvent'
+      if (outputNames.has(outputName)) {
+        eventMap.set(ceEvent, outputName);
+      }
+    }
+
+    // Also try to match outputs not captured by addEventListener regex
+    // by deriving the base name and checking if it or suffixed form exists
+    // (handles cases where the regex didn't match due to formatting)
+    for (const outputName of outputNames) {
+      // Skip if already mapped
+      const alreadyMapped = [...eventMap.values()].includes(outputName);
+      if (alreadyMapped) continue;
+
+      // Try to find the CE event that maps to this output
+      const baseName = outputName.replace(/Event$/, '');
+      const possibleCeEvents = [
+        baseName,
+        `wa-${baseName.replace(/([A-Z])/g, '-$1').toLowerCase()}`,
+      ];
+
+      for (const ceEvent of possibleCeEvents) {
+        if (!eventMap.has(ceEvent)) {
+          eventMap.set(ceEvent, outputName);
+          break;
+        }
+      }
+    }
+
+    if (eventMap.size > 0) {
+      result.set(component.tagName, eventMap);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Detect which components implement ControlValueAccessor.
+ */
+async function detectCVAComponents(): Promise<Set<string>> {
+  const cvaComponents = new Set<string>();
+  const templatesDir = join(PROJECT_ROOT, 'templates', 'angular');
+
+  for (const [, component] of Object.entries(LOCAL_REGISTRY)) {
+    const kebab = toKebabCase(component.name);
+    const templatePath = join(
+      templatesDir,
+      component.name,
+      `${kebab}.component.ts.hbs`
+    );
+
+    try {
+      const content = await readFile(templatePath, 'utf-8');
+      if (content.includes('NG_VALUE_ACCESSOR')) {
+        cvaComponents.add(component.tagName);
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return cvaComponents;
+}
+
+/**
+ * Generate a compact Angular API surface for all components.
+ */
+function generateCompactAngularSurface(
+  ceMap: Map<string, ComponentCEMetadata>,
+  angularOutputMap: Map<string, Map<string, string>>,
+  cvaComponents: Set<string>
+): string {
+  let md = `# Kigumi Angular API Surface\n\n`;
+  md += `> Auto-generated from registry + custom-elements.json + Angular templates.\n`;
+  md += `> Angular events use (outputName) syntax. Collision suffixes: blur->blurEvent, focus->focusEvent, show->showEvent, input->inputEvent.\n\n`;
+
+  // Transformation quick-ref
+  md += `## Transformation Rules\n\n`;
+  md += `| HTML | Angular |\n`;
+  md += `|------|--------|\n`;
+  md += `| \`<wa-button>\` | \`<k-button>\` |\n`;
+  md += `| \`class="..."\` | \`class="..."\` (no change) |\n`;
+  md += `| \`variant="primary"\` | \`[variant]="'brand'"\` |\n`;
+  md += `| \`disabled\` | \`[disabled]="true"\` |\n`;
+  md += `| \`style="--wa-x: y"\` | \`style="--wa-x: y"\` (no change) |\n`;
+  md += `| \`slot="header"\` | \`slot="header"\` (preserved) |\n`;
+  md += `| Event: \`wa-hide\` | \`(hide)="handler()"\` |\n`;
+  md += `| Event: \`blur\` | \`(blurEvent)="handler()"\` (collision suffix) |\n`;
+  md += `| Form value | \`[(ngModel)]="value"\` (requires FormsModule) |\n\n`;
+  md += `---\n\n`;
+
+  // Components
+  for (const [, component] of Object.entries(LOCAL_REGISTRY)) {
+    const ce = ceMap.get(component.tagName);
+    const selectorKebab = component.tagName.replace('wa-', 'k-');
+
+    md += `## ${component.name}\n`;
+    md += `${component.category} | ${component.tier} | ${component.description}\n`;
+    md += `${component.tagName} -> <${component.name}> (selector: ${selectorKebab})\n\n`;
+
+    // Props
+    md += `**Props:** ${formatCompactProps(component.props)}\n`;
+
+    // Events (Angular output names from template extraction)
+    const componentOutputs = angularOutputMap.get(component.tagName);
+    if (componentOutputs && componentOutputs.size > 0) {
+      const outputs = [...componentOutputs.values()]
+        .map((name) => `(${name})`)
+        .join(', ');
+      md += `**Outputs:** ${outputs}\n`;
+    }
+
+    // Slots
+    if (ce && ce.slots.length > 0) {
+      const slotNames = ce.slots
+        .map((s) => (s.name === '' ? 'default' : s.name))
+        .join(', ');
+      md += `**Slots:** ${slotNames}\n`;
+    }
+
+    // Methods
+    if (ce && ce.methods.length > 0) {
+      const methodNames = ce.methods.map((m) => `${m.name}()`).join(', ');
+      md += `**Methods:** ${methodNames}\n`;
+    }
+
+    // CSS Parts
+    if (ce && ce.cssParts.length > 0) {
+      const partNames = ce.cssParts.map((p) => p.name).join(', ');
+      md += `**Parts:** ${partNames}\n`;
+    }
+
+    // CSS Custom Properties
+    if (ce && ce.cssProperties.length > 0) {
+      const cssProps = ce.cssProperties
+        .map((p) => {
+          const def = p.default ? `(${p.default})` : '';
+          return `${p.name}${def}`;
+        })
+        .join(', ');
+      md += `**CSS:** ${cssProps}\n`;
+    }
+
+    // CVA indicator
+    if (cvaComponents.has(component.tagName)) {
+      md += `**Form:** ControlValueAccessor -- \`[(ngModel)]="value"\` (FormsModule) or \`[formControl]="ctrl"\` (ReactiveFormsModule)\n`;
+    }
+
+    // Dependencies
+    if (component.dependencies.length > 0) {
+      const deps = component.dependencies
+        .map((d) => LOCAL_REGISTRY[d]?.name || toPascalCase(d))
+        .join(', ');
+      md += `**Requires:** ${deps}\n`;
+    }
+
+    md += `\n`;
+  }
+
+  return md;
+}
+
+// ---------------------------------------------------------------------------
 // Formatting and writing utilities
 // ---------------------------------------------------------------------------
 
@@ -631,6 +840,25 @@ async function main() {
   await writeOutput(vuePath, vueSurface);
   console.log(
     `  [Vue]   ${vuePath.replace(PROJECT_ROOT + '/', '')} (${vueSurface.split('\n').length} lines)`
+  );
+
+  // Angular: extract @Output() names from templates + detect CVA
+  console.log('\n  Extracting Angular @Output() names from templates...');
+  const angularOutputMap = await extractAngularOutputMap();
+  const cvaComponents = await detectCVAComponents();
+  console.log(
+    `  ${angularOutputMap.size} components with mapped outputs, ${cvaComponents.size} with ControlValueAccessor`
+  );
+
+  const angularSurface = generateCompactAngularSurface(
+    ceMap,
+    angularOutputMap,
+    cvaComponents
+  );
+  const angularPath = join(SHARED_DIR, 'angular-api-surface.md');
+  await writeOutput(angularPath, angularSurface);
+  console.log(
+    `  [Angular] ${angularPath.replace(PROJECT_ROOT + '/', '')} (${angularSurface.split('\n').length} lines)`
   );
 
   console.log('\nDone.\n');

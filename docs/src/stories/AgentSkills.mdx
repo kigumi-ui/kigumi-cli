@@ -103,6 +103,17 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
                 Convert Web Awesome HTML to Kigumi Vue SFCs. Handles <code>@event</code> syntax,
                 template slots, <code>ref()</code> state, and <code>&lt;script setup&gt;</code>.
           </Card>
+
+          <Card>
+
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="angular" family="brands" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-angular</h3>
+              </div>
+                Convert Web Awesome HTML to Kigumi Angular standalone components.
+                Handles <code>ControlValueAccessor</code>, event collision suffixes,
+                <code>@if</code>/<code>@for</code> control flow, and Pro component typing.
+          </Card>
         </div>
       </div>
 
@@ -112,7 +123,7 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
         <p className="wa-caption-m">
           Teach your AI assistant how to build complete features by composing
           multiple Kigumi components together. Each skill includes decision trees,
-          code patterns for both React and Vue, and accessibility checklists.
+          code patterns for React, Vue, and Angular, and accessibility checklists.
         </p>
 
         <div className="wa-grid" style={{ '--min-column-size': '400px' }}>

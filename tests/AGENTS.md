@@ -280,6 +280,21 @@ describe('myFeature', () => {
 
 ---
 
+## Angular Skill Evals
+
+- `.claude/skills/kigumi-angular/evals/evals.json` -- 10 eval prompts covering variant remap, CVA, event suffixes, control flow, slot syntax
+
+### Angular Starter Testing
+
+Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
+
+1. Generate example component from skill output
+2. Add to `src/app/` or `src/components/`
+3. Run `ng build` -- must compile without errors
+4. Run `ng serve` + visual verification via Chrome DevTools
+
+---
+
 **Parent:** [AGENTS.md](../AGENTS.md)
 
 **Last Updated:** 2026-04-04

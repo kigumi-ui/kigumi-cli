@@ -1,0 +1,141 @@
+{
+  "skill_name": "kigumi-angular",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Convert this WA HTML to an Angular component:\n<wa-button variant=\"primary\" size=\"large\">Submit</wa-button>",
+      "expected_output": "A standalone Angular component using <k-button> with variant=\"brand\" and size=\"large\"",
+      "files": [],
+      "expectations": [
+        "Uses <k-button> not <wa-button>",
+        "Maps variant=\"primary\" to variant=\"brand\"",
+        "Includes standalone: true in @Component decorator",
+        "Includes schemas: [CUSTOM_ELEMENTS_SCHEMA]",
+        "Imports ButtonComponent from @/components/ui/Button/button.component",
+        "Does not use className anywhere"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Convert this form to Angular:\n<wa-input label=\"Email\" type=\"email\" required></wa-input>\n<wa-switch>Enable notifications</wa-switch>\n<wa-button variant=\"primary\" type=\"submit\">Save</wa-button>",
+      "expected_output": "Angular component with FormsModule, [(ngModel)] on Input and Switch, variant brand on Button",
+      "files": [],
+      "expectations": [
+        "Imports FormsModule from @angular/forms",
+        "Uses [(ngModel)] on k-input, not manual (inputEvent) for value tracking",
+        "Uses [(ngModel)] on k-switch, not manual (change) for value tracking",
+        "Maps variant=\"primary\" to variant=\"brand\"",
+        "Generates npx kigumi add commands for any components not installed"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Convert this dialog to Angular:\n<wa-dialog label=\"Delete Item\">\n  <p>This action cannot be undone.</p>\n  <wa-button slot=\"footer\" variant=\"default\">Cancel</wa-button>\n  <wa-button slot=\"footer\" variant=\"danger\">Delete</wa-button>\n</wa-dialog>",
+      "expected_output": "Angular component with Dialog and Button, correct event names and slot usage",
+      "files": [],
+      "expectations": [
+        "Uses (hide) for dialog close event, not (waHide) or (onHide)",
+        "Uses (showEvent) if show event is handled (collision with show() method)",
+        "Preserves slot=\"footer\" on both buttons",
+        "Omits variant prop on Cancel button (variant=\"default\" means omit)",
+        "Uses variant=\"danger\" on Delete button (no remap needed)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Convert this card layout to Angular:\n<div class=\"wa-grid\" style=\"--min-column-size: 300px\">\n  <wa-card>\n    <div slot=\"header\">Title</div>\n    <p>Content</p>\n  </wa-card>\n  <wa-card>\n    <div slot=\"header\">Title 2</div>\n    <p>Content 2</p>\n  </wa-card>\n</div>",
+      "expected_output": "Angular component preserving wa-grid class and CSS custom property, with Card wrappers and slot attributes",
+      "files": [],
+      "expectations": [
+        "Preserves class=\"wa-grid\" on the wrapper div",
+        "Preserves style=\"--min-column-size: 300px\" (CSS custom property)",
+        "Uses <k-card> not <wa-card>",
+        "Preserves slot=\"header\" attribute on header divs",
+        "Does not convert class to className"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Convert this to Angular, showing a list of users:\n<wa-card>\n  <div slot=\"header\">Users</div>\n  <div *ngFor=\"let user of users\">\n    <wa-avatar label=\"{{user.name}}\"></wa-avatar>\n    <span>{{user.name}}</span>\n  </div>\n</wa-card>",
+      "expected_output": "Angular component using @for syntax (not *ngFor), with Avatar and Card wrappers",
+      "files": [],
+      "expectations": [
+        "Converts *ngFor to @for with track expression",
+        "Uses @for (user of users; track user.id) or track $index",
+        "Does not output *ngFor or *ngIf anywhere",
+        "Uses <k-card> and <k-avatar> wrappers"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Convert this HTML:\n<wa-button>Click</wa-button>\nMy project has framework: \"angular\" in kigumi.config.json.",
+      "expected_output": "Reads kigumi.config.json, detects framework is angular, outputs Angular component",
+      "files": [],
+      "expectations": [
+        "Reads kigumi.config.json to determine the framework",
+        "Outputs Angular component syntax (not Vue SFC or React JSX)",
+        "Uses @Component decorator, not <script setup> or function component"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Convert this to Angular:\n<wa-input label=\"Search\">\n  <wa-icon slot=\"prefix\" name=\"search\"></wa-icon>\n</wa-input>",
+      "expected_output": "Angular component with Input wrapper, correct event names, and Icon in prefix slot",
+      "files": [],
+      "expectations": [
+        "Uses (inputEvent) not (input) for the input event if handled (collision suffix)",
+        "Preserves slot=\"prefix\" on the Icon",
+        "Uses <k-input> and <k-icon> wrappers"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Convert to Angular. The project has Button and Card installed but not Dialog:\n<wa-dialog label=\"Info\">\n  <wa-card><p>Details</p></wa-card>\n  <wa-button slot=\"footer\" variant=\"primary\">OK</wa-button>\n</wa-dialog>",
+      "expected_output": "Install command for Dialog before the component code",
+      "files": [],
+      "expectations": [
+        "Generates npx kigumi add dialog (or similar install command)",
+        "Install command appears BEFORE the component code",
+        "Does not generate install commands for Button or Card (already installed)",
+        "Uses variant=\"brand\" not variant=\"primary\""
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Convert this form to Angular:\n<form>\n  <wa-input label=\"Name\" required></wa-input>\n  <wa-textarea label=\"Bio\" rows=\"4\"></wa-textarea>\n  <wa-select label=\"Role\">\n    <wa-option value=\"admin\">Admin</wa-option>\n    <wa-option value=\"user\">User</wa-option>\n  </wa-select>\n  <wa-button variant=\"primary\" type=\"submit\">Save</wa-button>\n</form>",
+      "expected_output": "Angular component with FormsModule, ngModel bindings on all form controls",
+      "files": [],
+      "expectations": [
+        "Uses [(ngModel)] on k-input, k-textarea, and k-select",
+        "Imports FormsModule",
+        "Maps variant=\"primary\" to variant=\"brand\"",
+        "Uses k-option wrappers (imports OptionComponent) for wa-option elements"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Convert this conditional layout to Angular:\n<div>\n  <wa-spinner *ngIf=\"loading\"></wa-spinner>\n  <wa-alert *ngIf=\"error\" variant=\"danger\">{{error}}</wa-alert>\n  <div *ngIf=\"data\">\n    <wa-badge>{{data.count}} items</wa-badge>\n  </div>\n</div>",
+      "expected_output": "Angular component using @if blocks, not *ngIf directives",
+      "files": [],
+      "expectations": [
+        "Converts all *ngIf to @if blocks",
+        "Uses @if (loading) { <k-spinner /> } or similar",
+        "Uses @if (error) { <k-alert variant=\"danger\"> }",
+        "Uses @if (data) { ... } for the data block",
+        "Uses Kigumi wrappers (k-spinner, k-alert, k-badge)"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Convert this to Angular:\n<wa-number-input label=\"Quantity\" min=\"0\" max=\"100\" value=\"1\"></wa-number-input>\n<wa-button variant=\"primary\">Add to Cart</wa-button>\nNote: wa-number-input is a Pro component.",
+      "expected_output": "Angular component noting Pro tier, with ElementRef cast for direct element access",
+      "files": [],
+      "expectations": [
+        "Notes that NumberInput is a Pro/paid-tier component",
+        "Uses <k-number-input> wrapper with correct props",
+        "Uses ElementRef.nativeElement as unknown as HTMLElement cast if accessing element directly",
+        "Maps variant=\"primary\" to variant=\"brand\" on Button"
+      ]
+    }
+  ]
+}

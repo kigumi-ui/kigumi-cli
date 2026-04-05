@@ -29,8 +29,8 @@ Build data-heavy UIs: tables, stats, lists, detail views, loading/empty states.
 2. **Use formatting components** for data values: FormatNumber, FormatDate, FormatBytes, RelativeTime.
 3. **Use Skeleton** for loading states that match the expected layout shape.
 4. **Use Badge** for status indicators with semantic variants (success, warning, danger).
-5. **All tables must be accessible:** include `<caption>` (use `className="wa-visually-hidden"` in React / `class="wa-visually-hidden"` in Vue for visually hidden), `scope="col"` on every `<th>`, and `aria-sort` on sortable columns.
-6. **All tables must be responsive:** wrap in `<div style={{ overflowX: 'auto' }}>` (React) / `<div style="overflow-x: auto">` (Vue) with `minWidth` on the table.
+5. **All tables must be accessible:** include `<caption>` (use `className="wa-visually-hidden"` in React / `class="wa-visually-hidden"` in Vue/Angular for visually hidden), `scope="col"` on every `<th>`, and `aria-sort` on sortable columns.
+6. **All tables must be responsive:** wrap in `<div style={{ overflowX: 'auto' }}>` (React) / `<div style="overflow-x: auto">` (Vue/Angular) with `minWidth` on the table.
 7. **Install data components BEFORE generating code:** `npx kigumi add badge format-number skeleton`. Never use raw `<wa-*>` tags.
 8. **Vue slots:** Use `slot="header"` attribute on child elements, NOT `<template #header>`.
 
@@ -81,8 +81,12 @@ User needs data display
 
 ## References
 
-- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) / [Angular API Surface](../shared/angular-api-surface.md) -- component props, events, slots, CSS parts
 - [Data Display Patterns](references/data-display-patterns.md) -- 9 patterns with React + Vue
+- [Data Patterns Angular](references/data-patterns-angular.md) -- 7 patterns as Angular standalone components (Stats, Table, Sortable, List, Detail, Empty, Loading)
+
+**Angular:** If `framework: "angular"` in `kigumi.config.json`, use patterns from `references/data-patterns-angular.md`. Angular uses `class` (same as Vue), `@for` with `track`, component `styles` for table cell styling instead of inline style objects.
+
 - [Formatting Components](references/formatting-components.md) -- FormatNumber, FormatDate, etc.
 
 ## Related Skills

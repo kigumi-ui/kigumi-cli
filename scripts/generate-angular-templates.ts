@@ -135,10 +135,15 @@ function generateComponentTS(
   const events = getEvents(componentKey);
   const methods = getMethods(componentKey);
 
-  // Rename @Output names that collide with method names
+  // Rename @Output names that collide with method or @Input names
   const methodNames = new Set(methods.map((m) => m.name));
+  const propNames = new Set(
+    component.props.map((p) =>
+      p.name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
+    )
+  );
   for (const event of events) {
-    if (methodNames.has(event.outputName)) {
+    if (methodNames.has(event.outputName) || propNames.has(event.outputName)) {
       event.outputName = event.outputName + 'Event';
     }
   }

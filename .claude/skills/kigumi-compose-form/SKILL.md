@@ -163,6 +163,14 @@ Quick summary:
 - `@input` for real-time, `@change` for committed
 - `:loading="loading"` on submit Button
 
+### Angular
+
+- Class properties for form data, `(submit)` on `<form>`
+- `[(ngModel)]` with FormsModule for two-way binding (preferred) -- CVA handles value sync
+- Do NOT wire `(inputEvent)` or `(change)` for value tracking -- CVA does it
+- `[loading]="loading"` on submit Button
+- If `framework: "angular"` in `kigumi.config.json`, use patterns from `references/form-patterns-angular.md`
+
 ## Accessibility Checklist
 
 - [ ] Every form control has a `label` prop
@@ -183,8 +191,9 @@ Always provide:
 
 ## References
 
-- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) / [Angular API Surface](../shared/angular-api-surface.md) -- component props, events, slots, CSS parts
 - [Form Patterns](references/form-patterns.md) -- 4 complete patterns (Contact, Login, Settings, Wizard), styling tokens, slots, success states, react-hook-form
+- [Form Patterns Angular](references/form-patterns-angular.md) -- 4 patterns as Angular standalone components with CVA/ngModel
 - [Validation Patterns](references/validation-patterns.md) -- native, custom, async validation
 - [Form Component Cheatsheet](references/form-component-cheatsheet.md) -- which component for which input type, key slots
 

@@ -32,7 +32,7 @@ Build page-level layouts using Kigumi components and Web Awesome CSS layout util
 
 ## Critical Rules
 
-1. **React: `className`. Vue: `class`.** Both apply to HTML elements and Kigumi wrappers alike.
+1. **React: `className`. Vue/Angular: `class`.** All apply to HTML elements and Kigumi wrappers alike.
 
 ```tsx
 // React
@@ -126,6 +126,8 @@ User describes a page
 
 **Vue:** `class="wa-stack wa-gap-l"`, custom properties via `style="--min-column-size: 250px"`
 
+**Angular:** `class="wa-stack wa-gap-l"`, custom properties via `style="--min-column-size: 250px"` (same as Vue). Use `@if`/`@for` for control flow, `[(ngModel)]` for form inputs (FormsModule). If `framework: "angular"` in `kigumi.config.json`, use Angular archetypes from `references/layout-archetypes-angular.md`.
+
 ## Output Format
 
 1. ASCII layout diagram
@@ -141,7 +143,8 @@ User describes a page
 
 ## References
 
-- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) / [Angular API Surface](../shared/angular-api-surface.md) -- component props, events, slots, CSS parts
 - [Layout Archetypes](references/layout-archetypes.md) -- 6 page archetypes with React + Vue code
+- [Layout Archetypes Angular](references/layout-archetypes-angular.md) -- 6 page archetypes as Angular standalone components
 - [Layout Utilities Complete](references/layout-utilities-complete.md) -- all .wa-\* classes, typography utilities
 - [Responsive Patterns](references/responsive-patterns.md) -- responsive strategy
