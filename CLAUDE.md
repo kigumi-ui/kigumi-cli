@@ -40,7 +40,7 @@ Update the "Last Updated" date at the bottom of any AGENTS.md you modify.
 
 ## Development Workflow
 
-- Work in **git worktrees** on dedicated branches, never directly on main.
+- Work in **git worktrees** on dedicated branches, never directly on main. Create worktrees at `.claude/worktrees/<branch-name>`.
 - Create a **draft PR** early. This keeps work visible and skips Chromatic until you're ready.
 - Mark the PR as **Ready for Review** when you want CI visual regression (Chromatic) to run.
 - To force Chromatic on a PR that didn't change visual files, add the `visual-test` label.
