@@ -2,18 +2,19 @@
 
 ## Skill Selection Guide
 
-| User Intent | Skill | Audience |
-|---|---|---|
-| Convert WA HTML to React | `kigumi-react` | End user |
-| Convert WA HTML to Vue | `kigumi-vue` | End user |
-| Build a form with validation | `kigumi-compose-form` | End user |
-| Build a page layout / dashboard | `kigumi-compose-layout` | End user |
-| Build a modal / drawer / dropdown | `kigumi-compose-overlay` | End user |
-| Build a data table / stats / list | `kigumi-compose-data` | End user |
-| Customize theme / colors / dark mode | `kigumi-theme` | End user |
+| User Intent                          | Skill                        | Audience    |
+| ------------------------------------ | ---------------------------- | ----------- |
+| Convert WA HTML to React             | `kigumi-react`               | End user    |
+| Convert WA HTML to Vue               | `kigumi-vue`                 | End user    |
+| Convert WA HTML to Angular           | `kigumi-angular`             | End user    |
+| Build a form with validation         | `kigumi-compose-form`        | End user    |
+| Build a page layout / dashboard      | `kigumi-compose-layout`      | End user    |
+| Build a modal / drawer / dropdown    | `kigumi-compose-overlay`     | End user    |
+| Build a data table / stats / list    | `kigumi-compose-data`        | End user    |
+| Customize theme / colors / dark mode | `kigumi-theme`               | End user    |
 | Generate component wrapper templates | `generate-component-wrapper` | Contributor |
-| Create theme presets for Studio | `generate-theme-preset` | Contributor |
-| Prepare a release | `release` | Contributor |
+| Create theme presets for Studio      | `generate-theme-preset`      | Contributor |
+| Prepare a release                    | `release`                    | Contributor |
 
 ## How Skills Work
 

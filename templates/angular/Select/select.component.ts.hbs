@@ -95,7 +95,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
   @Output() afterShow = new EventEmitter<CustomEvent>();
   @Output() hideEvent = new EventEmitter<CustomEvent>();
   @Output() afterHide = new EventEmitter<CustomEvent>();
-  @Output() invalid = new EventEmitter<CustomEvent>();
+  @Output() invalidEvent = new EventEmitter<CustomEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
   private onTouchedCallback: () => void = () => {};
@@ -144,9 +144,9 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
-    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
-    el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    const handleInvalidEvent = (e: Event) => this.invalidEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-invalid', handleInvalidEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalidEvent));
 
     const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);

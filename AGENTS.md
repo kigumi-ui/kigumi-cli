@@ -58,8 +58,9 @@ node dist/index.js add button --force
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
 | `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
 | `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
-| `scripts/generate-skill-references.ts` | Generate skill reference documentation |
-| `scripts/generate-skills-index.mjs` | Generate `.claude/skills/` index file |
+| `scripts/generate-skill-references.ts` | Generate React/Vue/Angular API surface files for skills |
+| `scripts/publish-skills.mjs` | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here) |
+| `scripts/generate-skills-index.mjs` | Generate `.well-known/skills/index.json` from published skills |
 | `scripts/post-build.ts` | Post-build tasks (copy templates to dist) |
 | `scripts/post-changeset-version.ts` | Update version references after changeset version bump |
 | `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
@@ -83,6 +84,7 @@ node dist/index.js add button --force
 | ---------------------------- | -------------------------------------------- | ----------- | ------------------------------------- |
 | `kigumi-react`               | `.claude/skills/kigumi-react/`               | End user    | Convert WA HTML to Kigumi React JSX   |
 | `kigumi-vue`                 | `.claude/skills/kigumi-vue/`                 | End user    | Convert WA HTML to Kigumi Vue SFC     |
+| `kigumi-angular`             | `.claude/skills/kigumi-angular/`             | End user    | Convert WA HTML to Kigumi Angular     |
 | `kigumi-compose-form`        | `.claude/skills/kigumi-compose-form/`        | End user    | Build forms with validation           |
 | `kigumi-compose-layout`      | `.claude/skills/kigumi-compose-layout/`      | End user    | Build page layouts, dashboards        |
 | `kigumi-compose-overlay`     | `.claude/skills/kigumi-compose-overlay/`     | End user    | Build dialogs, drawers, menus, toasts |
@@ -93,6 +95,17 @@ node dist/index.js add button --force
 | `release`                    | `.claude/skills/release/`                    | Contributor | Prepare and publish releases          |
 | `kigumi-feature-spec`        | `.claude/skills/kigumi-feature-spec/`        | Contributor | Create feature specs and plans        |
 | `apply-theme-to-figma`       | `.claude/skills/apply-theme-to-figma/`       | Contributor | Apply CSS tokens to Figma UI Kit      |
+
+### Skills Publishing
+
+End-user skills are published to `kigumi.style/.well-known/skills/` via Vercel. The mechanism:
+
+1. `scripts/publish-skills.mjs` copies whitelisted skills from `.claude/skills/` into `docs/public/skills/` and `docs/public/.well-known/skills/`
+2. `scripts/generate-skills-index.mjs` generates `index.json` from the copied directories
+3. Internal directories (`evals/`) are excluded from the published output -- only `SKILL.md` and `references/` ship to consumers
+4. Vercel serves `.well-known/skills/*` with CORS headers for cross-origin skill discovery
+
+**When adding a new end-user skill**, add it to the `PUBLISHED_SKILLS` array in `scripts/publish-skills.mjs`. Contributor-only skills (e.g. `release`, `generate-component-wrapper`) are intentionally excluded.
 
 ---
 
@@ -185,6 +198,37 @@ Auto-managed by `updateKigumiImports()` in `src/commands/add/installer.ts`.
 hide: () => dialogRef.current?.requestClose(),
 requestClose: () => dialogRef.current?.requestClose(),
 ```
+
+### 8. Angular: `CUSTOM_ELEMENTS_SCHEMA`
+
+Always include in `schemas` array for standalone components that use `wa-*` elements:
+
+```typescript
+@Component({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+```
+
+### 9. Angular: `k-` Selector Prefix
+
+All Kigumi Angular components use `k-` prefix (e.g., `<k-button>`, `<k-dialog>`).
+
+### 10. Angular: Event Collision Suffixes
+
+Native DOM events collide with Angular lifecycle methods. The `@Output()` names use suffixes:
+
+| WA Event | Angular @Output() |
+| -------- | ----------------- |
+| `blur`   | `blurEvent`       |
+| `focus`  | `focusEvent`      |
+| `show`   | `showEvent`       |
+| `input`  | `inputEvent`      |
+
+Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` -> `afterShow`.
+
+### 11. Angular: CVA for Form Controls
+
+Form controls implement `ControlValueAccessor`. Use `[(ngModel)]` or `[formControl]`, never manual event wiring for value tracking.
 
 ---
 
@@ -388,7 +432,7 @@ flowchart TD
     subgraph Templates["templates/"]
         tpl_react["react/ — 74 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
         tpl_vue["vue/ — 74 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
-        tpl_angular["angular/ — 74 components\n.component.ts.hbs, .module.ts.hbs"]
+        tpl_angular["angular/ — 74 components\n.component.ts.hbs, .component.spec.ts.hbs, .component.css.hbs"]
     end
 
     CLI --> Commands
@@ -429,6 +473,7 @@ flowchart TD
     FW_INDEX --> react & vue & angular & svelte
     react --> template
     vue --> template
+    angular --> template
     template --> tpl_react & tpl_vue & tpl_angular
     template --> registry
     template --> css_meta

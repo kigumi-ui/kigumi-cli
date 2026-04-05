@@ -36,7 +36,7 @@ Build production-ready overlay UIs: Dialog, Drawer, Dropdown, Tooltip, Popover, 
 3. **Always provide `label` prop** on Dialog and Drawer for accessibility.
 4. **Focus trap is automatic.** No manual focus management needed.
 5. **Controlled `open` pattern:** React: `open={state}` + `onHide`. Vue: `v-model:open`.
-6. **React: `className`. Vue: `class`.** Both on HTML elements and Kigumi wrappers.
+6. **React: `className`. Vue/Angular: `class`.** All on HTML elements and Kigumi wrappers.
 7. **Vue slots:** Use `slot="footer"` attribute on child elements, NOT `<template #footer>`. Kigumi Vue wrappers pass content through to the web component's shadow DOM slots.
 8. **Icon + text in `.wa-cluster`:** Add `flex: 1; min-width: 0` to the text element to prevent wrapping.
 
@@ -94,6 +94,7 @@ User needs overlay
 
 **React:** `useState` for open, `onHide={() => setOpen(false)}`
 **Vue:** `v-model:open` (recommended) or `ref(false)` + `@wa-hide="open = false"`
+**Angular:** class property for open, `(hide)="open = false"`. Use `[open]="open"` for controlled state. `(showEvent)` for show (collision suffix). If `framework: "angular"`, use patterns from `references/overlay-patterns-angular.md`.
 
 ```vue
 <!-- Vue: preferred pattern with v-model -->
@@ -120,6 +121,7 @@ User needs overlay
 
 ## References
 
-- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) -- component props, events, slots, CSS parts
+- [React API Surface](../shared/react-api-surface.md) / [Vue API Surface](../shared/vue-api-surface.md) / [Angular API Surface](../shared/angular-api-surface.md) -- component props, events, slots, CSS parts
 - [Overlay Patterns](references/overlay-patterns.md) -- 7 patterns with React + Vue
+- [Overlay Patterns Angular](references/overlay-patterns-angular.md) -- 7 patterns as Angular standalone components
 - [State Management](references/overlay-state-management.md) -- controlled pattern, event lifecycle, focus
