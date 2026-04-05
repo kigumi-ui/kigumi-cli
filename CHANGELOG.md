@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.1] - 2026-04-05
+
+### Added
+
+- **Angular skills**: `kigumi-angular` conversion skill with 11 evals, Angular reference patterns for all 4 compose skills (form, layout, overlay, data)
+- **Skills publishing**: `scripts/publish-skills.mjs` extracts skill publishing to a standalone script with centralized whitelist; `evals/` directories excluded from published output
+- **Angular on docs site**: AgentSkills page and skills README list `kigumi-angular`
+
+### Fixed
+
+- **Angular templates**: RadioGroup and Select `invalid` @Input/@Output collision renamed to `invalidEvent`; generator now detects @Input name collisions
+- **Skill references**: Corrected `(waSelect)` to `(select)` event binding, replaced raw `<wa-divider>` with `<k-divider />`, fixed 9 bare boolean attributes across Angular reference files, removed invalid `closable`/`(close)` on Callout
+- **AGENTS.md**: Synced all 4 files with codebase, added validation script, documented skills publishing pipeline
+
 ## [0.19.0] - 2026-04-04
 
 ### Added
