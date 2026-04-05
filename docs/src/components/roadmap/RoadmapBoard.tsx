@@ -103,14 +103,10 @@ const items: Record<Status, RoadmapItem[]> = {
   ],
   'in-progress': [
     {
-      title: 'Kigumi Studio',
-      description: 'Visual theme editor for customizing design tokens.',
+      title: 'Figma-to-Code-to-Figma',
+      description:
+        'AI-driven round-trip between Figma designs and Kigumi code via the Kigumi Screen Manifest format.',
       category: 'tooling',
-    },
-    {
-      title: 'Documentation site',
-      description: 'Comprehensive Storybook-based docs with examples.',
-      category: 'docs',
     },
   ],
   shipped: [
@@ -131,6 +127,12 @@ const items: Record<Status, RoadmapItem[]> = {
       category: 'frameworks',
     },
     {
+      title: 'Angular framework support',
+      description:
+        'Angular wrapper generation with standalone components, ControlValueAccessor, and TypeScript.',
+      category: 'frameworks',
+    },
+    {
       title: 'Community registries',
       description: 'Install components from community-maintained registries.',
       category: 'cli',
@@ -146,10 +148,27 @@ const items: Record<Status, RoadmapItem[]> = {
       category: 'components',
     },
     {
-      title: 'Angular framework support',
+      title: 'Kigumi Studio',
       description:
-        'Angular wrapper generation with standalone components, ControlValueAccessor, and TypeScript.',
-      category: 'frameworks',
+        'Visual theme editor for customizing and exporting design tokens.',
+      category: 'tooling',
+    },
+    {
+      title: 'Documentation site',
+      description: 'Comprehensive Storybook-based docs with examples and FAQ.',
+      category: 'docs',
+    },
+    {
+      title: 'VS Code IntelliSense',
+      description:
+        'Autocomplete and hover info for Kigumi components and tokens.',
+      category: 'tooling',
+    },
+    {
+      title: 'Agent skills',
+      description:
+        'AI-powered component composition, theming, and layout scaffolding.',
+      category: 'cli',
     },
   ],
 };

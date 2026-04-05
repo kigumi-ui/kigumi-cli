@@ -1,5 +1,6 @@
 import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
-import { Card, CopyButton, Badge, Callout } from '@/components/ui';
+import { Card, Badge, Callout } from '@/components/ui';
+import { CodeBlock } from '@/components/CodeBlock';
 
 <Meta title="Guides / Updating Components" tags={['new']} />
 
@@ -73,14 +74,7 @@ import { Card, CopyButton, Badge, Callout } from '@/components/ui';
         locally by you, in the template, or both:
       </p>
 
-      <Card appearance="outlined" style={{ '--spacing': '0' }}>
-        <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-          <pre><code>npx kigumi diff</code></pre>
-          <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center' }}>
-            <CopyButton value="npx kigumi diff" />
-          </span>
-        </div>
-      </Card>
+      <CodeBlock value="npx kigumi diff" />
 
       <p className="wa-caption-m">Output classifies each file:</p>
       <table>
@@ -112,14 +106,7 @@ import { Card, CopyButton, Badge, Callout } from '@/components/ui';
         Run <code>kigumi update</code> to apply template changes:
       </p>
 
-      <Card appearance="outlined" style={{ '--spacing': '0' }}>
-        <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-          <pre><code>npx kigumi update</code></pre>
-          <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center' }}>
-            <CopyButton value="npx kigumi update" />
-          </span>
-        </div>
-      </Card>
+      <CodeBlock value="npx kigumi update" />
 
       <p className="wa-caption-m">Example output:</p>
 
@@ -226,54 +213,8 @@ Summary:
         </tbody>
       </table>
 
-      <Card appearance="outlined" style={{ '--spacing': '0' }}>
-        <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-          <pre><code>npx kigumi update button dialog --dry-run</code></pre>
-          <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center' }}>
-            <CopyButton value="npx kigumi update button dialog --dry-run" />
-          </span>
-        </div>
-      </Card>
+      <CodeBlock value="npx kigumi update button dialog --dry-run" />
     </div>
 
-    {/* FAQ */}
-    <div className="wa-stack wa-gap-l">
-      <h3 className="wa-heading-xl" id="faq">FAQ</h3>
-
-      <div className="wa-stack wa-gap-m">
-        <h4 className="wa-heading-m">What is the .kigumi/ directory?</h4>
-        <p className="wa-caption-m">
-          The <code>.kigumi/snapshots/</code> directory stores a copy of the template
-          output at install time. It should be committed to git so your whole team gets
-          consistent update behavior.
-        </p>
-
-        <h4 className="wa-heading-m">I installed components before the update feature existed</h4>
-        <p className="wa-caption-m">
-          Legacy components (no snapshot) still work. If the file matches the current
-          template, a snapshot is created automatically. If it differs, you'll be prompted
-          to create one — this enables three-way merges for all future updates.
-        </p>
-
-        <h4 className="wa-heading-m">What about community registry components?</h4>
-        <p className="wa-caption-m">
-          Community components installed via <code>--from</code> now get snapshots,
-          just like builtin components. You can update them with <code>kigumi update</code> and
-          the three-way merge works the same way.
-        </p>
-
-        <h4 className="wa-heading-m">Can I regenerate a component from scratch?</h4>
-        <p className="wa-caption-m">
-          Yes — use <code>npx kigumi update --force</code> or{' '}
-          <code>npx kigumi add button --force --yes</code> to replace with a
-          fresh template output.
-        </p>
-
-        <p className="wa-caption-m">
-          When using <code>--force</code> on a modified file, Kigumi shows a diff of your
-          changes before asking for confirmation, so you can review what will be replaced.
-        </p>
-      </div>
-    </div>
   </div>
 </Unstyled>

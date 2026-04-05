@@ -1,5 +1,6 @@
 import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
-import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
+import { Callout, Icon, Divider } from '@/components/ui';
+import { CodeBlock } from '@/components/CodeBlock';
 
 <Meta title="Guides / Community Registries" tags={['new']} />
 
@@ -21,30 +22,9 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
         <p className="wa-caption-m">
           Connect a third-party registry once, then install components or themes by name.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi registry connect https://github.com/user/my-registry</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi registry connect https://github.com/user/my-registry" />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi add button --from my-registry</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi add button --from my-registry" />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi theme install my-theme --from my-registry</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi theme install my-theme --from my-registry" />
-            </span>
-          </div>
-        </Card>
+        <CodeBlock value="npx kigumi registry connect https://github.com/user/my-registry" />
+        <CodeBlock value="npx kigumi add button --from my-registry" />
+        <CodeBlock value="npx kigumi theme install my-theme --from my-registry" />
         <Callout appearance="outlined">
           <Icon name="info-circle" slot="icon" />
           Full URLs also work directly:{' '}
@@ -59,22 +39,8 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
         <p className="wa-caption-m">
           Use <code>npx kigumi registry</code> to manage connected registries in your project.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi registry list</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi registry list" />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi registry remove {'<url>'}</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi registry remove" />
-            </span>
-          </div>
-        </Card>
+        <CodeBlock value="npx kigumi registry list" />
+        <CodeBlock value={"npx kigumi registry remove <url>"} copyValue="npx kigumi registry remove" />
       </div>
 
       <Divider />
@@ -86,25 +52,12 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
           Scaffold a new registry with a single command. This creates the directory structure
           and a <code>registry.json</code> file to get you started.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi registry init</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi registry init" />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div style={{ position: 'relative' }}>
-            <pre>
-              <code>{`my-registry/
+        <CodeBlock value="npx kigumi registry init" />
+        <CodeBlock value={`my-registry/
 ├── registry.json          # Registry metadata
 ├── components/
 │   └── react/             # One directory per framework
-└── themes/`}</code>
-            </pre>
-          </div>
-        </Card>
+└── themes/`} multiline />
       </div>
 
       {/* Add themes */}
@@ -114,18 +67,8 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
           Place your theme CSS in <code>themes/</code> and register it interactively.
           Themes use Web Awesome design tokens as CSS custom properties.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi registry add-theme</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi registry add-theme" />
-            </span>
-          </div>
-        </Card>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div style={{ position: 'relative' }}>
-            <pre>
-              <code>{`:root {
+        <CodeBlock value="npx kigumi registry add-theme" />
+        <CodeBlock value={`:root {
   --wa-color-brand: #6200ee;
   --wa-font-family-heading: 'Space Grotesk', sans-serif;
   --wa-border-radius-scale: 0;
@@ -133,30 +76,7 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
 .wa-dark {
   --wa-color-brand: #bb86fc;
   --wa-color-surface-default: #1e1e1e;
-}`}</code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: 'var(--wa-space-xs)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value={`:root {
-  --wa-color-brand: #6200ee;
-  --wa-font-family-heading: 'Space Grotesk', sans-serif;
-  --wa-border-radius-scale: 0;
-}
-.wa-dark {
-  --wa-color-brand: #bb86fc;
-  --wa-color-surface-default: #1e1e1e;
-}`} />
-            </span>
-          </div>
-        </Card>
+}`} multiline />
       </div>
 
       {/* Add components */}
@@ -167,14 +87,7 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
           Components are pre-rendered files (<code>.tsx</code>, <code>.vue</code>, etc.) that get
           copied as-is into the consumer's project.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi registry add-component</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi registry add-component" />
-            </span>
-          </div>
-        </Card>
+        <CodeBlock value="npx kigumi registry add-component" />
       </div>
 
       {/* Validate and publish */}
@@ -184,14 +97,7 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
           Run the built-in validator before pushing. It checks the schema, file paths, dependencies,
           and file extensions.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-center wa-gap-xs" style={{ position: 'relative' }}>
-            <pre><code>npx kigumi registry validate</code></pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: '0', bottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CopyButton value="npx kigumi registry validate" />
-            </span>
-          </div>
-        </Card>
+        <CodeBlock value="npx kigumi registry validate" />
         <Callout appearance="outlined">
           <Icon name="info-circle" slot="icon" />
           Publishing is just a <code>git push</code>. Anyone with the repo URL can connect
@@ -207,10 +113,7 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
         <p className="wa-caption-m">
           The registry manifest describes your components and themes.
         </p>
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div style={{ position: 'relative' }}>
-            <pre>
-              <code>{`{
+        <CodeBlock value={`{
   "name": "my-registry",
   "version": "1.0.0",
   "frameworks": ["react"],
@@ -241,28 +144,13 @@ import { Card, CopyButton, Callout, Icon, Divider } from '@/components/ui';
       "extends": "default"
     }
   }
-}`}</code>
-            </pre>
-            <span
-              style={{
-                position: 'absolute',
-                right: 'var(--wa-space-xs)',
-                top: 'var(--wa-space-xs)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <CopyButton value={`{
+}`} copyValue={`{
   "name": "my-registry",
   "version": "1.0.0",
   "frameworks": ["react"],
   "components": {},
   "themes": {}
-}`} />
-            </span>
-          </div>
-        </Card>
+}`} multiline />
 
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>

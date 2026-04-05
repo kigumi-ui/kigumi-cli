@@ -1,0 +1,195 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Callout, Icon } from '@/components/ui';
+import { CodeBlock } from '@/components/CodeBlock';
+
+<Meta title="General / CLI" />
+
+<Unstyled>
+  <div className="wa-stack wa-gap-4xl">
+    <div className="wa-stack wa-gap-xl">
+      <h2 className="wa-heading-2xl" id="cli">
+        CLI
+      </h2>
+      <p className="wa-caption-m">
+        The Kigumi CLI generates framework-specific component wrappers around Web Awesome
+        web components and manages your project configuration.
+      </p>
+
+      <Callout variant="brand">
+        <Icon name="lightbulb" slot="icon" />
+        <strong>Pin a specific Kigumi version</strong><br />
+        Running <code>npx kigumi</code> or{' '}
+        <code>npx kigumi@latest</code> always uses the latest published version. To pin a
+        specific version, use <code>npx kigumi@0.19.1</code>.
+      </Callout>
+
+      <Callout appearance="outlined">
+        <Icon name="info-circle" slot="icon" />
+        <strong>Pro tier</strong><br />
+        Some commands reference a <strong>Pro</strong> tier. Kigumi works fully with the free
+        Web Awesome package. Pro unlocks additional components, themes, and palettes.
+        Subscriptions are available at{' '}
+        <a href="https://webawesome.com/purchase" target="_blank" rel="noopener noreferrer">webawesome.com</a>.
+      </Callout>
+
+      {/* ──── Getting Started ──── */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="init">init</h3>
+        <p className="wa-caption-m">
+          Initialize Kigumi in your project. Detects your framework, installs dependencies,
+          and generates configuration files.
+        </p>
+        <CodeBlock value="npx kigumi init" />
+        <p className="wa-caption-m">
+          Pass flags to skip the interactive prompts:
+        </p>
+        <CodeBlock value="npx kigumi init --framework react --theme default --yes" />
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Option</th>
+              <th style={{ textAlign: 'left', padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>--framework</code></td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>react</code>, <code>vue</code>, or <code>angular</code></td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>--theme</code></td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Theme name</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>--token</code></td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Pro tier authentication token</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}><code>-y, --yes</code></td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)', borderBottom: '1px solid var(--wa-color-border-default)' }}>Skip all prompts</td>
+            </tr>
+            <tr>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)' }}><code>--no-install</code></td>
+              <td style={{ padding: 'var(--wa-space-xs) var(--wa-space-s)' }}>Skip dependency installation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="add">add</h3>
+        <p className="wa-caption-m">
+          Add one or more components to your project. Omit the name to open an interactive picker.
+        </p>
+        <CodeBlock value="npx kigumi add button card dialog" />
+        <CodeBlock value="npx kigumi add --all" />
+        <p className="wa-caption-m">
+          Install from a community registry with <code>--from</code>:
+        </p>
+        <CodeBlock value="npx kigumi add button --from my-registry" />
+        <Callout appearance="outlined">
+          <Icon name="info-circle" slot="icon" />
+          See <a href="./?path=/docs/guides-community-registries--docs">Community Registries</a> for
+          details on connecting and using third-party registries.
+        </Callout>
+      </div>
+
+      {/* ──── Components ──── */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="list">list</h3>
+        <p className="wa-caption-m">
+          List all available components grouped by category.
+        </p>
+        <CodeBlock value="npx kigumi list" />
+        <p className="wa-caption-m">
+          Use <code>--json</code> for machine-readable output:
+        </p>
+        <CodeBlock value="npx kigumi list --json" />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="diff">diff</h3>
+        <p className="wa-caption-m">
+          Compare installed components against current templates to see what changed.
+          Uses three-way snapshots to classify changes as upstream-only, local-only, or conflicting.
+        </p>
+        <CodeBlock value="npx kigumi diff" />
+        <CodeBlock value="npx kigumi diff button card" />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="update">update</h3>
+        <p className="wa-caption-m">
+          Update installed components with three-way merge. Clean merges apply automatically;
+          conflicts are flagged for manual resolution.
+        </p>
+        <CodeBlock value="npx kigumi update" />
+        <CodeBlock value="npx kigumi update button --force" />
+        <Callout appearance="outlined">
+          <Icon name="info-circle" slot="icon" />
+          Use <code>--dry-run</code> to preview changes without writing files.
+        </Callout>
+      </div>
+
+      {/* ──── Theming ──── */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="theme">theme</h3>
+        <p className="wa-caption-m">
+          Set a built-in theme or install one from a community registry.
+          Pro tier unlocks additional themes beyond the free defaults.
+        </p>
+        <CodeBlock value="npx kigumi theme set" />
+        <CodeBlock value="npx kigumi theme install my-theme --from my-registry" />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="brand">brand</h3>
+        <p className="wa-caption-m">
+          Change the brand color. Available colors: <code>blue</code>, <code>purple</code>,{' '}
+          <code>green</code>, <code>red</code>, <code>orange</code>, <code>yellow</code>,{' '}
+          <code>cyan</code>, <code>indigo</code>, <code>pink</code>, <code>gray</code>.
+        </p>
+        <CodeBlock value="npx kigumi brand purple" />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="palette">palette</h3>
+        <p className="wa-caption-m">
+          Change the color palette. Available palettes depend on your tier.
+        </p>
+        <CodeBlock value="npx kigumi palette" />
+      </div>
+
+      {/* ──── Project ──── */}
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="status">status</h3>
+        <p className="wa-caption-m">
+          Show your project configuration: tier, framework, theme, installed components, and warnings.
+        </p>
+        <CodeBlock value="npx kigumi status" />
+        <CodeBlock value="npx kigumi status --json" />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="doctor">doctor</h3>
+        <p className="wa-caption-m">
+          Diagnose and fix common issues. Scans component files for incorrect import paths and
+          checks config for stale version entries.
+        </p>
+        <CodeBlock value="npx kigumi doctor" />
+        <CodeBlock value="npx kigumi doctor --dry-run" />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="upgrade">upgrade</h3>
+        <p className="wa-caption-m">
+          Upgrade your project to the latest Kigumi version. Shows a changelog of versions
+          in between and lists any breaking changes with migration guides.
+        </p>
+        <CodeBlock value="npx kigumi upgrade" />
+        <CodeBlock value="npx kigumi upgrade --dry-run" />
+      </div>
+    </div>
+
+  </div>
+</Unstyled>
