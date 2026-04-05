@@ -2,7 +2,7 @@ import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
 import { Callout, Icon, Divider } from '@/components/ui';
 import { CodeBlock } from '@/components/CodeBlock';
 
-<Meta title="Guides / Community Registries" tags={['new']} />
+<Meta title="Guides / Community Registries" />
 
 <Unstyled>
   <div className="wa-stack wa-gap-4xl">
@@ -54,11 +54,12 @@ import { CodeBlock } from '@/components/CodeBlock';
         </p>
         <CodeBlock value="npx kigumi registry init" />
         <CodeBlock value={`my-registry/
-├── registry.json          # Registry metadata
+
+├── registry.json # Registry metadata
 ├── components/
-│   └── react/             # One directory per framework
+│ └── react/ # One directory per framework
 └── themes/`} multiline />
-      </div>
+</div>
 
       {/* Add themes */}
       <div className="wa-stack wa-gap-m">
@@ -69,15 +70,16 @@ import { CodeBlock } from '@/components/CodeBlock';
         </p>
         <CodeBlock value="npx kigumi registry add-theme" />
         <CodeBlock value={`:root {
-  --wa-color-brand: #6200ee;
-  --wa-font-family-heading: 'Space Grotesk', sans-serif;
-  --wa-border-radius-scale: 0;
+
+--wa-color-brand: #6200ee;
+--wa-font-family-heading: 'Space Grotesk', sans-serif;
+--wa-border-radius-scale: 0;
 }
 .wa-dark {
-  --wa-color-brand: #bb86fc;
-  --wa-color-surface-default: #1e1e1e;
+--wa-color-brand: #bb86fc;
+--wa-color-surface-default: #1e1e1e;
 }`} multiline />
-      </div>
+</div>
 
       {/* Add components */}
       <div className="wa-stack wa-gap-m">
@@ -114,42 +116,43 @@ import { CodeBlock } from '@/components/CodeBlock';
           The registry manifest describes your components and themes.
         </p>
         <CodeBlock value={`{
-  "name": "my-registry",
-  "version": "1.0.0",
-  "frameworks": ["react"],
-  "components": {
-    "button": {
-      "name": "Button",
-      "description": "Custom button",
-      "category": "Actions",
-      "dependencies": [],
-      "files": {
-        "react": {
-          "component": "components/react/Button/Button.tsx",
-          "css": "components/react/Button/Button.css",
-          "test": "components/react/Button/Button.test.tsx",
-          "extras": []
-        }
-      }
-    }
-  },
-  "themes": {
-    "my-theme": {
-      "name": "My Theme",
-      "description": "A custom theme",
-      "files": {
-        "css": "themes/my-theme/theme.css",
-        "variables": "themes/my-theme/variables.css"
-      },
-      "extends": "default"
-    }
-  }
+
+"name": "my-registry",
+"version": "1.0.0",
+"frameworks": ["react"],
+"components": {
+"button": {
+"name": "Button",
+"description": "Custom button",
+"category": "Actions",
+"dependencies": [],
+"files": {
+"react": {
+"component": "components/react/Button/Button.tsx",
+"css": "components/react/Button/Button.css",
+"test": "components/react/Button/Button.test.tsx",
+"extras": []
+}
+}
+}
+},
+"themes": {
+"my-theme": {
+"name": "My Theme",
+"description": "A custom theme",
+"files": {
+"css": "themes/my-theme/theme.css",
+"variables": "themes/my-theme/variables.css"
+},
+"extends": "default"
+}
+}
 }`} copyValue={`{
-  "name": "my-registry",
-  "version": "1.0.0",
-  "frameworks": ["react"],
-  "components": {},
-  "themes": {}
+"name": "my-registry",
+"version": "1.0.0",
+"frameworks": ["react"],
+"components": {},
+"themes": {}
 }`} multiline />
 
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -220,5 +223,6 @@ import { CodeBlock } from '@/components/CodeBlock';
         </table>
       </div>
     </div>
+
   </div>
 </Unstyled>
