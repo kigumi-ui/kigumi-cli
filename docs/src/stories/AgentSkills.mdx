@@ -57,22 +57,20 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
 
         <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
           <Card appearance="outlined">
-            <div className="wa-stack wa-gap-xs">
-              <strong className="wa-heading-s">Without skills</strong>
-              <p className="wa-caption-s wa-color-text-quiet">
+              <div className="wa-cluster wa-align-items-center" slot="header">
+                <Icon name="battery-quarter" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">Without skills</h3>
+              </div>
                 AI guesses component APIs, uses wrong event types, forgets
                 accessibility attributes, and produces code that needs manual fixes.
-              </p>
-            </div>
           </Card>
           <Card appearance="outlined">
-            <div className="wa-stack wa-gap-xs">
-              <strong className="wa-heading-s">With skills</strong>
-              <p className="wa-caption-s wa-color-text-quiet">
+              <div className="wa-cluster wa-align-items-center" slot="header">
+                <Icon name="battery-full" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">With skills</h3>
+              </div>
                 AI knows every prop, event, and slot. Generates accessible,
                 production-ready code with correct state management patterns.
-              </p>
-            </div>
           </Card>
         </div>
       </div>
@@ -87,29 +85,23 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
 
         <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
           <Card>
-            <div className="wa-stack wa-gap-s">
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Icon name="react" family="brands" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
-                <strong className="wa-heading-s">kigumi-react</strong>
+
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="react" family="brands" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-react</h3>
               </div>
-              <p className="wa-caption-s wa-color-text-quiet">
                 Convert Web Awesome HTML to Kigumi React components. Handles
                 attribute mapping, event handlers, slot syntax, and TypeScript types.
-              </p>
-            </div>
           </Card>
 
           <Card>
-            <div className="wa-stack wa-gap-s">
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Icon name="vuejs" family="brands" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
-                <strong className="wa-heading-s">kigumi-vue</strong>
+
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="vuejs" family="brands" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-vue</h3>
               </div>
-              <p className="wa-caption-s wa-color-text-quiet">
                 Convert Web Awesome HTML to Kigumi Vue SFCs. Handles <code>@event</code> syntax,
                 template slots, <code>ref()</code> state, and <code>&lt;script setup&gt;</code>.
-              </p>
-            </div>
           </Card>
         </div>
       </div>
@@ -125,55 +117,40 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
 
         <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
           <Card>
-            <div className="wa-stack wa-gap-s">
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Icon name="table-list" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
-                <strong className="wa-heading-s">kigumi-compose-form</strong>
+
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="table-list" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-compose-form</h3>
               </div>
-              <p className="wa-caption-s wa-color-text-quiet">
                 Build forms with validation, error handling, and async submission.
                 Includes login, settings, contact, and multi-step wizard patterns.
-              </p>
-            </div>
           </Card>
 
           <Card>
-            <div className="wa-stack wa-gap-s">
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Icon name="table-columns" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
-                <strong className="wa-heading-s">kigumi-compose-layout</strong>
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="table-columns" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-compose-layout</h3>
               </div>
-              <p className="wa-caption-s wa-color-text-quiet">
                 Build page layouts, dashboards, and app shells using Web Awesome
                 layout utilities. Includes 5 layout archetypes with responsive patterns.
-              </p>
-            </div>
           </Card>
 
           <Card>
-            <div className="wa-stack wa-gap-s">
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Icon name="window-restore" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
-                <strong className="wa-heading-s">kigumi-compose-overlay</strong>
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="window-restore" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-compose-overlay</h3>
               </div>
-              <p className="wa-caption-s wa-color-text-quiet">
                 Build dialogs, drawers, dropdown menus, tooltips, popovers, and
                 toast notifications with correct state management and focus handling.
-              </p>
-            </div>
           </Card>
 
           <Card>
-            <div className="wa-stack wa-gap-s">
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Icon name="chart-simple" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
-                <strong className="wa-heading-s">kigumi-compose-data</strong>
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="chart-simple" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-compose-data</h3>
               </div>
-              <p className="wa-caption-s wa-color-text-quiet">
                 Build data tables, stats dashboards, list views, detail panels,
                 and loading/empty states with proper formatting components.
-              </p>
-            </div>
           </Card>
         </div>
       </div>
@@ -182,119 +159,17 @@ import { Card, CopyButton, Callout, Icon } from '@/components/ui';
       <div className="wa-stack wa-gap-m">
         <h3 className="wa-heading-l" id="theming-skill">Theming skill</h3>
 
-        <div className="wa-grid" style={{ '--min-column-size': '400px' }}>
+        <div className="wa-grid" style={{ '--min-column-size': '400px', }}>
           <Card>
-            <div className="wa-stack wa-gap-s">
-              <div className="wa-cluster wa-gap-xs wa-align-items-center">
-                <Icon name="palette" style={{ fontSize: '1.25rem', color: 'var(--wa-color-brand-fill-normal)' }} />
-                <strong className="wa-heading-s">kigumi-theme</strong>
+              <div className="wa-cluster wa-gap-s wa-align-items-center" slot="header">
+                <Icon name="palette" style={{ fontSize: 'var(--wa-font-size-l)' }} />
+                <h3 className="wa-heading-l">kigumi-theme</h3>
               </div>
-              <p className="wa-caption-s wa-color-text-quiet">
                 Customize themes, CSS variables, design tokens, and dark mode.
                 Covers brand colors, palettes, CSS layers, and component-level overrides.
-              </p>
-            </div>
           </Card>
         </div>
       </div>
-
-      {/* Example */}
-      <div className="wa-stack wa-gap-m">
-        <h3 className="wa-heading-l" id="example">Example: "Build me a login form"</h3>
-        <p className="wa-caption-m">
-          With <strong>kigumi-compose-form</strong> installed, your AI assistant
-          knows to use native DOM events (not CustomEvent), the <code>required</code> prop
-          for validation, <code>.wa-stack</code> for layout, and the <code>loading</code> prop
-          on the submit button.
-        </p>
-
-        <Card appearance="outlined" style={{ '--spacing': '0' }}>
-          <div className="wa-flank:end wa-align-items-start wa-gap-xs" style={{ position: 'relative' }}>
-            <pre style={{ overflowX: 'auto' }}>
-              <code>{`import { useState } from 'react';
-
-import { Button, Callout, Checkbox, Input } from '@/components/ui';
-
-export function LoginForm() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-const handleSubmit = async (e) => {
-e.preventDefault();
-setLoading(true);
-setError('');
-try {
-const res = await fetch('/api/login', {
-method: 'POST',
-body: new FormData(e.currentTarget),
-});
-if (!res.ok) throw new Error('Invalid credentials');
-window.location.href = '/dashboard';
-} catch (err) {
-setError(err.message);
-} finally {
-setLoading(false);
-}
-};
-
-return (
-<form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
-{error && <Callout variant="danger">{error}</Callout>}
-<Input label="Email" name="email" type="email" required />
-<Input label="Password" name="password" type="password"
-        required password-toggle />
-<Checkbox name="remember">Remember me</Checkbox>
-<Button variant="brand" type="submit" loading={loading}>
-Sign In
-</Button>
-</form>
-);
-}`}</code>
-            </pre>
-            <span style={{ position: 'absolute', right: 'var(--wa-space-xs)', top: 'var(--wa-space-xs)' }}>
-              <CopyButton value={`import { useState } from 'react';
-import { Button, Callout, Checkbox, Input } from '@/components/ui';
-
-export function LoginForm() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-const handleSubmit = async (e) => {
-e.preventDefault();
-setLoading(true);
-setError('');
-try {
-const res = await fetch('/api/login', {
-method: 'POST',
-body: new FormData(e.currentTarget),
-});
-if (!res.ok) throw new Error('Invalid credentials');
-window.location.href = '/dashboard';
-} catch (err) {
-setError(err.message);
-} finally {
-setLoading(false);
-}
-};
-
-return (
-<form className="wa-stack wa-gap-l" onSubmit={handleSubmit}>
-{error && <Callout variant="danger">{error}</Callout>}
-<Input label="Email" name="email" type="email" required />
-<Input label="Password" name="password" type="password"
-        required password-toggle />
-<Checkbox name="remember">Remember me</Checkbox>
-<Button variant="brand" type="submit" loading={loading}>
-Sign In
-</Button>
-</form>
-);
-}`} />
-</span>
-</div>
-</Card>
-</div>
-
     </div>
 
   </div>
