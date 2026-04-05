@@ -22,6 +22,3 @@ docs/public/.well-known/skills/
 
 # Maintenance-only audit utilities (not for distribution)
 audit/
-
-# Git worktrees for isolated branch work
-.claude/worktrees/
