@@ -19,6 +19,7 @@ interface FrameworkCodeBlockProps {
   snippets: {
     react: FrameworkSnippet;
     vue: FrameworkSnippet;
+    angular: FrameworkSnippet;
   };
 }
 
@@ -32,7 +33,7 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
         active={framework}
         onTabShow={(e: CustomEvent) => {
           const name = e.detail.name;
-          if (name === 'react' || name === 'vue') {
+          if (name === 'react' || name === 'vue' || name === 'angular') {
             setFramework(name);
           }
         }}
@@ -57,20 +58,14 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
             Vue
           </span>
         </Tab>
-        <Tab panel="angular" disabled>
+        <Tab panel="angular">
           <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
               src={angularLogo}
               alt="Angular logo"
-              style={{
-                width: '16px',
-                height: '16px',
-              }}
+              style={{ width: '16px', height: '16px' }}
             />
             Angular
-            <Badge appearance="outlined" variant="neutral" pill>
-              Coming soon
-            </Badge>
           </span>
         </Tab>
         <Tab panel="svelte" disabled>
@@ -95,6 +90,9 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
         </TabPanel>
         <TabPanel name="vue" style={{ '--padding': '0' }}>
           <CodePane snippet={snippets.vue} />
+        </TabPanel>
+        <TabPanel name="angular" style={{ '--padding': '0' }}>
+          <CodePane snippet={snippets.angular} />
         </TabPanel>
       </TabGroup>
     </Card>

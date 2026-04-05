@@ -134,6 +134,50 @@ import {
   </Card>
 </template>`;
 
+const angularCode = `import { Component } from '@angular/core';
+import {
+  ButtonComponent, CardComponent, CheckboxComponent,
+  InputComponent, OptionComponent, RadioComponent,
+  RadioGroupComponent, SelectComponent,
+} from '@/components/ui';
+
+@Component({
+  selector: 'app-new-project',
+  standalone: true,
+  imports: [
+    ButtonComponent, CardComponent, CheckboxComponent,
+    InputComponent, OptionComponent, RadioComponent,
+    RadioGroupComponent, SelectComponent,
+  ],
+  template: \`
+    <k-card [withHeader]="true" [withFooter]="true">
+      <div slot="header">
+        <h3 class="wa-heading-m">New project</h3>
+      </div>
+      <div class="wa-stack wa-gap-l">
+        <k-input label="Project name" placeholder="my-kigumi-project" />
+        <k-select label="Framework" value="react">
+          <k-option value="none">None</k-option>
+          <k-option value="react">React</k-option>
+          <k-option value="vue">Vue</k-option>
+          <k-option value="angular">Angular</k-option>
+          <k-option value="svelte">Svelte</k-option>
+        </k-select>
+        <k-radio-group label="Visibility" value="public" orientation="horizontal">
+          <k-radio value="public" appearance="button">Public</k-radio>
+          <k-radio value="private" appearance="button">Private</k-radio>
+        </k-radio-group>
+        <k-checkbox [checked]="true">Initialize with README</k-checkbox>
+      </div>
+      <div slot="footer" class="wa-cluster wa-justify-content-end wa-gap-s">
+        <k-button variant="neutral" appearance="outlined" size="medium">Cancel</k-button>
+        <k-button variant="brand" size="medium">Create</k-button>
+      </div>
+    </k-card>
+  \`,
+})
+export class NewProjectComponent {}`;
+
 type Token = {
   type: 'keyword' | 'tag' | 'attr' | 'string' | 'punct' | 'text';
   value: string;
@@ -232,7 +276,7 @@ export function HeroPreview() {
         active={framework}
         onTabShow={(e: CustomEvent) => {
           const name = e.detail.name;
-          if (name === 'react' || name === 'vue') {
+          if (name === 'react' || name === 'vue' || name === 'angular') {
             setFramework(name);
           }
         }}
@@ -257,7 +301,7 @@ export function HeroPreview() {
             Vue
           </span>
         </Tab>
-        <Tab panel="angular" disabled>
+        <Tab panel="angular">
           <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
               src={angularLogo}
@@ -265,9 +309,6 @@ export function HeroPreview() {
               style={{ width: '16px', height: '16px' }}
             />
             Angular
-            <Badge appearance="outlined" variant="neutral" pill>
-              Coming soon
-            </Badge>
           </span>
         </Tab>
         <Tab panel="svelte" disabled>
@@ -295,6 +336,12 @@ export function HeroPreview() {
           style={{ '--padding': '0' } as React.CSSProperties}
         >
           <PreviewPanel code={vueCode} />
+        </TabPanel>
+        <TabPanel
+          name="angular"
+          style={{ '--padding': '0' } as React.CSSProperties}
+        >
+          <PreviewPanel code={angularCode} />
         </TabPanel>
       </TabGroup>
     </div>

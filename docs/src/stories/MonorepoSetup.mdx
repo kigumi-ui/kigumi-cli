@@ -133,13 +133,14 @@ export const themeImport = `@import '@repo/theme/theme.css';
           snippets={{
             react: { code: "import '@/lib/kigumi';", filename: 'src/App.tsx' },
             vue: { code: "import '@/lib/kigumi';", filename: 'src/main.ts' },
+            angular: { code: "import '@/lib/kigumi';", filename: 'src/main.ts' },
           }}
         />
         <Callout appearance="outlined">
           <Icon name="info-circle" slot="icon" />
           <strong>UI Packages pattern:</strong> The app entry point still imports{' '}
           <code>@/lib/kigumi</code> for CSS setup. The UI package re-exports components,
-          and each app imports them from <code>@repo/react-ui</code> or <code>@repo/vue-ui</code>.
+          and each app imports them from <code>@repo/react-ui</code>, <code>@repo/vue-ui</code>, or <code>@repo/angular-ui</code>.
         </Callout>
       </div>
 

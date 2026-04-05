@@ -28,17 +28,11 @@ export const CompatibilityInfo = () => {
           alt="Vue"
           style={{ width: '24px', height: '24px' }}
         />
-        <Tooltip for="angular-logo">Coming soon</Tooltip>
         <img
           id="angular-logo"
           src={angularLogo}
           alt="Angular"
-          style={{
-            width: '24px',
-            height: '24px',
-            filter: 'grayscale(1)',
-            opacity: 0.5,
-          }}
+          style={{ width: '24px', height: '24px' }}
         />
         <Tooltip for="svelte-logo">Coming soon</Tooltip>
         <img

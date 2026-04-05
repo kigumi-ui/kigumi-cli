@@ -10,7 +10,7 @@ const frameworks = [
   { id: 'vitejs', src: vitejsLogo, alt: 'Vite', available: true },
   { id: 'react', src: reactLogo, alt: 'React', available: true },
   { id: 'vue', src: vueLogo, alt: 'Vue', available: true },
-  { id: 'angular', src: angularLogo, alt: 'Angular', available: false },
+  { id: 'angular', src: angularLogo, alt: 'Angular', available: true },
   { id: 'svelte', src: svelteLogo, alt: 'Svelte', available: false },
 ] as const;
 
@@ -27,6 +27,13 @@ const starters = [
     description: 'Vue + Vite + Kigumi',
     href: 'https://github.com/kigumi-ui/kigumi-vue-starter',
     icon: 'vuejs',
+    iconFamily: 'brands',
+  },
+  {
+    title: 'Angular Starter',
+    description: 'Angular + Kigumi',
+    href: 'https://github.com/kigumi-ui/kigumi-angular-starter',
+    icon: 'angular',
     iconFamily: 'brands',
   },
 ] as const;

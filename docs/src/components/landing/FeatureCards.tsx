@@ -37,7 +37,7 @@ const features = [
     icon: 'palette',
     title: 'Fully Themeable',
     description:
-      'Match your brand with themes, palettes, and colors. Customize with CSS custom properties or design your own in Studio.',
+      'Customize your theme with CSS custom properties or design your own in Kigumi Studio.',
   },
   {
     icon: 'share-nodes',

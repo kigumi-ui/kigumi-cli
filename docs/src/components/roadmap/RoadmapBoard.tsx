@@ -39,11 +39,6 @@ const items: Record<Status, RoadmapItem[]> = {
       category: 'frameworks',
     },
     {
-      title: 'Angular framework support',
-      description: 'Generate Angular wrapper components with proper bindings.',
-      category: 'frameworks',
-    },
-    {
       title: 'Component playground',
       description:
         'Interactive playground for trying components in the browser.',
@@ -78,7 +73,7 @@ const items: Record<Status, RoadmapItem[]> = {
     {
       title: 'Framework migration',
       description:
-        'Move a project from React to Vue (or future Svelte/Angular) preserving all config and customizations.',
+        'Move a project between React, Vue, Angular (or future Svelte) preserving all config and customizations.',
       category: 'frameworks',
     },
     {
@@ -149,6 +144,12 @@ const items: Record<Status, RoadmapItem[]> = {
       title: 'CSS layer architecture',
       description: 'Predictable cascade via @layer ordering.',
       category: 'components',
+    },
+    {
+      title: 'Angular framework support',
+      description:
+        'Angular wrapper generation with standalone components, ControlValueAccessor, and TypeScript.',
+      category: 'frameworks',
     },
   ],
 };
