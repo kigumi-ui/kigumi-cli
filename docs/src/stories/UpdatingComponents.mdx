@@ -2,7 +2,7 @@ import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
 import { Card, Badge, Callout } from '@/components/ui';
 import { CodeBlock } from '@/components/CodeBlock';
 
-<Meta title="Guides / Updating Components" tags={['new']} />
+<Meta title="Guides / Updating Components" />
 
 <Unstyled>
   <div className="wa-stack wa-gap-4xl">
@@ -112,22 +112,23 @@ import { CodeBlock } from '@/components/CodeBlock';
 
       <Card appearance="outlined">
         <pre style={{ margin: 0, fontSize: '0.85em', lineHeight: '1.6' }}>
+
 {`Button
-  ✓ Button.tsx — up to date
-  → Button.css — safe overwrite (applied)
-  ⚡ Button.test.tsx — clean merge (applied)
+✓ Button.tsx — up to date
+→ Button.css — safe overwrite (applied)
+⚡ Button.test.tsx — clean merge (applied)
 
 Dialog
-  ⚠ Dialog.tsx — conflict (3 regions, resolve manually)
-  ✓ Dialog.css — up to date
-  → Dialog.test.tsx — safe overwrite (applied)
+⚠ Dialog.tsx — conflict (3 regions, resolve manually)
+✓ Dialog.css — up to date
+→ Dialog.test.tsx — safe overwrite (applied)
 
 Summary:
-  2 component(s) processed
-  3 file(s) updated
-  1 file(s) with conflicts (resolve manually)`}
-        </pre>
-      </Card>
+2 component(s) processed
+3 file(s) updated
+1 file(s) with conflicts (resolve manually)`}
+</pre>
+</Card>
 
       <table>
         <thead>
@@ -150,71 +151,77 @@ Summary:
 
       <Card appearance="outlined">
         <pre style={{ margin: 0, fontSize: '0.85em', lineHeight: '1.6' }}>
-{`  Button.tsx
-  ──────────
-  @@ -3,2 +3,3 @@
-    import { forwardRef } from 'react';
-  - import type { ButtonProps } from './types';
-  + import type { ButtonHTMLAttributes } from 'react';
-  + import type { ButtonProps } from './Button.types';`}
-        </pre>
-      </Card>
-    </div>
 
-    {/* Step 3 */}
-    <div className="wa-stack wa-gap-m">
-      <div className="wa-cluster wa-gap-xs wa-align-items-center">
-        <Badge pill>3</Badge>
-        <h3 className="wa-heading-l" id="resolve-conflicts">Resolve conflicts</h3>
+{` Button.tsx
+──────────
+@@ -3,2 +3,3 @@
+import { forwardRef } from 'react';
+
+- import type { ButtonProps } from './types';
+
+* import type { ButtonHTMLAttributes } from 'react';
+* import type { ButtonProps } from './Button.types';`}
+  </pre>
+  </Card>
+  </div>
+
+      {/* Step 3 */}
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <Badge pill>3</Badge>
+          <h3 className="wa-heading-l" id="resolve-conflicts">Resolve conflicts</h3>
+        </div>
+
+        <p className="wa-caption-m">
+          If the update reports conflicts, open the file in your editor. You'll see
+          standard Git-style conflict markers:
+        </p>
+
+        <Card appearance="outlined">
+          <pre style={{ margin: 0, fontSize: '0.85em', lineHeight: '1.6' }}>
+
+  {`<<<<<<< yours
+  return <wa-button {...props} class="my-custom-class" />;
+  =======
+  return <wa-button {...props} aria-busy={loading} />;
+
+  > > > > > > > theirs`}
+
+          </pre>
+        </Card>
+
+        <p className="wa-caption-m">
+          Choose the code you want (or combine both), then remove the markers.
+          Most editors (VS Code, JetBrains, Neovim) have built-in conflict resolution UI.
+        </p>
       </div>
 
-      <p className="wa-caption-m">
-        If the update reports conflicts, open the file in your editor. You'll see
-        standard Git-style conflict markers:
-      </p>
+      {/* Options Reference */}
+      <div className="wa-stack wa-gap-l">
+        <h3 className="wa-heading-xl" id="options">Options</h3>
 
-      <Card appearance="outlined">
-        <pre style={{ margin: 0, fontSize: '0.85em', lineHeight: '1.6' }}>
-{`<<<<<<< yours
-  return <wa-button {...props} class="my-custom-class" />;
-=======
-  return <wa-button {...props} aria-busy={loading} />;
->>>>>>> theirs`}
-        </pre>
-      </Card>
+        <table>
+          <thead>
+            <tr><th>Flag</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--dry-run</code></td>
+              <td>Preview what would change without writing any files</td>
+            </tr>
+            <tr>
+              <td><code>--force</code></td>
+              <td>Overwrite all files with fresh template output (like <code>add --force</code>)</td>
+            </tr>
+            <tr>
+              <td><code>--yes</code></td>
+              <td>Auto-confirm prompts (useful in CI/scripts)</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <p className="wa-caption-m">
-        Choose the code you want (or combine both), then remove the markers.
-        Most editors (VS Code, JetBrains, Neovim) have built-in conflict resolution UI.
-      </p>
-    </div>
-
-    {/* Options Reference */}
-    <div className="wa-stack wa-gap-l">
-      <h3 className="wa-heading-xl" id="options">Options</h3>
-
-      <table>
-        <thead>
-          <tr><th>Flag</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>--dry-run</code></td>
-            <td>Preview what would change without writing any files</td>
-          </tr>
-          <tr>
-            <td><code>--force</code></td>
-            <td>Overwrite all files with fresh template output (like <code>add --force</code>)</td>
-          </tr>
-          <tr>
-            <td><code>--yes</code></td>
-            <td>Auto-confirm prompts (useful in CI/scripts)</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <CodeBlock value="npx kigumi update button dialog --dry-run" />
-    </div>
+        <CodeBlock value="npx kigumi update button dialog --dry-run" />
+      </div>
 
   </div>
 </Unstyled>
