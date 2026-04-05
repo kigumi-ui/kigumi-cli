@@ -7,8 +7,8 @@ import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
 
 const PACKAGE_MANAGERS = {
   npm: 'npx kigumi init',
-  pnpm: 'pnpm dlx kigumi init',
-  yarn: 'yarn dlx kigumi init',
+  pnpm: 'pnpm kigumi init',
+  yarn: 'yarn kigumi init',
   bun: 'bunx kigumi init',
 } as const;
 

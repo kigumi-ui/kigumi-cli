@@ -25,20 +25,21 @@ export const Banner = () => {
     >
       <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
         <Badge pill variant="neutral" appearance="accent" attention="pulse">
-          New
+          New framework
         </Badge>
         <span>
-          The{' '}
+          <strong>Angular</strong> <Icon name="angular" family="brands" /> is
+          now supported. Use <code>npx kigumi upgrade</code> to install the
+          latest version or try the{' '}
           <a
-            href="https://marketplace.visualstudio.com/items?itemName=Kigumi.kigumi-intellisense"
+            href="https://github.com/kigumi-ui/kigumi-angular-starter"
             target="_blank"
             className="wa-text-link"
             rel="noopener noreferrer"
           >
-            Kigumi IntelliSense
+            Angular starter
           </a>{' '}
-          extension for <strong>Cursor</strong> and <strong>VS Code</strong> is
-          now available.
+          template.
         </span>
       </div>
       <Button
