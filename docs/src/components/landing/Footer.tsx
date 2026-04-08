@@ -55,8 +55,8 @@ export const Footer = () => {
             </a>
           </div>
           <p className="wa-caption-s" style={{ textAlign: 'center' }}>
-            No framework lock-in, no utility-class dependencies. Kigumi uses
-            CSS and Web Components to build UIs that work everywhere.
+            No framework lock-in, no utility-class dependencies. Kigumi uses CSS
+            and Web Components to build UIs that work everywhere.
           </p>
         </div>
       </footer>
@@ -79,7 +79,7 @@ export const Footer = () => {
 
         <h3 className="wa-heading-m">Contact</h3>
         <p className="wa-body-s">
-          Email: <a href="mailto:legal@mischa.dev">legal@mischa.dev</a>
+          Email: <a href="mailto:legal@kigumi.style">legal@kigumi.style</a>
         </p>
 
         <h3 className="wa-heading-m">
@@ -117,7 +117,7 @@ export const Footer = () => {
               <li>67663 Kaiserslautern</li>
               <li>Deutschland</li>
             </ul>
-            E-Mail: <a href="mailto:legal@mischa.dev">legal@mischa.dev</a>
+            E-Mail: <a href="mailto:legal@kigumi.style">legal@kigumi.style</a>
           </div>
 
           <h3 className="wa-heading-m">2. Hosting and Server Logs</h3>
@@ -170,7 +170,7 @@ export const Footer = () => {
           </ul>
           <p className="wa-body-s">
             Contact for inquiries:{' '}
-            <a href="mailto:legal@mischa.dev">legal@mischa.dev</a>
+            <a href="mailto:legal@kigumi.style">legal@kigumi.style</a>
           </p>
 
           <h3 className="wa-heading-m">4. Cookies</h3>

@@ -32,7 +32,7 @@
   font-size: var(--wa-font-size-l);
 
   @media (min-width: 768px) {
-    font-size: var(--wa-font-size-2xl);
+    font-size: var(--wa-font-size-xl);
   }
 }
 

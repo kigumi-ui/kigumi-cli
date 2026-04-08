@@ -23,10 +23,11 @@ export function Hero() {
               </Badge>
             </a>
             <h1 className="wa-heading-4xl hero__heading">
-              Build framework-agnostic UIs
+              Components that outlive your framework choice
             </h1>
-            <h2 className="wa-caption-2xl hero__subheading">
-              Same components, any stack.
+            <h2 className="wa-caption-xl hero__subheading">
+              Generate ready-to-use React, Vue, and Angular components.
+              Accessible, themeable, and fully yours.
             </h2>
             <div className="wa-cluster">
               <ButtonGroup>
@@ -49,7 +50,6 @@ export function Hero() {
             className="wa-stack wa-gap-s"
             style={{ minWidth: '100%', maxWidth: '480px' }}
           >
-            <h3 className="wa-caption-l">One command to get you started:</h3>
             <InstallCommandExample />
           </div>
         </div>
