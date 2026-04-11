@@ -7,6 +7,8 @@
  * EXPORTS:
  * - regenerateKigumiSetup() - Regenerate kigumi.ts + layers.css with theme config
  * - generateLayersCSS() - Generate layers.css with @layer cascade control
+ * - surgicalRewriteLayersCss() - Rewrite only the Web Awesome @import lines in
+ *   an existing layers.css, preserving user customizations
  * - generateViteEnvDts() - Generate TypeScript declarations for wa-* elements
  * - generateThemeCSS() - Generate theme.css content
  * - generateGitIgnore() - Create/update .gitignore
@@ -16,10 +18,14 @@
 
 import fs from 'fs-extra';
 import path from 'path';
-import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
+import {
+  WEB_AWESOME_FREE_PACKAGE,
+  WEB_AWESOME_PRO_PACKAGE,
+} from '../constants.js';
 import type { KigumiConfig } from '../schemas/config.js';
 import type { Tier } from './tier.js';
 import { detectTierSync, getWebAwesomePackage } from './tier.js';
+import { LayersCssRewriteError } from '../errors/layers-css.js';
 
 export interface RegenerateOptions {
   /** Skip regenerating layers.css if it exists (for init command) */
@@ -185,6 +191,102 @@ export async function generateLayersCSS(
 /* Layer 2: Your custom CSS overrides */
 @import '${stylesAlias}/theme.css' layer(theme);
 `;
+}
+
+/**
+ * Surgically rewrite the Web Awesome package reference in an existing
+ * `layers.css`, preserving all other content.
+ *
+ * This is used during tier migration (free -> pro or pro -> free) and
+ * by `kigumi doctor` to repair a stale `layers.css` where the CSS
+ * `@import` statements still point at the previously-installed package.
+ *
+ * The function uses two regex patterns to locate only the Web Awesome
+ * `@import` lines:
+ *
+ *   @import '<package>/dist/styles/webawesome.css' ...
+ *   @import '<package>/dist/styles/themes/<theme>.css' ...
+ *
+ * Everything else in the file (user `@layer` declarations, comments,
+ * custom imports, theme.css imports) is left verbatim.
+ *
+ * If neither regex matches, the user has restructured the file beyond
+ * what we can safely patch, and the function throws `LayersCssRewriteError`
+ * with an actionable manual fix message.
+ *
+ * Idempotent: returns `{ changed: false }` when the file already imports
+ * from `targetPackage` so repeated runs are safe.
+ *
+ * @param filePath - Absolute path to the layers.css file
+ * @param targetPackage - Either WEB_AWESOME_FREE_PACKAGE or WEB_AWESOME_PRO_PACKAGE
+ * @param themeName - The current theme name (used for the error message's manual-fix instructions)
+ * @throws LayersCssRewriteError if the expected @import pattern is missing
+ */
+export async function surgicalRewriteLayersCss(
+  filePath: string,
+  targetPackage: string,
+  themeName: string
+): Promise<{ changed: boolean }> {
+  const content = await fs.readFile(filePath, 'utf-8');
+
+  // Match `@import '<package>/dist/styles/webawesome.css'` where <package>
+  // is either the free or pro Web Awesome package. Captures the package
+  // name so we can swap it.
+  //
+  // Using a non-global regex for `.test()` but constructing a global one
+  // for `.replace()` so we can handle the (unusual but possible) case of
+  // multiple occurrences.
+  const basePattern =
+    /@import\s+['"](@awesome\.me\/webawesome(?:-pro)?)\/dist\/styles\/webawesome\.css['"]/;
+  const basePatternGlobal = new RegExp(basePattern.source, 'g');
+
+  const themePattern =
+    /@import\s+['"](@awesome\.me\/webawesome(?:-pro)?)\/dist\/styles\/themes\/([a-z][a-z0-9-]*)\.css['"]/;
+  const themePatternGlobal = new RegExp(themePattern.source, 'g');
+
+  const hasBase = basePattern.test(content);
+  const hasTheme = themePattern.test(content);
+
+  if (!hasBase && !hasTheme) {
+    // File has been restructured beyond recognition. Figure out which
+    // package it currently references (if any) so the error message can
+    // suggest the correct direction.
+    const currentPackage = content.includes(WEB_AWESOME_PRO_PACKAGE)
+      ? WEB_AWESOME_PRO_PACKAGE
+      : WEB_AWESOME_FREE_PACKAGE;
+
+    throw new LayersCssRewriteError(
+      filePath,
+      currentPackage,
+      targetPackage,
+      themeName
+    );
+  }
+
+  let next = content;
+
+  if (hasBase) {
+    next = next.replace(
+      basePatternGlobal,
+      `@import '${targetPackage}/dist/styles/webawesome.css'`
+    );
+  }
+
+  if (hasTheme) {
+    next = next.replace(
+      themePatternGlobal,
+      (_match, _pkg, theme) =>
+        `@import '${targetPackage}/dist/styles/themes/${theme}.css'`
+    );
+  }
+
+  if (next === content) {
+    // Already in the target state. Nothing to do.
+    return { changed: false };
+  }
+
+  await fs.writeFile(filePath, next);
+  return { changed: true };
 }
 
 /**

@@ -67,6 +67,9 @@ export {
   ComponentExistsError,
 } from './filesystem.js';
 
+// layers.css rewrite errors
+export { LayersCssRewriteError } from './layers-css.js';
+
 // Network and dependency errors
 export {
   DependencyInstallError,

@@ -334,7 +334,7 @@ async function handleTierMigration(
       isNonInteractive
     );
     if (shouldMigrate) {
-      await migratePackageReferences(cwd, output);
+      await migratePackageReferences(cwd, existingConfig, output);
       didMigrate = true;
     }
   }
@@ -347,7 +347,7 @@ async function handleTierMigration(
       isNonInteractive
     );
     if (shouldMigrate) {
-      await reverseMigratePackageReferences(cwd, output);
+      await reverseMigratePackageReferences(cwd, existingConfig, output);
       didMigrate = true;
     }
   }

@@ -7,12 +7,22 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { listCommand } from '../../src/commands/list.js';
 import * as registry from '../../src/utils/registry.js';
+import * as tier from '../../src/utils/tier.js';
+
+vi.mock('../../src/utils/tier.js', () => ({
+  detectTier: vi.fn().mockResolvedValue('pro'),
+  detectTierSync: vi.fn().mockReturnValue('pro'),
+  getWebAwesomePackage: vi.fn((t: string) =>
+    t === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome'
+  ),
+}));
 
 describe('list command', () => {
   let consoleOutput: string[];
 
   beforeEach(() => {
     consoleOutput = [];
+    vi.mocked(tier.detectTier).mockResolvedValue('pro');
     // Mock console output to capture output
     vi.spyOn(process.stdout, 'write').mockImplementation((str: unknown) => {
       consoleOutput.push(str.toString());
@@ -97,5 +107,42 @@ describe('list command', () => {
 
       expect(firstIdx).toBeLessThan(secondIdx);
     }
+  });
+
+  describe('tier-aware rendering', () => {
+    it('shows Pro components dimmed with (Pro) prefix on Free tier', async () => {
+      vi.mocked(tier.detectTier).mockResolvedValue('free');
+
+      await listCommand();
+
+      const output = consoleOutput.join('');
+      // At least one Pro component should be rendered with the (Pro) prefix
+      expect(output).toContain('(Pro)');
+    });
+
+    it('shows Pro count in summary on Free tier', async () => {
+      vi.mocked(tier.detectTier).mockResolvedValue('free');
+
+      await listCommand();
+
+      const output = consoleOutput.join('');
+      expect(output).toContain('Pro');
+      expect(output).toContain('require Web Awesome Pro token');
+    });
+
+    it('does not show (Pro) prefix on Pro tier', async () => {
+      vi.mocked(tier.detectTier).mockResolvedValue('pro');
+
+      await listCommand();
+
+      const output = consoleOutput.join('');
+      expect(output).not.toContain('(Pro)');
+    });
+
+    it('forwards cwd option to detectTier', async () => {
+      await listCommand({ cwd: '/fake/project/path' });
+
+      expect(tier.detectTier).toHaveBeenCalledWith('/fake/project/path');
+    });
   });
 });

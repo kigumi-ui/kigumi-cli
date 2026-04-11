@@ -254,7 +254,7 @@ const previousTier = await detectPreviousTier(cwd); // from package.json
 const newTier = await detectTier(cwd); // package.json first, then token fallback
 
 if (previousTier !== newTier) {
-  await migratePackageReferences(cwd, previousTier, newTier);
+  await migratePackageReferences(cwd, config, output);
   await cleanupOldPackage(cwd, previousTier);
 }
 ```

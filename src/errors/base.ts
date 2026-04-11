@@ -40,6 +40,7 @@ export enum ErrorCode {
   FILE_WRITE_ERROR = 402,
   DIRECTORY_NOT_FOUND = 403,
   PERMISSION_DENIED = 404,
+  MIGRATION_PARSE_ERROR = 405,
 
   // Network/Dependency errors (exit code 5)
   DEPENDENCY_INSTALL_FAILED = 500,

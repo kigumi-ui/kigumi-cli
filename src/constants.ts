@@ -91,6 +91,15 @@ export const FREE_PACKAGE_REGEX = /@awesome\.me\/webawesome(?!-pro)/g;
 export const PRO_PACKAGE_REGEX = /@awesome\.me\/webawesome-pro/g;
 
 /**
+ * Non-global patterns for .test() usage in loops.
+ * WHY: The /g flag on module-level singletons causes lastIndex state to
+ * persist between calls, making every other file in a loop silently skip.
+ * Use these for .test(); use FREE_PACKAGE_REGEX / PRO_PACKAGE_REGEX for .replace().
+ */
+export const FREE_PACKAGE_PATTERN = /@awesome\.me\/webawesome(?!-pro)/;
+export const PRO_PACKAGE_PATTERN = /@awesome\.me\/webawesome-pro/;
+
+/**
  * Regex to extract token from .env file
  * WHY: Matches WEBAWESOME_NPM_TOKEN with optional whitespace around =
  */

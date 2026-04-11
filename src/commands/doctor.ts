@@ -6,6 +6,8 @@
  * WHAT IT DOES:
  * - Detects project tier (Pro/Free) from package.json
  * - Scans all component files for incorrect import paths
+ * - Scans the styles directory (layers.css etc.) for stale Web Awesome
+ *   package references, surgically rewriting only the @import lines
  * - Fixes import paths to match the installed package
  * - Checks Web Awesome version alignment (config + package.json)
  * - Reports what was fixed
@@ -19,15 +21,19 @@ import {
   CONFIG_FILE_NAME,
   DEFAULT_WEBAWESOME_VERSION,
   FREE_PACKAGE_REGEX,
+  FREE_PACKAGE_PATTERN,
   PRO_PACKAGE_REGEX,
+  PRO_PACKAGE_PATTERN,
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
 import { detectTier, getWebAwesomePackage } from '../utils/tier.js';
+import { surgicalRewriteLayersCss } from '../utils/regenerate.js';
 import { loadConfig } from '../utils/config.js';
 import { getOutput } from '../output/index.js';
 import type { OutputInterface } from '../output/types.js';
-import { handleError } from '../errors/index.js';
+import { handleError, LayersCssRewriteError } from '../errors/index.js';
+import type { KigumiConfig } from '../schemas/config.js';
 
 interface DoctorOptions {
   dryRun?: boolean;
@@ -51,6 +57,44 @@ async function findComponentFiles(
   const extensions = ['.tsx', '.jsx', '.ts', '.js', '.vue'];
   const files: string[] = [];
   const targetDir = path.join(cwd, componentsDir);
+
+  if (!(await fs.pathExists(targetDir))) {
+    return files;
+  }
+
+  async function scan(dir: string): Promise<void> {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        await scan(fullPath);
+      } else if (entry.isFile()) {
+        if (extensions.some((ext) => entry.name.endsWith(ext))) {
+          files.push(fullPath);
+        }
+      }
+    }
+  }
+
+  await scan(targetDir);
+  return files;
+}
+
+/**
+ * Find all CSS files in the styles directory
+ *
+ * Used by the layers.css scan to detect stale Web Awesome package
+ * references that would otherwise cause vite to fail with ENOENT.
+ */
+async function findStylesFiles(
+  cwd: string,
+  stylesDir: string
+): Promise<string[]> {
+  const extensions = ['.css', '.scss'];
+  const files: string[] = [];
+  const targetDir = path.join(cwd, stylesDir);
 
   if (!(await fs.pathExists(targetDir))) {
     return files;
@@ -143,6 +187,109 @@ async function checkVersionAlignment(
 }
 
 /**
+ * Diagnose and fix stale Web Awesome package references in layers.css
+ * and any other CSS file under the configured stylesDir.
+ *
+ * Uses the surgical rewrite helper so user customizations (custom
+ * @layer declarations, comments, theme.css imports) are preserved.
+ * If a file has been restructured beyond recognition, the error is
+ * recorded with `fixed: false` so the doctor output makes it clear
+ * the user needs to fix it manually.
+ *
+ * Reuses the same `wrongPackageRegex` logic as the component scan to
+ * detect whether a file needs migration in the first place; the actual
+ * rewrite delegates to `surgicalRewriteLayersCss` for layers.css and
+ * a straight regex replace for any other CSS file.
+ */
+async function diagnoseAndFixLayersCss(
+  cwd: string,
+  config: KigumiConfig,
+  tier: 'free' | 'pro',
+  options: DoctorOptions,
+  output: OutputInterface
+): Promise<DiagnosticResult[]> {
+  const results: DiagnosticResult[] = [];
+  const expectedPackage = getWebAwesomePackage(tier);
+  const wrongPackagePattern =
+    tier === 'pro' ? FREE_PACKAGE_PATTERN : PRO_PACKAGE_PATTERN;
+  const wrongPackageRegex =
+    tier === 'pro' ? FREE_PACKAGE_REGEX : PRO_PACKAGE_REGEX;
+  const wrongPackageName =
+    tier === 'pro' ? WEB_AWESOME_FREE_PACKAGE : WEB_AWESOME_PRO_PACKAGE;
+
+  const stylesFiles = await findStylesFiles(
+    cwd,
+    config.stylesDir || 'src/styles'
+  );
+  if (stylesFiles.length === 0) {
+    return results;
+  }
+
+  output.info(`Scanning ${stylesFiles.length} styles file(s)...`);
+
+  for (const filePath of stylesFiles) {
+    const content = await fs.readFile(filePath, 'utf-8');
+    const relativePath = path.relative(cwd, filePath);
+
+    if (!wrongPackagePattern.test(content)) {
+      continue;
+    }
+
+    const result: DiagnosticResult = {
+      filePath,
+      relativePath,
+      issue: `Imports from ${wrongPackageName} instead of ${expectedPackage}`,
+      fixed: false,
+    };
+
+    if (options.dryRun) {
+      results.push(result);
+      continue;
+    }
+
+    // For layers.css, use the surgical rewrite so user customizations
+    // (custom @layer declarations, comments, theme.css imports) survive.
+    // For any other CSS file under stylesDir, fall back to the same
+    // blanket regex replace used for component files.
+    if (path.basename(filePath) === 'layers.css') {
+      try {
+        const rewriteResult = await surgicalRewriteLayersCss(
+          filePath,
+          expectedPackage,
+          config.theme.selected
+        );
+        if (!rewriteResult.changed) {
+          // The broad pattern matched (e.g., package name in a comment) but
+          // the surgical rewrite found all @imports already correct. Skip.
+          continue;
+        }
+        result.fixed = true;
+      } catch (error) {
+        if (error instanceof LayersCssRewriteError) {
+          // Report the actionable error but don't halt the whole doctor run
+          output.error(error.format(), error);
+          const suggestions = error.formatSuggestions();
+          if (suggestions) {
+            output.note('How to fix', suggestions);
+          }
+          result.issue = `${result.issue} (cannot rewrite automatically: see message above)`;
+        } else {
+          throw error;
+        }
+      }
+    } else {
+      const fixed = content.replace(wrongPackageRegex, expectedPackage);
+      await fs.writeFile(filePath, fixed);
+      result.fixed = true;
+    }
+
+    results.push(result);
+  }
+
+  return results;
+}
+
+/**
  * Diagnose and fix import path issues
  */
 async function diagnoseAndFix(
@@ -156,7 +303,9 @@ async function diagnoseAndFix(
   const tier = await detectTier(cwd);
   const expectedPackage = getWebAwesomePackage(tier);
 
-  // Determine wrong package pattern
+  // Determine wrong package pattern (non-global for .test(), global for .replace())
+  const wrongPackagePattern =
+    tier === 'pro' ? FREE_PACKAGE_PATTERN : PRO_PACKAGE_PATTERN;
   const wrongPackageRegex =
     tier === 'pro' ? FREE_PACKAGE_REGEX : PRO_PACKAGE_REGEX;
   const wrongPackageName =
@@ -183,34 +332,44 @@ async function diagnoseAndFix(
 
   if (files.length === 0) {
     output.warning('No component files found');
-    return results;
-  }
+  } else {
+    output.info(`Scanning ${files.length} component file(s)...`);
 
-  output.info(`Scanning ${files.length} component file(s)...`);
+    // Check each file for import path issues
+    for (const filePath of files) {
+      const content = await fs.readFile(filePath, 'utf-8');
+      const relativePath = path.relative(cwd, filePath);
 
-  // Check each file for import path issues
-  for (const filePath of files) {
-    const content = await fs.readFile(filePath, 'utf-8');
-    const relativePath = path.relative(cwd, filePath);
+      if (wrongPackagePattern.test(content)) {
+        const result: DiagnosticResult = {
+          filePath,
+          relativePath,
+          issue: `Imports from ${wrongPackageName} instead of ${expectedPackage}`,
+          fixed: false,
+        };
 
-    if (wrongPackageRegex.test(content)) {
-      const result: DiagnosticResult = {
-        filePath,
-        relativePath,
-        issue: `Imports from ${wrongPackageName} instead of ${expectedPackage}`,
-        fixed: false,
-      };
+        if (!options.dryRun) {
+          // Fix the import path
+          const fixed = content.replace(wrongPackageRegex, expectedPackage);
+          await fs.writeFile(filePath, fixed);
+          result.fixed = true;
+        }
 
-      if (!options.dryRun) {
-        // Fix the import path
-        const fixed = content.replace(wrongPackageRegex, expectedPackage);
-        await fs.writeFile(filePath, fixed);
-        result.fixed = true;
+        results.push(result);
       }
-
-      results.push(result);
     }
   }
+
+  // Scan styles directory (layers.css etc.) for stale package references.
+  // This is the recovery path for projects broken by the pre-fix tier switch.
+  const stylesResults = await diagnoseAndFixLayersCss(
+    cwd,
+    config,
+    tier,
+    options,
+    output
+  );
+  results.push(...stylesResults);
 
   return results;
 }

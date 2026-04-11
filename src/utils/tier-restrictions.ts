@@ -1,17 +1,24 @@
 /**
  * Tier Restrictions
  *
- * PURPOSE: Defines which themes, palettes, and components are available for each tier.
+ * PURPOSE: Defines which themes and palettes are available for each tier.
+ *
+ * For **component** tier checks, use `isComponentAvailable()`, which reads
+ * `component.tier` directly from the registry (`src/utils/registry.ts`).
+ * The registry is the single source of truth for component tier.
  *
  * EXPORTS:
- * - TIER_RESTRICTIONS - Static definition of tier limitations
+ * - TIER_RESTRICTIONS - Static definition of theme/palette tier limitations
  * - getAvailableThemes() - Get themes for a tier
  * - getAvailablePalettes() - Get palettes for a tier
  * - isThemeAvailable() - Check if theme is available for tier
- * - isComponentAvailable() - Check if component is available for tier
+ * - isPaletteAvailable() - Check if palette is available for tier
+ * - isComponentAvailable() - Check if component is available for tier (reads registry)
  *
  * @internal - Used by init and add commands
  */
+
+import { getComponent } from './registry.js';
 
 export interface TierRestrictions {
   themes: {
@@ -22,14 +29,14 @@ export interface TierRestrictions {
     free: string[];
     pro: string[];
   };
-  components: {
-    free: string[];
-    pro: string[];
-  };
 }
 
 /**
- * Central source of truth for tier-based restrictions
+ * Central source of truth for theme and palette tier restrictions.
+ *
+ * Note: Component tier restrictions are NOT listed here. They come from
+ * the registry (`src/utils/registry.ts`), where each component has its
+ * own `tier` field. See `isComponentAvailable()` below.
  */
 export const TIER_RESTRICTIONS: TierRestrictions = {
   themes: {
@@ -73,20 +80,6 @@ export const TIER_RESTRICTIONS: TierRestrictions = {
       'vogue',
     ],
   },
-  components: {
-    free: [], // Will be dynamically populated (all components except pro-only)
-    pro: [
-      'charts',
-      'combobox',
-      'data-grid',
-      'date-picker',
-      'file-input',
-      'number-input',
-      'sparkline',
-      'toast',
-      'video',
-    ],
-  },
 };
 
 /**
@@ -110,21 +103,28 @@ export function isPaletteAvailable(
 }
 
 /**
- * Check if a component is available for a given tier
+ * Check if a component is available for a given tier.
+ *
+ * Reads `component.tier` from the registry (`src/utils/registry.ts`),
+ * which is the single source of truth. Drift is impossible by construction.
+ *
+ * @precondition The component should exist in the registry. Callers should
+ *               check `hasComponent()` first so that the existence error
+ *               takes precedence over a misleading "Pro required" error.
+ *               For unknown components, this function returns `true` to
+ *               defer to the upstream existence check.
  */
 export function isComponentAvailable(
   component: string,
   tier: 'free' | 'pro'
 ): boolean {
-  const componentKey = component.toLowerCase();
-
-  // Pro-only components
-  if (TIER_RESTRICTIONS.components.pro.includes(componentKey)) {
-    return tier === 'pro';
+  const def = getComponent(component);
+  if (!def) {
+    // Unknown component: defer to the upstream existence check
+    // (validator.ts calls hasComponent() first and throws ValidationError).
+    return true;
   }
-
-  // All other components are free tier
-  return true;
+  return tier === 'pro' || def.tier === 'free';
 }
 
 /**
@@ -139,24 +139,4 @@ export function getAvailableThemes(tier: 'free' | 'pro'): string[] {
  */
 export function getAvailablePalettes(tier: 'free' | 'pro'): string[] {
   return TIER_RESTRICTIONS.palettes[tier];
-}
-
-/**
- * Get list of available components for a tier
- */
-export function getAvailableComponents(tier: 'free' | 'pro'): string[] {
-  if (tier === 'pro') {
-    // Pro tier has access to all components
-    return [];
-  }
-
-  // Free tier: all except pro-only
-  return TIER_RESTRICTIONS.components.pro;
-}
-
-/**
- * Get pro-only components
- */
-export function getProOnlyComponents(): string[] {
-  return TIER_RESTRICTIONS.components.pro;
 }
