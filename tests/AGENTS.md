@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (67 files, 1070 tests)
+├── unit/                    # Fast, isolated tests (68 files, 1089 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-validator.test.ts        # Component validation
 │   ├── brand-command.test.ts        # Brand color command
@@ -52,6 +52,7 @@ tests/
 │   ├── snapshot.test.ts             # Snapshot CRUD and community install snapshots
 │   ├── status-json.test.ts          # Status --json output
 │   ├── storybook-generator.test.ts  # Storybook story generation
+│   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
 │   ├── template.test.ts             # Handlebars template rendering
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation

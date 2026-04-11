@@ -4,10 +4,13 @@
  * Tests for src/utils/tier-restrictions.ts:
  * - isThemeAvailable() - Check theme availability for tier
  * - isPaletteAvailable() - Check palette availability for tier
- * - isComponentAvailable() - Check component availability for tier
+ * - isComponentAvailable() - Check component availability for tier (reads registry)
  * - getAvailableThemes() - Get themes list for tier
  * - getAvailablePalettes() - Get palettes list for tier
- * - getAvailableComponents() - Get components list for tier
+ *
+ * The component check reads `component.tier` directly from the registry
+ * in `src/utils/registry.ts`, so there is only one source of truth.
+ * Drift between the registry and the filter is impossible by construction.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -17,9 +20,9 @@ import {
   isComponentAvailable,
   getAvailableThemes,
   getAvailablePalettes,
-  getAvailableComponents,
   TIER_RESTRICTIONS,
 } from '../../src/utils/tier-restrictions.js';
+import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
 
 describe('tier restrictions', () => {
   describe('isThemeAvailable', () => {
@@ -112,50 +115,115 @@ describe('tier restrictions', () => {
   });
 
   describe('isComponentAvailable', () => {
-    it('should allow standard components for free tier', () => {
+    it('should allow free-tier components on free tier', () => {
       expect(isComponentAvailable('button', 'free')).toBe(true);
       expect(isComponentAvailable('card', 'free')).toBe(true);
       expect(isComponentAvailable('input', 'free')).toBe(true);
       expect(isComponentAvailable('dialog', 'free')).toBe(true);
     });
 
-    it('should deny pro-only components for free tier', () => {
-      expect(isComponentAvailable('charts', 'free')).toBe(false);
+    it('should deny pro-tier components on free tier', () => {
+      // Every component below is marked `tier: 'pro'` in LOCAL_REGISTRY.
+      // Use the actual registry keys, not the hardcoded names from the old
+      // TIER_RESTRICTIONS.components.pro list.
       expect(isComponentAvailable('combobox', 'free')).toBe(false);
-      expect(isComponentAvailable('data-grid', 'free')).toBe(false);
-      expect(isComponentAvailable('date-picker', 'free')).toBe(false);
       expect(isComponentAvailable('file-input', 'free')).toBe(false);
+      expect(isComponentAvailable('number-input', 'free')).toBe(false);
+      expect(isComponentAvailable('sparkline', 'free')).toBe(false);
       expect(isComponentAvailable('toast', 'free')).toBe(false);
-      expect(isComponentAvailable('video', 'free')).toBe(false);
+      expect(isComponentAvailable('toast-item', 'free')).toBe(false);
+      expect(isComponentAvailable('chart', 'free')).toBe(false);
+      expect(isComponentAvailable('bar-chart', 'free')).toBe(false);
+      expect(isComponentAvailable('line-chart', 'free')).toBe(false);
+      expect(isComponentAvailable('bubble-chart', 'free')).toBe(false);
+      expect(isComponentAvailable('doughnut-chart', 'free')).toBe(false);
+      expect(isComponentAvailable('pie-chart', 'free')).toBe(false);
+      expect(isComponentAvailable('polar-area-chart', 'free')).toBe(false);
+      expect(isComponentAvailable('radar-chart', 'free')).toBe(false);
+      expect(isComponentAvailable('scatter-chart', 'free')).toBe(false);
     });
 
-    it('should allow all components for pro tier', () => {
+    it('should allow all components on pro tier', () => {
       // Standard components
       expect(isComponentAvailable('button', 'pro')).toBe(true);
       expect(isComponentAvailable('card', 'pro')).toBe(true);
       expect(isComponentAvailable('input', 'pro')).toBe(true);
       expect(isComponentAvailable('dialog', 'pro')).toBe(true);
 
-      // Pro-only components
-      expect(isComponentAvailable('charts', 'pro')).toBe(true);
+      // Pro-tier components
       expect(isComponentAvailable('combobox', 'pro')).toBe(true);
-      expect(isComponentAvailable('data-grid', 'pro')).toBe(true);
-      expect(isComponentAvailable('date-picker', 'pro')).toBe(true);
-      expect(isComponentAvailable('file-input', 'pro')).toBe(true);
-      expect(isComponentAvailable('toast', 'pro')).toBe(true);
-      expect(isComponentAvailable('video', 'pro')).toBe(true);
+      expect(isComponentAvailable('bar-chart', 'pro')).toBe(true);
+      expect(isComponentAvailable('toast-item', 'pro')).toBe(true);
     });
 
-    it('should handle case-insensitive component names', () => {
-      expect(isComponentAvailable('CHARTS', 'free')).toBe(false);
-      expect(isComponentAvailable('Charts', 'free')).toBe(false);
-      expect(isComponentAvailable('CHARTS', 'pro')).toBe(true);
-      expect(isComponentAvailable('Charts', 'pro')).toBe(true);
+    it('should be case-insensitive for component names', () => {
+      // getComponent() in the registry lowercases the name internally
+      expect(isComponentAvailable('BAR-CHART', 'free')).toBe(false);
+      expect(isComponentAvailable('Bar-Chart', 'free')).toBe(false);
+      expect(isComponentAvailable('BAR-CHART', 'pro')).toBe(true);
+      expect(isComponentAvailable('Bar-Chart', 'pro')).toBe(true);
     });
 
-    it('should allow unknown components (assumed free)', () => {
+    it('should return true for unknown components (defers to existence check)', () => {
+      // Contract: unknown component → true, so that the upstream
+      // hasComponent() check in validator.ts throws the correct
+      // "Component not found" error instead of a misleading
+      // "Pro required" error.
       expect(isComponentAvailable('unknown-component', 'free')).toBe(true);
       expect(isComponentAvailable('unknown-component', 'pro')).toBe(true);
+      expect(isComponentAvailable('buton', 'free')).toBe(true); // typo
+    });
+
+    it('REGRESSION: bar-chart is Pro-only on Free tier', () => {
+      // This is the user's originally observed bug (2026-04-09):
+      // running `npx kigumi add` on a Free-tier repo showed BarChart
+      // in the selector. The old TIER_RESTRICTIONS.components.pro
+      // list had "charts" (plural) but the registry key is "bar-chart",
+      // so the filter missed it. This test names the regression so
+      // git blame makes the history obvious.
+      expect(isComponentAvailable('bar-chart', 'free')).toBe(false);
+    });
+
+    describe('registry drift guard', () => {
+      // These tests iterate the registry to guarantee that the filter
+      // matches the registry's tier field for every entry. If anyone
+      // ever reintroduces a parallel hardcoded list and it drifts,
+      // these tests fail loudly.
+
+      it('every pro component in LOCAL_REGISTRY is denied on free tier', () => {
+        const proComponents = Object.entries(LOCAL_REGISTRY).filter(
+          ([, def]) => def.tier === 'pro'
+        );
+        expect(proComponents.length).toBeGreaterThan(0); // sanity check
+        for (const [key] of proComponents) {
+          expect(
+            isComponentAvailable(key, 'free'),
+            `Pro component "${key}" should be denied on free tier`
+          ).toBe(false);
+        }
+      });
+
+      it('every free component in LOCAL_REGISTRY is allowed on free tier', () => {
+        const freeComponents = Object.entries(LOCAL_REGISTRY).filter(
+          ([, def]) => def.tier === 'free'
+        );
+        expect(freeComponents.length).toBeGreaterThan(0); // sanity check
+        for (const [key] of freeComponents) {
+          expect(
+            isComponentAvailable(key, 'free'),
+            `Free component "${key}" should be allowed on free tier`
+          ).toBe(true);
+        }
+      });
+
+      it('every component in LOCAL_REGISTRY is allowed on pro tier', () => {
+        for (const [key] of Object.entries(LOCAL_REGISTRY)) {
+          expect(
+            isComponentAvailable(key, 'pro'),
+            `Component "${key}" should be allowed on pro tier`
+          ).toBe(true);
+        }
+      });
     });
   });
 
@@ -245,24 +313,6 @@ describe('tier restrictions', () => {
     });
   });
 
-  describe('getAvailableComponents', () => {
-    it('should return pro-only components list for free tier', () => {
-      // WHY: getAvailableComponents returns the RESTRICTED components list
-      // For free tier, it returns pro-only components (what's NOT available)
-      const components = getAvailableComponents('free');
-
-      expect(components).toContain('charts');
-      expect(components).toContain('combobox');
-      expect(components).toContain('data-grid');
-    });
-
-    it('should return empty list for pro tier', () => {
-      // Pro has access to ALL components, so no restrictions
-      const components = getAvailableComponents('pro');
-      expect(components).toEqual([]);
-    });
-  });
-
   describe('TIER_RESTRICTIONS constant', () => {
     it('should have 3 free themes', () => {
       expect(TIER_RESTRICTIONS.themes.free).toHaveLength(3);
@@ -280,17 +330,13 @@ describe('tier restrictions', () => {
       );
     });
 
-    it('should have 9 pro-only components', () => {
-      expect(TIER_RESTRICTIONS.components.pro).toHaveLength(9);
-      expect(TIER_RESTRICTIONS.components.pro).toContain('charts');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('combobox');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('data-grid');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('date-picker');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('file-input');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('number-input');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('sparkline');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('toast');
-      expect(TIER_RESTRICTIONS.components.pro).toContain('video');
+    it('should NOT have a components field (deleted in favor of registry)', () => {
+      // Components are tracked per-entry in LOCAL_REGISTRY, not here.
+      // If someone re-adds a `.components` field, they are re-introducing
+      // the drift source this spec was created to eliminate.
+      expect(
+        (TIER_RESTRICTIONS as Record<string, unknown>).components
+      ).toBeUndefined();
     });
   });
 });

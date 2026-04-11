@@ -2,7 +2,7 @@
 
 > **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Angular wrappers around Web Awesome components.
 
-**Version**: 0.19.0 | **Stack**: TypeScript, Commander, Handlebars, Zod
+**Version**: 0.19.1 | **Stack**: TypeScript, Commander, Handlebars, Zod
 
 ## Quick Start
 

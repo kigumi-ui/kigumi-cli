@@ -119,4 +119,26 @@ describe('listCommand --json', () => {
 
     expect(data.length).toBe(Object.keys(allComponents).length);
   });
+
+  it('should include tier field with value free or pro for every entry', async () => {
+    const { listCommand } = await import('../../src/commands/list.js');
+    await listCommand({ json: true });
+
+    const data = JSON.parse(stdoutWrite.mock.calls[0][0]);
+    for (const item of data) {
+      expect(item).toHaveProperty('tier');
+      expect(['free', 'pro']).toContain(item.tier);
+    }
+  });
+
+  it('should not call detectTier in JSON mode', async () => {
+    const tierModule = await import('../../src/utils/tier.js');
+    const spy = vi.spyOn(tierModule, 'detectTier');
+
+    const { listCommand } = await import('../../src/commands/list.js');
+    await listCommand({ json: true });
+
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
 });
