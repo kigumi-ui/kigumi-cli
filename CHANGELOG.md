@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.2] - 2026-04-11
+
+### Fixed
+
+- **Tier gating**: Pro components no longer leak to Free tier in `kigumi add` and `kigumi list`; `isComponentAvailable()` now reads `component.tier` from the registry directly instead of a hardcoded list that had drifted
+- **`kigumi list`**: Pro components are dimmed with a `(Pro)` badge on Free tier; added `cwd` option and `tier` field to JSON output
+- **`layers.css` migration**: New `surgicalRewriteLayersCss` helper rewrites only the `@import` lines during tier switch, preserving user customizations; `migration.ts` reads paths from config instead of hardcoded defaults
+- **`kigumi doctor`**: Scans `config.stylesDir` for stale package references as a recovery path; fixed global regex `lastIndex` bug that silently skipped every other file in multi-file scans; fixed false-positive diagnostics when CSS comments mention the wrong package
+- **Error codes**: `LayersCssRewriteError` now uses `MIGRATION_PARSE_ERROR` (405) instead of `FILE_WRITE_ERROR` (402)
+
 ## [0.19.1] - 2026-04-05
 
 ### Added
