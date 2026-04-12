@@ -54,3 +54,7 @@ pnpm lint && pnpm type-check  # Code quality
 pnpm validate:registry  # Registry consistency
 pnpm validate:templates # Template file completeness
 ```
+
+## Superpowers Plans
+
+Save superpowers plans to `.claude/plans/` (gitignored, not `docs/superpowers/plans/`).
