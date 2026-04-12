@@ -8,22 +8,22 @@ export const GapDemo = ({ cls }) => (
     className={cls}
     style={{
       width: 'fit-content',
-      border: '2px solid var(--wa-color-surface-border)',
+      border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
     }}
   >
     <div
       style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '1em',
-        height: '1em',
+        backgroundColor: 'var(--wa-color-brand)',
+        width: '2rem',
+        height: '2rem',
         flexShrink: 0,
       }}
     />
     <div
       style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '1em',
-        height: '1em',
+        backgroundColor: 'var(--wa-color-brand)',
+        width: '2rem',
+        height: '2rem',
         flexShrink: 0,
       }}
     />
@@ -46,20 +46,19 @@ export const GapDemo = ({ cls }) => (
   <DocTable
     columns={[
       { key: 'cls', header: 'Class' },
-      { key: 'token', header: 'Token' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
-      { cls: <code>.wa-gap-0</code>, token: <code>0</code>, example: <GapDemo cls="wa-gap-0" /> },
-      { cls: <code>.wa-gap-3xs</code>, token: <code>--wa-space-3xs</code>, example: <GapDemo cls="wa-gap-3xs" /> },
-      { cls: <code>.wa-gap-2xs</code>, token: <code>--wa-space-2xs</code>, example: <GapDemo cls="wa-gap-2xs" /> },
-      { cls: <code>.wa-gap-xs</code>, token: <code>--wa-space-xs</code>, example: <GapDemo cls="wa-gap-xs" /> },
-      { cls: <code>.wa-gap-s</code>, token: <code>--wa-space-s</code>, example: <GapDemo cls="wa-gap-s" /> },
-      { cls: <code>.wa-gap-m</code>, token: <code>--wa-space-m</code>, example: <GapDemo cls="wa-gap-m" /> },
-      { cls: <code>.wa-gap-l</code>, token: <code>--wa-space-l</code>, example: <GapDemo cls="wa-gap-l" /> },
-      { cls: <code>.wa-gap-xl</code>, token: <code>--wa-space-xl</code>, example: <GapDemo cls="wa-gap-xl" /> },
-      { cls: <code>.wa-gap-2xl</code>, token: <code>--wa-space-2xl</code>, example: <GapDemo cls="wa-gap-2xl" /> },
-      { cls: <code>.wa-gap-3xl</code>, token: <code>--wa-space-3xl</code>, example: <GapDemo cls="wa-gap-3xl" /> },
+      { cls: <code>.wa-gap-0</code>, preview: <GapDemo cls="wa-gap-0" /> },
+      { cls: <code>.wa-gap-3xs</code>, preview: <GapDemo cls="wa-gap-3xs" /> },
+      { cls: <code>.wa-gap-2xs</code>, preview: <GapDemo cls="wa-gap-2xs" /> },
+      { cls: <code>.wa-gap-xs</code>, preview: <GapDemo cls="wa-gap-xs" /> },
+      { cls: <code>.wa-gap-s</code>, preview: <GapDemo cls="wa-gap-s" /> },
+      { cls: <code>.wa-gap-m</code>, preview: <GapDemo cls="wa-gap-m" /> },
+      { cls: <code>.wa-gap-l</code>, preview: <GapDemo cls="wa-gap-l" /> },
+      { cls: <code>.wa-gap-xl</code>, preview: <GapDemo cls="wa-gap-xl" /> },
+      { cls: <code>.wa-gap-2xl</code>, preview: <GapDemo cls="wa-gap-2xl" /> },
+      { cls: <code>.wa-gap-3xl</code>, preview: <GapDemo cls="wa-gap-3xl" /> },
     ]}
   />
 </DocSection>

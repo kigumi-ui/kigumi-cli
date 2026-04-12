@@ -13,51 +13,51 @@ import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
   columns={[
     { key: 'cls', header: 'Class' },
     { key: 'desc', header: 'Description' },
-    { key: 'example', header: 'Examples' },
+    { key: 'preview', header: 'Preview' },
   ]}
   rows={[
     {
       cls: <code>.wa-align-items-start</code>,
       desc: 'Aligns items to the start of the cross axis',
-      example: (
-        <div className="wa-align-items-start wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+      preview: (
+        <div className="wa-align-items-start wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />)}
         </div>
       ),
     },
     {
       cls: <code>.wa-align-items-end</code>,
       desc: 'Aligns items to the end of the cross axis',
-      example: (
-        <div className="wa-align-items-end wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+      preview: (
+        <div className="wa-align-items-end wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />)}
         </div>
       ),
     },
     {
       cls: <code>.wa-align-items-center</code>,
       desc: 'Centers items along the cross axis',
-      example: (
-        <div className="wa-align-items-center wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+      preview: (
+        <div className="wa-align-items-center wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />)}
         </div>
       ),
     },
     {
       cls: <code>.wa-align-items-stretch</code>,
       desc: 'Stretches items to fill the cross axis',
-      example: (
-        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+      preview: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />)}
         </div>
       ),
     },
     {
       cls: <code>.wa-align-items-baseline</code>,
       desc: 'Aligns items along their text baseline',
-      example: (
-        <div className="wa-align-items-baseline wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />)}
+      preview: (
+        <div className="wa-align-items-baseline wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />)}
         </div>
       ),
     },
@@ -73,56 +73,56 @@ import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
   columns={[
     { key: 'cls', header: 'Class' },
     { key: 'desc', header: 'Description' },
-    { key: 'example', header: 'Examples' },
+    { key: 'preview', header: 'Preview' },
   ]}
   rows={[
     {
       cls: <code>.wa-align-self-start</code>,
       desc: 'Aligns this item to the start',
-      example: (
-        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          <div className="wa-align-self-start" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
-          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+      preview: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          <div className="wa-align-self-start" style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1', opacity: 0.4 }} />
         </div>
       ),
     },
     {
       cls: <code>.wa-align-self-end</code>,
       desc: 'Aligns this item to the end',
-      example: (
-        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          <div className="wa-align-self-end" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
-          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+      preview: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          <div className="wa-align-self-end" style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1', opacity: 0.4 }} />
         </div>
       ),
     },
     {
       cls: <code>.wa-align-self-center</code>,
       desc: 'Centers this item on the cross axis',
-      example: (
-        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          <div className="wa-align-self-center" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
-          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+      preview: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          <div className="wa-align-self-center" style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1', opacity: 0.4 }} />
         </div>
       ),
     },
     {
       cls: <code>.wa-align-self-stretch</code>,
       desc: 'Stretches this item to fill the cross axis',
-      example: (
-        <div className="wa-align-items-start wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          <div className="wa-align-self-stretch" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
-          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+      preview: (
+        <div className="wa-align-items-start wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          <div className="wa-align-self-stretch" style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1', opacity: 0.4 }} />
         </div>
       ),
     },
     {
       cls: <code>.wa-align-self-baseline</code>,
       desc: 'Aligns this item to its text baseline',
-      example: (
-        <div className="wa-align-items-stretch wa-cluster" style={{ height: '3em', border: '2px solid var(--wa-color-surface-border)', width: 'fit-content' }}>
-          <div className="wa-align-self-baseline" style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1' }} />
-          <div style={{ backgroundColor: 'var(--wa-color-brand-fill-loud)', minBlockSize: '1em', aspectRatio: '1 / 1', opacity: 0.4 }} />
+      preview: (
+        <div className="wa-align-items-stretch wa-cluster" style={{ height: '6rem', border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)', width: 'fit-content' }}>
+          <div className="wa-align-self-baseline" style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1' }} />
+          <div style={{ backgroundColor: 'var(--wa-color-brand)', minBlockSize: '2rem', aspectRatio: '1 / 1', opacity: 0.4 }} />
         </div>
       ),
     },

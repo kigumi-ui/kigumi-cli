@@ -50,39 +50,33 @@ const preview: Preview = {
             'Updating Components',
             'Community Registries',
             'Monorepo Setup',
+            'Agent Skills',
           ],
-          'Style',
+          'Foundations',
           [
-            'Color Variants',
-            'Native Styles',
-            'Reducing FOUCE',
-            'Rounding Utilities',
-            'Text',
-            'Visually Hidden',
+            'Overview',
+            'Color',
+            'Typography',
+            'Spacing',
+            'Border & Radius',
+            'Elevation',
+            'Focus',
+            'Motion',
+            'Visibility',
+            'Native Elements',
+            'Component Tokens',
+            'Cascade Layers & Customizing',
           ],
           'Layout',
           [
-            'Align Items',
-            'Cluster',
-            'Flank',
-            'Flex Wrap',
-            'Frame',
-            'Gap',
-            'Grid',
-            'Justify Content',
-            'Split',
+            'Overview',
             'Stack',
-          ],
-          'Design Tokens',
-          [
-            'Color',
-            'Space',
-            'Typography',
-            'Border',
-            'Shadow',
-            'Focus',
-            'Transition',
-            'Component Groups',
+            'Cluster',
+            'Grid',
+            'Split',
+            'Flank',
+            'Frame',
+            'Alignment',
           ],
           'Components',
         ],
@@ -120,7 +114,10 @@ const preview: Preview = {
       // Theme: Components render in WA Default (matches Figma Kit),
       // all other pages keep Kigumi Tailspin branding
       const useDefaultTheme =
-        ctx.viewMode === 'story' && ctx.title?.startsWith('Components/');
+        ctx.viewMode === 'story' &&
+        (ctx.title?.startsWith('Components/') ||
+          ctx.title?.startsWith('Foundations/') ||
+          ctx.title?.startsWith('Layout/'));
 
       html.classList.toggle('wa-theme-tailspin', !useDefaultTheme);
       html.classList.toggle('wa-palette-rudimentary', !useDefaultTheme);

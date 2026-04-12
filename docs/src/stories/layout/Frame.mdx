@@ -4,7 +4,7 @@ import { DocPage, DocSection, DocTable } from '@/components/storybook/DocTable';
 <Meta title="Layout / Frame" />
 
 export const FrameBox = ({ className, style }) => (
-  <div className={className || 'wa-frame'} style={{ width: '3em', ...style }}>
+  <div className={className || 'wa-frame'} style={{ width: '3rem', ...style }}>
     <div
       style={{
         backgroundColor: 'var(--wa-color-brand-fill-loud)',
@@ -31,13 +31,13 @@ export const FrameBox = ({ className, style }) => (
     columns={[
       { key: 'cls', header: 'Class' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-frame</code>,
         desc: 'Square aspect ratio container (1:1 default)',
-        example: <FrameBox />,
+        preview: <FrameBox />,
       },
     ]}
   />
@@ -57,23 +57,23 @@ export const FrameBox = ({ className, style }) => (
     columns={[
       { key: 'cls', header: 'Class / Style' },
       { key: 'ratio', header: 'Ratio' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-frame:square</code>,
         ratio: '1 / 1',
-        example: <FrameBox className="wa-frame:square" />,
+        preview: <FrameBox className="wa-frame:square" />,
       },
       {
         cls: <code>.wa-frame:landscape</code>,
         ratio: '16 / 9',
-        example: <FrameBox className="wa-frame:landscape" style={{ width: '5em' }} />,
+        preview: <FrameBox className="wa-frame:landscape" style={{ width: '5rem' }} />,
       },
       {
         cls: <code>.wa-frame:portrait</code>,
         ratio: '9 / 16',
-        example: <FrameBox className="wa-frame:portrait" style={{ width: '1.75em' }} />,
+        preview: <FrameBox className="wa-frame:portrait" style={{ width: '1.75rem' }} />,
       },
       {
         cls: (
@@ -82,8 +82,8 @@ export const FrameBox = ({ className, style }) => (
           </>
         ),
         ratio: '4 / 3',
-        example: (
-          <FrameBox style={{ width: '4em', aspectRatio: '4 / 3' }} />
+        preview: (
+          <FrameBox style={{ width: '4rem', aspectRatio: '4 / 3' }} />
         ),
       },
     ]}
@@ -103,33 +103,33 @@ export const FrameBox = ({ className, style }) => (
   <DocTable
     columns={[
       { key: 'cls', header: 'Class' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-border-radius-s</code>,
-        example: <FrameBox className="wa-frame wa-border-radius-s" />,
+        preview: <FrameBox className="wa-frame wa-border-radius-s" />,
       },
       {
         cls: <code>.wa-border-radius-m</code>,
-        example: <FrameBox className="wa-frame wa-border-radius-m" />,
+        preview: <FrameBox className="wa-frame wa-border-radius-m" />,
       },
       {
         cls: <code>.wa-border-radius-l</code>,
-        example: <FrameBox className="wa-frame wa-border-radius-l" />,
+        preview: <FrameBox className="wa-frame wa-border-radius-l" />,
       },
       {
         cls: <code>.wa-border-radius-pill</code>,
-        example: (
+        preview: (
           <FrameBox
             className="wa-frame:landscape wa-border-radius-pill"
-            style={{ width: '5em' }}
+            style={{ width: '5rem' }}
           />
         ),
       },
       {
         cls: <code>.wa-border-radius-circle</code>,
-        example: <FrameBox className="wa-frame wa-border-radius-circle" />,
+        preview: <FrameBox className="wa-frame wa-border-radius-circle" />,
       },
     ]}
   />

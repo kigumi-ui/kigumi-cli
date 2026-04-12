@@ -1,0 +1,77 @@
+/* Unified docs table + page/section scaffolding. */
+/* All values reference WA tokens. Minimum font-size is --wa-font-size-m. */
+
+.docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--wa-font-size-m);
+  margin-bottom: var(--wa-space-xl);
+  font-family: var(--wa-font-family-body);
+  color: var(--wa-color-text-normal);
+}
+
+.docs-table__header-row {
+  border-bottom: var(--wa-border-width-m) solid var(--wa-color-surface-border);
+}
+
+.docs-table__th {
+  text-align: left;
+  padding: var(--wa-space-xs) var(--wa-space-s);
+  font-weight: var(--wa-font-weight-semibold);
+}
+
+.docs-table__row {
+  border-bottom: var(--wa-border-width-s) solid var(--wa-color-surface-border);
+}
+
+.docs-table__row:last-child {
+  border-bottom: none;
+}
+
+.docs-table__td {
+  padding: var(--wa-space-xs) var(--wa-space-s);
+  vertical-align: middle;
+}
+
+.docs-table__td code,
+.docs-table__th code {
+  font-family: var(--wa-font-family-code);
+  font-size: var(--wa-font-size-m);
+  background: var(--wa-color-surface-lowered);
+  padding: var(--wa-space-3xs) var(--wa-space-2xs);
+  border-radius: var(--wa-border-radius-s);
+}
+
+.docs-table__td--name {
+  white-space: nowrap;
+}
+
+.docs-table__td--preview {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* Page-level wrappers used by DocPage / DocSection on older Style and */
+/* Layout MDX pages. Scoped to the same max width as the Foundations pages. */
+
+.docs-page {
+  font-family: var(--wa-font-family-body);
+  color: var(--wa-color-text-normal);
+  max-width: 860px;
+}
+
+.docs-page__title {
+  margin-bottom: var(--wa-space-2xs);
+}
+
+.docs-page__description {
+  margin-bottom: var(--wa-space-l);
+}
+
+.docs-section__title {
+  margin-bottom: var(--wa-space-2xs);
+}
+
+.docs-section__description {
+  margin-bottom: var(--wa-space-m);
+}

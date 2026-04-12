@@ -1,0 +1,199 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { ShadowSample } from '@/components/storybook/ShadowSample';
+import { DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Foundations/Elevation" />
+
+export const meta = {
+  title: 'Foundations/Elevation',
+  tokens: [
+    '--wa-shadow-s',
+    '--wa-shadow-m',
+    '--wa-shadow-l',
+    '--wa-shadow-offset-x-scale',
+    '--wa-shadow-offset-y-scale',
+    '--wa-shadow-blur-scale',
+    '--wa-shadow-spread-scale',
+    '--wa-shadow-offset-x-s',
+    '--wa-shadow-offset-x-m',
+    '--wa-shadow-offset-x-l',
+    '--wa-shadow-offset-y-s',
+    '--wa-shadow-offset-y-m',
+    '--wa-shadow-offset-y-l',
+    '--wa-shadow-blur-s',
+    '--wa-shadow-blur-m',
+    '--wa-shadow-blur-l',
+    '--wa-shadow-spread-s',
+    '--wa-shadow-spread-m',
+    '--wa-shadow-spread-l',
+  ],
+  classes: [],
+};
+
+<Unstyled>
+  <section className="wa-stack wa-gap-3xl">
+    <div className="wa-stack wa-gap-s">
+      <h1 className="wa-heading-2xl">Elevation</h1>
+      <p className="wa-body-l">
+        The three shadow tokens combine four dimensions (offset-x, offset-y, blur, spread) into
+        a single <code>box-shadow</code> value. You can also use <code>inset</code> to create shadows that are inside the element. The base values double
+        per tier (2 px, 4 px, 8 px) and every dimension has its own scale
+        multiplier, so one override reshapes all three tiers at once.
+        No utility classes; use the tokens directly in CSS.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Shadows</h2>
+      <p className="wa-body-l">
+        Use a composite token whenever possible. It resolves all four
+        decomposed tokens for the matching size plus{' '}
+        <code>--wa-color-shadow</code> from the Color page.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            token: <code>--wa-shadow-s</code>,
+            preview: <ShadowSample token="--wa-shadow-s" />,
+          },
+          {
+            token: <code>--wa-shadow-m</code>,
+            preview: <ShadowSample token="--wa-shadow-m" />,
+          },
+          {
+            token: <code>--wa-shadow-l</code>,
+            preview: <ShadowSample token="--wa-shadow-l" />,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Decomposed tokens</h2>
+      <p className="wa-body-l">
+        Each composite shadow is assembled from per-size tokens that
+        multiply a base value by the matching scale. The resolved defaults
+        below reflect the current scale settings.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Horizontal offset (X)</h3>
+      <p className="wa-body-l">
+        Scaled by <code>--wa-shadow-offset-x-scale</code> (default 0),
+        so horizontal shift is disabled out of the box.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+        ]}
+        rows={[
+          { token: <code>--wa-shadow-offset-x-s</code>, value: <code>0rem</code> },
+          { token: <code>--wa-shadow-offset-x-m</code>, value: <code>0rem</code> },
+          { token: <code>--wa-shadow-offset-x-l</code>, value: <code>0rem</code> },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Vertical offset (Y)</h3>
+      <p className="wa-body-l">
+        Scaled by <code>--wa-shadow-offset-y-scale</code> (default 1).
+        Controls how far the shadow falls below the element.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+        ]}
+        rows={[
+          { token: <code>--wa-shadow-offset-y-s</code>, value: <code>0.125rem (2px)</code> },
+          { token: <code>--wa-shadow-offset-y-m</code>, value: <code>0.25rem (4px)</code> },
+          { token: <code>--wa-shadow-offset-y-l</code>, value: <code>0.5rem (8px)</code> },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Blur</h3>
+      <p className="wa-body-l">
+        Scaled by <code>--wa-shadow-blur-scale</code> (default 1).
+        Larger values produce a softer, more diffused edge.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+        ]}
+        rows={[
+          { token: <code>--wa-shadow-blur-s</code>, value: <code>0.125rem (2px)</code> },
+          { token: <code>--wa-shadow-blur-m</code>, value: <code>0.25rem (4px)</code> },
+          { token: <code>--wa-shadow-blur-l</code>, value: <code>0.5rem (8px)</code> },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Spread</h3>
+      <p className="wa-body-l">
+        Scaled by <code>--wa-shadow-spread-scale</code> (default -0.5).
+        The negative multiplier shrinks the shadow smaller than the
+        element, keeping it tight against the edge.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+        ]}
+        rows={[
+          { token: <code>--wa-shadow-spread-s</code>, value: <code>-0.0625rem (-1px)</code> },
+          { token: <code>--wa-shadow-spread-m</code>, value: <code>-0.125rem (-2px)</code> },
+          { token: <code>--wa-shadow-spread-l</code>, value: <code>-0.25rem (-4px)</code> },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Scale multipliers</h2>
+      <p className="wa-body-l">
+        Each shadow dimension has its own multiplier applied to all three
+        tiers. The defaults produce a straight-down drop shadow with no
+        horizontal shift and a negative spread that pulls the edge inward.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+          { key: 'description', header: 'Description' },
+        ]}
+        rows={[
+          {
+            token: <code>--wa-shadow-offset-x-scale</code>,
+            value: <code>0</code>,
+            description: 'Horizontal shift (0 = straight down)',
+          },
+          {
+            token: <code>--wa-shadow-offset-y-scale</code>,
+            value: <code>1</code>,
+            description: 'Vertical shift',
+          },
+          {
+            token: <code>--wa-shadow-blur-scale</code>,
+            value: <code>1</code>,
+            description: 'Softness of the edge',
+          },
+          {
+            token: <code>--wa-shadow-spread-scale</code>,
+            value: <code>-0.5</code>,
+            description: 'Spread radius (negative = tighter than the element)',
+          },
+        ]}
+      />
+    </div>
+  </section>
+</Unstyled>

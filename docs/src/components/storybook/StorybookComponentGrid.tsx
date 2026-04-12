@@ -624,7 +624,8 @@ export function StorybookComponentGrid() {
           { name: 'description', weight: 1 },
         ],
         threshold: 0.35,
-        includeScore: false,
+        ignoreLocation: true,
+        ignoreFieldNorm: true,
         minMatchCharLength: 2,
       }),
     []

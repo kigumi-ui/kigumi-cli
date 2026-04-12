@@ -88,7 +88,7 @@ function LabelWithBadges({ item }: { item: HashEntry }) {
 addons.setConfig({
   theme: initialResolved === 'dark' ? kigumiDark : kigumiLight,
   sidebar: {
-    collapsedRoots: ['style', 'layout', 'design-tokens', 'components'],
+    collapsedRoots: ['foundations', 'layout', 'components'],
     renderLabel: (item: HashEntry) => {
       if (
         item.type === 'component' ||

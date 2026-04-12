@@ -1,0 +1,687 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { TokenTable } from '@/components/storybook/TokenTable';
+import { TypeSample } from '@/components/storybook/TypeSample';
+import { DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Foundations/Typography" />
+
+export const meta = {
+  title: 'Foundations/Typography',
+  tokens: [
+    '--wa-font-family-body',
+    '--wa-font-family-heading',
+    '--wa-font-family-code',
+    '--wa-font-family-longform',
+    '--wa-font-size-scale',
+    '--wa-font-size-3xs',
+    '--wa-font-size-2xs',
+    '--wa-font-size-xs',
+    '--wa-font-size-s',
+    '--wa-font-size-m',
+    '--wa-font-size-l',
+    '--wa-font-size-xl',
+    '--wa-font-size-2xl',
+    '--wa-font-size-3xl',
+    '--wa-font-size-4xl',
+    '--wa-font-size-5xl',
+    '--wa-font-size-smaller',
+    '--wa-font-size-larger',
+    '--wa-font-weight-light',
+    '--wa-font-weight-normal',
+    '--wa-font-weight-semibold',
+    '--wa-font-weight-bold',
+    '--wa-font-weight-body',
+    '--wa-font-weight-heading',
+    '--wa-font-weight-code',
+    '--wa-font-weight-longform',
+    '--wa-font-weight-action',
+    '--wa-line-height-condensed',
+    '--wa-line-height-normal',
+    '--wa-line-height-expanded',
+    '--wa-link-decoration-default',
+    '--wa-link-decoration-hover',
+  ],
+  classes: [
+    '.wa-body',
+    '.wa-heading',
+    '.wa-caption',
+    '.wa-longform',
+    '.wa-font-size-3xs',
+    '.wa-font-size-2xs',
+    '.wa-font-size-xs',
+    '.wa-font-size-s',
+    '.wa-font-size-m',
+    '.wa-font-size-l',
+    '.wa-font-size-xl',
+    '.wa-font-size-2xl',
+    '.wa-font-size-3xl',
+    '.wa-font-size-4xl',
+    '.wa-font-size-5xl',
+    '.wa-font-weight-light',
+    '.wa-font-weight-normal',
+    '.wa-font-weight-semibold',
+    '.wa-font-weight-bold',
+    '.wa-link',
+    '.wa-link-plain',
+    '.wa-list-plain',
+    '.wa-text-truncate',
+    '.wa-form-control-label',
+    '.wa-form-control-value',
+    '.wa-form-control-placeholder',
+    '.wa-form-control-hint',
+  ],
+};
+
+export const FamilySample = ({ token }) => (
+  <span
+    style={{
+      fontFamily: `var(${token})`,
+      fontSize: 'var(--wa-font-size-m)',
+      fontWeight: 'var(--wa-font-weight-semibold)',
+    }}
+  >
+    The quick brown fox
+  </span>
+);
+
+export const WeightSample = ({ token }) => (
+  <span
+    style={{
+      fontWeight: `var(${token})`,
+      fontSize: 'var(--wa-font-size-m)',
+    }}
+  >
+    The quick brown fox
+  </span>
+);
+
+export const LineHeightSample = ({ token }) => (
+  <p
+    style={{
+      lineHeight: `var(${token})`,
+      fontSize: 'var(--wa-font-size-m)',
+      maxWidth: '32ch',
+      margin: 0,
+    }}
+  >
+    Two lines of running text show how the spacing feels. The second line sits at the configured line height.
+  </p>
+);
+
+export const LinkSample = ({ token }) => (
+  <a
+    href="#"
+    onClick={(e) => e.preventDefault()}
+    style={{
+      color: 'var(--wa-color-text-link)',
+      textDecoration: `var(${token})`,
+      fontSize: 'var(--wa-font-size-m)',
+    }}
+  >
+    Visit the guide
+  </a>
+);
+
+<Unstyled>
+  <section className="wa-stack wa-gap-3xl">
+    <div className="wa-stack wa-gap-s">
+      <h1 className="wa-heading-2xl">Typography</h1>
+      <p className="wa-body-l">
+        Kigumi's text system pairs four role classes with an eleven-step size
+        scale so one class sets family, weight, line height, and size
+        together. Override the family, size, and weight tokens at{' '}
+        <code>:root</code> to restyle the whole stack.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Utility Classes</h2>
+      <p className="wa-body-l">
+        Apply these CSS classes in your markup to set a text role, size,
+        weight, or inline helper without touching any token. Sizes come in
+        two flavors: a role-aware form like <code>.wa-heading-l</code> that
+        bundles family, weight, and line height, and a standalone form like{' '}
+        <code>.wa-font-size-l</code> that only sets the size.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Role classes</h3>
+      <p className="wa-body-l">
+        Four roles cover the common text jobs. Each applies its own family,
+        weight, and line height. Add a size suffix from <code>3xs</code>{' '}
+        through <code>5xl</code> to set the size at the same time.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-body</code>,
+            description: 'Body family, weight, and normal line height. The default for body copy.',
+            preview: <span className="wa-body">The quick brown fox</span>,
+          },
+          {
+            cls: <code>.wa-heading</code>,
+            description: 'Heading family, weight, condensed line height, and balanced wrap for display text.',
+            preview: (
+              <span className="wa-heading wa-heading-l">
+                The quick brown fox
+              </span>
+            ),
+          },
+          {
+            cls: <code>.wa-caption</code>,
+            description: 'Body family and weight with a condensed line height and quiet color, for metadata and hints.',
+            preview: <span className="wa-caption">The quick brown fox</span>,
+          },
+          {
+            cls: <code>.wa-longform</code>,
+            description: 'Longform family, weight, and relaxed line height for reading-focused prose.',
+            preview: <span className="wa-longform">The quick brown fox</span>,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Size classes</h3>
+      <p className="wa-body-l">
+        Standalone size classes only set the font size. They inherit family,
+        weight, and line height from the closest text role or element.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'token', header: 'Token' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-font-size-3xs</code>,
+            token: <code>--wa-font-size-3xs</code>,
+            preview: <TypeSample size="--wa-font-size-3xs">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-2xs</code>,
+            token: <code>--wa-font-size-2xs</code>,
+            preview: <TypeSample size="--wa-font-size-2xs">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-xs</code>,
+            token: <code>--wa-font-size-xs</code>,
+            preview: <TypeSample size="--wa-font-size-xs">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-s</code>,
+            token: <code>--wa-font-size-s</code>,
+            preview: <TypeSample size="--wa-font-size-s">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-m</code>,
+            token: <code>--wa-font-size-m</code>,
+            preview: <TypeSample size="--wa-font-size-m">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-l</code>,
+            token: <code>--wa-font-size-l</code>,
+            preview: <TypeSample size="--wa-font-size-l">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-xl</code>,
+            token: <code>--wa-font-size-xl</code>,
+            preview: <TypeSample size="--wa-font-size-xl">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-2xl</code>,
+            token: <code>--wa-font-size-2xl</code>,
+            preview: <TypeSample size="--wa-font-size-2xl">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-3xl</code>,
+            token: <code>--wa-font-size-3xl</code>,
+            preview: <TypeSample size="--wa-font-size-3xl">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-4xl</code>,
+            token: <code>--wa-font-size-4xl</code>,
+            preview: <TypeSample size="--wa-font-size-4xl">Aa</TypeSample>,
+          },
+          {
+            cls: <code>.wa-font-size-5xl</code>,
+            token: <code>--wa-font-size-5xl</code>,
+            preview: <TypeSample size="--wa-font-size-5xl">Aa</TypeSample>,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Weight classes</h3>
+      <p className="wa-body-l">
+        Apply a weight independently of the role. Combine with a role or
+        size class to change only the weight.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'token', header: 'Token' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-font-weight-light</code>,
+            token: <code>--wa-font-weight-light</code>,
+            preview: <WeightSample token="--wa-font-weight-light" />,
+          },
+          {
+            cls: <code>.wa-font-weight-normal</code>,
+            token: <code>--wa-font-weight-normal</code>,
+            preview: <WeightSample token="--wa-font-weight-normal" />,
+          },
+          {
+            cls: <code>.wa-font-weight-semibold</code>,
+            token: <code>--wa-font-weight-semibold</code>,
+            preview: <WeightSample token="--wa-font-weight-semibold" />,
+          },
+          {
+            cls: <code>.wa-font-weight-bold</code>,
+            token: <code>--wa-font-weight-bold</code>,
+            preview: <WeightSample token="--wa-font-weight-bold" />,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Inline helpers</h3>
+      <p className="wa-body-l">
+        Small utilities for links, lists, and single-line overflow. Color
+        helpers like <code>.wa-color-text-quiet</code> live on the Color
+        page.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-link</code>,
+            description: 'Styles any element as a link with the default dotted underline.',
+            preview: <span className="wa-link">Linked phrase</span>,
+          },
+          {
+            cls: <code>.wa-link-plain</code>,
+            description: 'Strips link color and underline, useful when wrapping non-text targets.',
+            preview: (
+              <a
+                className="wa-link-plain"
+                href="#"
+                onClick={(e) => e.preventDefault()}
+              >
+                Plain anchor
+              </a>
+            ),
+          },
+          {
+            cls: <code>.wa-list-plain</code>,
+            description: 'Removes the default list bullet and indentation.',
+            preview: (
+              <ul className="wa-list-plain" style={{ margin: 0 }}>
+                <li>First item</li>
+                <li>Second item</li>
+              </ul>
+            ),
+          },
+          {
+            cls: <code>.wa-text-truncate</code>,
+            description: 'Cuts off overflow with an ellipsis on a single line.',
+            preview: (
+              <div className="wa-text-truncate" style={{ maxWidth: '12rem' }}>
+                A long line that gets truncated with an ellipsis
+              </div>
+            ),
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Form control classes</h3>
+      <p className="wa-body-l">
+        Use these on custom form controls so the label, value, placeholder,
+        and hint stay aligned with the rest of the system without
+        rebuilding the styles.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-form-control-label</code>,
+            description: 'Label color, weight, and condensed line height.',
+            preview: (
+              <span className="wa-form-control-label">Email address</span>
+            ),
+          },
+          {
+            cls: <code>.wa-form-control-value</code>,
+            description: 'Value color and weight with a condensed line height.',
+            preview: (
+              <span className="wa-form-control-value">
+                hello@example.com
+              </span>
+            ),
+          },
+          {
+            cls: <code>.wa-form-control-placeholder</code>,
+            description: 'Placeholder color, matching native form placeholders.',
+            preview: (
+              <span className="wa-form-control-placeholder">
+                you@example.com
+              </span>
+            ),
+          },
+          {
+            cls: <code>.wa-form-control-hint</code>,
+            description: 'Hint color and line height for helper text beneath a control.',
+            preview: (
+              <span className="wa-form-control-hint">
+                We never share your address.
+              </span>
+            ),
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Design Tokens</h2>
+      <p className="wa-body-l">
+        Tokens are the theming layer: override any of them at{' '}
+        <code>:root</code> and every class and component that reads them
+        picks up the change. All typography tokens sit under the{' '}
+        <code>--wa-font-</code>, <code>--wa-line-height-</code>, and{' '}
+        <code>--wa-link-decoration-</code> prefixes.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Font families</h3>
+      <p className="wa-body-l">
+        Four font stacks cover body text, headings, code, and long-form
+        reading. Each role class reads its family from one of these tokens.
+      </p>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-font-family-body',
+            value: 'ui-sans-serif, system-ui, sans-serif',
+            description: 'Body text, UI labels, and default chrome',
+            preview: <FamilySample token="--wa-font-family-body" />,
+          },
+          {
+            name: '--wa-font-family-heading',
+            value: 'var(--wa-font-family-body)',
+            description: 'Display text, page titles, and section headings',
+            preview: <FamilySample token="--wa-font-family-heading" />,
+          },
+          {
+            name: '--wa-font-family-code',
+            value: 'ui-monospace, monospace',
+            description: 'Inline and block code, keyboard shortcuts',
+            preview: <FamilySample token="--wa-font-family-code" />,
+          },
+          {
+            name: '--wa-font-family-longform',
+            value: 'ui-serif, serif',
+            description: 'Long-form articles and reading-focused prose',
+            preview: <FamilySample token="--wa-font-family-longform" />,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Font sizes</h3>
+      <p className="wa-body-l">
+        Eleven steps on a 1.125 modular scale, plus a multiplier that
+        resizes the whole scale at once and two relative tokens that step
+        up or down from the inherited size.
+      </p>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-font-size-3xs',
+            value: '0.625rem',
+            description: 'Smallest step, for dense metadata',
+            preview: <TypeSample size="--wa-font-size-3xs">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-2xs',
+            value: '0.6875rem',
+            description: 'Captions and fine print',
+            preview: <TypeSample size="--wa-font-size-2xs">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-xs',
+            value: '0.75rem',
+            description: 'Hints, footnotes, and secondary labels',
+            preview: <TypeSample size="--wa-font-size-xs">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-s',
+            value: '0.875rem',
+            description: 'Dense UI, badges, and supporting text',
+            preview: <TypeSample size="--wa-font-size-s">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-m',
+            value: '1rem',
+            description: 'Base size the rest of the scale references',
+            preview: <TypeSample size="--wa-font-size-m">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-l',
+            value: '1.25rem',
+            description: 'Lead paragraphs and small headings',
+            preview: <TypeSample size="--wa-font-size-l">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-xl',
+            value: '1.5625rem',
+            description: 'Section headings and callouts',
+            preview: <TypeSample size="--wa-font-size-xl">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-2xl',
+            value: '2rem',
+            description: 'Page titles and large headings',
+            preview: <TypeSample size="--wa-font-size-2xl">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-3xl',
+            value: '2.5625rem',
+            description: 'Display headlines',
+            preview: <TypeSample size="--wa-font-size-3xl">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-4xl',
+            value: '3.25rem',
+            description: 'Large display text for heroes',
+            preview: <TypeSample size="--wa-font-size-4xl">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-5xl',
+            value: '4.125rem',
+            description: 'Extra-large display text',
+            preview: <TypeSample size="--wa-font-size-5xl">Aa</TypeSample>,
+          },
+          {
+            name: '--wa-font-size-smaller',
+            value: 'round(1em / 1.125, 1px)',
+            description: 'One step smaller than the inherited size',
+          },
+          {
+            name: '--wa-font-size-larger',
+            value: 'round(1em * 1.125 * 1.125, 1px)',
+            description: 'Two steps larger than the inherited size',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Font weights</h3>
+      <p className="wa-body-l">
+        Four numeric weights plus five role aliases. Each role reads its
+        weight from its alias, so retuning a single alias updates every
+        role that uses it.
+      </p>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-font-weight-light',
+            value: '300',
+            description: 'Hairline text and subtle display headlines',
+            preview: <WeightSample token="--wa-font-weight-light" />,
+          },
+          {
+            name: '--wa-font-weight-normal',
+            value: '400',
+            description: 'Default body and running text',
+            preview: <WeightSample token="--wa-font-weight-normal" />,
+          },
+          {
+            name: '--wa-font-weight-semibold',
+            value: '500',
+            description: 'Form labels, emphasis, and compact headings',
+            preview: <WeightSample token="--wa-font-weight-semibold" />,
+          },
+          {
+            name: '--wa-font-weight-bold',
+            value: '600',
+            description: 'Headings, strong emphasis, and titles',
+            preview: <WeightSample token="--wa-font-weight-bold" />,
+          },
+          {
+            name: '--wa-font-weight-body',
+            value: 'var(--wa-font-weight-normal)',
+            description: 'Alias that the .wa-body role reads',
+          },
+          {
+            name: '--wa-font-weight-heading',
+            value: 'var(--wa-font-weight-bold)',
+            description: 'Alias that the .wa-heading role reads',
+          },
+          {
+            name: '--wa-font-weight-code',
+            value: 'var(--wa-font-weight-normal)',
+            description: 'Alias that inline and block code reads',
+          },
+          {
+            name: '--wa-font-weight-longform',
+            value: 'var(--wa-font-weight-normal)',
+            description: 'Alias that the .wa-longform role reads',
+          },
+          {
+            name: '--wa-font-weight-action',
+            value: 'var(--wa-font-weight-semibold)',
+            description:
+              'Buttons, tabs, and other interactive call-to-action text',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Line heights</h3>
+      <p className="wa-body-l">
+        Three stops for tight, default, and airy leading. Role classes read
+        the stop that suits their context.
+      </p>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-line-height-condensed',
+            value: '1.2',
+            description: 'Tight; suits headings, labels, and dense titles',
+            preview: <LineHeightSample token="--wa-line-height-condensed" />,
+          },
+          {
+            name: '--wa-line-height-normal',
+            value: '1.6',
+            description: 'Comfortable default for body copy',
+            preview: <LineHeightSample token="--wa-line-height-normal" />,
+          },
+          {
+            name: '--wa-line-height-expanded',
+            value: '2',
+            description: 'Airy; suits long-form reading and generous prose',
+            preview: <LineHeightSample token="--wa-line-height-expanded" />,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Link decoration</h3>
+      <p className="wa-body-l">
+        Two text-decoration styles applied to anchors and the{' '}
+        <code>.wa-link</code> utility.
+      </p>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-link-decoration-default',
+            value:
+              'underline color-mix(in oklab, currentColor 70%, transparent) dotted',
+            description: 'Resting state for anchors and .wa-link',
+            preview: <LinkSample token="--wa-link-decoration-default" />,
+          },
+          {
+            name: '--wa-link-decoration-hover',
+            value: 'underline',
+            description: 'Hover and focus state for the same anchors',
+            preview: <LinkSample token="--wa-link-decoration-hover" />,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Scale multipliers</h2>
+      <p className="wa-body-l">
+        Override the scale token at <code>:root</code> to resize every
+        font size step proportionally without touching individual tokens.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+          { key: 'description', header: 'Description' },
+        ]}
+        rows={[
+          {
+            token: <code>--wa-font-size-scale</code>,
+            value: <code>1</code>,
+            description: 'Multiplier applied to every font size step',
+          },
+        ]}
+      />
+    </div>
+  </section>
+</Unstyled>

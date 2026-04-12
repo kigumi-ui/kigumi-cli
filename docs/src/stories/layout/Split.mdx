@@ -7,26 +7,13 @@ export const SplitPair = ({ className, style }) => (
   <div
     className={className || 'wa-split'}
     style={{
-      minWidth: '16em',
-      border: '2px solid var(--wa-color-surface-border)',
+      minWidth: '16rem',
+      border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
       ...style,
     }}
   >
-    <div
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '3em',
-        height: '1em',
-      }}
-    />
-    <div
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '3em',
-        height: '1em',
-        opacity: 0.6,
-      }}
-    />
+    <div style={{ backgroundColor: 'var(--wa-color-brand)', width: '2rem', height: '2rem' }} />
+    <div style={{ backgroundColor: 'var(--wa-color-brand)', width: '2rem', height: '2rem', opacity: 0.6 }} />
   </div>
 );
 
@@ -46,13 +33,13 @@ export const SplitPair = ({ className, style }) => (
     columns={[
       { key: 'cls', header: 'Class' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-split</code>,
         desc: 'Distributes children with space-between',
-        example: <SplitPair />,
+        preview: <SplitPair />,
       },
     ]}
   />
@@ -71,208 +58,30 @@ export const SplitPair = ({ className, style }) => (
     columns={[
       { key: 'cls', header: 'Class' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-split:row</code>,
         desc: 'Horizontal split (default)',
-        example: <SplitPair className="wa-split:row" />,
+        preview: <SplitPair className="wa-split:row" />,
       },
       {
         cls: <code>.wa-split:column</code>,
         desc: 'Vertical split',
-        example: (
+        preview: (
           <div
             className="wa-split:column"
             style={{
-              width: '3em',
-              height: '6em',
-              border: '2px solid var(--wa-color-surface-border)',
+              width: '2rem',
+              height: '6rem',
+              border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
             }}
           >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '100%',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '100%',
-                height: '1em',
-                opacity: 0.6,
-              }}
-            />
+            <div style={{ backgroundColor: 'var(--wa-color-brand)', width: '100%', height: '2rem' }} />
+            <div style={{ backgroundColor: 'var(--wa-color-brand)', width: '100%', height: '2rem', opacity: 0.6 }} />
           </div>
         ),
-      },
-    ]}
-  />
-</DocSection>
-
-<DocSection
-  title="Align Items"
-  description={
-    <>
-      Items are centered on the cross axis by default. Add a{' '}
-      <code>.wa-align-items-*</code> class to change cross-axis alignment.
-    </>
-  }
->
-  <DocTable
-    columns={[
-      { key: 'cls', header: 'Class' },
-      { key: 'example', header: 'Examples' },
-    ]}
-    rows={[
-      {
-        cls: <code>.wa-align-items-start</code>,
-        example: (
-          <div
-            className="wa-split wa-align-items-start"
-            style={{
-              minWidth: '16em',
-              height: '4em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-                height: '1em',
-                opacity: 0.6,
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-end</code>,
-        example: (
-          <div
-            className="wa-split wa-align-items-end"
-            style={{
-              minWidth: '16em',
-              height: '4em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-                height: '1em',
-                opacity: 0.6,
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-center</code>,
-        example: (
-          <div
-            className="wa-split wa-align-items-center"
-            style={{
-              minWidth: '16em',
-              height: '4em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-                height: '1em',
-                opacity: 0.6,
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-stretch</code>,
-        example: (
-          <div
-            className="wa-split wa-align-items-stretch"
-            style={{
-              minWidth: '16em',
-              height: '4em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '3em',
-                opacity: 0.6,
-              }}
-            />
-          </div>
-        ),
-      },
-    ]}
-  />
-</DocSection>
-
-<DocSection
-  title="Gap"
-  description={
-    <>
-      The gap controls the minimum distance between split items before they
-      wrap. The default uses <code>--wa-space-m</code>. Add a{' '}
-      <code>.wa-gap-*</code> class to adjust.
-    </>
-  }
->
-  <DocTable
-    columns={[
-      { key: 'cls', header: 'Class' },
-      { key: 'example', header: 'Examples' },
-    ]}
-    rows={[
-      {
-        cls: <code>.wa-gap-3xs</code>,
-        example: <SplitPair className="wa-split wa-gap-3xs" />,
-      },
-      {
-        cls: <code>.wa-gap-m</code>,
-        example: <SplitPair className="wa-split wa-gap-m" />,
-      },
-      {
-        cls: <code>.wa-gap-3xl</code>,
-        example: <SplitPair className="wa-split wa-gap-3xl" />,
       },
     ]}
   />

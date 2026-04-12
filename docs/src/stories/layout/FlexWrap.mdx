@@ -7,23 +7,23 @@ export const WrapSquares = ({ className }) => (
   <>
     <div
       style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '3em',
-        height: '3em',
+        backgroundColor: 'var(--wa-color-brand)',
+        width: '2rem',
+        height: '2rem',
       }}
     />
     <div
       style={{
-        backgroundColor: 'var(--wa-color-brand-fill-normal)',
-        width: '3em',
-        height: '3em',
+        backgroundColor: 'var(--wa-color-brand)',
+        width: '2rem',
+        height: '2rem',
       }}
     />
     <div
       style={{
-        backgroundColor: 'var(--wa-color-brand-fill-quiet)',
-        width: '3em',
-        height: '3em',
+        backgroundColor: 'var(--wa-color-brand)',
+        width: '2rem',
+        height: '2rem',
       }}
     />
   </>
@@ -46,20 +46,20 @@ export const WrapSquares = ({ className }) => (
     columns={[
       { key: 'cls', header: 'Class' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-flex-wrap</code>,
         desc: 'Items wrap onto additional lines when needed',
-        example: (
+        preview: (
           <div
             style={{
-              maxWidth: '8em',
-              border: '2px solid var(--wa-color-surface-border)',
+              maxWidth: '6rem',
+              border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
             }}
           >
-            <div className="wa-flex-wrap wa-gap-xs">
+            <div className="wa-flex-wrap">
               <WrapSquares />
             </div>
           </div>
@@ -68,15 +68,15 @@ export const WrapSquares = ({ className }) => (
       {
         cls: <code>.wa-flex-nowrap</code>,
         desc: 'Items stay on a single line, may overflow',
-        example: (
+        preview: (
           <div
             style={{
-              maxWidth: '8em',
-              border: '2px solid var(--wa-color-surface-border)',
+              maxWidth: '6rem',
+              border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
               overflow: 'auto',
             }}
           >
-            <div className="wa-flex-nowrap wa-gap-xs">
+            <div className="wa-flex-nowrap">
               <WrapSquares />
             </div>
           </div>
@@ -85,14 +85,14 @@ export const WrapSquares = ({ className }) => (
       {
         cls: <code>.wa-flex-wrap-reverse</code>,
         desc: 'Items wrap in reverse order onto preceding lines',
-        example: (
+        preview: (
           <div
             style={{
-              maxWidth: '8em',
-              border: '2px solid var(--wa-color-surface-border)',
+              maxWidth: '6rem',
+              border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
             }}
           >
-            <div className="wa-flex-wrap-reverse wa-gap-xs">
+            <div className="wa-flex-wrap-reverse">
               <WrapSquares />
             </div>
           </div>

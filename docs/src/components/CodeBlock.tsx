@@ -16,7 +16,7 @@ export function CodeBlock({ value, copyValue, multiline }: CodeBlockProps) {
     return (
       <Card appearance="outlined" style={{ '--spacing': '0' }}>
         <div style={{ position: 'relative' }}>
-          <pre>
+          <pre style={{ margin: 0 }}>
             <code>{value}</code>
           </pre>
           <span
@@ -42,7 +42,7 @@ export function CodeBlock({ value, copyValue, multiline }: CodeBlockProps) {
         className="wa-flank:end wa-align-items-center wa-gap-xs"
         style={{ position: 'relative' }}
       >
-        <pre>
+        <pre style={{ margin: 0 }}>
           <code>{value}</code>
         </pre>
         <span
