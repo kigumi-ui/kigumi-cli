@@ -109,6 +109,8 @@ export class FrameworkMismatchError extends KigumiError {
           `Your project uses: ${userFramework}`,
           `This registry supports: ${registryFrameworks.join(', ')}`,
           'Look for a registry that supports your framework',
+          'OR re-run with --cross-framework to fetch the source-framework ' +
+            'files into .kigumi/foreign/ for an agent-driven conversion',
         ],
       },
     ];

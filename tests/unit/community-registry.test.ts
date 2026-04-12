@@ -19,8 +19,12 @@ import { resolveRegistrySource } from '../../src/utils/registry-resolver.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
 import {
   parseGitHubUrl,
+  parseRegistrySource,
   buildRawUrl,
+  fetchFile,
+  fetchRegistryJson,
   type GitHubRegistrySource,
+  type LocalRegistrySource,
 } from '../../src/utils/github-fetcher.js';
 import {
   CommunityRegistryNotFoundError,
@@ -264,9 +268,182 @@ describe('parseGitHubUrl', () => {
   });
 });
 
+describe('parseRegistrySource', () => {
+  it('parses a relative path starting with ../ as a local source', () => {
+    const result = parseRegistrySource('../kigumi-react');
+    expect(result.kind).toBe('local');
+    if (result.kind === 'local') {
+      expect(result.absolutePath).toBe(
+        path.resolve(process.cwd(), '../kigumi-react')
+      );
+      expect(result.url).toBe(result.absolutePath);
+    }
+  });
+
+  it('parses a relative path starting with ./ as a local source', () => {
+    const result = parseRegistrySource('./fixtures/registry');
+    expect(result.kind).toBe('local');
+    if (result.kind === 'local') {
+      expect(result.absolutePath).toBe(
+        path.resolve(process.cwd(), './fixtures/registry')
+      );
+    }
+  });
+
+  it('parses an absolute path as a local source', () => {
+    const result = parseRegistrySource('/tmp/some-registry');
+    expect(result.kind).toBe('local');
+    if (result.kind === 'local') {
+      expect(result.absolutePath).toBe('/tmp/some-registry');
+    }
+  });
+
+  it('parses a tilde path as a local source resolved against $HOME', () => {
+    const result = parseRegistrySource('~/projects/kigumi-vue');
+    expect(result.kind).toBe('local');
+    if (result.kind === 'local') {
+      expect(result.absolutePath).toBe(
+        path.join(os.homedir(), 'projects/kigumi-vue')
+      );
+    }
+  });
+
+  it('parses a GitHub URL as a github source', () => {
+    const result = parseRegistrySource('https://github.com/user/repo');
+    expect(result.kind).toBe('github');
+    if (result.kind === 'github') {
+      expect(result.owner).toBe('user');
+      expect(result.repo).toBe('repo');
+    }
+  });
+
+  it('parses github.com/user/repo without protocol as a github source', () => {
+    const result = parseRegistrySource('github.com/user/repo');
+    expect(result.kind).toBe('github');
+  });
+
+  it('resolves relative paths against an explicit baseDir option', () => {
+    const result = parseRegistrySource('../sibling', { baseDir: '/tmp/here' });
+    expect(result.kind).toBe('local');
+    if (result.kind === 'local') {
+      expect(result.absolutePath).toBe('/tmp/sibling');
+    }
+  });
+});
+
+describe('fetchFile (local source)', () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-fetch-local-'));
+  });
+
+  afterEach(async () => {
+    await fs.remove(tmpDir);
+  });
+
+  it('reads a file from the local source directory', async () => {
+    await fs.writeFile(path.join(tmpDir, 'hello.txt'), 'hello world');
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    const content = await fetchFile(source, 'hello.txt');
+    expect(content).toBe('hello world');
+  });
+
+  it('reads a nested file relative to absolutePath', async () => {
+    await fs.ensureDir(path.join(tmpDir, 'src/components'));
+    await fs.writeFile(
+      path.join(tmpDir, 'src/components/Foo.tsx'),
+      'export const Foo = () => null;'
+    );
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    const content = await fetchFile(source, 'src/components/Foo.tsx');
+    expect(content).toBe('export const Foo = () => null;');
+  });
+
+  it('throws when the local file does not exist', async () => {
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    await expect(fetchFile(source, 'missing.json')).rejects.toThrow(
+      /missing\.json/
+    );
+  });
+
+  it('strips a leading slash from the file path', async () => {
+    await fs.writeFile(path.join(tmpDir, 'a.txt'), 'A');
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    const content = await fetchFile(source, '/a.txt');
+    expect(content).toBe('A');
+  });
+});
+
+describe('fetchRegistryJson (local source)', () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-fetch-reg-'));
+  });
+
+  afterEach(async () => {
+    await fs.remove(tmpDir);
+  });
+
+  it('reads and validates registry.json from a local source', async () => {
+    const registry = {
+      $schema: 'https://kigumi.style/schemas/community-registry.json',
+      name: 'local-test-registry',
+      version: '0.1.0',
+      frameworks: ['react'],
+      components: {
+        button: {
+          name: 'Button',
+          dependencies: [],
+          files: { react: { component: 'Button.tsx', extras: [] } },
+        },
+      },
+    };
+    await fs.writeJSON(path.join(tmpDir, 'registry.json'), registry, {
+      spaces: 2,
+    });
+
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    const result = await fetchRegistryJson(source);
+    expect(result.name).toBe('local-test-registry');
+    expect(result.frameworks).toEqual(['react']);
+  });
+
+  it('throws CommunityRegistryNotFoundError-style for missing registry.json', async () => {
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    await expect(fetchRegistryJson(source)).rejects.toThrow(/registry\.json/);
+  });
+});
+
 describe('buildRawUrl', () => {
   it('builds correct raw URL', () => {
     const source: GitHubRegistrySource = {
+      kind: 'github',
       url: 'https://github.com/user/repo',
       owner: 'user',
       repo: 'repo',
@@ -280,6 +457,7 @@ describe('buildRawUrl', () => {
 
   it('strips leading slash from file path', () => {
     const source: GitHubRegistrySource = {
+      kind: 'github',
       url: 'https://github.com/user/repo',
       owner: 'user',
       repo: 'repo',
@@ -329,6 +507,14 @@ describe('Community registry errors', () => {
     expect(error.code).toBe(ErrorCode.INVALID_FRAMEWORK);
     expect(error.formatSuggestions()).toContain('vue');
     expect(error.formatSuggestions()).toContain('react');
+  });
+
+  it('FrameworkMismatchError suggests --cross-framework as a resolution path', () => {
+    const error = new FrameworkMismatchError('my-reg', ['react'], 'vue');
+    const suggestions = error.formatSuggestions();
+    expect(suggestions).toContain('--cross-framework');
+    // Mentions the staging directory so users know where files land
+    expect(suggestions).toContain('.kigumi/foreign');
   });
 
   it('CircularDependencyError shows cycle', () => {

@@ -41,6 +41,14 @@ export const addOptionsSchema = z.object({
   cwd: z.string().optional(),
   /** Community registry URL to install from */
   from: z.string().optional(),
+  /**
+   * Allow installing from a registry that does not target this
+   * project's framework. Source-framework files are staged into
+   * `.kigumi/foreign/<slug>/` for an agent-driven conversion. The
+   * default `kigumi add` flow continues to fail with
+   * `FrameworkMismatchError` when this flag is absent.
+   */
+  crossFramework: z.boolean().optional().default(false),
 });
 
 export type AddOptions = z.infer<typeof addOptionsSchema>;

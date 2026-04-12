@@ -25,6 +25,7 @@ let testDir: string;
 let cache: RegistryCache;
 
 const testSource: GitHubRegistrySource = {
+  kind: 'github',
   url: 'https://github.com/test/registry',
   owner: 'test',
   repo: 'registry',
@@ -112,6 +113,7 @@ describe('RegistryCache — TTL expiry', () => {
 describe('RegistryCache — invalidate', () => {
   it('invalidate(source) removes only that source cache', async () => {
     const otherSource: GitHubRegistrySource = {
+      kind: 'github',
       url: 'https://github.com/other/components',
       owner: 'other',
       repo: 'components',
@@ -157,12 +159,14 @@ describe('RegistryCache — invalidate', () => {
 describe('RegistryCache — invalidateAll', () => {
   it('invalidateAll removes all cached registries', async () => {
     const sourceA: GitHubRegistrySource = {
+      kind: 'github',
       url: 'https://github.com/a/repo',
       owner: 'a',
       repo: 'repo',
       branch: 'main',
     };
     const sourceB: GitHubRegistrySource = {
+      kind: 'github',
       url: 'https://github.com/b/repo',
       owner: 'b',
       repo: 'repo',

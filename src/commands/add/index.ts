@@ -31,7 +31,7 @@ import { ComponentInstaller } from './installer.js';
 import { RemoteComponentInstaller } from './remote-installer.js';
 import { selectRemoteComponents } from './remote-component-selector.js';
 import {
-  parseGitHubUrl,
+  parseRegistrySource,
   fetchRegistryJson,
 } from '../../utils/github-fetcher.js';
 import { getGitHubToken } from '../../utils/github-token.js';
@@ -61,6 +61,7 @@ export async function addCommand(components: string[], options?: AddOptions) {
       yes: options?.yes,
       cwd: options?.cwd,
       from: options?.from,
+      crossFramework: options?.crossFramework ?? false,
     });
 
     // 2. Load configuration (needed for checks)
@@ -150,11 +151,14 @@ async function addFromRemoteRegistry(
 ): Promise<void> {
   const fromUrl = resolveRegistrySource(options.from!, config);
 
-  // 1. Parse GitHub URL and resolve token
-  const source = parseGitHubUrl(fromUrl);
-  const token = await getGitHubToken();
-  if (token) {
-    source.token = token;
+  // 1. Parse the source (GitHub or local filesystem) and resolve a token
+  // for github sources only — local sources need no auth.
+  const source = parseRegistrySource(fromUrl, { baseDir: cwd });
+  if (source.kind === 'github') {
+    const token = await getGitHubToken();
+    if (token) {
+      source.token = token;
+    }
   }
 
   // 2. Fetch and validate registry
@@ -171,12 +175,25 @@ async function addFromRemoteRegistry(
   }
   spinner.stop(`Registry: ${registry.name}`);
 
-  // 3. Check framework compatibility
+  // 3. Check framework compatibility.
+  // The default flow throws on a mismatch — that's a useful safety net
+  // for the 99% of users who accidentally point at the wrong-framework
+  // registry. The `--cross-framework` opt-in flag downgrades this to a
+  // warning so the consumer can fetch and stage source-framework files
+  // for an agent-driven conversion (Phase 2 of feat/cross-framework-conversion).
   if (!registry.frameworks.includes(config.framework)) {
-    throw new FrameworkMismatchError(
-      registry.name,
-      registry.frameworks,
-      config.framework
+    if (!options.crossFramework) {
+      throw new FrameworkMismatchError(
+        registry.name,
+        registry.frameworks,
+        config.framework
+      );
+    }
+    output.warning(
+      `Registry "${registry.name}" targets ${registry.frameworks.join(', ')} ` +
+        `but this project uses ${config.framework}. Continuing because ` +
+        `--cross-framework is set; matching components will be staged into ` +
+        `.kigumi/foreign/ for conversion.`
     );
   }
 
@@ -311,17 +328,18 @@ function printSummary(
   output: import('../../output/types.js').OutputInterface,
   registryName?: string
 ): void {
-  const added = results.filter((r) => r.success && !r.skipped);
+  const installed = results.filter((r) => r.success && !r.skipped && !r.staged);
+  const staged = results.filter((r) => r.success && r.staged);
   const skipped = results.filter((r) => r.success && r.skipped);
   const failed = results.filter((r) => !r.success);
 
-  if (added.length > 0) {
+  if (installed.length > 0) {
     const source = registryName ? ` from ${registryName}` : '';
-    output.success(`Added ${added.length} component(s)${source}`);
+    output.success(`Added ${installed.length} component(s)${source}`);
 
     const importBase = resolveImportBase(config);
     if (config.framework === 'vue') {
-      const importList = added
+      const importList = installed
         .map(
           (r) =>
             `import ${r.name} from '${importBase}/${r.name}/${r.name}.vue';`
@@ -329,7 +347,7 @@ function printSummary(
         .join('\n');
       output.note('Import them', importList);
     } else {
-      const componentNames = added.map((r) => r.name).join(', ');
+      const componentNames = installed.map((r) => r.name).join(', ');
       output.note(
         'Import them',
         `import { ${componentNames} } from '${importBase}';`
@@ -337,8 +355,33 @@ function printSummary(
     }
   }
 
+  // Cross-framework: components staged for agent-driven conversion
+  if (staged.length > 0) {
+    const sourcePart = registryName ? ` from ${registryName}` : '';
+    output.success(
+      `Staged ${staged.length} component(s)${sourcePart} for cross-framework conversion`
+    );
+
+    const handoffLines: string[] = [];
+    for (const r of staged) {
+      handoffLines.push(
+        `${r.name} (${r.sourceFramework} → ${config.framework})`
+      );
+      handoffLines.push(`  Files at: ${r.stagedPath}`);
+      if (r.handoffPrompt) {
+        handoffLines.push(`  Ask Claude: "${r.handoffPrompt}"`);
+      }
+      handoffLines.push('');
+    }
+    // Trailing empty line is just a separator inside the note body
+    if (handoffLines[handoffLines.length - 1] === '') {
+      handoffLines.pop();
+    }
+    output.note('Convert with kigumi-cross-framework', handoffLines.join('\n'));
+  }
+
   // Show which components had local modifications that were overwritten
-  const overwrittenWithMods = added.filter(
+  const overwrittenWithMods = installed.filter(
     (r) => r.modifiedFiles && r.modifiedFiles.length > 0
   );
   if (overwrittenWithMods.length > 0) {
@@ -362,7 +405,8 @@ function printSummary(
     });
   }
 
-  output.outro(added.length > 0 ? '✓ Done' : 'No new components added');
+  const anySuccess = installed.length + staged.length > 0;
+  output.outro(anySuccess ? '✓ Done' : 'No new components added');
 }
 
 /**

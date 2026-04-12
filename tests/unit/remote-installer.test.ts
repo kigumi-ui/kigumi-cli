@@ -45,6 +45,7 @@ vi.mock('../../src/utils/registry-cache.js', () => ({
 // ---------------------------------------------------------------------------
 
 const testSource: GitHubRegistrySource = {
+  kind: 'github',
   owner: 'test-owner',
   repo: 'test-repo',
   branch: 'main',

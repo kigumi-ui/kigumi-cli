@@ -13,9 +13,13 @@ import type {
   CommunityRegistry,
   CommunityComponent,
 } from '../../schemas/community-registry.js';
-import type { GitHubRegistrySource } from '../../utils/github-fetcher.js';
+import type { RegistrySource } from '../../utils/github-fetcher.js';
 import { fetchFile } from '../../utils/github-fetcher.js';
 import { getRegistryCache } from '../../utils/registry-cache.js';
+import {
+  stageForeignFiles,
+  buildHandoffPrompt,
+} from '../../utils/foreign-files-staging.js';
 import { saveSnapshot } from '../../utils/snapshot.js';
 import { renderDiff } from '../../utils/diff-renderer.js';
 import {
@@ -38,13 +42,19 @@ export class RemoteComponentInstaller {
   constructor(
     private cwd: string,
     private config: KigumiConfig,
-    private source: GitHubRegistrySource,
+    private source: RegistrySource,
     private registry: CommunityRegistry,
     private output: OutputInterface
   ) {}
 
   /**
-   * Install multiple components from the remote registry
+   * Install multiple components from the remote registry.
+   *
+   * Per-component framework handling:
+   * - If `comp.files[targetFramework]` exists → install normally.
+   * - Else if `options.crossFramework` is true → stage source-framework
+   *   files into `.kigumi/foreign/<slug>/` for agent-driven conversion.
+   * - Else → throw the same per-component error as before.
    */
   async installComponents(
     componentNames: string[],
@@ -53,9 +63,17 @@ export class RemoteComponentInstaller {
     const framework = this.config.framework;
     const available = Object.keys(this.registry.components);
 
-    // Validate all component names exist
+    // Validate all component names exist and resolve their per-component
+    // framework strategy. We compute the strategy up front so the loop
+    // below doesn't have to re-derive it.
+    type Strategy =
+      | { kind: 'install' }
+      | { kind: 'stage'; sourceFramework: Framework };
+    const strategies = new Map<string, Strategy>();
+
     for (const name of componentNames) {
-      if (!this.registry.components[name]) {
+      const comp = this.registry.components[name];
+      if (!comp) {
         throw new CommunityComponentNotFoundError(
           name,
           this.registry.name,
@@ -63,36 +81,90 @@ export class RemoteComponentInstaller {
         );
       }
 
-      // Validate framework support
-      const comp = this.registry.components[name];
-      if (!(framework in comp.files)) {
+      if (framework in comp.files) {
+        strategies.set(name, { kind: 'install' });
+        continue;
+      }
+
+      if (!options.crossFramework) {
         throw new Error(
           `Component "${name}" does not support ${framework}. ` +
             `Available: ${Object.keys(comp.files).join(', ')}`
         );
       }
+
+      // crossFramework opt-in: pick a source framework. Prefer the
+      // registry's first declared framework if it's available for this
+      // component, otherwise the first key on `comp.files`.
+      const fileKeys = Object.keys(comp.files) as Framework[];
+      const preferred = this.registry.frameworks.find((f) =>
+        fileKeys.includes(f)
+      );
+      const sourceFramework = preferred ?? fileKeys[0];
+      strategies.set(name, { kind: 'stage', sourceFramework });
     }
 
-    // Resolve dependencies
-    const resolved = this.resolveDependencies(componentNames);
+    // Resolve dependencies (only for components being installed normally;
+    // staged-only components do not pull in transitive deps because the
+    // foreign files are not wired into the consumer's project tree).
+    const componentsToResolve = componentNames.filter(
+      (n) => strategies.get(n)?.kind === 'install'
+    );
+    const resolvedInstalls = this.resolveDependencies(componentsToResolve);
+    const stagedOnly = componentNames.filter(
+      (n) => strategies.get(n)?.kind === 'stage'
+    );
+    const resolved = [...resolvedInstalls, ...stagedOnly];
 
-    if (resolved.length > componentNames.length) {
-      const deps = resolved.filter((n) => !componentNames.includes(n));
+    if (resolvedInstalls.length > componentsToResolve.length) {
+      const deps = resolvedInstalls.filter(
+        (n) => !componentsToResolve.includes(n)
+      );
       this.output.info(
         `Resolving dependencies: ${deps.map((d) => pc.cyan(d)).join(', ')}`
       );
     }
 
-    // Install each component
+    // Install or stage each component
     const results: InstallResult[] = [];
 
     for (const componentKey of resolved) {
       const component = this.registry.components[componentKey];
+      // Dependencies pulled in by resolveDependencies are always installs;
+      // top-level entries can be either.
+      const strategy: Strategy = strategies.get(componentKey) ?? {
+        kind: 'install',
+      };
+
       const spinner = this.output.spinner(
-        `Adding ${pc.cyan(component.name)} from ${this.registry.name}...`
+        strategy.kind === 'stage'
+          ? `Staging ${pc.cyan(component.name)} from ${this.registry.name}...`
+          : `Adding ${pc.cyan(component.name)} from ${this.registry.name}...`
       );
 
       try {
+        if (strategy.kind === 'stage') {
+          const stageResult = await this.stageForeignComponent(
+            componentKey,
+            component,
+            strategy.sourceFramework,
+            framework
+          );
+          spinner.stop(
+            `${pc.cyan('⇢')} Staged ${pc.cyan(component.name)} ` +
+              pc.dim(`(${strategy.sourceFramework} → ${framework})`)
+          );
+          results.push({
+            name: component.name,
+            success: true,
+            staged: true,
+            sourceFramework: strategy.sourceFramework,
+            stagedPath: stageResult.stagedPath,
+            handoffPrompt: stageResult.handoffPrompt,
+          });
+          continue;
+        }
+
         const wasSkipped = await this.installComponent(
           componentKey,
           component,
@@ -114,7 +186,9 @@ export class RemoteComponentInstaller {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
         spinner.error(
-          `${pc.red('✗')} Failed to add ${pc.cyan(component.name)}`
+          `${pc.red('✗')} Failed to ${
+            strategy.kind === 'stage' ? 'stage' : 'add'
+          } ${pc.cyan(component.name)}`
         );
         results.push({
           name: component.name,
@@ -125,6 +199,42 @@ export class RemoteComponentInstaller {
     }
 
     return results;
+  }
+
+  /**
+   * Stage source-framework files into `.kigumi/foreign/<slug>/` for an
+   * agent-driven conversion. Used by the `--cross-framework` opt-in flow.
+   */
+  private async stageForeignComponent(
+    componentKey: string,
+    component: CommunityComponent,
+    sourceFramework: Framework,
+    targetFramework: Framework
+  ): Promise<{ stagedPath: string; handoffPrompt: string }> {
+    const files = component.files[sourceFramework];
+    if (!files) {
+      // Should never happen — strategies map guarantees this key exists.
+      throw new Error(
+        `Internal error: source framework ${sourceFramework} not found in ` +
+          `comp.files for "${componentKey}"`
+      );
+    }
+
+    const result = await stageForeignFiles({
+      cwd: this.cwd,
+      componentSlug: componentKey,
+      componentName: component.name,
+      source: this.source,
+      sourceFramework,
+      targetFramework,
+      files,
+      registryName: this.registry.name,
+    });
+
+    return {
+      stagedPath: result.stagedDir,
+      handoffPrompt: buildHandoffPrompt(componentKey, targetFramework),
+    };
   }
 
   /**
@@ -316,9 +426,17 @@ export class RemoteComponentInstaller {
   }
 
   /**
-   * Download content from remote without writing to disk
+   * Download content from a registry source without writing to disk.
+   *
+   * Local sources skip the cache entirely — the source files are
+   * already on disk, so caching them in `~/.kigumi/cache` would be
+   * redundant and would risk staleness.
    */
   private async downloadContent(remotePath: string): Promise<string> {
+    if (this.source.kind === 'local') {
+      return fetchFile(this.source, remotePath);
+    }
+
     let content = await this.cache.getFile(this.source, remotePath);
 
     if (!content) {
@@ -330,18 +448,25 @@ export class RemoteComponentInstaller {
   }
 
   /**
-   * Download a file, write it to the component directory, and return the content
+   * Download a file, write it to the component directory, and return the content.
+   *
+   * Local sources skip the cache (see `downloadContent`).
    */
   private async downloadAndWrite(
     remotePath: string,
     localDir: string
   ): Promise<string> {
-    // Check cache first
-    let content = await this.cache.getFile(this.source, remotePath);
+    let content: string | null = null;
+
+    if (this.source.kind === 'github') {
+      content = await this.cache.getFile(this.source, remotePath);
+    }
 
     if (!content) {
       content = await fetchFile(this.source, remotePath);
-      await this.cache.setFile(this.source, remotePath, content);
+      if (this.source.kind === 'github') {
+        await this.cache.setFile(this.source, remotePath, content);
+      }
     }
 
     const fileName = path.basename(remotePath);

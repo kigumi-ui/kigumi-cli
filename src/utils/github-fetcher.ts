@@ -1,10 +1,14 @@
 /**
- * GitHub Content Fetcher
+ * Registry Content Fetcher
  *
- * Fetches registry.json and component files from GitHub repositories
- * using the raw content API.
+ * Fetches registry.json and component files from registry sources.
+ * Supports GitHub repositories (via raw content API) and local
+ * filesystem paths (for sibling repos in monorepo / multi-repo setups).
  */
 
+import os from 'os';
+import path from 'path';
+import fs from 'fs-extra';
 import {
   type CommunityRegistry,
   validateCommunityRegistry,
@@ -15,6 +19,8 @@ import { GITHUB_RAW_BASE_URL } from '../constants.js';
  * Parsed GitHub registry source
  */
 export interface GitHubRegistrySource {
+  /** Discriminator for the union with LocalRegistrySource */
+  kind: 'github';
   /** Original URL */
   url: string;
   /** Repository owner */
@@ -28,12 +34,115 @@ export interface GitHubRegistrySource {
 }
 
 /**
+ * Parsed local filesystem registry source.
+ *
+ * Used for sibling repositories: e.g. when a Vue project at
+ * `/path/to/kigumi-vue` wants to consume a registry at
+ * `/path/to/kigumi-react`, the user can pass `../kigumi-react` to
+ * `kigumi registry connect` or `kigumi add --from`.
+ */
+export interface LocalRegistrySource {
+  /** Discriminator for the union with GitHubRegistrySource */
+  kind: 'local';
+  /**
+   * Resolved absolute path to the directory containing `registry.json`.
+   * Stored in `url` as well for display purposes and dedup keys.
+   */
+  url: string;
+  /** Resolved absolute path (same as `url` for local sources) */
+  absolutePath: string;
+}
+
+/**
+ * A parsed registry source — either remote GitHub or local filesystem.
+ */
+export type RegistrySource = GitHubRegistrySource | LocalRegistrySource;
+
+/**
+ * Detect whether an input string looks like a local filesystem path.
+ *
+ * Recognized prefixes: `./`, `../`, `/`, `~`. Anything else is treated
+ * as a (possibly schemeless) GitHub URL by `parseRegistrySource`.
+ */
+function isLocalPathInput(input: string): boolean {
+  const trimmed = input.trim();
+  return (
+    trimmed.startsWith('./') ||
+    trimmed.startsWith('../') ||
+    trimmed.startsWith('/') ||
+    trimmed === '.' ||
+    trimmed === '..' ||
+    trimmed.startsWith('~/') ||
+    trimmed === '~'
+  );
+}
+
+/**
+ * Resolve a local-path input to an absolute path.
+ *
+ * - `~` and `~/...` resolve against `os.homedir()`
+ * - Relative paths resolve against `baseDir` (default: `process.cwd()`)
+ * - Absolute paths pass through
+ */
+function resolveLocalPath(input: string, baseDir?: string): string {
+  const trimmed = input.trim();
+  if (trimmed === '~' || trimmed.startsWith('~/')) {
+    const rest = trimmed === '~' ? '' : trimmed.slice(2);
+    return path.join(os.homedir(), rest);
+  }
+  if (path.isAbsolute(trimmed)) {
+    return trimmed;
+  }
+  return path.resolve(baseDir ?? process.cwd(), trimmed);
+}
+
+/**
+ * Options accepted by `parseRegistrySource`.
+ */
+export interface ParseRegistrySourceOptions {
+  /**
+   * Directory used to resolve relative local paths. Defaults to
+   * `process.cwd()`. Pass an explicit value when the call site has
+   * its own working-directory context (e.g. `addCommand({ cwd })`).
+   */
+  baseDir?: string;
+}
+
+/**
+ * Parse a registry source string into a structured `RegistrySource`.
+ *
+ * Accepts:
+ * - GitHub URLs: `https://github.com/user/repo`,
+ *   `https://github.com/user/repo/tree/branch`, `github.com/user/repo`
+ * - Local paths: `./foo`, `../sibling`, `/abs/path`, `~/projects/foo`
+ *
+ * @throws Error if the input is neither a valid GitHub URL nor a
+ *   recognizable local path
+ */
+export function parseRegistrySource(
+  input: string,
+  options?: ParseRegistrySourceOptions
+): RegistrySource {
+  if (isLocalPathInput(input)) {
+    const absolutePath = resolveLocalPath(input, options?.baseDir);
+    return {
+      kind: 'local',
+      url: absolutePath,
+      absolutePath,
+    };
+  }
+  return parseGitHubUrl(input);
+}
+
+/**
  * Parse a GitHub URL into its components
  *
  * Supports formats:
  * - https://github.com/user/repo
  * - https://github.com/user/repo/tree/branch
  * - github.com/user/repo
+ *
+ * For local filesystem paths, prefer `parseRegistrySource`.
  *
  * @throws Error if URL is not a valid GitHub repository URL
  */
@@ -76,6 +185,7 @@ export function parseGitHubUrl(url: string): GitHubRegistrySource {
   }
 
   return {
+    kind: 'github',
     url: `https://github.com/${owner}/${repo}`,
     owner,
     repo,
@@ -95,16 +205,39 @@ export function buildRawUrl(
 }
 
 /**
- * Fetch a file from a GitHub repository
+ * Fetch a file from a registry source.
  *
- * @param source - GitHub registry source
- * @param filePath - Path relative to repo root
+ * - GitHub source: downloads via the raw content API
+ * - Local source: reads directly from the filesystem under `absolutePath`
+ *
+ * @param source - Registry source (GitHub or local filesystem)
+ * @param filePath - Path relative to the registry root
  * @returns File content as string
  */
 export async function fetchFile(
-  source: GitHubRegistrySource,
+  source: RegistrySource,
   filePath: string
 ): Promise<string> {
+  if (source.kind === 'local') {
+    const cleanPath = filePath.replace(/^\//, '');
+    const absoluteFilePath = path.join(source.absolutePath, cleanPath);
+    try {
+      return await fs.readFile(absoluteFilePath, 'utf-8');
+    } catch (error) {
+      const errno = error as NodeJS.ErrnoException;
+      if (errno.code === 'ENOENT') {
+        throw new Error(
+          `File not found: ${filePath} in ${source.absolutePath}`,
+          { cause: error }
+        );
+      }
+      throw new Error(
+        `Failed to read ${filePath} from ${source.absolutePath}: ${errno.message}`,
+        { cause: error }
+      );
+    }
+  }
+
   const url = buildRawUrl(source, filePath);
   const headers: Record<string, string> = {
     'User-Agent': 'kigumi-cli',
@@ -135,13 +268,13 @@ export async function fetchFile(
 }
 
 /**
- * Fetch and validate registry.json from a GitHub repository
+ * Fetch and validate registry.json from a registry source.
  *
- * @param source - GitHub registry source
+ * @param source - Registry source (GitHub or local filesystem)
  * @returns Validated community registry
  */
 export async function fetchRegistryJson(
-  source: GitHubRegistrySource
+  source: RegistrySource
 ): Promise<CommunityRegistry> {
   const content = await fetchFile(source, 'registry.json');
 

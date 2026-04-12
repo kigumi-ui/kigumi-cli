@@ -6,8 +6,9 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (68 files, 1089 tests)
+├── unit/                    # Fast, isolated tests (72 files, 1101 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
+│   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
 │   ├── brand-command.test.ts        # Brand color command
 │   ├── check-runner.test.ts         # Pre-flight check runner
@@ -43,8 +44,11 @@ tests/
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── regenerate.test.ts           # File regeneration utilities
 │   ├── remote-installer.test.ts     # Remote (community) component installer
+│   ├── remote-installer-cross-framework.test.ts # Cross-framework staging branch
+│   ├── remote-installer-local-source.test.ts    # Local filesystem registry source
 │   ├── registry.test.ts             # Component registry lookups
 │   ├── registry-cache.test.ts       # Disk cache for registries
+│   ├── registry-connect-command.test.ts   # Registry connect command (mismatch warning)
 │   ├── registry-init-command.test.ts      # Registry init command
 │   ├── registry-list-remove-command.test.ts # Registry list/remove
 │   ├── registry-validate-command.test.ts  # Registry validate command
@@ -298,4 +302,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-04
+**Last Updated:** 2026-04-08

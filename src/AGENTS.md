@@ -28,7 +28,7 @@ src/
 │   ├── registry/         # Community registry management
 │   │   ├── init.ts       # Scaffold new registry
 │   │   ├── validate.ts   # Validate registry.json
-│   │   ├── add-source.ts # Connect registry URL to config (registry connect)
+│   │   ├── add-source.ts # Connect registry URL or local path to config; downgrades framework mismatch to warning so consumers can later use --cross-framework
 │   │   ├── list-sources.ts # List connected registries
 │   │   ├── remove-source.ts # Remove registry from config
 │   │   ├── add-component.ts # Add component entry to registry.json
@@ -48,7 +48,8 @@ src/
 │   ├── template.ts       # Handlebars rendering
 │   ├── regenerate.ts     # Auto-generate kigumi.ts, theme.css
 │   ├── json.ts           # JSON with comments support
-│   ├── github-fetcher.ts # GitHub URL parsing + raw content fetch
+│   ├── github-fetcher.ts # Registry source parsing + fetch — accepts GitHub URLs and local filesystem paths via the RegistrySource union (parseGitHubUrl, fetchFile, fetchRegistryJson all branch on source.kind)
+│   ├── foreign-files-staging.ts # Stages source-framework files into .kigumi/foreign/<slug>/ with _meta.json for the kigumi-cross-framework skill (paired with kigumi add --cross-framework)
 │   ├── diff-renderer.ts  # Colored unified diff for terminal (node-diff3)
 │   ├── file-diff.ts      # Detect local modifications before overwriting
 │   ├── snapshot.ts       # Snapshot CRUD for .kigumi/snapshots/ (three-way merge base; also saved for community --from installs)
@@ -69,7 +70,7 @@ src/
 │       └── types.ts      # Registry type definitions
 ├── schemas/              # Zod validation schemas
 │   ├── config.ts         # KigumiConfig schema
-│   ├── options.ts        # Command options schemas
+│   ├── options.ts        # Command options schemas (addOptionsSchema includes crossFramework: boolean for --cross-framework)
 │   ├── community-registry.ts  # Community registry.json schema
 │   └── ...
 ├── errors/               # Typed error classes
@@ -272,6 +273,7 @@ if (previousTier !== newTier) {
 
 **Built-in flow:** Uses Handlebars templates + `ComponentInstaller`.
 **Remote flow (`--from`):** Downloads pre-rendered files via `RemoteComponentInstaller`, resolves internal dependencies (topological sort), tracks provenance in `config.installedComponents`.
+**Cross-framework flow (`--from <foreign> --cross-framework`):** When the registry's framework does not match the consumer project, `RemoteComponentInstaller` switches to `stageForeignComponent` (in `utils/foreign-files-staging.ts`) which writes the source-framework files into `.kigumi/foreign/<slug>/` along with a `_meta.json` (sourceFramework, targetFramework, registry provenance). `printSummary` then prints a "Convert with kigumi-cross-framework" hand-off block with the canonical Claude prompt. Component is marked `staged-for-conversion` in the install result and is NOT registered in `installedComponents`.
 
 **Auto-import:** After adding component, `updateKigumiImports()` adds:
 
@@ -392,4 +394,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-04
+**Last Updated:** 2026-04-08
