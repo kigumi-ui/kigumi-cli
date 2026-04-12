@@ -7,24 +7,13 @@ export const FlankDemo = ({ className, style }) => (
   <div
     className={className || 'wa-flank'}
     style={{
-      minWidth: '16em',
-      border: '2px solid var(--wa-color-surface-border)',
+      minWidth: '16rem',
+      border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
       ...style,
     }}
   >
-    <span
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        height: '1em',
-        width: '1em',
-      }}
-    />
-    <span
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-normal)',
-        height: '1em',
-      }}
-    />
+    <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem', width: '2rem' }} />
+    <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem' }} />
   </div>
 );
 
@@ -32,24 +21,13 @@ export const FlankDemoEnd = ({ className, style }) => (
   <div
     className={className || 'wa-flank:end'}
     style={{
-      minWidth: '16em',
-      border: '2px solid var(--wa-color-surface-border)',
+      minWidth: '16rem',
+      border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
       ...style,
     }}
   >
-    <span
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-normal)',
-        height: '1em',
-      }}
-    />
-    <span
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        height: '1em',
-        width: '1em',
-      }}
-    />
+    <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem' }} />
+    <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem', width: '2rem' }} />
   </div>
 );
 
@@ -69,13 +47,13 @@ export const FlankDemoEnd = ({ className, style }) => (
     columns={[
       { key: 'cls', header: 'Class' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-flank</code>,
         desc: 'First child flanks, second child fills remaining space',
-        example: <FlankDemo />,
+        preview: <FlankDemo />,
       },
     ]}
   />
@@ -95,18 +73,18 @@ export const FlankDemoEnd = ({ className, style }) => (
     columns={[
       { key: 'cls', header: 'Class' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-flank:start</code>,
         desc: 'First child flanks (default)',
-        example: <FlankDemo className="wa-flank:start" />,
+        preview: <FlankDemo className="wa-flank:start" />,
       },
       {
         cls: <code>.wa-flank:end</code>,
         desc: 'Last child flanks',
-        example: <FlankDemoEnd />,
+        preview: <FlankDemoEnd />,
       },
     ]}
   />
@@ -127,33 +105,23 @@ export const FlankDemoEnd = ({ className, style }) => (
     columns={[
       { key: 'property', header: 'Property' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         property: <code>--flank-size</code>,
         desc: 'Sets the target width of the flanking element',
-        example: (
+        preview: (
           <div
             className="wa-flank"
             style={{
               '--flank-size': '6rem',
-              minWidth: '16em',
-              border: '2px solid var(--wa-color-surface-border)',
+              minWidth: '16rem',
+              border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
             }}
           >
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                height: '1em',
-              }}
-            />
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-normal)',
-                height: '1em',
-              }}
-            />
+            <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem' }} />
+            <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem' }} />
           </div>
         ),
       },
@@ -165,184 +133,19 @@ export const FlankDemoEnd = ({ className, style }) => (
             <code>50%</code>)
           </>
         ),
-        example: (
+        preview: (
           <div
             className="wa-flank"
             style={{
               '--content-percentage': '70%',
-              minWidth: '16em',
-              border: '2px solid var(--wa-color-surface-border)',
+              minWidth: '16rem',
+              border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
             }}
           >
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                height: '1em',
-                width: '1em',
-              }}
-            />
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-normal)',
-                height: '1em',
-              }}
-            />
+            <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem', width: '2rem' }} />
+            <span style={{ backgroundColor: 'var(--wa-color-brand)', height: '2rem' }} />
           </div>
         ),
-      },
-    ]}
-  />
-</DocSection>
-
-<DocSection
-  title="Align Items"
-  description={
-    <>
-      Items are vertically centered by default. Add a{' '}
-      <code>.wa-align-items-*</code> class to change cross-axis alignment.
-    </>
-  }
->
-  <DocTable
-    columns={[
-      { key: 'cls', header: 'Class' },
-      { key: 'example', header: 'Examples' },
-    ]}
-    rows={[
-      {
-        cls: <code>.wa-align-items-start</code>,
-        example: (
-          <div
-            className="wa-flank wa-align-items-start"
-            style={{
-              minWidth: '16em',
-              minHeight: '3em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                height: '1em',
-                width: '1em',
-              }}
-            />
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-normal)',
-                height: '1em',
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-end</code>,
-        example: (
-          <div
-            className="wa-flank wa-align-items-end"
-            style={{
-              minWidth: '16em',
-              minHeight: '3em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                height: '1em',
-                width: '1em',
-              }}
-            />
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-normal)',
-                height: '1em',
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-center</code>,
-        example: (
-          <div
-            className="wa-flank wa-align-items-center"
-            style={{
-              minWidth: '16em',
-              minHeight: '3em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                height: '1em',
-                width: '1em',
-              }}
-            />
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-normal)',
-                height: '1em',
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-stretch</code>,
-        example: (
-          <div
-            className="wa-flank wa-align-items-stretch"
-            style={{
-              minWidth: '16em',
-              height: '3em',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <span
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                width: '1em',
-              }}
-            />
-            <span
-              style={{ backgroundColor: 'var(--wa-color-brand-fill-normal)' }}
-            />
-          </div>
-        ),
-      },
-    ]}
-  />
-</DocSection>
-
-<DocSection
-  title="Gap"
-  description={
-    <>
-      The default gap between flank items uses <code>--wa-space-m</code>. Add a{' '}
-      <code>.wa-gap-*</code> class to adjust.
-    </>
-  }
->
-  <DocTable
-    columns={[
-      { key: 'cls', header: 'Class' },
-      { key: 'example', header: 'Examples' },
-    ]}
-    rows={[
-      {
-        cls: <code>.wa-gap-2xs</code>,
-        example: <FlankDemo className="wa-flank wa-gap-2xs" />,
-      },
-      {
-        cls: <code>.wa-gap-m</code>,
-        example: <FlankDemo className="wa-flank wa-gap-m" />,
-      },
-      {
-        cls: <code>.wa-gap-2xl</code>,
-        example: <FlankDemo className="wa-flank wa-gap-2xl" />,
       },
     ]}
   />

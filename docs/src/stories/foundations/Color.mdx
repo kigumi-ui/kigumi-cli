@@ -1,0 +1,707 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { TokenTable } from '@/components/storybook/TokenTable';
+import { ColorSwatch } from '@/components/storybook/ColorSwatch';
+import { Preview } from '@/components/storybook/Preview';
+import { DocTable } from '@/components/storybook/DocTable';
+import { CodeBlock } from '@/components/CodeBlock';
+
+<Meta title="Foundations/Color" />
+
+export const meta = {
+  title: 'Foundations/Color',
+  tokens: [
+    '--wa-color-surface-default',
+    '--wa-color-surface-raised',
+    '--wa-color-surface-lowered',
+    '--wa-color-surface-border',
+    '--wa-color-text-normal',
+    '--wa-color-text-quiet',
+    '--wa-color-text-link',
+    '--wa-color-focus',
+    '--wa-color-shadow',
+    '--wa-color-overlay-modal',
+    '--wa-color-overlay-inline',
+    '--wa-color-mix-hover',
+    '--wa-color-mix-active',
+    '--wa-color-brand-fill-quiet',
+    '--wa-color-brand-fill-normal',
+    '--wa-color-brand-fill-loud',
+    '--wa-color-brand-border-quiet',
+    '--wa-color-brand-border-normal',
+    '--wa-color-brand-border-loud',
+    '--wa-color-brand-on-quiet',
+    '--wa-color-brand-on-normal',
+    '--wa-color-brand-on-loud',
+    '--wa-color-success-fill-quiet',
+    '--wa-color-success-fill-normal',
+    '--wa-color-success-fill-loud',
+    '--wa-color-success-border-quiet',
+    '--wa-color-success-border-normal',
+    '--wa-color-success-border-loud',
+    '--wa-color-success-on-quiet',
+    '--wa-color-success-on-normal',
+    '--wa-color-success-on-loud',
+    '--wa-color-neutral-fill-quiet',
+    '--wa-color-neutral-fill-normal',
+    '--wa-color-neutral-fill-loud',
+    '--wa-color-neutral-border-quiet',
+    '--wa-color-neutral-border-normal',
+    '--wa-color-neutral-border-loud',
+    '--wa-color-neutral-on-quiet',
+    '--wa-color-neutral-on-normal',
+    '--wa-color-neutral-on-loud',
+    '--wa-color-warning-fill-quiet',
+    '--wa-color-warning-fill-normal',
+    '--wa-color-warning-fill-loud',
+    '--wa-color-warning-border-quiet',
+    '--wa-color-warning-border-normal',
+    '--wa-color-warning-border-loud',
+    '--wa-color-warning-on-quiet',
+    '--wa-color-warning-on-normal',
+    '--wa-color-warning-on-loud',
+    '--wa-color-danger-fill-quiet',
+    '--wa-color-danger-fill-normal',
+    '--wa-color-danger-fill-loud',
+    '--wa-color-danger-border-quiet',
+    '--wa-color-danger-border-normal',
+    '--wa-color-danger-border-loud',
+    '--wa-color-danger-on-quiet',
+    '--wa-color-danger-on-normal',
+    '--wa-color-danger-on-loud',
+    '--wa-color-red',
+    '--wa-color-orange',
+    '--wa-color-yellow',
+    '--wa-color-green',
+    '--wa-color-cyan',
+    '--wa-color-blue',
+    '--wa-color-indigo',
+    '--wa-color-purple',
+    '--wa-color-pink',
+    '--wa-color-gray',
+  ],
+  classes: [
+    '.wa-brand',
+    '.wa-success',
+    '.wa-warning',
+    '.wa-danger',
+    '.wa-neutral',
+    '.wa-color-text-normal',
+    '.wa-color-text-quiet',
+    '.wa-color-text-link',
+    '.wa-light',
+    '.wa-dark',
+    '.wa-invert',
+  ],
+};
+
+export const ScopeChip = ({ strength = 'normal' }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: 'var(--wa-space-3xs) var(--wa-space-s)',
+      background: `var(--wa-color-fill-${strength})`,
+      color: `var(--wa-color-on-${strength})`,
+      border: `var(--wa-border-width-s) solid var(--wa-color-border-${strength})`,
+      borderRadius: 'var(--wa-border-radius-m)',
+      fontSize: 'var(--wa-font-size-2xs)',
+      fontWeight: 'var(--wa-font-weight-semibold)',
+      textTransform: 'uppercase',
+      letterSpacing: '0.03em',
+    }}
+  >
+    {strength}
+  </span>
+);
+
+export const ScopePreview = ({ className }) => (
+  <div
+    className={className}
+    style={{
+      display: 'inline-flex',
+      gap: 'var(--wa-space-xs)',
+    }}
+  >
+    <ScopeChip strength="quiet" />
+    <ScopeChip strength="normal" />
+    <ScopeChip strength="loud" />
+  </div>
+);
+
+export const TextSample = ({ className, children }) => (
+  <span className={className} style={{ fontSize: 'var(--wa-font-size-s)' }}>
+    {children}
+  </span>
+);
+
+export const SchemePanel = ({ className, label }) => (
+  <div
+    className={className}
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--wa-color-surface-default)',
+      color: 'var(--wa-color-text-normal)',
+      border: 'var(--wa-border-width-s) solid var(--wa-color-surface-border)',
+      borderRadius: 'var(--wa-border-radius-m)',
+      padding: 'var(--wa-space-xs) var(--wa-space-m)',
+      fontSize: 'var(--wa-font-size-xs)',
+      fontWeight: 'var(--wa-font-weight-semibold)',
+    }}
+  >
+    {label}
+  </div>
+);
+
+export const TextSwatch = ({ token }) => (
+  <span
+    style={{
+      color: `var(${token})`,
+      fontWeight: 'var(--wa-font-weight-semibold)',
+      fontSize: 'var(--wa-font-size-s)',
+    }}
+  >
+    Aa
+  </span>
+);
+
+export const FocusRing = () => (
+  <span
+    style={{
+      display: 'inline-block',
+      width: '2.5rem',
+      height: '1.5rem',
+      borderRadius: 'var(--wa-border-radius-m)',
+      border: 'var(--wa-border-width-m) solid var(--wa-color-focus)',
+    }}
+  />
+);
+
+export const MixSwatch = ({ base, mix }) => (
+  <span
+    style={{
+      display: 'inline-block',
+      width: '2.5rem',
+      height: '1.5rem',
+      borderRadius: 'var(--wa-border-radius-m)',
+      background: `color-mix(in srgb, ${base}, black ${mix}%)`,
+      border: 'var(--wa-border-width-s) solid var(--wa-color-surface-border)',
+    }}
+  />
+);
+
+<Unstyled>
+    <section className="wa-stack wa-gap-3xl">
+    <div className="wa-stack wa-gap-s">
+      <h1 className="wa-heading-2xl">Color</h1>
+
+    <div className="wa-stack wa-gap-s">
+      <p className="wa-body-l">
+        The colors in Kigumi are organized into two layers: utility classes and design tokens (CSS custom properties). The utility classes use the design tokens under the hood.
+      </p>
+      <p className="wa-body-l">
+        By default 10 different color palettes are available with eleven shades each. The shades range from <code>05</code> (darkest) through <code>95</code>{' '}
+        (lightest). The overview below shows each palette at its key step.
+      <Preview>
+        <div
+          className="wa-stack wa-gap-l"
+        >
+          <div className="wa-stack wa-gap-s">
+          <h3 className="wa-heading-xs">Red</h3>
+          <div className="wa-cluster">
+          <ColorSwatch token="--wa-color-red-95" label="95" />
+          <ColorSwatch token="--wa-color-red-90" label="90" />
+          <ColorSwatch token="--wa-color-red-80" label="80" />
+          <ColorSwatch token="--wa-color-red-70" label="70" />
+          <ColorSwatch token="--wa-color-red-60" label="60" />
+          <ColorSwatch token="--wa-color-red-50" label="50" />
+          <ColorSwatch token="--wa-color-red-40" label="40" />
+          <ColorSwatch token="--wa-color-red-30" label="30" />
+          <ColorSwatch token="--wa-color-red-20" label="20" />
+          <ColorSwatch token="--wa-color-red-10" label="10" />
+          <ColorSwatch token="--wa-color-red-05" label="05" />
+          </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+          <h3 className="wa-heading-xs">Orange</h3>
+          <div className="wa-cluster">
+          <ColorSwatch token="--wa-color-orange-95" label="95" />
+          <ColorSwatch token="--wa-color-orange-90" label="90" />
+          <ColorSwatch token="--wa-color-orange-80" label="80" />
+          <ColorSwatch token="--wa-color-orange-70" label="70" />
+          <ColorSwatch token="--wa-color-orange-60" label="60" />
+          <ColorSwatch token="--wa-color-orange-50" label="50" />
+          <ColorSwatch token="--wa-color-orange-40" label="40" />
+          <ColorSwatch token="--wa-color-orange-30" label="30" />
+          <ColorSwatch token="--wa-color-orange-20" label="20" />
+          <ColorSwatch token="--wa-color-orange-10" label="10" />
+          <ColorSwatch token="--wa-color-orange-05" label="05" />
+          </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Yellow</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-yellow-95" label="95" />
+              <ColorSwatch token="--wa-color-yellow-90" label="90" />
+              <ColorSwatch token="--wa-color-yellow-80" label="80" />
+              <ColorSwatch token="--wa-color-yellow-70" label="70" />
+              <ColorSwatch token="--wa-color-yellow-60" label="60" />
+              <ColorSwatch token="--wa-color-yellow-50" label="50" />
+              <ColorSwatch token="--wa-color-yellow-40" label="40" />
+              <ColorSwatch token="--wa-color-yellow-30" label="30" />
+              <ColorSwatch token="--wa-color-yellow-20" label="20" />
+              <ColorSwatch token="--wa-color-yellow-10" label="10" />
+              <ColorSwatch token="--wa-color-yellow-05" label="05" />
+            </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Green</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-green-95" label="95" />
+              <ColorSwatch token="--wa-color-green-90" label="90" />
+              <ColorSwatch token="--wa-color-green-80" label="80" />
+              <ColorSwatch token="--wa-color-green-70" label="70" />
+              <ColorSwatch token="--wa-color-green-60" label="60" />
+              <ColorSwatch token="--wa-color-green-50" label="50" />
+              <ColorSwatch token="--wa-color-green-40" label="40" />
+              <ColorSwatch token="--wa-color-green-30" label="30" />
+              <ColorSwatch token="--wa-color-green-20" label="20" />
+              <ColorSwatch token="--wa-color-green-10" label="10" />
+              <ColorSwatch token="--wa-color-green-05" label="05" />
+            </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Cyan</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-cyan-95" label="95" />
+              <ColorSwatch token="--wa-color-cyan-90" label="90" />
+              <ColorSwatch token="--wa-color-cyan-80" label="80" />
+              <ColorSwatch token="--wa-color-cyan-70" label="70" />
+              <ColorSwatch token="--wa-color-cyan-60" label="60" />
+              <ColorSwatch token="--wa-color-cyan-50" label="50" />
+              <ColorSwatch token="--wa-color-cyan-40" label="40" />
+              <ColorSwatch token="--wa-color-cyan-30" label="30" />
+              <ColorSwatch token="--wa-color-cyan-20" label="20" />
+              <ColorSwatch token="--wa-color-cyan-10" label="10" />
+              <ColorSwatch token="--wa-color-cyan-05" label="05" />
+            </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Blue</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-blue-95" label="95" />
+              <ColorSwatch token="--wa-color-blue-90" label="90" />
+              <ColorSwatch token="--wa-color-blue-80" label="80" />
+              <ColorSwatch token="--wa-color-blue-70" label="70" />
+              <ColorSwatch token="--wa-color-blue-60" label="60" />
+              <ColorSwatch token="--wa-color-blue-50" label="50" />
+              <ColorSwatch token="--wa-color-blue-40" label="40" />
+              <ColorSwatch token="--wa-color-blue-30" label="30" />
+              <ColorSwatch token="--wa-color-blue-20" label="20" />
+              <ColorSwatch token="--wa-color-blue-10" label="10" />
+              <ColorSwatch token="--wa-color-blue-05" label="05" />
+            </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Indigo</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-indigo-95" label="95" />
+              <ColorSwatch token="--wa-color-indigo-90" label="90" />
+              <ColorSwatch token="--wa-color-indigo-80" label="80" />
+              <ColorSwatch token="--wa-color-indigo-70" label="70" />
+              <ColorSwatch token="--wa-color-indigo-60" label="60" />
+              <ColorSwatch token="--wa-color-indigo-50" label="50" />
+              <ColorSwatch token="--wa-color-indigo-40" label="40" />
+              <ColorSwatch token="--wa-color-indigo-30" label="30" />
+              <ColorSwatch token="--wa-color-indigo-20" label="20" />
+              <ColorSwatch token="--wa-color-indigo-10" label="10" />
+              <ColorSwatch token="--wa-color-indigo-05" label="05" />
+            </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Purple</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-purple-95" label="95" />
+              <ColorSwatch token="--wa-color-purple-90" label="90" />
+              <ColorSwatch token="--wa-color-purple-80" label="80" />
+              <ColorSwatch token="--wa-color-purple-70" label="70" />
+              <ColorSwatch token="--wa-color-purple-60" label="60" />
+              <ColorSwatch token="--wa-color-purple-50" label="50" />
+              <ColorSwatch token="--wa-color-purple-40" label="40" />
+              <ColorSwatch token="--wa-color-purple-30" label="30" />
+              <ColorSwatch token="--wa-color-purple-20" label="20" />
+              <ColorSwatch token="--wa-color-purple-10" label="10" />
+              <ColorSwatch token="--wa-color-purple-05" label="05" />
+            </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Pink</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-pink-95" label="95" />
+              <ColorSwatch token="--wa-color-pink-90" label="90" />
+              <ColorSwatch token="--wa-color-pink-80" label="80" />
+              <ColorSwatch token="--wa-color-pink-70" label="70" />
+              <ColorSwatch token="--wa-color-pink-60" label="60" />
+              <ColorSwatch token="--wa-color-pink-50" label="50" />
+              <ColorSwatch token="--wa-color-pink-40" label="40" />
+              <ColorSwatch token="--wa-color-pink-30" label="30" />
+              <ColorSwatch token="--wa-color-pink-20" label="20" />
+              <ColorSwatch token="--wa-color-pink-10" label="10" />
+              <ColorSwatch token="--wa-color-pink-05" label="05" />
+            </div>
+          </div>
+          <div className="wa-stack wa-gap-s">
+            <h3 className="wa-heading-xs">Gray</h3>
+            <div className="wa-cluster">
+              <ColorSwatch token="--wa-color-gray-95" label="95" />
+              <ColorSwatch token="--wa-color-gray-90" label="90" />
+              <ColorSwatch token="--wa-color-gray-80" label="80" />
+              <ColorSwatch token="--wa-color-gray-70" label="70" />
+              <ColorSwatch token="--wa-color-gray-60" label="60" />
+              <ColorSwatch token="--wa-color-gray-50" label="50" />
+              <ColorSwatch token="--wa-color-gray-40" label="40" />
+              <ColorSwatch token="--wa-color-gray-30" label="30" />
+              <ColorSwatch token="--wa-color-gray-20" label="20" />
+              <ColorSwatch token="--wa-color-gray-10" label="10" />
+              <ColorSwatch token="--wa-color-gray-05" label="05" />
+            </div>
+          </div>
+
+        </div>
+      </Preview>
+      </p>
+    </div>
+
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Utility Classes</h2>
+      <p className="wa-body-l">
+        Apply these CSS classes in your markup to scope a subtree to a variant,
+        restyle its text, or force a color scheme. They do not need any
+        token overrides to work.
+      </p>
+    </div>
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Variant scopes</h3>
+      <p className="wa-body-l">
+        Place one of these on a container and every descendant will inherit the
+        variant's fill, border, and on tokens through the shared{' '}
+        <code>{`--wa-color-fill-*`}</code>,{' '}
+        <code>{`--wa-color-border-*`}</code>, and{' '}
+        <code>{`--wa-color-on-*`}</code> context tokens. The preview column
+        shows the scoped quiet, normal, and loud strengths side by side.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-brand</code>,
+            description: 'Primary brand actions, hero surfaces, marketing highlights',
+            preview: <ScopePreview className="wa-brand" />,
+          },
+          {
+            cls: <code>.wa-success</code>,
+            description: 'Confirmation states, positive metrics, success banners',
+            preview: <ScopePreview className="wa-success" />,
+          },
+          {
+            cls: <code>.wa-warning</code>,
+            description: 'Soft alerts, attention-needed states, quota nudges',
+            preview: <ScopePreview className="wa-warning" />,
+          },
+          {
+            cls: <code>.wa-danger</code>,
+            description: 'Destructive actions, errors, blocking validation',
+            preview: <ScopePreview className="wa-danger" />,
+          },
+          {
+            cls: <code>.wa-neutral</code>,
+            description: 'Quiet chrome, secondary actions, dense data tables',
+            preview: <ScopePreview className="wa-neutral" />,
+          },
+        ]}
+      />
+    </div>
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Text colors</h3>
+      <p className="wa-body-l">
+        Reach for these when body copy needs to step out of the inherited
+        default.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-color-text-normal</code>,
+            description: 'Default body text, the strongest foreground color',
+            preview: (
+              <TextSample className="wa-color-text-normal">
+                Normal body
+              </TextSample>
+            ),
+          },
+          {
+            cls: <code>.wa-color-text-quiet</code>,
+            description: 'Hints, captions, metadata, and any text that should recede',
+            preview: (
+              <TextSample className="wa-color-text-quiet">
+                Quiet caption
+              </TextSample>
+            ),
+          },
+          {
+            cls: <code>.wa-color-text-link</code>,
+            description: 'Inline links and interactive text',
+            preview: (
+              <TextSample className="wa-color-text-link">
+                Link text
+              </TextSample>
+            ),
+          },
+        ]}
+      />
+    </div>
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Color schemes</h3>
+      <p className="wa-body-l">
+        Pin a subtree to a specific light or dark rendering, or flip a
+        region relative to its parent. Useful for inverted hero sections
+        and docs that need a fixed scheme regardless of the reader's
+        system preference.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-light</code>,
+            description: 'Forces descendants to render in the light scheme',
+            preview: <SchemePanel className="wa-light" label="Light" />,
+          },
+          {
+            cls: <code>.wa-dark</code>,
+            description: 'Forces descendants to render in the dark scheme',
+            preview: <SchemePanel className="wa-dark" label="Dark" />,
+          },
+          {
+            cls: <code>.wa-invert</code>,
+            description: 'Flips the current scheme, without naming light or dark',
+            preview: <SchemePanel className="wa-invert" label="Invert" />,
+          },
+        ]}
+      />
+    </div>
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Design Tokens</h2>
+      <p className="wa-body-l">
+        Tokens are the theming layer: override any of them at{' '}
+        <code>:root</code> and every component that reads them updates at
+        once. All tokens sit under the <code>--wa-color-</code> prefix and
+        group into variant roles, context tokens, and a raw palette that
+        feeds both.
+      </p>
+    </div>
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Variant roles</h3>
+      <p className="wa-body-l">
+        Each variant exposes three parts (fill, border, on) crossed with
+        three strengths (quiet, normal, loud), for 45 tokens in total. The
+        rows below pivot that grid: one row per role, one column per
+        variant. The variant scoping classes above alias the active
+        variant into the shared <code>{`--wa-color-*`}</code> context
+        tokens that components actually read.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'prop', header: 'Variable' },
+          { key: 'brand', header: 'brand' },
+          { key: 'success', header: 'success' },
+          { key: 'neutral', header: 'neutral' },
+          { key: 'warning', header: 'warning' },
+          { key: 'danger', header: 'danger' },
+        ]}
+        rows={[
+          {
+            prop: <code>--wa-color-*-fill-quiet</code>,
+            brand: <ColorSwatch token="--wa-color-brand-fill-quiet" />,
+            success: <ColorSwatch token="--wa-color-success-fill-quiet" />,
+            neutral: <ColorSwatch token="--wa-color-neutral-fill-quiet" />,
+            warning: <ColorSwatch token="--wa-color-warning-fill-quiet" />,
+            danger: <ColorSwatch token="--wa-color-danger-fill-quiet" />,
+          },
+          {
+            prop: <code>--wa-color-*-fill-normal</code>,
+            brand: <ColorSwatch token="--wa-color-brand-fill-normal" />,
+            success: <ColorSwatch token="--wa-color-success-fill-normal" />,
+            neutral: <ColorSwatch token="--wa-color-neutral-fill-normal" />,
+            warning: <ColorSwatch token="--wa-color-warning-fill-normal" />,
+            danger: <ColorSwatch token="--wa-color-danger-fill-normal" />,
+          },
+          {
+            prop: <code>--wa-color-*-fill-loud</code>,
+            brand: <ColorSwatch token="--wa-color-brand-fill-loud" />,
+            success: <ColorSwatch token="--wa-color-success-fill-loud" />,
+            neutral: <ColorSwatch token="--wa-color-neutral-fill-loud" />,
+            warning: <ColorSwatch token="--wa-color-warning-fill-loud" />,
+            danger: <ColorSwatch token="--wa-color-danger-fill-loud" />,
+          },
+          {
+            prop: <code>--wa-color-*-border-quiet</code>,
+            brand: <ColorSwatch token="--wa-color-brand-border-quiet" />,
+            success: <ColorSwatch token="--wa-color-success-border-quiet" />,
+            neutral: <ColorSwatch token="--wa-color-neutral-border-quiet" />,
+            warning: <ColorSwatch token="--wa-color-warning-border-quiet" />,
+            danger: <ColorSwatch token="--wa-color-danger-border-quiet" />,
+          },
+          {
+            prop: <code>--wa-color-*-border-normal</code>,
+            brand: <ColorSwatch token="--wa-color-brand-border-normal" />,
+            success: <ColorSwatch token="--wa-color-success-border-normal" />,
+            neutral: <ColorSwatch token="--wa-color-neutral-border-normal" />,
+            warning: <ColorSwatch token="--wa-color-warning-border-normal" />,
+            danger: <ColorSwatch token="--wa-color-danger-border-normal" />,
+          },
+          {
+            prop: <code>--wa-color-*-border-loud</code>,
+            brand: <ColorSwatch token="--wa-color-brand-border-loud" />,
+            success: <ColorSwatch token="--wa-color-success-border-loud" />,
+            neutral: <ColorSwatch token="--wa-color-neutral-border-loud" />,
+            warning: <ColorSwatch token="--wa-color-warning-border-loud" />,
+            danger: <ColorSwatch token="--wa-color-danger-border-loud" />,
+          },
+          {
+            prop: <code>--wa-color-*-on-quiet</code>,
+            brand: <TextSwatch token="--wa-color-brand-on-quiet" />,
+            success: <TextSwatch token="--wa-color-success-on-quiet" />,
+            neutral: <TextSwatch token="--wa-color-neutral-on-quiet" />,
+            warning: <TextSwatch token="--wa-color-warning-on-quiet" />,
+            danger: <TextSwatch token="--wa-color-danger-on-quiet" />,
+          },
+          {
+            prop: <code>--wa-color-*-on-normal</code>,
+            brand: <TextSwatch token="--wa-color-brand-on-normal" />,
+            success: <TextSwatch token="--wa-color-success-on-normal" />,
+            neutral: <TextSwatch token="--wa-color-neutral-on-normal" />,
+            warning: <TextSwatch token="--wa-color-warning-on-normal" />,
+            danger: <TextSwatch token="--wa-color-danger-on-normal" />,
+          },
+          {
+            prop: <code>--wa-color-*-on-loud</code>,
+            brand: <TextSwatch token="--wa-color-brand-on-loud" />,
+            success: <TextSwatch token="--wa-color-success-on-loud" />,
+            neutral: <TextSwatch token="--wa-color-neutral-on-loud" />,
+            warning: <TextSwatch token="--wa-color-warning-on-loud" />,
+            danger: <TextSwatch token="--wa-color-danger-on-loud" />,
+          },
+        ]}
+      />
+    </div>
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Context tokens</h3>
+      <p className="wa-body-l">
+        Surface, text, focus, shadow, overlay, and mix tokens build the
+        page chrome around the variant roles. They behave as global
+        singletons: override one at <code>:root</code> and every component
+        that reads it picks up the change.
+      </p>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-color-surface-default',
+            value: 'white',
+            description: 'Page background behind everything else',
+            preview: <ColorSwatch token="--wa-color-surface-default" />,
+          },
+          {
+            name: '--wa-color-surface-raised',
+            value: 'white',
+            description: 'Cards, popovers, and anything lifted off the page',
+            preview: <ColorSwatch token="--wa-color-surface-raised" />,
+          },
+          {
+            name: '--wa-color-surface-lowered',
+            value: 'var(--wa-color-neutral-95)',
+            description: 'Inset wells, quiet section backgrounds',
+            preview: <ColorSwatch token="--wa-color-surface-lowered" />,
+          },
+          {
+            name: '--wa-color-surface-border',
+            value: 'var(--wa-color-neutral-90)',
+            description: 'Hairline rules that separate surfaces',
+            preview: <ColorSwatch token="--wa-color-surface-border" />,
+          },
+          {
+            name: '--wa-color-text-normal',
+            value: 'var(--wa-color-neutral-10)',
+            description: 'Default body text, the strongest foreground',
+            preview: <TextSwatch token="--wa-color-text-normal" />,
+          },
+          {
+            name: '--wa-color-text-quiet',
+            value: 'var(--wa-color-neutral-40)',
+            description: 'Captions, hints, metadata, and disabled hints',
+            preview: <TextSwatch token="--wa-color-text-quiet" />,
+          },
+          {
+            name: '--wa-color-text-link',
+            value: 'var(--wa-color-brand-40)',
+            description: 'Inline links and interactive text',
+            preview: <TextSwatch token="--wa-color-text-link" />,
+          },
+          {
+            name: '--wa-color-focus',
+            value: 'var(--wa-color-brand-60)',
+            description: 'Focus ring paint used by every interactive element',
+            preview: <FocusRing />,
+          },
+          {
+            name: '--wa-color-shadow',
+            value: 'derived from neutral-05',
+            description: 'Shared shadow color behind every elevation token',
+            preview: <ColorSwatch token="--wa-color-shadow" />,
+          },
+          {
+            name: '--wa-color-overlay-modal',
+            value: 'neutral-05 at 50%',
+            description: 'Scrim behind modal dialogs and drawers',
+            preview: <ColorSwatch token="--wa-color-overlay-modal" />,
+          },
+          {
+            name: '--wa-color-overlay-inline',
+            value: 'neutral-80 at 25%',
+            description: 'Backdrop for dropdowns, menus, and quick pickers',
+            preview: <ColorSwatch token="--wa-color-overlay-inline" />,
+          },
+          {
+            name: '--wa-color-mix-hover',
+            value: 'black 10%',
+            description: 'Amount a fill darkens on hover',
+            preview: <MixSwatch base="var(--wa-color-brand-fill-normal)" mix={10} />,
+          },
+          {
+            name: '--wa-color-mix-active',
+            value: 'black 20%',
+            description: 'Amount a fill darkens while pressed or active',
+            preview: <MixSwatch base="var(--wa-color-brand-fill-normal)" mix={20} />,
+          },
+        ]}
+      />
+    </div>
+
+  </section>
+
+</Unstyled>

@@ -1,0 +1,382 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { DocTable } from '@/components/storybook/DocTable';
+import { Preview } from '@/components/storybook/Preview';
+import { CodeBlock } from '@/components/CodeBlock';
+
+<Meta title="Foundations/Native Elements" />
+
+export const meta = {
+  title: 'Foundations/Native Elements',
+  tokens: [],
+  classes: [
+    '.wa-button',
+    '.wa-filled',
+    '.wa-outlined',
+    '.wa-plain',
+    '.wa-accent',
+    '.wa-pill',
+    '.wa-size-s',
+    '.wa-size-m',
+    '.wa-size-l',
+    '.wa-zebra-rows',
+    '.wa-hover-rows',
+  ],
+};
+
+<Unstyled>
+  <section className="wa-stack wa-gap-3xl">
+    <div className="wa-stack wa-gap-s">
+      <h1 className="wa-heading-2xl">Native Elements</h1>
+      <p className="wa-body-l">
+        Native HTML elements come pre-styled out of the box. Headings,
+        paragraphs, lists, links, tables, code blocks, and form controls
+        all line up with the rest of the system without any extra classes.
+        A small set of modifier classes adjusts button appearance, table
+        rows, and element size.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Headings</h2>
+      <p className="wa-body-l">
+        <code>{'<h1>'}</code> through <code>{'<h6>'}</code> use the
+        heading family, heading weight, condensed line height, and{' '}
+        <code>text-wrap: balance</code>.
+      </p>
+      <Preview>
+        <div className="wa-stack wa-gap-xs">
+          <h1>Heading 1</h1>
+          <h2>Heading 2</h2>
+          <h3>Heading 3</h3>
+          <h4>Heading 4</h4>
+          <h5>Heading 5</h5>
+          <h6>Heading 6</h6>
+        </div>
+      </Preview>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Block text</h2>
+      <p className="wa-body-l">
+        Paragraphs use <code>text-wrap: pretty</code>. Blockquotes switch
+        to the longform family with a leading border. Inline formatting
+        elements (<code>{'<strong>'}</code>, <code>{'<em>'}</code>,{' '}
+        <code>{'<mark>'}</code>, <code>{'<del>'}</code>,{' '}
+        <code>{'<ins>'}</code>) are styled with appropriate colors and
+        decorations.
+      </p>
+      <Preview>
+        <div className="wa-stack wa-gap-m">
+          <p>
+            Paragraphs flow with comfortable line height and inherit the body
+            family. <strong>Strong</strong> text bolds, <em>emphasis</em>{' '}
+            italicizes, <mark>marks</mark> highlight, <del>deletions</del>{' '}
+            strike through, <ins>insertions</ins> underline, and{' '}
+            <a href="#" onClick={(e) => e.preventDefault()}>
+              links
+            </a>{' '}
+            use the link color.
+          </p>
+          <blockquote>
+            Blockquotes use the longform family and a left border to set
+            themselves off from the surrounding text.
+          </blockquote>
+          <hr />
+        </div>
+      </Preview>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Lists</h2>
+      <p className="wa-body-l">
+        Unordered and ordered lists use the body family, default markers,
+        and consistent indentation. Nested lists indent automatically.
+      </p>
+      <Preview>
+        <div className="wa-stack wa-gap-m">
+          <ul>
+            <li>Unordered list item</li>
+            <li>
+              Second item with a nested list
+              <ul>
+                <li>Nested item one</li>
+                <li>Nested item two</li>
+              </ul>
+            </li>
+            <li>Third item</li>
+          </ul>
+          <ol>
+            <li>Ordered list item</li>
+            <li>Second item</li>
+            <li>Third item</li>
+          </ol>
+        </div>
+      </Preview>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Code</h2>
+      <p className="wa-body-l">
+        Inline <code>{'<code>'}</code>, <code>{'<samp>'}</code>, and{' '}
+        <code>{'<kbd>'}</code> share the monospace family. Block{' '}
+        <code>{'<pre>'}</code> adds a quiet background and horizontal
+        overflow scrolling.
+      </p>
+      <Preview>
+        <div className="wa-stack wa-gap-m">
+          <p>
+            Inline <code>code</code>, <samp>sample output</samp>, and{' '}
+            <kbd>Ctrl+K</kbd> keyboard shortcuts.
+          </p>
+          <pre>
+            <code>{`function greet(name) {
+  return 'Hello ' + name;
+}`}</code>
+          </pre>
+        </div>
+      </Preview>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Tables</h2>
+      <p className="wa-body-l">
+        Tables are full-width with collapsed borders. Two modifier classes
+        add zebra striping and hover highlights. They combine freely.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-zebra-rows</code>,
+            description: 'Alternating row background on odd rows',
+          },
+          {
+            cls: <code>.wa-hover-rows</code>,
+            description: 'Highlights the row under the pointer',
+          },
+        ]}
+      />
+      <Preview>
+        <table className="wa-zebra-rows wa-hover-rows">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alex</td>
+              <td>Designer</td>
+              <td>Active</td>
+            </tr>
+            <tr>
+              <td>Sam</td>
+              <td>Engineer</td>
+              <td>Active</td>
+            </tr>
+            <tr>
+              <td>Pat</td>
+              <td>Researcher</td>
+              <td>Away</td>
+            </tr>
+          </tbody>
+        </table>
+      </Preview>
+      <CodeBlock
+        multiline
+        value={`<table class="wa-zebra-rows wa-hover-rows">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Alex</td><td>Designer</td><td>Active</td></tr>
+    <tr><td>Sam</td><td>Engineer</td><td>Active</td></tr>
+  </tbody>
+</table>`}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Buttons</h2>
+      <p className="wa-body-l">
+        Native <code>{'<button>'}</code> elements come pre-styled with a
+        filled loud background. Appearance, color variant, size, and shape
+        classes combine freely. Apply <code>.wa-button</code> to anchors
+        to give them button styling.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-filled</code>,
+            description: 'Normal fill background for secondary actions',
+            preview: <button className="wa-filled">Filled</button>,
+          },
+          {
+            cls: <code>.wa-outlined</code>,
+            description: 'Transparent background with a visible border',
+            preview: <button className="wa-outlined">Outlined</button>,
+          },
+          {
+            cls: <code>.wa-plain</code>,
+            description: 'No background or border, fills only on hover',
+            preview: <button className="wa-plain">Plain</button>,
+          },
+          {
+            cls: <code>.wa-accent</code>,
+            description: 'Loud fill for primary call-to-action',
+            preview: <button className="wa-accent">Accent</button>,
+          },
+          {
+            cls: <code>.wa-pill</code>,
+            description: 'Rounded to a pill shape',
+            preview: <button className="wa-pill">Pill</button>,
+          },
+          {
+            cls: <code>.wa-button</code>,
+            description: 'Button styling for anchors and other elements',
+            preview: (
+              <a className="wa-button" href="#" onClick={(e) => e.preventDefault()}>
+                Anchor
+              </a>
+            ),
+          },
+        ]}
+      />
+      <p className="wa-body-l">
+        Combine appearance with a variant class to shift the color scheme.
+      </p>
+      <Preview>
+        <div className="wa-cluster wa-gap-s">
+          <button className="wa-accent wa-brand">Brand</button>
+          <button className="wa-accent wa-success">Success</button>
+          <button className="wa-accent wa-warning">Warning</button>
+          <button className="wa-accent wa-danger">Danger</button>
+          <button className="wa-accent wa-neutral">Neutral</button>
+        </div>
+      </Preview>
+      <CodeBlock
+        multiline
+        value={`<!-- Appearance + variant color -->
+<button class="wa-accent wa-brand">Brand</button>
+<button class="wa-outlined wa-danger">Delete</button>
+
+<!-- Pill shape + size -->
+<button class="wa-accent wa-pill wa-size-l">Sign up</button>
+
+<!-- Anchor as button -->
+<a href="/docs" class="wa-button wa-outlined">Read more</a>`}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Size modifiers</h2>
+      <p className="wa-body-l">
+        Size classes set <code>font-size</code> on any element.
+        Components built with <code>em</code> units (buttons, inputs)
+        scale their height and padding proportionally.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'token', header: 'Token' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-size-s</code>,
+            token: <code>--wa-font-size-s</code>,
+            preview: <button className="wa-size-s">Small</button>,
+          },
+          {
+            cls: <code>.wa-size-m</code>,
+            token: <code>--wa-font-size-m</code>,
+            preview: <button className="wa-size-m">Medium</button>,
+          },
+          {
+            cls: <code>.wa-size-l</code>,
+            token: <code>--wa-font-size-l</code>,
+            preview: <button className="wa-size-l">Large</button>,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Forms</h2>
+      <p className="wa-body-l">
+        Text inputs, selects, and textareas are full-width and respect
+        the form control tokens. Wrap an input in a{' '}
+        <code>{'<label>'}</code> to auto-size the label and add spacing.
+        Checkboxes and radios use custom indicators that follow{' '}
+        <code>--wa-form-control-activated-color</code>.
+      </p>
+      <Preview>
+        <div className="wa-stack wa-gap-m" style={{ maxWidth: '24rem' }}>
+          <label>
+            Name
+            <input type="text" placeholder="Jane Doe" />
+          </label>
+          <label>
+            Role
+            <select>
+              <option>Designer</option>
+              <option>Engineer</option>
+              <option>Researcher</option>
+            </select>
+          </label>
+          <label>
+            Bio
+            <textarea rows={3} placeholder="Tell us about yourself" />
+          </label>
+          <div className="wa-cluster wa-gap-l">
+            <label>
+              <input type="checkbox" defaultChecked /> Remember me
+            </label>
+            <label>
+              <input type="radio" name="plan" defaultChecked /> Free
+            </label>
+            <label>
+              <input type="radio" name="plan" /> Pro
+            </label>
+          </div>
+        </div>
+      </Preview>
+      <p className="wa-body-l">
+        Inputs accept the same appearance and size modifiers as buttons.
+      </p>
+      <Preview>
+        <div className="wa-stack wa-gap-m" style={{ maxWidth: '24rem' }}>
+          <input type="text" className="wa-filled" placeholder=".wa-filled" />
+          <input type="text" className="wa-outlined" placeholder=".wa-outlined" />
+          <input type="text" className="wa-pill" placeholder=".wa-pill" />
+        </div>
+      </Preview>
+      <CodeBlock
+        multiline
+        value={`<!-- Label wrapping auto-sizes and spaces the input -->
+<label>
+  Email
+  <input type="email" placeholder="you@example.com" />
+</label>
+
+<!-- Appearance modifiers work on inputs too -->
+<input type="text" class="wa-filled" placeholder="Filled input" />
+<input type="text" class="wa-pill wa-size-l" placeholder="Large pill" />`}
+      />
+    </div>
+  </section>
+</Unstyled>

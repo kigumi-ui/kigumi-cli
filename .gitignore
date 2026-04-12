@@ -22,3 +22,7 @@ docs/public/.well-known/skills/
 
 # Maintenance-only audit utilities (not for distribution)
 audit/
+
+# Implementation plans are scratch state, discarded after execution.
+# Specs in docs/superpowers/specs/ remain the canonical reference.
+docs/superpowers/plans/*.md

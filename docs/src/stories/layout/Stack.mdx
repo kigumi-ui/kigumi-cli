@@ -8,31 +8,13 @@ export const StackBars = ({ className, style }) => (
     className={className || 'wa-stack'}
     style={{
       maxWidth: '200px',
-      border: '2px solid var(--wa-color-surface-border)',
+      border: '1px solid var(--wa-color-surface-border)', borderRadius: 'var(--wa-border-radius-m)',
       ...style,
     }}
   >
-    <div
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '100%',
-        height: '1em',
-      }}
-    />
-    <div
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '80%',
-        height: '1em',
-      }}
-    />
-    <div
-      style={{
-        backgroundColor: 'var(--wa-color-brand-fill-loud)',
-        width: '60%',
-        height: '1em',
-      }}
-    />
+    <div style={{ backgroundColor: 'var(--wa-color-brand)', width: '100%', height: '2rem' }} />
+    <div style={{ backgroundColor: 'var(--wa-color-brand)', width: '80%', height: '2rem' }} />
+    <div style={{ backgroundColor: 'var(--wa-color-brand)', width: '60%', height: '2rem' }} />
   </div>
 );
 
@@ -52,170 +34,13 @@ export const StackBars = ({ className, style }) => (
     columns={[
       { key: 'cls', header: 'Class' },
       { key: 'desc', header: 'Description' },
-      { key: 'example', header: 'Examples' },
+      { key: 'preview', header: 'Preview' },
     ]}
     rows={[
       {
         cls: <code>.wa-stack</code>,
         desc: 'Vertical flex column with default gap',
-        example: <StackBars />,
-      },
-    ]}
-  />
-</DocSection>
-
-<DocSection
-  title="Align Items"
-  description={
-    <>
-      Items stretch to fill the inline width by default. Add a{' '}
-      <code>.wa-align-items-*</code> class to change how items align
-      horizontally within the stack.
-    </>
-  }
->
-  <DocTable
-    columns={[
-      { key: 'cls', header: 'Class' },
-      { key: 'example', header: 'Examples' },
-    ]}
-    rows={[
-      {
-        cls: <code>.wa-align-items-start</code>,
-        example: (
-          <div
-            className="wa-stack wa-align-items-start"
-            style={{
-              maxWidth: '200px',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '4rem',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '8rem',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '6rem',
-                height: '1em',
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-center</code>,
-        example: (
-          <div
-            className="wa-stack wa-align-items-center"
-            style={{
-              maxWidth: '200px',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '4rem',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '8rem',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '6rem',
-                height: '1em',
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-end</code>,
-        example: (
-          <div
-            className="wa-stack wa-align-items-end"
-            style={{
-              maxWidth: '200px',
-              border: '2px solid var(--wa-color-surface-border)',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '4rem',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '8rem',
-                height: '1em',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'var(--wa-color-brand-fill-loud)',
-                minInlineSize: '6rem',
-                height: '1em',
-              }}
-            />
-          </div>
-        ),
-      },
-      {
-        cls: <code>.wa-align-items-stretch</code>,
-        example: <StackBars className="wa-stack wa-align-items-stretch" />,
-      },
-    ]}
-  />
-</DocSection>
-
-<DocSection
-  title="Gap"
-  description={
-    <>
-      The default gap between stacked items uses <code>--wa-space-m</code>. Add
-      a <code>.wa-gap-*</code> class to adjust the vertical spacing.
-    </>
-  }
->
-  <DocTable
-    columns={[
-      { key: 'cls', header: 'Class' },
-      { key: 'example', header: 'Examples' },
-    ]}
-    rows={[
-      {
-        cls: <code>.wa-gap-2xs</code>,
-        example: <StackBars className="wa-stack wa-gap-2xs" />,
-      },
-      {
-        cls: <code>.wa-gap-m</code>,
-        example: <StackBars className="wa-stack wa-gap-m" />,
-      },
-      {
-        cls: <code>.wa-gap-2xl</code>,
-        example: <StackBars className="wa-stack wa-gap-2xl" />,
+        preview: <StackBars />,
       },
     ]}
   />

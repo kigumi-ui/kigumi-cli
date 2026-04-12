@@ -1,0 +1,360 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { TokenTable } from '@/components/storybook/TokenTable';
+import { Preview } from '@/components/storybook/Preview';
+import { Input, Card, Tooltip } from '@/components/ui';
+
+<Meta title="Foundations/Component Tokens" />
+
+export const meta = {
+  title: 'Foundations/Component Tokens',
+  tokens: [
+    '--wa-form-control-background-color',
+    '--wa-form-control-border-color',
+    '--wa-form-control-border-style',
+    '--wa-form-control-border-width',
+    '--wa-form-control-border-radius',
+    '--wa-form-control-activated-color',
+    '--wa-form-control-label-color',
+    '--wa-form-control-label-font-weight',
+    '--wa-form-control-label-line-height',
+    '--wa-form-control-value-color',
+    '--wa-form-control-value-font-weight',
+    '--wa-form-control-value-line-height',
+    '--wa-form-control-hint-color',
+    '--wa-form-control-hint-font-weight',
+    '--wa-form-control-hint-line-height',
+    '--wa-form-control-placeholder-color',
+    '--wa-form-control-required-content',
+    '--wa-form-control-required-content-color',
+    '--wa-form-control-required-content-offset',
+    '--wa-form-control-padding-block',
+    '--wa-form-control-padding-inline',
+    '--wa-form-control-height',
+    '--wa-form-control-toggle-size',
+    '--wa-panel-border-style',
+    '--wa-panel-border-width',
+    '--wa-panel-border-radius',
+    '--wa-tooltip-arrow-size',
+    '--wa-tooltip-background-color',
+    '--wa-tooltip-border-color',
+    '--wa-tooltip-border-style',
+    '--wa-tooltip-border-width',
+    '--wa-tooltip-border-radius',
+    '--wa-tooltip-content-color',
+    '--wa-tooltip-font-size',
+    '--wa-tooltip-line-height',
+  ],
+  classes: [],
+};
+
+<Unstyled>
+  <section className="wa-stack wa-gap-3xl">
+    <div className="wa-stack wa-gap-s">
+      <h1 className="wa-heading-2xl">Component Tokens</h1>
+      <p className="wa-body-l">
+        Component tokens scope styling decisions to a single component
+        family. Form controls, panels, and tooltips each expose their own
+        set so brands can tune one family without touching the global
+        scale or affecting unrelated components. Override any of them at{' '}
+        <code>:root</code>.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Form controls</h2>
+      <p className="wa-body-l">
+        These tokens are shared by every form control: inputs, selects,
+        checkboxes, radios, and textareas. Label, value, hint, and
+        placeholder each have their own color, weight, and line height.
+      </p>
+      <Preview>
+        <div style={{ maxWidth: '20rem' }}>
+          <Input
+            label="Email address"
+            placeholder="you@example.com"
+            hint="We never share your address."
+          />
+        </div>
+      </Preview>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Border and shape</h3>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-form-control-background-color',
+            value: 'var(--wa-color-surface-default)',
+            description: 'Background fill of the control body',
+          },
+          {
+            name: '--wa-form-control-border-color',
+            value: 'var(--wa-color-neutral-border-loud)',
+            description: 'Border color in the resting state',
+          },
+          {
+            name: '--wa-form-control-border-style',
+            value: 'var(--wa-border-style)',
+            description: 'Border line style',
+          },
+          {
+            name: '--wa-form-control-border-width',
+            value: 'var(--wa-border-width-s)',
+            description: 'Border thickness',
+          },
+          {
+            name: '--wa-form-control-border-radius',
+            value: 'var(--wa-border-radius-m)',
+            description: 'Corner radius',
+          },
+          {
+            name: '--wa-form-control-activated-color',
+            value: 'var(--wa-color-brand-fill-loud)',
+            description: 'Checked, selected, and focused state color',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Label</h3>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-form-control-label-color',
+            value: 'var(--wa-color-text-normal)',
+            description: 'Label text color',
+          },
+          {
+            name: '--wa-form-control-label-font-weight',
+            value: 'var(--wa-font-weight-semibold)',
+            description: 'Label font weight',
+          },
+          {
+            name: '--wa-form-control-label-line-height',
+            value: 'var(--wa-line-height-condensed)',
+            description: 'Label line height',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Value and placeholder</h3>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-form-control-value-color',
+            value: 'var(--wa-color-text-normal)',
+            description: 'Value text color',
+          },
+          {
+            name: '--wa-form-control-value-font-weight',
+            value: 'var(--wa-font-weight-body)',
+            description: 'Value font weight',
+          },
+          {
+            name: '--wa-form-control-value-line-height',
+            value: 'var(--wa-line-height-condensed)',
+            description: 'Value line height',
+          },
+          {
+            name: '--wa-form-control-placeholder-color',
+            value: 'var(--wa-color-gray-50)',
+            description: 'Placeholder text color',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Hint</h3>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-form-control-hint-color',
+            value: 'var(--wa-color-text-quiet)',
+            description: 'Hint text color',
+          },
+          {
+            name: '--wa-form-control-hint-font-weight',
+            value: 'var(--wa-font-weight-body)',
+            description: 'Hint font weight',
+          },
+          {
+            name: '--wa-form-control-hint-line-height',
+            value: 'var(--wa-line-height-normal)',
+            description: 'Hint line height',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Required marker</h3>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-form-control-required-content',
+            value: "'*'",
+            description: 'Character placed after required labels',
+          },
+          {
+            name: '--wa-form-control-required-content-color',
+            value: 'inherit',
+            description: 'Color of the required marker',
+          },
+          {
+            name: '--wa-form-control-required-content-offset',
+            value: '0.1em',
+            description: 'Spacing between label text and marker',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h3 className="wa-heading-l">Sizing</h3>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-form-control-padding-block',
+            value: '0.75em',
+            description: 'Top and bottom padding',
+          },
+          {
+            name: '--wa-form-control-padding-inline',
+            value: '1em',
+            description: 'Left and right padding',
+          },
+          {
+            name: '--wa-form-control-height',
+            value: 'computed',
+            description: 'Total height, derived from padding and line height',
+          },
+          {
+            name: '--wa-form-control-toggle-size',
+            value: 'round(1.25em, 1px)',
+            description: 'Checkbox and radio indicator size',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Panels</h2>
+      <p className="wa-body-l">
+        Cards, dialogs, drawers, and other surface components share three
+        border tokens that control their frame.
+      </p>
+      <Preview>
+        <div style={{ maxWidth: '20rem' }}>
+          <Card appearance="outlined">
+            <p className="wa-body">
+              Cards, dialogs, and drawers read the panel border tokens.
+            </p>
+          </Card>
+        </div>
+      </Preview>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-panel-border-style',
+            value: 'var(--wa-border-style)',
+            description: 'Border line style',
+          },
+          {
+            name: '--wa-panel-border-width',
+            value: 'var(--wa-border-width-s)',
+            description: 'Border thickness',
+          },
+          {
+            name: '--wa-panel-border-radius',
+            value: 'var(--wa-border-radius-l)',
+            description: 'Outer corner radius',
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Tooltips</h2>
+      <p className="wa-body-l">
+        Tooltip tokens control the popup that appears on hover or focus.
+        The inverted color scheme (dark background, light text) is the
+        default.
+      </p>
+      <Preview>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            padding: 'var(--wa-space-2xl)',
+          }}
+        >
+          <button id="ct-tooltip-target">Hover me</button>
+          <Tooltip for="ct-tooltip-target" placement="top" open>
+            Tooltip content
+          </Tooltip>
+        </div>
+      </Preview>
+      <TokenTable
+        showDescription
+        rows={[
+          {
+            name: '--wa-tooltip-arrow-size',
+            value: '0.375rem',
+            description: 'Arrow connecting tooltip to target',
+          },
+          {
+            name: '--wa-tooltip-background-color',
+            value: 'var(--wa-color-text-normal)',
+            description: 'Background fill',
+          },
+          {
+            name: '--wa-tooltip-border-color',
+            value: 'var(--wa-tooltip-background-color)',
+            description: 'Border color (matches background by default)',
+          },
+          {
+            name: '--wa-tooltip-border-style',
+            value: 'var(--wa-border-style)',
+            description: 'Border line style',
+          },
+          {
+            name: '--wa-tooltip-border-width',
+            value: 'var(--wa-border-width-s)',
+            description: 'Border thickness',
+          },
+          {
+            name: '--wa-tooltip-border-radius',
+            value: 'var(--wa-border-radius-s)',
+            description: 'Corner radius',
+          },
+          {
+            name: '--wa-tooltip-content-color',
+            value: 'var(--wa-color-surface-default)',
+            description: 'Content text color',
+          },
+          {
+            name: '--wa-tooltip-font-size',
+            value: 'var(--wa-font-size-s)',
+            description: 'Content font size',
+          },
+          {
+            name: '--wa-tooltip-line-height',
+            value: 'var(--wa-line-height-normal)',
+            description: 'Content line height',
+          },
+        ]}
+      />
+    </div>
+  </section>
+</Unstyled>

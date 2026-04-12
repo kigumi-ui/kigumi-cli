@@ -1,0 +1,89 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { StorybookTopicGrid } from '@/components/storybook/StorybookTopicGrid';
+
+<Meta title="Foundations/Overview" />
+
+export const categories = [
+  {
+    label: 'Visual Style',
+    items: [
+      {
+        name: 'Color',
+        description: 'Variant scopes, text colors, color schemes, surface and mix tokens, raw palette.',
+        kind: 'Foundations/Color',
+        keywords: 'brand success warning danger neutral fill border on quiet normal loud surface raised lowered text link focus shadow overlay modal inline mix hover active red orange yellow green cyan blue indigo purple pink gray palette swatch dark light invert scheme',
+      },
+      {
+        name: 'Typography',
+        description: 'Role classes, size and weight scales, font families, line heights, link decoration.',
+        kind: 'Foundations/Typography',
+        keywords: 'font family body heading caption longform code size weight light normal semibold bold line height condensed expanded link underline truncate list plain form control label value placeholder hint',
+      },
+      {
+        name: 'Spacing',
+        description: 'Gap utility classes and the twelve-step space scale.',
+        kind: 'Foundations/Spacing',
+        keywords: 'gap space 3xs 2xs xs s m l xl 2xl 3xl 4xl 5xl padding margin content spacing scale',
+      },
+      {
+        name: 'Border & Radius',
+        description: 'Radius utility classes and border width tokens.',
+        kind: 'Foundations/Border & Radius',
+        keywords: 'border radius square pill circle width hairline style solid rounding corner',
+      },
+      {
+        name: 'Elevation',
+        description: 'Three composite shadow tokens with decomposed offset, blur, and spread.',
+        kind: 'Foundations/Elevation',
+        keywords: 'shadow box-shadow drop depth offset-x offset-y blur spread scale multiplier',
+      },
+    ],
+  },
+  {
+    label: 'Behavior',
+    items: [
+      {
+        name: 'Focus',
+        description: 'Focus ring tokens for style, width, offset, and the composite shorthand.',
+        kind: 'Foundations/Focus',
+        keywords: 'focus ring outline keyboard accessibility a11y tab navigation solid dashed dotted',
+      },
+      {
+        name: 'Motion',
+        description: 'Transition durations (fast, normal, slow) and easing curve.',
+        kind: 'Foundations/Motion',
+        keywords: 'transition animation duration fast normal slow easing ease timing prefers-reduced-motion',
+      },
+      {
+        name: 'Visibility',
+        description: 'Visually hidden helpers and FOUCE prevention with wa-cloak.',
+        kind: 'Foundations/Visibility',
+        keywords: 'visually hidden screen reader accessibility a11y cloak fouce flash unstyled force hint label sr-only',
+      },
+    ],
+  },
+  {
+    label: 'Scoped',
+    items: [
+      {
+        name: 'Native Elements',
+        description: 'Pre-styled headings, text, lists, code, tables, buttons, and forms.',
+        kind: 'Foundations/Native Elements',
+        keywords: 'heading paragraph blockquote link list code pre kbd table zebra hover button filled outlined plain accent pill input select textarea checkbox radio form label fieldset progress',
+      },
+      {
+        name: 'Component Tokens',
+        description: 'Form control, panel, and tooltip token families for per-component theming.',
+        kind: 'Foundations/Component Tokens',
+        keywords: 'form control background border radius activated label value hint placeholder required padding height toggle panel card dialog drawer tooltip arrow font size',
+      },
+    ],
+  },
+];
+
+<Unstyled>
+  <div className="wa-stack wa-gap-xl">
+    <h1 className="wa-heading-4xl heading-1">Foundations</h1>
+    <StorybookTopicGrid categories={categories} />
+  </div>
+</Unstyled>

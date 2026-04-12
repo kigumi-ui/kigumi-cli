@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Unstyled } from '@storybook/addon-docs/blocks';
-import './doc-table.css';
+import './table.css';
 
 type DocPageProps = {
   title: string;
@@ -11,9 +11,9 @@ type DocPageProps = {
 export function DocPage({ title, description, children }: DocPageProps) {
   return (
     <Unstyled>
-      <div className="doc-page">
-        <h1 className="wa-heading-2xl doc-page__title">{title}</h1>
-        <p className="doc-page__description">{description}</p>
+      <div className="docs-page">
+        <h1 className="wa-heading-2xl docs-page__title">{title}</h1>
+        <p className="docs-page__description">{description}</p>
         {children}
       </div>
     </Unstyled>
@@ -29,8 +29,10 @@ type DocSectionProps = {
 export function DocSection({ title, description, children }: DocSectionProps) {
   return (
     <>
-      <h2 className="wa-heading-xl doc-section__title">{title}</h2>
-      {description && <p className="doc-section__description">{description}</p>}
+      <h2 className="wa-heading-xl docs-section__title">{title}</h2>
+      {description && (
+        <p className="docs-section__description">{description}</p>
+      )}
       {children}
     </>
   );
@@ -51,11 +53,11 @@ export function DocTable<T extends Record<string, ReactNode>>({
   rows,
 }: DocTableProps<T>) {
   return (
-    <table className="doc-table">
+    <table className="docs-table">
       <thead>
-        <tr className="doc-table__header-row">
+        <tr className="docs-table__header-row">
           {columns.map((col) => (
-            <th key={col.key} className="doc-table__th">
+            <th key={col.key} className="docs-table__th">
               {col.header}
             </th>
           ))}
@@ -63,9 +65,9 @@ export function DocTable<T extends Record<string, ReactNode>>({
       </thead>
       <tbody>
         {rows.map((row, idx) => (
-          <tr key={idx} className="doc-table__row">
+          <tr key={idx} className="docs-table__row">
             {columns.map((col) => (
-              <td key={col.key} className="doc-table__td">
+              <td key={col.key} className="docs-table__td">
                 {row[col.key]}
               </td>
             ))}

@@ -1,0 +1,73 @@
+/* Wrapper styles for visual sample primitives that accompany docs tables. */
+/* All values reference WA tokens. Minimum font-size is --wa-font-size-m. */
+
+.color-swatch {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wa-space-3xs);
+  font-size: var(--wa-font-size-m);
+}
+
+.color-swatch__label {
+  color: var(--wa-color-text-quiet);
+}
+
+.space-sample {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wa-space-s);
+  font-size: var(--wa-font-size-m);
+}
+
+.space-sample__label {
+  font-family: var(--wa-font-family-code);
+  font-size: var(--wa-font-size-m);
+  color: var(--wa-color-text-quiet);
+}
+
+.radius-sample {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wa-space-3xs);
+  font-size: var(--wa-font-size-m);
+}
+
+.radius-sample__label {
+  font-family: var(--wa-font-family-code);
+  font-size: var(--wa-font-size-m);
+  color: var(--wa-color-text-quiet);
+}
+
+.shadow-sample {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--wa-space-l);
+  font-size: var(--wa-font-size-m);
+}
+
+.shadow-sample__label {
+  font-family: var(--wa-font-family-code);
+  font-size: var(--wa-font-size-m);
+  color: var(--wa-color-text-quiet);
+}
+
+.motion-sample {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wa-space-xs);
+  font-size: var(--wa-font-size-m);
+}
+
+.motion-sample__box:hover {
+  border-radius: 50% !important;
+}
+
+.motion-sample__label {
+  font-family: var(--wa-font-family-code);
+  font-size: var(--wa-font-size-m);
+  color: var(--wa-color-text-quiet);
+}

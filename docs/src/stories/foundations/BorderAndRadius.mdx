@@ -1,0 +1,169 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { RadiusSample } from '@/components/storybook/RadiusSample';
+import { DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Foundations/Border & Radius" />
+
+export const meta = {
+  title: 'Foundations/Border & Radius',
+  tokens: [
+    '--wa-border-style',
+    '--wa-border-width-scale',
+    '--wa-border-width-s',
+    '--wa-border-width-m',
+    '--wa-border-width-l',
+    '--wa-border-radius-scale',
+    '--wa-border-radius-s',
+    '--wa-border-radius-m',
+    '--wa-border-radius-l',
+    '--wa-border-radius-pill',
+    '--wa-border-radius-circle',
+    '--wa-border-radius-square',
+  ],
+  classes: [
+    '.wa-border-radius-square',
+    '.wa-border-radius-s',
+    '.wa-border-radius-m',
+    '.wa-border-radius-l',
+    '.wa-border-radius-pill',
+    '.wa-border-radius-circle',
+  ],
+};
+
+export const WidthBar = ({ token }) => (
+  <div
+    style={{
+      width: '5rem',
+      borderTop: `var(${token}) solid var(--wa-color-brand)`,
+    }}
+  />
+);
+
+<Unstyled>
+  <section className="wa-stack wa-gap-3xl">
+    <div className="wa-stack wa-gap-s">
+      <h1 className="wa-heading-2xl">Border & Radius</h1>
+      <p className="wa-body-l">
+        Borders and corner rounding share a small set of tokens that scale
+        together. Every radius has a matching utility class; widths are
+        token-only. The default line style is{' '}
+        <code>solid</code> (<code>--wa-border-style</code>).
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Radius</h2>
+      <p className="wa-body-l">
+        Three scalable radii plus two fixed shapes. Pill and circle
+        stay constant regardless of scale.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-border-radius-square</code>,
+            token: <code>--wa-border-radius-square</code>,
+            value: <code>0px</code>,
+            preview: <RadiusSample token="--wa-border-radius-square" />,
+          },
+          {
+            cls: <code>.wa-border-radius-s</code>,
+            token: <code>--wa-border-radius-s</code>,
+            value: <code>3px</code>,
+            preview: <RadiusSample token="--wa-border-radius-s" />,
+          },
+          {
+            cls: <code>.wa-border-radius-m</code>,
+            token: <code>--wa-border-radius-m</code>,
+            value: <code>6px</code>,
+            preview: <RadiusSample token="--wa-border-radius-m" />,
+          },
+          {
+            cls: <code>.wa-border-radius-l</code>,
+            token: <code>--wa-border-radius-l</code>,
+            value: <code>12px</code>,
+            preview: <RadiusSample token="--wa-border-radius-l" />,
+          },
+          {
+            cls: <code>.wa-border-radius-pill</code>,
+            token: <code>--wa-border-radius-pill</code>,
+            value: <code>9999px</code>,
+            preview: <RadiusSample token="--wa-border-radius-pill" />,
+          },
+          {
+            cls: <code>.wa-border-radius-circle</code>,
+            token: <code>--wa-border-radius-circle</code>,
+            value: <code>50%</code>,
+            preview: <RadiusSample token="--wa-border-radius-circle" />,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Width</h2>
+      <p className="wa-body-l">
+        Three widths from hairline to emphatic. No utility classes; use
+        the tokens directly in CSS.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+          { key: 'preview', header: 'Preview' },
+        ]}
+        rows={[
+          {
+            token: <code>--wa-border-width-s</code>,
+            value: <code>1px</code>,
+            preview: <WidthBar token="--wa-border-width-s" />,
+          },
+          {
+            token: <code>--wa-border-width-m</code>,
+            value: <code>2px</code>,
+            preview: <WidthBar token="--wa-border-width-m" />,
+          },
+          {
+            token: <code>--wa-border-width-l</code>,
+            value: <code>3px</code>,
+            preview: <WidthBar token="--wa-border-width-l" />,
+          },
+        ]}
+      />
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Scale multipliers</h2>
+      <p className="wa-body-l">
+        Override a scale token at <code>:root</code> to resize every step
+        in that group proportionally without touching each token
+        individually.
+      </p>
+      <DocTable
+        columns={[
+          { key: 'token', header: 'Token' },
+          { key: 'value', header: 'Default Value' },
+          { key: 'description', header: 'Description' },
+        ]}
+        rows={[
+          {
+            token: <code>--wa-border-radius-scale</code>,
+            value: <code>1</code>,
+            description: 'Multiplier for s, m, and l radii (pill and circle are fixed)',
+          },
+          {
+            token: <code>--wa-border-width-scale</code>,
+            value: <code>1</code>,
+            description: 'Multiplier for all three border widths',
+          },
+        ]}
+      />
+    </div>
+
+  </section>
+</Unstyled>

@@ -1,0 +1,73 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { DocTable } from '@/components/storybook/DocTable';
+
+<Meta title="Foundations/Visibility" />
+
+export const meta = {
+  title: 'Foundations/Visibility',
+  tokens: [],
+  classes: [
+    '.wa-visually-hidden',
+    '.wa-visually-hidden-force',
+    '.wa-visually-hidden-hint',
+    '.wa-visually-hidden-label',
+    '.wa-cloak',
+  ],
+};
+
+<Unstyled>
+  <section className="wa-stack wa-gap-3xl">
+    <div className="wa-stack wa-gap-s">
+      <h1 className="wa-heading-2xl">Visibility</h1>
+      <p className="wa-body-l">
+        Visibility classes hide content from the eye while keeping it
+        available to assistive technology, or delay an element until its
+        custom element has registered. No tokens; each class does one
+        thing.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-s">
+      <h2 className="wa-heading-xl">Classes</h2>
+      <DocTable
+        columns={[
+          { key: 'cls', header: 'Class' },
+          { key: 'description', header: 'Description' },
+        ]}
+        rows={[
+          {
+            cls: <code>.wa-visually-hidden</code>,
+            description:
+              'Hidden visually, readable by screen readers, becomes visible on keyboard focus within',
+          },
+          {
+            cls: <code>.wa-visually-hidden-force</code>,
+            description: 'Always hidden visually, regardless of focus',
+          },
+          {
+            cls: <code>.wa-visually-hidden-hint</code>,
+            description: (
+              <>
+                Hides <code>::part(hint)</code> on form control components
+              </>
+            ),
+          },
+          {
+            cls: <code>.wa-visually-hidden-label</code>,
+            description: (
+              <>
+                Hides <code>::part(label)</code> and{' '}
+                <code>::part(form-control-label)</code>
+              </>
+            ),
+          },
+          {
+            cls: <code>.wa-cloak</code>,
+            description:
+              'Hides content until its custom element is defined, preventing a flash of unstyled markup',
+          },
+        ]}
+      />
+    </div>
+  </section>
+</Unstyled>

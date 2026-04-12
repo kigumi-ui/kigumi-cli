@@ -1,0 +1,84 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { StorybookTopicGrid } from '@/components/storybook/StorybookTopicGrid';
+
+<Meta title="Layout / Overview" />
+
+export const categories = [
+  {
+    label: 'Primitives',
+    items: [
+      {
+        name: 'Stack',
+        description: 'Vertical flex column for forms, text blocks, and content flow.',
+        kind: 'Layout / Stack',
+        keywords: 'vertical column flex direction top bottom form content block',
+      },
+      {
+        name: 'Cluster',
+        description: 'Horizontal wrapping row for tags, chips, and action groups.',
+        kind: 'Layout / Cluster',
+        keywords: 'horizontal row wrap inline tags chips badges toolbar navigation actions',
+      },
+      {
+        name: 'Grid',
+        description: 'Auto-fit responsive grid with configurable minimum column width.',
+        kind: 'Layout / Grid',
+        keywords: 'grid auto-fit columns responsive min-column-size span cards tiles gallery',
+      },
+      {
+        name: 'Split',
+        description: 'Space-between distribution for headers, footers, and navigation.',
+        kind: 'Layout / Split',
+        keywords: 'space-between justify header footer nav toolbar row column',
+      },
+      {
+        name: 'Flank',
+        description: 'Sidebar and main content two-column layout with wrapping.',
+        kind: 'Layout / Flank',
+        keywords: 'sidebar aside main content two-column media text flank-size content-percentage',
+      },
+      {
+        name: 'Frame',
+        description: 'Aspect-ratio container for images, video, and media.',
+        kind: 'Layout / Frame',
+        keywords: 'aspect-ratio square landscape portrait image video embed media clip overflow',
+      },
+    ],
+  },
+  {
+    label: 'Modifiers',
+    items: [
+      {
+        name: 'Gap',
+        description: 'Sets spacing between flex and grid children using space tokens.',
+        kind: 'Layout / Gap',
+        keywords: 'gap spacing space 3xs 2xs xs s m l xl 2xl 3xl 4xl 5xl flex grid',
+      },
+      {
+        name: 'Align Items',
+        description: 'Cross-axis alignment: start, end, center, stretch, baseline.',
+        kind: 'Layout / Align Items',
+        keywords: 'align items self start end center stretch baseline cross axis vertical horizontal',
+      },
+      {
+        name: 'Justify Content',
+        description: 'Main-axis distribution: start, end, center, space-around, space-between, space-evenly.',
+        kind: 'Layout / Justify Content',
+        keywords: 'justify content start end center space-around space-between space-evenly main axis distribute',
+      },
+      {
+        name: 'Flex Wrap',
+        description: 'Controls wrapping behavior: wrap, nowrap, wrap-reverse.',
+        kind: 'Layout / Flex Wrap',
+        keywords: 'flex wrap nowrap reverse overflow multi-line break',
+      },
+    ],
+  },
+];
+
+<Unstyled>
+  <div className="wa-stack wa-gap-xl">
+    <h1 className="wa-heading-4xl heading-1">Layout</h1>
+    <StorybookTopicGrid categories={categories} />
+  </div>
+</Unstyled>
