@@ -352,5 +352,38 @@ describe('regenerate utilities', () => {
       const envMatches = content.match(/^\.env$/gm);
       expect(envMatches).toHaveLength(1);
     });
+
+    it('should ignore .kigumi/foreign/ in a fresh .gitignore', async () => {
+      await generateGitIgnore(testDir);
+      const content = await fs.readFile(
+        path.join(testDir, '.gitignore'),
+        'utf-8'
+      );
+      expect(content).toContain('.kigumi/foreign/');
+    });
+
+    it('should add .kigumi/foreign/ to an existing .gitignore that is missing it', async () => {
+      const gitignorePath = path.join(testDir, '.gitignore');
+      await fs.writeFile(gitignorePath, 'node_modules/\n.env\ndist/\n');
+
+      await generateGitIgnore(testDir);
+
+      const content = await fs.readFile(gitignorePath, 'utf-8');
+      expect(content).toContain('.kigumi/foreign/');
+    });
+
+    it('should not duplicate .kigumi/foreign/ if already present', async () => {
+      const gitignorePath = path.join(testDir, '.gitignore');
+      await fs.writeFile(
+        gitignorePath,
+        'node_modules/\n.env\n.kigumi/foreign/\n'
+      );
+
+      await generateGitIgnore(testDir);
+
+      const content = await fs.readFile(gitignorePath, 'utf-8');
+      const matches = content.match(/^\.kigumi\/foreign\/$/gm);
+      expect(matches).toHaveLength(1);
+    });
   });
 });

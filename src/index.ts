@@ -85,6 +85,12 @@ program
   .option('--all', 'Add all available components')
   .option('--force', 'Overwrite existing components without prompting')
   .option('--from <source>', 'Registry URL or connected registry name')
+  .option(
+    '--cross-framework',
+    'Allow installing from a registry that does not target your framework. ' +
+      'Source-framework files are staged into .kigumi/foreign/ for an ' +
+      'agent-driven conversion via the kigumi-cross-framework skill.'
+  )
   .option('--no-types', 'Skip TypeScript type definitions')
   .option('-y, --yes', 'Skip all prompts (non-interactive mode)')
   .action(addCommand);

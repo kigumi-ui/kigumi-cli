@@ -32,6 +32,7 @@ const PUBLISHED_SKILLS = [
   'kigumi-compose-layout',
   'kigumi-compose-overlay',
   'kigumi-compose-data',
+  'kigumi-cross-framework',
 ];
 
 const SKILLS_SRC = join(ROOT, '.claude', 'skills');

@@ -52,7 +52,8 @@ node dist/index.js add button --force
 | `src/utils/three-way-merge.ts` | Three-way merge logic using `node-diff3` |
 | `src/utils/version-check.ts` | CLI vs project version compatibility check |
 | `src/utils/version-map.ts` | Version history + breaking changes data |
-| `src/utils/github-fetcher.ts` | GitHub API integration for registries |
+| `src/utils/github-fetcher.ts` | GitHub registry fetcher (also handles local filesystem `RegistrySource` since 0.20.0) |
+| `src/utils/foreign-files-staging.ts` | Stages source-framework files into `.kigumi/foreign/<slug>/` for `--cross-framework` |
 | `src/schemas/community-registry.ts` | Community registry schema validation |
 | `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json ��� `component-metadata.ts` (events, slots, methods) |
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
@@ -80,21 +81,22 @@ node dist/index.js add button --force
 
 ## Skills
 
-| Skill                        | Location                                     | Audience    | Purpose                               |
-| ---------------------------- | -------------------------------------------- | ----------- | ------------------------------------- |
-| `kigumi-react`               | `.claude/skills/kigumi-react/`               | End user    | Convert WA HTML to Kigumi React JSX   |
-| `kigumi-vue`                 | `.claude/skills/kigumi-vue/`                 | End user    | Convert WA HTML to Kigumi Vue SFC     |
-| `kigumi-angular`             | `.claude/skills/kigumi-angular/`             | End user    | Convert WA HTML to Kigumi Angular     |
-| `kigumi-compose-form`        | `.claude/skills/kigumi-compose-form/`        | End user    | Build forms with validation           |
-| `kigumi-compose-layout`      | `.claude/skills/kigumi-compose-layout/`      | End user    | Build page layouts, dashboards        |
-| `kigumi-compose-overlay`     | `.claude/skills/kigumi-compose-overlay/`     | End user    | Build dialogs, drawers, menus, toasts |
-| `kigumi-compose-data`        | `.claude/skills/kigumi-compose-data/`        | End user    | Build data tables, stats, list views  |
-| `kigumi-theme`               | `.claude/skills/kigumi-theme/`               | End user    | Theme customization guidance          |
-| `generate-theme-preset`      | `.claude/skills/generate-theme-preset/`      | Contributor | Create Studio theme presets           |
-| `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates  |
-| `release`                    | `.claude/skills/release/`                    | Contributor | Prepare and publish releases          |
-| `kigumi-feature-spec`        | `.claude/skills/kigumi-feature-spec/`        | Contributor | Create feature specs and plans        |
-| `apply-theme-to-figma`       | `.claude/skills/apply-theme-to-figma/`       | Contributor | Apply CSS tokens to Figma UI Kit      |
+| Skill                        | Location                                     | Audience    | Purpose                                                                                   |
+| ---------------------------- | -------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------- |
+| `kigumi-react`               | `.claude/skills/kigumi-react/`               | End user    | Convert WA HTML to Kigumi React JSX                                                       |
+| `kigumi-vue`                 | `.claude/skills/kigumi-vue/`                 | End user    | Convert WA HTML to Kigumi Vue SFC                                                         |
+| `kigumi-angular`             | `.claude/skills/kigumi-angular/`             | End user    | Convert WA HTML to Kigumi Angular                                                         |
+| `kigumi-cross-framework`     | `.claude/skills/kigumi-cross-framework/`     | End user    | Convert components between React/Vue/Angular (paired with `kigumi add --cross-framework`) |
+| `kigumi-compose-form`        | `.claude/skills/kigumi-compose-form/`        | End user    | Build forms with validation                                                               |
+| `kigumi-compose-layout`      | `.claude/skills/kigumi-compose-layout/`      | End user    | Build page layouts, dashboards                                                            |
+| `kigumi-compose-overlay`     | `.claude/skills/kigumi-compose-overlay/`     | End user    | Build dialogs, drawers, menus, toasts                                                     |
+| `kigumi-compose-data`        | `.claude/skills/kigumi-compose-data/`        | End user    | Build data tables, stats, list views                                                      |
+| `kigumi-theme`               | `.claude/skills/kigumi-theme/`               | End user    | Theme customization guidance                                                              |
+| `generate-theme-preset`      | `.claude/skills/generate-theme-preset/`      | Contributor | Create Studio theme presets                                                               |
+| `generate-component-wrapper` | `.claude/skills/generate-component-wrapper/` | Contributor | Generate React/Vue wrapper templates                                                      |
+| `release`                    | `.claude/skills/release/`                    | Contributor | Prepare and publish releases                                                              |
+| `kigumi-feature-spec`        | `.claude/skills/kigumi-feature-spec/`        | Contributor | Create feature specs and plans                                                            |
+| `apply-theme-to-figma`       | `.claude/skills/apply-theme-to-figma/`       | Contributor | Apply CSS tokens to Figma UI Kit                                                          |
 
 ### Skills Publishing
 
@@ -1061,4 +1063,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-04
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-08

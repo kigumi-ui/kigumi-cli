@@ -14,12 +14,11 @@ import {
 import {
   handleError,
   PreFlightCheckError,
-  FrameworkMismatchError,
   CommunityRegistryNotFoundError,
 } from '../../errors/index.js';
 import { loadConfig, saveConfig, getConfig } from '../../utils/config.js';
 import {
-  parseGitHubUrl,
+  parseRegistrySource,
   fetchRegistryJson,
 } from '../../utils/github-fetcher.js';
 import { getGitHubToken } from '../../utils/github-token.js';
@@ -62,14 +61,19 @@ export async function registryConnectAction(
       throw new Error('Configuration not loaded despite passing checks');
     }
 
-    // 3. Parse and validate URL
+    // 3. Parse and validate registry source.
+    // Local filesystem paths are resolved against the project cwd so that
+    // commands like `kigumi registry connect ../sibling-registry` work
+    // regardless of the user's shell pwd.
     const spinner = output.spinner('Verifying registry...');
-    const source = parseGitHubUrl(url);
+    const source = parseRegistrySource(url, { baseDir: cwd });
 
-    // Attach token if available
-    const token = await getGitHubToken();
-    if (token) {
-      source.token = token;
+    // Attach a GitHub token only for github sources. Local sources need no auth.
+    if (source.kind === 'github') {
+      const token = await getGitHubToken();
+      if (token) {
+        source.token = token;
+      }
     }
 
     // 4. Check if already added
@@ -92,13 +96,18 @@ export async function registryConnectAction(
       );
     }
 
-    // 6. Check framework compatibility
+    // 6. Check framework compatibility (warn-only).
+    // The connect step intentionally does NOT block on framework mismatch.
+    // Otherwise users couldn't connect a foreign-framework registry first
+    // and then `kigumi add --from <name> --cross-framework` from it — a
+    // chicken-and-egg blocker. We surface a warning so the mismatch is
+    // visible, and `kigumi add` re-checks and gates installation.
     if (!registry.frameworks.includes(config.framework)) {
-      spinner.error('Framework mismatch');
-      throw new FrameworkMismatchError(
-        registry.name,
-        registry.frameworks,
-        config.framework
+      output.warning(
+        `Registry "${registry.name}" targets ${registry.frameworks.join(
+          ', '
+        )} but this project uses ${config.framework}. To consume components ` +
+          `from it, use: kigumi add --from ${registry.name} <component> --cross-framework`
       );
     }
 

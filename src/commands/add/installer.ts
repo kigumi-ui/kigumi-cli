@@ -51,6 +51,18 @@ export interface InstallResult {
   error?: string;
   /** Names of files that had local modifications when overwritten */
   modifiedFiles?: string[];
+  /**
+   * True when the result represents a cross-framework staging (files
+   * landed in `.kigumi/foreign/<slug>/`) rather than a normal install.
+   * Set by `RemoteComponentInstaller` for the `--cross-framework` flow.
+   */
+  staged?: boolean;
+  /** Source framework whose files were staged (only present when `staged`) */
+  sourceFramework?: import('../../schemas/config.js').Framework;
+  /** Absolute path to the staging directory (only present when `staged`) */
+  stagedPath?: string;
+  /** Hand-off prompt for the agent skill (only present when `staged`) */
+  handoffPrompt?: string;
 }
 
 /**

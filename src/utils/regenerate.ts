@@ -393,21 +393,35 @@ export async function generateGitIgnore(cwd: string): Promise<void> {
     '# Build outputs',
     'dist/',
     'build/',
+    '',
+    '# Kigumi cross-framework staging (transient cache for agent conversion)',
+    '.kigumi/foreign/',
   ];
 
   if (!exists) {
     // Create new .gitignore
     const content = essentialEntries.join('\n') + '\n';
     await fs.writeFile(gitignorePath, content);
-  } else {
-    // Update existing .gitignore
-    let content = await fs.readFile(gitignorePath, 'utf-8');
-
-    // Add .env if not present
-    if (!content.includes('.env')) {
-      content += '\n# Environment variables\n.env\n.env.local\n.env.*.local\n';
-    }
-
-    await fs.writeFile(gitignorePath, content);
+    return;
   }
+
+  // Update existing .gitignore
+  let content = await fs.readFile(gitignorePath, 'utf-8');
+
+  // Add .env if not present
+  if (!content.includes('.env')) {
+    content += '\n# Environment variables\n.env\n.env.local\n.env.*.local\n';
+  }
+
+  // Add .kigumi/foreign/ if not present
+  if (!/^\.kigumi\/foreign\/$/m.test(content)) {
+    if (!content.endsWith('\n')) {
+      content += '\n';
+    }
+    content +=
+      '\n# Kigumi cross-framework staging (transient cache for agent conversion)\n' +
+      '.kigumi/foreign/\n';
+  }
+
+  await fs.writeFile(gitignorePath, content);
 }
