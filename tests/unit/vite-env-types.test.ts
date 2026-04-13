@@ -6,8 +6,9 @@ import { updateViteEnvTypes } from '../../src/utils/vite-env.js';
 import type { OutputInterface } from '../../src/output/types.js';
 
 /**
- * Minimal vite-env.d.ts fixture with the auto-managed comment
- * and IntrinsicElements interface that updateViteEnvTypes expects.
+ * Minimal vite-env.d.ts fixture. The real template uses a different comment
+ * format ("// Web Awesome components (auto-managed by Kigumi CLI)") but the
+ * guard is a loose `content.includes('auto-managed')` check, so both work.
  */
 const MANAGED_VITE_ENV = `/// <reference types="vite/client" />
 // auto-managed by kigumi - do not edit manually

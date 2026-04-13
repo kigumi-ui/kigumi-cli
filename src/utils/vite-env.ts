@@ -64,6 +64,10 @@ export async function updateViteEnvTypes(
           `${match[1]}${typeDeclaration}${match[2]}`
         );
         modified = true;
+      } else {
+        output.warn(
+          `Could not find IntrinsicElements insertion point in vite-env.d.ts for ${tagName}`
+        );
       }
     }
 
