@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (72 files, 1101 tests)
+├── unit/                    # Fast, isolated tests (73 files, 1140 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -69,6 +69,7 @@ tests/
 │   ├── token.test.ts                # Token handling
 │   ├── token-manager.test.ts        # Token validation, loading, saving
 │   ├── type-installation.test.ts    # TypeScript type installation
+│   ├── vite-env-types.test.ts       # vite-env.d.ts tag name generation (F-001 regression)
 │   ├── update-check.test.ts         # CLI update notification check
 │   ├── update-command.test.ts       # Update command (three-way merge)
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)
@@ -302,4 +303,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-08
+**Last Updated:** 2026-04-13

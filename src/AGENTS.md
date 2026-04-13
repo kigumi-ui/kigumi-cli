@@ -222,7 +222,11 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, and `vite-env.d.ts`.
 
 ### `utils/naming.ts` - Naming Conventions
 
-Converts between PascalCase and kebab-case. Used for Angular's lowercase file naming convention (`ButtonGroup` -> `button-group`).
+Converts between PascalCase and kebab-case. Used for Angular's lowercase file naming convention and tag name construction (`ButtonGroup` -> `button-group`).
+
+### `utils/vite-env.ts` - Vite Environment Type Declarations
+
+Updates `vite-env.d.ts` with component `IntrinsicElements` entries for React + TypeScript projects. Only modifies auto-managed files (checks for `auto-managed` comment). Uses `toKebabCase()` from `naming.ts` to convert PascalCase component names to correct kebab-case tag names.
 
 ### `utils/template.ts` - Extension Utilities
 
@@ -394,4 +398,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-08
+**Last Updated:** 2026-04-13

@@ -36,8 +36,7 @@ import {
 } from '../../utils/github-fetcher.js';
 import { getGitHubToken } from '../../utils/github-token.js';
 import { resolveRegistrySource } from '../../utils/registry-resolver.js';
-import fs from 'fs-extra';
-import path from 'path';
+import { updateViteEnvTypes } from '../../utils/vite-env.js';
 
 /**
  * Add command
@@ -407,68 +406,4 @@ function printSummary(
 
   const anySuccess = installed.length + staged.length > 0;
   output.outro(anySuccess ? '✓ Done' : 'No new components added');
-}
-
-/**
- * Update vite-env.d.ts with new component type declarations
- */
-async function updateViteEnvTypes(
-  cwd: string,
-  components: string[],
-  output: import('../../output/types.js').OutputInterface
-): Promise<void> {
-  const viteEnvPath = path.join(cwd, 'src/vite-env.d.ts');
-
-  if (!(await fs.pathExists(viteEnvPath))) {
-    // File doesn't exist, skip update
-    return;
-  }
-
-  try {
-    let content = await fs.readFile(viteEnvPath, 'utf-8');
-
-    // Check if this is our managed file (has the "auto-managed" comment)
-    if (!content.includes('auto-managed')) {
-      // Not our file, don't modify it
-      return;
-    }
-
-    let modified = false;
-
-    for (const component of components) {
-      const tagName = `wa-${component.toLowerCase()}`;
-
-      // Check if type declaration already exists
-      if (content.includes(`'${tagName}':`)) {
-        continue; // Already exists
-      }
-
-      // Add new type declaration before the closing braces
-      const typeDeclaration = `      '${tagName}': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;\n`;
-
-      // Find the IntrinsicElements interface and add before its closing brace
-      // Works with both "declare global { namespace JSX {" and "declare module 'react' {"
-      const match = content.match(
-        /(interface IntrinsicElements \{[\s\S]*?)( {4}\}\s*\}\s*\}\s*(?:export \{\};)?)/
-      );
-
-      if (match) {
-        content = content.replace(
-          match[0],
-          `${match[1]}${typeDeclaration}${match[2]}`
-        );
-        modified = true;
-      }
-    }
-
-    if (modified) {
-      await fs.writeFile(viteEnvPath, content);
-      output.info('Updated vite-env.d.ts with new component types');
-    }
-  } catch (error) {
-    // Silently fail - this is not critical
-    if (error instanceof Error) {
-      output.warn(`Could not update vite-env.d.ts: ${error.message}`);
-    }
-  }
 }
