@@ -84,7 +84,10 @@ function preservePersistentFields(
 ): void {
   if (!existingConfig) return;
 
-  if (existingConfig.installedComponents?.length) {
+  if (
+    existingConfig.installedComponents &&
+    Object.keys(existingConfig.installedComponents).length > 0
+  ) {
     config.installedComponents = existingConfig.installedComponents;
   }
   if (existingConfig.registries?.length) {
