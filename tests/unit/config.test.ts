@@ -228,9 +228,77 @@ describe('config management', () => {
       expect(config.typescript).toBe(false);
       expect(config.componentsDir).toBe('src/vue-components');
 
-      // Note: Simple spread merge doesn't deep merge nested objects
-      // The theme object from user config replaces the default entirely
       expect(config.theme.selected).toBe('awesome');
+    });
+
+    it('should deep merge partial theme, preserving un-specified defaults', async () => {
+      // User only provides theme.selected; palette and brandColor must retain defaults.
+      // This test FAILS with the old { ...DEFAULT_CONFIG, ...userConfig } shallow spread
+      // and PASSES with mergeWithDefaults().
+      const partialThemeConfig = {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components/ui',
+        theme: {
+          selected: 'awesome',
+        },
+      };
+      await fs.writeJson(
+        path.join(testDir, 'kigumi.config.json'),
+        partialThemeConfig
+      );
+
+      const config = getConfig(testDir);
+
+      expect(config.theme.selected).toBe('awesome');
+      expect(config.theme.palette).toBe(DEFAULT_CONFIG.theme.palette);
+      expect(config.theme.brandColor).toBe(DEFAULT_CONFIG.theme.brandColor);
+    });
+
+    it('should use all user-provided theme values when full theme is specified', async () => {
+      const fullThemeConfig = {
+        framework: 'vue',
+        typescript: false,
+        componentsDir: 'src/vue-ui',
+        theme: {
+          selected: 'brutal',
+          palette: 'vibrant',
+          brandColor: 'crimson',
+        },
+      };
+      await fs.writeJson(
+        path.join(testDir, 'kigumi.config.json'),
+        fullThemeConfig
+      );
+
+      const config = getConfig(testDir);
+
+      expect(config.theme.selected).toBe('brutal');
+      expect(config.theme.palette).toBe('vibrant');
+      expect(config.theme.brandColor).toBe('crimson');
+      expect(config.theme.palette).not.toBe(DEFAULT_CONFIG.theme.palette);
+      expect(config.theme.brandColor).not.toBe(DEFAULT_CONFIG.theme.brandColor);
+    });
+
+    it('should retain default webAwesome.version when user config omits webAwesome', async () => {
+      const noWebAwesomeConfig = {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components/ui',
+        theme: {
+          selected: 'default',
+          palette: 'default',
+          brandColor: 'blue',
+        },
+      };
+      await fs.writeJson(
+        path.join(testDir, 'kigumi.config.json'),
+        noWebAwesomeConfig
+      );
+
+      const config = getConfig(testDir);
+
+      expect(config.webAwesome?.version).toBe(DEFAULT_WEBAWESOME_VERSION);
     });
 
     it('should preserve all DEFAULT_CONFIG properties', () => {

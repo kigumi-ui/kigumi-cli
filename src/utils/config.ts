@@ -14,7 +14,7 @@
 import { cosmiconfigSync } from 'cosmiconfig';
 import fs from 'fs-extra';
 import path from 'path';
-import { DEFAULT_CONFIG } from '../schemas/config.js';
+import { DEFAULT_CONFIG, mergeWithDefaults } from '../schemas/config.js';
 import type { KigumiConfig } from '../schemas/config.js';
 
 // Re-export type and defaults from the canonical source (schemas/config.ts)
@@ -59,5 +59,5 @@ export async function saveConfig(
  */
 export function getConfig(cwd: string = process.cwd()): KigumiConfig {
   const userConfig = loadConfig(cwd);
-  return userConfig ? { ...DEFAULT_CONFIG, ...userConfig } : DEFAULT_CONFIG;
+  return userConfig ? mergeWithDefaults(userConfig) : DEFAULT_CONFIG;
 }
