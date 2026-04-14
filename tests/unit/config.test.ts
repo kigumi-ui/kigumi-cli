@@ -301,6 +301,61 @@ describe('config management', () => {
       expect(config.webAwesome?.version).toBe(DEFAULT_WEBAWESOME_VERSION);
     });
 
+    it('should deep merge partial aliases, preserving un-specified defaults', async () => {
+      // User only overrides @/components; @/lib and @/styles must retain defaults.
+      // Same F-004-class bug as theme: without deep merge the entire aliases
+      // object would be replaced.
+      const partialAliasesConfig = {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components/ui',
+        theme: {
+          selected: 'default',
+          palette: 'default',
+          brandColor: 'blue',
+        },
+        aliases: {
+          '@/components': './src/ui',
+        },
+      };
+      await fs.writeJson(
+        path.join(testDir, 'kigumi.config.json'),
+        partialAliasesConfig
+      );
+
+      const config = getConfig(testDir);
+
+      expect(config.aliases?.['@/components']).toBe('./src/ui');
+      expect(config.aliases?.['@/lib']).toBe(DEFAULT_CONFIG.aliases?.['@/lib']);
+      expect(config.aliases?.['@/styles']).toBe(
+        DEFAULT_CONFIG.aliases?.['@/styles']
+      );
+    });
+
+    it('should strip unknown properties not in the schema', async () => {
+      // getConfig() routes through kigumiConfigSchema.parse(), which drops
+      // keys not declared in the schema. Document this behavior explicitly.
+      const configWithExtras = {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components/ui',
+        theme: {
+          selected: 'default',
+          palette: 'default',
+          brandColor: 'blue',
+        },
+        customProperty: 'should be stripped by Zod',
+      };
+      await fs.writeJson(
+        path.join(testDir, 'kigumi.config.json'),
+        configWithExtras
+      );
+
+      const config = getConfig(testDir);
+
+      expect(config).not.toHaveProperty('customProperty');
+    });
+
     it('should preserve all DEFAULT_CONFIG properties', () => {
       // Verify DEFAULT_CONFIG structure
       expect(DEFAULT_CONFIG.framework).toBe('react');

@@ -175,6 +175,17 @@ describe('mergeWithDefaults', () => {
     const result = mergeWithDefaults({ webAwesome: { version: '4.0.0' } });
     expect(result.webAwesome?.version).toBe('4.0.0');
   });
+
+  it('deep merges aliases, preserving un-overridden defaults', () => {
+    const result = mergeWithDefaults({
+      aliases: { '@/components': './src/ui' },
+    });
+    expect(result.aliases?.['@/components']).toBe('./src/ui');
+    expect(result.aliases?.['@/lib']).toBe(DEFAULT_CONFIG.aliases?.['@/lib']);
+    expect(result.aliases?.['@/styles']).toBe(
+      DEFAULT_CONFIG.aliases?.['@/styles']
+    );
+  });
 });
 
 describe('kigumiConfigSchema edge cases', () => {
