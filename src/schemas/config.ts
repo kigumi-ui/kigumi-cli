@@ -212,5 +212,9 @@ export function mergeWithDefaults(config: Partial<KigumiConfig>): KigumiConfig {
       ...DEFAULT_CONFIG.webAwesome,
       ...config.webAwesome,
     },
+    aliases: {
+      ...DEFAULT_CONFIG.aliases,
+      ...config.aliases,
+    },
   });
 }
