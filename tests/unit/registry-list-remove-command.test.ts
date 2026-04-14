@@ -265,8 +265,14 @@ describe('registryRemoveSourceAction', () => {
     const config = createConfig({
       registries: [{ url: 'https://github.com/user/reg', name: 'my-reg' }],
       installedComponents: {
-        button: { registryUrl: 'https://github.com/user/reg' },
-        card: { registryUrl: 'https://github.com/user/reg' },
+        button: {
+          source: 'community',
+          registryUrl: 'https://github.com/user/reg',
+        },
+        card: {
+          source: 'community',
+          registryUrl: 'https://github.com/user/reg',
+        },
       },
     });
     await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), config);
