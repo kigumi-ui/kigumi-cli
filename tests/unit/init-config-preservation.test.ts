@@ -68,18 +68,18 @@ const baseExistingConfig: KigumiConfig = {
   stylesDir: 'src/styles',
   theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
   aliases: { components: '@/components', utils: '@/lib' },
-  installedComponents: [
-    {
-      name: 'button',
-      version: '1.0.0',
+  installedComponents: {
+    button: {
+      source: 'community',
+      registryVersion: '1.0.0',
       registryUrl: 'https://registry.kigumi.style',
     },
-    {
-      name: 'card',
-      version: '1.0.0',
+    card: {
+      source: 'community',
+      registryVersion: '1.0.0',
       registryUrl: 'https://registry.kigumi.style',
     },
-  ],
+  },
   registries: [
     {
       name: 'custom',
@@ -87,7 +87,7 @@ const baseExistingConfig: KigumiConfig = {
     },
   ],
   installedThemes: {
-    awesome: { version: '1.0.0' },
+    awesome: { source: 'community', registryVersion: '1.0.0' },
   },
 };
 
@@ -178,7 +178,7 @@ describe('config preservation during re-init', () => {
 
       const emptyConfig: KigumiConfig = {
         ...baseExistingConfig,
-        installedComponents: [],
+        installedComponents: {},
         registries: [],
         installedThemes: {},
       };
