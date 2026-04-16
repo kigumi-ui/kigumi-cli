@@ -22,7 +22,7 @@ import {
   VersionMismatchError,
 } from '../../errors/index.js';
 import { validators, type AddOptions } from '../../schemas/index.js';
-import { loadConfig, saveConfig, getConfig } from '../../utils/config.js';
+import { saveConfig, getConfig } from '../../utils/config.js';
 import { checkVersionCompatibility } from '../../utils/version-check.js';
 import { CLI_VERSION } from '../../constants.js';
 import { selectComponents } from './component-selector.js';
@@ -63,10 +63,12 @@ export async function addCommand(components: string[], options?: AddOptions) {
       crossFramework: options?.crossFramework ?? false,
     });
 
-    // 2. Load configuration (needed for checks)
+    // 2. Load configuration (needed for checks).
+    // getConfig() internally calls loadConfig() and deep-merges with defaults,
+    // so a single call is sufficient. A throw here means malformed config;
+    // the pre-flight checks below surface a readable error.
     let config: KigumiConfig | undefined;
     try {
-      loadConfig(cwd);
       config = getConfig(cwd);
     } catch (_error) {
       // Config loading failed - will be caught by checks

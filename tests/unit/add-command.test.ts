@@ -122,6 +122,32 @@ import '../styles/layers.css';
       // With broken JSON, the CLI should fail
       expect(process.exit).toHaveBeenCalled();
     });
+
+    // addCommand must call getConfig only; calling loadConfig directly is
+    // redundant because getConfig() calls loadConfig() internally.
+    //
+    // Note on spy scope: vi.spyOn on a module namespace only intercepts
+    // calls made through the namespace (from other modules via their named
+    // imports). It does NOT see getConfig()'s same-file lexical call to
+    // loadConfig(). That's exactly what we want: the spy is scoped to
+    // external callers.
+    it('should not call loadConfig directly from addCommand', async () => {
+      await createConfig();
+      await setupProject();
+
+      const configModule = await import('../../src/utils/config.js');
+      const loadSpy = vi.spyOn(configModule, 'loadConfig');
+      const getSpy = vi.spyOn(configModule, 'getConfig');
+
+      const { addCommand } = await import('../../src/commands/add/index.js');
+      await addCommand(['button'], { cwd: tempDir });
+
+      expect(loadSpy).not.toHaveBeenCalled();
+      expect(getSpy).toHaveBeenCalledTimes(1);
+
+      loadSpy.mockRestore();
+      getSpy.mockRestore();
+    });
   });
 
   describe('component installation', () => {
