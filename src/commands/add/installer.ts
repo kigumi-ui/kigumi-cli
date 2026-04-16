@@ -40,6 +40,7 @@ import {
 } from '../../utils/file-diff.js';
 import { saveSnapshot } from '../../utils/snapshot.js';
 import { renderDiff } from '../../utils/diff-renderer.js';
+import { getWebAwesomePackage, type Tier } from '../../utils/tier.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../schemas/config.js';
@@ -72,7 +73,8 @@ export class ComponentInstaller {
   constructor(
     private cwd: string,
     private config: KigumiConfig,
-    private output: OutputInterface
+    private output: OutputInterface,
+    private tier: Tier
   ) {}
 
   /**
@@ -134,7 +136,8 @@ export class ComponentInstaller {
       component,
       this.config,
       this.config.typescript,
-      this.cwd
+      this.cwd,
+      this.tier
     );
 
     const ext = getComponentExtension(
@@ -351,10 +354,7 @@ export class ComponentInstaller {
   private async updateKigumiImports(
     component: ComponentDefinition
   ): Promise<void> {
-    const { detectTier, getWebAwesomePackage } =
-      await import('../../utils/tier.js');
-    const tier = await detectTier(this.cwd);
-    const packageName = getWebAwesomePackage(tier);
+    const packageName = getWebAwesomePackage(this.tier);
 
     const kigumiPath = path.join(
       this.cwd,

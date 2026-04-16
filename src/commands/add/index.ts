@@ -36,6 +36,7 @@ import {
 } from '../../utils/github-fetcher.js';
 import { getGitHubToken } from '../../utils/github-token.js';
 import { resolveRegistrySource } from '../../utils/registry-resolver.js';
+import { detectTier } from '../../utils/tier.js';
 import { updateViteEnvTypes } from '../../utils/vite-env.js';
 
 /**
@@ -245,8 +246,10 @@ async function addFromBuiltinRegistry(
   cwd: string,
   output: import('../../output/types.js').OutputInterface
 ): Promise<void> {
-  // 1. Detect tier from .env
-  const { detectTier } = await import('../../utils/tier.js');
+  // 1. Detect tier once for the entire add flow.
+  // The tier is threaded into ComponentInstaller and generateComponent so
+  // downstream code no longer re-detects. Tier cannot change mid-command,
+  // so one detection suffices.
   const tier = await detectTier(cwd);
 
   // 2. Determine components to add
@@ -261,7 +264,7 @@ async function addFromBuiltinRegistry(
   await validateComponents(componentsToAdd, tier, output);
 
   // 4. Install components
-  const installer = new ComponentInstaller(cwd, config, output);
+  const installer = new ComponentInstaller(cwd, config, output, tier);
   const results = await installer.installComponents(componentsToAdd, options);
 
   // 5. Update provenance tracking for builtin components
