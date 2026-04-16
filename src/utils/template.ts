@@ -29,6 +29,7 @@ import { fileURLToPath } from 'url';
 // Note: Package name constants not directly used here - tier.ts handles the mapping
 import type { ComponentDefinition } from './registry.js';
 import type { KigumiConfig } from './config.js';
+import type { Tier } from './tier.js';
 import { generateCSSTemplate } from './css-metadata.js';
 import { toKebabCase } from './naming.js';
 
@@ -197,18 +198,24 @@ export function getFileBaseName(
  * @param component - Component definition from registry
  * @param config - Kigumi configuration
  * @param typescript - Whether to generate TypeScript (.tsx) or JavaScript (.jsx)
+ * @param cwd - Working directory (used for the tier fallback)
+ * @param tier - Pre-resolved tier. Callers that already know the tier should
+ *   pass it through to avoid redundant disk I/O. Callers without
+ *   a tier in context (update/diff commands, framework plugins) may omit it;
+ *   detection falls back to `detectTierSync(cwd)`.
  * @returns Generated component code
  */
 export async function generateComponent(
   component: ComponentDefinition,
   config: KigumiConfig,
   typescript: boolean = true,
-  cwd: string = process.cwd()
+  cwd: string = process.cwd(),
+  tier?: Tier
 ): Promise<string> {
   // Build context with correct import path based on tier
   const { detectTierSync, getWebAwesomePackage } = await import('./tier.js');
-  const tier = detectTierSync(cwd);
-  const packageName = getWebAwesomePackage(tier);
+  const resolvedTier = tier ?? detectTierSync(cwd);
+  const packageName = getWebAwesomePackage(resolvedTier);
 
   // Replace package name in import path
   // WHY: Component definitions use free package by default, but we need to

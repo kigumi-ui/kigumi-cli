@@ -128,6 +128,21 @@ const BASE_CONFIG = {
   theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
 };
 
+/**
+ * Dynamically import `ComponentInstaller` (required because `beforeEach`
+ * resets the module cache) and wire it up with a fresh mock output +
+ * the default 'free' tier so each test starts from a clean baseline.
+ */
+async function createInstaller(testDir: string) {
+  const { ComponentInstaller } =
+    await import('../../src/commands/add/installer.js');
+  const output = createMockOutput();
+  return {
+    installer: new ComponentInstaller(testDir, BASE_CONFIG, output, 'free'),
+    output,
+  };
+}
+
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 describe('ComponentInstaller', () => {
@@ -168,12 +183,8 @@ describe('ComponentInstaller', () => {
       'utf-8'
     );
 
-    const { ComponentInstaller } =
-      await import('../../src/commands/add/installer.js');
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
-
-    const output = createMockOutput();
-    const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
+    const { installer } = await createInstaller(testDir);
 
     await installer.installComponents(['Button'], {
       force: true,
@@ -211,12 +222,8 @@ describe('ComponentInstaller', () => {
       'utf-8'
     );
 
-    const { ComponentInstaller } =
-      await import('../../src/commands/add/installer.js');
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
-
-    const output = createMockOutput();
-    const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
+    const { installer } = await createInstaller(testDir);
 
     const results = await installer.installComponents(['Button'], {
       force: true,
@@ -231,12 +238,8 @@ describe('ComponentInstaller', () => {
 
   it('saves a snapshot containing component file content after a fresh install', async () => {
     // No pre-existing component files — this is a fresh install
-    const { ComponentInstaller } =
-      await import('../../src/commands/add/installer.js');
     const { loadSnapshot } = await import('../../src/utils/snapshot.js');
-
-    const output = createMockOutput();
-    const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
+    const { installer } = await createInstaller(testDir);
 
     await installer.installComponents(['Button'], { yes: true });
 
@@ -267,13 +270,8 @@ describe('ComponentInstaller', () => {
     const prompts = await import('@clack/prompts');
     vi.mocked(prompts.confirm).mockResolvedValueOnce(false);
 
-    const { ComponentInstaller } =
-      await import('../../src/commands/add/installer.js');
-    const renderDiffModule = await import('../../src/utils/diff-renderer.js');
-    const renderDiff = renderDiffModule.renderDiff;
-
-    const output = createMockOutput();
-    const installer = new ComponentInstaller(testDir, BASE_CONFIG, output);
+    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
+    const { installer } = await createInstaller(testDir);
 
     // No --force: smart-add shows diff + prompt
     const results = await installer.installComponents(['Button'], {});
