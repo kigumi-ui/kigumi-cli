@@ -570,11 +570,12 @@ describe('${component.name}', () => {
     expect(screen.getByText('${component.name}')).toBeInTheDocument();
   });
 
-  it('applies custom className', () => {
+  it('applies custom class', () => {
     const { container } = render(
       <${component.name} className="custom-class">Test</${component.name}>
     );
-    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+    const el = container.querySelector('${component.tagName}');
+    expect(el?.className).toContain('custom-class');
   });
 });
 `;
