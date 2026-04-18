@@ -14,10 +14,12 @@ import {
   generateComponent,
   generateComponentCSS,
   generateComponentTest,
+  generateComponentTestContent,
   clearTemplateCache,
   getTemplatePath,
 } from '../../src/utils/template.js';
 import { getComponent } from '../../src/utils/registry.js';
+import type { ComponentDefinition } from '../../src/utils/registry.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
 
 describe('template utilities', () => {
@@ -440,6 +442,42 @@ describe('template utilities', () => {
         'js/src/components/Input/Input.test.jsx'
       );
       expect(await fs.pathExists(jsTestPath)).toBe(true);
+    });
+  });
+
+  describe('generateComponentTestContent - React fallback', () => {
+    it('queries the wa-* element by tag name and asserts className', async () => {
+      const fake: ComponentDefinition = {
+        name: 'NonexistentComponent',
+        tagName: 'wa-nonexistent',
+        category: 'test',
+        description: 'synthetic fixture for fallback test',
+        dependencies: [],
+        files: { react: [] },
+        props: [],
+        importPath:
+          '@awesome.me/webawesome/dist/components/nonexistent/nonexistent.js',
+        tier: 'free',
+      };
+
+      const config: KigumiConfig = {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const content = await generateComponentTestContent(fake, config);
+
+      expect(content).toContain("container.querySelector('wa-nonexistent')");
+      expect(content).not.toContain("container.querySelector('.custom-class')");
+      expect(content).toMatch(/\.className.*toContain\(['"]custom-class['"]\)/);
     });
   });
 
