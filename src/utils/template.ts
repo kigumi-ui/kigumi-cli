@@ -411,8 +411,16 @@ export async function updateComponentIndex(
     return;
   }
 
-  content += exportStatement;
-  await fs.writeFile(indexPath, content);
+  const lines = content.split('\n');
+  const exportLines = lines.filter((line) => line.startsWith('export '));
+  const nonExportLines = lines.filter(
+    (line) => line !== '' && !line.startsWith('export ')
+  );
+  exportLines.push(exportStatement.trimEnd());
+  exportLines.sort();
+
+  const sorted = [...nonExportLines, ...exportLines].join('\n') + '\n';
+  await fs.writeFile(indexPath, sorted);
 }
 
 /**

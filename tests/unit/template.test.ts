@@ -17,6 +17,7 @@ import {
   generateComponentTestContent,
   clearTemplateCache,
   getTemplatePath,
+  updateComponentIndex,
 } from '../../src/utils/template.js';
 import { getComponent } from '../../src/utils/registry.js';
 import type { ComponentDefinition } from '../../src/utils/registry.js';
@@ -651,6 +652,141 @@ describe('template utilities', () => {
 
       // TypeScript and JavaScript should generate different code
       expect(tsComponent).not.toBe(jsComponent);
+    });
+  });
+
+  describe('updateComponentIndex', () => {
+    const reactConfig: KigumiConfig = {
+      framework: 'react',
+      typescript: true,
+      componentsDir: 'src/components',
+      utilsDir: 'src/lib',
+      aliases: {},
+      theme: {
+        selected: 'awesome',
+        palette: 'sky',
+        brandColor: '#0ea5e9',
+      },
+    };
+
+    it('sorts exports alphabetically when adding a new component', async () => {
+      const componentsDir = path.join(testDir, reactConfig.componentsDir);
+      await fs.ensureDir(componentsDir);
+      await fs.writeFile(
+        path.join(componentsDir, 'index.ts'),
+        "export * from './TabGroup/TabGroup';\nexport * from './Button/Button';\n"
+      );
+
+      const input = getComponent('input');
+      expect(input).toBeDefined();
+      if (!input) return;
+
+      await updateComponentIndex(input, reactConfig, testDir);
+
+      const result = await fs.readFile(
+        path.join(componentsDir, 'index.ts'),
+        'utf-8'
+      );
+      expect(result).toBe(
+        "export * from './Button/Button';\n" +
+          "export * from './Input/Input';\n" +
+          "export * from './TabGroup/TabGroup';\n"
+      );
+    });
+
+    it('is idempotent when component already exported', async () => {
+      const componentsDir = path.join(testDir, reactConfig.componentsDir);
+      await fs.ensureDir(componentsDir);
+      const initial =
+        "export * from './Button/Button';\n" +
+        "export * from './Input/Input';\n";
+      await fs.writeFile(path.join(componentsDir, 'index.ts'), initial);
+
+      const button = getComponent('button');
+      expect(button).toBeDefined();
+      if (!button) return;
+
+      await updateComponentIndex(button, reactConfig, testDir);
+
+      const result = await fs.readFile(
+        path.join(componentsDir, 'index.ts'),
+        'utf-8'
+      );
+      expect(result).toBe(initial);
+    });
+
+    it('creates a new index file when none exists', async () => {
+      const componentsDir = path.join(testDir, reactConfig.componentsDir);
+      await fs.ensureDir(componentsDir);
+
+      const dialog = getComponent('dialog');
+      expect(dialog).toBeDefined();
+      if (!dialog) return;
+
+      await updateComponentIndex(dialog, reactConfig, testDir);
+
+      const result = await fs.readFile(
+        path.join(componentsDir, 'index.ts'),
+        'utf-8'
+      );
+      expect(result).toBe("export * from './Dialog/Dialog';\n");
+    });
+
+    it('sorts Vue default exports alphabetically', async () => {
+      const vueConfig: KigumiConfig = { ...reactConfig, framework: 'vue' };
+      const componentsDir = path.join(testDir, vueConfig.componentsDir);
+      await fs.ensureDir(componentsDir);
+      await fs.writeFile(
+        path.join(componentsDir, 'index.ts'),
+        "export { default as TabGroup } from './TabGroup/TabGroup.vue';\n" +
+          "export { default as Button } from './Button/Button.vue';\n"
+      );
+
+      const input = getComponent('input');
+      expect(input).toBeDefined();
+      if (!input) return;
+
+      await updateComponentIndex(input, vueConfig, testDir);
+
+      const result = await fs.readFile(
+        path.join(componentsDir, 'index.ts'),
+        'utf-8'
+      );
+      expect(result).toBe(
+        "export { default as Button } from './Button/Button.vue';\n" +
+          "export { default as Input } from './Input/Input.vue';\n" +
+          "export { default as TabGroup } from './TabGroup/TabGroup.vue';\n"
+      );
+    });
+
+    it('sorts Angular component exports alphabetically', async () => {
+      const angularConfig: KigumiConfig = {
+        ...reactConfig,
+        framework: 'angular',
+      };
+      const componentsDir = path.join(testDir, angularConfig.componentsDir);
+      await fs.ensureDir(componentsDir);
+      await fs.writeFile(
+        path.join(componentsDir, 'index.ts'),
+        "export { TabGroupComponent } from './TabGroup/tab-group.component';\n" +
+          "export { ButtonComponent } from './Button/button.component';\n"
+      );
+
+      const input = getComponent('input');
+      expect(input).toBeDefined();
+      if (!input) return;
+
+      await updateComponentIndex(input, angularConfig, testDir);
+
+      const result = await fs.readFile(
+        path.join(componentsDir, 'index.ts'),
+        'utf-8'
+      );
+      expect(result).toBe(
+        "export { ButtonComponent } from './Button/button.component';\n" +
+          "export { InputComponent } from './Input/input.component';\n" +
+          "export { TabGroupComponent } from './TabGroup/tab-group.component';\n"
+      );
     });
   });
 });
