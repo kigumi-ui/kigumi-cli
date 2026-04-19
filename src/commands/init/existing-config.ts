@@ -6,30 +6,29 @@
 
 import * as p from '@clack/prompts';
 import type { OutputInterface } from '../../output/types.js';
-import { loadConfig } from '../../utils/config.js';
+import type { KigumiConfig } from '../../schemas/config.js';
 
 export type ExistingConfigAction = 'update' | 'reinstall' | 'cancel';
 
 /**
  * Handle existing configuration
  *
- * @param cwd - Current working directory
+ * Caller must ensure a config was successfully loaded before calling this.
+ * The function displays the current configuration and asks the user what to
+ * do (update, reinstall, or cancel).
+ *
+ * @param existingConfig - Previously loaded config (guaranteed non-null by caller)
+ * @param cwd - Current working directory (used for tier detection)
  * @param output - Output interface
  * @param force - Force overwrite in non-interactive mode
  * @returns Action to take
  */
 export async function handleExistingConfig(
+  existingConfig: KigumiConfig,
   cwd: string,
   output: OutputInterface,
   force = false
 ): Promise<ExistingConfigAction | null> {
-  const existingConfig = loadConfig(cwd);
-
-  if (!existingConfig) {
-    output.warning('Configuration file exists but could not be loaded');
-    return null;
-  }
-
   const { detectTier } = await import('../../utils/tier.js');
   const tier = await detectTier(cwd);
 

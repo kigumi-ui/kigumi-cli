@@ -2,7 +2,11 @@
  * Init Existing Config Tests
  *
  * Tests for src/commands/init/existing-config.ts:
- * - handleExistingConfig() - Detect and handle existing kigumi configuration
+ * - handleExistingConfig() - Prompt user about an already-loaded kigumi config
+ *
+ * The caller is responsible for loading the config and only invoking
+ * handleExistingConfig when a valid config was found. These tests therefore
+ * pass a KigumiConfig object directly and focus on the prompt/output behavior.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -10,6 +14,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
+import type { KigumiConfig } from '../../src/schemas/config.js';
 
 // Mock @clack/prompts before importing module under test
 vi.mock('@clack/prompts', () => ({
@@ -44,6 +49,20 @@ function createMockOutput(): OutputInterface {
   };
 }
 
+function makeConfig(overrides: Partial<KigumiConfig> = {}): KigumiConfig {
+  return {
+    framework: 'react',
+    typescript: true,
+    componentsDir: 'src/components/ui',
+    theme: {
+      selected: 'default',
+      palette: 'default',
+      brandColor: 'blue',
+    },
+    ...overrides,
+  } as KigumiConfig;
+}
+
 describe('handleExistingConfig', () => {
   let tempDir: string;
   let mockOutput: OutputInterface;
@@ -54,7 +73,6 @@ describe('handleExistingConfig', () => {
     );
     mockOutput = createMockOutput();
 
-    // Reset mocks
     const clackModule = await import('@clack/prompts');
     (clackModule.select as ReturnType<typeof vi.fn>).mockReset();
     (clackModule.isCancel as ReturnType<typeof vi.fn>).mockReset();
@@ -66,55 +84,8 @@ describe('handleExistingConfig', () => {
     vi.restoreAllMocks();
   });
 
-  /**
-   * Write a valid kigumi config file.
-   * Uses kigumi.config.json (the canonical name used by saveConfig).
-   */
-  async function writeKigumiConfig(
-    overrides: Record<string, unknown> = {},
-    filename = 'kigumi.config.json'
-  ): Promise<void> {
-    const config = {
-      framework: 'react',
-      typescript: true,
-      componentsDir: 'src/components/ui',
-      theme: {
-        selected: 'default',
-        palette: 'default',
-        brandColor: 'blue',
-      },
-      ...overrides,
-    };
-    await fs.writeJSON(path.join(tempDir, filename), config);
-  }
-
-  describe('when no config exists', () => {
-    it('should return null when config file does not exist', async () => {
-      const { handleExistingConfig } =
-        await import('../../src/commands/init/existing-config.js');
-
-      const result = await handleExistingConfig(tempDir, mockOutput);
-      expect(result).toBeNull();
-    });
-
-    it('should not prompt user when no config exists', async () => {
-      const { handleExistingConfig } =
-        await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-
-      await handleExistingConfig(tempDir, mockOutput);
-
-      expect(clackModule.select).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('when config exists', () => {
+  describe('config display', () => {
     it('should show existing config details via output.note', async () => {
-      await writeKigumiConfig({ framework: 'vue', typescript: false });
-
-      // Also need kigumi.config.json or the supported search path for loadConfig
-      // handleExistingConfig checks kigumi-components.json for pathExists,
-      // but loadConfig uses cosmiconfig which searches multiple names
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -122,7 +93,11 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(tempDir, mockOutput);
+      await handleExistingConfig(
+        makeConfig({ framework: 'vue', typescript: false }),
+        tempDir,
+        mockOutput
+      );
 
       expect(mockOutput.note).toHaveBeenCalledWith(
         'Current Configuration',
@@ -131,8 +106,6 @@ describe('handleExistingConfig', () => {
     });
 
     it('should display tier info in config note', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -140,7 +113,7 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(tempDir, mockOutput);
+      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
 
       expect(mockOutput.note).toHaveBeenCalledWith(
         'Current Configuration',
@@ -149,10 +122,6 @@ describe('handleExistingConfig', () => {
     });
 
     it('should display theme info in config note', async () => {
-      await writeKigumiConfig({
-        theme: { selected: 'awesome', palette: 'bright', brandColor: 'purple' },
-      });
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -160,7 +129,17 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(tempDir, mockOutput);
+      await handleExistingConfig(
+        makeConfig({
+          theme: {
+            selected: 'awesome',
+            palette: 'bright',
+            brandColor: 'purple',
+          },
+        }),
+        tempDir,
+        mockOutput
+      );
 
       expect(mockOutput.note).toHaveBeenCalledWith(
         'Current Configuration',
@@ -171,25 +150,26 @@ describe('handleExistingConfig', () => {
 
   describe('force mode (non-interactive)', () => {
     it('should return "update" without prompting when force is true', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
 
-      const result = await handleExistingConfig(tempDir, mockOutput, true);
+      const result = await handleExistingConfig(
+        makeConfig(),
+        tempDir,
+        mockOutput,
+        true
+      );
 
       expect(result).toBe('update');
       expect(clackModule.select).not.toHaveBeenCalled();
     });
 
     it('should show info message about overwriting in force mode', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
 
-      await handleExistingConfig(tempDir, mockOutput, true);
+      await handleExistingConfig(makeConfig(), tempDir, mockOutput, true);
 
       expect(mockOutput.info).toHaveBeenCalledWith(
         expect.stringContaining('non-interactive mode')
@@ -199,8 +179,6 @@ describe('handleExistingConfig', () => {
 
   describe('interactive mode', () => {
     it('should return "update" when user selects update', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -208,13 +186,15 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      const result = await handleExistingConfig(tempDir, mockOutput);
+      const result = await handleExistingConfig(
+        makeConfig(),
+        tempDir,
+        mockOutput
+      );
       expect(result).toBe('update');
     });
 
     it('should return "reinstall" when user selects reinstall', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -222,13 +202,15 @@ describe('handleExistingConfig', () => {
         'reinstall'
       );
 
-      const result = await handleExistingConfig(tempDir, mockOutput);
+      const result = await handleExistingConfig(
+        makeConfig(),
+        tempDir,
+        mockOutput
+      );
       expect(result).toBe('reinstall');
     });
 
     it('should return "cancel" when user selects cancel', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -236,31 +218,34 @@ describe('handleExistingConfig', () => {
         'cancel'
       );
 
-      const result = await handleExistingConfig(tempDir, mockOutput);
+      const result = await handleExistingConfig(
+        makeConfig(),
+        tempDir,
+        mockOutput
+      );
       expect(result).toBe('cancel');
     });
 
     it('should return "cancel" when user presses Ctrl+C (isCancel)', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
 
-      // Simulate cancel via Ctrl+C
       const cancelSymbol = Symbol('cancel');
       (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
         cancelSymbol
       );
       (clackModule.isCancel as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
-      const result = await handleExistingConfig(tempDir, mockOutput);
+      const result = await handleExistingConfig(
+        makeConfig(),
+        tempDir,
+        mockOutput
+      );
       expect(result).toBe('cancel');
     });
 
     it('should prompt with correct options', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -268,7 +253,7 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(tempDir, mockOutput);
+      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
 
       expect(clackModule.select).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -283,76 +268,21 @@ describe('handleExistingConfig', () => {
     });
   });
 
-  describe('invalid config handling', () => {
-    it('should return null when config file exists but cannot be loaded', async () => {
-      // Write invalid JSON to the config path
-      // Use content that cosmiconfig can parse as JSON but produces an empty/falsy result
-      await fs.writeFile(path.join(tempDir, 'kigumi.config.json'), 'null');
-
-      const { handleExistingConfig } =
-        await import('../../src/commands/init/existing-config.js');
-
-      const result = await handleExistingConfig(tempDir, mockOutput);
-
-      // loadConfig returns null for null/empty configs, so the function returns null
-      expect(result).toBeNull();
-    });
-
-    it('should return null when config file is empty', async () => {
-      await fs.writeFile(path.join(tempDir, 'kigumi.config.json'), '');
-
-      const { handleExistingConfig } =
-        await import('../../src/commands/init/existing-config.js');
-
-      const result = await handleExistingConfig(tempDir, mockOutput);
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('config file name detection', () => {
-    it('should detect kigumi.config.json', async () => {
-      await writeKigumiConfig();
-
-      const { handleExistingConfig } =
-        await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
-
-      const result = await handleExistingConfig(tempDir, mockOutput);
-      expect(result).toBe('update');
-    });
-
-    it('should detect legacy kigumi-components.json for backward compat', async () => {
-      await writeKigumiConfig({}, 'kigumi-components.json');
-
-      const { handleExistingConfig } =
-        await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
-
-      const result = await handleExistingConfig(tempDir, mockOutput);
-      expect(result).toBe('update');
-    });
-  });
-
   describe('ExistingConfigAction type', () => {
     it('should only allow valid action values', async () => {
-      await writeKigumiConfig();
-
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
 
-      // Test each valid action
       for (const action of ['update', 'reinstall', 'cancel'] as const) {
         (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
           action
         );
-        const result = await handleExistingConfig(tempDir, mockOutput);
+        const result = await handleExistingConfig(
+          makeConfig(),
+          tempDir,
+          mockOutput
+        );
         expect(['update', 'reinstall', 'cancel']).toContain(result);
       }
     });
@@ -360,8 +290,6 @@ describe('handleExistingConfig', () => {
 
   describe('pro tier detection', () => {
     it('should show pro tier in config details when detected', async () => {
-      await writeKigumiConfig();
-
       const tierModule = await import('../../src/utils/tier.js');
       (tierModule.detectTier as ReturnType<typeof vi.fn>).mockResolvedValue(
         'pro'
@@ -374,17 +302,31 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(tempDir, mockOutput);
+      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
 
       expect(mockOutput.note).toHaveBeenCalledWith(
         'Current Configuration',
         expect.stringContaining('pro')
       );
 
-      // Restore
       (tierModule.detectTier as ReturnType<typeof vi.fn>).mockResolvedValue(
         'free'
       );
+    });
+  });
+
+  describe('does not read the filesystem', () => {
+    it('should never emit the legacy "could not be loaded" warning', async () => {
+      const { handleExistingConfig } =
+        await import('../../src/commands/init/existing-config.js');
+      const clackModule = await import('@clack/prompts');
+      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
+        'update'
+      );
+
+      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
+
+      expect(mockOutput.warning).not.toHaveBeenCalled();
     });
   });
 });
