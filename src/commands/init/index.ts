@@ -223,7 +223,7 @@ export async function initCommand(options: InitOptions = {}) {
  *
  * @internal
  */
-async function validateAndPrepare(
+export async function validateAndPrepare(
   options: InitOptions,
   cwd: string,
   output: import('../../output/types.js').OutputInterface
@@ -249,11 +249,9 @@ async function validateAndPrepare(
 
   // 5. Check for existing config
   const existingConfig = loadConfig(cwd);
-  const existingAction = await handleExistingConfig(
-    cwd,
-    output,
-    isNonInteractive
-  );
+  const existingAction = existingConfig
+    ? await handleExistingConfig(existingConfig, cwd, output, isNonInteractive)
+    : null;
   if (existingAction === 'cancel') {
     throw new UserCancelledError('Configuration cancelled by user');
   }
