@@ -23,7 +23,7 @@ export class TierRestrictionError extends KigumiError {
           'Visit: https://webawesome.com/pro',
           'Sign up for a Pro account',
           'Update your configuration: tier: "pro"',
-          'Add your Pro token to .env: WA_TOKEN=your-token',
+          'Add your Pro token to .env: WEBAWESOME_NPM_TOKEN=your-token',
         ],
       },
       {
@@ -56,8 +56,8 @@ export class ProComponentRequiredError extends KigumiError {
           `Component "${componentName}" requires Web Awesome Pro`,
           'Visit: https://webawesome.com/pro',
           'Sign up for a Pro account',
-          'Update kigumi-components.json: "tier": "pro"',
-          'Add your Pro token to .env: WA_TOKEN=your-token',
+          'Update kigumi.config.json: "tier": "pro"',
+          'Add your Pro token to .env: WEBAWESOME_NPM_TOKEN=your-token',
         ],
       },
     ];
@@ -93,8 +93,8 @@ export class ProThemeRequiredError extends KigumiError {
           `Theme "${themeName}" requires Web Awesome Pro`,
           'Visit: https://webawesome.com/pro',
           'Sign up for a Pro account',
-          'Update kigumi-components.json: "tier": "pro"',
-          'Add your Pro token to .env: WA_TOKEN=your-token',
+          'Update kigumi.config.json: "tier": "pro"',
+          'Add your Pro token to .env: WEBAWESOME_NPM_TOKEN=your-token',
         ],
       },
       {
@@ -125,7 +125,7 @@ export class TokenRequiredError extends KigumiError {
           'Sign in to your Web Awesome account',
           'Navigate to Settings → API Tokens',
           'Generate a new token',
-          'Add to .env file: WA_TOKEN=your-token',
+          'Add to .env file: WEBAWESOME_NPM_TOKEN=your-token',
         ],
       },
       {
@@ -141,7 +141,10 @@ export class TokenRequiredError extends KigumiError {
     super(
       ErrorCode.TOKEN_REQUIRED,
       'Pro tier token is required but not found',
-      { envVar: 'WA_TOKEN', checked: ['.env', 'process.env.WA_TOKEN'] },
+      {
+        envVar: 'WEBAWESOME_NPM_TOKEN',
+        checked: ['.env', 'process.env.WEBAWESOME_NPM_TOKEN', '~/.npmrc'],
+      },
       suggestions
     );
   }

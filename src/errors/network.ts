@@ -176,7 +176,7 @@ export class AuthenticationError extends KigumiError {
           'Sign in to your account',
           'Navigate to Settings → API Tokens',
           'Generate a new token',
-          'Add to .env: WA_TOKEN=your-token',
+          'Add to .env: WEBAWESOME_NPM_TOKEN=your-token',
         ],
       });
     }
