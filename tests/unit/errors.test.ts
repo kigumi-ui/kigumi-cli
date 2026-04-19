@@ -144,11 +144,20 @@ describe('Error Classes', () => {
       expect(suggestions).toContain('kigumi init');
     });
 
-    it('should list searched files', () => {
+    it('should list searched files with the current config filename', () => {
       const error = new ConfigNotFoundError('/test');
       const files = error.context.details?.searchedFiles as string[];
 
-      expect(files).toContain('kigumi-components.json');
+      expect(files).toContain('kigumi.config.json');
+      expect(files).not.toContain('kigumi-components.json');
+    });
+
+    it('should reference kigumi.config.json in suggestions, not the old name', () => {
+      const error = new ConfigNotFoundError('/test');
+      const suggestions = error.formatSuggestions();
+
+      expect(suggestions).toContain('kigumi.config.json');
+      expect(suggestions).not.toContain('kigumi-components.json');
     });
   });
 
@@ -333,6 +342,14 @@ describe('Error Classes', () => {
       expect(suggestions).toContain('Pro');
       expect(suggestions).toContain('webawesome.com/pro');
     });
+
+    it('should reference the current env var name, not the old WA_TOKEN', () => {
+      const error = new TierRestrictionError('feature', 'pro', 'free');
+      const suggestions = error.formatSuggestions();
+
+      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
+      expect(suggestions).not.toContain('WA_TOKEN=');
+    });
   });
 
   describe('ProComponentRequiredError', () => {
@@ -351,6 +368,16 @@ describe('Error Classes', () => {
       expect(suggestions).toContain('Select');
       expect(suggestions).toContain('Input');
     });
+
+    it('should reference current env var and config file names', () => {
+      const error = new ProComponentRequiredError('DataGrid');
+      const suggestions = error.formatSuggestions();
+
+      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
+      expect(suggestions).toContain('kigumi.config.json');
+      expect(suggestions).not.toContain('WA_TOKEN=');
+      expect(suggestions).not.toContain('kigumi-components.json');
+    });
   });
 
   describe('ProThemeRequiredError', () => {
@@ -366,15 +393,41 @@ describe('Error Classes', () => {
       expect(suggestions).toContain('dawn');
       expect(suggestions).toContain('dusk');
     });
+
+    it('should reference current env var and config file names', () => {
+      const error = new ProThemeRequiredError('mercury', ['awesome']);
+      const suggestions = error.formatSuggestions();
+
+      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
+      expect(suggestions).toContain('kigumi.config.json');
+      expect(suggestions).not.toContain('WA_TOKEN=');
+      expect(suggestions).not.toContain('kigumi-components.json');
+    });
   });
 
   describe('TokenRequiredError', () => {
-    it('should suggest adding token to .env', () => {
+    it('should suggest adding token to .env with the current env var name', () => {
       const error = new TokenRequiredError();
       const suggestions = error.formatSuggestions();
 
       expect(suggestions).toContain('.env');
-      expect(suggestions).toContain('WA_TOKEN');
+      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
+      expect(suggestions).not.toContain('WA_TOKEN=');
+    });
+
+    it('should record the current env var and detection sources in context', () => {
+      const error = new TokenRequiredError();
+      const details = error.context.details as {
+        envVar: string;
+        checked: string[];
+      };
+
+      expect(details.envVar).toBe('WEBAWESOME_NPM_TOKEN');
+      expect(details.checked).toEqual([
+        '.env',
+        'process.env.WEBAWESOME_NPM_TOKEN',
+        '~/.npmrc',
+      ]);
     });
   });
 

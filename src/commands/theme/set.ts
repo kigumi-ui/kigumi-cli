@@ -74,7 +74,7 @@ export const setCommand = new Command('set')
       // Save config
       spinner.start('Updating configuration...');
       await saveConfig(config, cwd);
-      spinner.stop('Updated kigumi-components.json');
+      spinner.stop('Updated kigumi.config.json');
 
       // Regenerate kigumi.ts
       const utilsDir = config.utilsDir || 'src/lib';

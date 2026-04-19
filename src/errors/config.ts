@@ -1,7 +1,7 @@
 /**
  * Configuration Error Classes
  *
- * Errors related to kigumi configuration file (kigumi-components.json)
+ * Errors related to kigumi configuration file (kigumi.config.json)
  */
 
 import { KigumiError, ErrorCode, type ErrorSuggestion } from './base.js';
@@ -18,13 +18,13 @@ export class ConfigNotFoundError extends KigumiError {
         steps: [
           'Run: kigumi init',
           'Follow the prompts to configure your project',
-          'This will create kigumi-components.json',
+          'This will create kigumi.config.json',
         ],
       },
       {
         title: 'Or create the config file manually',
         steps: [
-          'Create kigumi-components.json in your project root',
+          'Create kigumi.config.json in your project root',
           'Add the required configuration fields',
           `See: ${GITHUB_REPO_URL}#configuration`,
         ],
@@ -34,7 +34,7 @@ export class ConfigNotFoundError extends KigumiError {
     super(
       ErrorCode.CONFIG_NOT_FOUND,
       'Configuration file not found',
-      { cwd, searchedFiles: ['kigumi-components.json', 'kigumi.json'] },
+      { cwd, searchedFiles: ['kigumi.config.json', 'kigumi.json'] },
       suggestions
     );
   }
@@ -114,7 +114,7 @@ export class ConfigFieldMissingError extends KigumiError {
       {
         title: 'Add the missing field',
         steps: [
-          `Add "${field}" to your kigumi-components.json`,
+          `Add "${field}" to your kigumi.config.json`,
           'Check the documentation for the expected value',
           'Or run: kigumi init to reconfigure',
         ],
@@ -151,7 +151,7 @@ export class ConfigFieldInvalidError extends KigumiError {
                 `Valid values: ${validValues.map((v) => JSON.stringify(v)).join(', ')}`,
               ]
             : []),
-          'Update the value in kigumi-components.json',
+          'Update the value in kigumi.config.json',
         ],
       },
     ];
