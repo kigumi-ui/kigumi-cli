@@ -423,10 +423,12 @@ describe('Error Classes', () => {
       };
 
       expect(details.envVar).toBe('WEBAWESOME_NPM_TOKEN');
+      // Order must match the real detection priority in src/utils/token.ts:
+      // (1) env var, (2) global ~/.npmrc, (3) project .env
       expect(details.checked).toEqual([
-        '.env',
         'process.env.WEBAWESOME_NPM_TOKEN',
         '~/.npmrc',
+        '.env',
       ]);
     });
   });

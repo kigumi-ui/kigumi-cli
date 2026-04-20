@@ -84,13 +84,13 @@ const FAQ_ITEMS: FaqItem[] = [
     id: 'config-not-found',
     summary: "Command fails with 'Configuration file not found'",
     searchText:
-      'configuration file not found kigumi-components.json kigumi.json init',
+      'configuration file not found kigumi.config.json kigumi.json init',
     content: (
       <div className="wa-stack wa-gap-m">
         <p>
-          This error means Kigumi can't find <code>kigumi-components.json</code>{' '}
-          or <code>kigumi.json</code> in your project. You need to initialize
-          your project first:
+          This error means Kigumi can't find <code>kigumi.config.json</code> or{' '}
+          <code>kigumi.json</code> in your project. You need to initialize your
+          project first:
         </p>
         <CodeBlock value="npx kigumi init" />
         <p>
