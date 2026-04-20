@@ -219,9 +219,9 @@ export async function initCommand(options: InitOptions = {}) {
 // =============================================================================
 
 /**
- * Validate options, run pre-flight checks, detect project info
+ * Validate options, run pre-flight checks, detect project info.
  *
- * @internal
+ * Exported for unit tests; not a stable public API.
  */
 export async function validateAndPrepare(
   options: InitOptions,

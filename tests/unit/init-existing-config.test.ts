@@ -14,6 +14,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
+import { mergeWithDefaults } from '../../src/schemas/config.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
 
 // Mock @clack/prompts before importing module under test
@@ -50,17 +51,7 @@ function createMockOutput(): OutputInterface {
 }
 
 function makeConfig(overrides: Partial<KigumiConfig> = {}): KigumiConfig {
-  return {
-    framework: 'react',
-    typescript: true,
-    componentsDir: 'src/components/ui',
-    theme: {
-      selected: 'default',
-      palette: 'default',
-      brandColor: 'blue',
-    },
-    ...overrides,
-  } as KigumiConfig;
+  return mergeWithDefaults(overrides);
 }
 
 describe('handleExistingConfig', () => {
