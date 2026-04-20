@@ -143,7 +143,7 @@ export class TokenRequiredError extends KigumiError {
       'Pro tier token is required but not found',
       {
         envVar: 'WEBAWESOME_NPM_TOKEN',
-        checked: ['.env', 'process.env.WEBAWESOME_NPM_TOKEN', '~/.npmrc'],
+        checked: ['process.env.WEBAWESOME_NPM_TOKEN', '~/.npmrc', '.env'],
       },
       suggestions
     );
