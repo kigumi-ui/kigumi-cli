@@ -29,6 +29,15 @@ export const tierSchema = z.enum(['free', 'pro'], {
 });
 
 /**
+ * Meta-framework schema - the tooling that wraps the UI framework
+ * (e.g. Next.js, Vite). Informational only; drives init scaffolding
+ * (global.d.ts vs vite-env.d.ts) and post-install hints.
+ */
+export const metaFrameworkSchema = z.enum(['next', 'vite', 'none'], {
+  error: () => 'Must be one of: next, vite, none',
+});
+
+/**
  * Theme configuration schema
  */
 export const themeConfigSchema = z.object({
@@ -107,6 +116,12 @@ export const kigumiConfigSchema = z.object({
   installedThemes: z.record(z.string(), installedThemeSchema).optional(),
   /** Kigumi CLI version that initialized/last upgraded this project */
   kigumiVersion: z.string().optional(),
+  /**
+   * Meta-framework (Next.js, Vite, or none). Optional and informational;
+   * set by `kigumi init` from `detectMetaFramework()`. Does not branch
+   * template rendering — templates are context-free.
+   */
+  metaFramework: metaFrameworkSchema.optional(),
 });
 
 /**
@@ -115,6 +130,7 @@ export const kigumiConfigSchema = z.object({
 export type KigumiConfig = z.infer<typeof kigumiConfigSchema>;
 export type Framework = z.infer<typeof frameworkSchema>;
 export type Tier = z.infer<typeof tierSchema>;
+export type MetaFramework = z.infer<typeof metaFrameworkSchema>;
 export type ThemeConfig = z.infer<typeof themeConfigSchema>;
 export type WebAwesomeConfig = z.infer<typeof webAwesomeConfigSchema>;
 

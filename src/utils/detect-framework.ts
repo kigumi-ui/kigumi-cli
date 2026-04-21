@@ -3,10 +3,24 @@ import path from 'path';
 
 export type Framework = 'react' | 'vue' | 'svelte' | 'angular' | 'unknown';
 
+/**
+ * Meta-framework — the tool that wraps the UI framework.
+ *
+ * - 'next': Next.js project (App Router or Pages Router).
+ * - 'vite': Vite-based project (incl. create-vite, Astro w/ Vite).
+ * - 'none': no recognized meta-framework (plain CRA, library, etc.).
+ *
+ * Informational only — does not branch template rendering. Drives init
+ * scaffolding (global.d.ts vs vite-env.d.ts) and post-install hints.
+ */
+export type MetaFramework = 'next' | 'vite' | 'none';
+
 export interface ProjectInfo {
   framework: Framework;
   typescript: boolean;
   packageManager: 'npm' | 'pnpm' | 'yarn' | 'bun';
+  metaFramework: MetaFramework;
+  /** @deprecated Derived from metaFramework === 'vite'; kept for backwards-compat. */
   hasVite: boolean;
 }
 
@@ -97,6 +111,85 @@ export async function detectPackageManager(
 }
 
 /**
+ * Detect the meta-framework (Next.js, Vite, or none).
+ *
+ * Next.js takes precedence over Vite: if both `next` and `vite` are in deps
+ * (unusual, but possible with some plugin setups), we return 'next'.
+ *
+ * Detection rules:
+ * - 'next': `deps.next` OR `next.config.{js,ts,mjs,cjs}` exists.
+ * - 'vite': `deps.vite`.
+ * - 'none': neither.
+ */
+export async function detectMetaFramework(
+  cwd: string = process.cwd()
+): Promise<MetaFramework> {
+  const packageJsonPath = path.join(cwd, 'package.json');
+  const deps: Record<string, string> = {};
+
+  if (await fs.pathExists(packageJsonPath)) {
+    const packageJson = await fs.readJson(packageJsonPath);
+    Object.assign(
+      deps,
+      packageJson.dependencies ?? {},
+      packageJson.devDependencies ?? {}
+    );
+  }
+
+  if (deps.next) {
+    return 'next';
+  }
+
+  const nextConfigCandidates = [
+    'next.config.js',
+    'next.config.ts',
+    'next.config.mjs',
+    'next.config.cjs',
+  ];
+  for (const name of nextConfigCandidates) {
+    if (await fs.pathExists(path.join(cwd, name))) {
+      return 'next';
+    }
+  }
+
+  if (deps.vite) {
+    return 'vite';
+  }
+
+  return 'none';
+}
+
+/**
+ * Detect which Next.js router the project uses.
+ *
+ * Only meaningful when `detectMetaFramework()` returned 'next'. Callers should
+ * guard on that before invoking.
+ *
+ * - 'app': `app/` or `src/app/` directory exists.
+ * - 'pages': `pages/` or `src/pages/` directory exists (and no app/ dir).
+ * - 'unknown': neither directory found (fresh scaffold mid-init, etc.).
+ */
+export async function detectNextRouter(
+  cwd: string = process.cwd()
+): Promise<'app' | 'pages' | 'unknown'> {
+  const appCandidates = ['app', 'src/app'];
+  for (const rel of appCandidates) {
+    if (await fs.pathExists(path.join(cwd, rel))) {
+      return 'app';
+    }
+  }
+
+  const pagesCandidates = ['pages', 'src/pages'];
+  for (const rel of pagesCandidates) {
+    if (await fs.pathExists(path.join(cwd, rel))) {
+      return 'pages';
+    }
+  }
+
+  return 'unknown';
+}
+
+/**
  * Get comprehensive project information
  */
 export async function getProjectInfo(
@@ -105,23 +198,13 @@ export async function getProjectInfo(
   const framework = await detectFramework(cwd);
   const typescript = await detectTypeScript(cwd);
   const packageManager = await detectPackageManager(cwd);
-
-  const packageJsonPath = path.join(cwd, 'package.json');
-  let hasVite = false;
-
-  if (await fs.pathExists(packageJsonPath)) {
-    const packageJson = await fs.readJson(packageJsonPath);
-    const deps = {
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies,
-    };
-    hasVite = !!deps.vite;
-  }
+  const metaFramework = await detectMetaFramework(cwd);
 
   return {
     framework,
     typescript,
     packageManager,
-    hasVite,
+    metaFramework,
+    hasVite: metaFramework === 'vite',
   };
 }

@@ -204,6 +204,7 @@ describe('getProjectInfo', () => {
       framework: 'react',
       typescript: true,
       packageManager: 'pnpm',
+      metaFramework: 'vite',
       hasVite: true,
     });
   });
@@ -220,6 +221,168 @@ describe('getProjectInfo', () => {
     expect(info.framework).toBe('unknown');
     expect(info.typescript).toBe(false);
     expect(info.packageManager).toBe('npm');
+    expect(info.metaFramework).toBe('none');
     expect(info.hasVite).toBe(false);
+  });
+
+  it('should detect Next.js meta-framework', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { react: '^18.0.0', next: '^15.0.0' },
+    });
+
+    const { getProjectInfo } =
+      await import('../../src/utils/detect-framework.js');
+    const info = await getProjectInfo(testDir);
+
+    expect(info.framework).toBe('react');
+    expect(info.metaFramework).toBe('next');
+    expect(info.hasVite).toBe(false);
+  });
+});
+
+describe('detectMetaFramework', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-detect-meta-'))
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it('detects Next from dependency', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { next: '^15.0.0', react: '^18.0.0' },
+    });
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('next');
+  });
+
+  it('detects Next from next.config.js without dependency', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { react: '^18.0.0' },
+    });
+    await fs.writeFile(
+      path.join(testDir, 'next.config.js'),
+      'module.exports = {};'
+    );
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('next');
+  });
+
+  it('detects Next from next.config.ts', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {});
+    await fs.writeFile(
+      path.join(testDir, 'next.config.ts'),
+      'export default {};'
+    );
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('next');
+  });
+
+  it('detects Next from next.config.mjs', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {});
+    await fs.writeFile(
+      path.join(testDir, 'next.config.mjs'),
+      'export default {};'
+    );
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('next');
+  });
+
+  it('detects Vite from dependency', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { vite: '^5.0.0', react: '^18.0.0' },
+    });
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('vite');
+  });
+
+  it('prefers Next over Vite when both present', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { next: '^15.0.0', vite: '^5.0.0' },
+    });
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('next');
+  });
+
+  it('returns none for plain project', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { react: '^18.0.0' },
+    });
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('none');
+  });
+
+  it('returns none when package.json missing', async () => {
+    const { detectMetaFramework } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectMetaFramework(testDir)).toBe('none');
+  });
+});
+
+describe('detectNextRouter', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-detect-router-'))
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it('detects app router from app/ directory', async () => {
+    await fs.ensureDir(path.join(testDir, 'app'));
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('app');
+  });
+
+  it('detects app router from src/app/ directory', async () => {
+    await fs.ensureDir(path.join(testDir, 'src/app'));
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('app');
+  });
+
+  it('detects pages router from pages/ directory', async () => {
+    await fs.ensureDir(path.join(testDir, 'pages'));
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('pages');
+  });
+
+  it('detects pages router from src/pages/ directory', async () => {
+    await fs.ensureDir(path.join(testDir, 'src/pages'));
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('pages');
+  });
+
+  it('prefers app router when both present', async () => {
+    await fs.ensureDir(path.join(testDir, 'app'));
+    await fs.ensureDir(path.join(testDir, 'pages'));
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('app');
+  });
+
+  it('returns unknown when neither exists', async () => {
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('unknown');
   });
 });

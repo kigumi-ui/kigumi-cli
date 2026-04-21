@@ -211,3 +211,36 @@ describe('kigumiConfigSchema edge cases', () => {
     ).toThrow();
   });
 });
+
+describe('metaFramework schema', () => {
+  it('accepts metaFramework: next', () => {
+    const result = validateConfig({ ...validConfig, metaFramework: 'next' });
+    expect(result.metaFramework).toBe('next');
+  });
+
+  it('accepts metaFramework: vite', () => {
+    const result = validateConfig({ ...validConfig, metaFramework: 'vite' });
+    expect(result.metaFramework).toBe('vite');
+  });
+
+  it('accepts metaFramework: none', () => {
+    const result = validateConfig({ ...validConfig, metaFramework: 'none' });
+    expect(result.metaFramework).toBe('none');
+  });
+
+  it('accepts config without metaFramework (optional field)', () => {
+    const result = validateConfig(validConfig);
+    expect(result.metaFramework).toBeUndefined();
+  });
+
+  it('rejects invalid metaFramework value', () => {
+    expect(() =>
+      validateConfig({ ...validConfig, metaFramework: 'remix' })
+    ).toThrow('Configuration file is invalid');
+  });
+
+  it('preserves metaFramework through mergeWithDefaults', () => {
+    const result = mergeWithDefaults({ metaFramework: 'next' });
+    expect(result.metaFramework).toBe('next');
+  });
+});
