@@ -232,6 +232,27 @@ Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` 
 
 Form controls implement `ControlValueAccessor`. Use `[(ngModel)]` or `[formControl]`, never manual event wiring for value tracking.
 
+### 12. React Two-Tier Wrapper Split (v0.20+, Next.js RSC support)
+
+React wrappers are split by the component's CEM (events):
+
+- **Tier 1 — presentational** (no events): pure `forwardRef` pass-through. No hooks, no `'use client';`. Safe to render inside Next.js Server Components. `ref.current` is the underlying `<wa-*>` element; the exported `XRef` type is an alias for that element (`export type BadgeRef = WaElement;`).
+- **Tier 2 — interactive** (>=1 event): keeps `useRef` + `useImperativeHandle` + `useEffect` for `wa-*` event listeners. First line of the template is `'use client';`. `ref.current.element` remains the escape hatch.
+
+Source of truth: the `tier` field on `src/utils/component-metadata.ts` (CEM-derived by `scripts/parse-custom-elements.ts`). Drift is caught by `tests/unit/template-tier-classification.test.ts`.
+
+Analogous to shadcn/ui's per-component `'use client';` policy. In Vite projects, the `'use client';` directive on Tier 2 files is a no-op at runtime but triggers a harmless Rollup `MODULE_LEVEL_DIRECTIVE` warning — `kigumi init` prints an `onwarn` snippet to silence it.
+
+### 13. Meta-Framework Detection (Next.js vs Vite)
+
+`src/utils/detect-framework.ts` exposes `detectMetaFramework()` (`'next' | 'vite' | 'none'`) and `detectNextRouter()` (`'app' | 'pages' | 'unknown'`). `kigumi init` uses both to:
+
+- Scaffold `src/global.d.ts` in Next.js projects (no `vite/client` reference) instead of `src/vite-env.d.ts`.
+- Pre-fill `metaFramework` on `kigumi.config.json` (informational only — it does **not** branch template rendering).
+- Print a router-aware import snippet (`app/layout.tsx` for App Router, `pages/_app.tsx` for Pages Router, `src/main.tsx` for Vite).
+
+`metaFramework` is optional on `KigumiConfig` and elided when `'none'`.
+
 ---
 
 ## CSS Utilities
@@ -1063,4 +1084,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-08
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-21

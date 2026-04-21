@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (73 files, 1140 tests)
+├── unit/                    # Fast, isolated tests (75 files, 1518 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -58,6 +58,8 @@ tests/
 │   ├── storybook-generator.test.ts  # Storybook story generation
 │   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
 │   ├── template.test.ts             # Handlebars template rendering
+│   ├── template-render-smoke.test.ts # Render every .tsx.hbs/.jsx.hbs, assert output parses as valid TS/JSX (ts.createSourceFile)
+│   ├── template-tier-classification.test.ts # Drift audit: Tier 1 = no hooks + no 'use client'; Tier 2 = 'use client'; on line 1
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
@@ -124,13 +126,15 @@ describe('detectTier', () => {
 - Utility helpers
 - Zod schema validation
 - Tier detection logic
+- Meta-framework detection (`detectMetaFramework`, `detectNextRouter`)
 - Config parsing
 - Command handlers (diff, upgrade, doctor, theme, brand, palette)
-- File regeneration (kigumi.ts, layers.css, theme.css)
+- File regeneration (kigumi.ts, layers.css, theme.css, vite-env.d.ts, global.d.ts)
 - Community registry schema validation
 - GitHub URL parsing and token resolution
 - Registry caching (disk cache TTL, invalidation)
 - Dependency resolution (topological sort, circular detection)
+- Template drift audits: tier classification (Tier 1 = no hooks, Tier 2 = `'use client';`) and render-output syntax
 
 ### E2E Tests (`tests/e2e/`)
 
@@ -303,4 +307,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-13
+**Last Updated:** 2026-04-21

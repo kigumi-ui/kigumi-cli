@@ -55,37 +55,67 @@ Available in all `.hbs` templates:
 
 ## Component Patterns
 
-### Simple Component (no events/methods)
+### Two-Tier React Architecture (v0.20+)
 
-Use for: Icon, Badge, Divider, Spinner, etc.
+All React templates fall into one of two tiers, decided by the component's CEM. Tier is written to `src/utils/component-metadata.ts` by `scripts/parse-custom-elements.ts` and enforced at build time by `tests/unit/template-tier-classification.test.ts`:
 
-```typescript
+- **Tier 1 — presentational** (zero events): pass-through wrapper, no hooks, no `'use client';`. Safe to render inside Next.js Server Components. `ref.current` is the underlying `<wa-*>` element. The exported `{{name}}Ref` type is an alias (`export type {{name}}Ref = WaElement;`) so existing `useRef<{{name}}Ref>(null)` declarations continue to type-check.
+- **Tier 2 — interactive** (one or more CEM events): same `useRef` + `useImperativeHandle` + `useEffect` pattern as before, but the **first line** of the template is `'use client';`.
+
+Rationale: analogous to shadcn/ui's per-component client-boundary policy. Keeps templates context-free (no render-time branching on `metaFramework`). In Vite, the `'use client';` directive is a no-op but triggers a harmless Rollup `MODULE_LEVEL_DIRECTIVE` warning — `kigumi init` offers an `onwarn` snippet to silence it.
+
+### Tier 1 — Presentational (RSC-safe)
+
+Use for: Badge, BarChart, Breadcrumb, BreadcrumbItem, BubbleChart, ButtonGroup, Callout, Card, CarouselItem, Chart, Divider, DoughnutChart, FormatBytes, FormatDate, FormatNumber, LineChart, Markdown, Option, Page, PieChart, PolarAreaChart, ProgressBar, ProgressRing, QrCode, RadarChart, RelativeTime, ScatterChart, Scroller, Skeleton, Sparkline, Spinner, Tab, TabPanel, Toast (34 components).
+
+```tsx
 import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './{{name}}.css';
 
-export interface {{name}}Props extends HTMLAttributes<HTMLElement> {
+export interface {{name}}Props extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   // Props matching wa-* attributes
 }
 
-export const {{name}} = forwardRef<HTMLElement, {{name}}Props>(
-  ({ className, ...props }, ref) => (
-    <wa-{{tagName}} ref={ref} class={clsx('{{name}}', className)} {...props} />
+/**
+ * Ref type: `ref.current` is the underlying `<wa-{{tagName}}>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type {{name}}Ref = WaElement;
+
+export const {{name}} = forwardRef<WaElement, {{name}}Props>(
+  ({ children, className, ...props }, ref) => (
+    <wa-{{tagName}}
+      ref={ref}
+      class={clsx('{{name}}', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-{{tagName}}>
   )
 );
 
 {{name}}.displayName = '{{name}}';
 ```
 
-### Complex Component (with events/methods)
+**No hooks allowed.** Any `useRef`, `useImperativeHandle`, `useEffect`, or `useState` in a Tier 1 template will fail the drift audit. If a component genuinely needs one of these, its CEM should expose an event — in which case it belongs in Tier 2.
 
-Use for: Dialog, Drawer, Dropdown, Select, etc.
+**Methods:** If the native `<wa-*>` element exposes a method (`show`, `create`, `renderMarkdown`), consumers call it on `ref.current` directly. Do **not** wrap methods in a `useImperativeHandle` facade — that regresses to the pre-v0.20 `.element` indirection. Components that had such facades before v0.20 (Toast, Markdown, Page) now carry a short migration note above their `{{name}}Ref` alias.
 
-```typescript
+### Tier 2 — Interactive (client-only)
+
+Use for: AnimatedImage, Animation, Avatar, Button, Carousel, Checkbox, ColorPicker, Combobox, Comparison, CopyButton, Details, Dialog, Drawer, Dropdown, DropdownItem, FileInput, Icon, Include, Input, IntersectionObserver, MutationObserver, NumberInput, Popover, Popup, Radio, RadioGroup, Rating, ResizeObserver, Select, Slider, SplitPanel, Switch, TabGroup, Tag, Textarea, ToastItem, Tooltip, Tree, TreeItem, ZoomableFrame (40 components).
+
+```tsx
+'use client';
+
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
+import type WaElement from '{{{importPath}}}';
 import './{{name}}.css';
 
 export interface {{name}}Props extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -97,12 +127,12 @@ export interface {{name}}Props extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 export interface {{name}}Ref {
   show: () => void;
   hide: () => void;
-  element: HTMLElement | null;
+  element: WaElement | null;
 }
 
 export const {{name}} = forwardRef<{{name}}Ref, {{name}}Props>(
   ({ className, onShow, onHide, ...props }, ref) => {
-    const internalRef = useRef<HTMLElement & { show?: () => void; requestClose?: () => void }>(null);
+    const internalRef = useRef<WaElement | null>(null);
 
     useImperativeHandle(ref, () => ({
       show: () => internalRef.current?.show?.(),
@@ -127,13 +157,19 @@ export const {{name}} = forwardRef<{{name}}Ref, {{name}}Props>(
     }, [onShow, onHide]);
 
     return (
-      <wa-{{tagName}} ref={internalRef} class={clsx('{{name}}', className)} {...props} />
+      <wa-{{tagName}}
+        ref={(el: WaElement | null) => { internalRef.current = el; }}
+        class={clsx('{{name}}', className)}
+        {...(props as Record<string, unknown>)}
+      />
     );
   }
 );
 
 {{name}}.displayName = '{{name}}';
 ```
+
+The `'use client';` directive on line 1 is required for Next.js App Router compatibility and is enforced by the drift audit. The JSX variant (`{{name}}.jsx.hbs`) must also start with `'use client';`.
 
 ---
 
@@ -262,4 +298,4 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-04
+**Last Updated:** 2026-04-21

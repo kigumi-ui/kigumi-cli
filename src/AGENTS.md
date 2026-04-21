@@ -62,7 +62,7 @@ src/
 │   ├── display-options.ts # Theme/palette/brand display labels and options
 │   ├── project-config.ts # Project configuration helpers (configureVueCustomElements, configureVueTypes)
 │   ├── component-metadata.ts # Auto-generated component metadata (events, slots, methods) — used by Vue template generator
-│   ├── detect-framework.ts # Framework, TypeScript, package manager detection
+│   ├── detect-framework.ts # Framework, TypeScript, package manager, meta-framework (next/vite/none), Next.js router (app/pages) detection
 │   ├── token-manager.ts  # Token validation, loading, saving, prompting
 │   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
 │   ├── update-check.ts   # CLI update notification
@@ -206,14 +206,15 @@ Uses a custom `stripJSONComments` state-machine parser (not regex) to correctly 
 
 ### `utils/regenerate.ts` - File Generation
 
-Generates `kigumi.ts`, `layers.css`, `theme.css`, and `vite-env.d.ts`.
+Generates `kigumi.ts`, `layers.css`, `theme.css`, and either `vite-env.d.ts` (Vite / unknown meta-framework) or `global.d.ts` (Next.js).
 
 **Key Design Decisions:**
 
 - **`layers.css`** (auto-generated): Wraps all Web Awesome imports in `@layer` for cascade control. Base layer (Web Awesome CSS) < theme layer (user custom CSS). Regenerated on every theme/brand/palette change.
 - **`kigumi.ts`** (auto-generated): Imports layers.css and applies theme classes to `<html>`. Regenerated on every theme/brand/palette change.
 - **`theme.css`** (user-editable): User's custom CSS overrides ONLY. Generated only on `init` if file doesn't exist, then preserved on subsequent inits.
-- **`vite-env.d.ts`**: TypeScript declarations. Must use `declare global`, not `declare module 'react'`.
+- **`vite-env.d.ts`** (`generateViteEnvDts`): TypeScript declarations with a `vite/client` triple-slash reference. Must use `declare global`, not `declare module 'react'`.
+- **`global.d.ts`** (`generateNextGlobalDts`): Same JSX augmentation as `vite-env.d.ts` but without the `vite/client` reference. Next.js ships its own `next-env.d.ts`. `src/commands/init/file-generator.ts` branches on `config.metaFramework === 'next'` to pick which file to write.
 
 **When regenerated:**
 
@@ -244,13 +245,13 @@ In addition to Handlebars rendering, exports shared file extension helpers used 
 
 Modular initialization with separate concerns:
 
-| File                | Responsibility                    |
-| ------------------- | --------------------------------- |
-| `index.ts`          | Orchestration, tier migration     |
-| `config-builder.ts` | Build config from options/prompts |
-| `file-generator.ts` | Generate project files            |
-| `installer.ts`      | npm/pnpm install, package cleanup |
-| `migration.ts`      | Free↔Pro package migration        |
+| File                | Responsibility                                                                                                    |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `index.ts`          | Orchestration, tier migration, meta-framework-aware post-install output (App Router / Pages Router / Vite / none) |
+| `config-builder.ts` | Build config from options/prompts; pre-fills `metaFramework` from `detectMetaFramework(cwd)` (elided for `none`)  |
+| `file-generator.ts` | Generate project files; branches on `config.metaFramework === 'next'` for `global.d.ts` vs `vite-env.d.ts`        |
+| `installer.ts`      | npm/pnpm install, package cleanup                                                                                 |
+| `migration.ts`      | Free↔Pro package migration                                                                                        |
 
 **Tier Migration Flow:**
 
@@ -398,4 +399,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-13
+**Last Updated:** 2026-04-21

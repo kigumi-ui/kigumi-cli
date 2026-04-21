@@ -1,0 +1,180 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Callout, Icon } from '@/components/ui';
+import { CodeBlock } from '@/components/CodeBlock';
+
+<Meta title="General / Upgrading" />
+
+<Unstyled>
+  <div className="wa-stack wa-gap-4xl" style={{ padding: 'var(--wa-space-2xl)' }}>
+    <div className="wa-stack wa-gap-xl">
+      <h1 className="wa-heading-3xl" id="upgrading">Upgrading</h1>
+      <p className="wa-body-l">
+        Migration notes for Kigumi CLI releases that introduce breaking
+        changes. Kigumi is pre-1.0, so minor-version bumps (0.x.0) may carry
+        breaking changes per SemVer.
+      </p>
+    </div>
+
+    <div className="wa-stack wa-gap-xl">
+      <h2 className="wa-heading-2xl" id="v0-20-next-and-two-tier-split">Upgrading to 0.20 — Next.js + two-tier split</h2>
+
+      <Callout variant="brand">
+        <Icon slot="icon" name="circle-info" />
+        <p>
+          This release adds Next.js App Router support. Existing Vite users
+          keep working — the only change you'll notice is a harmless Rollup
+          warning about <code>'use client'</code> directives that you can
+          silence in <code>vite.config.ts</code>. See the{' '}
+          <a href="#vite-rollup-warning">Vite Rollup warning</a> section.
+        </p>
+      </Callout>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="whats-new">What's new</h3>
+        <ul>
+          <li><code>kigumi init</code> now detects Next.js and writes <code>src/global.d.ts</code> instead of <code>src/vite-env.d.ts</code>. Post-install output shows the right import snippet for your router (<code>app/layout.tsx</code> vs <code>pages/_app.tsx</code>).</li>
+          <li>React wrappers are split into two tiers by the component's CEM events: <strong>presentational</strong> (no events) are pure <code>forwardRef</code> pass-throughs safe for React Server Components, <strong>interactive</strong> (one or more events) emit <code>'use client';</code> on line 1 and keep the existing <code>useImperativeHandle</code> pattern. Same split shadcn/ui uses.</li>
+        </ul>
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="migration-ref-current-element">Breaking — <code>ref.current.element</code> on presentational components</h3>
+        <p>
+          The 34 presentational components no longer expose a
+          <code>{'{ element: WaElement | null }'}</code> ref shape. Their{' '}
+          <code>XRef</code> export is now a type alias to the underlying{' '}
+          <code>wa-*</code> element, so <code>useRef&lt;XRef&gt;(null)</code>{' '}
+          still type-checks, but you no longer indirect through{' '}
+          <code>.element</code>.
+        </p>
+
+        <p><strong>Affected components (34):</strong></p>
+        <p className="wa-body-s">
+          Badge, BarChart, Breadcrumb, BreadcrumbItem, BubbleChart,
+          ButtonGroup, Callout, Card, CarouselItem, Chart, Divider,
+          DoughnutChart, FormatBytes, FormatDate, FormatNumber, LineChart,
+          Markdown, Option, Page, PieChart, PolarAreaChart, ProgressBar,
+          ProgressRing, QrCode, RadarChart, RelativeTime, ScatterChart,
+          Scroller, Skeleton, Sparkline, Spinner, Tab, TabPanel, Toast.
+        </p>
+
+        <p><strong>Before (v0.19):</strong></p>
+        <CodeBlock
+          language="tsx"
+          value={`import { useRef } from 'react';
+import { Badge, type BadgeRef } from '@/components/ui';
+
+const ref = useRef<BadgeRef>(null);
+ref.current?.element?.focus();`}
+        />
+
+        <p><strong>After (v0.20):</strong></p>
+        <CodeBlock
+          language="tsx"
+          value={`import { useRef } from 'react';
+import { Badge, type BadgeRef } from '@/components/ui';
+
+// BadgeRef is now a type alias for the native wa-badge element
+const ref = useRef<BadgeRef>(null);
+ref.current?.focus();`}
+        />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="migration-wrapper-methods">Breaking — wrapper-specific methods on Toast, Markdown, Page</h3>
+        <p>
+          Three presentational components used to expose Kigumi-specific
+          methods on their ref. Those are gone — the underlying{' '}
+          <code>wa-*</code> element exposes the same methods, so just drop
+          the <code>.element</code> indirection.
+        </p>
+
+        <p><strong>Toast:</strong></p>
+        <CodeBlock
+          language="tsx"
+          value={`// Before
+toastRef.current?.element?.create('Hello!', { variant: 'brand' });
+
+// After
+toastRef.current?.create('Hello!', { variant: 'brand' });`}
+        />
+
+        <p><strong>Markdown</strong> (<code>renderMarkdown</code>, <code>getMarked</code>, <code>updateAll</code>) and <strong>Page</strong> (<code>visiblePixelsInViewport</code>, <code>showNavigation</code>, <code>hideNavigation</code>, <code>toggleNavigation</code>) migrate the same way: <code>ref.current.method(...)</code> instead of <code>ref.current.element.method(...)</code>.</p>
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="interactive-unchanged">Interactive components are unchanged</h3>
+        <p>
+          The 40 interactive components (Button, Dialog, Input, Select,
+          Dropdown, Drawer, Tooltip, Popover, Tabs, Tree, Carousel, and the
+          rest) keep their existing <code>XRef</code> interface with
+          methods and <code>element</code>. They gain a <code>'use client';</code>{' '}
+          directive on line 1, which is a no-op at runtime for you but
+          makes them renderable inside Next.js Server Component trees via
+          the Client Island boundary.
+        </p>
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="vite-rollup-warning">Vite: silence the Rollup warning</h3>
+        <p>
+          Vite bundlers see <code>'use client';</code> as a directive they
+          don't understand and emit <code>MODULE_LEVEL_DIRECTIVE</code>{' '}
+          warnings for every Tier 2 wrapper. The warning is harmless but
+          clutters build output. Filter it in <code>vite.config.ts</code>:
+        </p>
+        <CodeBlock
+          language="ts"
+          value={`import { defineConfig } from 'vite';
+
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+        warn(warning);
+      },
+    },
+  },
+});`}
+        />
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="next-js-setup">Next.js: minimal setup</h3>
+        <ol>
+          <li><code>npx kigumi init</code> — detects <code>next</code> in your <code>package.json</code> or <code>next.config.*</code> and writes <code>src/global.d.ts</code>.</li>
+          <li>
+            <strong>App Router:</strong> add <code>{'import \'@/lib/kigumi\';'}</code> at the top of <code>app/layout.tsx</code>.{' '}
+            <strong>Pages Router:</strong> add it at the top of <code>pages/_app.tsx</code>.
+          </li>
+          <li><code>npx kigumi add button dialog</code> — Button is Tier 2 so you can drop it into any Client Component; Badge, Divider, Card, etc. are Tier 1 and render natively in Server Components.</li>
+        </ol>
+        <p className="wa-body-s">
+          Tier 1 components server-render as empty <code>{'<wa-*>'}</code>{' '}
+          tags that hydrate on the client — visible output appears after
+          hydration. True server-side rendering with Declarative Shadow DOM
+          is tracked as a follow-up via <code>kigumi add next-ssr-loader</code>.
+        </p>
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <h3 className="wa-heading-l" id="regenerating-existing-components">Regenerating existing components</h3>
+        <p>
+          Already-installed wrappers stay on their v0.19 snapshot until you
+          regenerate. To pull in the two-tier split:
+        </p>
+        <CodeBlock
+          language="bash"
+          value="npx kigumi update --force"
+        />
+        <p>
+          <code>kigumi update</code> uses a three-way merge — local
+          modifications are preserved where possible, with conflict
+          markers where they collide. Running <code>--force</code> takes
+          the new template verbatim.
+        </p>
+      </div>
+    </div>
+  </div>
+</Unstyled>
