@@ -4,9 +4,23 @@
 // This file contains metadata extracted from Web Awesome's custom-elements.json
 // Run `pnpm generate:metadata` to regenerate
 
+export type ComponentTier = 'presentational' | 'interactive';
+
 export interface ComponentMetadata {
   tagName: string;
   className: string;
+  /**
+   * Tier determines the React/Vue wrapper shape:
+   * - 'presentational' = pure `forwardRef` pass-through, no hooks, no `'use client';`.
+   *   Safe to render in React Server Components.
+   * - 'interactive' = `useRef` + `useImperativeHandle` + `useEffect` for `wa-*` events,
+   *   emits `'use client';` as first line.
+   *
+   * Derived from CEM: a component with >= 1 event requires useEffect + addEventListener
+   * in the wrapper, which forces it client-side. Components without events can
+   * pass the ref straight through to the native element and therefore work as RSC.
+   */
+  tier: ComponentTier;
   events: Array<{
     name: string;
     description: string;
@@ -28,6 +42,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   icon: {
     tagName: 'wa-icon',
     className: 'WaIcon',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-load',
@@ -50,6 +65,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   checkbox: {
     tagName: 'wa-checkbox',
     className: 'WaCheckbox',
+    tier: 'interactive',
     events: [
       {
         name: 'change',
@@ -149,6 +165,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   spinner: {
     tagName: 'wa-spinner',
     className: 'WaSpinner',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -156,6 +173,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'tree-item': {
     tagName: 'wa-tree-item',
     className: 'WaTreeItem',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-expand',
@@ -227,6 +245,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'carousel-item': {
     tagName: 'wa-carousel-item',
     className: 'WaCarouselItem',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -239,6 +258,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   button: {
     tagName: 'wa-button',
     className: 'WaButton',
+    tier: 'interactive',
     events: [
       {
         name: 'blur',
@@ -330,6 +350,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'animated-image': {
     tagName: 'wa-animated-image',
     className: 'WaAnimatedImage',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-load',
@@ -361,6 +382,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   animation: {
     tagName: 'wa-animation',
     className: 'WaAnimation',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-cancel',
@@ -404,6 +426,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   avatar: {
     tagName: 'wa-avatar',
     className: 'WaAvatar',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-error',
@@ -425,6 +448,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   badge: {
     tagName: 'wa-badge',
     className: 'WaBadge',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -446,6 +470,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'breadcrumb-item': {
     tagName: 'wa-breadcrumb-item',
     className: 'WaBreadcrumbItem',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -472,6 +497,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   breadcrumb: {
     tagName: 'wa-breadcrumb',
     className: 'WaBreadcrumb',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -489,6 +515,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'button-group': {
     tagName: 'wa-button-group',
     className: 'WaButtonGroup',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -502,6 +529,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   callout: {
     tagName: 'wa-callout',
     className: 'WaCallout',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -519,6 +547,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   card: {
     tagName: 'wa-card',
     className: 'WaCard',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -559,6 +588,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   carousel: {
     tagName: 'wa-carousel',
     className: 'WaCarousel',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-slide-change',
@@ -624,6 +654,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   input: {
     tagName: 'wa-input',
     className: 'WaInput',
+    tier: 'interactive',
     events: [
       {
         name: 'input',
@@ -811,6 +842,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   popup: {
     tagName: 'wa-popup',
     className: 'WaPopup',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-reposition',
@@ -841,6 +873,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'color-picker': {
     tagName: 'wa-color-picker',
     className: 'WaColorPicker',
+    tier: 'interactive',
     events: [
       {
         name: 'change',
@@ -1008,6 +1041,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   comparison: {
     tagName: 'wa-comparison',
     className: 'WaComparison',
+    tier: 'interactive',
     events: [
       {
         name: 'change',
@@ -1035,6 +1069,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tooltip: {
     tagName: 'wa-tooltip',
     className: 'WaTooltip',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-show',
@@ -1084,6 +1119,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'copy-button': {
     tagName: 'wa-copy-button',
     className: 'WaCopyButton',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-copy',
@@ -1125,6 +1161,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   details: {
     tagName: 'wa-details',
     className: 'WaDetails',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-show',
@@ -1188,6 +1225,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   dialog: {
     tagName: 'wa-dialog',
     className: 'WaDialog',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-show',
@@ -1252,6 +1290,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   divider: {
     tagName: 'wa-divider',
     className: 'WaDivider',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -1259,6 +1298,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   drawer: {
     tagName: 'wa-drawer',
     className: 'WaDrawer',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-show',
@@ -1323,6 +1363,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'dropdown-item': {
     tagName: 'wa-dropdown-item',
     className: 'WaDropdownItem',
+    tier: 'interactive',
     events: [
       {
         name: 'blur',
@@ -1371,6 +1412,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   dropdown: {
     tagName: 'wa-dropdown',
     className: 'WaDropdown',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-show',
@@ -1420,6 +1462,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'format-bytes': {
     tagName: 'wa-format-bytes',
     className: 'WaFormatBytes',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -1427,6 +1470,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'format-date': {
     tagName: 'wa-format-date',
     className: 'WaFormatDate',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -1434,6 +1478,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'format-number': {
     tagName: 'wa-format-number',
     className: 'WaFormatNumber',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -1441,6 +1486,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   include: {
     tagName: 'wa-include',
     className: 'WaInclude',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-load',
@@ -1462,6 +1508,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'intersection-observer': {
     tagName: 'wa-intersection-observer',
     className: 'WaIntersectionObserver',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-intersect',
@@ -1483,6 +1530,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'mutation-observer': {
     tagName: 'wa-mutation-observer',
     className: 'WaMutationObserver',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-mutation',
@@ -1502,6 +1550,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'number-input': {
     tagName: 'wa-number-input',
     className: 'WaNumberInput',
+    tier: 'interactive',
     events: [
       {
         name: 'input',
@@ -1629,6 +1678,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tag: {
     tagName: 'wa-tag',
     className: 'WaTag',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-remove',
@@ -1648,6 +1698,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   select: {
     tagName: 'wa-select',
     className: 'WaSelect',
+    tier: 'interactive',
     events: [
       {
         name: 'input',
@@ -1808,6 +1859,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   option: {
     tagName: 'wa-option',
     className: 'WaOption',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -1829,6 +1881,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   popover: {
     tagName: 'wa-popover',
     className: 'WaPopover',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-show',
@@ -1880,6 +1933,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'progress-bar': {
     tagName: 'wa-progress-bar',
     className: 'WaProgressBar',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -1892,6 +1946,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'progress-ring': {
     tagName: 'wa-progress-ring',
     className: 'WaProgressRing',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -1904,6 +1959,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'qr-code': {
     tagName: 'wa-qr-code',
     className: 'WaQrCode',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -1911,6 +1967,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   radio: {
     tagName: 'wa-radio',
     className: 'WaRadio',
+    tier: 'interactive',
     events: [
       {
         name: 'blur',
@@ -1968,6 +2025,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'radio-group': {
     tagName: 'wa-radio-group',
     className: 'WaRadioGroup',
+    tier: 'interactive',
     events: [
       {
         name: 'input',
@@ -2052,6 +2110,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   rating: {
     tagName: 'wa-rating',
     className: 'WaRating',
+    tier: 'interactive',
     events: [
       {
         name: 'change',
@@ -2112,6 +2171,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'relative-time': {
     tagName: 'wa-relative-time',
     className: 'WaRelativeTime',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -2119,6 +2179,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   scroller: {
     tagName: 'wa-scroller',
     className: 'WaScroller',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -2131,6 +2192,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'resize-observer': {
     tagName: 'wa-resize-observer',
     className: 'WaResizeObserver',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-resize',
@@ -2150,6 +2212,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   skeleton: {
     tagName: 'wa-skeleton',
     className: 'WaSkeleton',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -2157,6 +2220,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   slider: {
     tagName: 'wa-slider',
     className: 'WaSlider',
+    tier: 'interactive',
     events: [
       {
         name: 'change',
@@ -2263,6 +2327,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   switch: {
     tagName: 'wa-switch',
     className: 'WaSwitch',
+    tier: 'interactive',
     events: [
       {
         name: 'change',
@@ -2362,6 +2427,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tab: {
     tagName: 'wa-tab',
     className: 'WaTab',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -2374,6 +2440,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'split-panel': {
     tagName: 'wa-split-panel',
     className: 'WaSplitPanel',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-reposition',
@@ -2402,6 +2469,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'tab-panel': {
     tagName: 'wa-tab-panel',
     className: 'WaTabPanel',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -2414,6 +2482,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'tab-group': {
     tagName: 'wa-tab-group',
     className: 'WaTabGroup',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-tab-show',
@@ -2445,6 +2514,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   textarea: {
     tagName: 'wa-textarea',
     className: 'WaTextarea',
+    tier: 'interactive',
     events: [
       {
         name: 'blur',
@@ -2597,6 +2667,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tree: {
     tagName: 'wa-tree',
     className: 'WaTree',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-selection-change',
@@ -2626,6 +2697,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'zoomable-frame': {
     tagName: 'wa-zoomable-frame',
     className: 'WaZoomableFrame',
+    tier: 'interactive',
     events: [
       {
         name: 'load',
@@ -2665,6 +2737,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   markdown: {
     tagName: 'wa-markdown',
     className: 'WaMarkdown',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [
@@ -2688,6 +2761,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   page: {
     tagName: 'wa-page',
     className: 'WaPage',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -2792,6 +2866,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   chart: {
     tagName: 'wa-chart',
     className: 'WaChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -2805,6 +2880,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'bar-chart': {
     tagName: 'wa-bar-chart',
     className: 'WaBarChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -2818,6 +2894,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'bubble-chart': {
     tagName: 'wa-bubble-chart',
     className: 'WaBubbleChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -2831,6 +2908,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   combobox: {
     tagName: 'wa-combobox',
     className: 'WaCombobox',
+    tier: 'interactive',
     events: [
       {
         name: 'input',
@@ -2998,6 +3076,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'doughnut-chart': {
     tagName: 'wa-doughnut-chart',
     className: 'WaDoughnutChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -3011,6 +3090,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'file-input': {
     tagName: 'wa-file-input',
     className: 'WaFileInput',
+    tier: 'interactive',
     events: [
       {
         name: 'input',
@@ -3115,6 +3195,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'line-chart': {
     tagName: 'wa-line-chart',
     className: 'WaLineChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -3128,6 +3209,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'pie-chart': {
     tagName: 'wa-pie-chart',
     className: 'WaPieChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -3141,6 +3223,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'polar-area-chart': {
     tagName: 'wa-polar-area-chart',
     className: 'WaPolarAreaChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -3154,6 +3237,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'radar-chart': {
     tagName: 'wa-radar-chart',
     className: 'WaRadarChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -3167,6 +3251,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'scatter-chart': {
     tagName: 'wa-scatter-chart',
     className: 'WaScatterChart',
+    tier: 'presentational',
     events: [],
     slots: [
       {
@@ -3180,6 +3265,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   sparkline: {
     tagName: 'wa-sparkline',
     className: 'WaSparkline',
+    tier: 'presentational',
     events: [],
     slots: [],
     methods: [],
@@ -3187,6 +3273,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'toast-item': {
     tagName: 'wa-toast-item',
     className: 'WaToastItem',
+    tier: 'interactive',
     events: [
       {
         name: 'wa-show',
@@ -3234,6 +3321,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   toast: {
     tagName: 'wa-toast',
     className: 'WaToast',
+    tier: 'presentational',
     events: [],
     slots: [
       {
