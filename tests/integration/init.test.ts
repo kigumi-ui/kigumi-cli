@@ -142,4 +142,65 @@ describe('kigumi init', () => {
       expect(npmrcContent).not.toContain('cloudsmith');
     });
   });
+
+  describe('meta-framework: Next.js App Router', () => {
+    it('writes global.d.ts (not vite-env.d.ts) and sets metaFramework', async () => {
+      testDir = await createTempProject('react-next-app');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+      expect(result.exitCode).toBe(0);
+
+      expect(await fileExists(testDir, 'src/global.d.ts')).toBe(true);
+      expect(await fileExists(testDir, 'src/vite-env.d.ts')).toBe(false);
+
+      const config = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      expect(config.metaFramework).toBe('next');
+    });
+
+    it('shows the App Router import snippet in post-install output', async () => {
+      testDir = await createTempProject('react-next-app');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+      expect(result.stdout).toContain('Next.js App Router detected');
+      expect(result.stdout).toContain('app/layout.tsx');
+    });
+
+    it('does not show the Vite Rollup-warning snippet', async () => {
+      testDir = await createTempProject('react-next-app');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+      expect(result.stdout).not.toContain('MODULE_LEVEL_DIRECTIVE');
+    });
+  });
+
+  describe('meta-framework: Next.js Pages Router', () => {
+    it('shows the Pages Router import snippet', async () => {
+      testDir = await createTempProject('react-next-pages');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain('Next.js Pages Router detected');
+      expect(result.stdout).toContain('pages/_app.tsx');
+
+      const config = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      expect(config.metaFramework).toBe('next');
+    });
+  });
+
+  describe('meta-framework: Vite', () => {
+    it('sets metaFramework and shows the Rollup onwarn snippet', async () => {
+      testDir = await createTempProject('react-vite');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+      expect(result.exitCode).toBe(0);
+
+      expect(await fileExists(testDir, 'src/vite-env.d.ts')).toBe(true);
+      expect(await fileExists(testDir, 'src/global.d.ts')).toBe(false);
+
+      const config = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      expect(config.metaFramework).toBe('vite');
+
+      expect(result.stdout).toContain('MODULE_LEVEL_DIRECTIVE');
+    });
+  });
 });

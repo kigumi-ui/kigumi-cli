@@ -9,7 +9,8 @@
  * - generateLayersCSS() - Generate layers.css with @layer cascade control
  * - surgicalRewriteLayersCss() - Rewrite only the Web Awesome @import lines in
  *   an existing layers.css, preserving user customizations
- * - generateViteEnvDts() - Generate TypeScript declarations for wa-* elements
+ * - generateViteEnvDts() - Generate TypeScript declarations for wa-* elements (Vite)
+ * - generateNextGlobalDts() - Generate TypeScript declarations for wa-* elements (Next.js)
  * - generateThemeCSS() - Generate theme.css content
  * - generateGitIgnore() - Create/update .gitignore
  *
@@ -341,6 +342,57 @@ export {};
 
   const viteEnvPath = path.join(cwd, srcDir, 'vite-env.d.ts');
   await fs.writeFile(viteEnvPath, viteEnvContent);
+}
+
+/**
+ * Generate global.d.ts with Web Awesome custom element type definitions
+ * for Next.js projects.
+ *
+ * Same JSX/CSS augmentation as vite-env.d.ts, minus the vite/client triple-slash
+ * reference (Next.js ships its own ambient types via next-env.d.ts).
+ *
+ * @param cwd - Current working directory
+ * @param srcDir - Source directory relative to cwd (e.g., 'src' or '.')
+ * @param waPackage - Web Awesome package name (defaults to free package)
+ */
+export async function generateNextGlobalDts(
+  cwd: string,
+  srcDir: string,
+  waPackage: string = WEB_AWESOME_FREE_PACKAGE
+): Promise<void> {
+  const content = `/**
+ * Web Awesome JSX Types
+ *
+ * This extends React's JSX.IntrinsicElements with Web Awesome custom elements.
+ * Uses the official types from the ${waPackage} package.
+ *
+ * IMPORTANT: Uses 'declare global' to extend JSX without overwriting React module.
+ *
+ * @see https://webawesome.com/docs/#react-users
+ */
+
+import type {
+  CustomElements,
+  CustomCssProperties,
+} from '${waPackage}/dist/custom-elements-jsx.d.ts';
+
+declare global {
+  namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare module 'react' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface CSSProperties extends CustomCssProperties {}
+}
+
+export {};
+`;
+
+  const outPath = path.join(cwd, srcDir, 'global.d.ts');
+  await fs.writeFile(outPath, content);
 }
 
 /**

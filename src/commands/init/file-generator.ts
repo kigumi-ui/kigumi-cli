@@ -22,6 +22,7 @@ import { getWebAwesomePackage } from '../../utils/tier.js';
 import {
   regenerateKigumiSetup,
   generateViteEnvDts,
+  generateNextGlobalDts,
   generateThemeCSS,
   generateGitIgnore,
 } from '../../utils/regenerate.js';
@@ -103,11 +104,18 @@ export async function generateProjectFiles(
       output.log(`[DEBUG] ✓ theme.css generated`);
     }
 
-    // 4. Generate vite-env.d.ts (TypeScript + React)
+    // 4. Generate TypeScript ambient declarations for wa-* elements (React only)
+    //    Next.js: src/global.d.ts (no vite/client reference)
+    //    Vite / none: src/vite-env.d.ts
     if (config.typescript && config.framework === 'react') {
-      spinner.message('Generating vite-env.d.ts...');
       const waPackage = getWebAwesomePackage(tier);
-      await generateViteEnvDts(cwd, 'src', waPackage);
+      if (config.metaFramework === 'next') {
+        spinner.message('Generating global.d.ts...');
+        await generateNextGlobalDts(cwd, 'src', waPackage);
+      } else {
+        spinner.message('Generating vite-env.d.ts...');
+        await generateViteEnvDts(cwd, 'src', waPackage);
+      }
     }
 
     // 5. Generate/update .gitignore

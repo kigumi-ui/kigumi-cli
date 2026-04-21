@@ -34,7 +34,10 @@ import {
 } from './config-builder.js';
 import { installDependencies, cleanupOldPackage } from './installer.js';
 import { generateProjectFiles } from './file-generator.js';
-import { getProjectInfo } from '../../utils/detect-framework.js';
+import {
+  getProjectInfo,
+  detectNextRouter,
+} from '../../utils/detect-framework.js';
 import { saveConfig, loadConfig } from '../../utils/config.js';
 import { detectTier, type Tier } from '../../utils/tier.js';
 import {
@@ -199,12 +202,17 @@ export async function initCommand(options: InitOptions = {}) {
 
     // Phase 6: Show success
     output.outro('✓ Kigumi initialized successfully!');
+    const nextRouter =
+      configResult.config.metaFramework === 'next'
+        ? await detectNextRouter(cwd)
+        : undefined;
     showPostInstallInstructions(
       output,
       configResult.config,
       context.projectInfo.packageManager,
       true, // Always true if we reach here without errors
-      configResult.newTier
+      configResult.newTier,
+      nextRouter
     );
   } catch (error) {
     handleError(error, output);
@@ -479,6 +487,35 @@ async function confirmInstallation(
 }
 
 /**
+ * Resolve the entry file and optional Vite Rollup-warning tip for the
+ * detected meta-framework + router combination.
+ *
+ * @internal
+ */
+function resolveImportEntry(
+  config: import('../../schemas/index.js').KigumiConfig,
+  nextRouter?: 'app' | 'pages' | 'unknown'
+): { entryFile: string; viteOnwarnTip: boolean } {
+  if (config.framework === 'vue') {
+    return { entryFile: 'src/main.ts', viteOnwarnTip: false };
+  }
+
+  if (config.metaFramework === 'next') {
+    // 'unknown' (e.g. fresh scaffold without app/ or pages/ yet) defaults to
+    // App Router since that is the modern Next.js default.
+    const entryFile =
+      nextRouter === 'pages' ? 'pages/_app.tsx' : 'app/layout.tsx';
+    return { entryFile, viteOnwarnTip: false };
+  }
+
+  // Vite (or 'none') — React w/ vite-env.d.ts
+  return {
+    entryFile: 'src/main.tsx (or src/main.jsx)',
+    viteOnwarnTip: config.metaFramework === 'vite',
+  };
+}
+
+/**
  * Show post-install instructions with manual steps
  */
 function showPostInstallInstructions(
@@ -486,7 +523,8 @@ function showPostInstallInstructions(
   config: import('../../schemas/index.js').KigumiConfig,
   packageManager: string,
   depsInstalled: boolean,
-  tier: Tier
+  tier: Tier,
+  nextRouter?: 'app' | 'pages' | 'unknown'
 ): void {
   output.info('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
@@ -516,16 +554,40 @@ function showPostInstallInstructions(
   }
 
   // Step: Import Kigumi setup
+  const { entryFile, viteOnwarnTip } = resolveImportEntry(config, nextRouter);
   output.info(
     pc.bold(pc.cyan(`${stepNum}. Import Kigumi in your main entry file:\n`))
   );
-  const mainFile =
-    config.framework === 'vue'
-      ? 'src/main.ts'
-      : 'src/main.tsx (or src/main.jsx)';
-  output.info(pc.dim(`\tAdd this import to ${mainFile}:`));
+  if (config.metaFramework === 'next') {
+    const routerLabel =
+      nextRouter === 'pages' ? 'Next.js Pages Router' : 'Next.js App Router';
+    output.info(pc.dim(`\t${routerLabel} detected.`));
+  }
+  output.info(pc.dim(`\tAdd this import to ${entryFile}:`));
   output.info(pc.green('\timport "@/lib/kigumi";\n'));
   stepNum++;
+
+  // Vite-specific: optional onwarn snippet to silence 'use client' Rollup warnings.
+  // Harmless at runtime, but clutters build output — point users at the fix.
+  if (viteOnwarnTip) {
+    output.info(
+      pc.bold(
+        pc.cyan(
+          `${stepNum}. Optional — silence Rollup "'use client' directive ignored" warnings:\n`
+        )
+      )
+    );
+    output.info(pc.dim('\tAdd to vite.config.ts:\n'));
+    output.info(
+      pc.green(
+        '\tbuild: { rollupOptions: { onwarn(warning, warn) {\n' +
+          "\t  if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;\n" +
+          '\t  warn(warning);\n' +
+          '\t}}}\n'
+      )
+    );
+    stepNum++;
+  }
 
   // Vue-specific: remove conflicting default styles
   if (config.framework === 'vue') {

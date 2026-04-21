@@ -176,6 +176,9 @@ export async function buildConfigNonInteractive(
     webAwesome: {
       version: DEFAULT_CONFIG.webAwesome?.version,
     },
+    ...(projectInfo.metaFramework !== 'none' && {
+      metaFramework: projectInfo.metaFramework,
+    }),
   };
 
   preservePersistentFields(config, existingConfig);
@@ -411,6 +414,9 @@ export async function buildConfigInteractive(
     webAwesome: {
       version: DEFAULT_CONFIG.webAwesome?.version,
     },
+    ...(projectInfo.metaFramework !== 'none' && {
+      metaFramework: projectInfo.metaFramework,
+    }),
   };
 
   preservePersistentFields(config, existingConfig);

@@ -18,6 +18,7 @@ import {
   regenerateKigumiSetup,
   generateLayersCSS,
   generateViteEnvDts,
+  generateNextGlobalDts,
   generateThemeCSS,
   generateGitIgnore,
 } from '../../src/utils/regenerate.js';
@@ -296,6 +297,70 @@ describe('regenerate utilities', () => {
 
       const content = await fs.readFile(
         path.join(testDir, srcDir, 'vite-env.d.ts'),
+        'utf-8'
+      );
+      expect(content).toContain(WEB_AWESOME_FREE_PACKAGE);
+    });
+  });
+
+  describe('generateNextGlobalDts', () => {
+    it('writes src/global.d.ts with declare global JSX augmentation', async () => {
+      const srcDir = 'src';
+      await fs.ensureDir(path.join(testDir, srcDir));
+
+      await generateNextGlobalDts(testDir, srcDir);
+
+      const content = await fs.readFile(
+        path.join(testDir, srcDir, 'global.d.ts'),
+        'utf-8'
+      );
+      expect(content).toContain('declare global');
+      expect(content).toContain(
+        'interface IntrinsicElements extends CustomElements'
+      );
+    });
+
+    it('omits the vite/client triple-slash reference', async () => {
+      const srcDir = 'src';
+      await fs.ensureDir(path.join(testDir, srcDir));
+
+      await generateNextGlobalDts(testDir, srcDir);
+
+      const content = await fs.readFile(
+        path.join(testDir, srcDir, 'global.d.ts'),
+        'utf-8'
+      );
+      // Next.js ships its own next-env.d.ts — no vite reference.
+      expect(content).not.toContain('vite/client');
+    });
+
+    it('interpolates the Pro package name correctly', async () => {
+      const srcDir = 'src';
+      await fs.ensureDir(path.join(testDir, srcDir));
+
+      await generateNextGlobalDts(
+        testDir,
+        srcDir,
+        '@awesome.me/webawesome-pro'
+      );
+
+      const content = await fs.readFile(
+        path.join(testDir, srcDir, 'global.d.ts'),
+        'utf-8'
+      );
+      expect(content).toContain(
+        '@awesome.me/webawesome-pro/dist/custom-elements-jsx.d.ts'
+      );
+    });
+
+    it('defaults to WEB_AWESOME_FREE_PACKAGE when no waPackage provided', async () => {
+      const srcDir = 'src';
+      await fs.ensureDir(path.join(testDir, srcDir));
+
+      await generateNextGlobalDts(testDir, srcDir);
+
+      const content = await fs.readFile(
+        path.join(testDir, srcDir, 'global.d.ts'),
         'utf-8'
       );
       expect(content).toContain(WEB_AWESOME_FREE_PACKAGE);

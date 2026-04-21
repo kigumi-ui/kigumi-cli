@@ -15,7 +15,11 @@ const CLI_PATH = path.join(process.cwd(), 'dist', 'index.js');
  * Create a temporary project directory with a basic package.json
  */
 export async function createTempProject(
-  template: 'react-vite' | 'empty' = 'react-vite'
+  template:
+    | 'react-vite'
+    | 'react-next-app'
+    | 'react-next-pages'
+    | 'empty' = 'react-vite'
 ): Promise<string> {
   const testDir = path.join(
     os.tmpdir(),
@@ -23,7 +27,48 @@ export async function createTempProject(
   );
   await fs.ensureDir(testDir);
 
-  if (template === 'react-vite') {
+  if (template === 'react-next-app' || template === 'react-next-pages') {
+    // Minimal Next.js project structure. We pin Next to a string — the test
+    // never runs `npm install`, so the actual version doesn't matter, only
+    // that `detectMetaFramework` sees `deps.next`.
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      name: 'test-project',
+      version: '1.0.0',
+      dependencies: {
+        next: '^15.0.0',
+        react: '^19.0.0',
+        'react-dom': '^19.0.0',
+      },
+      devDependencies: {
+        '@types/react': '^19.0.0',
+        '@types/react-dom': '^19.0.0',
+        typescript: '^5.0.0',
+      },
+    });
+
+    await fs.writeJSON(path.join(testDir, 'tsconfig.json'), {
+      compilerOptions: {
+        target: 'ES2022',
+        lib: ['dom', 'dom.iterable', 'esnext'],
+        module: 'esnext',
+        moduleResolution: 'bundler',
+        jsx: 'preserve',
+        strict: true,
+        paths: { '@/*': ['./src/*'] },
+      },
+      include: ['src', 'next-env.d.ts'],
+    });
+
+    // Create the router-marker directory so detectNextRouter() returns the
+    // right value during init. Contents don't matter for the post-install
+    // snippet assertions.
+    await fs.ensureDir(path.join(testDir, 'src'));
+    if (template === 'react-next-app') {
+      await fs.ensureDir(path.join(testDir, 'app'));
+    } else {
+      await fs.ensureDir(path.join(testDir, 'pages'));
+    }
+  } else if (template === 'react-vite') {
     // Create minimal React + Vite project structure
     await fs.writeJSON(path.join(testDir, 'package.json'), {
       name: 'test-project',
