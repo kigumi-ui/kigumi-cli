@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -39,68 +39,24 @@ export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   view?: 'mobile' | 'desktop';
 }
 
-export interface PageRef {
+/**
+ * Ref type: `ref.current` is the underlying `<wa-page>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }` with `visiblePixelsInViewport`,
+ * `showNavigation`, `hideNavigation`, and `toggleNavigation` methods;
+ * call those directly on `ref.current` instead.)
+ */
+export type PageRef = WaElement;
 
-  /** https://stackoverflow.com/a/26831113
-This prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps. */
-  visiblePixelsInViewport: (element: HTMLElement | null) => void;
-
-  /** Shows the mobile navigation drawer */
-  showNavigation: () => void;
-
-  /** Hides the mobile navigation drawer */
-  hideNavigation: () => void;
-
-  /** Toggles the mobile navigation drawer */
-  toggleNavigation: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
-
-export const Page = forwardRef<PageRef, PageProps>(
-  ({ children, className, ...props }, ref) => {
-    const pageRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        visiblePixelsInViewport: (element: HTMLElement | null) => {
-          if (pageRef.current && typeof pageRef.current.visiblePixelsInViewport === 'function') {
-            pageRef.current.visiblePixelsInViewport(element);
-          }
-        },
-        showNavigation: () => {
-          if (pageRef.current && typeof pageRef.current.showNavigation === 'function') {
-            pageRef.current.showNavigation();
-          }
-        },
-        hideNavigation: () => {
-          if (pageRef.current && typeof pageRef.current.hideNavigation === 'function') {
-            pageRef.current.hideNavigation();
-          }
-        },
-        toggleNavigation: () => {
-          if (pageRef.current && typeof pageRef.current.toggleNavigation === 'function') {
-            pageRef.current.toggleNavigation();
-          }
-        },
-        get element() {
-          return pageRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-page
-        ref={(el: WaElement | null) => { pageRef.current = el; }}
-        class={clsx('Page', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-page>
-    );
-  }
+export const Page = forwardRef<WaElement, PageProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-page
+      ref={ref}
+      class={clsx('Page', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-page>
+  )
 );
 
 Page.displayName = 'Page';

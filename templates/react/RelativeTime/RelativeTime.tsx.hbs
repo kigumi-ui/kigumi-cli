@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -35,33 +35,23 @@ export interface RelativeTimeProps extends Omit<HTMLAttributes<HTMLElement>, 'di
   lang?: string;
 }
 
-export interface RelativeTimeRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-relative-time>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type RelativeTimeRef = WaElement;
 
-export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
+export const RelativeTime = forwardRef<WaElement, RelativeTimeProps>(
   ({ children, className, date, ...props }, ref) => {
     const dateStr = date instanceof Date ? date.toISOString() : date;
     const passThrough = {
       ...props,
       ...(dateStr !== undefined && { date: dateStr }),
     };
-    const relativetimeRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return relativetimeRef.current;
-        },
-      }),
-      []
-    );
-
     return (
       <wa-relative-time
-        ref={(el: WaElement | null) => { relativetimeRef.current = el; }}
+        ref={ref}
         class={clsx('RelativeTime', className)}
         {...(passThrough as Record<string, unknown>)}
       >

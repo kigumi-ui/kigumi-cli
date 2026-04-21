@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -40,35 +40,23 @@ export interface PieChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
   'without-tooltip'?: boolean;
 }
 
-export interface PieChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-pie-chart>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type PieChartRef = WaElement;
 
-export const PieChart = forwardRef<PieChartRef, PieChartProps>(
-  ({ children, className, ...props }, ref) => {
-    const pieChartRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return pieChartRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-pie-chart
-        ref={(el: WaElement | null) => { pieChartRef.current = el; }}
-        class={clsx('PieChart', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-pie-chart>
-    );
-  }
+export const PieChart = forwardRef<WaElement, PieChartProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-pie-chart
+      ref={ref}
+      class={clsx('PieChart', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-pie-chart>
+  )
 );
 
 PieChart.displayName = 'PieChart';

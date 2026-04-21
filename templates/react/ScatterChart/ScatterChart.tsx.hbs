@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -54,35 +54,23 @@ export interface ScatterChartProps extends Omit<HTMLAttributes<HTMLElement>, 'di
   'without-tooltip'?: boolean;
 }
 
-export interface ScatterChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-scatter-chart>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type ScatterChartRef = WaElement;
 
-export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
-  ({ children, className, ...props }, ref) => {
-    const scatterChartRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return scatterChartRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-scatter-chart
-        ref={(el: WaElement | null) => { scatterChartRef.current = el; }}
-        class={clsx('ScatterChart', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-scatter-chart>
-    );
-  }
+export const ScatterChart = forwardRef<WaElement, ScatterChartProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-scatter-chart
+      ref={ref}
+      class={clsx('ScatterChart', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-scatter-chart>
+  )
 );
 
 ScatterChart.displayName = 'ScatterChart';

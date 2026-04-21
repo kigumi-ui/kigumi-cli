@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -32,55 +32,23 @@ export interface MarkdownProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
   'tab-size'?: number;
 }
 
-export interface MarkdownRef {
-  /** Re-renders the markdown content */
-  renderMarkdown: () => void;
-  /** Returns the marked instance used for rendering */
-  getMarked: () => unknown;
-  /** Updates all wa-markdown elements on the page */
-  updateAll: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-markdown>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }` with `renderMarkdown`, `getMarked`,
+ * and `updateAll` methods; call those directly on `ref.current` instead.)
+ */
+export type MarkdownRef = WaElement;
 
-export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
-  ({ children, className, ...props }, ref) => {
-    const markdownRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        renderMarkdown: () => {
-          if (markdownRef.current && typeof (markdownRef.current as unknown as { renderMarkdown: () => void }).renderMarkdown === 'function') {
-            (markdownRef.current as unknown as { renderMarkdown: () => void }).renderMarkdown();
-          }
-        },
-        getMarked: () => {
-          return (markdownRef.current as unknown as { marked?: unknown })?.marked;
-        },
-        updateAll: () => {
-          const el = markdownRef.current as unknown as { constructor?: { updateAll?: () => void } };
-          if (el?.constructor && typeof el.constructor.updateAll === 'function') {
-            el.constructor.updateAll();
-          }
-        },
-        get element() {
-          return markdownRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-markdown
-        ref={(el: WaElement | null) => { markdownRef.current = el; }}
-        class={clsx('Markdown', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-markdown>
-    );
-  }
+export const Markdown = forwardRef<WaElement, MarkdownProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-markdown
+      ref={ref}
+      class={clsx('Markdown', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-markdown>
+  )
 );
 
 Markdown.displayName = 'Markdown';

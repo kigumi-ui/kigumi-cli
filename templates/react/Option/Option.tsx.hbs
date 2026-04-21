@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -32,35 +32,23 @@ export interface OptionProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   label?: string;
 }
 
-export interface OptionRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-option>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type OptionRef = WaElement;
 
-export const Option = forwardRef<OptionRef, OptionProps>(
-  ({ children, className, ...props }, ref) => {
-    const optionRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return optionRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-option
-        ref={(el: WaElement | null) => { optionRef.current = el; }}
-        class={clsx('Option', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-option>
-    );
-  }
+export const Option = forwardRef<WaElement, OptionProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-option
+      ref={ref}
+      class={clsx('Option', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-option>
+  )
 );
 
 Option.displayName = 'Option';

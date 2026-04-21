@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -29,35 +29,23 @@ export interface ProgressBarProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
   label?: string;
 }
 
-export interface ProgressBarRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-progress-bar>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type ProgressBarRef = WaElement;
 
-export const ProgressBar = forwardRef<ProgressBarRef, ProgressBarProps>(
-  ({ children, className, ...props }, ref) => {
-    const progressbarRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return progressbarRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-progress-bar
-        ref={(el: WaElement | null) => { progressbarRef.current = el; }}
-        class={clsx('ProgressBar', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-progress-bar>
-    );
-  }
+export const ProgressBar = forwardRef<WaElement, ProgressBarProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-progress-bar
+      ref={ref}
+      class={clsx('ProgressBar', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-progress-bar>
+  )
 );
 
 ProgressBar.displayName = 'ProgressBar';

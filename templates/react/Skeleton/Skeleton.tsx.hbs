@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -23,35 +23,23 @@ export interface SkeletonProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
   effect?: 'pulse' | 'sheen' | 'none';
 }
 
-export interface SkeletonRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-skeleton>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type SkeletonRef = WaElement;
 
-export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
-  ({ children, className, ...props }, ref) => {
-    const skeletonRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return skeletonRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-skeleton
-        ref={(el: WaElement | null) => { skeletonRef.current = el; }}
-        class={clsx('Skeleton', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-skeleton>
-    );
-  }
+export const Skeleton = forwardRef<WaElement, SkeletonProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-skeleton
+      ref={ref}
+      class={clsx('Skeleton', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-skeleton>
+  )
 );
 
 Skeleton.displayName = 'Skeleton';

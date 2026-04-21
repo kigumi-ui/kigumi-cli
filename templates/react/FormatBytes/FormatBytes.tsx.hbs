@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -35,32 +35,22 @@ export interface FormatBytesProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
   locale?: string;
 }
 
-export interface FormatBytesRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-format-bytes>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type FormatBytesRef = WaElement;
 
-export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
+export const FormatBytes = forwardRef<WaElement, FormatBytesProps>(
   ({ children, className, locale, ...props }, ref) => {
     const passThrough = {
       ...props,
       ...(locale !== undefined && { lang: locale }),
     };
-    const formatbytesRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return formatbytesRef.current;
-        },
-      }),
-      []
-    );
-
     return (
       <wa-format-bytes
-        ref={(el: WaElement | null) => { formatbytesRef.current = el; }}
+        ref={ref}
         class={clsx('FormatBytes', className)}
         {...(passThrough as Record<string, unknown>)}
       >

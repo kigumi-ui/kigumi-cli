@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -56,32 +56,22 @@ export interface FormatNumberProps extends Omit<HTMLAttributes<HTMLElement>, 'di
   locale?: string;
 }
 
-export interface FormatNumberRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-format-number>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type FormatNumberRef = WaElement;
 
-export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
+export const FormatNumber = forwardRef<WaElement, FormatNumberProps>(
   ({ children, className, locale, ...props }, ref) => {
     const passThrough = {
       ...props,
       ...(locale !== undefined && { lang: locale }),
     };
-    const formatnumberRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return formatnumberRef.current;
-        },
-      }),
-      []
-    );
-
     return (
       <wa-format-number
-        ref={(el: WaElement | null) => { formatnumberRef.current = el; }}
+        ref={ref}
         class={clsx('FormatNumber', className)}
         {...(passThrough as Record<string, unknown>)}
       >

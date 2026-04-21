@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -67,35 +67,23 @@ export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
   orientation?: 'vertical' | 'horizontal';
 }
 
-export interface BarChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-bar-chart>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type BarChartRef = WaElement;
 
-export const BarChart = forwardRef<BarChartRef, BarChartProps>(
-  ({ children, className, ...props }, ref) => {
-    const barChartRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return barChartRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-bar-chart
-        ref={(el: WaElement | null) => { barChartRef.current = el; }}
-        class={clsx('BarChart', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-bar-chart>
-    );
-  }
+export const BarChart = forwardRef<WaElement, BarChartProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-bar-chart
+      ref={ref}
+      class={clsx('BarChart', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-bar-chart>
+  )
 );
 
 BarChart.displayName = 'BarChart';

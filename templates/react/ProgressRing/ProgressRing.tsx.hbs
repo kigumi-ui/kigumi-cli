@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -26,35 +26,23 @@ export interface ProgressRingProps extends Omit<HTMLAttributes<HTMLElement>, 'di
   label?: string;
 }
 
-export interface ProgressRingRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-progress-ring>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type ProgressRingRef = WaElement;
 
-export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
-  ({ children, className, ...props }, ref) => {
-    const progressringRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return progressringRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-progress-ring
-        ref={(el: WaElement | null) => { progressringRef.current = el; }}
-        class={clsx('ProgressRing', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-progress-ring>
-    );
-  }
+export const ProgressRing = forwardRef<WaElement, ProgressRingProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-progress-ring
+      ref={ref}
+      class={clsx('ProgressRing', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-progress-ring>
+  )
 );
 
 ProgressRing.displayName = 'ProgressRing';

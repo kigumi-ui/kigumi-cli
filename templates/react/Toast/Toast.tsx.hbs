@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '{{{importPath}}}';
@@ -27,41 +27,25 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   placement?: 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
 }
 
-export interface ToastRef {
-  /** Creates a toast notification programmatically */
-  create: (message: string, options?: Record<string, unknown>) => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-toast>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }` with a `create` method;
+ * call `ref.current.create(...)` directly instead of `ref.current.element.create(...)`.)
+ */
+export type ToastRef = WaElement;
 
-export const Toast = forwardRef<ToastRef, ToastProps>(
-  ({ children, className, ...props }, ref) => {
-    const toastRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        create: (message: string, options?: Record<string, unknown>) => {
-          toastRef.current?.create?.(message, options);
-        },
-        get element() {
-          return toastRef.current;
-        },
-      }),
-      []
-    );
-
-    return createPortal(
+export const Toast = forwardRef<WaElement, ToastProps>(
+  ({ children, className, ...props }, ref) =>
+    createPortal(
       <wa-toast
-        ref={(el: WaElement | null) => { toastRef.current = el; }}
+        ref={ref}
         class={clsx('Toast', className)}
         {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-toast>,
       document.body
-    );
-  }
+    )
 );
 
 Toast.displayName = 'Toast';

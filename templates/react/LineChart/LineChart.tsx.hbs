@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -64,35 +64,23 @@ export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
   'without-tooltip'?: boolean;
 }
 
-export interface LineChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-line-chart>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type LineChartRef = WaElement;
 
-export const LineChart = forwardRef<LineChartRef, LineChartProps>(
-  ({ children, className, ...props }, ref) => {
-    const lineChartRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return lineChartRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-line-chart
-        ref={(el: WaElement | null) => { lineChartRef.current = el; }}
-        class={clsx('LineChart', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-line-chart>
-    );
-  }
+export const LineChart = forwardRef<WaElement, LineChartProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-line-chart
+      ref={ref}
+      class={clsx('LineChart', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-line-chart>
+  )
 );
 
 LineChart.displayName = 'LineChart';

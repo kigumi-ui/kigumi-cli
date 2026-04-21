@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -62,12 +62,14 @@ export interface FormatDateProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'
   locale?: string;
 }
 
-export interface FormatDateRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-format-date>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type FormatDateRef = WaElement;
 
-export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
+export const FormatDate = forwardRef<WaElement, FormatDateProps>(
   ({ children, className, date, locale, ...props }, ref) => {
     const dateStr = date instanceof Date ? date.toISOString() : date;
     const passThrough = {
@@ -75,21 +77,9 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
       ...(dateStr !== undefined && { date: dateStr }),
       ...(locale !== undefined && { lang: locale }),
     };
-    const formatdateRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return formatdateRef.current;
-        },
-      }),
-      []
-    );
-
     return (
       <wa-format-date
-        ref={(el: WaElement | null) => { formatdateRef.current = el; }}
+        ref={ref}
         class={clsx('FormatDate', className)}
         {...(passThrough as Record<string, unknown>)}
       >

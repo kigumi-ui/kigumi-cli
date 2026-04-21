@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -41,35 +41,23 @@ export interface QrCodeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   'error-correction'?: 'L' | 'M' | 'Q' | 'H';
 }
 
-export interface QrCodeRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-qr-code>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type QrCodeRef = WaElement;
 
-export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
-  ({ children, className, ...props }, ref) => {
-    const qrcodeRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return qrcodeRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-qr-code
-        ref={(el: WaElement | null) => { qrcodeRef.current = el; }}
-        class={clsx('QrCode', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-qr-code>
-    );
-  }
+export const QrCode = forwardRef<WaElement, QrCodeProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-qr-code
+      ref={ref}
+      class={clsx('QrCode', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-qr-code>
+  )
 );
 
 QrCode.displayName = 'QrCode';

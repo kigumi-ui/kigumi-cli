@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -60,35 +60,23 @@ export interface BubbleChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
   'without-tooltip'?: boolean;
 }
 
-export interface BubbleChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-bubble-chart>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type BubbleChartRef = WaElement;
 
-export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
-  ({ children, className, ...props }, ref) => {
-    const bubbleChartRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return bubbleChartRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-bubble-chart
-        ref={(el: WaElement | null) => { bubbleChartRef.current = el; }}
-        class={clsx('BubbleChart', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-bubble-chart>
-    );
-  }
+export const BubbleChart = forwardRef<WaElement, BubbleChartProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-bubble-chart
+      ref={ref}
+      class={clsx('BubbleChart', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-bubble-chart>
+  )
 );
 
 BubbleChart.displayName = 'BubbleChart';

@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
@@ -40,35 +40,23 @@ export interface DoughnutChartProps extends Omit<HTMLAttributes<HTMLElement>, 'd
   'without-tooltip'?: boolean;
 }
 
-export interface DoughnutChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
-}
+/**
+ * Ref type: `ref.current` is the underlying `<wa-doughnut-chart>` element.
+ * (Before v0.20 this was `{ element: WaElement | null }`; use
+ * `ref.current` directly instead of `ref.current.element`.)
+ */
+export type DoughnutChartRef = WaElement;
 
-export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
-  ({ children, className, ...props }, ref) => {
-    const doughnutChartRef = useRef<WaElement | null>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return doughnutChartRef.current;
-        },
-      }),
-      []
-    );
-
-    return (
-      <wa-doughnut-chart
-        ref={(el: WaElement | null) => { doughnutChartRef.current = el; }}
-        class={clsx('DoughnutChart', className)}
-        {...(props as Record<string, unknown>)}
-      >
-        {children}
-      </wa-doughnut-chart>
-    );
-  }
+export const DoughnutChart = forwardRef<WaElement, DoughnutChartProps>(
+  ({ children, className, ...props }, ref) => (
+    <wa-doughnut-chart
+      ref={ref}
+      class={clsx('DoughnutChart', className)}
+      {...(props as Record<string, unknown>)}
+    >
+      {children}
+    </wa-doughnut-chart>
+  )
 );
 
 DoughnutChart.displayName = 'DoughnutChart';
