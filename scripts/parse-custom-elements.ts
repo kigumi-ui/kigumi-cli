@@ -46,9 +46,23 @@ interface CustomElementsJSON {
   }>;
 }
 
+type ComponentTier = 'presentational' | 'interactive';
+
 interface ComponentMetadata {
   tagName: string;
   className: string;
+  /**
+   * Tier determines the React/Vue wrapper shape:
+   * - 'presentational' = pure `forwardRef` pass-through, no hooks, no `'use client';`.
+   *   Safe to render in React Server Components.
+   * - 'interactive' = `useRef` + `useImperativeHandle` + `useEffect` for `wa-*` events,
+   *   emits `'use client';` as first line.
+   *
+   * Derived from CEM: a component with >= 1 event requires useEffect + addEventListener
+   * in the wrapper, which forces it client-side. Components without events can
+   * pass the ref straight through to the native element and therefore work as RSC.
+   */
+  tier: ComponentTier;
   events: Array<{
     name: string;
     description: string;
@@ -201,9 +215,20 @@ async function parseCustomElements(): Promise<
           };
         });
 
+      // Tier = 'interactive' if the component exposes >= 1 custom event.
+      // Rationale: events require useEffect + addEventListener in the wrapper,
+      // which forces the wrapper client-side. Components without events can
+      // pass the forwarded ref straight to the native element, which is
+      // RSC-safe (no hooks, no 'use client').
+      // Methods alone are fine for presentational components because
+      // `ref.current?.method()` works directly on the native wa-* element.
+      const tier: ComponentTier =
+        events.length > 0 ? 'interactive' : 'presentational';
+
       metadata[componentKey] = {
         tagName,
         className,
+        tier,
         events,
         slots,
         methods,
@@ -235,9 +260,23 @@ function generateTypeScriptSource(
 // This file contains metadata extracted from Web Awesome's custom-elements.json
 // Run \`pnpm generate:metadata\` to regenerate
 
+export type ComponentTier = 'presentational' | 'interactive';
+
 export interface ComponentMetadata {
   tagName: string;
   className: string;
+  /**
+   * Tier determines the React/Vue wrapper shape:
+   * - 'presentational' = pure \`forwardRef\` pass-through, no hooks, no \`'use client';\`.
+   *   Safe to render in React Server Components.
+   * - 'interactive' = \`useRef\` + \`useImperativeHandle\` + \`useEffect\` for \`wa-*\` events,
+   *   emits \`'use client';\` as first line.
+   *
+   * Derived from CEM: a component with >= 1 event requires useEffect + addEventListener
+   * in the wrapper, which forces it client-side. Components without events can
+   * pass the ref straight through to the native element and therefore work as RSC.
+   */
+  tier: ComponentTier;
   events: Array<{
     name: string;
     description: string;
