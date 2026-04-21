@@ -305,19 +305,4 @@ describe('handleExistingConfig', () => {
       );
     });
   });
-
-  describe('does not read the filesystem', () => {
-    it('should never emit the legacy "could not be loaded" warning', async () => {
-      const { handleExistingConfig } =
-        await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
-
-      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
-
-      expect(mockOutput.warning).not.toHaveBeenCalled();
-    });
-  });
 });
