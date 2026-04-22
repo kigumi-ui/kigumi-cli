@@ -205,7 +205,8 @@ export async function initCommand(options: InitOptions = {}) {
       context.projectInfo.packageManager,
       true, // Always true if we reach here without errors
       configResult.newTier,
-      context.projectInfo.isNext
+      context.projectInfo.isNext,
+      context.projectInfo.nextRouter
     );
   } catch (error) {
     handleError(error, output);
@@ -386,7 +387,7 @@ async function saveAndGenerate(
   context: InitContext,
   configResult: ConfigResult
 ): Promise<void> {
-  const { cwd, output } = context;
+  const { cwd, output, projectInfo } = context;
   const { config, proToken, newTier } = configResult;
 
   // Pin the current CLI version
@@ -401,6 +402,7 @@ async function saveAndGenerate(
     tier: newTier,
     proToken,
     output,
+    projectInfo,
   });
 }
 
@@ -488,7 +490,8 @@ function showPostInstallInstructions(
   packageManager: string,
   depsInstalled: boolean,
   tier: Tier,
-  isNext: boolean = false
+  isNext: boolean = false,
+  nextRouter?: import('../../utils/detect-framework.js').NextRouter
 ): void {
   output.info('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
@@ -517,10 +520,39 @@ function showPostInstallInstructions(
     stepNum++;
   }
 
-  // Step: Wire up Kigumi — Next.js uses a Client Module provider, Vite
-  // projects import directly from main.ts(x). The provider was generated in
-  // the file-generator step for Next; users just need to wrap their layout.
-  if (isNext) {
+  // Step: Wire up Kigumi — Next App Router uses a Client Module provider;
+  // Pages Router users edit `_app.tsx` directly; Vite projects import from
+  // main.ts(x). The provider was generated in the file-generator step for
+  // App Router only; Pages Router users wire the import themselves.
+  if (isNext && nextRouter === 'pages') {
+    output.info(
+      pc.bold(
+        pc.cyan(`${stepNum}. Wire Kigumi into your Pages Router entry:\n`)
+      )
+    );
+    output.info(pc.dim('\tEdit pages/_app.tsx:'));
+    output.info(pc.green("\timport '@/styles/layers.css';"));
+    output.info(pc.green("\timport '@/styles/theme.css';"));
+    output.info(pc.green("\timport '@/lib/kigumi';"));
+    output.info(pc.green("\timport type { AppProps } from 'next/app';\n"));
+    output.info(
+      pc.green(
+        '\texport default function App({ Component, pageProps }: AppProps) {'
+      )
+    );
+    output.info(pc.green('\t  return <Component {...pageProps} />;'));
+    output.info(pc.green('\t}\n'));
+    output.info(
+      pc.dim(
+        "\tNext's Pages Router only accepts global CSS imports from _app.tsx,\n" +
+          '\tso layers.css and theme.css must be imported here directly (not\n' +
+          '\ttransitively via @/lib/kigumi). @/lib/kigumi then registers the\n' +
+          '\tWeb Awesome components and applies your theme classes.\n'
+      )
+    );
+    stepNum++;
+  } else if (isNext) {
+    // App Router (or 'unknown' layout → App Router default)
     output.info(
       pc.bold(
         pc.cyan(`${stepNum}. Wrap your root layout with KigumiProvider:\n`)

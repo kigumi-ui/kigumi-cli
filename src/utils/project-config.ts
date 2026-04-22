@@ -144,20 +144,23 @@ export async function configureVitePathAliases(
 /**
  * Configure TypeScript path aliases for Vite / Next.js projects
  *
- * This function only adds path aliases (@/* -> ./src/*).
+ * Adds a single `@/*` path alias when one is not already present. The target
+ * pattern follows the project's source layout:
+ * - `src` layout → `['./src/*']` (Vite, Next `--src-dir`)
+ * - `root` layout → `['./*']` (Next without `--src-dir`)
+ *
+ * Existing aliases are left untouched. Next's `create-next-app` ships
+ * `'@/*': ['./*']` by default, so this call is a no-op in the common case.
+ *
  * All other tsconfig settings (verbatimModuleSyntax, etc.) are kept as-is.
  *
- * Kigumi uses named React imports which work with Vite 6's defaults.
- *
  * Looks for `tsconfig.app.json` first (Vite's split tsconfig layout), and
- * falls back to `tsconfig.json` for Next.js or single-config projects. Next's
- * `create-next-app --src-dir` already ships `paths: { "@/*": ["./src/*"] }`,
- * so the call is a no-op in the common case; the merge logic handles
- * absent `paths` gracefully either way.
+ * falls back to `tsconfig.json` for Next.js or single-config projects.
  */
 export async function configureTSConfig(
   cwd: string,
-  _output: OutputInterface
+  _output: OutputInterface,
+  sourceLayout: 'src' | 'root' = 'src'
 ): Promise<boolean> {
   const tsconfigAppPath = path.join(cwd, 'tsconfig.app.json');
   const tsconfigRootPath = path.join(cwd, 'tsconfig.json');
@@ -179,12 +182,12 @@ export async function configureTSConfig(
   // Initialize compilerOptions if missing
   tsconfig.compilerOptions = tsconfig.compilerOptions || {};
 
-  // Add path aliases if not present
+  // Add path alias matching the project's source layout if not present
   if (!tsconfig.compilerOptions.paths?.['@/*']) {
     tsconfig.compilerOptions.baseUrl = tsconfig.compilerOptions.baseUrl || '.';
     tsconfig.compilerOptions.paths = {
       ...tsconfig.compilerOptions.paths,
-      '@/*': ['./src/*'],
+      '@/*': sourceLayout === 'src' ? ['./src/*'] : ['./*'],
     };
     modified = true;
   }
