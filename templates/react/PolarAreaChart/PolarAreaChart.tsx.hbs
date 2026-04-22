@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './PolarAreaChart.css';
 
 /**
@@ -9,14 +8,12 @@ import './PolarAreaChart.css';
  *
  * @example
  * ```tsx
- * <PolarAreaChart label="Skill levels">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       labels: ['Speed', 'Strength', 'Agility', 'Endurance'],
- *       datasets: [{ data: [80, 65, 90, 70] }]
- *     }
- *   })}</script>
- * </PolarAreaChart>
+ * // Basic usage
+ * <PolarAreaChart />
+ *
+ * // With event handlers
+ * <PolarAreaChart />
+ *
  * ```
  */
 export interface PolarAreaChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -41,19 +38,20 @@ export interface PolarAreaChartProps extends Omit<HTMLAttributes<HTMLElement>, '
 }
 
 export interface PolarAreaChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>(
   ({ children, className, ...props }, ref) => {
-    const polarAreaChartRef = useRef<WaElement | null>(null);
+    const polarareachartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         get element() {
-          return polarAreaChartRef.current;
+          return polarareachartRef.current;
         },
       }),
       []
@@ -61,8 +59,9 @@ export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>
 
     return (
       <wa-polar-area-chart
-        ref={(el: WaElement | null) => { polarAreaChartRef.current = el; }}
+        ref={polarareachartRef}
         class={clsx('PolarAreaChart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

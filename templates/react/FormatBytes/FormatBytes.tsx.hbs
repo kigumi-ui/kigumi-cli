@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './FormatBytes.css';
 
 /**
@@ -30,23 +29,17 @@ export interface FormatBytesProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 
   /** The locale to use when formatting */
   lang?: string;
-
-  /** Alias for lang */
-  locale?: string;
 }
 
 export interface FormatBytesRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
-  ({ children, className, locale, ...props }, ref) => {
-    const passThrough = {
-      ...props,
-      ...(locale !== undefined && { lang: locale }),
-    };
-    const formatbytesRef = useRef<WaElement | null>(null);
+  ({ children, className, ...props }, ref) => {
+    const formatbytesRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -60,9 +53,10 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
 
     return (
       <wa-format-bytes
-        ref={(el: WaElement | null) => { formatbytesRef.current = el; }}
+        ref={formatbytesRef}
         class={clsx('FormatBytes', className)}
-        {...(passThrough as Record<string, unknown>)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-format-bytes>

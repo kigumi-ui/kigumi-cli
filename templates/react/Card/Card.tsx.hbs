@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Card.css';
 
 /**
@@ -36,13 +35,14 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface CardRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Card = forwardRef<CardRef, CardProps>(
   ({ children, className, ...props }, ref) => {
-    const cardRef = useRef<WaElement | null>(null);
+    const cardRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -56,8 +56,9 @@ export const Card = forwardRef<CardRef, CardProps>(
 
     return (
       <wa-card
-        ref={(el: WaElement | null) => { cardRef.current = el; }}
+        ref={cardRef}
         class={clsx('Card', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

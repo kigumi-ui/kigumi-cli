@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Popover.css';
 
 /**
@@ -24,9 +23,6 @@ import './Popover.css';
  */
 export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
 
-  /** ID of the target element the popover is attached to */
-  for?: string;
-
   /** Indicates whether the popover is open */
   open?: boolean;
 
@@ -48,8 +44,11 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow'
   /** Shows an arrow */
   'with-arrow'?: boolean;
 
-  /** Hides the arrow (alias: sets with-arrow to false) */
+  /** Hides the arrow */
   'without-arrow'?: boolean;
+
+  /** The ID of the element the popover is anchored to */
+  for?: string;
 
   /** Emitted when the popover begins to show. Canceling this event will stop the popover from showing. */
   onShow?: (event: CustomEvent) => void;
@@ -71,17 +70,16 @@ export interface PopoverRef {
 
   /** Hides the popover. */
   hide: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, 'without-arrow': withoutArrow, ...props }, ref) => {
-    const passThrough = {
-      ...props,
-      ...(withoutArrow !== undefined && { 'with-arrow': !withoutArrow }),
-    };
-    const popoverRef = useRef<WaElement | null>(null);
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+    const popoverRef = useRef<HTMLElement & {
+      show?: () => void;
+      hide?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -107,40 +105,41 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
       const el = popoverRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => {
+      const handleWaShow = (e: Event) => {
         if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleAfterShow = (e: Event) => {
+      const handleWaAfterShow = (e: Event) => {
         if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleHide = (e: Event) => {
+      const handleWaHide = (e: Event) => {
         if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleAfterHide = (e: Event) => {
+      const handleWaAfterHide = (e: Event) => {
         if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-after-show', handleAfterShow);
-      el.addEventListener('wa-hide', handleHide);
-      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
 
       return () => {
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-after-show', handleAfterShow);
-        el.removeEventListener('wa-hide', handleHide);
-        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
     return (
       <wa-popover
-        ref={(el: WaElement | null) => { popoverRef.current = el; }}
+        ref={popoverRef}
         class={clsx('Popover', className)}
-        {...(passThrough as Record<string, unknown>)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-popover>

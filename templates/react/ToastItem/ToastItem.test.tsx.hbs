@@ -4,7 +4,7 @@ import { ToastItem } from './ToastItem';
 
 describe('ToastItem', () => {
   it('renders without crashing', () => {
-    const { container } = render(<ToastItem>Test notification</ToastItem>);
+    const { container } = render(<ToastItem />);
     expect(container.querySelector('wa-toast-item')).toBeTruthy();
   });
 });

@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './SplitPanel.css';
 
 /**
@@ -46,13 +45,14 @@ export interface SplitPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'onRe
 }
 
 export interface SplitPanelRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
   ({ children, className, onReposition, ...props }, ref) => {
-    const splitpanelRef = useRef<WaElement | null>(null);
+    const splitpanelRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -68,21 +68,22 @@ export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
       const el = splitpanelRef.current;
       if (!el) return;
 
-      const handleReposition = (e: Event) => {
+      const handleWaReposition = (e: Event) => {
         if (onReposition) onReposition(e as CustomEvent);
       };
 
-      el.addEventListener('wa-reposition', handleReposition);
+      el.addEventListener('wa-reposition', handleWaReposition);
 
       return () => {
-        el.removeEventListener('wa-reposition', handleReposition);
+        el.removeEventListener('wa-reposition', handleWaReposition);
       };
     }, [onReposition]);
 
     return (
       <wa-split-panel
-        ref={(el: WaElement | null) => { splitpanelRef.current = el; }}
+        ref={splitpanelRef}
         class={clsx('SplitPanel', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

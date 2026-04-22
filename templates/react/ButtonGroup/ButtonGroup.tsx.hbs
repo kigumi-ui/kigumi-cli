@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './ButtonGroup.css';
 
 /**
@@ -27,13 +26,14 @@ export interface ButtonGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 }
 
 export interface ButtonGroupRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
   ({ children, className, ...props }, ref) => {
-    const buttongroupRef = useRef<WaElement | null>(null);
+    const buttongroupRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -47,8 +47,9 @@ export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
 
     return (
       <wa-button-group
-        ref={(el: WaElement | null) => { buttongroupRef.current = el; }}
+        ref={buttongroupRef}
         class={clsx('ButtonGroup', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

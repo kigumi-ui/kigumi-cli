@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Slider.css';
 
 /**
@@ -36,9 +35,6 @@ export interface SliderProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
   /** Hint text */
   hint?: string;
 
-  /** Slider size */
-  size?: 'small' | 'medium' | 'large';
-
   /** Minimum value */
   min?: number;
 
@@ -65,6 +61,12 @@ export interface SliderProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
 
   /** Draws a tooltip above the thumb */
   'with-tooltip'?: boolean;
+
+  /** Slider size */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Automatically focuses the slider on page load */
+  autofocus?: boolean;
 
   /** Emitted when an alteration to the control's value is committed by the user. */
   onChange?: (event: CustomEvent) => void;
@@ -97,13 +99,33 @@ emitted when this is called. */
   /** Increases the slider's value by `step`. This is a programmatic change, so `input` and `change` events will not be
 emitted when this is called. */
   stepUp: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Slider = forwardRef<SliderRef, SliderProps>(
   ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const sliderRef = useRef<WaElement | null>(null);
+    const sliderRef = useRef<HTMLElement & {
+      focus?: () => void;
+      blur?: () => void;
+      stepDown?: () => void;
+      stepUp?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -126,6 +148,21 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
         stepUp: () => {
           if (sliderRef.current && typeof sliderRef.current.stepUp === 'function') {
             sliderRef.current.stepUp();
+          }
+        },
+        setCustomValidity: (message: string) => {
+          if (sliderRef.current && typeof sliderRef.current.setCustomValidity === 'function') {
+            sliderRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (sliderRef.current && typeof sliderRef.current.formStateRestoreCallback === 'function') {
+            sliderRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (sliderRef.current && typeof sliderRef.current.resetValidity === 'function') {
+            sliderRef.current.resetValidity();
           }
         },
         get element() {
@@ -155,7 +192,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
         if (onInput) onInput(e as CustomEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
@@ -163,21 +200,22 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
       el.addEventListener('input', handleInput);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('input', handleInput);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onChange, onBlur, onFocus, onInput, onInvalid]);
 
     return (
       <wa-slider
-        ref={(el: WaElement | null) => { sliderRef.current = el; }}
+        ref={sliderRef}
         class={clsx('Slider', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

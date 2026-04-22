@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './FileInput.css';
 
 /**
@@ -68,13 +67,31 @@ export interface FileInputRef {
 
   /** Removes focus from the file input. */
   blur: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const FileInput = forwardRef<FileInputRef, FileInputProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onInvalid, ...props }, ref) => {
-    const fileinputRef = useRef<WaElement | null>(null);
+    const fileinputRef = useRef<HTMLElement & {
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -89,6 +106,21 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
             fileinputRef.current.blur();
           }
         },
+        setCustomValidity: (message: string) => {
+          if (fileinputRef.current && typeof fileinputRef.current.setCustomValidity === 'function') {
+            fileinputRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (fileinputRef.current && typeof fileinputRef.current.formStateRestoreCallback === 'function') {
+            fileinputRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (fileinputRef.current && typeof fileinputRef.current.resetValidity === 'function') {
+            fileinputRef.current.resetValidity();
+          }
+        },
         get element() {
           return fileinputRef.current;
         },
@@ -99,7 +131,6 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
     useEffect(() => {
       const el = fileinputRef.current;
       if (!el) return;
-      const htmlEl = el as unknown as HTMLElement;
 
       const handleInput = (e: Event) => {
         if (onInput) onInput(e as CustomEvent);
@@ -117,29 +148,30 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
         if (onBlur) onBlur(e as FocusEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
-      htmlEl.addEventListener('input', handleInput);
-      htmlEl.addEventListener('change', handleChange);
-      htmlEl.addEventListener('focus', handleFocus);
-      htmlEl.addEventListener('blur', handleBlur);
-      htmlEl.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
-        htmlEl.removeEventListener('input', handleInput);
-        htmlEl.removeEventListener('change', handleChange);
-        htmlEl.removeEventListener('focus', handleFocus);
-        htmlEl.removeEventListener('blur', handleBlur);
-        htmlEl.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onFocus, onBlur, onInvalid]);
 
     return (
       <wa-file-input
-        ref={(el: WaElement | null) => { fileinputRef.current = el; }}
+        ref={fileinputRef}
         class={clsx('FileInput', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

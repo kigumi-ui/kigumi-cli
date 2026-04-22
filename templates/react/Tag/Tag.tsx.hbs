@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Tag.css';
 
 /**
@@ -35,25 +34,19 @@ export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'onRemove' |
   /** Shows remove button */
   'with-remove'?: boolean;
 
-  /** Alias for with-remove (camelCase) */
-  withRemove?: boolean;
-
   /** Emitted when the remove button is activated. */
   onRemove?: (event: CustomEvent) => void;
 }
 
 export interface TagRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Tag = forwardRef<TagRef, TagProps>(
-  ({ children, className, onRemove, withRemove, ...props }, ref) => {
-    const passThrough = {
-      ...props,
-      ...(withRemove !== undefined && { 'with-remove': withRemove }),
-    };
-    const tagRef = useRef<WaElement | null>(null);
+  ({ children, className, onRemove, ...props }, ref) => {
+    const tagRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -69,22 +62,23 @@ export const Tag = forwardRef<TagRef, TagProps>(
       const el = tagRef.current;
       if (!el) return;
 
-      const handleRemove = (e: Event) => {
+      const handleWaRemove = (e: Event) => {
         if (onRemove) onRemove(e as CustomEvent);
       };
 
-      el.addEventListener('wa-remove', handleRemove);
+      el.addEventListener('wa-remove', handleWaRemove);
 
       return () => {
-        el.removeEventListener('wa-remove', handleRemove);
+        el.removeEventListener('wa-remove', handleWaRemove);
       };
     }, [onRemove]);
 
     return (
       <wa-tag
-        ref={(el: WaElement | null) => { tagRef.current = el; }}
+        ref={tagRef}
         class={clsx('Tag', className)}
-        {...(passThrough as Record<string, unknown>)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-tag>

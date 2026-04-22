@@ -313,6 +313,7 @@ ${removeEventListeners}
       <${component.tagName}
         ref={${component.name.toLowerCase()}Ref}
         class={clsx('${component.name}', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

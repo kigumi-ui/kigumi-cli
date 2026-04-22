@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Combobox.css';
 
 /**
@@ -22,16 +21,16 @@ import './Combobox.css';
  * <Combobox ref={ref} />
  * ```
  */
-export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onClear' | 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onInvalid' | 'onCreate' | 'dir'> {
+export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onClear' | 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onCreate' | 'onInvalid' | 'dir'> {
 
   /** Allows entering custom values */
   'allow-custom-value'?: boolean;
 
-  /** Allows creating new options not in the list */
-  'allow-create'?: boolean;
-
   /** Visual appearance style */
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
+
+  /** Allows creating new options not in the list */
+  'allow-create'?: boolean;
 
   /** Controls autocapitalization on supported devices */
   autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
@@ -48,11 +47,11 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInpu
   /** Hint text */
   hint?: string;
 
-  /** Label text */
-  label?: string;
-
   /** Controls virtual keyboard type */
   inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+
+  /** Label text */
+  label?: string;
 
   /** Maximum visible options before scrolling */
   'max-options-visible'?: number;
@@ -72,9 +71,6 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInpu
   /** Placeholder text */
   placeholder?: string;
 
-  /** Selected value(s) */
-  value?: string | string[];
-
   /** Listbox placement */
   placement?: 'top' | 'bottom';
 
@@ -89,6 +85,9 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInpu
 
   /** Shows clear button */
   'with-clear'?: boolean;
+
+  /** Current value of the combobox */
+  value?: string;
 
   /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;
@@ -117,11 +116,11 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInpu
   /** Emitted after the combobox's menu closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
 
+  /** Emitted when the user selects the "create" option. Call `event.preventDefault()` to handle creation yourself. The event `detail` contains `{ inputValue: string }`. */
+  onCreate?: (event: CustomEvent) => void;
+
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
-
-  /** Emitted when a new option is created via allow-create. */
-  onCreate?: (event: CustomEvent) => void;
 }
 
 export interface ComboboxRef {
@@ -137,13 +136,33 @@ export interface ComboboxRef {
 
   /** Removes focus from the control. */
   blur: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
-  ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, onCreate, ...props }, ref) => {
-    const comboboxRef = useRef<WaElement | null>(null);
+  ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onCreate, onInvalid, ...props }, ref) => {
+    const comboboxRef = useRef<HTMLElement & {
+      show?: () => void;
+      hide?: () => void;
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -168,6 +187,21 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
             comboboxRef.current.blur();
           }
         },
+        setCustomValidity: (message: string) => {
+          if (comboboxRef.current && typeof comboboxRef.current.setCustomValidity === 'function') {
+            comboboxRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (comboboxRef.current && typeof comboboxRef.current.formStateRestoreCallback === 'function') {
+            comboboxRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (comboboxRef.current && typeof comboboxRef.current.resetValidity === 'function') {
+            comboboxRef.current.resetValidity();
+          }
+        },
         get element() {
           return comboboxRef.current;
         },
@@ -178,7 +212,6 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
     useEffect(() => {
       const el = comboboxRef.current;
       if (!el) return;
-      const htmlEl = el as unknown as HTMLElement;
 
       const handleInput = (e: Event) => {
         if (onInput) onInput(e as CustomEvent);
@@ -196,65 +229,66 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
         if (onBlur) onBlur(e as FocusEvent);
       };
 
-      const handleClear = (e: Event) => {
+      const handleWaClear = (e: Event) => {
         if (onClear) onClear(e as CustomEvent);
       };
 
-      const handleShow = (e: Event) => {
+      const handleWaShow = (e: Event) => {
         if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleAfterShow = (e: Event) => {
+      const handleWaAfterShow = (e: Event) => {
         if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleHide = (e: Event) => {
+      const handleWaHide = (e: Event) => {
         if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleAfterHide = (e: Event) => {
+      const handleWaAfterHide = (e: Event) => {
         if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
-      const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
-      };
-
-      const handleCreate = (e: Event) => {
+      const handleWaCreate = (e: Event) => {
         if (onCreate) onCreate(e as CustomEvent);
       };
 
-      htmlEl.addEventListener('input', handleInput);
-      htmlEl.addEventListener('change', handleChange);
-      htmlEl.addEventListener('focus', handleFocus);
-      htmlEl.addEventListener('blur', handleBlur);
-      htmlEl.addEventListener('wa-clear', handleClear);
-      htmlEl.addEventListener('wa-show', handleShow);
-      htmlEl.addEventListener('wa-after-show', handleAfterShow);
-      htmlEl.addEventListener('wa-hide', handleHide);
-      htmlEl.addEventListener('wa-after-hide', handleAfterHide);
-      htmlEl.addEventListener('wa-invalid', handleInvalid);
-      htmlEl.addEventListener('wa-create', handleCreate);
+      const handleWaInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('wa-clear', handleWaClear);
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
+      el.addEventListener('wa-create', handleWaCreate);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
-        htmlEl.removeEventListener('input', handleInput);
-        htmlEl.removeEventListener('change', handleChange);
-        htmlEl.removeEventListener('focus', handleFocus);
-        htmlEl.removeEventListener('blur', handleBlur);
-        htmlEl.removeEventListener('wa-clear', handleClear);
-        htmlEl.removeEventListener('wa-show', handleShow);
-        htmlEl.removeEventListener('wa-after-show', handleAfterShow);
-        htmlEl.removeEventListener('wa-hide', handleHide);
-        htmlEl.removeEventListener('wa-after-hide', handleAfterHide);
-        htmlEl.removeEventListener('wa-invalid', handleInvalid);
-        htmlEl.removeEventListener('wa-create', handleCreate);
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('wa-clear', handleWaClear);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
+        el.removeEventListener('wa-create', handleWaCreate);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
-    }, [onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, onCreate]);
+    }, [onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onCreate, onInvalid]);
 
     return (
       <wa-combobox
-        ref={(el: WaElement | null) => { comboboxRef.current = el; }}
+        ref={comboboxRef}
         class={clsx('Combobox', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

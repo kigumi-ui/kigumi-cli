@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './TabGroup.css';
 
 /**
@@ -29,7 +28,7 @@ export interface TabGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onTabS
   /** Disables scroll buttons */
   'without-scroll-controls'?: boolean;
 
-  /** Active tab value (controlled) */
+  /** The name of the active tab */
   active?: string;
 
   /** Emitted when a tab is shown. */
@@ -40,13 +39,14 @@ export interface TabGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onTabS
 }
 
 export interface TabGroupRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
   ({ children, className, onTabShow, onTabHide, ...props }, ref) => {
-    const tabgroupRef = useRef<WaElement | null>(null);
+    const tabgroupRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -62,27 +62,28 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
       const el = tabgroupRef.current;
       if (!el) return;
 
-      const handleTabShow = (e: Event) => {
+      const handleWaTabShow = (e: Event) => {
         if (onTabShow) onTabShow(e as CustomEvent);
       };
 
-      const handleTabHide = (e: Event) => {
+      const handleWaTabHide = (e: Event) => {
         if (onTabHide) onTabHide(e as CustomEvent);
       };
 
-      el.addEventListener('wa-tab-show', handleTabShow);
-      el.addEventListener('wa-tab-hide', handleTabHide);
+      el.addEventListener('wa-tab-show', handleWaTabShow);
+      el.addEventListener('wa-tab-hide', handleWaTabHide);
 
       return () => {
-        el.removeEventListener('wa-tab-show', handleTabShow);
-        el.removeEventListener('wa-tab-hide', handleTabHide);
+        el.removeEventListener('wa-tab-show', handleWaTabShow);
+        el.removeEventListener('wa-tab-hide', handleWaTabHide);
       };
     }, [onTabShow, onTabHide]);
 
     return (
       <wa-tab-group
-        ref={(el: WaElement | null) => { tabgroupRef.current = el; }}
+        ref={tabgroupRef}
         class={clsx('TabGroup', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

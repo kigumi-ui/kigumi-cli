@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './BubbleChart.css';
 
 /**
@@ -9,13 +8,12 @@ import './BubbleChart.css';
  *
  * @example
  * ```tsx
- * <BubbleChart label="Population vs GDP">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       datasets: [{ label: 'Countries', data: [{ x: 20, y: 30, r: 15 }, { x: 40, y: 10, r: 10 }] }]
- *     }
- *   })}</script>
- * </BubbleChart>
+ * // Basic usage
+ * <BubbleChart />
+ *
+ * // With event handlers
+ * <BubbleChart />
+ *
  * ```
  */
 export interface BubbleChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -38,7 +36,7 @@ export interface BubbleChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
   /** Layers multiple datasets on a single axis */
   stacked?: boolean;
 
-  /** Base axis for category labels */
+  /** Base axis for category labels (swap to flip chart orientation) */
   'index-axis'?: 'x' | 'y';
 
   /** Selects which background grid lines are drawn */
@@ -61,19 +59,20 @@ export interface BubbleChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 }
 
 export interface BubbleChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
   ({ children, className, ...props }, ref) => {
-    const bubbleChartRef = useRef<WaElement | null>(null);
+    const bubblechartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         get element() {
-          return bubbleChartRef.current;
+          return bubblechartRef.current;
         },
       }),
       []
@@ -81,8 +80,9 @@ export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
 
     return (
       <wa-bubble-chart
-        ref={(el: WaElement | null) => { bubbleChartRef.current = el; }}
+        ref={bubblechartRef}
         class={clsx('BubbleChart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './RadioGroup.css';
 
 /**
@@ -39,6 +38,9 @@ export interface RadioGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onIn
   /** Radio size */
   size?: 'small' | 'medium' | 'large';
 
+  /** Makes selection required */
+  required?: boolean;
+
   /** Layout direction */
   orientation?: 'horizontal' | 'vertical';
 
@@ -50,9 +52,6 @@ export interface RadioGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onIn
 
   /** Help text below the group */
   'help-text'?: string;
-
-  /** Makes selection required */
-  required?: boolean;
 
   /** Emitted when the radio group receives user input. */
   onInput?: (event: CustomEvent) => void;
@@ -68,13 +67,30 @@ export interface RadioGroupRef {
 
   /** Sets focus on the radio group. */
   focus: (options: FocusOptions) => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
   ({ children, className, onInput, onChange, onInvalid, ...props }, ref) => {
-    const radiogroupRef = useRef<WaElement | null>(null);
+    const radiogroupRef = useRef<HTMLElement & {
+      focus?: (options: FocusOptions) => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -82,6 +98,21 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
         focus: (options: FocusOptions) => {
           if (radiogroupRef.current && typeof radiogroupRef.current.focus === 'function') {
             radiogroupRef.current.focus(options);
+          }
+        },
+        setCustomValidity: (message: string) => {
+          if (radiogroupRef.current && typeof radiogroupRef.current.setCustomValidity === 'function') {
+            radiogroupRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (radiogroupRef.current && typeof radiogroupRef.current.formStateRestoreCallback === 'function') {
+            radiogroupRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (radiogroupRef.current && typeof radiogroupRef.current.resetValidity === 'function') {
+            radiogroupRef.current.resetValidity();
           }
         },
         get element() {
@@ -103,25 +134,26 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
         if (onChange) onChange(e as CustomEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('input', handleInput);
       el.addEventListener('change', handleChange);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('input', handleInput);
         el.removeEventListener('change', handleChange);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onInvalid]);
 
     return (
       <wa-radio-group
-        ref={(el: WaElement | null) => { radiogroupRef.current = el; }}
+        ref={radiogroupRef}
         class={clsx('RadioGroup', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

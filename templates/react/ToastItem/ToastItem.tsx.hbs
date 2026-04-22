@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './ToastItem.css';
 
 /**
@@ -9,25 +8,20 @@ import './ToastItem.css';
  *
  * @example
  * ```tsx
- * // Basic usage inside a Toast
- * <Toast>
- *   <ToastItem variant="success">File saved successfully!</ToastItem>
- * </Toast>
+ * // Basic usage
+ * <ToastItem />
  *
- * // With icon and custom duration
- * <ToastItem variant="danger" duration={10000}>
- *   <wa-icon slot="icon" name="triangle-exclamation" />
- *   Something went wrong
- * </ToastItem>
+ * // With event handlers
+ * <ToastItem
+ *   onShow={(e) => console.log(e)} />
  *
- * // With ref to hide programmatically
- * const itemRef = useRef<ToastItemRef>(null);
- * <ToastItem ref={(el: WaElement | null) => { itemRef.current = el; }}>
- *   Dismissible notification
- * </ToastItem>
+ * // With ref methods
+ * const ref = useRef<ToastItemRef>(null);
+ * <button onClick={() => ref.current?.hide()}>Call Method</button>
+ * <ToastItem ref={ref} />
  * ```
  */
-export interface ToastItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onHide' | 'dir'> {
+export interface ToastItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
 
   /** Colour scheme reflecting the notification intent */
   variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
@@ -35,71 +29,89 @@ export interface ToastItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onSho
   /** Controls the overall dimensions of the notification */
   size?: 'small' | 'medium' | 'large';
 
-  /** Milliseconds before auto-dismiss. Use 0 to keep it visible until closed. */
+  /** Milliseconds before auto-dismiss. Use 0 to keep the notification visible until closed. */
   duration?: number;
 
-  /** Fires when the reveal transition starts. */
+  /** Emitted when the toast item begins to show. */
   onShow?: (event: CustomEvent) => void;
 
-  /** Fires once the reveal transition has finished. */
+  /** Emitted after the toast item has finished showing. */
   onAfterShow?: (event: CustomEvent) => void;
 
-  /** Fires when the dismiss transition starts. */
+  /** Emitted when the toast item begins to hide. */
   onHide?: (event: CustomEvent) => void;
 
-  /** Fires once the dismiss transition has finished. */
+  /** Emitted after the toast item has finished hiding. */
   onAfterHide?: (event: CustomEvent) => void;
 }
 
 export interface ToastItemRef {
-  /** Hides the toast item with animation and removes it from the DOM */
+
+  /** Hides the toast item with animation and removes it from the DOM. */
   hide: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const toastItemRef = useRef<WaElement | null>(null);
+    const toastitemRef = useRef<HTMLElement & {
+      hide?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        hide: () => toastItemRef.current?.hide?.(),
+        hide: () => {
+          if (toastitemRef.current && typeof toastitemRef.current.hide === 'function') {
+            toastitemRef.current.hide();
+          }
+        },
         get element() {
-          return toastItemRef.current;
+          return toastitemRef.current;
         },
       }),
       []
     );
 
     useEffect(() => {
-      const el = toastItemRef.current;
+      const el = toastitemRef.current;
       if (!el) return;
-      const htmlEl = el as unknown as HTMLElement;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleWaShow = (e: Event) => {
+        if (onShow) onShow(e as CustomEvent);
+      };
 
-      htmlEl.addEventListener('wa-show', handleShow);
-      htmlEl.addEventListener('wa-after-show', handleAfterShow);
-      htmlEl.addEventListener('wa-hide', handleHide);
-      htmlEl.addEventListener('wa-after-hide', handleAfterHide);
+      const handleWaAfterShow = (e: Event) => {
+        if (onAfterShow) onAfterShow(e as CustomEvent);
+      };
+
+      const handleWaHide = (e: Event) => {
+        if (onHide) onHide(e as CustomEvent);
+      };
+
+      const handleWaAfterHide = (e: Event) => {
+        if (onAfterHide) onAfterHide(e as CustomEvent);
+      };
+
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
 
       return () => {
-        htmlEl.removeEventListener('wa-show', handleShow);
-        htmlEl.removeEventListener('wa-after-show', handleAfterShow);
-        htmlEl.removeEventListener('wa-hide', handleHide);
-        htmlEl.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
     return (
       <wa-toast-item
-        ref={(el: WaElement | null) => { toastItemRef.current = el; }}
+        ref={toastitemRef}
         class={clsx('ToastItem', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

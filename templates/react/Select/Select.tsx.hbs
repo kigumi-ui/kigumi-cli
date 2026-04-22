@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Select.css';
 
 /**
@@ -122,13 +121,33 @@ export interface SelectRef {
 
   /** Removes focus from the control. */
   blur: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Select = forwardRef<SelectRef, SelectProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, ...props }, ref) => {
-    const selectRef = useRef<WaElement | null>(null);
+    const selectRef = useRef<HTMLElement & {
+      show?: () => void;
+      hide?: () => void;
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -151,6 +170,21 @@ export const Select = forwardRef<SelectRef, SelectProps>(
         blur: () => {
           if (selectRef.current && typeof selectRef.current.blur === 'function') {
             selectRef.current.blur();
+          }
+        },
+        setCustomValidity: (message: string) => {
+          if (selectRef.current && typeof selectRef.current.setCustomValidity === 'function') {
+            selectRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (selectRef.current && typeof selectRef.current.formStateRestoreCallback === 'function') {
+            selectRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (selectRef.current && typeof selectRef.current.resetValidity === 'function') {
+            selectRef.current.resetValidity();
           }
         },
         get element() {
@@ -180,27 +214,27 @@ export const Select = forwardRef<SelectRef, SelectProps>(
         if (onBlur) onBlur(e as FocusEvent);
       };
 
-      const handleClear = (e: Event) => {
+      const handleWaClear = (e: Event) => {
         if (onClear) onClear(e as CustomEvent);
       };
 
-      const handleShow = (e: Event) => {
+      const handleWaShow = (e: Event) => {
         if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleAfterShow = (e: Event) => {
+      const handleWaAfterShow = (e: Event) => {
         if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleHide = (e: Event) => {
+      const handleWaHide = (e: Event) => {
         if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleAfterHide = (e: Event) => {
+      const handleWaAfterHide = (e: Event) => {
         if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
@@ -208,31 +242,32 @@ export const Select = forwardRef<SelectRef, SelectProps>(
       el.addEventListener('change', handleChange);
       el.addEventListener('focus', handleFocus);
       el.addEventListener('blur', handleBlur);
-      el.addEventListener('wa-clear', handleClear);
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-after-show', handleAfterShow);
-      el.addEventListener('wa-hide', handleHide);
-      el.addEventListener('wa-after-hide', handleAfterHide);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-clear', handleWaClear);
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('input', handleInput);
         el.removeEventListener('change', handleChange);
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('blur', handleBlur);
-        el.removeEventListener('wa-clear', handleClear);
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-after-show', handleAfterShow);
-        el.removeEventListener('wa-hide', handleHide);
-        el.removeEventListener('wa-after-hide', handleAfterHide);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-clear', handleWaClear);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid]);
 
     return (
       <wa-select
-        ref={(el: WaElement | null) => { selectRef.current = el; }}
+        ref={selectRef}
         class={clsx('Select', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

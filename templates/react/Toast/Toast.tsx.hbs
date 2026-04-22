@@ -1,8 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
-import { createPortal } from 'react-dom';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Toast.css';
 
 /**
@@ -10,15 +8,16 @@ import './Toast.css';
  *
  * @example
  * ```tsx
- * // Declarative usage with ToastItem children
- * <Toast placement="top-end">
- *   <ToastItem variant="success">File saved!</ToastItem>
- * </Toast>
+ * // Basic usage
+ * <Toast />
  *
- * // Programmatic usage with ref
- * const toastRef = useRef<ToastRef>(null);
- * toastRef.current?.create('Hello!', { variant: 'brand' });
- * <Toast ref={(el: WaElement | null) => { toastRef.current = el; }} />
+ * // With event handlers
+ * <Toast />
+ *
+ * // With ref methods
+ * const ref = useRef<ToastRef>(null);
+ * <button onClick={() => ref.current?.create()}>Call Method</button>
+ * <Toast ref={ref} />
  * ```
  */
 export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -28,21 +27,27 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface ToastRef {
-  /** Creates a toast notification programmatically */
-  create: (message: string, options?: Record<string, unknown>) => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Creates a toast notification programmatically and adds it to the stack. Returns a reference to the created toast
+item element. */
+  create: (message: string, options: ToastCreateOptions) => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Toast = forwardRef<ToastRef, ToastProps>(
   ({ children, className, ...props }, ref) => {
-    const toastRef = useRef<WaElement | null>(null);
+    const toastRef = useRef<HTMLElement & {
+      create?: (message: string, options: ToastCreateOptions) => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        create: (message: string, options?: Record<string, unknown>) => {
-          toastRef.current?.create?.(message, options);
+        create: (message: string, options: ToastCreateOptions) => {
+          if (toastRef.current && typeof toastRef.current.create === 'function') {
+            toastRef.current.create(message, options);
+          }
         },
         get element() {
           return toastRef.current;
@@ -51,15 +56,15 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
       []
     );
 
-    return createPortal(
+    return (
       <wa-toast
-        ref={(el: WaElement | null) => { toastRef.current = el; }}
+        ref={toastRef}
         class={clsx('Toast', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}
-      </wa-toast>,
-      document.body
+      </wa-toast>
     );
   }
 );

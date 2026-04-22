@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Button.css';
 
 /**
@@ -101,13 +100,32 @@ export interface ButtonRef {
 
   /** Removes focus from the button. */
   blur: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Button = forwardRef<ButtonRef, ButtonProps>(
   ({ children, className, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const buttonRef = useRef<WaElement | null>(null);
+    const buttonRef = useRef<HTMLElement & {
+      click?: () => void;
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -125,6 +143,21 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
         blur: () => {
           if (buttonRef.current && typeof buttonRef.current.blur === 'function') {
             buttonRef.current.blur();
+          }
+        },
+        setCustomValidity: (message: string) => {
+          if (buttonRef.current && typeof buttonRef.current.setCustomValidity === 'function') {
+            buttonRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (buttonRef.current && typeof buttonRef.current.formStateRestoreCallback === 'function') {
+            buttonRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (buttonRef.current && typeof buttonRef.current.resetValidity === 'function') {
+            buttonRef.current.resetValidity();
           }
         },
         get element() {
@@ -146,25 +179,26 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onBlur, onFocus, onInvalid]);
 
     return (
       <wa-button
-        ref={(el: WaElement | null) => { buttonRef.current = el; }}
+        ref={buttonRef}
         class={clsx('Button', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './AnimatedImage.css';
 
 /**
@@ -37,13 +36,14 @@ export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'o
 }
 
 export interface AnimatedImageRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
-    const animatedimageRef = useRef<WaElement | null>(null);
+    const animatedimageRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -59,27 +59,28 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
       const el = animatedimageRef.current;
       if (!el) return;
 
-      const handleLoad = (e: Event) => {
+      const handleWaLoad = (e: Event) => {
         if (onLoad) onLoad(e as CustomEvent);
       };
 
-      const handleError = (e: Event) => {
+      const handleWaError = (e: Event) => {
         if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-load', handleLoad);
-      el.addEventListener('wa-error', handleError);
+      el.addEventListener('wa-load', handleWaLoad);
+      el.addEventListener('wa-error', handleWaError);
 
       return () => {
-        el.removeEventListener('wa-load', handleLoad);
-        el.removeEventListener('wa-error', handleError);
+        el.removeEventListener('wa-load', handleWaLoad);
+        el.removeEventListener('wa-error', handleWaError);
       };
     }, [onLoad, onError]);
 
     return (
       <wa-animated-image
-        ref={(el: WaElement | null) => { animatedimageRef.current = el; }}
+        ref={animatedimageRef}
         class={clsx('AnimatedImage', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Markdown.css';
 
 /**
@@ -10,58 +9,61 @@ import './Markdown.css';
  * @example
  * ```tsx
  * // Basic usage
- * <Markdown>
- *   <script type="text/markdown"># Hello World</script>
- * </Markdown>
+ * <Markdown />
  *
- * // With tab size
- * <Markdown tab-size={2}>
- *   <script type="text/markdown">	Indented content</script>
- * </Markdown>
+ * // With event handlers
+ * <Markdown />
  *
  * // With ref methods
  * const ref = useRef<MarkdownRef>(null);
- * <button onClick={() => ref.current?.renderMarkdown()}>Re-render</button>
- * <Markdown ref={ref}>
- *   <script type="text/markdown"># Hello</script>
- * </Markdown>
+ * <button onClick={() => ref.current?.getMarked()}>Call Method</button>
+ * <Markdown ref={ref} />
  * ```
  */
 export interface MarkdownProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
   /** Tab stop width for whitespace normalization */
   'tab-size'?: number;
 }
 
 export interface MarkdownRef {
-  /** Re-renders the markdown content */
-  renderMarkdown: () => void;
-  /** Returns the marked instance used for rendering */
-  getMarked: () => unknown;
-  /** Updates all wa-markdown elements on the page */
+
+  /** Returns the shared Marked instance used by all `<wa-markdown>` components. */
+  getMarked: () => void;
+
+  /** Re-renders all connected `<wa-markdown>` instances. Call this after changing the Marked configuration. */
   updateAll: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Reads the script content, normalizes whitespace, parses markdown, and injects the result. */
+  renderMarkdown: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
   ({ children, className, ...props }, ref) => {
-    const markdownRef = useRef<WaElement | null>(null);
+    const markdownRef = useRef<HTMLElement & {
+      getMarked?: () => void;
+      updateAll?: () => void;
+      renderMarkdown?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        renderMarkdown: () => {
-          if (markdownRef.current && typeof (markdownRef.current as unknown as { renderMarkdown: () => void }).renderMarkdown === 'function') {
-            (markdownRef.current as unknown as { renderMarkdown: () => void }).renderMarkdown();
+        getMarked: () => {
+          if (markdownRef.current && typeof markdownRef.current.getMarked === 'function') {
+            markdownRef.current.getMarked();
           }
         },
-        getMarked: () => {
-          return (markdownRef.current as unknown as { marked?: unknown })?.marked;
-        },
         updateAll: () => {
-          const el = markdownRef.current as unknown as { constructor?: { updateAll?: () => void } };
-          if (el?.constructor && typeof el.constructor.updateAll === 'function') {
-            el.constructor.updateAll();
+          if (markdownRef.current && typeof markdownRef.current.updateAll === 'function') {
+            markdownRef.current.updateAll();
+          }
+        },
+        renderMarkdown: () => {
+          if (markdownRef.current && typeof markdownRef.current.renderMarkdown === 'function') {
+            markdownRef.current.renderMarkdown();
           }
         },
         get element() {
@@ -73,8 +75,9 @@ export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
 
     return (
       <wa-markdown
-        ref={(el: WaElement | null) => { markdownRef.current = el; }}
+        ref={markdownRef}
         class={clsx('Markdown', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

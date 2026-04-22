@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Avatar.css';
 
 /**
@@ -24,7 +23,7 @@ export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onError'
   image?: string;
 
   /** A label to use to describe the avatar to assistive devices */
-  label?: string;
+  label: string;
 
   /** Initials to use as a fallback when no image is available */
   initials?: string;
@@ -40,13 +39,14 @@ export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onError'
 }
 
 export interface AvatarRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Avatar = forwardRef<AvatarRef, AvatarProps>(
   ({ children, className, onError, ...props }, ref) => {
-    const avatarRef = useRef<WaElement | null>(null);
+    const avatarRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -62,21 +62,22 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
       const el = avatarRef.current;
       if (!el) return;
 
-      const handleError = (e: Event) => {
+      const handleWaError = (e: Event) => {
         if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-error', handleError);
+      el.addEventListener('wa-error', handleWaError);
 
       return () => {
-        el.removeEventListener('wa-error', handleError);
+        el.removeEventListener('wa-error', handleWaError);
       };
     }, [onError]);
 
     return (
       <wa-avatar
-        ref={(el: WaElement | null) => { avatarRef.current = el; }}
+        ref={avatarRef}
         class={clsx('Avatar', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

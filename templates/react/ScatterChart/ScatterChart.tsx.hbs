@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './ScatterChart.css';
 
 /**
@@ -9,13 +8,12 @@ import './ScatterChart.css';
  *
  * @example
  * ```tsx
- * <ScatterChart label="Height vs Weight">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       datasets: [{ label: 'Measurements', data: [{ x: 170, y: 65 }, { x: 180, y: 80 }, { x: 165, y: 55 }] }]
- *     }
- *   })}</script>
- * </ScatterChart>
+ * // Basic usage
+ * <ScatterChart />
+ *
+ * // With event handlers
+ * <ScatterChart />
+ *
  * ```
  */
 export interface ScatterChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -55,19 +53,20 @@ export interface ScatterChartProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 }
 
 export interface ScatterChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
   ({ children, className, ...props }, ref) => {
-    const scatterChartRef = useRef<WaElement | null>(null);
+    const scatterchartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         get element() {
-          return scatterChartRef.current;
+          return scatterchartRef.current;
         },
       }),
       []
@@ -75,8 +74,9 @@ export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
 
     return (
       <wa-scatter-chart
-        ref={(el: WaElement | null) => { scatterChartRef.current = el; }}
+        ref={scatterchartRef}
         class={clsx('ScatterChart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

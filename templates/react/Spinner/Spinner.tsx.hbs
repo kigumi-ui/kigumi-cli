@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Spinner.css';
 
 /**
@@ -17,16 +16,19 @@ import './Spinner.css';
  *
  * ```
  */
-export type SpinnerProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>;
+export interface SpinnerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
+}
 
 export interface SpinnerRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
   ({ children, className, ...props }, ref) => {
-    const spinnerRef = useRef<WaElement | null>(null);
+    const spinnerRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -40,8 +42,9 @@ export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
 
     return (
       <wa-spinner
-        ref={(el: WaElement | null) => { spinnerRef.current = el; }}
+        ref={spinnerRef}
         class={clsx('Spinner', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

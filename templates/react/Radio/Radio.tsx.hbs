@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Radio.css';
 
 /**
@@ -16,6 +15,10 @@ import './Radio.css';
  * <Radio
  *   onBlur={(e) => console.log(e)} />
  *
+ * // With ref methods
+ * const ref = useRef<RadioRef>(null);
+ * <button onClick={() => ref.current?.setCustomValidity()}>Call Method</button>
+ * <Radio ref={ref} />
  * ```
  */
 export interface RadioProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus' | 'dir'> {
@@ -23,14 +26,14 @@ export interface RadioProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' |
   /** The radio value */
   value?: string;
 
-  /** Visual appearance */
-  appearance?: string;
-
   /** Disables the radio */
   disabled?: boolean;
 
   /** Radio size */
   size?: 'small' | 'medium' | 'large';
+
+  /** Radio appearance style */
+  appearance?: 'default' | 'button';
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -40,17 +43,48 @@ export interface RadioProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' |
 }
 
 export interface RadioRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Radio = forwardRef<RadioRef, RadioProps>(
   ({ children, className, onBlur, onFocus, ...props }, ref) => {
-    const radioRef = useRef<WaElement | null>(null);
+    const radioRef = useRef<HTMLElement & {
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
+        setCustomValidity: (message: string) => {
+          if (radioRef.current && typeof radioRef.current.setCustomValidity === 'function') {
+            radioRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (radioRef.current && typeof radioRef.current.formStateRestoreCallback === 'function') {
+            radioRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (radioRef.current && typeof radioRef.current.resetValidity === 'function') {
+            radioRef.current.resetValidity();
+          }
+        },
         get element() {
           return radioRef.current;
         },
@@ -81,8 +115,9 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
 
     return (
       <wa-radio
-        ref={(el: WaElement | null) => { radioRef.current = el; }}
+        ref={radioRef}
         class={clsx('Radio', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

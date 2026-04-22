@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './PieChart.css';
 
 /**
@@ -9,14 +8,12 @@ import './PieChart.css';
  *
  * @example
  * ```tsx
- * <PieChart label="Device usage">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       labels: ['Mobile', 'Desktop', 'Tablet'],
- *       datasets: [{ data: [55, 35, 10] }]
- *     }
- *   })}</script>
- * </PieChart>
+ * // Basic usage
+ * <PieChart />
+ *
+ * // With event handlers
+ * <PieChart />
+ *
  * ```
  */
 export interface PieChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -41,19 +38,20 @@ export interface PieChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 }
 
 export interface PieChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const PieChart = forwardRef<PieChartRef, PieChartProps>(
   ({ children, className, ...props }, ref) => {
-    const pieChartRef = useRef<WaElement | null>(null);
+    const piechartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         get element() {
-          return pieChartRef.current;
+          return piechartRef.current;
         },
       }),
       []
@@ -61,8 +59,9 @@ export const PieChart = forwardRef<PieChartRef, PieChartProps>(
 
     return (
       <wa-pie-chart
-        ref={(el: WaElement | null) => { pieChartRef.current = el; }}
+        ref={piechartRef}
         class={clsx('PieChart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

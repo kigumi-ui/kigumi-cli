@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Icon.css';
 
 /**
@@ -61,13 +60,14 @@ export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 
 }
 
 export interface IconRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Icon = forwardRef<IconRef, IconProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
-    const iconRef = useRef<WaElement | null>(null);
+    const iconRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -83,27 +83,28 @@ export const Icon = forwardRef<IconRef, IconProps>(
       const el = iconRef.current;
       if (!el) return;
 
-      const handleLoad = (e: Event) => {
+      const handleWaLoad = (e: Event) => {
         if (onLoad) onLoad(e as CustomEvent);
       };
 
-      const handleError = (e: Event) => {
+      const handleWaError = (e: Event) => {
         if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-load', handleLoad);
-      el.addEventListener('wa-error', handleError);
+      el.addEventListener('wa-load', handleWaLoad);
+      el.addEventListener('wa-error', handleWaError);
 
       return () => {
-        el.removeEventListener('wa-load', handleLoad);
-        el.removeEventListener('wa-error', handleError);
+        el.removeEventListener('wa-load', handleWaLoad);
+        el.removeEventListener('wa-error', handleWaError);
       };
     }, [onLoad, onError]);
 
     return (
       <wa-icon
-        ref={(el: WaElement | null) => { iconRef.current = el; }}
+        ref={iconRef}
         class={clsx('Icon', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}
