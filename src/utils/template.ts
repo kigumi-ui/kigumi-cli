@@ -32,6 +32,7 @@ import type { KigumiConfig } from './config.js';
 import type { Tier } from './tier.js';
 import { generateCSSTemplate } from './css-metadata.js';
 import { toKebabCase } from './naming.js';
+import { isNextProject } from './detect-framework.js';
 
 // Register Handlebars helper to quote property names with hyphens
 Handlebars.registerHelper('quoteProp', function (propName: string) {
@@ -248,7 +249,16 @@ export async function generateComponent(
     ? componentTemplatePath
     : getTemplatePath(config.framework, `component.${fileExtension}.hbs`);
 
-  return renderTemplate(templatePath, context);
+  const rendered = await renderTemplate(templatePath, context);
+
+  // Next.js App Router: every hook-using component must be a Client Module.
+  // Prepend the directive at generation time so React templates stay shared
+  // between Vite-React and Next.js targets.
+  if (config.framework === 'react' && (await isNextProject(cwd))) {
+    return `'use client';\n\n${rendered}`;
+  }
+
+  return rendered;
 }
 
 /**
