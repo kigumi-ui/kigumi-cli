@@ -15,7 +15,7 @@ const CLI_PATH = path.join(process.cwd(), 'dist', 'index.js');
  * Create a temporary project directory with a basic package.json
  */
 export async function createTempProject(
-  template: 'react-vite' | 'empty' = 'react-vite'
+  template: 'react-vite' | 'next-app' | 'empty' = 'react-vite'
 ): Promise<string> {
   const testDir = path.join(
     os.tmpdir(),
@@ -23,7 +23,68 @@ export async function createTempProject(
   );
   await fs.ensureDir(testDir);
 
-  if (template === 'react-vite') {
+  if (template === 'next-app') {
+    // Minimal Next.js 14 App Router project (src/app layout)
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      name: 'test-next-app',
+      version: '1.0.0',
+      dependencies: {
+        react: '^18.2.0',
+        'react-dom': '^18.2.0',
+        next: '^14.0.0',
+      },
+      devDependencies: {
+        '@types/react': '^18.2.0',
+        '@types/react-dom': '^18.2.0',
+        typescript: '^5.0.0',
+      },
+    });
+
+    // Next's default tsconfig.json with @/* paths
+    await fs.writeJSON(path.join(testDir, 'tsconfig.json'), {
+      compilerOptions: {
+        target: 'ES2020',
+        lib: ['dom', 'dom.iterable', 'esnext'],
+        allowJs: true,
+        skipLibCheck: true,
+        strict: true,
+        noEmit: true,
+        esModuleInterop: true,
+        module: 'esnext',
+        moduleResolution: 'bundler',
+        resolveJsonModule: true,
+        isolatedModules: true,
+        jsx: 'preserve',
+        incremental: true,
+        paths: {
+          '@/*': ['./src/*'],
+        },
+      },
+      include: ['next-env.d.ts', '**/*.ts', '**/*.tsx'],
+      exclude: ['node_modules'],
+    });
+
+    // app/layout.tsx + app/page.tsx stubs
+    await fs.ensureDir(path.join(testDir, 'src', 'app'));
+    await fs.writeFile(
+      path.join(testDir, 'src', 'app', 'layout.tsx'),
+      `export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+`
+    );
+    await fs.writeFile(
+      path.join(testDir, 'src', 'app', 'page.tsx'),
+      `export default function Page() {
+  return <main>Hello Next</main>;
+}
+`
+    );
+  } else if (template === 'react-vite') {
     // Create minimal React + Vite project structure
     await fs.writeJSON(path.join(testDir, 'package.json'), {
       name: 'test-project',
