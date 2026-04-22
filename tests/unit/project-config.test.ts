@@ -16,6 +16,7 @@ import {
   configureVitePathAliases,
   configureVueCustomElements,
   configureVueTypes,
+  toKigumiAlias,
 } from '../../src/utils/project-config.js';
 
 // Mock output interface
@@ -600,5 +601,36 @@ describe('configureVueTypes', () => {
       `/// <reference types="${waPackage}/dist/types/vue" />`
     );
     expect(content).toContain('/// <reference types="vite/client" />');
+  });
+});
+
+describe('toKigumiAlias', () => {
+  it('strips a leading src/ segment for src-layout directories', () => {
+    expect(toKigumiAlias('src/styles')).toBe('@/styles');
+    expect(toKigumiAlias('src/lib')).toBe('@/lib');
+    expect(toKigumiAlias('src/components/ui')).toBe('@/components/ui');
+  });
+
+  it('prefixes bare directories with @/ for root-layout projects', () => {
+    expect(toKigumiAlias('styles')).toBe('@/styles');
+    expect(toKigumiAlias('lib')).toBe('@/lib');
+    expect(toKigumiAlias('components/ui')).toBe('@/components/ui');
+  });
+
+  it('preserves non-default directories so post-install paths follow config', () => {
+    // Covers the C-1 case: a user who configures stylesDir='assets/css'
+    // and utilsDir='utils' must see `@/assets/css/...` and `@/utils/...`
+    // in the Pages Router post-install instructions, not hardcoded
+    // `@/styles` and `@/lib`.
+    expect(toKigumiAlias('assets/css')).toBe('@/assets/css');
+    expect(toKigumiAlias('utils')).toBe('@/utils');
+    expect(toKigumiAlias('app/ui')).toBe('@/app/ui');
+  });
+
+  it('only strips a leading src/ segment, not src/ occurrences mid-path', () => {
+    // Defensive: someone with a literal directory named `not-src/lib` or
+    // `packages/src/whatever` should not have any segment mangled.
+    expect(toKigumiAlias('not-src/lib')).toBe('@/not-src/lib');
+    expect(toKigumiAlias('packages/src/lib')).toBe('@/packages/src/lib');
   });
 });

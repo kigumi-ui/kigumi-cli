@@ -41,6 +41,7 @@ import {
   migratePackageReferences,
   reverseMigratePackageReferences,
 } from './migration.js';
+import { toKigumiAlias } from '../../utils/project-config.js';
 import { PreFlightCheckError, UserCancelledError } from '../../errors/index.js';
 import {
   getThemeLabel,
@@ -525,15 +526,21 @@ function showPostInstallInstructions(
   // main.ts(x). The provider was generated in the file-generator step for
   // App Router only; Pages Router users wire the import themselves.
   if (isNext && nextRouter === 'pages') {
+    // Derive `@/` aliases from the user's configured directories so the
+    // emitted import specifiers match whatever kigumi.config.json says,
+    // not a hardcoded assumption about default `src/styles` / `src/lib`.
+    const stylesAlias = toKigumiAlias(config.stylesDir || 'src/styles');
+    const utilsAlias = toKigumiAlias(config.utilsDir || 'src/lib');
+
     output.info(
       pc.bold(
         pc.cyan(`${stepNum}. Wire Kigumi into your Pages Router entry:\n`)
       )
     );
     output.info(pc.dim('\tEdit pages/_app.tsx:'));
-    output.info(pc.green("\timport '@/styles/layers.css';"));
-    output.info(pc.green("\timport '@/styles/theme.css';"));
-    output.info(pc.green("\timport '@/lib/kigumi';"));
+    output.info(pc.green(`\timport '${stylesAlias}/layers.css';`));
+    output.info(pc.green(`\timport '${stylesAlias}/theme.css';`));
+    output.info(pc.green(`\timport '${utilsAlias}/kigumi';`));
     output.info(pc.green("\timport type { AppProps } from 'next/app';\n"));
     output.info(
       pc.green(
@@ -546,7 +553,7 @@ function showPostInstallInstructions(
       pc.dim(
         "\tNext's Pages Router only accepts global CSS imports from _app.tsx,\n" +
           '\tso layers.css and theme.css must be imported here directly (not\n' +
-          '\ttransitively via @/lib/kigumi). @/lib/kigumi then registers the\n' +
+          `\ttransitively via ${utilsAlias}/kigumi). ${utilsAlias}/kigumi then registers the\n` +
           '\tWeb Awesome components and applies your theme classes.\n'
       )
     );
