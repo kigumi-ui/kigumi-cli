@@ -8,6 +8,7 @@ export interface ProjectInfo {
   typescript: boolean;
   packageManager: 'npm' | 'pnpm' | 'yarn' | 'bun';
   hasVite: boolean;
+  isNext: boolean;
 }
 
 /**
@@ -97,6 +98,34 @@ export async function detectPackageManager(
 }
 
 /**
+ * Detect if the project is a Next.js project
+ *
+ * WHY: Next.js uses React underneath but requires different init handling:
+ * no vite config, `'use client'` directives on components using hooks,
+ * and `tsconfig.json` path aliases instead of `tsconfig.app.json`.
+ */
+export async function isNextProject(
+  cwd: string = process.cwd()
+): Promise<boolean> {
+  const packageJsonPath = path.join(cwd, 'package.json');
+
+  if (!(await fs.pathExists(packageJsonPath))) {
+    return false;
+  }
+
+  try {
+    const packageJson = await fs.readJson(packageJsonPath);
+    const deps = {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
+    };
+    return !!deps.next;
+  } catch (_error) {
+    return false;
+  }
+}
+
+/**
  * Get comprehensive project information
  */
 export async function getProjectInfo(
@@ -105,6 +134,7 @@ export async function getProjectInfo(
   const framework = await detectFramework(cwd);
   const typescript = await detectTypeScript(cwd);
   const packageManager = await detectPackageManager(cwd);
+  const isNext = await isNextProject(cwd);
 
   const packageJsonPath = path.join(cwd, 'package.json');
   let hasVite = false;
@@ -123,5 +153,6 @@ export async function getProjectInfo(
     typescript,
     packageManager,
     hasVite,
+    isNext,
   };
 }

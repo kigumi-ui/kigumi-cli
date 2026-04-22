@@ -168,6 +168,57 @@ describe('framework detection', () => {
 
       expect(result.details?.configFiles).toContain('tsconfig.json');
     });
+
+    it('should detect Next.js with high confidence (react + react-dom + next)', async () => {
+      await writePackageJson({
+        react: '^18.2.0',
+        'react-dom': '^18.2.0',
+        next: '^14.0.0',
+      });
+
+      const { ReactPlugin } =
+        await import('../../src/frameworks/react/index.js');
+      const plugin = new ReactPlugin();
+      const result = await plugin.detect(tempDir);
+
+      expect(result.detected).toBe(true);
+      expect(result.confidence).toBe('high');
+      expect(result.details?.packageJsonDeps).toContain('next');
+    });
+
+    it('should include next.config.ts in configFiles for Next.js projects', async () => {
+      await writePackageJson({
+        react: '^18.2.0',
+        'react-dom': '^18.2.0',
+        next: '^14.0.0',
+      });
+      // No actual next.config.* file exists — detector should still return a sensible default
+      const { ReactPlugin } =
+        await import('../../src/frameworks/react/index.js');
+      const plugin = new ReactPlugin();
+      const result = await plugin.detect(tempDir);
+
+      expect(result.details?.configFiles).toContain('next.config.ts');
+    });
+
+    it('should pick the existing next.config flavor when present', async () => {
+      await writePackageJson({
+        react: '^18.2.0',
+        'react-dom': '^18.2.0',
+        next: '^14.0.0',
+      });
+      await fs.writeFile(
+        path.join(tempDir, 'next.config.mjs'),
+        'export default {};'
+      );
+
+      const { ReactPlugin } =
+        await import('../../src/frameworks/react/index.js');
+      const plugin = new ReactPlugin();
+      const result = await plugin.detect(tempDir);
+
+      expect(result.details?.configFiles).toEqual(['next.config.mjs']);
+    });
   });
 
   describe('VuePlugin.detect()', () => {
