@@ -37,6 +37,54 @@ import {
 } from '../../errors/index.js';
 
 // =============================================================================
+// Layout-Adaptive Defaults
+// =============================================================================
+
+/**
+ * Directory + alias defaults for a given source layout.
+ *
+ * Projects that keep code under `src/` (Vite, Next `--src-dir`) get the
+ * `src/components/ui` / `src/lib` / `src/styles` layout. Projects with code
+ * at the repo root (Next without `--src-dir`, following the `app/` + root
+ * `components/` convention) get the parallel `components/ui` / `lib` /
+ * `styles` layout.
+ *
+ * Matching the layout here lets the user's existing `@/*` tsconfig paths
+ * resolve Kigumi imports without rewriting their tsconfig.
+ *
+ * @internal
+ */
+function getLayoutDefaults(projectInfo: ProjectInfo): {
+  componentsDir: string;
+  utilsDir: string;
+  stylesDir: string;
+  aliases: Record<string, string>;
+} {
+  if (projectInfo.sourceLayout === 'src') {
+    return {
+      componentsDir: 'src/components/ui',
+      utilsDir: 'src/lib',
+      stylesDir: 'src/styles',
+      aliases: {
+        '@/components': './src/components',
+        '@/lib': './src/lib',
+        '@/styles': './src/styles',
+      },
+    };
+  }
+  return {
+    componentsDir: 'components/ui',
+    utilsDir: 'lib',
+    stylesDir: 'styles',
+    aliases: {
+      '@/components': './components',
+      '@/lib': './lib',
+      '@/styles': './styles',
+    },
+  };
+}
+
+// =============================================================================
 // Type Guards for @clack/prompts Results
 // =============================================================================
 
@@ -161,18 +209,20 @@ export async function buildConfigNonInteractive(
   output.info(`Palette: ${palette}`);
   output.info(`Brand Color: ${brandColor}`);
 
+  const layoutDefaults = getLayoutDefaults(projectInfo);
+
   const config: KigumiConfig = {
     framework,
     typescript,
-    componentsDir: options.componentsDir || DEFAULT_CONFIG.componentsDir,
-    utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
-    stylesDir: options.stylesDir || DEFAULT_CONFIG.stylesDir,
+    componentsDir: options.componentsDir || layoutDefaults.componentsDir,
+    utilsDir: options.utilsDir || layoutDefaults.utilsDir,
+    stylesDir: options.stylesDir || layoutDefaults.stylesDir,
     theme: {
       selected: theme,
       palette,
       brandColor,
     },
-    aliases: DEFAULT_CONFIG.aliases,
+    aliases: layoutDefaults.aliases,
     webAwesome: {
       version: DEFAULT_CONFIG.webAwesome?.version,
     },
@@ -354,17 +404,19 @@ export async function buildConfigInteractive(
     }));
   const brandColor = ensureString(brandColorResult);
 
+  const layoutDefaults = getLayoutDefaults(projectInfo);
+
   // Components directory - use existing value if available
   const getInitialComponentsDir = (): string => {
     if (existingConfig?.componentsDir) return existingConfig.componentsDir;
-    return DEFAULT_CONFIG.componentsDir;
+    return layoutDefaults.componentsDir;
   };
 
   const componentsDirResult =
     options.componentsDir ||
     (await p.text({
       message: 'Where should components be generated?',
-      placeholder: DEFAULT_CONFIG.componentsDir,
+      placeholder: layoutDefaults.componentsDir,
       initialValue: getInitialComponentsDir(),
       validate: (value) => {
         if (!value || value.trim().length === 0) {
@@ -378,14 +430,14 @@ export async function buildConfigInteractive(
   // Styles directory - use existing value if available
   const getInitialStylesDir = (): string => {
     if (existingConfig?.stylesDir) return existingConfig.stylesDir;
-    return DEFAULT_CONFIG.stylesDir || 'src/styles';
+    return layoutDefaults.stylesDir;
   };
 
   const stylesDirResult =
     options.stylesDir ||
     (await p.text({
       message: 'Where should theme.css be generated?',
-      placeholder: DEFAULT_CONFIG.stylesDir || 'src/styles',
+      placeholder: layoutDefaults.stylesDir,
       initialValue: getInitialStylesDir(),
       validate: (value) => {
         if (!value || value.trim().length === 0) {
@@ -400,14 +452,14 @@ export async function buildConfigInteractive(
     framework,
     typescript,
     componentsDir,
-    utilsDir: options.utilsDir || DEFAULT_CONFIG.utilsDir,
+    utilsDir: options.utilsDir || layoutDefaults.utilsDir,
     stylesDir,
     theme: {
       selected: theme,
       palette,
       brandColor,
     },
-    aliases: DEFAULT_CONFIG.aliases,
+    aliases: layoutDefaults.aliases,
     webAwesome: {
       version: DEFAULT_CONFIG.webAwesome?.version,
     },

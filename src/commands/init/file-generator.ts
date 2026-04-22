@@ -26,7 +26,7 @@ import {
   generateThemeCSS,
   generateGitIgnore,
 } from '../../utils/regenerate.js';
-import { isNextProject } from '../../utils/detect-framework.js';
+import type { ProjectInfo } from '../../utils/detect-framework.js';
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -36,6 +36,11 @@ export interface FileGenerationOptions {
   tier: Tier;
   proToken?: string;
   output: OutputInterface;
+  /**
+   * Detected project info. Drives Next branching (router, src vs root layout)
+   * without re-reading package.json / filesystem in this module.
+   */
+  projectInfo: ProjectInfo;
 }
 
 /**
@@ -44,9 +49,9 @@ export interface FileGenerationOptions {
 export async function generateProjectFiles(
   options: FileGenerationOptions
 ): Promise<void> {
-  const { cwd, config, tier, proToken, output } = options;
+  const { cwd, config, tier, proToken, output, projectInfo } = options;
   const spinner = output.spinner('Generating project files...');
-  const isNext = await isNextProject(cwd);
+  const { isNext, nextRouter, sourceLayout } = projectInfo;
 
   try {
     // 1. Create necessary directories
@@ -111,12 +116,11 @@ export async function generateProjectFiles(
       const waPackage = getWebAwesomePackage(tier);
       if (isNext) {
         // Next.js owns next-env.d.ts; we emit a sibling `web-awesome.d.ts`
-        // that carries just the JSX/CSSProperties extensions. Write to
-        // `src/` if it exists, else project root (Next allows both layouts).
+        // that carries just the JSX/CSSProperties extensions. Location
+        // follows the project's layout so it's picked up by tsconfig
+        // `include` without config changes.
         spinner.message('Generating web-awesome.d.ts...');
-        const srcDir = (await fs.pathExists(path.join(cwd, 'src')))
-          ? 'src'
-          : '';
+        const srcDir = sourceLayout === 'src' ? 'src' : '';
         await generateNextEnvDts(cwd, srcDir, waPackage);
       } else {
         spinner.message('Generating vite-env.d.ts...');
@@ -163,7 +167,7 @@ export async function generateProjectFiles(
       }
 
       if (config.typescript) {
-        await configureTSConfig(cwd, output);
+        await configureTSConfig(cwd, output, sourceLayout);
       }
 
       // Vue-specific: auto-configure isCustomElement and WA types
@@ -180,9 +184,18 @@ export async function generateProjectFiles(
     // 10. Next.js App Router: write a `KigumiProvider` wrapper so users can
     // import `@/lib/kigumi` from a Client Module. This decouples kigumi setup
     // from the (usually server-rendered) root layout.
-    if (isNext && config.framework === 'react') {
+    //
+    // Pages Router projects skip this — users wire the import manually in
+    // `pages/_app.tsx`, which is their own file. `nextRouter === 'unknown'`
+    // (fresh scaffold, no app/ or pages/ yet) falls through to App Router
+    // since that's the modern Next default.
+    if (isNext && config.framework === 'react' && nextRouter !== 'pages') {
       spinner.message('Generating providers.tsx...');
       await generateNextProviders(cwd, config, output);
+    } else if (isNext && nextRouter === 'pages') {
+      output.log(
+        '[DEBUG] Pages Router detected — skipping providers.tsx (user wires _app.tsx manually)'
+      );
     }
 
     spinner.stop('Project files generated');
@@ -212,10 +225,15 @@ async function generateNextProviders(
   output: OutputInterface
 ): Promise<void> {
   const utilsDir = config.utilsDir || 'src/lib';
-  // Convert `src/lib` -> `@/lib`, fall back to the raw path for unusual layouts
-  const kigumiAlias = utilsDir.startsWith('src/')
-    ? `@/${utilsDir.slice('src/'.length)}/kigumi`
-    : `./${utilsDir}/kigumi`;
+  // Convert the on-disk path to the `@/` alias that works in both layouts:
+  // - src layout: `src/lib` -> `@/lib/kigumi`
+  // - root layout: `lib` -> `@/lib/kigumi`
+  // Both map through the alias map in `kigumi.config.json` + `tsconfig.json`
+  // paths — the filesystem layer differs, the import specifier does not.
+  const withoutSrcPrefix = utilsDir.startsWith('src/')
+    ? utilsDir.slice('src/'.length)
+    : utilsDir;
+  const kigumiAlias = `@/${withoutSrcPrefix}/kigumi`;
 
   // Write next to app/ — try src/app/ first, then app/
   const srcApp = path.join(cwd, 'src', 'app');
