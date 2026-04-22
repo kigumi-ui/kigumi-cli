@@ -22,9 +22,11 @@ import { getWebAwesomePackage } from '../../utils/tier.js';
 import {
   regenerateKigumiSetup,
   generateViteEnvDts,
+  generateNextEnvDts,
   generateThemeCSS,
   generateGitIgnore,
 } from '../../utils/regenerate.js';
+import { isNextProject } from '../../utils/detect-framework.js';
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -44,6 +46,7 @@ export async function generateProjectFiles(
 ): Promise<void> {
   const { cwd, config, tier, proToken, output } = options;
   const spinner = output.spinner('Generating project files...');
+  const isNext = await isNextProject(cwd);
 
   try {
     // 1. Create necessary directories
@@ -103,11 +106,22 @@ export async function generateProjectFiles(
       output.log(`[DEBUG] ✓ theme.css generated`);
     }
 
-    // 4. Generate vite-env.d.ts (TypeScript + React)
+    // 4. Generate JSX type declarations (TypeScript + React)
     if (config.typescript && config.framework === 'react') {
-      spinner.message('Generating vite-env.d.ts...');
       const waPackage = getWebAwesomePackage(tier);
-      await generateViteEnvDts(cwd, 'src', waPackage);
+      if (isNext) {
+        // Next.js owns next-env.d.ts; we emit a sibling `web-awesome.d.ts`
+        // that carries just the JSX/CSSProperties extensions. Write to
+        // `src/` if it exists, else project root (Next allows both layouts).
+        spinner.message('Generating web-awesome.d.ts...');
+        const srcDir = (await fs.pathExists(path.join(cwd, 'src')))
+          ? 'src'
+          : '';
+        await generateNextEnvDts(cwd, srcDir, waPackage);
+      } else {
+        spinner.message('Generating vite-env.d.ts...');
+        await generateViteEnvDts(cwd, 'src', waPackage);
+      }
     }
 
     // 5. Generate/update .gitignore
@@ -141,7 +155,12 @@ export async function generateProjectFiles(
         configureVueTypes,
       } = await import('../../utils/project-config.js');
 
-      await configureVitePathAliases(cwd, output);
+      // Next.js projects don't use vite.config; skip the Vite path-aliasing
+      // step entirely. The TS path alias goes into tsconfig.json, which
+      // configureTSConfig already handles via its new fallback.
+      if (!isNext) {
+        await configureVitePathAliases(cwd, output);
+      }
 
       if (config.typescript) {
         await configureTSConfig(cwd, output);
@@ -158,6 +177,14 @@ export async function generateProjectFiles(
       }
     }
 
+    // 10. Next.js App Router: write a `KigumiProvider` wrapper so users can
+    // import `@/lib/kigumi` from a Client Module. This decouples kigumi setup
+    // from the (usually server-rendered) root layout.
+    if (isNext && config.framework === 'react') {
+      spinner.message('Generating providers.tsx...');
+      await generateNextProviders(cwd, config, output);
+    }
+
     spinner.stop('Project files generated');
   } catch (error) {
     spinner.error('File generation failed');
@@ -167,6 +194,65 @@ export async function generateProjectFiles(
     }
     throw error;
   }
+}
+
+/**
+ * Write `app/providers.tsx` for Next.js App Router projects.
+ *
+ * The provider is a minimal Client Module that imports the Kigumi setup so
+ * users can keep their `app/layout.tsx` as a Server Component and wrap only
+ * what needs to be client-side.
+ *
+ * Preserves existing `providers.tsx` (same contract as theme.css / layers.css).
+ * @internal
+ */
+async function generateNextProviders(
+  cwd: string,
+  config: KigumiConfig,
+  output: OutputInterface
+): Promise<void> {
+  const utilsDir = config.utilsDir || 'src/lib';
+  // Convert `src/lib` -> `@/lib`, fall back to the raw path for unusual layouts
+  const kigumiAlias = utilsDir.startsWith('src/')
+    ? `@/${utilsDir.slice('src/'.length)}/kigumi`
+    : `./${utilsDir}/kigumi`;
+
+  // Write next to app/ — try src/app/ first, then app/
+  const srcApp = path.join(cwd, 'src', 'app');
+  const rootApp = path.join(cwd, 'app');
+
+  let appDir: string | null = null;
+  if (await fs.pathExists(srcApp)) {
+    appDir = srcApp;
+  } else if (await fs.pathExists(rootApp)) {
+    appDir = rootApp;
+  }
+
+  if (!appDir) {
+    output.log(`[DEBUG] No app/ directory found — skipping providers.tsx`);
+    return;
+  }
+
+  const providersPath = path.join(appDir, 'providers.tsx');
+
+  if (await fs.pathExists(providersPath)) {
+    output.info(
+      'ℹ️  Existing providers.tsx found - preserving your customizations'
+    );
+    return;
+  }
+
+  const content = `'use client';
+
+import '${kigumiAlias}';
+
+export function KigumiProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+`;
+
+  await fs.writeFile(providersPath, content);
+  output.log(`[DEBUG] ✓ providers.tsx generated`);
 }
 
 /**
