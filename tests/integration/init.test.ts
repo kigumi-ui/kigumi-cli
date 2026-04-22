@@ -103,6 +103,145 @@ describe('kigumi init', () => {
       const dts = await readFile(testDir, 'src/web-awesome.d.ts');
       expect(dts).not.toContain('vite/client');
     });
+
+    it('adapts componentsDir to root layout for Next without src/', async () => {
+      testDir = await createTempProject('next-app-no-src');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      expect(result.exitCode).toBe(0);
+
+      // Config carries root-layout directories
+      const config = JSON.parse(await readFile(testDir, 'kigumi.config.json'));
+      expect(config.componentsDir).toBe('components/ui');
+      expect(config.utilsDir).toBe('lib');
+      expect(config.stylesDir).toBe('styles');
+      expect(config.aliases).toEqual({
+        '@/components': './components',
+        '@/lib': './lib',
+        '@/styles': './styles',
+      });
+
+      // Files land at the root layout, not under src/
+      expect(await fileExists(testDir, 'lib/kigumi.ts')).toBe(true);
+      expect(await fileExists(testDir, 'styles/theme.css')).toBe(true);
+      expect(await fileExists(testDir, 'styles/layers.css')).toBe(true);
+      expect(await fileExists(testDir, 'web-awesome.d.ts')).toBe(true);
+      expect(await fileExists(testDir, 'app/providers.tsx')).toBe(true);
+      expect(await fileExists(testDir, 'src/lib/kigumi.ts')).toBe(false);
+
+      // tsconfig `@/*` stays at `['./*']` — it already resolves components/ui
+      // correctly via the root layout, no rewrite needed.
+      const tsconfig = JSON.parse(await readFile(testDir, 'tsconfig.json'));
+      expect(tsconfig.compilerOptions.paths['@/*']).toEqual(['./*']);
+
+      // providers.tsx must import from the root-layout alias
+      const providers = await readFile(testDir, 'app/providers.tsx');
+      expect(providers).toContain('@/lib/kigumi');
+    });
+
+    it('skips providers.tsx for Pages Router and scaffolds root-layout files', async () => {
+      testDir = await createTempProject('next-pages');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      expect(result.exitCode).toBe(0);
+
+      // Core Kigumi files (root layout — Pages Router has no src/ by default)
+      expect(await fileExists(testDir, 'kigumi.config.json')).toBe(true);
+      expect(await fileExists(testDir, 'lib/kigumi.ts')).toBe(true);
+      expect(await fileExists(testDir, 'styles/theme.css')).toBe(true);
+      expect(await fileExists(testDir, 'styles/layers.css')).toBe(true);
+      expect(await fileExists(testDir, 'web-awesome.d.ts')).toBe(true);
+
+      // Pages Router must NOT get providers.tsx (user wires _app.tsx manually)
+      expect(await fileExists(testDir, 'app/providers.tsx')).toBe(false);
+      expect(await fileExists(testDir, 'src/app/providers.tsx')).toBe(false);
+
+      // User's pre-existing _app.tsx must stay untouched
+      const userAppBefore = [
+        "import type { AppProps } from 'next/app';",
+        '',
+        'export default function App({ Component, pageProps }: AppProps) {',
+        '  return <Component {...pageProps} />;',
+        '}',
+        '',
+      ].join('\n');
+      const userApp = await readFile(testDir, 'pages/_app.tsx');
+      expect(userApp).toBe(userAppBefore);
+
+      // kigumi.ts must still be a Client Module — the 'use client' directive is
+      // a no-op in Pages Router (Webpack/Turbopack just see a top-level string
+      // literal), so emitting it uniformly for both routers is safe and keeps
+      // the template path identical.
+      const kigumi = await readFile(testDir, 'lib/kigumi.ts');
+      expect(kigumi.startsWith("'use client';")).toBe(true);
+
+      // Post-install output tells the user how to wire _app.tsx manually.
+      expect(result.stdout).toContain('Pages Router');
+      expect(result.stdout).toContain('pages/_app.tsx');
+      expect(result.stdout).toContain("import '@/styles/layers.css';");
+      expect(result.stdout).toContain("import '@/styles/theme.css';");
+      expect(result.stdout).toContain("import '@/lib/kigumi';");
+
+      // kigumi.ts must NOT carry the layers.css import — Next's Pages Router
+      // rejects global-CSS imports from any file other than _app.tsx.
+      expect(kigumi).not.toMatch(/^\s*import\s+['"][^'"]*layers\.css/m);
+    });
+
+    it('strips per-component CSS import when adding components to a Pages Router project', async () => {
+      // End-to-end regression guard for the Pages Router CSS policy fix:
+      // `kigumi add` on a Pages Router project must produce Button.tsx
+      // without a sibling `./Button.css` side-effect import, since Next
+      // forbids global CSS imports outside _app.tsx.
+      testDir = await createTempProject('next-pages');
+
+      const initResult = await runKigumi(testDir, [
+        'init',
+        '--no-install',
+        '-y',
+      ]);
+      expect(initResult.exitCode).toBe(0);
+
+      const addResult = await runKigumi(testDir, ['add', 'button', '-y']);
+      expect(addResult.exitCode).toBe(0);
+
+      const button = await readFile(testDir, 'components/ui/Button/Button.tsx');
+      expect(button).not.toMatch(/import\s+['"]\.\/Button\.css['"]/);
+      // 'use client' directive still lands on line 1
+      expect(button.startsWith("'use client';")).toBe(true);
+      // The stub CSS file is still generated — users can import it manually
+      // from _app.tsx if they want custom per-component styles.
+      expect(await fileExists(testDir, 'components/ui/Button/Button.css')).toBe(
+        true
+      );
+    });
+
+    it('keeps per-component CSS import when adding to App Router', async () => {
+      // Regression guard: the Pages Router strip must not regress App Router.
+      testDir = await createTempProject('next-app-no-src');
+
+      await runKigumi(testDir, ['init', '--no-install', '-y']);
+      const addResult = await runKigumi(testDir, ['add', 'button', '-y']);
+      expect(addResult.exitCode).toBe(0);
+
+      const button = await readFile(testDir, 'components/ui/Button/Button.tsx');
+      expect(button).toContain("import './Button.css';");
+      expect(button.startsWith("'use client';")).toBe(true);
+    });
+
+    it('adds .kigumi/cache/ to .gitignore', async () => {
+      testDir = await createTempProject('react-vite');
+
+      await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      const gitignore = await readFile(testDir, '.gitignore');
+      expect(gitignore).toContain('.kigumi/foreign/');
+      expect(gitignore).toContain('.kigumi/cache/');
+      // Snapshots must NOT be ignored — three-way merge depends on them.
+      expect(gitignore).not.toMatch(/^\.kigumi\/snapshots\/?$/m);
+      expect(gitignore).not.toMatch(/^\.kigumi\/$/m);
+    });
   });
 
   describe('file preservation', () => {
