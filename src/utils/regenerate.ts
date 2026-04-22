@@ -26,6 +26,7 @@ import type { KigumiConfig } from '../schemas/config.js';
 import type { Tier } from './tier.js';
 import { detectTierSync, getWebAwesomePackage } from './tier.js';
 import { isNextProject, detectNextRouter } from './detect-framework.js';
+import { toKigumiAlias } from './project-config.js';
 import { LayersCssRewriteError } from '../errors/layers-css.js';
 
 export interface RegenerateOptions {
@@ -57,14 +58,7 @@ export async function regenerateKigumiSetup(
   const tier = tierOverride || detectTierSync(cwd);
   const packageName = getWebAwesomePackage(tier);
   const stylesDir = config.stylesDir || 'src/styles';
-  // Map the on-disk styles path to the `@/` alias. Works for both layouts:
-  //   src/styles -> @/styles  (src layout)
-  //   styles     -> @/styles  (root layout — Next without --src-dir)
-  // Both map through kigumi.config.json aliases + tsconfig paths so the
-  // import specifier is identical regardless of filesystem layout.
-  const stylesAlias = stylesDir.startsWith('src/')
-    ? `@/${stylesDir.slice('src/'.length)}`
-    : `@/${stylesDir}`;
+  const stylesAlias = toKigumiAlias(stylesDir);
 
   // Check if layers.css exists and should be preserved
   const layersPath = path.join(cwd, stylesDir, 'layers.css');
@@ -99,8 +93,8 @@ export async function regenerateKigumiSetup(
   const skipLayersImport = nextRouter === 'pages';
 
   const layersImportLine = skipLayersImport
-    ? `// Pages Router: 'import '${stylesAlias}/layers.css';' must live in
-// pages/_app.tsx instead — Next forbids global CSS imports from lib/.`
+    ? `// Pages Router: layers.css must be imported from pages/_app.tsx
+// directly — Next forbids global CSS imports from lib/.`
     : `import '${stylesAlias}/layers.css';`;
 
   // Generate kigumi.ts that imports layers.css (except in Pages Router)

@@ -11,6 +11,27 @@ import { readJSONWithComments } from './json.js';
 import type { OutputInterface } from '../output/types.js';
 
 /**
+ * Map an on-disk directory path to its `@/` tsconfig alias.
+ *
+ * The `@/` alias points at `./src/*` for `src` layout and `./*` for root
+ * layout. In either case a project directory like `src/styles` or `styles`
+ * is reachable via `@/styles`, so the alias is always the directory name
+ * with any leading `src/` stripped:
+ *
+ *   src/styles → @/styles  (src layout, Vite + Next --src-dir)
+ *   styles     → @/styles  (root layout, Next without --src-dir)
+ *   assets/css → @/assets/css
+ *
+ * The same mapping works for both the stylesDir and utilsDir cases. Used
+ * by both init (post-install instructions) and regenerate (generated
+ * `import` specifiers) so the emitted strings follow whatever directories
+ * kigumi.config.json declares, not hardcoded defaults.
+ */
+export function toKigumiAlias(dir: string): string {
+  return dir.startsWith('src/') ? `@/${dir.slice('src/'.length)}` : `@/${dir}`;
+}
+
+/**
  * TSConfig compiler options that we manage
  */
 interface TSConfigCompilerOptions {
