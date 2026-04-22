@@ -206,6 +206,8 @@ describe('getProjectInfo', () => {
       packageManager: 'pnpm',
       hasVite: true,
       isNext: false,
+      nextRouter: undefined,
+      sourceLayout: 'root',
     });
   });
 
@@ -310,5 +312,185 @@ describe('isNextProject', () => {
     const { isNextProject } =
       await import('../../src/utils/detect-framework.js');
     expect(await isNextProject(testDir)).toBe(false);
+  });
+
+  it('falls back to next.config file when deps are missing', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { react: '^18.0.0' },
+    });
+    await fs.writeFile(
+      path.join(testDir, 'next.config.ts'),
+      'export default {};'
+    );
+
+    const { isNextProject } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await isNextProject(testDir)).toBe(true);
+  });
+});
+
+describe('detectNextRouter', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-detect-router-'))
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it("returns 'app' for app/ at root", async () => {
+    await fs.ensureDir(path.join(testDir, 'app'));
+
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('app');
+  });
+
+  it("returns 'app' for src/app/", async () => {
+    await fs.ensureDir(path.join(testDir, 'src', 'app'));
+
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('app');
+  });
+
+  it("returns 'pages' for pages/ at root", async () => {
+    await fs.ensureDir(path.join(testDir, 'pages'));
+
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('pages');
+  });
+
+  it("returns 'pages' for src/pages/", async () => {
+    await fs.ensureDir(path.join(testDir, 'src', 'pages'));
+
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('pages');
+  });
+
+  it("prefers 'app' when both app/ and pages/ exist", async () => {
+    // Incremental-migration projects keep pages/ while adding app/.
+    // Next itself gives App Router precedence for conflicting routes.
+    await fs.ensureDir(path.join(testDir, 'app'));
+    await fs.ensureDir(path.join(testDir, 'pages'));
+
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('app');
+  });
+
+  it("returns 'unknown' when neither router dir is present", async () => {
+    const { detectNextRouter } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectNextRouter(testDir)).toBe('unknown');
+  });
+});
+
+describe('detectSourceLayout', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-detect-layout-'))
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it("returns 'src' when src/app/ exists", async () => {
+    await fs.ensureDir(path.join(testDir, 'src', 'app'));
+
+    const { detectSourceLayout } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectSourceLayout(testDir)).toBe('src');
+  });
+
+  it("returns 'src' when src/main.tsx exists", async () => {
+    await fs.ensureDir(path.join(testDir, 'src'));
+    await fs.writeFile(path.join(testDir, 'src', 'main.tsx'), 'export {};');
+
+    const { detectSourceLayout } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectSourceLayout(testDir)).toBe('src');
+  });
+
+  it("returns 'root' for a Next-no-src-dir layout", async () => {
+    // create-next-app without --src-dir puts app/ at root, no src/ dir.
+    await fs.ensureDir(path.join(testDir, 'app'));
+
+    const { detectSourceLayout } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectSourceLayout(testDir)).toBe('root');
+  });
+
+  it("returns 'root' for an empty directory", async () => {
+    const { detectSourceLayout } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await detectSourceLayout(testDir)).toBe('root');
+  });
+});
+
+describe('getProjectInfo — Next router + source layout', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-project-info-'))
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it('populates nextRouter=app + sourceLayout=src for App Router with src/', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { next: '^14.0.0', react: '^18.0.0' },
+    });
+    await fs.ensureDir(path.join(testDir, 'src', 'app'));
+
+    const { getProjectInfo } =
+      await import('../../src/utils/detect-framework.js');
+    const info = await getProjectInfo(testDir);
+    expect(info.isNext).toBe(true);
+    expect(info.nextRouter).toBe('app');
+    expect(info.sourceLayout).toBe('src');
+  });
+
+  it('populates nextRouter=pages + sourceLayout=root for Pages-no-src', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { next: '^14.0.0', react: '^18.0.0' },
+    });
+    await fs.ensureDir(path.join(testDir, 'pages'));
+
+    const { getProjectInfo } =
+      await import('../../src/utils/detect-framework.js');
+    const info = await getProjectInfo(testDir);
+    expect(info.isNext).toBe(true);
+    expect(info.nextRouter).toBe('pages');
+    expect(info.sourceLayout).toBe('root');
+  });
+
+  it('leaves nextRouter undefined for non-Next projects', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { react: '^18.0.0', vite: '^5.0.0' },
+    });
+    await fs.ensureDir(path.join(testDir, 'src'));
+    await fs.writeFile(path.join(testDir, 'src', 'main.tsx'), 'export {};');
+
+    const { getProjectInfo } =
+      await import('../../src/utils/detect-framework.js');
+    const info = await getProjectInfo(testDir);
+    expect(info.isNext).toBe(false);
+    expect(info.nextRouter).toBeUndefined();
+    expect(info.sourceLayout).toBe('src');
   });
 });
