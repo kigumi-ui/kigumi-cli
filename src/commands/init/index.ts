@@ -204,7 +204,8 @@ export async function initCommand(options: InitOptions = {}) {
       configResult.config,
       context.projectInfo.packageManager,
       true, // Always true if we reach here without errors
-      configResult.newTier
+      configResult.newTier,
+      context.projectInfo.isNext
     );
   } catch (error) {
     handleError(error, output);
@@ -486,7 +487,8 @@ function showPostInstallInstructions(
   config: import('../../schemas/index.js').KigumiConfig,
   packageManager: string,
   depsInstalled: boolean,
-  tier: Tier
+  tier: Tier,
+  isNext: boolean = false
 ): void {
   output.info('\n' + pc.bold(pc.cyan('📝 Next Steps:\n')));
 
@@ -515,17 +517,47 @@ function showPostInstallInstructions(
     stepNum++;
   }
 
-  // Step: Import Kigumi setup
-  output.info(
-    pc.bold(pc.cyan(`${stepNum}. Import Kigumi in your main entry file:\n`))
-  );
-  const mainFile =
-    config.framework === 'vue'
-      ? 'src/main.ts'
-      : 'src/main.tsx (or src/main.jsx)';
-  output.info(pc.dim(`\tAdd this import to ${mainFile}:`));
-  output.info(pc.green('\timport "@/lib/kigumi";\n'));
-  stepNum++;
+  // Step: Wire up Kigumi — Next.js uses a Client Module provider, Vite
+  // projects import directly from main.ts(x). The provider was generated in
+  // the file-generator step for Next; users just need to wrap their layout.
+  if (isNext) {
+    output.info(
+      pc.bold(
+        pc.cyan(`${stepNum}. Wrap your root layout with KigumiProvider:\n`)
+      )
+    );
+    output.info(pc.dim('\tEdit app/layout.tsx:'));
+    output.info(
+      pc.green("\timport { KigumiProvider } from '@/app/providers';")
+    );
+    output.info(
+      pc.green(
+        '\n\texport default function RootLayout({ children }: { children: React.ReactNode }) {'
+      )
+    );
+    output.info(pc.green('\t  return ('));
+    output.info(pc.green('\t    <html>'));
+    output.info(
+      pc.green(
+        '\t      <body><KigumiProvider>{children}</KigumiProvider></body>'
+      )
+    );
+    output.info(pc.green('\t    </html>'));
+    output.info(pc.green('\t  );'));
+    output.info(pc.green('\t}\n'));
+    stepNum++;
+  } else {
+    output.info(
+      pc.bold(pc.cyan(`${stepNum}. Import Kigumi in your main entry file:\n`))
+    );
+    const mainFile =
+      config.framework === 'vue'
+        ? 'src/main.ts'
+        : 'src/main.tsx (or src/main.jsx)';
+    output.info(pc.dim(`\tAdd this import to ${mainFile}:`));
+    output.info(pc.green('\timport "@/lib/kigumi";\n'));
+    stepNum++;
+  }
 
   // Vue-specific: remove conflicting default styles
   if (config.framework === 'vue') {
