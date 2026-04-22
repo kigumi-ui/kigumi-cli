@@ -25,6 +25,7 @@ import {
 import type { KigumiConfig } from '../schemas/config.js';
 import type { Tier } from './tier.js';
 import { detectTierSync, getWebAwesomePackage } from './tier.js';
+import { isNextProject } from './detect-framework.js';
 import { LayersCssRewriteError } from '../errors/layers-css.js';
 
 export interface RegenerateOptions {
@@ -112,8 +113,16 @@ ${themeClasses}
 export {};
 `;
 
+  // Next.js App Router: kigumi.ts patches `customElements.define`, which only
+  // exists in the browser. Mark it as a Client Module so the patch runs on the
+  // client; the existing `typeof customElements !== 'undefined'` guard makes
+  // the SSR pass a no-op.
+  const finalSetupFileContent = (await isNextProject(cwd))
+    ? `'use client';\n\n${setupFileContent}`
+    : setupFileContent;
+
   const setupFilePath = path.join(cwd, utilsDir, 'kigumi.ts');
-  await fs.writeFile(setupFilePath, setupFileContent);
+  await fs.writeFile(setupFilePath, finalSetupFileContent);
 
   return { layersPreserved };
 }
@@ -341,6 +350,58 @@ export {};
 
   const viteEnvPath = path.join(cwd, srcDir, 'vite-env.d.ts');
   await fs.writeFile(viteEnvPath, viteEnvContent);
+}
+
+/**
+ * Generate web-awesome.d.ts for Next.js projects
+ *
+ * Same Web Awesome JSX typings as the Vite flavor, but without the
+ * `/// <reference types="vite/client" />` directive (Next owns its own
+ * `next-env.d.ts`). Written to `<srcDir>/web-awesome.d.ts` so it lives
+ * next to the rest of the app's TypeScript.
+ *
+ * @param cwd - Current working directory
+ * @param srcDir - Source directory (e.g. 'src' or '' for projects without src/)
+ * @param waPackage - Web Awesome package name (defaults to free package)
+ */
+export async function generateNextEnvDts(
+  cwd: string,
+  srcDir: string,
+  waPackage: string = WEB_AWESOME_FREE_PACKAGE
+): Promise<void> {
+  const dtsContent = `/**
+ * Web Awesome JSX Types
+ *
+ * This extends React's JSX.IntrinsicElements with Web Awesome custom elements.
+ * Uses the official types from the ${waPackage} package.
+ *
+ * IMPORTANT: Uses 'declare global' to extend JSX without overwriting React module.
+ *
+ * @see https://webawesome.com/docs/#react-users
+ */
+
+import type {
+  CustomElements,
+  CustomCssProperties,
+} from '${waPackage}/dist/custom-elements-jsx.d.ts';
+
+declare global {
+  namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface IntrinsicElements extends CustomElements {}
+  }
+}
+
+declare module 'react' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface CSSProperties extends CustomCssProperties {}
+}
+
+export {};
+`;
+
+  const dtsPath = path.join(cwd, srcDir, 'web-awesome.d.ts');
+  await fs.writeFile(dtsPath, dtsContent);
 }
 
 /**
