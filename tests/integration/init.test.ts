@@ -67,6 +67,42 @@ describe('kigumi init', () => {
       expect(config.theme).toHaveProperty('palette');
       expect(config.theme).toHaveProperty('brandColor');
     });
+
+    it('generates required files for Next.js project', async () => {
+      testDir = await createTempProject('next-app');
+
+      const result = await runKigumi(testDir, ['init', '--no-install', '-y']);
+
+      expect(result.exitCode).toBe(0);
+
+      // Core Kigumi files
+      expect(await fileExists(testDir, 'kigumi.config.json')).toBe(true);
+      expect(await fileExists(testDir, 'src/lib/kigumi.ts')).toBe(true);
+      expect(await fileExists(testDir, 'src/styles/theme.css')).toBe(true);
+      expect(await fileExists(testDir, 'src/styles/layers.css')).toBe(true);
+
+      // Next-specific outputs
+      expect(await fileExists(testDir, 'src/app/providers.tsx')).toBe(true);
+      expect(await fileExists(testDir, 'src/web-awesome.d.ts')).toBe(true);
+
+      // Files that must NOT be produced for Next
+      expect(await fileExists(testDir, 'src/vite-env.d.ts')).toBe(false);
+      expect(await fileExists(testDir, 'vite.config.ts')).toBe(false);
+
+      // kigumi.ts must be a Client Module
+      const kigumi = await readFile(testDir, 'src/lib/kigumi.ts');
+      expect(kigumi.startsWith("'use client';")).toBe(true);
+
+      // providers.tsx must also be a Client Module and import kigumi
+      const providers = await readFile(testDir, 'src/app/providers.tsx');
+      expect(providers.startsWith("'use client';")).toBe(true);
+      expect(providers).toContain('@/lib/kigumi');
+      expect(providers).toContain('KigumiProvider');
+
+      // web-awesome.d.ts must not reference vite/client
+      const dts = await readFile(testDir, 'src/web-awesome.d.ts');
+      expect(dts).not.toContain('vite/client');
+    });
   });
 
   describe('file preservation', () => {
