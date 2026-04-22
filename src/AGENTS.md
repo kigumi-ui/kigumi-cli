@@ -62,7 +62,7 @@ src/
 │   ├── display-options.ts # Theme/palette/brand display labels and options
 │   ├── project-config.ts # Project configuration helpers (configureVueCustomElements, configureVueTypes)
 │   ├── component-metadata.ts # Auto-generated component metadata (events, slots, methods) — used by Vue template generator
-│   ├── detect-framework.ts # Framework, TypeScript, package manager detection (also isNextProject + ProjectInfo.isNext)
+│   ├── detect-framework.ts # Framework, TypeScript, package manager, Next router, source-layout detection
 │   ├── token-manager.ts  # Token validation, loading, saving, prompting
 │   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
 │   ├── update-check.ts   # CLI update notification
@@ -240,17 +240,29 @@ In addition to Handlebars rendering, exports shared file extension helpers used 
 
 ### Next.js Detection
 
-Next.js is treated as a React variant, not a separate framework enum. `framework: 'react'` stays in `kigumi.config.json`; the Next-specific branches read `isNextProject(cwd)` at call time:
+Next.js is treated as a React variant, not a separate framework enum. `framework: 'react'` stays in `kigumi.config.json`; the Next-specific branches read `isNextProject(cwd)` at call time.
 
-- `isNextProject(cwd)` — in `utils/detect-framework.ts`, returns `true` when `next` appears in `dependencies` or `devDependencies`. `getProjectInfo` exposes the result as `ProjectInfo.isNext`.
+Three detection helpers in `utils/detect-framework.ts` drive everything:
+
+- `isNextProject(cwd)` — returns `true` when `next` appears in deps or a `next.config.{js,mjs,ts,cjs}` file is present. `getProjectInfo` surfaces the result as `ProjectInfo.isNext`.
+- `detectNextRouter(cwd)` — returns `'app' | 'pages' | 'unknown'`. Looks for `app/` or `src/app/` first (App Router wins if both exist, matching Next's own precedence rule), then `pages/` or `src/pages/`, else `'unknown'`. `ProjectInfo.nextRouter` is only populated when `isNext` is true.
+- `detectSourceLayout(cwd)` — returns `'src' | 'root'`. Used for **all** frameworks to decide whether Kigumi places files under `src/` or at the repo root, so the `@/*` alias resolves without rewriting the user's tsconfig.
+
+Consumers:
+
 - `ReactPlugin.detect()` — pushes `'next'` into `packageJsonDeps`, picks the existing `next.config.{ts,mjs,js}` for `configFiles` (or defaults to `next.config.ts`), and keeps `confidence: 'high'` when `react + react-dom + next` are all present.
-- `generateComponent` — prepends `'use client';` to React output when `isNextProject(cwd)`.
-- `regenerateKigumiSetup` — prepends `'use client';` to `kigumi.ts` for the same reason.
-- `generateNextEnvDts` — sibling of `generateViteEnvDts`; writes `web-awesome.d.ts` without the `vite/client` reference.
-- `configureTSConfig` — tries `tsconfig.app.json` first, falls back to `tsconfig.json` (Next's default).
-- `file-generator.ts` — skips `configureVitePathAliases` for Next; writes `app/providers.tsx` (or `src/app/providers.tsx`) with a `KigumiProvider` Client Module that imports the Kigumi setup.
+- `generateComponent` — prepends `'use client';` to React output when `isNextProject(cwd)`. Same directive for both routers: App Router needs it; Pages Router treats it as a harmless top-level string, so emitting uniformly keeps generated output consistent when a project migrates from Pages to App. **When `detectNextRouter(cwd) === 'pages'`, also strips the per-component `import './<Name>.css';` line** — Next's Pages Router rejects global CSS imports outside `pages/_app.tsx`, including transitively via components. Users add per-component stub CSS to `_app.tsx` manually if they customize it.
+- `regenerateKigumiSetup` — prepends `'use client';` to `kigumi.ts` for the same reason. **When `nextRouter === 'pages'`, also omits the `import '<stylesAlias>/layers.css';` line** for the same Pages-Router CSS policy. An explanatory comment replaces the import so future readers understand why it's missing. Users add `layers.css` + `theme.css` directly to `_app.tsx` per post-install instructions.
+- `generateNextEnvDts` — sibling of `generateViteEnvDts`; writes `web-awesome.d.ts` without the `vite/client` reference. Location follows `sourceLayout` (`src/` or root).
+- `configureTSConfig(cwd, output, sourceLayout)` — tries `tsconfig.app.json` first, falls back to `tsconfig.json`. When adding a missing `@/*` alias, picks `['./src/*']` for the `src` layout and `['./*']` for the `root` layout so the generated directory structure and the path alias agree.
+- `file-generator.ts` — skips `configureVitePathAliases` for Next; writes `providers.tsx` next to `app/` (either `app/providers.tsx` or `src/app/providers.tsx` depending on layout) **only** when `nextRouter !== 'pages'`. Pages Router projects get a post-install instruction pointing at `pages/_app.tsx` instead — their `_app.tsx` is user-owned.
+- `config-builder.ts` — `getLayoutDefaults(projectInfo)` returns `componentsDir` / `utilsDir` / `stylesDir` / `aliases` matched to `sourceLayout`, so `create-next-app` without `--src-dir` gets `components/ui` / `lib` / `styles` at the repo root and the user's default `@/*: ['./*']` alias keeps working.
+- `init/index.ts` — `showPostInstallInstructions` branches on `nextRouter`: App Router prints the `<KigumiProvider>` wrap snippet; Pages Router prints the `pages/_app.tsx` side-effect import; `'unknown'` falls through to App Router (modern Next default).
+- `regenerate.ts` (`generateGitIgnore`) — adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked because three-way merge depends on it. `.npmrc` is safe to commit (registry URL only, no token).
 
-**Design choice:** branching on a runtime flag keeps the schema stable for existing users and avoids duplicating 75 React component templates under a separate `templates/nextjs/` tree.
+**Hydration contract**: all React templates emit `suppressHydrationWarning` on their `<wa-*>` host element. Lit reflects default attributes to the DOM during `connectedCallback`, producing a host-attribute delta on every component. `suppressHydrationWarning` is the documented React API for elements whose attributes mutate after hydration via a runtime (custom elements, date formatters, etc.). It suppresses one level only — children are still hydration-checked. In non-SSR contexts (Vite SPA) the attribute is a no-op, so shipping it uniformly is safe.
+
+**Design choice:** branching on runtime flags keeps the schema stable for existing users and avoids duplicating 75 React component templates under a separate `templates/nextjs/` tree.
 
 ---
 
@@ -414,4 +426,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-21
+**Last Updated:** 2026-04-22

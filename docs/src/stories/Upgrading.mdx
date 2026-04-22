@@ -29,6 +29,41 @@ export function KigumiProvider({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }`;
 
+export const pagesAppSnippet = `import type { AppProps } from 'next/app';
+import '@/styles/layers.css';
+import '@/styles/theme.css';
+import '@/lib/kigumi';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />;
+}`;
+
+export const transpileSnippet = `// next.config.ts
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  transpilePackages: [
+    '@awesome.me/webawesome-pro',
+    '@awesome.me/webawesome',
+  ],
+};
+
+export default nextConfig;`;
+
+export const npmrcSnippet = `# .npmrc
+shamefully-hoist=true`;
+
+export const pagesWorkaroundSnippet = `// pages/_app.tsx
+import type { AppProps } from 'next/app';
+import '@awesome.me/webawesome-pro/dist/styles/webawesome.css';
+import '@awesome.me/webawesome-pro/dist/styles/themes/default.css';
+import '@/styles/theme.css';
+import '@/lib/kigumi';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />;
+}`;
+
 export const addComponentsSnippet = `npx kigumi add button card dialog input`;
 
 export const generatedButtonSnippet = `// src/components/ui/Button/Button.tsx (generated)
@@ -70,9 +105,9 @@ export const regenerateSnippet = `npx kigumi update --force`;
         <Icon slot="icon" name="circle-info" />
         <p>
           <strong>No breaking changes.</strong> Existing Vite + React projects
-          work unchanged. This release teaches <code>kigumi init</code> and the
-          template generator to recognize Next.js App Router projects and
-          scaffold them correctly.
+          work unchanged. This release teaches <code>kigumi init</code> and
+          the template generator to recognize Next.js projects — both App
+          Router and Pages Router — and scaffold them correctly.
         </p>
       </Callout>
 
@@ -82,26 +117,52 @@ export const regenerateSnippet = `npx kigumi update --force`;
           <h3 className="wa-heading-l" id="next-init">Initialize inside a Next.js project</h3>
         </div>
         <p className="wa-caption-m">
-          From a Next.js project root (App Router, React 18 or 19), run{' '}
+          From a Next.js project root (React 18 or 19), run{' '}
           <code>kigumi init</code>. The CLI detects Next by checking{' '}
           <code>package.json</code> for <code>next</code> or the presence of{' '}
-          <code>next.config.&#123;js,mjs,ts&#125;</code>, then adapts the scaffold:
+          <code>next.config.&#123;js,mjs,ts,cjs&#125;</code>, then adapts the
+          scaffold to the router you use and the project's layout:
         </p>
         <CodeBlock language="bash" value={initSnippet} />
         <ul>
-          <li>Skips <code>vite.config.ts</code> and <code>vite-env.d.ts</code> writes.</li>
-          <li>Emits <code>src/web-awesome.d.ts</code> (without the <code>vite/client</code> reference).</li>
-          <li>Writes <code>app/providers.tsx</code> (or <code>src/app/providers.tsx</code> if your app uses the <code>src/</code> layout) with a minimal <code>KigumiProvider</code> Client Module.</li>
-          <li>Falls back to <code>tsconfig.json</code> for path-alias configuration when <code>tsconfig.app.json</code> is absent.</li>
+          <li>
+            <strong>App Router</strong> (<code>app/</code> or{' '}
+            <code>src/app/</code>): writes <code>providers.tsx</code> next to
+            <code>app/</code> with a <code>KigumiProvider</code> Client Module
+            so your root layout can stay a Server Component.
+          </li>
+          <li>
+            <strong>Pages Router</strong> (<code>pages/</code>): does not
+            scaffold a new file. Your <code>pages/_app.tsx</code> is yours;
+            Kigumi prints the one-line import you need to add (see step 2b).
+          </li>
+          <li>
+            Skips <code>vite.config.ts</code> and <code>vite-env.d.ts</code>{' '}
+            writes; emits a sibling <code>web-awesome.d.ts</code> without the
+            Vite type reference.
+          </li>
+          <li>
+            Matches directory defaults to your layout: projects with{' '}
+            <code>src/</code> get <code>src/components/ui</code> /{' '}
+            <code>src/lib</code> / <code>src/styles</code>; projects without
+            <code>src/</code> (e.g. <code>create-next-app</code> without{' '}
+            <code>--src-dir</code>) get the parallel <code>components/ui</code>
+            {' '}/ <code>lib</code> / <code>styles</code> layout so your
+            existing <code>@/*</code> path alias resolves without edits.
+          </li>
+          <li>
+            Falls back to <code>tsconfig.json</code> for path-alias
+            configuration when <code>tsconfig.app.json</code> is absent.
+          </li>
         </ul>
-        <p className="wa-caption-m">Generated <code>providers.tsx</code>:</p>
+        <p className="wa-caption-m">Generated App Router <code>providers.tsx</code>:</p>
         <CodeBlock language="tsx" value={providersGeneratedSnippet} />
       </div>
 
       <div className="wa-stack wa-gap-m">
         <div className="wa-cluster wa-gap-xs wa-align-items-center">
-          <Badge pill>2</Badge>
-          <h3 className="wa-heading-l" id="wrap-root-layout">Wrap your root layout</h3>
+          <Badge pill>2a</Badge>
+          <h3 className="wa-heading-l" id="wrap-root-layout">Wire Kigumi — App Router</h3>
         </div>
         <p className="wa-caption-m">
           <code>app/layout.tsx</code> stays a Server Component. Import{' '}
@@ -111,8 +172,94 @@ export const regenerateSnippet = `npx kigumi update --force`;
         <CodeBlock language="tsx" value={wrapLayoutSnippet} />
         <p className="wa-caption-m">
           The provider pulls <code>@/lib/kigumi</code> into the Client bundle
-          so Web Awesome registers once per browser session, while your layout,
-          metadata, and data fetching remain server-rendered.
+          so Web Awesome registers once per browser session, while your
+          layout, metadata, and data fetching remain server-rendered.
+        </p>
+      </div>
+
+      <div className="wa-stack wa-gap-m">
+        <div className="wa-cluster wa-gap-xs wa-align-items-center">
+          <Badge pill>2b</Badge>
+          <h3 className="wa-heading-l" id="wire-pages">Wire Kigumi — Pages Router</h3>
+        </div>
+        <p className="wa-caption-m">
+          Pages Router has no RSC boundary, so there's no provider to scaffold.
+          Add three imports to <code>pages/_app.tsx</code>:
+        </p>
+
+        <Callout variant="warning">
+          <Icon slot="icon" name="triangle-exclamation" />
+          <div className="wa-stack wa-gap-s">
+            <p>
+              <strong>Environment setup.</strong> Pages Router needs two
+              config changes before the imports work, plus awareness of one
+              known visual limitation.
+            </p>
+            <ol>
+              <li>
+                <p>
+                  Add <code>transpilePackages</code> to your{' '}
+                  <code>next.config.js</code>/<code>next.config.ts</code>.
+                  Pages Router SSR uses Node ESM resolution, which does not
+                  follow pnpm's symlink graph for Lit. Without this entry,{' '}
+                  <code>next dev</code> crashes with{' '}
+                  <code>Cannot find package 'lit'</code>.
+                </p>
+                <CodeBlock language="ts" value={transpileSnippet} />
+              </li>
+              <li>
+                <p>
+                  <strong>pnpm users:</strong> add{' '}
+                  <code>shamefully-hoist=true</code> to the project's{' '}
+                  <code>.npmrc</code>. Next's Pages Router SSR pipeline holds
+                  a single React instance, but pnpm's default isolated{' '}
+                  <code>node_modules</code> layout leaks multiple React
+                  resolution paths through <code>styled-jsx</code> and other
+                  Next dev-overlay deps. Symptom:{' '}
+                  <code>
+                    Cannot read properties of null (reading 'useContext' |
+                    'useReducer' | 'useInsertionEffect')
+                  </code>{' '}
+                  during SSR.
+                </p>
+                <CodeBlock language="ini" value={npmrcSnippet} />
+              </li>
+              <li>
+                <p>
+                  <strong>Known limitation.</strong> On some pnpm + Next
+                  Pages Router + Webpack combinations, WA theme CSS
+                  variables don't apply at <code>:root</code> even when
+                  components upgrade correctly (components work, but theme
+                  font and brand color don't reach the document root). App
+                  Router projects are unaffected. If you hit this, replace
+                  the Kigumi <code>layers.css</code> import in{' '}
+                  <code>_app.tsx</code> with direct imports of WA's base and
+                  theme stylesheets:
+                </p>
+                <CodeBlock language="tsx" value={pagesWorkaroundSnippet} />
+              </li>
+            </ol>
+          </div>
+        </Callout>
+
+        <CodeBlock language="tsx" value={pagesAppSnippet} />
+        <p className="wa-caption-m">
+          Next's Pages Router enforces that global CSS can only be imported
+          from <code>_app.tsx</code> directly — not transitively from
+          <code>lib/</code> or a component file. Kigumi detects Pages Router
+          at generation time and{' '}
+          <strong>
+            omits the <code>layers.css</code> import from{' '}
+            <code>lib/kigumi.ts</code> and the per-component{' '}
+            <code>.css</code> imports from each wrapper
+          </strong>
+          , so the build succeeds. The trade-off is that{' '}
+          <code>_app.tsx</code> owns all CSS imports. If you customize the
+          stub <code>Button.css</code> / <code>Card.css</code> etc. files,
+          add their imports to <code>_app.tsx</code> manually. No{' '}
+          <code>'use client'</code> needed in your <code>_app.tsx</code>
+          {' '}(Pages Router code runs in both server and client contexts by
+          default).
         </p>
       </div>
 
@@ -122,14 +269,16 @@ export const regenerateSnippet = `npx kigumi update --force`;
           <h3 className="wa-heading-l" id="add-components">Add components</h3>
         </div>
         <p className="wa-caption-m">
-          Same command as any other Kigumi project:
+          Same command for both routers:
         </p>
         <CodeBlock language="bash" value={addComponentsSnippet} />
         <p className="wa-caption-m">
-          Wrappers land in <code>src/components/ui/</code> and can be imported
-          from any Server or Client Component. Because every wrapper carries a
-          leading <code>'use client';</code>, Next promotes them to Client
-          Modules automatically — no manual boundary annotations needed.
+          Wrappers land in your configured <code>componentsDir</code> and can
+          be imported from any Server or Client Component (App Router) or
+          page (Pages Router). Every generated wrapper carries a leading{' '}
+          <code>'use client';</code>: in App Router this promotes it to a
+          Client Module automatically, in Pages Router Next treats it as a
+          harmless top-level string literal.
         </p>
       </div>
 
@@ -142,7 +291,7 @@ export const regenerateSnippet = `npx kigumi update --force`;
 
         <p><strong>1. <code>'use client';</code> directive.</strong> Injected on line 1 of every generated React wrapper and of <code>src/lib/kigumi.ts</code>. Without it, Next would try to server-render the custom element reference and fail because Web Awesome's Lit runtime depends on browser APIs.</p>
 
-        <p><strong>2. <code>suppressHydrationWarning</code> on the host element.</strong> Lit-based Web Awesome components reflect default attributes to the DOM during <code>connectedCallback</code> (e.g., <code>appearance="outlined"</code> on{' '}<code>&lt;wa-button&gt;</code>,{' '}<code>library="default"</code> on{' '}<code>&lt;wa-icon&gt;</code>). React's SSR output does not include those, so without suppression every page that mounts a Kigumi component throws a hydration-mismatch warning. <code>suppressHydrationWarning</code> is a one-level, no-op attribute in non-SSR contexts, so Vite projects are not affected.</p>
+        <p><strong>2. <code>suppressHydrationWarning</code> on the host element.</strong> Lit-based Web Awesome components reflect default attributes to the DOM during <code>connectedCallback</code> (e.g., <code>appearance="outlined"</code> on{' '}<code>&lt;wa-button&gt;</code>,{' '}<code>library="default"</code> on{' '}<code>&lt;wa-icon&gt;</code>). React's SSR output does not include those, so without suppression every page that mounts a Kigumi component throws a hydration-mismatch warning. This is the documented React API for elements whose attributes are mutated by a runtime after hydration — it suppresses only the host element (children are still hydration-checked), and it's a no-op in non-SSR contexts, so Vite projects are not affected.</p>
 
         <p>Example (abbreviated):</p>
         <CodeBlock language="tsx" value={generatedButtonSnippet} />
@@ -178,10 +327,17 @@ export const regenerateSnippet = `npx kigumi update --force`;
       </div>
 
       <div className="wa-stack wa-gap-m">
-        <h3 className="wa-heading-l" id="not-supported">Not supported in 0.20</h3>
+        <h3 className="wa-heading-l" id="not-supported">Known limitations</h3>
         <ul>
-          <li><strong>Pages Router.</strong> Detection and scaffolding target App Router only. Pages Router projects can still use Kigumi by adding <code>'use client'</code> manually and importing <code>@/lib/kigumi</code> from a top-level Client Component, but <code>kigumi init</code> will not branch for them.</li>
-          <li><strong>Server-rendered Web Awesome output.</strong> Custom elements render as empty <code>&lt;wa-*&gt;</code> tags during SSR and hydrate on the client. Visible output appears after hydration. Declarative Shadow DOM support is tracked as a follow-up.</li>
+          <li>
+            <strong>Server-rendered Web Awesome output.</strong> Custom
+            elements render as empty <code>&lt;wa-*&gt;</code> tags during
+            SSR and hydrate on the client. Visible output appears after
+            hydration. This is a fundamental property of custom elements
+            without Declarative Shadow DOM — not a Kigumi-specific
+            limitation. For fully-server-rendered shadow output, Web
+            Awesome's Pro SSR loader is the intended path.
+          </li>
         </ul>
       </div>
     </div>
