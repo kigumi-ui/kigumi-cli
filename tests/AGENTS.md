@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (73 files, 1140 tests)
+├── unit/                    # Fast, isolated tests (74 files, 1177 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -38,6 +38,7 @@ tests/
 │   ├── list-json.test.ts            # List --json output
 │   ├── migration.test.ts            # Free↔Pro migration
 │   ├── network-errors.test.ts       # Network error classes
+│   ├── next-support.test.ts         # Next.js detection + 'use client' injection
 │   ├── options-schema.test.ts       # Command options schemas
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
@@ -303,4 +304,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-13
+**Last Updated:** 2026-04-21

@@ -232,6 +232,17 @@ Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` 
 
 Form controls implement `ControlValueAccessor`. Use `[(ngModel)]` or `[formControl]`, never manual event wiring for value tracking.
 
+### 12. Next.js Is a React Variant
+
+Next.js projects use the existing React plugin and React templates — `config.framework` stays `'react'`. The Next-specific behavior is branched on `isNextProject(cwd)` (in `src/utils/detect-framework.ts`) at generation time:
+
+- Every generated React component starts with `'use client';` (injected by `generateComponent` after `renderTemplate`).
+- `src/lib/kigumi.ts` also starts with `'use client';` — the `customElements.define` patch needs the browser and would otherwise be evaluated as a Server Component.
+- `init` skips `vite.config.ts` path-aliasing, picks `tsconfig.json` over `tsconfig.app.json`, emits `src/web-awesome.d.ts` (no `vite/client` reference) instead of `src/vite-env.d.ts`, and writes `src/app/providers.tsx` (or `app/providers.tsx`) with a `KigumiProvider` Client Module.
+- Users wrap `<body>` in `<KigumiProvider>` inside `app/layout.tsx`; the layout itself stays a Server Component.
+
+Do not add a `'next'` entry to the `framework` enum — duplicating templates under `templates/nextjs/` would force parallel maintenance of 75 components for no gain.
+
 ---
 
 ## CSS Utilities
@@ -622,7 +633,7 @@ flowchart TB
     end
 
     subgraph Plugins["Plugin Implementations"]
-        R["ReactPlugin\ndetects: react in package.json\ngenerates: .tsx/.jsx + .test + .css\nsetup: kigumi.ts, vite-env.d.ts"]
+        R["ReactPlugin\ndetects: react in package.json (incl. Next via `next`)\ngenerates: .tsx/.jsx + .test + .css\nsetup: kigumi.ts, vite-env.d.ts or web-awesome.d.ts for Next"]
         V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: kigumi.ts, shims-vue.d.ts"]
         A["AngularPlugin\ndetects: @angular/core\ngenerates: .component.ts + .component.spec.ts + .component.css\nsetup: CUSTOM_ELEMENTS_SCHEMA"]
         S["SveltePlugin\ndetects: svelte\nSTUB — not fully implemented"]
@@ -1063,4 +1074,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-08
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-21
