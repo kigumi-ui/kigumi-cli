@@ -217,7 +217,11 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 ### 7. No `'use client'` in React Templates
 
-React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx.hbs` / `.jsx.hbs` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 75 React templates working for both Vite-React and Next.js targets.
+React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx.hbs` / `.jsx.hbs` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 74 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
+
+### 8. `suppressHydrationWarning` on the `<wa-*>` Host
+
+Every React `.tsx.hbs` template emits `suppressHydrationWarning` on its Web Awesome host element. Lit reflects default attributes during `connectedCallback` (e.g., `appearance="outlined"`, `library="default"`), and React's hydration checker would flag the delta on every page that mounts a Kigumi component. `suppressHydrationWarning` is the documented React API for this scenario — it suppresses only the host element's own reconcile pass; children are still hydration-checked. In Vite SPAs the attribute is a no-op. Keep it in the templates; the scripts/generate-react-templates.ts emitter is the source of truth.
 
 ---
 
@@ -266,4 +270,4 @@ React templates stay framework-agnostic: do **not** put `'use client';` at the t
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-21
+**Last Updated:** 2026-04-22

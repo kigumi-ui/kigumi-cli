@@ -234,12 +234,21 @@ Form controls implement `ControlValueAccessor`. Use `[(ngModel)]` or `[formContr
 
 ### 12. Next.js Is a React Variant
 
-Next.js projects use the existing React plugin and React templates — `config.framework` stays `'react'`. The Next-specific behavior is branched on `isNextProject(cwd)` (in `src/utils/detect-framework.ts`) at generation time:
+Next.js projects — **App Router and Pages Router, both with or without a `src/` layout** — use the existing React plugin and React templates. `config.framework` stays `'react'`. The Next-specific behavior branches on three runtime detectors in `src/utils/detect-framework.ts`:
 
-- Every generated React component starts with `'use client';` (injected by `generateComponent` after `renderTemplate`).
-- `src/lib/kigumi.ts` also starts with `'use client';` — the `customElements.define` patch needs the browser and would otherwise be evaluated as a Server Component.
-- `init` skips `vite.config.ts` path-aliasing, picks `tsconfig.json` over `tsconfig.app.json`, emits `src/web-awesome.d.ts` (no `vite/client` reference) instead of `src/vite-env.d.ts`, and writes `src/app/providers.tsx` (or `app/providers.tsx`) with a `KigumiProvider` Client Module.
-- Users wrap `<body>` in `<KigumiProvider>` inside `app/layout.tsx`; the layout itself stays a Server Component.
+- `isNextProject(cwd)` — `true` when `next` is a dep or a `next.config.*` file exists.
+- `detectNextRouter(cwd)` — `'app' | 'pages' | 'unknown'`; App Router wins when both dirs coexist.
+- `detectSourceLayout(cwd)` — `'src' | 'root'`; drives Kigumi's directory defaults and the `@/*` tsconfig alias target so `create-next-app` with or without `--src-dir` both work without rewriting user config.
+
+What this enables:
+
+- Every generated React wrapper starts with `'use client';`. App Router needs it; Pages Router treats it as a harmless string, so emitting it uniformly means a project can migrate routers without regenerating wrappers.
+- `src/lib/kigumi.ts` (or `lib/kigumi.ts` in root layout) also starts with `'use client';` — the `customElements.define` side-effect needs the browser.
+- Every wrapper's `<wa-*>` host element carries `suppressHydrationWarning`. Lit reflects default attributes to the DOM during `connectedCallback`; `suppressHydrationWarning` is the documented React API for that pattern (one-level, children still reconcile) and a no-op in non-SSR contexts.
+- `init` skips `vite.config.ts` path-aliasing, picks `tsconfig.json` when `tsconfig.app.json` is absent, emits a sibling `web-awesome.d.ts` (no `vite/client` reference) instead of `vite-env.d.ts`, and — **only for App Router** — writes `providers.tsx` with a `KigumiProvider` Client Module next to `app/`.
+- **Pages Router projects are not scaffolded** with a new file; the user's `pages/_app.tsx` is their own. Post-install output prints three imports (`layers.css`, `theme.css`, `@/lib/kigumi`) + the `AppProps` wrapper to add manually.
+- **Pages Router CSS policy**: Next forbids global CSS imports anywhere other than `pages/_app.tsx`. Kigumi handles this at generation time by (a) omitting the `layers.css` import from the generated `lib/kigumi.ts` and (b) stripping the per-component `import './<Name>.css';` line from each generated wrapper. Both are unconditional when `detectNextRouter(cwd) === 'pages'`, and unchanged for App Router. Per-component stub CSS files are still emitted so users can add imports to `_app.tsx` if they want custom styles.
+- `generateGitIgnore` adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked (three-way merge depends on it); `.npmrc` stays committable (registry URL only, no token).
 
 Do not add a `'next'` entry to the `framework` enum — duplicating templates under `templates/nextjs/` would force parallel maintenance of 75 components for no gain.
 
@@ -1074,4 +1083,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-21
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-22
