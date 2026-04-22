@@ -205,6 +205,7 @@ describe('getProjectInfo', () => {
       typescript: true,
       packageManager: 'pnpm',
       hasVite: true,
+      isNext: false,
     });
   });
 
@@ -221,5 +222,93 @@ describe('getProjectInfo', () => {
     expect(info.typescript).toBe(false);
     expect(info.packageManager).toBe('npm');
     expect(info.hasVite).toBe(false);
+    expect(info.isNext).toBe(false);
+  });
+
+  it('should set isNext: true when next is a dependency', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: {
+        react: '^18.0.0',
+        'react-dom': '^18.0.0',
+        next: '^14.0.0',
+      },
+    });
+
+    const { getProjectInfo } =
+      await import('../../src/utils/detect-framework.js');
+    const info = await getProjectInfo(testDir);
+
+    expect(info.framework).toBe('react');
+    expect(info.isNext).toBe(true);
+  });
+
+  it('should set isNext: false when next is absent', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { react: '^18.0.0', 'react-dom': '^18.0.0' },
+    });
+
+    const { getProjectInfo } =
+      await import('../../src/utils/detect-framework.js');
+    const info = await getProjectInfo(testDir);
+
+    expect(info.isNext).toBe(false);
+  });
+});
+
+describe('isNextProject', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-detect-next-'))
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  it('returns true when next is in dependencies', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { next: '^14.0.0' },
+    });
+
+    const { isNextProject } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await isNextProject(testDir)).toBe(true);
+  });
+
+  it('returns true when next is in devDependencies', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      devDependencies: { next: '^14.0.0' },
+    });
+
+    const { isNextProject } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await isNextProject(testDir)).toBe(true);
+  });
+
+  it('returns false when next is absent', async () => {
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      dependencies: { react: '^18.0.0' },
+    });
+
+    const { isNextProject } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await isNextProject(testDir)).toBe(false);
+  });
+
+  it('returns false when package.json is missing', async () => {
+    const { isNextProject } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await isNextProject(testDir)).toBe(false);
+  });
+
+  it('returns false when package.json is corrupt', async () => {
+    await fs.writeFile(path.join(testDir, 'package.json'), '{ not valid');
+
+    const { isNextProject } =
+      await import('../../src/utils/detect-framework.js');
+    expect(await isNextProject(testDir)).toBe(false);
   });
 });
