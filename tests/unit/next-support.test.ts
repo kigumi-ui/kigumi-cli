@@ -94,6 +94,117 @@ describe('next.js support', () => {
 
       expect(rendered.startsWith("'use client';")).toBe(false);
     });
+
+    it("still prepends 'use client' for Pages Router projects", async () => {
+      // `isNextProject` treats App and Pages the same way for directive
+      // emission. Pages Router doesn't need the directive (no RSC boundary),
+      // but Next treats top-level string literals as harmless — emitting it
+      // uniformly lets a project migrate from Pages to App without having
+      // to regenerate every wrapper first.
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'pages'));
+      await fs.writeFile(
+        path.join(tempDir, 'pages', '_app.tsx'),
+        'export default function App() { return null; }'
+      );
+
+      const { generateComponent, clearTemplateCache } =
+        await import('../../src/utils/template.js');
+      const { getComponent } = await import('../../src/utils/registry.js');
+      clearTemplateCache();
+
+      const button = getComponent('button');
+      const rendered = await generateComponent(
+        button!,
+        DEFAULT_CONFIG,
+        true,
+        tempDir,
+        'free'
+      );
+
+      expect(rendered.startsWith("'use client';")).toBe(true);
+    });
+
+    it('strips the per-component CSS import on Pages Router', async () => {
+      // Next Pages Router rejects side-effect global CSS imports from any
+      // file other than _app.tsx. Pages users must import their stub
+      // Button.css manually from _app.tsx if they customize it.
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'pages'));
+      await fs.writeFile(
+        path.join(tempDir, 'pages', '_app.tsx'),
+        'export default function App() { return null; }'
+      );
+
+      const { generateComponent, clearTemplateCache } =
+        await import('../../src/utils/template.js');
+      const { getComponent } = await import('../../src/utils/registry.js');
+      clearTemplateCache();
+
+      const button = getComponent('button');
+      const rendered = await generateComponent(
+        button!,
+        DEFAULT_CONFIG,
+        true,
+        tempDir,
+        'free'
+      );
+
+      expect(rendered).not.toMatch(/import\s+['"]\.\/Button\.css['"]/);
+      // The directive survives; only the CSS import is stripped.
+      expect(rendered.startsWith("'use client';")).toBe(true);
+    });
+
+    it('keeps the per-component CSS import on App Router', async () => {
+      // App Router has no Pages-style CSS policy — the component .tsx can
+      // import its sibling .css directly.
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'app'));
+
+      const { generateComponent, clearTemplateCache } =
+        await import('../../src/utils/template.js');
+      const { getComponent } = await import('../../src/utils/registry.js');
+      clearTemplateCache();
+
+      const button = getComponent('button');
+      const rendered = await generateComponent(
+        button!,
+        DEFAULT_CONFIG,
+        true,
+        tempDir,
+        'free'
+      );
+
+      expect(rendered).toContain("import './Button.css';");
+    });
+
+    it('emits suppressHydrationWarning on the wa-* host element', async () => {
+      // Regression guard: Lit reflects default attributes on upgrade
+      // (size="medium", appearance="outlined", etc.), which React's
+      // hydration checker flags. suppressHydrationWarning is the
+      // documented React API for elements whose attributes mutate
+      // post-hydration via a custom element runtime.
+      await writeNextProject();
+
+      const { generateComponent, clearTemplateCache } =
+        await import('../../src/utils/template.js');
+      const { getComponent } = await import('../../src/utils/registry.js');
+      clearTemplateCache();
+
+      const button = getComponent('button');
+      const rendered = await generateComponent(
+        button!,
+        DEFAULT_CONFIG,
+        true,
+        tempDir,
+        'free'
+      );
+
+      expect(rendered).toContain('suppressHydrationWarning');
+      // Must appear on the host element, not just as a string in a comment.
+      // The host tag in the Button template is <wa-button …>.
+      expect(rendered).toMatch(/<wa-button[\s\S]*?suppressHydrationWarning/);
+    });
   });
 
   describe('regenerateKigumiSetup', () => {
@@ -129,6 +240,48 @@ describe('next.js support', () => {
         'utf-8'
       );
       expect(kigumiTs.startsWith("'use client';")).toBe(false);
+    });
+
+    it('omits the layers.css import on Pages Router', async () => {
+      // Pages Router rejects transitive global CSS imports via lib/. Users
+      // add layers.css directly to _app.tsx per post-install instructions.
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'pages'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'lib'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'styles'));
+
+      const { regenerateKigumiSetup } =
+        await import('../../src/utils/regenerate.js');
+
+      await regenerateKigumiSetup(tempDir, DEFAULT_CONFIG, 'src/lib', 'free');
+
+      const kigumiTs = await fs.readFile(
+        path.join(tempDir, 'src', 'lib', 'kigumi.ts'),
+        'utf-8'
+      );
+      // The runtime import is gone; only an explanatory comment remains.
+      expect(kigumiTs).not.toMatch(/^\s*import\s+['"][^'"]*layers\.css/m);
+      expect(kigumiTs).toContain('pages/_app.tsx');
+      // The Client Module directive still stays.
+      expect(kigumiTs.startsWith("'use client';")).toBe(true);
+    });
+
+    it('keeps the layers.css import on App Router', async () => {
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'app'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'lib'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'styles'));
+
+      const { regenerateKigumiSetup } =
+        await import('../../src/utils/regenerate.js');
+
+      await regenerateKigumiSetup(tempDir, DEFAULT_CONFIG, 'src/lib', 'free');
+
+      const kigumiTs = await fs.readFile(
+        path.join(tempDir, 'src', 'lib', 'kigumi.ts'),
+        'utf-8'
+      );
+      expect(kigumiTs).toContain("import '@/styles/layers.css';");
     });
   });
 

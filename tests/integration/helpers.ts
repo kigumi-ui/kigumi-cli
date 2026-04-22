@@ -15,7 +15,12 @@ const CLI_PATH = path.join(process.cwd(), 'dist', 'index.js');
  * Create a temporary project directory with a basic package.json
  */
 export async function createTempProject(
-  template: 'react-vite' | 'next-app' | 'empty' = 'react-vite'
+  template:
+    | 'react-vite'
+    | 'next-app'
+    | 'next-app-no-src'
+    | 'next-pages'
+    | 'empty' = 'react-vite'
 ): Promise<string> {
   const testDir = path.join(
     os.tmpdir(),
@@ -81,6 +86,125 @@ export async function createTempProject(
       path.join(testDir, 'src', 'app', 'page.tsx'),
       `export default function Page() {
   return <main>Hello Next</main>;
+}
+`
+    );
+  } else if (template === 'next-app-no-src') {
+    // Next.js App Router scaffolded without --src-dir: app/ at root, no src/.
+    // Mirrors what `create-next-app --typescript` without the src flag emits.
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      name: 'test-next-app-no-src',
+      version: '1.0.0',
+      dependencies: {
+        react: '^18.2.0',
+        'react-dom': '^18.2.0',
+        next: '^14.0.0',
+      },
+      devDependencies: {
+        '@types/react': '^18.2.0',
+        '@types/react-dom': '^18.2.0',
+        typescript: '^5.0.0',
+      },
+    });
+
+    // Default no-src tsconfig: `@/*` maps to `./*`, not `./src/*`.
+    await fs.writeJSON(path.join(testDir, 'tsconfig.json'), {
+      compilerOptions: {
+        target: 'ES2020',
+        lib: ['dom', 'dom.iterable', 'esnext'],
+        allowJs: true,
+        skipLibCheck: true,
+        strict: true,
+        noEmit: true,
+        esModuleInterop: true,
+        module: 'esnext',
+        moduleResolution: 'bundler',
+        resolveJsonModule: true,
+        isolatedModules: true,
+        jsx: 'preserve',
+        incremental: true,
+        paths: {
+          '@/*': ['./*'],
+        },
+      },
+      include: ['next-env.d.ts', '**/*.ts', '**/*.tsx'],
+      exclude: ['node_modules'],
+    });
+
+    await fs.ensureDir(path.join(testDir, 'app'));
+    await fs.writeFile(
+      path.join(testDir, 'app', 'layout.tsx'),
+      `export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+`
+    );
+    await fs.writeFile(
+      path.join(testDir, 'app', 'page.tsx'),
+      `export default function Page() {
+  return <main>Hello Next (no-src)</main>;
+}
+`
+    );
+  } else if (template === 'next-pages') {
+    // Next.js Pages Router: pages/ at root, no app/, no src/.
+    // Mirrors a legacy Next project or `create-next-app --pages`.
+    await fs.writeJSON(path.join(testDir, 'package.json'), {
+      name: 'test-next-pages',
+      version: '1.0.0',
+      dependencies: {
+        react: '^18.2.0',
+        'react-dom': '^18.2.0',
+        next: '^14.0.0',
+      },
+      devDependencies: {
+        '@types/react': '^18.2.0',
+        '@types/react-dom': '^18.2.0',
+        typescript: '^5.0.0',
+      },
+    });
+
+    await fs.writeJSON(path.join(testDir, 'tsconfig.json'), {
+      compilerOptions: {
+        target: 'ES2020',
+        lib: ['dom', 'dom.iterable', 'esnext'],
+        allowJs: true,
+        skipLibCheck: true,
+        strict: true,
+        noEmit: true,
+        esModuleInterop: true,
+        module: 'esnext',
+        moduleResolution: 'bundler',
+        resolveJsonModule: true,
+        isolatedModules: true,
+        jsx: 'preserve',
+        incremental: true,
+        paths: {
+          '@/*': ['./*'],
+        },
+      },
+      include: ['next-env.d.ts', '**/*.ts', '**/*.tsx'],
+      exclude: ['node_modules'],
+    });
+
+    await fs.ensureDir(path.join(testDir, 'pages'));
+    await fs.writeFile(
+      path.join(testDir, 'pages', '_app.tsx'),
+      `import type { AppProps } from 'next/app';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />;
+}
+`
+    );
+    await fs.writeFile(
+      path.join(testDir, 'pages', 'index.tsx'),
+      `export default function Home() {
+  return <main>Hello Next Pages</main>;
 }
 `
     );
