@@ -32,7 +32,7 @@ import type { KigumiConfig } from './config.js';
 import type { Tier } from './tier.js';
 import { generateCSSTemplate } from './css-metadata.js';
 import { toKebabCase } from './naming.js';
-import { isNextProject } from './detect-framework.js';
+import { isNextProject, detectNextRouter } from './detect-framework.js';
 
 // Register Handlebars helper to quote property names with hyphens
 Handlebars.registerHelper('quoteProp', function (propName: string) {
@@ -251,14 +251,38 @@ export async function generateComponent(
 
   const rendered = await renderTemplate(templatePath, context);
 
-  // Next.js App Router: every hook-using component must be a Client Module.
-  // Prepend the directive at generation time so React templates stay shared
-  // between Vite-React and Next.js targets.
-  if (config.framework === 'react' && (await isNextProject(cwd))) {
-    return `'use client';\n\n${rendered}`;
+  // Next-specific post-render transforms for React wrappers.
+  if (config.framework !== 'react' || !(await isNextProject(cwd))) {
+    return rendered;
   }
 
-  return rendered;
+  const router = await detectNextRouter(cwd);
+  let output = rendered;
+
+  // Pages Router rejects side-effect global CSS imports from any file other
+  // than pages/_app.tsx (including transitively via components/lib). Strip
+  // the per-component `import './<Name>.css';` line from the generated .tsx
+  // so the build doesn't fail. Users who customize the stub CSS manually
+  // import it from pages/_app.tsx — documented in the Upgrading guide.
+  if (router === 'pages') {
+    const cssImportPattern = new RegExp(
+      `^\\s*import\\s+['"]\\./${escapeRegex(component.name)}\\.css['"];\\s*\\n`,
+      'm'
+    );
+    output = output.replace(cssImportPattern, '');
+  }
+
+  // Every React wrapper in Next is a Client Module (App Router needs it;
+  // Pages Router treats the directive as a harmless top-level string).
+  return `'use client';\n\n${output}`;
+}
+
+/**
+ * Escape a string for safe use inside a RegExp.
+ * @internal
+ */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**

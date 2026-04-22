@@ -25,7 +25,7 @@ import {
 import type { KigumiConfig } from '../schemas/config.js';
 import type { Tier } from './tier.js';
 import { detectTierSync, getWebAwesomePackage } from './tier.js';
-import { isNextProject } from './detect-framework.js';
+import { isNextProject, detectNextRouter } from './detect-framework.js';
 import { LayersCssRewriteError } from '../errors/layers-css.js';
 
 export interface RegenerateOptions {
@@ -57,7 +57,14 @@ export async function regenerateKigumiSetup(
   const tier = tierOverride || detectTierSync(cwd);
   const packageName = getWebAwesomePackage(tier);
   const stylesDir = config.stylesDir || 'src/styles';
-  const stylesAlias = stylesDir.replace(/^src\//, '@/');
+  // Map the on-disk styles path to the `@/` alias. Works for both layouts:
+  //   src/styles -> @/styles  (src layout)
+  //   styles     -> @/styles  (root layout — Next without --src-dir)
+  // Both map through kigumi.config.json aliases + tsconfig paths so the
+  // import specifier is identical regardless of filesystem layout.
+  const stylesAlias = stylesDir.startsWith('src/')
+    ? `@/${stylesDir.slice('src/'.length)}`
+    : `@/${stylesDir}`;
 
   // Check if layers.css exists and should be preserved
   const layersPath = path.join(cwd, stylesDir, 'layers.css');
@@ -83,7 +90,20 @@ export async function regenerateKigumiSetup(
   const themeClasses =
     config.theme.selected !== 'none' ? generateThemeClassesScript(config) : '';
 
-  // Generate kigumi.ts that imports layers.css
+  // Pages Router rejects side-effect global CSS imports from any file other
+  // than `pages/_app.tsx` — including transitively via `lib/kigumi.ts`. Skip
+  // the `layers.css` import in that case; the user adds it directly in
+  // `_app.tsx` (post-install instructions + Upgrading guide spell this out).
+  const isNext = await isNextProject(cwd);
+  const nextRouter = isNext ? await detectNextRouter(cwd) : undefined;
+  const skipLayersImport = nextRouter === 'pages';
+
+  const layersImportLine = skipLayersImport
+    ? `// Pages Router: 'import '${stylesAlias}/layers.css';' must live in
+// pages/_app.tsx instead — Next forbids global CSS imports from lib/.`
+    : `import '${stylesAlias}/layers.css';`;
+
+  // Generate kigumi.ts that imports layers.css (except in Pages Router)
   const setupFileContent = `/**
  * Kigumi Setup
  *
@@ -108,7 +128,7 @@ if (typeof customElements !== 'undefined') {
 }
 
 // Import Web Awesome CSS with cascade layers for predictable specificity control
-import '${stylesAlias}/layers.css';
+${layersImportLine}
 ${themeClasses}
 export {};
 `;
@@ -117,7 +137,7 @@ export {};
   // exists in the browser. Mark it as a Client Module so the patch runs on the
   // client; the existing `typeof customElements !== 'undefined'` guard makes
   // the SSR pass a no-op.
-  const finalSetupFileContent = (await isNextProject(cwd))
+  const finalSetupFileContent = isNext
     ? `'use client';\n\n${setupFileContent}`
     : setupFileContent;
 
@@ -165,14 +185,16 @@ if (typeof document !== 'undefined') {
 export async function generateLayersCSS(
   packageName: string,
   themeName: string,
-  stylesDir: string,
+  _stylesDir: string,
   isCommunityTheme = false
 ): Promise<string> {
-  const stylesAlias = stylesDir.replace(/^src\//, '@/');
-
-  // Community themes are stored locally; built-in themes come from the WA package
+  // Community themes are stored locally (sibling of layers.css); built-in
+  // themes come from the WA package. Use relative paths inside layers.css
+  // so the `@/` alias is not required for CSS resolution — Next Pages Router
+  // and some bundler configurations don't resolve tsconfig paths inside CSS
+  // `@import` statements.
   const themeImport = isCommunityTheme
-    ? `${stylesAlias}/community-themes/${themeName}.css`
+    ? `./community-themes/${themeName}.css`
     : `${packageName}/dist/styles/themes/${themeName}.css`;
 
   return `/**
@@ -197,8 +219,8 @@ export async function generateLayersCSS(
 /* Layer 1: Web Awesome theme styles */
 @import '${themeImport}' layer(base);
 
-/* Layer 2: Your custom CSS overrides */
-@import '${stylesAlias}/theme.css' layer(theme);
+/* Layer 2: Your custom CSS overrides (sibling of layers.css) */
+@import './theme.css' layer(theme);
 `;
 }
 
@@ -457,6 +479,9 @@ export async function generateGitIgnore(cwd: string): Promise<void> {
     '',
     '# Kigumi cross-framework staging (transient cache for agent conversion)',
     '.kigumi/foreign/',
+    '',
+    '# Kigumi registry cache (transient)',
+    '.kigumi/cache/',
   ];
 
   if (!exists) {
@@ -482,6 +507,16 @@ export async function generateGitIgnore(cwd: string): Promise<void> {
     content +=
       '\n# Kigumi cross-framework staging (transient cache for agent conversion)\n' +
       '.kigumi/foreign/\n';
+  }
+
+  // Add .kigumi/cache/ if not present. The cache is rebuilt from the
+  // registry on demand; snapshots/ stays tracked because three-way-merge
+  // needs them.
+  if (!/^\.kigumi\/cache\/$/m.test(content)) {
+    if (!content.endsWith('\n')) {
+      content += '\n';
+    }
+    content += '\n# Kigumi registry cache (transient)\n.kigumi/cache/\n';
   }
 
   await fs.writeFile(gitignorePath, content);

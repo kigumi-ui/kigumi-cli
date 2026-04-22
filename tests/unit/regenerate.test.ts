@@ -134,7 +134,10 @@ describe('regenerate utilities', () => {
 
       const layersPath = path.join(testDir, stylesDir, 'layers.css');
       const layersContent = await fs.readFile(layersPath, 'utf-8');
-      expect(layersContent).toContain('@/styles/community-themes/my-theme.css');
+      // Community themes live as siblings of layers.css; use relative path
+      // so CSS @import works under any bundler without tsconfig alias
+      // resolution (Next Pages Router Webpack doesn't resolve @/ in CSS).
+      expect(layersContent).toContain('./community-themes/my-theme.css');
       expect(layersContent).not.toContain(
         '@awesome.me/webawesome/dist/styles/themes/my-theme.css'
       );
@@ -240,21 +243,25 @@ describe('regenerate utilities', () => {
         'src/styles',
         true
       );
-      expect(content).toContain(
-        '@/styles/community-themes/my-community-theme.css'
-      );
+      // Community themes are siblings of layers.css — use relative path.
+      expect(content).toContain('./community-themes/my-community-theme.css');
       expect(content).not.toContain(
         '@awesome.me/webawesome/dist/styles/themes/my-community-theme.css'
       );
     });
 
-    it('should include styles alias in theme.css import', async () => {
+    it('should use relative path for theme.css import', async () => {
+      // theme.css is a sibling of layers.css, so a relative specifier
+      // works in both Vite and Next (including Pages Router, where the
+      // Webpack CSS loader does not resolve the `@/` tsconfig alias
+      // inside `@import` statements).
       const content = await generateLayersCSS(
         '@awesome.me/webawesome',
         'default',
         'src/styles'
       );
-      expect(content).toContain("@/styles/theme.css' layer(theme)");
+      expect(content).toContain("./theme.css' layer(theme)");
+      expect(content).not.toContain('@/styles/theme.css');
     });
   });
 
