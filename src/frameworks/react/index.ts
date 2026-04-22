@@ -66,21 +66,48 @@ export class ReactPlugin implements FrameworkPlugin {
     const hasReactDom = !!deps['react-dom'];
     const hasReactScripts = !!deps['react-scripts'];
     const hasVite = !!deps.vite && !!deps['@vitejs/plugin-react'];
+    const hasNext = !!deps.next;
 
     const confidence =
-      hasReactDom && (hasReactScripts || hasVite)
+      hasReactDom && (hasReactScripts || hasVite || hasNext)
         ? 'high'
         : hasReactDom
           ? 'medium'
           : 'low';
+
+    const packageJsonDeps = ['react', 'react-dom'];
+    if (hasNext) {
+      packageJsonDeps.push('next');
+    }
+
+    let configFiles: string[];
+    if (hasNext) {
+      // Pick whichever Next config file exists, else default to TS
+      const nextTs = path.join(cwd, 'next.config.ts');
+      const nextMjs = path.join(cwd, 'next.config.mjs');
+      const nextJs = path.join(cwd, 'next.config.js');
+      if (await fs.pathExists(nextTs)) {
+        configFiles = ['next.config.ts'];
+      } else if (await fs.pathExists(nextMjs)) {
+        configFiles = ['next.config.mjs'];
+      } else if (await fs.pathExists(nextJs)) {
+        configFiles = ['next.config.js'];
+      } else {
+        configFiles = ['next.config.ts'];
+      }
+    } else if (hasVite) {
+      configFiles = ['vite.config.ts'];
+    } else {
+      configFiles = ['tsconfig.json'];
+    }
 
     return {
       detected: true,
       confidence,
       version: deps.react?.replace(/^[\^~]/, ''),
       details: {
-        packageJsonDeps: ['react', 'react-dom'],
-        configFiles: hasVite ? ['vite.config.ts'] : ['tsconfig.json'],
+        packageJsonDeps,
+        configFiles,
       },
     };
   }
