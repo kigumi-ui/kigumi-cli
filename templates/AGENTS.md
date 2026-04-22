@@ -215,6 +215,10 @@ Some wa-\* attributes conflict with HTMLAttributes:
 export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'dir'> {
 ```
 
+### 7. No `'use client'` in React Templates
+
+React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx.hbs` / `.jsx.hbs` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 75 React templates working for both Vite-React and Next.js targets.
+
 ---
 
 ## Adding New Components
@@ -262,4 +266,4 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-04
+**Last Updated:** 2026-04-21
