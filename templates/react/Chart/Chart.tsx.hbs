@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Chart.css';
 
 /**
@@ -9,18 +8,12 @@ import './Chart.css';
  *
  * @example
  * ```tsx
- * // Basic bar chart with JSON config
- * <Chart type="bar" label="Sales">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       labels: ['Jan', 'Feb', 'Mar'],
- *       datasets: [{ label: 'Sales', data: [10, 20, 30] }]
- *     }
- *   })}</script>
- * </Chart>
+ * // Basic usage
+ * <Chart />
  *
- * // Line chart with options
- * <Chart type="line" label="Revenue" stacked without-legend />
+ * // With event handlers
+ * <Chart />
+ *
  * ```
  */
 export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -69,13 +62,14 @@ export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface ChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Chart = forwardRef<ChartRef, ChartProps>(
   ({ children, className, ...props }, ref) => {
-    const chartRef = useRef<WaElement | null>(null);
+    const chartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -89,8 +83,9 @@ export const Chart = forwardRef<ChartRef, ChartProps>(
 
     return (
       <wa-chart
-        ref={(el: WaElement | null) => { chartRef.current = el; }}
+        ref={chartRef}
         class={clsx('Chart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

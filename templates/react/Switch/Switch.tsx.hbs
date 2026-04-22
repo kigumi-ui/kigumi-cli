@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Switch.css';
 
 /**
@@ -71,13 +70,32 @@ export interface SwitchRef {
 
   /** Removes focus from the switch. */
   blur: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Switch = forwardRef<SwitchRef, SwitchProps>(
   ({ children, className, onChange, onInput, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const switchRef = useRef<WaElement | null>(null);
+    const switchRef = useRef<HTMLElement & {
+      click?: () => void;
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -95,6 +113,21 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
         blur: () => {
           if (switchRef.current && typeof switchRef.current.blur === 'function') {
             switchRef.current.blur();
+          }
+        },
+        setCustomValidity: (message: string) => {
+          if (switchRef.current && typeof switchRef.current.setCustomValidity === 'function') {
+            switchRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (switchRef.current && typeof switchRef.current.formStateRestoreCallback === 'function') {
+            switchRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (switchRef.current && typeof switchRef.current.resetValidity === 'function') {
+            switchRef.current.resetValidity();
           }
         },
         get element() {
@@ -124,7 +157,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
@@ -132,21 +165,22 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       el.addEventListener('input', handleInput);
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
         el.removeEventListener('input', handleInput);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onChange, onInput, onBlur, onFocus, onInvalid]);
 
     return (
       <wa-switch
-        ref={(el: WaElement | null) => { switchRef.current = el; }}
+        ref={switchRef}
         class={clsx('Switch', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

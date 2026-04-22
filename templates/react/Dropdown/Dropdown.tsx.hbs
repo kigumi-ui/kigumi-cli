@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Dropdown.css';
 
 /**
@@ -23,9 +22,6 @@ export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow
   /** Indicates whether the dropdown is open */
   open?: boolean;
 
-  /** Dropdown size */
-  size?: 'small' | 'medium' | 'large';
-
   /** Preferred placement of the dropdown panel */
   placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
 
@@ -44,6 +40,9 @@ export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow
   /** Hoists the dropdown panel to the body */
   hoist?: boolean;
 
+  /** Dropdown size */
+  size?: 'small' | 'medium' | 'large';
+
   /** Emitted when the dropdown is about to show. */
   onShow?: (event: CustomEvent) => void;
 
@@ -61,13 +60,14 @@ export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow
 }
 
 export interface DropdownRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, onSelect, ...props }, ref) => {
-    const dropdownRef = useRef<WaElement | null>(null);
+    const dropdownRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -83,45 +83,46 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
       const el = dropdownRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => {
+      const handleWaShow = (e: Event) => {
         if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleAfterShow = (e: Event) => {
+      const handleWaAfterShow = (e: Event) => {
         if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleHide = (e: Event) => {
+      const handleWaHide = (e: Event) => {
         if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleAfterHide = (e: Event) => {
+      const handleWaAfterHide = (e: Event) => {
         if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
-      const handleSelect = (e: Event) => {
+      const handleWaSelect = (e: Event) => {
         if (onSelect) onSelect(e as CustomEvent);
       };
 
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-after-show', handleAfterShow);
-      el.addEventListener('wa-hide', handleHide);
-      el.addEventListener('wa-after-hide', handleAfterHide);
-      el.addEventListener('wa-select', handleSelect);
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
+      el.addEventListener('wa-select', handleWaSelect);
 
       return () => {
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-after-show', handleAfterShow);
-        el.removeEventListener('wa-hide', handleHide);
-        el.removeEventListener('wa-after-hide', handleAfterHide);
-        el.removeEventListener('wa-select', handleSelect);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
+        el.removeEventListener('wa-select', handleWaSelect);
       };
     }, [onShow, onAfterShow, onHide, onAfterHide, onSelect]);
 
     return (
       <wa-dropdown
-        ref={(el: WaElement | null) => { dropdownRef.current = el; }}
+        ref={dropdownRef}
         class={clsx('Dropdown', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

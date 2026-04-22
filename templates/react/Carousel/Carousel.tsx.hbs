@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Carousel.css';
 
 /**
@@ -65,13 +64,17 @@ export interface CarouselRef {
 
   /** Scrolls the carousel to the slide specified by `index`. */
   goToSlide: (index: number, behavior: ScrollBehavior) => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Carousel = forwardRef<CarouselRef, CarouselProps>(
   ({ children, className, onSlideChange, ...props }, ref) => {
-    const carouselRef = useRef<WaElement | null>(null);
+    const carouselRef = useRef<HTMLElement & {
+      previous?: (behavior: ScrollBehavior) => void;
+      next?: (behavior: ScrollBehavior) => void;
+      goToSlide?: (index: number, behavior: ScrollBehavior) => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -102,21 +105,22 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       const el = carouselRef.current;
       if (!el) return;
 
-      const handleSlideChange = (e: Event) => {
+      const handleWaSlideChange = (e: Event) => {
         if (onSlideChange) onSlideChange(e as CustomEvent);
       };
 
-      el.addEventListener('wa-slide-change', handleSlideChange);
+      el.addEventListener('wa-slide-change', handleWaSlideChange);
 
       return () => {
-        el.removeEventListener('wa-slide-change', handleSlideChange);
+        el.removeEventListener('wa-slide-change', handleWaSlideChange);
       };
     }, [onSlideChange]);
 
     return (
       <wa-carousel
-        ref={(el: WaElement | null) => { carouselRef.current = el; }}
+        ref={carouselRef}
         class={clsx('Carousel', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

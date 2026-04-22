@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Callout.css';
 
 /**
@@ -30,13 +29,14 @@ export interface CalloutProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface CalloutRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Callout = forwardRef<CalloutRef, CalloutProps>(
   ({ children, className, ...props }, ref) => {
-    const calloutRef = useRef<WaElement | null>(null);
+    const calloutRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -50,8 +50,9 @@ export const Callout = forwardRef<CalloutRef, CalloutProps>(
 
     return (
       <wa-callout
-        ref={(el: WaElement | null) => { calloutRef.current = el; }}
+        ref={calloutRef}
         class={clsx('Callout', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

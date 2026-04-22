@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './DropdownItem.css';
 
 /**
@@ -36,11 +35,11 @@ export interface DropdownItemProps extends Omit<HTMLAttributes<HTMLElement>, 'on
   /** Disables the menu item */
   disabled?: boolean;
 
-  /** Visual variant */
-  variant?: string;
-
   /** Draws the item in a loading state */
   loading?: boolean;
+
+  /** The dropdown item variant */
+  variant?: 'neutral' | 'danger';
 
   /** Emitted when the dropdown item loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -56,13 +55,16 @@ export interface DropdownItemRef {
 
   /** Closes the submenu. */
   closeSubmenu: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
   ({ children, className, onBlur, onFocus, ...props }, ref) => {
-    const dropdownitemRef = useRef<WaElement | null>(null);
+    const dropdownitemRef = useRef<HTMLElement & {
+      openSubmenu?: () => void;
+      closeSubmenu?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -107,8 +109,9 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
 
     return (
       <wa-dropdown-item
-        ref={(el: WaElement | null) => { dropdownitemRef.current = el; }}
+        ref={dropdownitemRef}
         class={clsx('DropdownItem', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

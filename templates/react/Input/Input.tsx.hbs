@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Input.css';
 
 /**
@@ -79,15 +78,15 @@ export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' 
   maxlength?: number;
 
   /** Minimum value for numeric and date types */
-  min?: number | string;
+  min?: string;
 
   /** Maximum value for numeric and date types */
-  max?: number | string;
+  max?: string;
 
   /** Step increment for numeric types */
-  step?: number | string;
+  step?: string;
 
-  /** Hides the browser's built-in spin buttons for number inputs */
+  /** Hides the browser's built-in spin buttons */
   'without-spin-buttons'?: boolean;
 
   /** Hint for autocomplete behavior */
@@ -108,11 +107,11 @@ export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' 
   /** Hint for Enter key label on virtual keyboards */
   enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
 
-  /** Emitted when the control receives input (native input event). */
-  onInput?: (event: Event) => void;
+  /** Emitted when the control receives input. */
+  onInput?: (event: CustomEvent) => void;
 
-  /** Emitted when an alteration to the control's value is committed by the user (native change event). */
-  onChange?: (event: Event) => void;
+  /** Emitted when an alteration to the control's value is committed by the user. */
+  onChange?: (event: CustomEvent) => void;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -152,13 +151,37 @@ export interface InputRef {
 
   /** Decrements the value of a numeric input type by the value of the step attribute. */
   stepDown: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Input = forwardRef<InputRef, InputProps>(
   ({ children, className, onInput, onChange, onBlur, onFocus, onClear, onInvalid, ...props }, ref) => {
-    const inputRef = useRef<WaElement | null>(null);
+    const inputRef = useRef<HTMLElement & {
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      select?: () => void;
+      setSelectionRange?: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
+      setRangeText?: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
+      showPicker?: () => void;
+      stepUp?: () => void;
+      stepDown?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -203,6 +226,21 @@ export const Input = forwardRef<InputRef, InputProps>(
             inputRef.current.stepDown();
           }
         },
+        setCustomValidity: (message: string) => {
+          if (inputRef.current && typeof inputRef.current.setCustomValidity === 'function') {
+            inputRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (inputRef.current && typeof inputRef.current.formStateRestoreCallback === 'function') {
+            inputRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (inputRef.current && typeof inputRef.current.resetValidity === 'function') {
+            inputRef.current.resetValidity();
+          }
+        },
         get element() {
           return inputRef.current;
         },
@@ -215,11 +253,11 @@ export const Input = forwardRef<InputRef, InputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e);
+        if (onInput) onInput(e as CustomEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e);
+        if (onChange) onChange(e as CustomEvent);
       };
 
       const handleBlur = (e: Event) => {
@@ -230,11 +268,11 @@ export const Input = forwardRef<InputRef, InputProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
-      const handleClear = (e: Event) => {
+      const handleWaClear = (e: Event) => {
         if (onClear) onClear(e as CustomEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
@@ -242,23 +280,24 @@ export const Input = forwardRef<InputRef, InputProps>(
       el.addEventListener('change', handleChange);
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
-      el.addEventListener('wa-clear', handleClear);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-clear', handleWaClear);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('input', handleInput);
         el.removeEventListener('change', handleChange);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
-        el.removeEventListener('wa-clear', handleClear);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-clear', handleWaClear);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onBlur, onFocus, onClear, onInvalid]);
 
     return (
       <wa-input
-        ref={(el: WaElement | null) => { inputRef.current = el; }}
+        ref={inputRef}
         class={clsx('Input', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

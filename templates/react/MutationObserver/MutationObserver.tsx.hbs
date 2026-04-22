@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './MutationObserver.css';
 
 /**
@@ -46,13 +45,14 @@ export interface MutationObserverProps extends Omit<HTMLAttributes<HTMLElement>,
 }
 
 export interface MutationObserverRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const MutationObserver = forwardRef<MutationObserverRef, MutationObserverProps>(
   ({ children, className, onMutation, ...props }, ref) => {
-    const mutationobserverRef = useRef<WaElement | null>(null);
+    const mutationobserverRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -68,21 +68,22 @@ export const MutationObserver = forwardRef<MutationObserverRef, MutationObserver
       const el = mutationobserverRef.current;
       if (!el) return;
 
-      const handleMutation = (e: Event) => {
+      const handleWaMutation = (e: Event) => {
         if (onMutation) onMutation(e as CustomEvent);
       };
 
-      el.addEventListener('wa-mutation', handleMutation);
+      el.addEventListener('wa-mutation', handleWaMutation);
 
       return () => {
-        el.removeEventListener('wa-mutation', handleMutation);
+        el.removeEventListener('wa-mutation', handleWaMutation);
       };
     }, [onMutation]);
 
     return (
       <wa-mutation-observer
-        ref={(el: WaElement | null) => { mutationobserverRef.current = el; }}
+        ref={mutationobserverRef}
         class={clsx('MutationObserver', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

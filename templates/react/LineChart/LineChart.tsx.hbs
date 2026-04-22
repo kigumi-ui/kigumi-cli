@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './LineChart.css';
 
 /**
@@ -9,17 +8,12 @@ import './LineChart.css';
  *
  * @example
  * ```tsx
- * <LineChart label="Monthly growth">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       labels: ['Jan', 'Feb', 'Mar', 'Apr'],
- *       datasets: [{ label: 'Users', data: [100, 145, 192, 260] }]
- *     }
- *   })}</script>
- * </LineChart>
+ * // Basic usage
+ * <LineChart />
  *
- * // Stacked line chart
- * <LineChart stacked without-tooltip label="Combined" />
+ * // With event handlers
+ * <LineChart />
+ *
  * ```
  */
 export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -42,7 +36,7 @@ export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
   /** Layers multiple datasets on a single axis */
   stacked?: boolean;
 
-  /** Base axis for category labels */
+  /** Base axis for category labels (swap to flip chart orientation) */
   'index-axis'?: 'x' | 'y';
 
   /** Selects which background grid lines are drawn */
@@ -65,19 +59,20 @@ export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
 }
 
 export interface LineChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const LineChart = forwardRef<LineChartRef, LineChartProps>(
   ({ children, className, ...props }, ref) => {
-    const lineChartRef = useRef<WaElement | null>(null);
+    const linechartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         get element() {
-          return lineChartRef.current;
+          return linechartRef.current;
         },
       }),
       []
@@ -85,8 +80,9 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
 
     return (
       <wa-line-chart
-        ref={(el: WaElement | null) => { lineChartRef.current = el; }}
+        ref={linechartRef}
         class={clsx('LineChart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

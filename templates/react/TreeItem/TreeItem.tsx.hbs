@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './TreeItem.css';
 
 /**
@@ -58,21 +57,23 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onExpa
 export interface TreeItemRef {
 
   /** Gets all the nested tree items in this node. */
-  getChildrenItems: (options?: { includeDisabled?: boolean }) => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
   ({ children, className, onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad, ...props }, ref) => {
-    const treeitemRef = useRef<WaElement | null>(null);
+    const treeitemRef = useRef<HTMLElement & {
+      getChildrenItems?: ({ includeDisabled = true }: { includeDisabled?: boolean }) => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        getChildrenItems: (options?: { includeDisabled?: boolean }) => {
+        getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => {
           if (treeitemRef.current && typeof treeitemRef.current.getChildrenItems === 'function') {
-            treeitemRef.current.getChildrenItems(options);
+            treeitemRef.current.getChildrenItems({ includeDisabled = true });
           }
         },
         get element() {
@@ -86,51 +87,52 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
       const el = treeitemRef.current;
       if (!el) return;
 
-      const handleExpand = (e: Event) => {
+      const handleWaExpand = (e: Event) => {
         if (onExpand) onExpand(e as CustomEvent);
       };
 
-      const handleAfterExpand = (e: Event) => {
+      const handleWaAfterExpand = (e: Event) => {
         if (onAfterExpand) onAfterExpand(e as CustomEvent);
       };
 
-      const handleCollapse = (e: Event) => {
+      const handleWaCollapse = (e: Event) => {
         if (onCollapse) onCollapse(e as CustomEvent);
       };
 
-      const handleAfterCollapse = (e: Event) => {
+      const handleWaAfterCollapse = (e: Event) => {
         if (onAfterCollapse) onAfterCollapse(e as CustomEvent);
       };
 
-      const handleLazyChange = (e: Event) => {
+      const handleWaLazyChange = (e: Event) => {
         if (onLazyChange) onLazyChange(e as CustomEvent);
       };
 
-      const handleLazyLoad = (e: Event) => {
+      const handleWaLazyLoad = (e: Event) => {
         if (onLazyLoad) onLazyLoad(e as CustomEvent);
       };
 
-      el.addEventListener('wa-expand', handleExpand);
-      el.addEventListener('wa-after-expand', handleAfterExpand);
-      el.addEventListener('wa-collapse', handleCollapse);
-      el.addEventListener('wa-after-collapse', handleAfterCollapse);
-      el.addEventListener('wa-lazy-change', handleLazyChange);
-      el.addEventListener('wa-lazy-load', handleLazyLoad);
+      el.addEventListener('wa-expand', handleWaExpand);
+      el.addEventListener('wa-after-expand', handleWaAfterExpand);
+      el.addEventListener('wa-collapse', handleWaCollapse);
+      el.addEventListener('wa-after-collapse', handleWaAfterCollapse);
+      el.addEventListener('wa-lazy-change', handleWaLazyChange);
+      el.addEventListener('wa-lazy-load', handleWaLazyLoad);
 
       return () => {
-        el.removeEventListener('wa-expand', handleExpand);
-        el.removeEventListener('wa-after-expand', handleAfterExpand);
-        el.removeEventListener('wa-collapse', handleCollapse);
-        el.removeEventListener('wa-after-collapse', handleAfterCollapse);
-        el.removeEventListener('wa-lazy-change', handleLazyChange);
-        el.removeEventListener('wa-lazy-load', handleLazyLoad);
+        el.removeEventListener('wa-expand', handleWaExpand);
+        el.removeEventListener('wa-after-expand', handleWaAfterExpand);
+        el.removeEventListener('wa-collapse', handleWaCollapse);
+        el.removeEventListener('wa-after-collapse', handleWaAfterCollapse);
+        el.removeEventListener('wa-lazy-change', handleWaLazyChange);
+        el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
       };
     }, [onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad]);
 
     return (
       <wa-tree-item
-        ref={(el: WaElement | null) => { treeitemRef.current = el; }}
+        ref={treeitemRef}
         class={clsx('TreeItem', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

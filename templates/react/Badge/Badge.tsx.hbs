@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Badge.css';
 
 /**
@@ -10,16 +9,11 @@ import './Badge.css';
  * @example
  * ```tsx
  * // Basic usage
- * <Badge>New</Badge>
+ * <Badge />
  *
- * // With start/end slots
- * <Badge variant="success">
- *   <wa-icon slot="start" name="check" />
- *   Approved
- * </Badge>
+ * // With event handlers
+ * <Badge />
  *
- * // Pill style with attention
- * <Badge pill attention="pulse">5</Badge>
  * ```
  */
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -38,13 +32,14 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface BadgeRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Badge = forwardRef<BadgeRef, BadgeProps>(
   ({ children, className, ...props }, ref) => {
-    const badgeRef = useRef<WaElement | null>(null);
+    const badgeRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -58,8 +53,9 @@ export const Badge = forwardRef<BadgeRef, BadgeProps>(
 
     return (
       <wa-badge
-        ref={(el: WaElement | null) => { badgeRef.current = el; }}
+        ref={badgeRef}
         class={clsx('Badge', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

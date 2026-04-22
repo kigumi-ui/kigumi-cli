@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Popup.css';
 
 /**
@@ -86,13 +85,15 @@ export interface PopupRef {
 
   /** Forces the popup to recalculate and reposition itself. */
   reposition: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Popup = forwardRef<PopupRef, PopupProps>(
   ({ children, className, onReposition, ...props }, ref) => {
-    const popupRef = useRef<WaElement | null>(null);
+    const popupRef = useRef<HTMLElement & {
+      reposition?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -113,21 +114,22 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       const el = popupRef.current;
       if (!el) return;
 
-      const handleReposition = (e: Event) => {
+      const handleWaReposition = (e: Event) => {
         if (onReposition) onReposition(e as CustomEvent);
       };
 
-      el.addEventListener('wa-reposition', handleReposition);
+      el.addEventListener('wa-reposition', handleWaReposition);
 
       return () => {
-        el.removeEventListener('wa-reposition', handleReposition);
+        el.removeEventListener('wa-reposition', handleWaReposition);
       };
     }, [onReposition]);
 
     return (
       <wa-popup
-        ref={(el: WaElement | null) => { popupRef.current = el; }}
+        ref={popupRef}
         class={clsx('Popup', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './CopyButton.css';
 
 /**
@@ -52,13 +51,14 @@ export interface CopyButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onCo
 }
 
 export interface CopyButtonRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
   ({ children, className, onCopy, onError, ...props }, ref) => {
-    const copybuttonRef = useRef<WaElement | null>(null);
+    const copybuttonRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -74,27 +74,28 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
       const el = copybuttonRef.current;
       if (!el) return;
 
-      const handleCopy = (e: Event) => {
+      const handleWaCopy = (e: Event) => {
         if (onCopy) onCopy(e as CustomEvent);
       };
 
-      const handleError = (e: Event) => {
+      const handleWaError = (e: Event) => {
         if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-copy', handleCopy);
-      el.addEventListener('wa-error', handleError);
+      el.addEventListener('wa-copy', handleWaCopy);
+      el.addEventListener('wa-error', handleWaError);
 
       return () => {
-        el.removeEventListener('wa-copy', handleCopy);
-        el.removeEventListener('wa-error', handleError);
+        el.removeEventListener('wa-copy', handleWaCopy);
+        el.removeEventListener('wa-error', handleWaError);
       };
     }, [onCopy, onError]);
 
     return (
       <wa-copy-button
-        ref={(el: WaElement | null) => { copybuttonRef.current = el; }}
+        ref={copybuttonRef}
         class={clsx('CopyButton', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

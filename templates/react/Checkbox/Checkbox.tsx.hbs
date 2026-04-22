@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Checkbox.css';
 
 /**
@@ -74,13 +73,32 @@ export interface CheckboxRef {
 
   /** Removes focus from the checkbox. */
   blur: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
   ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const checkboxRef = useRef<WaElement | null>(null);
+    const checkboxRef = useRef<HTMLElement & {
+      click?: () => void;
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -98,6 +116,21 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
         blur: () => {
           if (checkboxRef.current && typeof checkboxRef.current.blur === 'function') {
             checkboxRef.current.blur();
+          }
+        },
+        setCustomValidity: (message: string) => {
+          if (checkboxRef.current && typeof checkboxRef.current.setCustomValidity === 'function') {
+            checkboxRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (checkboxRef.current && typeof checkboxRef.current.formStateRestoreCallback === 'function') {
+            checkboxRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (checkboxRef.current && typeof checkboxRef.current.resetValidity === 'function') {
+            checkboxRef.current.resetValidity();
           }
         },
         get element() {
@@ -127,7 +160,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
         if (onInput) onInput(e as CustomEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
@@ -135,21 +168,22 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
       el.addEventListener('input', handleInput);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('change', handleChange);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('input', handleInput);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onChange, onBlur, onFocus, onInput, onInvalid]);
 
     return (
       <wa-checkbox
-        ref={(el: WaElement | null) => { checkboxRef.current = el; }}
+        ref={checkboxRef}
         class={clsx('Checkbox', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

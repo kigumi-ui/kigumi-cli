@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Tooltip.css';
 
 /**
@@ -23,9 +22,6 @@ import './Tooltip.css';
  * ```
  */
 export interface TooltipProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
-
-  /** ID of the target element the tooltip is attached to */
-  for?: string;
 
   /** Tooltip placement */
   placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
@@ -54,6 +50,9 @@ export interface TooltipProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow'
   /** Hide delay (ms) */
   'hide-delay'?: number;
 
+  /** The ID of the element the tooltip is anchored to */
+  for?: string;
+
   /** Emitted when the tooltip begins to show. */
   onShow?: (event: CustomEvent) => void;
 
@@ -74,13 +73,16 @@ export interface TooltipRef {
 
   /** Hides the tooltip */
   hide: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const tooltipRef = useRef<WaElement | null>(null);
+    const tooltipRef = useRef<HTMLElement & {
+      show?: () => void;
+      hide?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -106,39 +108,40 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
       const el = tooltipRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => {
+      const handleWaShow = (e: Event) => {
         if (onShow) onShow(e as CustomEvent);
       };
 
-      const handleAfterShow = (e: Event) => {
+      const handleWaAfterShow = (e: Event) => {
         if (onAfterShow) onAfterShow(e as CustomEvent);
       };
 
-      const handleHide = (e: Event) => {
+      const handleWaHide = (e: Event) => {
         if (onHide) onHide(e as CustomEvent);
       };
 
-      const handleAfterHide = (e: Event) => {
+      const handleWaAfterHide = (e: Event) => {
         if (onAfterHide) onAfterHide(e as CustomEvent);
       };
 
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-after-show', handleAfterShow);
-      el.addEventListener('wa-hide', handleHide);
-      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
 
       return () => {
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-after-show', handleAfterShow);
-        el.removeEventListener('wa-hide', handleHide);
-        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
     return (
       <wa-tooltip
-        ref={(el: WaElement | null) => { tooltipRef.current = el; }}
+        ref={tooltipRef}
         class={clsx('Tooltip', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

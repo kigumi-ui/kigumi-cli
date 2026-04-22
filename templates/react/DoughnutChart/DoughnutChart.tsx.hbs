@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './DoughnutChart.css';
 
 /**
@@ -9,14 +8,12 @@ import './DoughnutChart.css';
  *
  * @example
  * ```tsx
- * <DoughnutChart label="Budget breakdown">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       labels: ['Rent', 'Food', 'Transport', 'Savings'],
- *       datasets: [{ data: [35, 25, 20, 20] }]
- *     }
- *   })}</script>
- * </DoughnutChart>
+ * // Basic usage
+ * <DoughnutChart />
+ *
+ * // With event handlers
+ * <DoughnutChart />
+ *
  * ```
  */
 export interface DoughnutChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -41,19 +38,20 @@ export interface DoughnutChartProps extends Omit<HTMLAttributes<HTMLElement>, 'd
 }
 
 export interface DoughnutChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
   ({ children, className, ...props }, ref) => {
-    const doughnutChartRef = useRef<WaElement | null>(null);
+    const doughnutchartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         get element() {
-          return doughnutChartRef.current;
+          return doughnutchartRef.current;
         },
       }),
       []
@@ -61,8 +59,9 @@ export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
 
     return (
       <wa-doughnut-chart
-        ref={(el: WaElement | null) => { doughnutChartRef.current = el; }}
+        ref={doughnutchartRef}
         class={clsx('DoughnutChart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

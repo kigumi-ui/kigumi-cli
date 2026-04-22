@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './BarChart.css';
 
 /**
@@ -9,17 +8,12 @@ import './BarChart.css';
  *
  * @example
  * ```tsx
- * <BarChart label="Sales by region">
- *   <script type="application/json">{JSON.stringify({
- *     data: {
- *       labels: ['North', 'South', 'East', 'West'],
- *       datasets: [{ label: 'Revenue', data: [42, 38, 55, 29] }]
- *     }
- *   })}</script>
- * </BarChart>
+ * // Basic usage
+ * <BarChart />
  *
- * // Horizontal orientation
- * <BarChart orientation="horizontal" label="Scores" />
+ * // With event handlers
+ * <BarChart />
+ *
  * ```
  */
 export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
@@ -29,6 +23,9 @@ export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 
   /** Extended accessible description for the chart */
   description?: string;
+
+  /** Controls whether bars grow upward or sideways */
+  orientation?: 'vertical' | 'horizontal';
 
   /** Caption displayed beneath the horizontal axis */
   'x-label'?: string;
@@ -42,7 +39,7 @@ export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
   /** Layers multiple datasets on a single axis */
   stacked?: boolean;
 
-  /** Base axis for category labels */
+  /** Base axis for category labels (swap to flip chart orientation) */
   'index-axis'?: 'x' | 'y';
 
   /** Selects which background grid lines are drawn */
@@ -62,25 +59,23 @@ export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 
   /** Prevents hover tooltips from appearing on data points */
   'without-tooltip'?: boolean;
-
-  /** Controls whether bars grow upward or sideways */
-  orientation?: 'vertical' | 'horizontal';
 }
 
 export interface BarChartRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const BarChart = forwardRef<BarChartRef, BarChartProps>(
   ({ children, className, ...props }, ref) => {
-    const barChartRef = useRef<WaElement | null>(null);
+    const barchartRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
         get element() {
-          return barChartRef.current;
+          return barchartRef.current;
         },
       }),
       []
@@ -88,8 +83,9 @@ export const BarChart = forwardRef<BarChartRef, BarChartProps>(
 
     return (
       <wa-bar-chart
-        ref={(el: WaElement | null) => { barChartRef.current = el; }}
+        ref={barchartRef}
         class={clsx('BarChart', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

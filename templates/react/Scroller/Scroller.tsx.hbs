@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Scroller.css';
 
 /**
@@ -33,13 +32,14 @@ export interface ScrollerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 }
 
 export interface ScrollerRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Scroller = forwardRef<ScrollerRef, ScrollerProps>(
   ({ children, className, ...props }, ref) => {
-    const scrollerRef = useRef<WaElement | null>(null);
+    const scrollerRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -53,8 +53,9 @@ export const Scroller = forwardRef<ScrollerRef, ScrollerProps>(
 
     return (
       <wa-scroller
-        ref={(el: WaElement | null) => { scrollerRef.current = el; }}
+        ref={scrollerRef}
         class={clsx('Scroller', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

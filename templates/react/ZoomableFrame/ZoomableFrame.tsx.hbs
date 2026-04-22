@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './ZoomableFrame.css';
 
 /**
@@ -36,9 +35,6 @@ export interface ZoomableFrameProps extends Omit<HTMLAttributes<HTMLElement>, 'o
   /** Available zoom levels */
   'zoom-levels'?: string;
 
-  /** Alias for zoom-levels (camelCase) */
-  zoomLevels?: string;
-
   /** Enables fullscreen */
   allowfullscreen?: boolean;
 
@@ -48,14 +44,8 @@ export interface ZoomableFrameProps extends Omit<HTMLAttributes<HTMLElement>, 'o
   /** Hides zoom controls */
   'without-controls'?: boolean;
 
-  /** Alias for without-controls (camelCase) */
-  withoutControls?: boolean;
-
   /** Disables interaction */
   'without-interaction'?: boolean;
-
-  /** Alias for without-interaction (camelCase) */
-  withoutInteraction?: boolean;
 
   /** Security restrictions */
   sandbox?: string;
@@ -77,19 +67,16 @@ export interface ZoomableFrameRef {
 
   /** Zooms out to the previous available zoom level. */
   zoomOut: () => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
-  ({ children, className, onLoad, onError, zoomLevels, withoutControls, withoutInteraction, ...props }, ref) => {
-    const passThrough = {
-      ...props,
-      ...(zoomLevels !== undefined && { 'zoom-levels': zoomLevels }),
-      ...(withoutControls !== undefined && { 'without-controls': withoutControls }),
-      ...(withoutInteraction !== undefined && { 'without-interaction': withoutInteraction }),
-    };
-    const zoomableframeRef = useRef<WaElement | null>(null);
+  ({ children, className, onLoad, onError, ...props }, ref) => {
+    const zoomableframeRef = useRef<HTMLElement & {
+      zoomIn?: () => void;
+      zoomOut?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -134,9 +121,10 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
 
     return (
       <wa-zoomable-frame
-        ref={(el: WaElement | null) => { zoomableframeRef.current = el; }}
+        ref={zoomableframeRef}
         class={clsx('ZoomableFrame', className)}
-        {...(passThrough as Record<string, unknown>)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-zoomable-frame>

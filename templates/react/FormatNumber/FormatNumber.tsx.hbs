@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './FormatNumber.css';
 
 /**
@@ -51,23 +50,17 @@ export interface FormatNumberProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 
   /** The locale to use when formatting */
   lang?: string;
-
-  /** Alias for lang */
-  locale?: string;
 }
 
 export interface FormatNumberRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
-  ({ children, className, locale, ...props }, ref) => {
-    const passThrough = {
-      ...props,
-      ...(locale !== undefined && { lang: locale }),
-    };
-    const formatnumberRef = useRef<WaElement | null>(null);
+  ({ children, className, ...props }, ref) => {
+    const formatnumberRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -81,9 +74,10 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
 
     return (
       <wa-format-number
-        ref={(el: WaElement | null) => { formatnumberRef.current = el; }}
+        ref={formatnumberRef}
         class={clsx('FormatNumber', className)}
-        {...(passThrough as Record<string, unknown>)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
       >
         {children}
       </wa-format-number>

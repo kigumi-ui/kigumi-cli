@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './ProgressBar.css';
 
 /**
@@ -30,13 +29,14 @@ export interface ProgressBarProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 }
 
 export interface ProgressBarRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const ProgressBar = forwardRef<ProgressBarRef, ProgressBarProps>(
   ({ children, className, ...props }, ref) => {
-    const progressbarRef = useRef<WaElement | null>(null);
+    const progressbarRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -50,8 +50,9 @@ export const ProgressBar = forwardRef<ProgressBarRef, ProgressBarProps>(
 
     return (
       <wa-progress-bar
-        ref={(el: WaElement | null) => { progressbarRef.current = el; }}
+        ref={progressbarRef}
         class={clsx('ProgressBar', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

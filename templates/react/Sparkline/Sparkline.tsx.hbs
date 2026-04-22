@@ -1,23 +1,18 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Sparkline.css';
 
 /**
  * Sparklines are small inline data visualizations for showing trends
  *
- * @cssvar --fill-color - Fill color for the area below the line
- * @cssvar --line-color - Color of the sparkline
- * @cssvar --line-width - Width of the sparkline in pixels
- *
  * @example
  * ```tsx
  * // Basic usage
- * <Sparkline data="1 4 2 8 5 3 7" appearance="line" />
+ * <Sparkline />
  *
- * // With trend indicator
- * <Sparkline data="1 4 2 8 5 3 7" appearance="area" trend="positive" />
+ * // With event handlers
+ * <Sparkline />
  *
  * ```
  */
@@ -40,13 +35,14 @@ export interface SparklineProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
 }
 
 export interface SparklineRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
   ({ children, className, ...props }, ref) => {
-    const sparklineRef = useRef<WaElement | null>(null);
+    const sparklineRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -60,8 +56,9 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
 
     return (
       <wa-sparkline
-        ref={(el: WaElement | null) => { sparklineRef.current = el; }}
+        ref={sparklineRef}
         class={clsx('Sparkline', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

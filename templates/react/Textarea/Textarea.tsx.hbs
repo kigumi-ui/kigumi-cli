@@ -1,7 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Textarea.css';
 
 /**
@@ -66,11 +65,11 @@ export interface TextareaProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur
   /** Maximum length */
   maxlength?: number;
 
-  /** Shows a character count when maxlength is set */
-  'with-count'?: boolean;
-
   /** Enable spell checking */
   spellcheck?: boolean;
+
+  /** Shows a character count when maxlength is set */
+  'with-count'?: boolean;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -107,13 +106,35 @@ export interface TextareaRef {
 
   /** Replaces a range of text with a new string. */
   setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
-  /** Reference to the underlying element */
-  element: WaElement | null;
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Textarea = forwardRef<TextareaRef, TextareaProps>(
   ({ children, className, onBlur, onChange, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const textareaRef = useRef<WaElement | null>(null);
+    const textareaRef = useRef<HTMLElement & {
+      focus?: (options: FocusOptions) => void;
+      blur?: () => void;
+      select?: () => void;
+      scrollPosition?: (position: { top?: number; left?: number }) => void;
+      setSelectionRange?: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
+      setRangeText?: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -148,6 +169,21 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
             textareaRef.current.setRangeText(replacement, start, end, selectMode);
           }
         },
+        setCustomValidity: (message: string) => {
+          if (textareaRef.current && typeof textareaRef.current.setCustomValidity === 'function') {
+            textareaRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (textareaRef.current && typeof textareaRef.current.formStateRestoreCallback === 'function') {
+            textareaRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (textareaRef.current && typeof textareaRef.current.resetValidity === 'function') {
+            textareaRef.current.resetValidity();
+          }
+        },
         get element() {
           return textareaRef.current;
         },
@@ -175,7 +211,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
         if (onInput) onInput(e as CustomEvent);
       };
 
-      const handleInvalid = (e: Event) => {
+      const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
 
@@ -183,21 +219,22 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       el.addEventListener('change', handleChange);
       el.addEventListener('focus', handleFocus);
       el.addEventListener('input', handleInput);
-      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('change', handleChange);
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('input', handleInput);
-        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onBlur, onChange, onFocus, onInput, onInvalid]);
 
     return (
       <wa-textarea
-        ref={(el: WaElement | null) => { textareaRef.current = el; }}
+        ref={textareaRef}
         class={clsx('Textarea', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}

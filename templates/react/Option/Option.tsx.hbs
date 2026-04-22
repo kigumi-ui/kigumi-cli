@@ -1,7 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Option.css';
 
 /**
@@ -33,13 +32,14 @@ export interface OptionProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface OptionRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
 }
 
 export const Option = forwardRef<OptionRef, OptionProps>(
   ({ children, className, ...props }, ref) => {
-    const optionRef = useRef<WaElement | null>(null);
+    const optionRef = useRef<HTMLElement & {
+    }>(null);
 
     useImperativeHandle(
       ref,
@@ -53,8 +53,9 @@ export const Option = forwardRef<OptionRef, OptionProps>(
 
     return (
       <wa-option
-        ref={(el: WaElement | null) => { optionRef.current = el; }}
+        ref={optionRef}
         class={clsx('Option', className)}
+        suppressHydrationWarning
         {...(props as Record<string, unknown>)}
       >
         {children}
