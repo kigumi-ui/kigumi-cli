@@ -6,15 +6,11 @@
  * - templates/**\/*.hbs (no hardcoded package imports — must use {{{importPath}}})
  *
  * NOTE: Previously this file also checked drift between `TIER_RESTRICTIONS.components.pro`
- * and the registry, and between `PRO_COMPONENTS` (in `src/schemas/tier.ts`) and
+ * and the registry, and between `PRO_COMPONENTS` and
  * `TIER_RESTRICTIONS`. Those checks were removed as part of the `tier-filter-registry-sync`
  * spec (2026-04-09): the hardcoded `TIER_RESTRICTIONS.components` list was deleted
  * in favor of reading `component.tier` directly from the registry. Drift between
  * the filter and the registry is now impossible by construction.
- *
- * `src/schemas/tier.ts` still exists with its own stale `PRO_COMPONENTS` list,
- * but it is unused at runtime. A follow-up spec (`cleanup-dead-tier-schema`)
- * will remove it.
  */
 
 import { describe, it, expect } from 'vitest';
