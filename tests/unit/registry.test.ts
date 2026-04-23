@@ -10,6 +10,7 @@ import {
   getComponent,
   hasComponent,
   getComponentNames,
+  normalizeComponentName,
 } from '../../src/utils/registry.js';
 
 describe('component registry', () => {
@@ -313,6 +314,36 @@ describe('component registry', () => {
 
       // Free tier should have majority of components
       expect(freeCount).toBeGreaterThanOrEqual(50);
+    });
+  });
+
+  describe('normalizeComponentName', () => {
+    it('returns canonical PascalCase for kebab-case input (single word)', () => {
+      expect(normalizeComponentName('button')).toBe('Button');
+    });
+
+    it('returns canonical PascalCase for kebab-case input (multi-word)', () => {
+      expect(normalizeComponentName('button-group')).toBe('ButtonGroup');
+      expect(normalizeComponentName('tree-item')).toBe('TreeItem');
+    });
+
+    it('returns canonical PascalCase for PascalCase input', () => {
+      expect(normalizeComponentName('Button')).toBe('Button');
+      expect(normalizeComponentName('ButtonGroup')).toBe('ButtonGroup');
+    });
+
+    it('returns the registry-canonical capitalization verbatim', () => {
+      // Regression guard: normalizeComponentName must return the registry's
+      // stored `component.name` string, not a naive reconstruction from the
+      // kebab form. Callers rely on exact casing for directory and snapshot
+      // paths, which are case-sensitive on Linux.
+      expect(normalizeComponentName('qr-code')).toBe('QrCode');
+      expect(normalizeComponentName('QrCode')).toBe('QrCode');
+    });
+
+    it('returns null for unknown component', () => {
+      expect(normalizeComponentName('not-a-real-component')).toBeNull();
+      expect(normalizeComponentName('FakeComponent')).toBeNull();
     });
   });
 });

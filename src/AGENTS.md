@@ -105,6 +105,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
 
 **When adding components:** Update registry FIRST, then create templates.
 
+**Name normalization:** Use `normalizeComponentName(input)` to canonicalize a user-provided component name (kebab-case, PascalCase, or any mix) to the registry's stored `component.name`. The function always returns the registry's exact casing — callers get the same string used for directory names, snapshot paths, and `config.installedComponents` keys instead of reconstructing PascalCase from the kebab form and risking drift if the registry's canonical spelling ever changes. Returns `null` for unknown inputs.
+
 ### `utils/tier.ts` - Tier Detection
 
 Detects tier from `package.json` (primary) with token fallback, NOT from config.

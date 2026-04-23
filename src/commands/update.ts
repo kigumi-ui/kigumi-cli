@@ -15,7 +15,8 @@ import * as p from '@clack/prompts';
 import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { handleError, ConfigNotFoundError } from '../errors/index.js';
-import { getComponent } from '../utils/registry.js';
+import { getComponent, normalizeComponentName } from '../utils/registry.js';
+import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
@@ -167,13 +168,13 @@ export async function updateCommand(
  * Resolve which components to update.
  * If specific names given, use those. Otherwise, scan the components directory.
  */
-async function resolveComponents(
+export async function resolveComponents(
   names: string[],
   config: KigumiConfig,
   cwd: string
 ): Promise<string[]> {
   if (names.length > 0) {
-    return names.map((n) => n.charAt(0).toUpperCase() + n.slice(1));
+    return names.map((n) => normalizeComponentName(n) ?? n);
   }
 
   const componentsDir = path.join(cwd, config.componentsDir);
@@ -185,7 +186,7 @@ async function resolveComponents(
   return entries
     .filter((e) => e.isDirectory())
     .map((e) => e.name)
-    .filter((name) => getComponent(name.toLowerCase()) !== null)
+    .filter((name) => getComponent(toKebabCase(name)) !== null)
     .sort();
 }
 
@@ -198,7 +199,7 @@ async function processComponent(
   cwd: string,
   options: UpdateOptions
 ): Promise<ComponentUpdateResult | null> {
-  const component = getComponent(componentName.toLowerCase());
+  const component = getComponent(toKebabCase(componentName));
   if (!component) {
     return null;
   }

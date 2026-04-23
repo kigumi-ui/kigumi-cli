@@ -72,26 +72,33 @@ vi.mock('../../src/utils/template.js', () => ({
     .mockImplementation((_fw: string, name: string) => name),
 }));
 
-vi.mock('../../src/utils/registry.js', () => ({
-  getComponent: vi.fn((name: string) => {
-    const registry: Record<string, unknown> = {
-      button: {
-        name: 'Button',
-        tagName: 'wa-button',
-        importPath: '@awesome.me/webawesome/dist/components/button/button.js',
-        tier: 'free',
-        category: 'Actions',
-        description: 'Buttons',
-        dependencies: [],
-        files: {
-          react: { component: 'Button.tsx', css: 'Button.css' },
-        },
-        props: [],
+vi.mock('../../src/utils/registry.js', async () => {
+  const { toKebabCase } = await vi.importActual<
+    typeof import('../../src/utils/naming.js')
+  >('../../src/utils/naming.js');
+  const registry: Record<string, { name: string; [k: string]: unknown }> = {
+    button: {
+      name: 'Button',
+      tagName: 'wa-button',
+      importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+      tier: 'free',
+      category: 'Actions',
+      description: 'Buttons',
+      dependencies: [],
+      files: {
+        react: { component: 'Button.tsx', css: 'Button.css' },
       },
-    };
-    return registry[name.toLowerCase()] ?? null;
-  }),
-}));
+      props: [],
+    },
+  };
+  return {
+    getComponent: vi.fn((name: string) => registry[name.toLowerCase()] ?? null),
+    normalizeComponentName: vi.fn((input: string) => {
+      const match = registry[toKebabCase(input)];
+      return match ? match.name : null;
+    }),
+  };
+});
 
 vi.mock('../../src/utils/tier.js', () => ({
   detectTier: vi.fn().mockResolvedValue('free'),

@@ -200,6 +200,21 @@ import { readJSONWithComments } from '@/utils/json';
 const tsconfig = await readJSONWithComments(tsconfigPath);
 ```
 
+### Internals Exported for Test Coverage
+
+Some command helpers are exported solely for direct unit testing when the
+surrounding command handler would require too much mocking to exercise the
+helper's logic in isolation. Current cases:
+
+- `resolveComponents` in `src/commands/update.ts` and `src/commands/diff.ts` —
+  exported so `tests/unit/update-command.test.ts` and
+  `tests/unit/diff-command.test.ts` can assert the scan- and names-branch
+  behaviour directly (multi-word kebab↔PascalCase canonicalization).
+
+If you add a similar export, keep it at the bottom of the module, mark its
+role in the accompanying test's describe block, and avoid adding new public
+callers — these are test-only seams.
+
 ---
 
 ## E2E Test Projects

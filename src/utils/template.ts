@@ -542,11 +542,21 @@ export async function generateComponentTestContent(
 ): Promise<string> {
   const ext = getTestExtension(config.framework, config.typescript);
 
+  // Angular test templates are stored with kebab-case filenames
+  // (e.g. button-group.component.spec.ts.hbs) to mirror the component
+  // template convention. Without this branch the lookup hits a
+  // case-insensitive path only on macOS and silently falls back to the
+  // inline generator on Linux CI, producing different output per OS.
+  const testBaseName =
+    config.framework === 'angular'
+      ? toKebabCase(component.name)
+      : component.name;
+
   const componentTestTemplatePath = path.join(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${component.name}.${ext}.hbs`
+    `${testBaseName}.${ext}.hbs`
   );
 
   if (await fs.pathExists(componentTestTemplatePath)) {

@@ -10,6 +10,7 @@
  * - getAllComponents() - Get all component definitions
  * - getComponentNames() - Get list of component names
  * - hasComponent() - Check if component exists
+ * - normalizeComponentName() - Canonicalize user input to the registry's PascalCase name
  *
  * NOTE: Type definitions moved to registry/types.ts for better modularity
  *
@@ -18,6 +19,7 @@
  */
 
 import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
+import { toKebabCase } from './naming.js';
 import type {
   ComponentProp,
   ComponentEvent,
@@ -4642,6 +4644,22 @@ export function getComponentNames(): string[] {
  */
 export function hasComponent(name: string): boolean {
   return name.toLowerCase() in LOCAL_REGISTRY;
+}
+
+/**
+ * Normalize a user-provided component name to the canonical name stored in
+ * the registry. Accepts kebab-case (`button-group`), PascalCase
+ * (`ButtonGroup`), or any variant that `toKebabCase` can canonicalize, and
+ * returns the registry's `component.name` verbatim — e.g. `qr-code`
+ * resolves to `QrCode` (the form the registry happens to store), and the
+ * caller is guaranteed to get exactly the casing used for directory,
+ * snapshot, and `config.installedComponents` keys instead of a
+ * reconstruction from the kebab form. Returns `null` if no component
+ * matches.
+ */
+export function normalizeComponentName(input: string): string | null {
+  const component = getComponent(toKebabCase(input));
+  return component ? component.name : null;
 }
 
 // Note: Remote registry fetch has been removed.
