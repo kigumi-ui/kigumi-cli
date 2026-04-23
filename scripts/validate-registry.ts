@@ -77,6 +77,58 @@ function validateRequiredFields(
   return errors;
 }
 
+const ALLOWED_PROP_TYPES = ['string', 'boolean', 'number'] as const;
+type AllowedPropType = (typeof ALLOWED_PROP_TYPES)[number];
+
+/**
+ * Validate individual prop definitions
+ *
+ * Checks that each prop has a non-empty name, a type from the allowed set,
+ * a well-formed values array when present, and a default that matches one
+ * of the values when both are declared.
+ */
+export function validateProps(
+  component: ComponentDefinition,
+  key: string
+): string[] {
+  const errors: string[] = [];
+  if (!Array.isArray(component.props)) return errors;
+
+  component.props.forEach((prop, index) => {
+    const ref = `Component '${key}' prop[${index}]`;
+
+    if (typeof prop.name !== 'string' || prop.name.length === 0) {
+      errors.push(`${ref} is missing 'name'`);
+    }
+
+    if (
+      typeof prop.type !== 'string' ||
+      !ALLOWED_PROP_TYPES.includes(prop.type as AllowedPropType)
+    ) {
+      errors.push(
+        `${ref} ('${prop.name ?? '?'}') has invalid type '${prop.type}'; ` +
+          `expected one of ${ALLOWED_PROP_TYPES.join(' | ')}`
+      );
+    }
+
+    if (prop.values !== undefined && !Array.isArray(prop.values)) {
+      errors.push(`${ref} ('${prop.name ?? '?'}') 'values' must be an array`);
+    }
+
+    if (
+      prop.default !== undefined &&
+      Array.isArray(prop.values) &&
+      !prop.values.includes(prop.default)
+    ) {
+      errors.push(
+        `${ref} ('${prop.name ?? '?'}') default '${prop.default}' is not in values [${prop.values.join(', ')}]`
+      );
+    }
+  });
+
+  return errors;
+}
+
 /**
  * Check for duplicate component names
  */
@@ -216,7 +268,7 @@ function validateImportPath(
  * Handles CamelCase component keys like 'ButtonGroup' by converting
  * to kebab-case ('button-group') before comparing to tag names.
  */
-function validateTagName(
+export function validateTagName(
   component: ComponentDefinition,
   key: string
 ): string[] {
@@ -236,9 +288,9 @@ function validateTagName(
   // Extract tag without 'wa-' prefix for comparison
   const tagWithoutPrefix = component.tagName.replace(/^wa-/, '');
 
-  if (!tagWithoutPrefix.includes(normalizedKey)) {
+  if (tagWithoutPrefix !== normalizedKey) {
     errors.push(
-      `Component '${key}' tag name '${component.tagName}' should contain component key (normalized: ${normalizedKey})`
+      `Component '${key}' tag name '${component.tagName}' must equal 'wa-${normalizedKey}'`
     );
   }
 
@@ -248,7 +300,7 @@ function validateTagName(
 /**
  * Main validation function
  */
-async function validateRegistry(): Promise<ValidationResult> {
+export async function validateRegistry(): Promise<ValidationResult> {
   const result: ValidationResult = {
     passed: true,
     errors: [],
@@ -283,6 +335,10 @@ async function validateRegistry(): Promise<ValidationResult> {
     // Required fields
     const fieldErrors = validateRequiredFields(component, key);
     result.errors.push(...fieldErrors);
+
+    // Per-prop validation
+    const propErrors = validateProps(component, key);
+    result.errors.push(...propErrors);
 
     // Tier validation
     const tierErrors = validateTier(component, key);
@@ -387,4 +443,7 @@ async function main() {
   }
 }
 
-main();
+// Only run when executed directly, not when imported
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
