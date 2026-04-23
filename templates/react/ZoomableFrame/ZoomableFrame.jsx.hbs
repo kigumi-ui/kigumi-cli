@@ -26,6 +26,7 @@ export const ZoomableFrame = React.forwardRef(
     }), []);
 
     useEffect(() => {
+      ensureLoaded();
       const el = frameRef.current;
       if (!el) return;
 
@@ -41,9 +42,6 @@ export const ZoomableFrame = React.forwardRef(
       };
     }, [onLoad, onError]);
 
-    React.useEffect(() => {
-      ensureLoaded();
-    }, []);
 
     return (
       <wa-zoomable-frame
