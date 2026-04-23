@@ -19,7 +19,7 @@ import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
-import { CSS_METADATA } from '../src/utils/css-metadata.js';
+import { CSS_METADATA } from './css-metadata.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -787,7 +787,7 @@ async function generateComponentTemplates(
   );
 
   const css = generateCSSTemplate(component.name);
-  await fs.writeFile(path.join(componentDir, `${component.name}.css.hbs`), css);
+  await fs.writeFile(path.join(componentDir, `${component.name}.css`), css);
 
   const testTs = generateTestTypescriptTemplate(
     component.name,

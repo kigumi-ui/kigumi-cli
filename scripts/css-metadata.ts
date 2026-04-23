@@ -1,7 +1,9 @@
 /**
  * CSS Metadata for Web Awesome Components
  *
- * Maps component names to their CSS parts and custom properties
+ * Build-time data consumed by generate-{angular,react,vue}-templates.ts to
+ * emit CSS parts / custom-property comments into the generated CSS templates.
+ * Not used at runtime.
  */
 
 export interface CSSPart {
@@ -147,71 +149,3 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     customProperties: [],
   },
 };
-
-/**
- * Get CSS metadata for a component
- */
-export function getCSSMetadata(
-  componentName: string
-): ComponentCSSMetadata | null {
-  return CSS_METADATA[componentName.toLowerCase()] || null;
-}
-
-/**
- * Generate CSS template content with parts and custom properties
- */
-export function generateCSSTemplate(componentName: string): string {
-  const metadata = getCSSMetadata(componentName.toLowerCase());
-
-  if (!metadata) {
-    return `/*
- * ${componentName}
- *
- * No CSS metadata available.
- * See Web Awesome docs for styling options.
- */
-`;
-  }
-
-  let content = `/*
- * ${componentName}
- *
- * Documentation: ${metadata.docsUrl}
- */
-
-`;
-
-  // Add CSS Custom Properties section
-  if (metadata.customProperties.length > 0) {
-    content += `/* CSS Custom Properties\n`;
-    content += ` * ${metadata.docsUrl}#css-custom-properties\n`;
-    content += ` */\n\n`;
-    content += `.${componentName} {\n`;
-
-    for (const prop of metadata.customProperties) {
-      content += `  /* ${prop.description} */\n`;
-      if (prop.default) {
-        content += `  /* ${prop.name}: ${prop.default}; */\n`;
-      } else {
-        content += `  /* ${prop.name}: ...; */\n`;
-      }
-    }
-
-    content += `}\n\n`;
-  }
-
-  // Add CSS Parts section
-  if (metadata.parts.length > 0) {
-    content += `/* CSS Parts\n`;
-    content += ` * ${metadata.docsUrl}#css-parts\n`;
-    content += ` */\n\n`;
-
-    for (const part of metadata.parts) {
-      content += `.${componentName}::part(${part.name}) {\n`;
-      content += `  /* ${part.description} */\n`;
-      content += `}\n\n`;
-    }
-  }
-
-  return content;
-}

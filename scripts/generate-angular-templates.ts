@@ -24,7 +24,7 @@ import {
   type ComponentDefinition,
 } from '../src/utils/registry.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
-import { CSS_METADATA } from '../src/utils/css-metadata.js';
+import { CSS_METADATA } from './css-metadata.js';
 import { toKebabCase } from '../src/utils/naming.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -529,10 +529,9 @@ async function main() {
       tsContent
     );
 
-    // Component CSS
     const cssContent = generateCSS(component, key);
     await fs.writeFile(
-      path.join(componentDir, `${kebabName}.component.css.hbs`),
+      path.join(componentDir, `${kebabName}.component.css`),
       cssContent
     );
 

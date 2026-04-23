@@ -30,18 +30,12 @@ import { fileURLToPath } from 'url';
 import type { ComponentDefinition } from './registry.js';
 import type { KigumiConfig } from './config.js';
 import type { Tier } from './tier.js';
-import { generateCSSTemplate } from './css-metadata.js';
 import { toKebabCase } from './naming.js';
 import {
   isNextProject,
   detectNextRouter,
   type NextRouter,
 } from './detect-framework.js';
-
-// Register Handlebars helper to quote property names with hyphens
-Handlebars.registerHelper('quoteProp', function (propName: string) {
-  return propName.includes('-') ? `'${propName}'` : propName;
-});
 
 /**
  * TEMPLATE COMPILATION CACHE
@@ -102,18 +96,9 @@ const TEMPLATES_DIR = path.join(PACKAGE_ROOT, 'templates');
 
 interface TemplateContext {
   name: string;
-  kebabName: string;
   tagName: string;
   description: string;
   importPath: string;
-  props: Array<{
-    name: string;
-    type: string;
-    values?: string[];
-    default?: string;
-    description?: string;
-    required?: boolean;
-  }>;
 }
 
 /**
@@ -147,11 +132,9 @@ export function buildTemplateContext(
 ): TemplateContext {
   return {
     name: component.name,
-    kebabName: toKebabCase(component.name),
     tagName: component.tagName,
     description: component.description,
     importPath: component.importPath,
-    props: component.props,
   };
 }
 
@@ -493,7 +476,10 @@ export function getComponentCSSPath(
 }
 
 /**
- * Generate CSS content string for a component (without writing to disk)
+ * Generate CSS content string for a component (without writing to disk).
+ *
+ * CSS templates are static (no Handlebars), so they are read verbatim
+ * rather than compiled. The file extension on disk is `.css`, not `.css.hbs`.
  */
 export async function generateComponentCSSContent(
   component: ComponentDefinition,
@@ -507,16 +493,15 @@ export async function generateComponentCSSContent(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${cssFileName}.hbs`
+    cssFileName
   );
 
   if (await fs.pathExists(componentCSSTemplatePath)) {
-    return renderTemplate(
-      componentCSSTemplatePath,
-      buildTemplateContext(component)
-    );
+    return fs.readFile(componentCSSTemplatePath, 'utf-8');
   }
-  return generateCSSTemplate(component.name);
+  throw new Error(
+    `Missing CSS template for ${config.framework}/${component.name} at ${componentCSSTemplatePath}`
+  );
 }
 
 /**

@@ -18,14 +18,10 @@ flowchart LR
         RENDER["template(context)\n→ rendered string"]
     end
 
-    subgraph Helpers["Handlebars Helpers"]
-        QP["quoteProp\nhyphenated → 'prop-name'\nnormal → propName"]
-    end
-
     subgraph Output
         COMP[".tsx / .jsx / .vue / .js.vue"]
         TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
-        CSS[".css — from css-metadata.ts\nor component-specific .css.hbs"]
+        CSS[".css (read verbatim from templates/)"]
         TYPES["web-awesome.d.ts\nupdateTypeDeclarations\n(React + TS only)"]
         INDEX["index.ts barrel export\nupdateComponentIndex"]
     end
@@ -36,7 +32,7 @@ flowchart LR
     REPLACE --> CTX
     CTX --> RENDER
     HBS --> COMPILE --> RENDER
-    Helpers -.-> COMPILE
     COMPILE --> CACHE
-    RENDER --> COMP & TEST & CSS
+    RENDER --> COMP & TEST
+    CSS -.-> COMP
     COMP --> TYPES & INDEX

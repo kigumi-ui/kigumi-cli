@@ -69,12 +69,12 @@ Use this template to create implementation plans. Each phase should be achievabl
 
 - Create: `templates/react/{ComponentName}/{ComponentName}.tsx.hbs`
 - Create: `templates/react/{ComponentName}/{ComponentName}.jsx.hbs`
-- Create: `templates/react/{ComponentName}/{ComponentName}.css.hbs`
+- Create: `templates/react/{ComponentName}/{ComponentName}.css` (static, no Handlebars)
 - Create: `templates/react/{ComponentName}/{ComponentName}.test.tsx.hbs`
 - Create: `templates/react/{ComponentName}/{ComponentName}.test.jsx.hbs`
 - Create: `templates/vue/{ComponentName}/{ComponentName}.vue.hbs`
 - Create: `templates/vue/{ComponentName}/{ComponentName}.js.vue.hbs`
-- Create: `templates/vue/{ComponentName}/{ComponentName}.css.hbs`
+- Create: `templates/vue/{ComponentName}/{ComponentName}.css` (static, no Handlebars)
 - Create: `templates/vue/{ComponentName}/{ComponentName}.test.ts.hbs`
 - Create: `templates/vue/{ComponentName}/{ComponentName}.test.js.hbs`
 

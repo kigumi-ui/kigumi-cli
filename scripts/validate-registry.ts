@@ -149,12 +149,11 @@ async function validateTemplateFiles(
     requiredFiles.push(`${fileName}.${ext}.hbs`);
   }
 
-  // CSS file
   const cssName =
     framework === 'angular'
       ? `${fileName}.component.css`
       : `${component.name}.css`;
-  requiredFiles.push(`${cssName}.hbs`);
+  requiredFiles.push(cssName);
 
   for (const file of requiredFiles) {
     const filePath = path.join(componentDir, file);

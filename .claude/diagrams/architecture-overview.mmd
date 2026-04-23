@@ -15,11 +15,10 @@ flowchart TD
     end
 
     subgraph Utils["utils/"]
-        registry["registry.ts\n62+ ComponentDefinitions\nprops, events, slots, methods"]
-        template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
+        registry["registry.ts\n74 ComponentDefinitions\nprops, events, slots, methods"]
+        template["template.ts\nHandlebars compile + cache"]
         tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
-        css_meta["css-metadata.ts"]
         detect_fw["detect-framework.ts\ngetProjectInfo"]
         regenerate["regenerate.ts"]
     end
@@ -44,8 +43,8 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 62 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
-        tpl_vue["vue/ — 62 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
+        tpl_react["react/ — 74 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css"]
+        tpl_vue["vue/ — 74 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css"]
     end
 
     CLI --> Commands
@@ -63,7 +62,6 @@ flowchart TD
 
     template --> tpl_react & tpl_vue
     template --> registry
-    template --> css_meta
 
     config --> schema_config
     add --> schema_options

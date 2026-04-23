@@ -201,9 +201,9 @@ Same structure but with `import React from 'react'`, `React.forwardRef`, and JSD
 
 Generate basic render tests using vitest + @testing-library/react.
 
-### 5d. CSS File (.css.hbs)
+### 5d. CSS File (.css)
 
-Include CSS Parts documentation as commented-out selectors.
+Static CSS — no Handlebars. Saved as `{Component}.css`, not `{Component}.css.hbs`. Include CSS Parts documentation as commented-out selectors.
 
 ## Step 6: Create Vue Templates
 
@@ -216,7 +216,7 @@ Vue templates follow a similar pattern. Reference the Vue template generator at 
 - **TypeScript SFC** (`.vue.hbs`): `<script setup lang="ts">` with typed props via `defineProps`
 - **JavaScript SFC** (`.js.vue.hbs`): `<script setup>` with runtime props
 - **Test files** (`.test.ts.hbs`, `.test.js.hbs`): vitest + @vue/test-utils
-- **CSS file** (`.css.hbs`): Same as React
+- **CSS file** (`.css`): Same as React (static, no Handlebars)
 
 ### Current Vue Limitations
 
@@ -321,14 +321,14 @@ When complete, show:
   - templates/react/ComponentName/ComponentName.jsx.hbs
   - templates/react/ComponentName/ComponentName.test.tsx.hbs
   - templates/react/ComponentName/ComponentName.test.jsx.hbs
-  - templates/react/ComponentName/ComponentName.css.hbs
+  - templates/react/ComponentName/ComponentName.css
 
 ✓ Created Vue templates:
   - templates/vue/ComponentName/ComponentName.vue.hbs
   - templates/vue/ComponentName/ComponentName.js.vue.hbs
   - templates/vue/ComponentName/ComponentName.test.ts.hbs
   - templates/vue/ComponentName/ComponentName.test.js.hbs
-  - templates/vue/ComponentName/ComponentName.css.hbs
+  - templates/vue/ComponentName/ComponentName.css
 
 Next steps:
 1. Build CLI: pnpm build

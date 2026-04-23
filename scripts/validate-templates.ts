@@ -72,19 +72,19 @@ async function validateComponentTemplates(
       `${componentName}.jsx.hbs`,
       `${componentName}.test.tsx.hbs`,
       `${componentName}.test.jsx.hbs`,
-      `${componentName}.css.hbs`,
+      `${componentName}.css`,
     ],
     vue: [
       `${componentName}.vue.hbs`,
       `${componentName}.js.vue.hbs`,
       `${componentName}.test.ts.hbs`,
       `${componentName}.test.js.hbs`,
-      `${componentName}.css.hbs`,
+      `${componentName}.css`,
     ],
     angular: [
       `${kebabName}.component.ts.hbs`,
       `${kebabName}.component.spec.ts.hbs`,
-      `${kebabName}.component.css.hbs`,
+      `${kebabName}.component.css`,
     ],
   };
 
@@ -213,7 +213,7 @@ async function validateTemplates(): Promise<ValidationResult> {
             result.stats.missingAngularTS++;
           if (error.includes('.test.') || error.includes('.spec.'))
             result.stats.missingTests++;
-          if (error.includes('.css.hbs')) result.stats.missingCSS++;
+          if (error.endsWith('.css')) result.stats.missingCSS++;
         }
       }
     }
