@@ -40,7 +40,7 @@ import {
 } from '../../utils/file-diff.js';
 import { saveSnapshot } from '../../utils/snapshot.js';
 import { renderDiff } from '../../utils/diff-renderer.js';
-import { getWebAwesomePackage, type Tier } from '../../utils/tier.js';
+import type { Tier } from '../../utils/tier.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../schemas/config.js';
@@ -293,7 +293,6 @@ export class ComponentInstaller {
       await updateTypeDeclarations(component, this.config, this.cwd);
     }
     await updateComponentIndex(component, this.config, this.cwd);
-    await this.updateKigumiImports(component);
 
     return {
       name: component.name,
@@ -339,68 +338,6 @@ export class ComponentInstaller {
       return (hasVitest || hasJest) && hasTestingLibrary;
     } catch (_error) {
       return false;
-    }
-  }
-
-  /**
-   * Update kigumi.ts to include component JS imports
-   *
-   * WHY: Web Awesome components need to be imported to register their
-   * custom elements. This method ensures the component JS file is imported
-   * in kigumi.ts so the component can be used.
-   *
-   * @internal
-   */
-  private async updateKigumiImports(
-    component: ComponentDefinition
-  ): Promise<void> {
-    const packageName = getWebAwesomePackage(this.tier);
-
-    const kigumiPath = path.join(
-      this.cwd,
-      this.config.utilsDir || 'src/lib',
-      'kigumi.ts'
-    );
-
-    // Check if file exists
-    if (!(await fs.pathExists(kigumiPath))) {
-      return; // Skip if kigumi.ts doesn't exist
-    }
-
-    const content = await fs.readFile(kigumiPath, 'utf-8');
-    const componentImport = `import '${packageName}/dist/components/${component.tagName.replace('wa-', '')}/${component.tagName.replace('wa-', '')}.js';`;
-
-    // Check if import already exists
-    if (content.includes(componentImport)) {
-      return; // Already imported
-    }
-
-    // Find the section with component imports
-    const importMarker =
-      '// Import Web Awesome components (registers web components)';
-    if (!content.includes(importMarker)) {
-      return; // Can't find marker, skip
-    }
-
-    // Insert the new import after the marker
-    const lines = content.split('\n');
-    const markerIndex = lines.findIndex((line) => line.includes(importMarker));
-
-    if (markerIndex !== -1) {
-      // Find the last import line after the marker
-      let insertIndex = markerIndex + 1;
-      while (
-        insertIndex < lines.length &&
-        lines[insertIndex].trim().startsWith('import ')
-      ) {
-        insertIndex++;
-      }
-
-      // Insert the new import
-      lines.splice(insertIndex, 0, componentImport);
-
-      // Write back
-      await fs.writeFile(kigumiPath, lines.join('\n'));
     }
   }
 }

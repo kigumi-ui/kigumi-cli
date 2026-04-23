@@ -330,8 +330,8 @@ function generateVueTypescriptTemplate(component: ComponentDefinition): string {
     : '  element: elementRef';
 
   // Build imports
-  const vueImports: string[] = ['ref', 'computed'];
-  if (listeners.length > 0) vueImports.push('onMounted', 'onUnmounted');
+  const vueImports: string[] = ['ref', 'computed', 'onMounted'];
+  if (listeners.length > 0) vueImports.push('onUnmounted');
   if (hasAnyModel) vueImports.push('watch');
 
   // Build defineModel declarations
@@ -419,11 +419,21 @@ ${removeListenerCalls}
 `
       : '';
 
+  const loadBlock = `
+onMounted(() => {
+  ensureLoaded();
+});
+`;
+
   // Assemble the template
   return `<script setup lang="ts">
 import { ${vueImports.join(', ')} } from 'vue';
-import '{{{importPath}}}';
 import './${component.name}.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * ${component.description}
@@ -448,7 +458,7 @@ ${emitsInterface}
 }>();
 
 ${modelDeclarations.length > 0 ? modelDeclarations.join('\n') + '\n\n' : ''}const elementRef = ref<HTMLElement | null>(null);
-${modelWatchers.length > 0 ? '\n' + modelWatchers.join('\n\n') + '\n' : ''}${lifecycleBlock}
+${modelWatchers.length > 0 ? '\n' + modelWatchers.join('\n\n') + '\n' : ''}${loadBlock}${lifecycleBlock}
 defineExpose({
 ${exposeContent},
 });
@@ -536,8 +546,8 @@ function generateVueJavascriptTemplate(component: ComponentDefinition): string {
     : '  element: elementRef';
 
   // Build imports
-  const vueImports: string[] = ['ref', 'computed'];
-  if (listeners.length > 0) vueImports.push('onMounted', 'onUnmounted');
+  const vueImports: string[] = ['ref', 'computed', 'onMounted'];
+  if (listeners.length > 0) vueImports.push('onUnmounted');
   if (hasAnyModel) vueImports.push('watch');
 
   // Build defineModel declarations
@@ -618,10 +628,20 @@ ${removeListenerCalls}
 `
       : '';
 
+  const loadBlock = `
+onMounted(() => {
+  ensureLoaded();
+});
+`;
+
   return `<script setup>
 import { ${vueImports.join(', ')} } from 'vue';
-import '{{{importPath}}}';
 import './${component.name}.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * ${component.description}
@@ -642,7 +662,7 @@ const definedProps = computed(() => {
 const emit = defineEmits(${emitsList});
 
 ${modelDeclarations.length > 0 ? modelDeclarations.join('\n') + '\n\n' : ''}const elementRef = ref(null);
-${modelWatchers.length > 0 ? '\n' + modelWatchers.join('\n\n') + '\n' : ''}${lifecycleBlock}
+${modelWatchers.length > 0 ? '\n' + modelWatchers.join('\n\n') + '\n' : ''}${loadBlock}${lifecycleBlock}
 defineExpose({
 ${exposeContent},
 });

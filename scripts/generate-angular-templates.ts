@@ -179,8 +179,12 @@ function generateComponentTS(
     );
   }
 
-  lines.push(`import '{{{importPath}}}';`);
   lines.push(`import type WaElement from '{{{importPath}}}';`);
+  lines.push('');
+  lines.push(`let loadPromise: Promise<unknown> | null = null;`);
+  lines.push(`function ensureLoaded() {`);
+  lines.push(`  return (loadPromise ??= import('{{{importPath}}}'));`);
+  lines.push(`}`);
   lines.push('');
 
   // Build template string
@@ -293,6 +297,7 @@ function generateComponentTS(
   // ngAfterViewInit -- always present for host attribute forwarding
   lines.push('');
   lines.push('  ngAfterViewInit(): void {');
+  lines.push('    ensureLoaded();');
   lines.push('    const el = this.elementRef.nativeElement;');
   lines.push('');
   lines.push('    // Forward host attributes to inner wa-* element');

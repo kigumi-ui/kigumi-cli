@@ -9,7 +9,7 @@ src/
 ├── index.ts              # CLI entry (Commander.js routing)
 ├── constants.ts          # Magic strings, regex patterns, WA version
 ├── commands/             # CLI command handlers
-│   ├── add.ts            # Add command entry (updateKigumiImports)
+│   ├── add.ts            # Add command entry
 │   ├── init.ts           # Init command entry
 │   ├── init/             # Project initialization
 │   ├── add/              # Component installation
@@ -307,11 +307,7 @@ if (previousTier !== newTier) {
 **Remote flow (`--from`):** Downloads pre-rendered files via `RemoteComponentInstaller`, resolves internal dependencies (topological sort), tracks provenance in `config.installedComponents`.
 **Cross-framework flow (`--from <foreign> --cross-framework`):** When the registry's framework does not match the consumer project, `RemoteComponentInstaller` switches to `stageForeignComponent` (in `utils/foreign-files-staging.ts`) which writes the source-framework files into `.kigumi/foreign/<slug>/` along with a `_meta.json` (sourceFramework, targetFramework, registry provenance). `printSummary` then prints a "Convert with kigumi-cross-framework" hand-off block with the canonical Claude prompt. Component is marked `staged-for-conversion` in the install result and is NOT registered in `installedComponents`.
 
-**Auto-import:** After adding component, `updateKigumiImports()` adds:
-
-```typescript
-import '@awesome.me/webawesome/dist/components/{name}/{name}.js';
-```
+**Lazy component loading:** Generated wrappers register their WA component via a mount-triggered dynamic `import()` rather than a top-level side-effect import. Each component ships as its own webpack/rollup chunk, which bundlers can tree-shake away for routes that never render it. Power users needing eager loading (e.g., LCP-critical Button above the fold) can still add an explicit `import '@awesome.me/webawesome/dist/components/<name>/<name>.js';` to `src/lib/kigumi.ts`.
 
 ### `commands/registry/`
 
