@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Spinner.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Spinners are used to show the progress of an indeterminate operation
@@ -39,6 +43,10 @@ export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
       }),
       []
     );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-spinner

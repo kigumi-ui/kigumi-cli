@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Checkbox.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Checkboxes allow the user to toggle an option on or off
@@ -34,6 +38,10 @@ const elementRef = ref(null);
 watch(model, (val) => {
   const el = elementRef.value;
   if (el && el.checked !== val) el.checked = val ?? false;
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleChange = (e) => { model.value = e.target.checked; emit('change', e); };

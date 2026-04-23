@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Icon.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Icons are symbols that can be used to represent various options within an application
@@ -32,6 +36,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-load', 'wa-error']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaLoad = (e) => emit('wa-load', e);
 const handleWaError = (e) => emit('wa-error', e);

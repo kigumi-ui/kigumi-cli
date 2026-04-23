@@ -1,6 +1,10 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
-import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Renders markdown content in plain HTML
@@ -28,6 +32,7 @@ export class {{name}}Component implements AfterViewInit {
   @Input() tabSize?: number;
 
   ngAfterViewInit(): void {
+    ensureLoaded();
     const el = this.elementRef.nativeElement;
 
     // Forward host attributes to inner wa-* element
@@ -43,19 +48,13 @@ export class {{name}}Component implements AfterViewInit {
     }
   }
 
-  /** Returns the shared Marked instance */
-  getMarked(): unknown {
-    return (this.elementRef.nativeElement as unknown as { marked?: unknown }).marked;
+  getMarked(): void {
+    (this.elementRef.nativeElement as unknown as { getMarked: () => void }).getMarked();
   }
-
-  /** Re-renders all connected wa-markdown instances */
   updateAll(): void {
-    const El = this.elementRef.nativeElement.constructor as unknown as { updateAll?: () => void };
-    El?.updateAll?.();
+    (this.elementRef.nativeElement as unknown as { updateAll: () => void }).updateAll();
   }
-
-  /** Re-renders the markdown content */
   renderMarkdown(): void {
-    (this.elementRef.nativeElement as unknown as { renderMarkdown?: () => void }).renderMarkdown?.();
+    (this.elementRef.nativeElement as unknown as { renderMarkdown: () => void }).renderMarkdown();
   }
 }

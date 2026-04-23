@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './LineChart.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Connects sequential data points to reveal trends and patterns over a continuous axis
@@ -77,6 +81,10 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
       }),
       []
     );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-line-chart

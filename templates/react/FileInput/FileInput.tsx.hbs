@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './FileInput.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * File inputs allow users to select and upload files from their device
@@ -129,6 +133,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = fileinputRef.current;
       if (!el) return;
 

@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Comparison.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Compare visual differences between similar content with a sliding panel
@@ -47,6 +51,7 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = comparisonRef.current;
       if (!el) return;
 

@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Button.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Buttons represent actions that are available to the user
@@ -40,6 +44,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['blur', 'focus', 'wa-invalid']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);

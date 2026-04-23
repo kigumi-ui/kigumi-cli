@@ -1,7 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './Page.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Pages offer an easy way to scaffold entire page layouts using minimal markup
@@ -26,6 +30,10 @@ const definedProps = computed(() => {
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
   visiblePixelsInViewport: (element) => elementRef.value?.visiblePixelsInViewport?.(element),

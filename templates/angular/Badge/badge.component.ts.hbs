@@ -1,6 +1,10 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
-import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Badges are used to draw attention and display statuses or counts
@@ -37,6 +41,7 @@ export class {{name}}Component implements AfterViewInit {
   @Input() attention?: 'none' | 'pulse' | 'bounce';
 
   ngAfterViewInit(): void {
+    ensureLoaded();
     const el = this.elementRef.nativeElement;
 
     // Forward host attributes to inner wa-* element

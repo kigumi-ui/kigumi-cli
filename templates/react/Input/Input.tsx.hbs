@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Input.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Inputs collect data from the user
@@ -249,6 +253,7 @@ export const Input = forwardRef<InputRef, InputProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = inputRef.current;
       if (!el) return;
 

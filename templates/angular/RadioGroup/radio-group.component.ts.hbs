@@ -1,7 +1,11 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
-import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Radio groups are used to group multiple radios so only one can be selected
@@ -72,6 +76,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy, ControlValue
   private cleanups: (() => void)[] = [];
 
   ngAfterViewInit(): void {
+    ensureLoaded();
     const el = this.elementRef.nativeElement;
 
     // Forward host attributes to inner wa-* element

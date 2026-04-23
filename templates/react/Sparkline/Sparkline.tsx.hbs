@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Sparkline.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Sparklines are small inline data visualizations for showing trends
@@ -53,6 +57,10 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
       }),
       []
     );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-sparkline

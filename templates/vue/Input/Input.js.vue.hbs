@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Input.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Inputs collect data from the user
@@ -54,6 +58,10 @@ const elementRef = ref(null);
 watch(model, (val) => {
   const el = elementRef.value;
   if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleInput = (e) => { model.value = e.target.value; emit('input', e); };

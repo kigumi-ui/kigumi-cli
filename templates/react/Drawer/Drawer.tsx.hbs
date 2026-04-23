@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Drawer.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Drawers slide in from a container edge to expose additional options
@@ -90,6 +94,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = drawerRef.current;
       if (!el) return;
 

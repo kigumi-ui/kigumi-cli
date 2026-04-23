@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Select.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Select = React.forwardRef(
   ({ children, className, open, onChange, onShow, onAfterShow, onHide, onAfterHide, onClear, onInvalid, ...props }, ref) => {
@@ -22,6 +26,7 @@ export const Select = React.forwardRef(
     );
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = selectRef.current;
       if (!el || open === undefined) return;
 

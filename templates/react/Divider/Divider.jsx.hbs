@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Divider.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * @typedef {Object} DividerProps
@@ -10,6 +14,10 @@ import './Divider.css';
 
 export const Divider = React.forwardRef(
   ({ className, orientation, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-divider
         ref={ref}

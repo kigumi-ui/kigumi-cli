@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Include.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Includes give you the power to embed external HTML files into the page
@@ -56,6 +60,7 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = includeRef.current;
       if (!el) return;
 

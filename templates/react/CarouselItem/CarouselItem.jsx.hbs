@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './CarouselItem.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Represents an individual slide within a carousel component
@@ -17,6 +21,10 @@ import './CarouselItem.css';
  */
 export const CarouselItem = React.forwardRef(
   ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-carousel-item ref={ref} class={clsx('CarouselItem', className)} {...props}>
         {children}

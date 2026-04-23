@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Animation.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
@@ -38,7 +41,11 @@ const emit = defineEmits<{
   'wa-start': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaCancel = (e: Event) => emit('wa-cancel', e as CustomEvent);
 const handleWaFinish = (e: Event) => emit('wa-finish', e as CustomEvent);
@@ -63,8 +70,8 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  cancel: () => elementRef.value?.cancel?.(),
-  finish: () => elementRef.value?.finish?.(),
+  cancel: () => (elementRef.value as any)?.cancel?.(),
+  finish: () => (elementRef.value as any)?.finish?.(),
   element: elementRef,
 });
 </script>

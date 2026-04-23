@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './RelativeTime.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Outputs a localized time phrase relative to the current date and time
@@ -53,6 +57,10 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
       }),
       []
     );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-relative-time

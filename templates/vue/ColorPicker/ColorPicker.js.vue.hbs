@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './ColorPicker.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Color pickers allow the user to select a color
@@ -16,11 +20,11 @@ const props = defineProps({
     hint: { type: String, required: false, default: '' },
     name: { type: String, required: false },
     open: { type: Boolean, required: false, default: false },
+    placement: { type: String, required: false, default: bottom-start },
     swatches: { type: String, required: false, default: '' },
     uppercase: { type: Boolean, required: false, default: false },
     'without-format-toggle': { type: Boolean, required: false, default: false },
-    inline: { type: Boolean, required: false, default: false },
-    placement: { type: String, required: false }
+    inline: { type: Boolean, required: false, default: false }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
@@ -41,6 +45,10 @@ const elementRef = ref(null);
 watch(model, (val) => {
   const el = elementRef.value;
   if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleChange = (e) => emit('change', e);

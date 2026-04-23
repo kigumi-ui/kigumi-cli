@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Card.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * {{description}}
@@ -23,6 +27,10 @@ import './Card.css';
  * @param {React.ReactNode} [props.children] - Card content
  */
 export const Card = React.forwardRef(({ children, className, ...props }, ref) => {
+  React.useEffect(() => {
+    ensureLoaded();
+  }, []);
+
   return (
     <wa-card ref={ref} class={clsx('Card', className)} {...props}>
       {children}

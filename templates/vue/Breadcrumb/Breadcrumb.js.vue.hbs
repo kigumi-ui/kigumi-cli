@@ -1,7 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './Breadcrumb.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
@@ -22,6 +26,10 @@ const definedProps = computed(() => {
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
   element: elementRef,

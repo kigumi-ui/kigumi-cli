@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Breadcrumb.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * {{description}}
@@ -37,6 +41,10 @@ import './Breadcrumb.css';
 
 export const Breadcrumb = React.forwardRef(
   ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-breadcrumb ref={ref} class={clsx('Breadcrumb', className)} {...props}>
         {children}

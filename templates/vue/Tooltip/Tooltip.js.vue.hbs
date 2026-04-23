@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Tooltip.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tooltips display additional information based on a specific action
@@ -39,6 +43,10 @@ watch(open, (newOpen) => {
   const isOpen = el.open ?? false;
   if (newOpen && !isOpen) el.show?.();
   else if (!newOpen && isOpen) el.hide?.();
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };

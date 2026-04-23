@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './AnimatedImage.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * A component for displaying animated GIFs and WEBPs that play and pause on interaction
@@ -56,6 +60,7 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = animatedimageRef.current;
       if (!el) return;
 

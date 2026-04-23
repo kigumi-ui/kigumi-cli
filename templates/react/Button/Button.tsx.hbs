@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Button.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Buttons represent actions that are available to the user
@@ -168,6 +172,7 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = buttonRef.current;
       if (!el) return;
 

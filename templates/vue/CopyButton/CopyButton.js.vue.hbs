@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './CopyButton.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Copies text data to the clipboard when clicked
@@ -29,6 +33,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-copy', 'wa-error']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaCopy = (e) => emit('wa-copy', e);
 const handleWaError = (e) => emit('wa-error', e);

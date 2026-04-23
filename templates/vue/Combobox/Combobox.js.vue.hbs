@@ -1,22 +1,26 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Combobox.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Combines a text input with a listbox for filtering and selecting options
  */
 const props = defineProps({
     'allow-custom-value': { type: Boolean, required: false, default: false },
-    'allow-create': { type: Boolean, required: false, default: false },
     appearance: { type: String, required: false, default: outlined },
-    autocapitalize: { type: String, required: false, default: undefined },
-    autocorrect: { type: Boolean, required: false, default: undefined },
+    'allow-create': { type: Boolean, required: false, default: false },
+    autocapitalize: { type: String, required: false },
+    autocorrect: { type: Boolean, required: false },
     disabled: { type: Boolean, required: false, default: false },
-    enterkeyhint: { type: String, required: false, default: undefined },
+    enterkeyhint: { type: String, required: false },
     hint: { type: String, required: false, default: '' },
+    inputmode: { type: String, required: false },
     label: { type: String, required: false, default: '' },
-    inputmode: { type: String, required: false, default: undefined },
     'max-options-visible': { type: Number, required: false, default: 3 },
     multiple: { type: Boolean, required: false, default: false },
     name: { type: String, required: false, default: '' },
@@ -26,7 +30,7 @@ const props = defineProps({
     placement: { type: String, required: false, default: bottom },
     required: { type: Boolean, required: false, default: false },
     size: { type: String, required: false, default: medium },
-    spellcheck: { type: Boolean, required: false, default: undefined },
+    spellcheck: { type: Boolean, required: false },
     'with-clear': { type: Boolean, required: false, default: false }
 });
 
@@ -39,7 +43,7 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-invalid', 'wa-create']);
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-create', 'wa-invalid']);
 
 const model = defineModel();
 
@@ -48,6 +52,10 @@ const elementRef = ref(null);
 watch(model, (val) => {
   const el = elementRef.value;
   if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
@@ -59,8 +67,8 @@ const handleWaShow = (e) => emit('wa-show', e);
 const handleWaAfterShow = (e) => emit('wa-after-show', e);
 const handleWaHide = (e) => emit('wa-hide', e);
 const handleWaAfterHide = (e) => emit('wa-after-hide', e);
-const handleWaInvalid = (e) => emit('wa-invalid', e);
 const handleWaCreate = (e) => emit('wa-create', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -75,8 +83,8 @@ onMounted(() => {
   el.addEventListener('wa-after-show', handleWaAfterShow);
   el.addEventListener('wa-hide', handleWaHide);
   el.addEventListener('wa-after-hide', handleWaAfterHide);
-  el.addEventListener('wa-invalid', handleWaInvalid);
   el.addEventListener('wa-create', handleWaCreate);
+  el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
 onUnmounted(() => {
@@ -92,8 +100,8 @@ onUnmounted(() => {
   el.removeEventListener('wa-after-show', handleWaAfterShow);
   el.removeEventListener('wa-hide', handleWaHide);
   el.removeEventListener('wa-after-hide', handleWaAfterHide);
-  el.removeEventListener('wa-invalid', handleWaInvalid);
   el.removeEventListener('wa-create', handleWaCreate);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
 defineExpose({

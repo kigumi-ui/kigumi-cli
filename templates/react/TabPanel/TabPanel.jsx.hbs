@@ -1,10 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './TabPanel.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const TabPanel = React.forwardRef(
   ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-tab-panel
         ref={ref}

@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './ZoomableFrame.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Zoomable frames display iframe content with zoom controls
@@ -31,6 +35,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['load', 'error']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleLoad = (e) => emit('load', e);
 const handleError = (e) => emit('error', e);

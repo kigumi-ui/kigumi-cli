@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Include.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Includes give you the power to embed external HTML files into the page
@@ -24,6 +28,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-load', 'wa-include-error']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaLoad = (e) => emit('wa-load', e);
 const handleWaIncludeError = (e) => emit('wa-include-error', e);

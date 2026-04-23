@@ -1,10 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Tab.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Tab = React.forwardRef(
   ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-tab
         ref={ref}

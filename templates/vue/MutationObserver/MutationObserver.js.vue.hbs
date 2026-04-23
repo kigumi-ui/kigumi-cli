@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './MutationObserver.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Observes changes to a target element and emits events when they occur
@@ -28,6 +32,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-mutation']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaMutation = (e) => emit('wa-mutation', e);
 

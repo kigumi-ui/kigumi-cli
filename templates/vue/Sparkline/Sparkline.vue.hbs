@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './Sparkline.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Sparklines are small inline data visualizations for showing trends
@@ -26,7 +29,15 @@ const definedProps = computed(() => {
   return result;
 });
 
-const elementRef = ref<WaElement | null>(null);
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
   element: elementRef,

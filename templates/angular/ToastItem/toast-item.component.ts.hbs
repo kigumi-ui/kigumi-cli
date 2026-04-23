@@ -1,6 +1,10 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * A single notification banner that can be stacked inside a Toast container
@@ -41,6 +45,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   private cleanups: (() => void)[] = [];
 
   ngAfterViewInit(): void {
+    ensureLoaded();
     const el = this.elementRef.nativeElement;
 
     // Forward host attributes to inner wa-* element

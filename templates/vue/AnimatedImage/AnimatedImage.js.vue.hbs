@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './AnimatedImage.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * A component for displaying animated GIFs and WEBPs that play and pause on interaction
@@ -24,6 +28,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-load', 'wa-error']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaLoad = (e) => emit('wa-load', e);
 const handleWaError = (e) => emit('wa-error', e);

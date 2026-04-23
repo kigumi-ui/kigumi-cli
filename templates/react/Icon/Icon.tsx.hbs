@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Icon.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Icons are symbols that can be used to represent various options within an application
@@ -80,6 +84,7 @@ export const Icon = forwardRef<IconRef, IconProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = iconRef.current;
       if (!el) return;
 

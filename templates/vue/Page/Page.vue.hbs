@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './Page.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Pages offer an easy way to scaffold entire page layouts using minimal markup
@@ -26,13 +29,21 @@ const definedProps = computed(() => {
   return result;
 });
 
-const elementRef = ref<WaElement | null>(null);
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
-  visiblePixelsInViewport: (element: HTMLElement | null) => elementRef.value?.visiblePixelsInViewport?.(element),
-  showNavigation: () => elementRef.value?.showNavigation?.(),
-  hideNavigation: () => elementRef.value?.hideNavigation?.(),
-  toggleNavigation: () => elementRef.value?.toggleNavigation?.(),
+  visiblePixelsInViewport: (element: HTMLElement | null) => (elementRef.value as any)?.visiblePixelsInViewport?.(element),
+  showNavigation: () => (elementRef.value as any)?.showNavigation?.(),
+  hideNavigation: () => (elementRef.value as any)?.hideNavigation?.(),
+  toggleNavigation: () => (elementRef.value as any)?.toggleNavigation?.(),
   element: elementRef,
 });
 </script>

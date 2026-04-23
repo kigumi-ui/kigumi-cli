@@ -1,7 +1,11 @@
 import React, { useRef, useImperativeHandle, useEffect } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Textarea.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Textarea = React.forwardRef(
   ({ className, onInput, onChange, onInvalid, onFocus, onBlur, ...props }, ref) => {
@@ -44,6 +48,10 @@ export const Textarea = React.forwardRef(
         el.removeEventListener('blur', handleBlur);
       };
     }, [onInput, onChange, onInvalid, onFocus, onBlur]);
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-textarea

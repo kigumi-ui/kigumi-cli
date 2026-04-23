@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Textarea.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Textareas collect multi-line text data from the user
@@ -20,8 +24,8 @@ const props = defineProps({
     required: { type: Boolean, required: false, default: false },
     minlength: { type: Number, required: false },
     maxlength: { type: Number, required: false },
-    'with-count': { type: Boolean, required: false, default: false },
-    spellcheck: { type: Boolean, required: false, default: true }
+    spellcheck: { type: Boolean, required: false, default: true },
+    'with-count': { type: Boolean, required: false, default: false }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
@@ -42,6 +46,10 @@ const elementRef = ref(null);
 watch(model, (val) => {
   const el = elementRef.value;
   if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleBlur = (e) => emit('blur', e);

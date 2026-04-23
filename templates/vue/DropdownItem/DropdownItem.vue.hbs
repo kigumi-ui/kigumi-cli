@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './DropdownItem.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Dropdown items are used inside dropdowns to represent individual menu items
@@ -32,7 +35,11 @@ const emit = defineEmits<{
   'focus': [event: FocusEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -54,8 +61,8 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  openSubmenu: () => elementRef.value?.openSubmenu?.(),
-  closeSubmenu: () => elementRef.value?.closeSubmenu?.(),
+  openSubmenu: () => (elementRef.value as any)?.openSubmenu?.(),
+  closeSubmenu: () => (elementRef.value as any)?.closeSubmenu?.(),
   element: elementRef,
 });
 </script>

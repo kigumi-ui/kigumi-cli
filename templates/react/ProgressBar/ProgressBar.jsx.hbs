@@ -1,10 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './ProgressBar.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const ProgressBar = React.forwardRef(
   ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-progress-bar
         ref={ref}

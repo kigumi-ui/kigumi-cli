@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './Toast.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Container that manages and stacks lightweight notification banners at a chosen screen edge
@@ -22,10 +25,18 @@ const definedProps = computed(() => {
   return result;
 });
 
-const elementRef = ref<WaElement | null>(null);
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
-  create: (message: string, options?: Record<string, unknown>) => elementRef.value?.create?.(message, options),
+  create: (message: string, options: ToastCreateOptions) => (elementRef.value as any)?.create?.(message, options),
   element: elementRef,
 });
 </script>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Radio.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Radios allow the user to select a single option from a group
@@ -30,7 +33,11 @@ const emit = defineEmits<{
   'focus': [event: FocusEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -52,9 +59,9 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => elementRef.value?.resetValidity?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>

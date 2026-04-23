@@ -1,13 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './IntersectionObserver.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const IntersectionObserver = React.forwardRef(
   ({ children, className, onIntersect, ...props }, ref) => {
     const observerRef = React.useRef(null);
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = observerRef.current;
       if (!el) return;
 

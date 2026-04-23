@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Tree.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Trees allow you to display a hierarchical list of selectable tree items
@@ -26,7 +29,11 @@ const emit = defineEmits<{
   'wa-selection-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaSelectionChange = (e: Event) => emit('wa-selection-change', e as CustomEvent);
 

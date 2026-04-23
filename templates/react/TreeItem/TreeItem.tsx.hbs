@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './TreeItem.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tree items are used inside trees to represent hierarchical items
@@ -84,6 +88,7 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = treeitemRef.current;
       if (!el) return;
 

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Comparison.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Compare visual differences between similar content with a sliding panel
@@ -26,7 +29,11 @@ const emit = defineEmits<{
   'change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 

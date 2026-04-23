@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Dialog.css';
 
-/** WaDialog declares show/requestClose as private; redeclare the methods we need */
-type DialogElement = HTMLElement & {
-  open?: boolean;
-  show?: () => Promise<void>;
-  hide?: () => Promise<void>;
-  requestClose?: (source?: Element) => Promise<void>;
-};
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Dialogs display important prompts and information
@@ -40,14 +36,18 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>('open', { default: false });
 
-const elementRef = ref<DialogElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
 
 watch(open, (newOpen) => {
-  const el = elementRef.value;
+  const el = elementRef.value as any;
   if (!el) return;
   const isOpen = el.open ?? false;
   if (newOpen && !isOpen) el.show?.();
   else if (!newOpen && isOpen) el.hide?.();
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as CustomEvent); };
@@ -76,8 +76,8 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  show: () => elementRef.value?.show?.(),
-  requestClose: () => elementRef.value?.requestClose?.(),
+  show: () => (elementRef.value as any)?.show?.(),
+  requestClose: () => (elementRef.value as any)?.requestClose?.(),
   element: elementRef,
 });
 </script>

@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './DropdownItem.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * @typedef {Object} DropdownItemRef
@@ -25,6 +29,10 @@ export const DropdownItem = React.forwardRef(
       }),
       []
     );
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-dropdown-item

@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './RadioGroup.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Radio groups are used to group multiple radios so only one can be selected
@@ -123,6 +127,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = radiogroupRef.current;
       if (!el) return;
 

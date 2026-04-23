@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './FormatBytes.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * @typedef {Object} FormatBytesProps
@@ -12,6 +16,10 @@ import './FormatBytes.css';
 
 export const FormatBytes = React.forwardRef(
   ({ className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-format-bytes
         ref={ref}

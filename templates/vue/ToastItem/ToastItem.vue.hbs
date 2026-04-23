@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './ToastItem.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * A single notification banner that can be stacked inside a Toast container
@@ -31,7 +34,11 @@ const emit = defineEmits<{
   'wa-after-hide': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
@@ -39,7 +46,7 @@ const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
 const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
 
 onMounted(() => {
-  const el = elementRef.value as HTMLElement | null;
+  const el = elementRef.value;
   if (!el) return;
 
   el.addEventListener('wa-show', handleWaShow);
@@ -49,7 +56,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  const el = elementRef.value as HTMLElement | null;
+  const el = elementRef.value;
   if (!el) return;
 
   el.removeEventListener('wa-show', handleWaShow);
@@ -59,7 +66,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  hide: () => (elementRef.value as unknown as { hide?: () => void })?.hide?.(),
+  hide: () => (elementRef.value as any)?.hide?.(),
   element: elementRef,
 });
 </script>

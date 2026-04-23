@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Popup.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Popup is a utility component for positioning elements relative to an anchor
@@ -43,7 +46,11 @@ const emit = defineEmits<{
   'wa-reposition': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaReposition = (e: Event) => emit('wa-reposition', e as CustomEvent);
 
@@ -62,7 +69,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  reposition: () => elementRef.value?.reposition?.(),
+  reposition: () => (elementRef.value as any)?.reposition?.(),
   element: elementRef,
 });
 </script>

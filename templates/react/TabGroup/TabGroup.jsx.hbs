@@ -1,13 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './TabGroup.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const TabGroup = React.forwardRef(
   ({ children, className, onTabShow, onTabHide, ...props }, ref) => {
     const groupRef = React.useRef(null);
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = groupRef.current;
       if (!el) return;
 

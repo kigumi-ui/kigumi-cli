@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Radio.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Radios allow the user to select a single option from a group
@@ -93,6 +97,7 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = radioRef.current;
       if (!el) return;
 

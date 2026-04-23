@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Tree.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Trees allow you to display a hierarchical list of selectable tree items
@@ -22,6 +26,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-selection-change']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaSelectionChange = (e) => emit('wa-selection-change', e);
 

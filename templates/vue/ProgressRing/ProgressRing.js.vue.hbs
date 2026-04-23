@@ -1,7 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './ProgressRing.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Progress rings are used to show the completion of a task in a circular format
@@ -23,6 +27,10 @@ const definedProps = computed(() => {
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
   element: elementRef,

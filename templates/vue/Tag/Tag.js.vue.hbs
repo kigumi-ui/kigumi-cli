@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Tag.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tags are used as labels to organize things or indicate selections
@@ -26,6 +30,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-remove']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaRemove = (e) => emit('wa-remove', e);
 

@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Popover.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Popovers display additional content when users interact with a trigger element
@@ -102,6 +106,7 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = popoverRef.current;
       if (!el) return;
 

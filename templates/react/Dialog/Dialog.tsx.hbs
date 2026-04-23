@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Dialog.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Dialogs display important prompts and information
@@ -87,6 +91,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = dialogRef.current;
       if (!el) return;
 

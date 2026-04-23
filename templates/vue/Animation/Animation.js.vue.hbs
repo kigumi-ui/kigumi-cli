@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Animation.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
@@ -32,6 +36,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-cancel', 'wa-finish', 'wa-start']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaCancel = (e) => emit('wa-cancel', e);
 const handleWaFinish = (e) => emit('wa-finish', e);

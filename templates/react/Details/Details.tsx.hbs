@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Details.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Shows a brief summary and expands to show additional content
@@ -93,6 +97,7 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = detailsRef.current;
       if (!el) return;
 

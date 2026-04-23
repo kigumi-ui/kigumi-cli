@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './PieChart.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Divides a circle into wedges that represent each category's share of the whole
@@ -40,6 +44,10 @@ export const PieChart = React.forwardRef(
       }),
       []
     );
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-pie-chart

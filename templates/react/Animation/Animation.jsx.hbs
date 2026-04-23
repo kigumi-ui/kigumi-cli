@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Animation.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * {{description}}
@@ -59,6 +63,7 @@ export const Animation = React.forwardRef(
     );
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = animationRef.current;
       if (!el) return;
 

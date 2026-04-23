@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Button.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Buttons represent actions that are available to the user
@@ -46,7 +49,11 @@ const emit = defineEmits<{
   'wa-invalid': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -71,12 +78,12 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  click: () => elementRef.value?.click?.(),
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
-  blur: () => elementRef.value?.blur?.(),
-  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => elementRef.value?.resetValidity?.(),
+  click: () => (elementRef.value as any)?.click?.(),
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>

@@ -1,23 +1,26 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Combobox.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Combines a text input with a listbox for filtering and selecting options
  */
 export interface ComboboxProps {
   'allow-custom-value'?: boolean;
-  'allow-create'?: boolean;
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
+  'allow-create'?: boolean;
   autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
   autocorrect?: boolean;
   disabled?: boolean;
   enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
   hint?: string;
-  label?: string;
   inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  label?: string;
   'max-options-visible'?: number;
   multiple?: boolean;
   name?: string;
@@ -52,20 +55,24 @@ const emit = defineEmits<{
   'wa-after-show': [event: CustomEvent];
   'wa-hide': [event: CustomEvent];
   'wa-after-hide': [event: CustomEvent];
-  'wa-invalid': [event: CustomEvent];
   'wa-create': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
 }>();
 
 const model = defineModel<string>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value;
+  const el = elementRef.value as any;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as HTMLInputElement).value; emit('input', e as CustomEvent); };
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
@@ -74,11 +81,11 @@ const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
 const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
 const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 const handleWaCreate = (e: Event) => emit('wa-create', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 
 onMounted(() => {
-  const el = elementRef.value as HTMLElement | null;
+  const el = elementRef.value;
   if (!el) return;
 
   el.addEventListener('input', handleInput);
@@ -90,12 +97,12 @@ onMounted(() => {
   el.addEventListener('wa-after-show', handleWaAfterShow);
   el.addEventListener('wa-hide', handleWaHide);
   el.addEventListener('wa-after-hide', handleWaAfterHide);
-  el.addEventListener('wa-invalid', handleWaInvalid);
   el.addEventListener('wa-create', handleWaCreate);
+  el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
 onUnmounted(() => {
-  const el = elementRef.value as HTMLElement | null;
+  const el = elementRef.value;
   if (!el) return;
 
   el.removeEventListener('input', handleInput);
@@ -107,19 +114,18 @@ onUnmounted(() => {
   el.removeEventListener('wa-after-show', handleWaAfterShow);
   el.removeEventListener('wa-hide', handleWaHide);
   el.removeEventListener('wa-after-hide', handleWaAfterHide);
-  el.removeEventListener('wa-invalid', handleWaInvalid);
   el.removeEventListener('wa-create', handleWaCreate);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
-type WaExposed = { show?: () => void; hide?: () => void; setCustomValidity?: (m: string) => void; formStateRestoreCallback?: (s: string | File | FormData | null, r: string) => void; resetValidity?: () => void };
 defineExpose({
-  show: () => (elementRef.value as unknown as WaExposed)?.show?.(),
-  hide: () => (elementRef.value as unknown as WaExposed)?.hide?.(),
-  focus: (options: FocusOptions) => (elementRef.value as HTMLElement | null)?.focus?.(options),
-  blur: () => (elementRef.value as HTMLElement | null)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as unknown as WaExposed)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as unknown as WaExposed)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as unknown as WaExposed)?.resetValidity?.(),
+  show: () => (elementRef.value as any)?.show?.(),
+  hide: () => (elementRef.value as any)?.hide?.(),
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>

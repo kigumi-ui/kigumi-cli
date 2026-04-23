@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './DoughnutChart.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Shows proportional segments in a ring shape with an open center for summary content
@@ -40,6 +44,10 @@ export const DoughnutChart = React.forwardRef(
       }),
       []
     );
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-doughnut-chart

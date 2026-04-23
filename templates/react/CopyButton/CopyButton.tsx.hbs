@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './CopyButton.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Copies text data to the clipboard when clicked
@@ -71,6 +75,7 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = copybuttonRef.current;
       if (!el) return;
 

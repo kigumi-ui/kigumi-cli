@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Avatar.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Avatars are used to represent a person or object
@@ -59,6 +63,7 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = avatarRef.current;
       if (!el) return;
 

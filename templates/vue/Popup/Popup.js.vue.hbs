@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Popup.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Popup is a utility component for positioning elements relative to an anchor
@@ -39,6 +43,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-reposition']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaReposition = (e) => emit('wa-reposition', e);
 
