@@ -11,16 +11,16 @@ function ensureLoaded() {
  * Color pickers allow the user to select a color
  */
 const props = defineProps({
-    format: { type: String, required: false, default: hex },
+    format: { type: String, required: false, default: 'hex' },
     opacity: { type: Boolean, required: false, default: false },
     disabled: { type: Boolean, required: false, default: false },
     required: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: medium },
+    size: { type: String, required: false, default: 'medium' },
     label: { type: String, required: false, default: '' },
     hint: { type: String, required: false, default: '' },
     name: { type: String, required: false },
     open: { type: Boolean, required: false, default: false },
-    placement: { type: String, required: false, default: bottom-start },
+    placement: { type: String, required: false, default: 'bottom-start' },
     swatches: { type: String, required: false, default: '' },
     uppercase: { type: Boolean, required: false, default: false },
     'without-format-toggle': { type: Boolean, required: false, default: false },

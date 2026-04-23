@@ -12,10 +12,10 @@ function ensureLoaded() {
  */
 const props = defineProps({
     'disable-navigation-toggle': { type: Boolean, required: false, default: false },
-    'mobile-breakpoint': { type: String, required: false, default: 768px },
-    'navigation-placement': { type: String, required: false, default: start },
+    'mobile-breakpoint': { type: String, required: false, default: '768px' },
+    'navigation-placement': { type: String, required: false, default: 'start' },
     'nav-open': { type: Boolean, required: false, default: false },
-    view: { type: String, required: false, default: desktop }
+    view: { type: String, required: false, default: 'desktop' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

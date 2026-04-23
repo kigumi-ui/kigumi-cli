@@ -11,7 +11,7 @@ function ensureLoaded() {
  * Dividers are used to visually separate content
  */
 const props = defineProps({
-    orientation: { type: String, required: false, default: horizontal }
+    orientation: { type: String, required: false, default: 'horizontal' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

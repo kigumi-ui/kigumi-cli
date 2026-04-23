@@ -12,8 +12,8 @@ function ensureLoaded() {
  */
 const props = defineProps({
     name: { type: String, required: false, default: '' },
-    appearance: { type: String, required: false, default: outlined },
-    size: { type: String, required: false, default: medium },
+    appearance: { type: String, required: false, default: 'outlined' },
+    size: { type: String, required: false, default: 'medium' },
     placeholder: { type: String, required: false, default: '' },
     multiple: { type: Boolean, required: false, default: false },
     'max-options-visible': { type: Number, required: false, default: 3 },
@@ -21,7 +21,7 @@ const props = defineProps({
     'with-clear': { type: Boolean, required: false, default: false },
     open: { type: Boolean, required: false, default: false },
     hoist: { type: Boolean, required: false, default: false },
-    placement: { type: String, required: false, default: bottom },
+    placement: { type: String, required: false, default: 'bottom' },
     pill: { type: Boolean, required: false, default: false },
     label: { type: String, required: false, default: '' },
     hint: { type: String, required: false, default: '' },

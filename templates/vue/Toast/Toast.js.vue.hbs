@@ -11,7 +11,7 @@ function ensureLoaded() {
  * Container that manages and stacks lightweight notification banners at a chosen screen edge
  */
 const props = defineProps({
-    placement: { type: String, required: false, default: top-end }
+    placement: { type: String, required: false, default: 'top-end' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

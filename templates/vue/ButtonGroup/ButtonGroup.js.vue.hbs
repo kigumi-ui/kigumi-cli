@@ -12,7 +12,7 @@ function ensureLoaded() {
  */
 const props = defineProps({
     label: { type: String, required: false, default: '' },
-    orientation: { type: String, required: false, default: horizontal }
+    orientation: { type: String, required: false, default: 'horizontal' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

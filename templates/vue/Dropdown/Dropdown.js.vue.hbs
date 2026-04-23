@@ -11,13 +11,13 @@ function ensureLoaded() {
  * Dropdowns expose additional content that pops up when the user interacts with a trigger
  */
 const props = defineProps({
-    placement: { type: String, required: false, default: bottom-start },
+    placement: { type: String, required: false, default: 'bottom-start' },
     disabled: { type: Boolean, required: false, default: false },
     'stay-open-on-select': { type: Boolean, required: false, default: false },
     distance: { type: Number, required: false, default: 0 },
     skidding: { type: Number, required: false, default: 0 },
     hoist: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: medium }
+    size: { type: String, required: false, default: 'medium' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

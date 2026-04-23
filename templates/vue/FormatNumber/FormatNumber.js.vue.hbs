@@ -12,9 +12,9 @@ function ensureLoaded() {
  */
 const props = defineProps({
     value: { type: Number, required: false, default: 0 },
-    type: { type: String, required: false, default: decimal },
-    currency: { type: String, required: false, default: USD },
-    'currency-display': { type: String, required: false, default: symbol },
+    type: { type: String, required: false, default: 'decimal' },
+    currency: { type: String, required: false, default: 'USD' },
+    'currency-display': { type: String, required: false, default: 'symbol' },
     'minimum-integer-digits': { type: Number, required: false },
     'minimum-fraction-digits': { type: Number, required: false },
     'maximum-fraction-digits': { type: Number, required: false },

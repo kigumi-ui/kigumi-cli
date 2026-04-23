@@ -13,10 +13,10 @@ function ensureLoaded() {
 const props = defineProps({
     label: { type: String, required: false, default: '' },
     hint: { type: String, required: false, default: '' },
-    name: { type: String, required: false, default: option },
-    size: { type: String, required: false, default: medium },
+    name: { type: String, required: false, default: 'option' },
+    size: { type: String, required: false, default: 'medium' },
     required: { type: Boolean, required: false, default: false },
-    orientation: { type: String, required: false, default: vertical },
+    orientation: { type: String, required: false, default: 'vertical' },
     disabled: { type: Boolean, required: false, default: false },
     invalid: { type: Boolean, required: false, default: false },
     'help-text': { type: String, required: false, default: '' }

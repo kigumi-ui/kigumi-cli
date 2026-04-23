@@ -12,8 +12,8 @@ function ensureLoaded() {
  */
 const props = defineProps({
     disabled: { type: Boolean, required: false, default: false },
-    placement: { type: String, required: false, default: top },
-    trigger: { type: String, required: false, default: click },
+    placement: { type: String, required: false, default: 'top' },
+    trigger: { type: String, required: false, default: 'click' },
     distance: { type: Number, required: false, default: 8 },
     skidding: { type: Number, required: false, default: 0 },
     'with-arrow': { type: Boolean, required: false, default: false },
