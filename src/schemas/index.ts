@@ -72,26 +72,3 @@ export {
   type CommunityTheme,
   type ComponentFiles,
 } from './community-registry.js';
-
-// Tier validation
-export {
-  TIER_THEMES,
-  AVAILABLE_PALETTES,
-  AVAILABLE_BRAND_COLORS,
-  PRO_COMPONENTS,
-  createThemeSchema,
-  paletteSchema,
-  brandColorSchema,
-  componentNameSchema,
-  isThemeAllowedForTier,
-  isComponentAllowedForTier,
-  getAvailableThemes,
-  getAvailablePalettes,
-  getAvailableBrandColors,
-  isProComponent,
-  getProComponents,
-  validateThemeForTier,
-  validateComponentForTier,
-  validateComponentsForTier,
-  type TierValidationResult,
-} from './tier.js';
