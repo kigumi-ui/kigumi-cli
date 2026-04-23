@@ -13,8 +13,8 @@ function ensureLoaded() {
 const props = defineProps({
     value: { type: String, required: false },
     disabled: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: medium },
-    appearance: { type: String, required: false, default: default }
+    size: { type: String, required: false, default: 'medium' },
+    appearance: { type: String, required: false, default: 'default' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

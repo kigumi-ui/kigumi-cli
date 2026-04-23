@@ -11,9 +11,9 @@ function ensureLoaded() {
  * Callouts are used to display important messages inline
  */
 const props = defineProps({
-    appearance: { type: String, required: false, default: filled-outlined },
-    size: { type: String, required: false, default: medium },
-    variant: { type: String, required: false, default: brand }
+    appearance: { type: String, required: false, default: 'filled-outlined' },
+    size: { type: String, required: false, default: 'medium' },
+    variant: { type: String, required: false, default: 'brand' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

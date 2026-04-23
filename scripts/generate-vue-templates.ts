@@ -66,6 +66,19 @@ function getValueInputEvent(componentKey: string): string {
 }
 
 /**
+ * Format a prop default for emission into Vue Options-API JS templates.
+ * Registry defaults are stored as JS-source fragments: `'horizontal'` for strings
+ * arrives here as `horizontal` (unquoted), `'false'` for booleans arrives as
+ * `false`. Only string-typed defaults need re-quoting; already-quoted values
+ * like `"''"` are passed through untouched.
+ */
+function formatVueDefault(tsType: string, rawDefault: string): string {
+  if (tsType.toLowerCase() !== 'string') return rawDefault;
+  const alreadyQuoted = /^(['"]).*\1$/.test(rawDefault);
+  return alreadyQuoted ? rawDefault : `'${rawDefault}'`;
+}
+
+/**
  * Convert TypeScript type to Vue prop type
  */
 function convertToVuePropType(tsType: string): string {
@@ -505,7 +518,9 @@ function generateVueJavascriptTemplate(component: ComponentDefinition): string {
       const quotedName = prop.name.includes('-') ? `'${prop.name}'` : prop.name;
       const type = convertToVuePropType(prop.type);
       const required = prop.required ? 'true' : 'false';
-      const defaultValue = prop.default ? `, default: ${prop.default}` : '';
+      const defaultValue = prop.default
+        ? `, default: ${formatVueDefault(prop.type, prop.default)}`
+        : '';
       return `    ${quotedName}: { type: ${type}, required: ${required}${defaultValue} }`;
     })
     .join(',\n');

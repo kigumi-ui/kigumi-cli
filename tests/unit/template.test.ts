@@ -242,6 +242,41 @@ describe('template utilities', () => {
       expect(component).toBeDefined();
       expect(component.length).toBeGreaterThan(0);
     });
+
+    it('quotes string prop defaults in Vue JS Options API output', async () => {
+      const button = getComponent('button');
+      expect(button).toBeDefined();
+      if (!button) return;
+
+      const config: KigumiConfig = {
+        framework: 'vue',
+        typescript: false,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const component = await generateComponent(button, config, false);
+
+      // String defaults must be quoted — otherwise they emit as bare identifiers
+      // and crash at module load ("neutral is not defined").
+      expect(component).toContain("default: 'neutral'");
+      expect(component).toContain("default: 'filled'");
+      expect(component).toContain("default: 'medium'");
+
+      // Boolean defaults must stay unquoted.
+      expect(component).toContain('default: false');
+      expect(component).not.toContain("default: 'false'");
+
+      // No bare-identifier form should survive for the known string enums.
+      expect(component).not.toMatch(/default:\s+neutral\b/);
+      expect(component).not.toMatch(/default:\s+filled\b/);
+    });
   });
 
   describe('generateComponentCSS', () => {

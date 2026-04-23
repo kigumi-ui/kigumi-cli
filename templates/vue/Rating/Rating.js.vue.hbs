@@ -18,7 +18,7 @@ const props = defineProps({
     disabled: { type: Boolean, required: false, default: false },
     name: { type: String, required: false, default: '' },
     required: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: medium }
+    size: { type: String, required: false, default: 'medium' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

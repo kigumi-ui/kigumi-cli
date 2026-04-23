@@ -12,13 +12,13 @@ function ensureLoaded() {
  */
 const props = defineProps({
     name: { type: String, required: false },
-    appearance: { type: String, required: false, default: outlined },
-    size: { type: String, required: false, default: medium },
+    appearance: { type: String, required: false, default: 'outlined' },
+    size: { type: String, required: false, default: 'medium' },
     label: { type: String, required: false, default: '' },
     hint: { type: String, required: false, default: '' },
     placeholder: { type: String, required: false, default: '' },
     rows: { type: Number, required: false, default: 4 },
-    resize: { type: String, required: false, default: vertical },
+    resize: { type: String, required: false, default: 'vertical' },
     disabled: { type: Boolean, required: false, default: false },
     readonly: { type: Boolean, required: false, default: false },
     required: { type: Boolean, required: false, default: false },

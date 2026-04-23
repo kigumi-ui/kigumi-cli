@@ -11,12 +11,12 @@ function ensureLoaded() {
  * Inputs collect data from the user
  */
 const props = defineProps({
-    type: { type: String, required: false, default: text },
+    type: { type: String, required: false, default: 'text' },
     label: { type: String, required: false },
     hint: { type: String, required: false },
     placeholder: { type: String, required: false },
-    appearance: { type: String, required: false, default: outlined },
-    size: { type: String, required: false, default: medium },
+    appearance: { type: String, required: false, default: 'outlined' },
+    size: { type: String, required: false, default: 'medium' },
     pill: { type: Boolean, required: false, default: false },
     disabled: { type: Boolean, required: false, default: false },
     'with-clear': { type: Boolean, required: false, default: false },

@@ -12,7 +12,7 @@ function ensureLoaded() {
  */
 const props = defineProps({
     'allow-custom-value': { type: Boolean, required: false, default: false },
-    appearance: { type: String, required: false, default: outlined },
+    appearance: { type: String, required: false, default: 'outlined' },
     'allow-create': { type: Boolean, required: false, default: false },
     autocapitalize: { type: String, required: false },
     autocorrect: { type: Boolean, required: false },
@@ -27,9 +27,9 @@ const props = defineProps({
     open: { type: Boolean, required: false, default: false },
     pill: { type: Boolean, required: false, default: false },
     placeholder: { type: String, required: false, default: '' },
-    placement: { type: String, required: false, default: bottom },
+    placement: { type: String, required: false, default: 'bottom' },
     required: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: medium },
+    size: { type: String, required: false, default: 'medium' },
     spellcheck: { type: Boolean, required: false },
     'with-clear': { type: Boolean, required: false, default: false }
 });

@@ -11,9 +11,9 @@ function ensureLoaded() {
  * Buttons represent actions that are available to the user
  */
 const props = defineProps({
-    variant: { type: String, required: false, default: neutral },
-    appearance: { type: String, required: false, default: filled },
-    size: { type: String, required: false, default: medium },
+    variant: { type: String, required: false, default: 'neutral' },
+    appearance: { type: String, required: false, default: 'filled' },
+    size: { type: String, required: false, default: 'medium' },
     pill: { type: Boolean, required: false, default: false },
     disabled: { type: Boolean, required: false, default: false },
     loading: { type: Boolean, required: false, default: false },
@@ -22,7 +22,7 @@ const props = defineProps({
     target: { type: String, required: false },
     download: { type: String, required: false },
     rel: { type: String, required: false },
-    type: { type: String, required: false, default: button },
+    type: { type: String, required: false, default: 'button' },
     name: { type: String, required: false },
     value: { type: String, required: false },
     formaction: { type: String, required: false },

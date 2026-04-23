@@ -11,10 +11,10 @@ function ensureLoaded() {
  * Badges are used to draw attention and display statuses or counts
  */
 const props = defineProps({
-    variant: { type: String, required: false, default: brand },
-    appearance: { type: String, required: false, default: accent },
+    variant: { type: String, required: false, default: 'brand' },
+    appearance: { type: String, required: false, default: 'accent' },
     pill: { type: Boolean, required: false, default: false },
-    attention: { type: String, required: false, default: none }
+    attention: { type: String, required: false, default: 'none' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

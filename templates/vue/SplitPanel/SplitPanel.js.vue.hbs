@@ -13,8 +13,8 @@ function ensureLoaded() {
 const props = defineProps({
     position: { type: Number, required: false, default: 50 },
     'position-in-pixels': { type: Number, required: false },
-    orientation: { type: String, required: false, default: horizontal },
-    primary: { type: String, required: false, default: start },
+    orientation: { type: String, required: false, default: 'horizontal' },
+    primary: { type: String, required: false, default: 'start' },
     disabled: { type: Boolean, required: false, default: false },
     snap: { type: String, required: false },
     'snap-threshold': { type: Number, required: false, default: 12 }

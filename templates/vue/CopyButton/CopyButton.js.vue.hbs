@@ -18,7 +18,7 @@ const props = defineProps({
     'success-label': { type: String, required: false, default: '' },
     'error-label': { type: String, required: false, default: '' },
     'feedback-duration': { type: Number, required: false, default: 1000 },
-    'tooltip-placement': { type: String, required: false, default: top }
+    'tooltip-placement': { type: String, required: false, default: 'top' }
 });
 
 // Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)

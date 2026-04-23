@@ -13,9 +13,9 @@ function ensureLoaded() {
 const props = defineProps({
     label: { type: String, required: false },
     description: { type: String, required: false },
-    'legend-position': { type: String, required: false, default: top },
+    'legend-position': { type: String, required: false, default: 'top' },
     stacked: { type: Boolean, required: false, default: false },
-    grid: { type: String, required: false, default: both },
+    grid: { type: String, required: false, default: 'both' },
     min: { type: Number, required: false },
     max: { type: Number, required: false },
     'without-animation': { type: Boolean, required: false, default: false },
