@@ -68,7 +68,6 @@ tests/
 │   ├── tier-restrictions.test.ts    # Tier restriction logic
 │   ├── tier-schema.test.ts          # Tier schema validation
 │   ├── token.test.ts                # Token handling
-│   ├── token-manager.test.ts        # Token validation, loading, saving
 │   ├── type-installation.test.ts    # TypeScript type installation
 │   ├── vite-env-types.test.ts       # vite-env.d.ts tag name generation (F-001 regression)
 │   ├── update-check.test.ts         # CLI update notification check
@@ -304,4 +303,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-22
+**Last Updated:** 2026-04-23
