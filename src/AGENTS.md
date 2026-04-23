@@ -63,7 +63,6 @@ src/
 │   ├── project-config.ts # Project configuration helpers (configureVueCustomElements, configureVueTypes)
 │   ├── component-metadata.ts # Auto-generated component metadata (events, slots, methods) — used by Vue template generator
 │   ├── detect-framework.ts # Framework, TypeScript, package manager, Next router, source-layout detection
-│   ├── token-manager.ts  # Token validation, loading, saving, prompting
 │   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
 │   ├── update-check.ts   # CLI update notification
 │   └── registry/
@@ -422,4 +421,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-22
+**Last Updated:** 2026-04-23

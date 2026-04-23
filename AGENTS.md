@@ -415,7 +415,6 @@ flowchart TD
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
         css_meta["css-metadata.ts"]
         detect_fw["detect-framework.ts\ngetProjectInfo"]
-        token_mgr["token-manager.ts"]
         regenerate["regenerate.ts"]
         snapshot["snapshot.ts\n.kigumi/snapshots/ CRUD"]
         merge["three-way-merge.ts\nnode-diff3 merge logic"]
@@ -1081,4 +1080,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-22
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-23
