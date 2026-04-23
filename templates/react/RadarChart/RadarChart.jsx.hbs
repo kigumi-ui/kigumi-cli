@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './RadarChart.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Maps multiple variables onto radial axes to compare profiles at a glance
@@ -47,6 +51,10 @@ export const RadarChart = React.forwardRef(
       }),
       []
     );
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-radar-chart

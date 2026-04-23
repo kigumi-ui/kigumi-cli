@@ -1,13 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './SplitPanel.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const SplitPanel = React.forwardRef(
   ({ children, className, onReposition, ...props }, ref) => {
     const panelRef = React.useRef(null);
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = panelRef.current;
       if (!el) return;
 

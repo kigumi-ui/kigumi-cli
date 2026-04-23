@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './ToastItem.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * A single notification banner that can be stacked inside a Toast container
@@ -75,6 +79,7 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = toastitemRef.current;
       if (!el) return;
 

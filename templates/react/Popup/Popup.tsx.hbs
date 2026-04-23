@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Popup.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Popup is a utility component for positioning elements relative to an anchor
@@ -111,6 +115,7 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = popupRef.current;
       if (!el) return;
 

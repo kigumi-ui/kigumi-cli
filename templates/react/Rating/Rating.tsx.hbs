@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Rating.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Ratings give users a way to quickly view and provide feedback
@@ -111,6 +115,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = ratingRef.current;
       if (!el) return;
 

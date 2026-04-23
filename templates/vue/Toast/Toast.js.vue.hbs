@@ -1,7 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './Toast.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Container that manages and stacks lightweight notification banners at a chosen screen edge
@@ -22,6 +26,10 @@ const definedProps = computed(() => {
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
   create: (message, options) => elementRef.value?.create?.(message, options),

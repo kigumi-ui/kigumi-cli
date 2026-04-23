@@ -1,8 +1,12 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Drawer.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Drawers slide in from a container edge to expose additional options
@@ -60,6 +64,7 @@ export const Drawer = React.forwardRef(
 
     // Sync open prop with drawer element
     React.useEffect(() => {
+      ensureLoaded();
       const el = drawerRef.current;
       if (!el || open === undefined) return;
       el.open = open;

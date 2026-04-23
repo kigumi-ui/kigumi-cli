@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './TabGroup.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tab groups organize content into a container that shows one section at a time
@@ -30,7 +33,11 @@ const emit = defineEmits<{
   'wa-tab-hide': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaTabShow = (e: Event) => emit('wa-tab-show', e as CustomEvent);
 const handleWaTabHide = (e: Event) => emit('wa-tab-hide', e as CustomEvent);

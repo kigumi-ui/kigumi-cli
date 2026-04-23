@@ -1,19 +1,23 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Rating.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Ratings give users a way to quickly view and provide feedback
  */
 const props = defineProps({
     label: { type: String, required: false, default: '' },
-    name: { type: String, required: false },
     max: { type: Number, required: false, default: 5 },
     precision: { type: Number, required: false, default: 1 },
     readonly: { type: Boolean, required: false, default: false },
-    required: { type: Boolean, required: false, default: false },
     disabled: { type: Boolean, required: false, default: false },
+    name: { type: String, required: false, default: '' },
+    required: { type: Boolean, required: false, default: false },
     size: { type: String, required: false, default: medium }
 });
 
@@ -34,10 +38,14 @@ const elementRef = ref(null);
 
 watch(model, (val) => {
   const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? 0;
+  if (el && el.value !== val) el.value = val ?? '';
 });
 
-const handleChange = (e) => { model.value = Number(e.target.value); emit('change', e); };
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleChange = (e) => { model.value = e.target.value; emit('change', e); };
 const handleWaHover = (e) => emit('wa-hover', e);
 const handleWaInvalid = (e) => emit('wa-invalid', e);
 
@@ -60,8 +68,9 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  focus: (options) => elementRef.value?.focus?.(options),
-  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

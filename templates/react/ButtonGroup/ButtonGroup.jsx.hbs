@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './ButtonGroup.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * {{description}}
@@ -37,6 +41,10 @@ import './ButtonGroup.css';
 
 export const ButtonGroup = React.forwardRef(
   ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-button-group ref={ref} class={clsx('ButtonGroup', className)} {...props}>
         {children}

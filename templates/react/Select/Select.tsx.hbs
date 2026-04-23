@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Select.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Selects allow you to choose items from a menu of predefined options
@@ -195,6 +199,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = selectRef.current;
       if (!el) return;
 

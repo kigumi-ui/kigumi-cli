@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './IntersectionObserver.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Observes changes in the intersection of a target element with an ancestor
@@ -26,6 +30,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-intersect']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaIntersect = (e) => emit('wa-intersect', e);
 

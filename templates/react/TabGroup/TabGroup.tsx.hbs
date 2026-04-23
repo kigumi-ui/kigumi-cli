@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './TabGroup.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tab groups organize content into a container that shows one section at a time
@@ -59,6 +63,7 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = tabgroupRef.current;
       if (!el) return;
 

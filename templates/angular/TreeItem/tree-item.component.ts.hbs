@@ -1,6 +1,10 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-import '{{{importPath}}}';
 import type WaElement from '{{{importPath}}}';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tree items are used inside trees to represent hierarchical items
@@ -46,6 +50,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
   private cleanups: (() => void)[] = [];
 
   ngAfterViewInit(): void {
+    ensureLoaded();
     const el = this.elementRef.nativeElement;
 
     // Forward host attributes to inner wa-* element
@@ -84,8 +89,7 @@ export class {{name}}Component implements AfterViewInit, OnDestroy {
     this.cleanups.forEach((fn) => fn());
   }
 
-  getChildrenItems(options?: { includeDisabled?: boolean }): void {
-    const el = this.elementRef.nativeElement as unknown as { getChildrenItems: (opts: { includeDisabled: boolean }) => void };
-    el.getChildrenItems({ includeDisabled: options?.includeDisabled ?? true });
+  getChildrenItems({ includeDisabled = true }?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { getChildrenItems: ({ includeDisabled = true }: unknown) => void }).getChildrenItems({ includeDisabled = true });
   }
 }

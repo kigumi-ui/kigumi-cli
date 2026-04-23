@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './SplitPanel.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Split panels display two adjacent panels with a divider for resizing
@@ -28,6 +32,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-reposition']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaReposition = (e) => emit('wa-reposition', e);
 

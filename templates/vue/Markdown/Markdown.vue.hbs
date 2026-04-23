@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './Markdown.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Renders markdown content in plain HTML
@@ -22,18 +25,20 @@ const definedProps = computed(() => {
   return result;
 });
 
-type MarkdownElement = WaElement & {
-  renderMarkdown?: () => void;
-  getMarked?: () => unknown;
-  constructor: { updateAll?: () => void };
-};
+const emit = defineEmits<{
+  // No events for this component
+}>();
 
-const elementRef = ref<MarkdownElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
-  renderMarkdown: () => elementRef.value?.renderMarkdown?.(),
-  getMarked: () => (elementRef.value as unknown as { marked?: unknown })?.marked,
-  updateAll: () => (elementRef.value?.constructor as { updateAll?: () => void })?.updateAll?.(),
+  getMarked: () => (elementRef.value as any)?.getMarked?.(),
+  updateAll: () => (elementRef.value as any)?.updateAll?.(),
+  renderMarkdown: () => (elementRef.value as any)?.renderMarkdown?.(),
   element: elementRef,
 });
 </script>
@@ -42,7 +47,7 @@ defineExpose({
   <wa-markdown
     ref="elementRef"
     v-bind="definedProps"
-    :class="['Markdown', $attrs.class]"
+    :class="$attrs.class"
   >
     <slot />
   </wa-markdown>

@@ -1,7 +1,11 @@
 import React, { useRef, useImperativeHandle, useEffect } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './ZoomableFrame.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const ZoomableFrame = React.forwardRef(
   ({ children, className, onLoad, onError, ...props }, ref) => {
@@ -36,6 +40,10 @@ export const ZoomableFrame = React.forwardRef(
         el.removeEventListener('error', handleError);
       };
     }, [onLoad, onError]);
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-zoomable-frame

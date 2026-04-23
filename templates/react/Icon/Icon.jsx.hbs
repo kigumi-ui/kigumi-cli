@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Icon.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * {{description}}
@@ -53,6 +57,7 @@ export const Icon = React.forwardRef(
     React.useImperativeHandle(ref, () => elementRef.current, []);
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = elementRef.current;
       if (!el) return;
 

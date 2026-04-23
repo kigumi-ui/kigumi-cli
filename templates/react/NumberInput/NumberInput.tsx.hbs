@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './NumberInput.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Number inputs allow users to enter numeric values with optional step controls
@@ -171,6 +175,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = numberinputRef.current;
       if (!el) return;
 

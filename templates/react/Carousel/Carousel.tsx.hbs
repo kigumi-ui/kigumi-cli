@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Carousel.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Displays an arbitrary number of content slides along a horizontal or vertical axis
@@ -102,6 +106,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = carouselRef.current;
       if (!el) return;
 

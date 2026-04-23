@@ -1,13 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Include.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Include = React.forwardRef(
   ({ className, onLoad, onIncludeError, ...props }, ref) => {
     const includeRef = React.useRef(null);
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = includeRef.current;
       if (!el) return;
 

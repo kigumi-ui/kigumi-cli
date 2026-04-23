@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Page.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Pages offer an easy way to scaffold entire page layouts using minimal markup
@@ -91,6 +95,7 @@ export const Page = React.forwardRef(({ children, className, navOpen, ...props }
 
   // Sync navOpen prop with page element
   React.useEffect(() => {
+      ensureLoaded();
     const el = pageRef.current;
     if (!el || navOpen === undefined) return;
 

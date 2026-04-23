@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Slider.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Sliders allow the user to select a value within a range
@@ -45,17 +48,21 @@ const emit = defineEmits<{
 
 const model = defineModel<number>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? 0;
+  const el = elementRef.value as any;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleInput = (e: Event) => { model.value = Number((e.target as HTMLInputElement).value); emit('input', e as CustomEvent); };
+const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 
 onMounted(() => {
@@ -81,13 +88,13 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  focus: () => elementRef.value?.focus?.(),
-  blur: () => elementRef.value?.blur?.(),
-  stepDown: () => elementRef.value?.stepDown?.(),
-  stepUp: () => elementRef.value?.stepUp?.(),
-  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => elementRef.value?.resetValidity?.(),
+  focus: () => (elementRef.value as any)?.focus?.(),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  stepDown: () => (elementRef.value as any)?.stepDown?.(),
+  stepUp: () => (elementRef.value as any)?.stepUp?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>

@@ -1,7 +1,11 @@
 import React, { useRef, useImperativeHandle, useEffect } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Tooltip.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Tooltip = React.forwardRef(
   ({ children, className, open, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
@@ -47,6 +51,10 @@ export const Tooltip = React.forwardRef(
         el.removeEventListener('wa-after-hide', handleAfterHide);
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-tooltip

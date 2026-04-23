@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Combobox.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Combines a text input with a listbox for filtering and selecting options
@@ -210,6 +214,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = comboboxRef.current;
       if (!el) return;
 

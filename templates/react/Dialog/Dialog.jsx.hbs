@@ -1,8 +1,12 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Dialog.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Dialogs display important prompts and information
@@ -56,6 +60,7 @@ export const Dialog = React.forwardRef(
 
     // Sync open prop with dialog element
     React.useEffect(() => {
+      ensureLoaded();
       const el = dialogRef.current;
       if (!el || open === undefined) return;
 

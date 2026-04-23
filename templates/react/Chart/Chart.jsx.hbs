@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Chart.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Renders interactive data visualisations including bars, lines, pies, and more via Chart.js
@@ -52,6 +56,10 @@ export const Chart = React.forwardRef(
       }),
       []
     );
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-chart

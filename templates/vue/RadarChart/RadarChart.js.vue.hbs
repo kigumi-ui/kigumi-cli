@@ -1,7 +1,11 @@
 <script setup>
-import { ref, computed } from 'vue';
-import '{{{importPath}}}';
+import { ref, computed, onMounted } from 'vue';
 import './RadarChart.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Maps multiple variables onto radial axes to compare profiles at a glance
@@ -31,6 +35,10 @@ const definedProps = computed(() => {
 const emit = defineEmits([]);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 defineExpose({
   element: elementRef,

@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Checkbox.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Checkboxes allow the user to toggle an option on or off
@@ -141,6 +145,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = checkboxRef.current;
       if (!el) return;
 

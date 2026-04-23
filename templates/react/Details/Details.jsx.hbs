@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Details.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Shows a brief summary and expands to show additional content
@@ -30,6 +34,7 @@ export const Details = React.forwardRef(
     );
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = detailsRef.current;
       if (!el) return;
 

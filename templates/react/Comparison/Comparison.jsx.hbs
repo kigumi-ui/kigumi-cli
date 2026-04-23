@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Comparison.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Compare visual differences between similar content with a sliding panel
@@ -16,6 +20,10 @@ import './Comparison.css';
  */
 export const Comparison = React.forwardRef(
   ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
     return (
       <wa-comparison ref={ref} class={clsx('Comparison', className)} {...props}>
         {children}

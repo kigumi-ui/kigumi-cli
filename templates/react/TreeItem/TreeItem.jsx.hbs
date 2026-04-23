@@ -1,7 +1,11 @@
 import React, { useRef, useImperativeHandle, useEffect } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './TreeItem.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const TreeItem = React.forwardRef(
   ({ children, className, onCollapse, onAfterCollapse, onExpand, onAfterExpand, onLazyChange, onLazyLoad, ...props }, ref) => {
@@ -41,6 +45,10 @@ export const TreeItem = React.forwardRef(
         el.removeEventListener('wa-lazy-load', handleLazyLoad);
       };
     }, [onCollapse, onAfterCollapse, onExpand, onAfterExpand, onLazyChange, onLazyLoad]);
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-tree-item

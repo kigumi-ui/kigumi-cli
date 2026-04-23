@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './TreeItem.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tree items are used inside trees to represent hierarchical items
@@ -34,7 +37,11 @@ const emit = defineEmits<{
   'wa-lazy-load': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaExpand = (e: Event) => emit('wa-expand', e as CustomEvent);
 const handleWaAfterExpand = (e: Event) => emit('wa-after-expand', e as CustomEvent);
@@ -68,10 +75,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  getChildrenItems: (options?: { includeDisabled?: boolean }) => {
-    const el = elementRef.value as unknown as { getChildrenItems?: (opts: { includeDisabled: boolean }) => void };
-    el?.getChildrenItems?.({ includeDisabled: options?.includeDisabled ?? true });
-  },
+  getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => (elementRef.value as any)?.getChildrenItems?.({ includeDisabled = true }),
   element: elementRef,
 });
 </script>

@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
 import './Slider.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Sliders allow the user to select a value within a range
@@ -40,13 +44,17 @@ const elementRef = ref(null);
 
 watch(model, (val) => {
   const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? 0;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
 });
 
 const handleChange = (e) => emit('change', e);
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);
-const handleInput = (e) => { model.value = Number(e.target.value); emit('input', e); };
+const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
 const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {

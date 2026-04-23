@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Dropdown.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Dropdowns expose additional content that pops up when the user interacts with a trigger
@@ -80,6 +84,7 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = dropdownRef.current;
       if (!el) return;
 

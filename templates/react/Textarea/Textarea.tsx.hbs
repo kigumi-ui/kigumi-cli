@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Textarea.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Textareas collect multi-line text data from the user
@@ -192,6 +196,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = textareaRef.current;
       if (!el) return;
 

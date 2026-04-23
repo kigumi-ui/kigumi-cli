@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './BreadcrumbItem.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Breadcrumb Items are used inside breadcrumbs to represent different links
@@ -47,6 +51,10 @@ export const BreadcrumbItem = forwardRef<BreadcrumbItemRef, BreadcrumbItemProps>
       }),
       []
     );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-breadcrumb-item

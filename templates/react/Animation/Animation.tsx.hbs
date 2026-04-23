@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Animation.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
@@ -105,6 +109,7 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = animationRef.current;
       if (!el) return;
 

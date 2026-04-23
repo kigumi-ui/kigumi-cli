@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './ColorPicker.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Color pickers allow the user to select a color
@@ -33,6 +37,7 @@ export const ColorPicker = React.forwardRef(
     );
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = pickerRef.current;
       if (!el) return;
 

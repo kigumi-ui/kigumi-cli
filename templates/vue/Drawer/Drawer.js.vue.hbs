@@ -1,7 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import './Drawer.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Drawers slide in from a container edge to expose additional options
@@ -27,6 +31,18 @@ const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide'
 const open = defineModel('open', { default: false });
 
 const elementRef = ref(null);
+
+watch(open, (newOpen) => {
+  const el = elementRef.value;
+  if (!el) return;
+  const isOpen = el.open ?? false;
+  if (newOpen && !isOpen) el.show?.();
+  else if (!newOpen && isOpen) el.hide?.();
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
 const handleWaAfterShow = (e) => emit('wa-after-show', e);
@@ -54,9 +70,8 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  show: () => { open.value = true; },
-  hide: () => { open.value = false; },
-  requestClose: () => { open.value = false; },
+  show: () => elementRef.value?.show?.(),
+  requestClose: () => elementRef.value?.requestClose?.(),
   element: elementRef,
 });
 </script>

@@ -1,7 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Switch.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Switch = React.forwardRef(
   ({ children, className, onChange, onInvalid, ...props }, ref) => {
@@ -21,6 +25,7 @@ export const Switch = React.forwardRef(
     );
 
     React.useEffect(() => {
+      ensureLoaded();
       const el = switchRef.current;
       if (!el) return;
 

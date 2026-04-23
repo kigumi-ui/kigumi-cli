@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './TreeItem.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tree items are used inside trees to represent hierarchical items
@@ -25,6 +29,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-expand', 'wa-after-expand', 'wa-collapse', 'wa-after-collapse', 'wa-lazy-change', 'wa-lazy-load']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaExpand = (e) => emit('wa-expand', e);
 const handleWaAfterExpand = (e) => emit('wa-after-expand', e);
@@ -58,10 +66,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  getChildrenItems: (options) => {
-    const opts = { includeDisabled: options?.includeDisabled ?? true };
-    elementRef.value?.getChildrenItems?.(opts);
-  },
+  getChildrenItems: ({ includeDisabled = true }) => elementRef.value?.getChildrenItems?.({ includeDisabled = true }),
   element: elementRef,
 });
 </script>

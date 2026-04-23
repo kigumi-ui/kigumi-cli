@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './ResizeObserver.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Reports changes to the dimensions of an element
@@ -22,6 +26,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-resize']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaResize = (e) => emit('wa-resize', e);
 

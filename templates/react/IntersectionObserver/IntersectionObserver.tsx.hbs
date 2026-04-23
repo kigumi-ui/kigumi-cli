@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './IntersectionObserver.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Observes changes in the intersection of a target element with an ancestor
@@ -59,6 +63,7 @@ export const IntersectionObserver = forwardRef<IntersectionObserverRef, Intersec
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = intersectionobserverRef.current;
       if (!el) return;
 

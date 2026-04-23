@@ -1,7 +1,11 @@
 import React, { useRef, useImperativeHandle, useEffect } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Tree.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Tree = React.forwardRef(
   ({ children, className, onSelectionChange, ...props }, ref) => {
@@ -25,6 +29,10 @@ export const Tree = React.forwardRef(
         el.removeEventListener('wa-selection-change', handleSelectionChange);
       };
     }, [onSelectionChange]);
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-tree

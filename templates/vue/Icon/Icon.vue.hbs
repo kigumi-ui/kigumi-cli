@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Icon.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Icons are symbols that can be used to represent various options within an application
@@ -37,7 +40,11 @@ const emit = defineEmits<{
   'wa-error': [event: CustomEvent];
 }>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
 const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);

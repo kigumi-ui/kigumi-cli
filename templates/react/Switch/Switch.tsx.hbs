@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Switch.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Switches allow the user to toggle an option on or off
@@ -138,6 +142,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = switchRef.current;
       if (!el) return;
 

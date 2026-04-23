@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import '{{{importPath}}}';
-import type WaElement from '{{{importPath}}}';
 import './Rating.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Ratings give users a way to quickly view and provide feedback
  */
 export interface RatingProps {
   label?: string;
-  name?: string;
   max?: number;
   precision?: number;
   readonly?: boolean;
-  required?: boolean;
   disabled?: boolean;
+  name?: string;
+  required?: boolean;
   size?: 'small' | 'medium' | 'large';
 }
 
@@ -37,14 +40,18 @@ const emit = defineEmits<{
 
 const model = defineModel<number>();
 
-const elementRef = ref<WaElement | null>(null);
+const elementRef = ref<HTMLElement | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? 0;
+  const el = elementRef.value as any;
+  if (el && el.value !== val) el.value = val ?? '';
 });
 
-const handleChange = (e: Event) => { model.value = Number((e.target as HTMLInputElement).value); emit('change', e as CustomEvent); };
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleChange = (e: Event) => { model.value = (e.target as any).value; emit('change', e as CustomEvent); };
 const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 
@@ -67,8 +74,9 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
-  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>

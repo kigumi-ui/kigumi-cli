@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './FileInput.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * File inputs allow users to select and upload files from their device
@@ -28,6 +32,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-invalid']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleInput = (e) => emit('input', e);
 const handleChange = (e) => emit('change', e);

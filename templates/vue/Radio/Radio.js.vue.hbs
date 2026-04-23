@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Radio.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Radios allow the user to select a single option from a group
@@ -25,6 +29,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['blur', 'focus']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);

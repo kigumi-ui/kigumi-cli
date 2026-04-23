@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './DropdownItem.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Dropdown items are used inside dropdowns to represent individual menu items
@@ -27,6 +31,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['blur', 'focus']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);

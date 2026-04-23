@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Tag.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Tags are used as labels to organize things or indicate selections
@@ -59,6 +63,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = tagRef.current;
       if (!el) return;
 

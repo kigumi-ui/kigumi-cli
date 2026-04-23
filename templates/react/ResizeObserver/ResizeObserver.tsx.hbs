@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './ResizeObserver.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Reports changes to the dimensions of an element
@@ -47,6 +51,7 @@ export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = resizeobserverRef.current;
       if (!el) return;
 

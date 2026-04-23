@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import '{{{importPath}}}';
 import './Carousel.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Displays an arbitrary number of content slides along a horizontal or vertical axis
@@ -30,6 +34,10 @@ const definedProps = computed(() => {
 const emit = defineEmits(['wa-slide-change']);
 
 const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
 
 const handleWaSlideChange = (e) => emit('wa-slide-change', e);
 

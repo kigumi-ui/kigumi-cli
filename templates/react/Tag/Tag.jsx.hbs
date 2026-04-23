@@ -1,7 +1,11 @@
 import React, { useRef, useImperativeHandle, useEffect } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Tag.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export const Tag = React.forwardRef(
   ({ children, className, onRemove, ...props }, ref) => {
@@ -25,6 +29,10 @@ export const Tag = React.forwardRef(
         el.removeEventListener('wa-remove', handleRemove);
       };
     }, [onRemove]);
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
 
     return (
       <wa-tag

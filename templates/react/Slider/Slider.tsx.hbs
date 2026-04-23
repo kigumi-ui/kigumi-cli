@@ -1,7 +1,11 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './Slider.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * Sliders allow the user to select a value within a range
@@ -173,6 +177,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = sliderRef.current;
       if (!el) return;
 
