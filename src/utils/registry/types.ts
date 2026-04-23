@@ -40,7 +40,6 @@ export interface ComponentDefinition {
   files: {
     react?: string[];
     vue?: string[];
-    svelte?: string[];
     angular?: string[];
   };
   props: ComponentProp[];

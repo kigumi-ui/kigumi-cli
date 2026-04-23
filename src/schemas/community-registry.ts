@@ -37,12 +37,11 @@ export const communityComponentSchema = z.object({
   /** Framework-specific file paths (keyed by framework name) */
   files: z.record(z.string(), componentFilesSchema).refine(
     (files) => {
-      const validFrameworks = ['react', 'vue', 'svelte', 'angular'];
+      const validFrameworks = ['react', 'vue', 'angular'];
       return Object.keys(files).every((k) => validFrameworks.includes(k));
     },
     {
-      message:
-        'File keys must be valid framework names (react, vue, svelte, angular)',
+      message: 'File keys must be valid framework names (react, vue, angular)',
     }
   ),
   /** npm packages this component needs (not Web Awesome packages) */

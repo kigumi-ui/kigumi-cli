@@ -52,14 +52,14 @@ describe('detectFramework', () => {
     expect(await detectFramework(testDir)).toBe('vue');
   });
 
-  it('should detect Svelte from dependencies', async () => {
+  it('should return unknown for Svelte dependencies (Svelte not supported)', async () => {
     await fs.writeJSON(path.join(testDir, 'package.json'), {
       dependencies: { svelte: '^4.0.0' },
     });
 
     const { detectFramework } =
       await import('../../src/utils/detect-framework.js');
-    expect(await detectFramework(testDir)).toBe('svelte');
+    expect(await detectFramework(testDir)).toBe('unknown');
   });
 
   it('should detect Angular from dependencies', async () => {

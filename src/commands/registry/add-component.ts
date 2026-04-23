@@ -28,7 +28,6 @@ interface AddComponentOptions {
 const FRAMEWORK_EXTENSIONS: Record<string, string[]> = {
   react: ['.tsx', '.jsx', '.ts', '.js'],
   vue: ['.vue', '.js.vue', '.ts', '.js'],
-  svelte: ['.svelte', '.ts', '.js'],
   angular: ['.ts', '.js'],
 };
 

@@ -55,7 +55,6 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/Button.tsx', 'types/button.d.ts'],
       vue: ['components/Button.vue'],
-      svelte: ['components/Button.svelte'],
       angular: ['components/Button/button.component.ts'],
     },
     props: [
@@ -223,7 +222,6 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/Input.tsx', 'types/input.d.ts'],
       vue: ['components/Input.vue'],
-      svelte: ['components/Input.svelte'],
       angular: ['components/Input/input.component.ts'],
     },
     props: [
@@ -435,7 +433,6 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/Card.tsx', 'types/card.d.ts'],
       vue: ['components/Card.vue'],
-      svelte: ['components/Card.svelte'],
       angular: ['components/Card/card.component.ts'],
     },
     props: [
@@ -487,7 +484,6 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     files: {
       react: ['components/Dialog.tsx', 'types/dialog.d.ts'],
       vue: ['components/Dialog.vue'],
-      svelte: ['components/Dialog.svelte'],
       angular: ['components/Dialog/dialog.component.ts'],
     },
     props: [

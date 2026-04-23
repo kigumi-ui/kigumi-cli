@@ -4,7 +4,6 @@ sequenceDiagram
     participant Checks as checks/runner
     participant Config as utils/config
     participant Tier as utils/tier
-    participant FW as frameworks/index
     participant Reg as utils/registry
     participant Tpl as utils/template
     participant FS as File System
@@ -13,16 +12,14 @@ sequenceDiagram
     User->>CLI: kigumi init [options]
     CLI->>Checks: PackageJsonExistsCheck
     Checks-->>CLI: pass/fail
-    CLI->>FW: detectFramework(cwd) — parallel, highest confidence
-    FW-->>CLI: FrameworkPlugin
+    CLI->>CLI: detectFramework(cwd) via utils/detect-framework
     CLI->>Tier: detectTier(cwd) — reads .env + package.json
     Tier-->>CLI: free | pro
     CLI->>Config: buildConfig (framework + tier + theme + palette)
     CLI->>Config: saveConfig → kigumi.config.json
     CLI->>Tpl: generateProjectFiles (kigumi.ts, layers.css, theme.css)
     Tpl->>FS: write setup files
-    CLI->>FW: installDependencies(cwd, pm, deps)
-    FW->>FS: execa(pnpm/npm/yarn install)
+    CLI->>FS: execa(pnpm/npm/yarn install)
     CLI-->>User: Success + next steps
 
     Note over User,FS: === kigumi add button ===
@@ -34,12 +31,10 @@ sequenceDiagram
     Tier-->>CLI: free | pro
     CLI->>Reg: getComponent("button") → ComponentDefinition
     Reg-->>CLI: { name, tagName, props, events, slots, importPath, tier }
-    CLI->>FW: plugin.generateComponent(cwd, config, component, options)
-    FW->>Tpl: renderTemplate(hbs path, context)
+    CLI->>Tpl: renderTemplate(hbs path, context)
     Tpl->>Tpl: getCompiledTemplate (cached) → Handlebars.compile
     Tpl->>FS: read .hbs from templates/{framework}/{Component}/
-    Tpl-->>FW: rendered string
-    FW-->>CLI: GeneratedFile[]
+    Tpl-->>CLI: GeneratedFile[]
     CLI->>FS: write .tsx/.vue + .test + .css
     CLI->>Tpl: updateTypeDeclarations (React only)
     CLI->>Tpl: updateComponentIndex (barrel export)

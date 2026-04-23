@@ -26,7 +26,7 @@ Use this agent when:
 | File                  | Documents                                                                                                              |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `AGENTS.md` (root)    | Repository structure, critical rules, tier system, architecture, command flows, checklists, debugging, common mistakes |
-| `src/AGENTS.md`       | Source directory structure, commands detail, utils detail, schemas, errors, frameworks                                 |
+| `src/AGENTS.md`       | Source directory structure, commands detail, utils detail, schemas, errors                                             |
 | `templates/AGENTS.md` | Template directory structure, patterns, variables, critical rules                                                      |
 | `tests/AGENTS.md`     | Test file listing, test commands, guidelines, tier testing workflow                                                    |
 
@@ -48,9 +48,6 @@ ls src/schemas/
 
 # Errors
 ls src/errors/
-
-# Frameworks
-ls src/frameworks/
 
 # Checks
 ls src/checks/
@@ -95,7 +92,6 @@ For each AGENTS.md file, check:
 - [ ] All util files are documented
 - [ ] All schema files are documented
 - [ ] All error classes are documented
-- [ ] Framework plugins are documented
 
 #### templates/AGENTS.md
 

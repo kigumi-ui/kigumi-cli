@@ -14,14 +14,6 @@ flowchart TD
         status["status.ts"]
     end
 
-    subgraph Frameworks["frameworks/"]
-        FW_INDEX["index.ts\nFrameworkRegistry\nlazy-loaded Map"]
-        react["react/ReactPlugin"]
-        vue["vue/VuePlugin"]
-        angular["angular/AngularPlugin (stub)"]
-        svelte["svelte/SveltePlugin (stub)"]
-    end
-
     subgraph Utils["utils/"]
         registry["registry.ts\n62+ ComponentDefinitions\nprops, events, slots, methods"]
         template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
@@ -57,12 +49,10 @@ flowchart TD
     end
 
     CLI --> Commands
-    init --> FW_INDEX
     init --> config
     init --> tier
     init --> template
     init --> detect_fw
-    add --> FW_INDEX
     add --> registry
     add --> tier
     add --> template
@@ -71,9 +61,6 @@ flowchart TD
     doctor --> config
     doctor --> tier
 
-    FW_INDEX --> react & vue & angular & svelte
-    react --> template
-    vue --> template
     template --> tpl_react & tpl_vue
     template --> registry
     template --> css_meta

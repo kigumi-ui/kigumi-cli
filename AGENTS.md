@@ -400,14 +400,6 @@ flowchart TD
         update["update.ts"]
     end
 
-    subgraph Frameworks["frameworks/"]
-        FW_INDEX["index.ts\nFrameworkRegistry\nlazy-loaded Map"]
-        react["react/ReactPlugin"]
-        vue["vue/VuePlugin"]
-        angular["angular/AngularPlugin"]
-        svelte["svelte/SveltePlugin (stub)"]
-    end
-
     subgraph Utils["utils/"]
         registry["registry.ts\n74 ComponentDefinitions\nprops, events, slots, methods"]
         template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
@@ -455,12 +447,10 @@ flowchart TD
     end
 
     CLI --> Commands
-    init --> FW_INDEX
     init --> config
     init --> tier
     init --> template
     init --> detect_fw
-    add --> FW_INDEX
     add --> registry
     add --> tier
     add --> template
@@ -489,10 +479,6 @@ flowchart TD
     add --> snapshot
     add --> version_check
 
-    FW_INDEX --> react & vue & angular & svelte
-    react --> template
-    vue --> template
-    angular --> template
     template --> tpl_react & tpl_vue & tpl_angular
     template --> registry
     template --> css_meta
@@ -516,7 +502,6 @@ sequenceDiagram
     participant Checks as checks/runner
     participant Config as utils/config
     participant Tier as utils/tier
-    participant FW as frameworks/index
     participant Reg as utils/registry
     participant Tpl as utils/template
     participant FS as File System
@@ -525,16 +510,14 @@ sequenceDiagram
     User->>CLI: kigumi init [options]
     CLI->>Checks: PackageJsonExistsCheck
     Checks-->>CLI: pass/fail
-    CLI->>FW: detectFramework(cwd) — parallel, highest confidence
-    FW-->>CLI: FrameworkPlugin
+    CLI->>CLI: detectFramework(cwd) via utils/detect-framework
     CLI->>Tier: detectTier(cwd) — reads .env + package.json
     Tier-->>CLI: free | pro
     CLI->>Config: buildConfig (framework + tier + theme + palette)
     CLI->>Config: saveConfig → kigumi.config.json
     CLI->>Tpl: generateProjectFiles (kigumi.ts, layers.css, theme.css)
     Tpl->>FS: write setup files
-    CLI->>FW: installDependencies(cwd, pm, deps)
-    FW->>FS: execa(pnpm/npm/yarn install)
+    CLI->>FS: execa(pnpm/npm/yarn install)
     CLI-->>User: Success + next steps
 
     Note over User,FS: === kigumi add button ===
@@ -546,12 +529,10 @@ sequenceDiagram
     Tier-->>CLI: free | pro
     CLI->>Reg: getComponent("button") → ComponentDefinition
     Reg-->>CLI: { name, tagName, props, events, slots, importPath, tier }
-    CLI->>FW: plugin.generateComponent(cwd, config, component, options)
-    FW->>Tpl: renderTemplate(hbs path, context)
+    CLI->>Tpl: renderTemplate(hbs path, context)
     Tpl->>Tpl: getCompiledTemplate (cached) → Handlebars.compile
     Tpl->>FS: read .hbs from templates/{framework}/{Component}/
-    Tpl-->>FW: rendered string
-    FW-->>CLI: GeneratedFile[]
+    Tpl-->>CLI: GeneratedFile[]
     CLI->>FS: write .tsx/.vue + .test + .css
     CLI->>Tpl: updateTypeDeclarations (React only)
     CLI->>Tpl: updateComponentIndex (barrel export)
@@ -617,45 +598,6 @@ flowchart LR
     COMPILE --> CACHE
     RENDER --> COMP & TEST & CSS
     COMP --> TYPES & INDEX
-```
-
-### Framework Plugin System
-
-```mermaid
-flowchart TB
-    subgraph Interface["FrameworkPlugin Interface (frameworks/types.ts)"]
-        detect["detect(cwd) → DetectionResult\n{ detected, confidence, version }"]
-        generate["generateComponent(cwd, config, component, opts)\n→ GeneratedFile[]"]
-        setup["generateSetupFiles(cwd, config)\n→ GeneratedFile[]"]
-        install["installDependencies(cwd, pm, deps)"]
-        validate["validateConfig(config) → ValidationResult"]
-    end
-
-    subgraph Registry["FrameworkRegistry (frameworks/index.ts)"]
-        MAP["FRAMEWORK_PLUGINS\nMap<string, () => Promise<Plugin>>\nlazy-loaded via dynamic import()"]
-        getPlugin["getPlugin(name)"]
-        detectFW["detectFramework(cwd)\nparallel detection\nhighest confidence wins"]
-        supported["getSupportedFrameworks()\nisSupported(name)"]
-    end
-
-    subgraph Plugins["Plugin Implementations"]
-        R["ReactPlugin\ndetects: react in package.json (incl. Next via `next`)\ngenerates: .tsx/.jsx + .test + .css\nsetup: kigumi.ts, vite-env.d.ts or web-awesome.d.ts for Next"]
-        V["VuePlugin\ndetects: vue in package.json\ngenerates: .vue/.js.vue + .test + .css\nsetup: kigumi.ts, shims-vue.d.ts"]
-        A["AngularPlugin\ndetects: @angular/core\ngenerates: .component.ts + .component.spec.ts + .component.css\nsetup: CUSTOM_ELEMENTS_SCHEMA"]
-        S["SveltePlugin\ndetects: svelte\nSTUB — not fully implemented"]
-    end
-
-    subgraph Detection["Detection Confidence Levels"]
-        HIGH["HIGH: framework in dependencies"]
-        MED["MEDIUM: framework config files found"]
-        LOW["LOW: framework-like file patterns"]
-    end
-
-    MAP -->|"lazy import()"| R & V & A & S
-    R & V & A & S -.->|"implements"| Interface
-    getPlugin --> MAP
-    detectFW --> MAP
-    detectFW -.-> Detection
 ```
 
 ---

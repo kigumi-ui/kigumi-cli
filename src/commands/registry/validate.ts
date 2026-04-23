@@ -166,7 +166,6 @@ function validateFileExtensions(registry: CommunityRegistry): string[] {
   const frameworkExtensions: Record<string, string[]> = {
     react: ['.tsx', '.jsx', '.ts', '.js'],
     vue: ['.vue', '.js.vue', '.ts', '.js'],
-    svelte: ['.svelte', '.ts', '.js'],
     angular: ['.ts', '.js'],
   };
 

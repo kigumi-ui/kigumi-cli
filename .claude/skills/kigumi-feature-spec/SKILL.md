@@ -49,7 +49,7 @@ Depending on the feature type, read these files to understand the current state:
 | Component    | `src/utils/registry.ts` (existing components), the relevant WA docs at `docs/node_modules/@awesome.me/webawesome-pro/dist/skills/webawesome/references/components/{name}.md`, and one existing template pair (e.g. `templates/react/Dialog/`) for a complexity-matched reference |
 | CLI          | `src/commands/` (existing commands), `src/index.ts` (commander routing), `src/schemas/` (config schema)                                                                                                                                                                          |
 | Build/Infra  | `scripts/`, `tsup.config.ts`, `package.json` scripts section, `.claude/hooks/`                                                                                                                                                                                                   |
-| Framework    | `src/frameworks/` (plugin system), `src/frameworks/detect-framework.ts`, an existing plugin like `src/frameworks/react.ts`                                                                                                                                                       |
+| Framework    | `src/utils/detect-framework.ts` (detection branches), `src/utils/template.ts` (generation + per-framework code paths), `templates/<framework>/` (component templates for an existing framework like `templates/react/`)                                                          |
 
 Always also read:
 
@@ -216,7 +216,7 @@ The `llms.txt` file at `docs/node_modules/@awesome.me/webawesome-pro/dist/llms.t
 Key architectural constraints to keep in mind when speccing features:
 
 - **Templates-first**: Wrappers are Handlebars templates, not hand-written code. The CLI renders them at install time.
-- **Framework plugin system**: Each framework is a plugin implementing `FrameworkPlugin`. New framework support = new plugin.
+- **Framework support**: Per-framework logic lives inline in `src/utils/template.ts` (generation) and `src/utils/detect-framework.ts` (detection). Adding a new framework means adding a `templates/<framework>/` directory, a detection branch in `detect-framework.ts`, and framework-specific code paths in `template.ts`.
 - **Tier system**: Free vs. Pro components. Tier is detected from the installed package, never stored in config.
 - **Registry as source of truth**: `src/utils/registry.ts` defines every component's metadata. New components must be added here.
 - **Three-way merge**: Component updates use base/yours/theirs merge. This means templates must produce deterministic output.

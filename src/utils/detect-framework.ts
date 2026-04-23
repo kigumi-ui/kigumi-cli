@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-export type Framework = 'react' | 'vue' | 'svelte' | 'angular' | 'unknown';
+export type Framework = 'react' | 'vue' | 'angular' | 'unknown';
 
 /**
  * Which Next.js router the project uses.
@@ -70,11 +70,6 @@ export async function detectFramework(
   // Check for Vue
   if (deps.vue || deps['@vue/cli-service']) {
     return 'vue';
-  }
-
-  // Check for Svelte
-  if (deps.svelte || deps['@sveltejs/kit']) {
-    return 'svelte';
   }
 
   // Check for Angular

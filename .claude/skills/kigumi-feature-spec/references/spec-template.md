@@ -154,17 +154,7 @@ Key messages the user will see (success, error, prompts):
 
 ### For Framework Support
 
-#### Plugin Interface
-
-Which methods of `FrameworkPlugin` this implements:
-
-| Method                  | Status   | Notes                                         |
-| ----------------------- | -------- | --------------------------------------------- |
-| `detect()`              | Required | Detection via package.json + config files     |
-| `generateComponent()`   | Required | Template rendering                            |
-| `generateSetupFiles()`  | Required | Framework-specific setup (declarations, etc.) |
-| `installDependencies()` | Required | Package installation                          |
-| `validateConfig()`      | Optional | Config-specific validation                    |
+#### Framework integration points (detect-framework.ts branches, template.ts paths, templates/\<framework\>/ assets)
 
 #### Template Pattern
 

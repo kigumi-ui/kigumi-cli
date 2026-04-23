@@ -12,7 +12,7 @@ import { ConfigInvalidError } from '../errors/config.js';
 /**
  * Supported frameworks constant - single source of truth
  */
-export const FRAMEWORKS = ['react', 'vue', 'svelte', 'angular'] as const;
+export const FRAMEWORKS = ['react', 'vue', 'angular'] as const;
 
 /**
  * Framework schema - must be one of the supported frameworks
