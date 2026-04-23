@@ -402,10 +402,9 @@ flowchart TD
 
     subgraph Utils["utils/"]
         registry["registry.ts\n74 ComponentDefinitions\nprops, events, slots, methods"]
-        template["template.ts\nHandlebars compile + cache\nquoteProp helper"]
+        template["template.ts\nHandlebars compile + cache"]
         tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
-        css_meta["css-metadata.ts"]
         detect_fw["detect-framework.ts\ngetProjectInfo"]
         regenerate["regenerate.ts"]
         snapshot["snapshot.ts\n.kigumi/snapshots/ CRUD"]
@@ -441,9 +440,9 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 74 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css.hbs"]
-        tpl_vue["vue/ — 74 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css.hbs"]
-        tpl_angular["angular/ — 74 components\n.component.ts.hbs, .component.spec.ts.hbs, .component.css.hbs"]
+        tpl_react["react/ — 74 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css"]
+        tpl_vue["vue/ — 74 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css"]
+        tpl_angular["angular/ — 74 components\n.component.ts.hbs, .component.spec.ts.hbs, .component.css"]
     end
 
     CLI --> Commands
@@ -570,20 +569,16 @@ flowchart LR
     end
 
     subgraph Processing
-        CTX["buildTemplateContext()\n→ { name, tagName,\ndescription, importPath, props }"]
+        CTX["buildTemplateContext()\n→ { name, tagName,\ndescription, importPath }"]
         CACHE["templateCache Map\nkey: absolute path\nvalue: compiled template"]
         COMPILE["Handlebars.compile()\ncached via getCompiledTemplate()"]
         RENDER["template(context)\n→ rendered string"]
     end
 
-    subgraph Helpers["Handlebars Helpers"]
-        QP["quoteProp\nhyphenated → 'prop-name'\nnormal → propName"]
-    end
-
     subgraph Output
         COMP[".tsx / .jsx / .vue / .js.vue"]
         TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
-        CSS[".css — from css-metadata.ts\nor component-specific .css.hbs"]
+        CSS[".css (read verbatim, no Handlebars)"]
         TYPES["web-awesome.d.ts\nupdateTypeDeclarations\n(React + TS only, includes class?)"]
         INDEX["index.ts barrel export\nupdateComponentIndex"]
     end
@@ -594,9 +589,9 @@ flowchart LR
     REPLACE --> CTX
     CTX --> RENDER
     HBS --> COMPILE --> RENDER
-    Helpers -.-> COMPILE
     COMPILE --> CACHE
-    RENDER --> COMP & TEST & CSS
+    RENDER --> COMP & TEST
+    CSS -.-> COMP
     COMP --> TYPES & INDEX
 ```
 
@@ -750,7 +745,6 @@ START: Change affects tier detection or packages
 
 - [ ] **Verified template syntax**
   - Handlebars: `{{variable}}`, `{{#if}}`, `{{#each}}`
-  - Props: Use `quoteProp` helper for keys with dashes
   - React: `class` not `className` for `<wa-*>`
   - TypeScript: Named imports, interfaces
   - JavaScript: Default import, JSDoc
@@ -782,12 +776,12 @@ START: Change affects tier detection or packages
   - `templates/react/{ComponentName}/{ComponentName}.jsx.hbs`
   - `templates/react/{ComponentName}/{ComponentName}.test.tsx.hbs`
   - `templates/react/{ComponentName}/{ComponentName}.test.jsx.hbs`
-  - `templates/react/{ComponentName}/{ComponentName}.css.hbs`
+  - `templates/react/{ComponentName}/{ComponentName}.css`
   - `templates/vue/{ComponentName}/{ComponentName}.vue.hbs`
   - `templates/vue/{ComponentName}/{ComponentName}.js.vue.hbs`
   - `templates/vue/{ComponentName}/{ComponentName}.test.ts.hbs`
   - `templates/vue/{ComponentName}/{ComponentName}.test.js.hbs`
-  - `templates/vue/{ComponentName}/{ComponentName}.css.hbs`
+  - `templates/vue/{ComponentName}/{ComponentName}.css`
 
 - [ ] **Validation passed**
   - `pnpm validate:registry` → ✅

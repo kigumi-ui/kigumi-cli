@@ -30,14 +30,14 @@ templates/react/{Component}/
   {Component}.jsx.hbs      # JavaScript
   {Component}.test.tsx.hbs
   {Component}.test.jsx.hbs
-  {Component}.css.hbs
+  {Component}.css          # Static CSS, no Handlebars
 
 templates/vue/{Component}/
   {Component}.vue.hbs      # TypeScript
   {Component}.js.vue.hbs   # JavaScript
   {Component}.test.ts.hbs
   {Component}.test.js.hbs
-  {Component}.css.hbs      # Identical to React CSS
+  {Component}.css          # Identical to React CSS
 ```
 
 ### Component Complexity Classification

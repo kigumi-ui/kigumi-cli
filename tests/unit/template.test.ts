@@ -68,7 +68,6 @@ describe('template utilities', () => {
       expect(context.tagName).toBe('wa-button');
       expect(context.description).toBeDefined();
       expect(context.importPath).toBeDefined();
-      expect(Array.isArray(context.props)).toBe(true);
     });
 
     it('should include all required fields', () => {
@@ -83,18 +82,6 @@ describe('template utilities', () => {
       expect(context).toHaveProperty('tagName');
       expect(context).toHaveProperty('description');
       expect(context).toHaveProperty('importPath');
-      expect(context).toHaveProperty('props');
-    });
-
-    it('should preserve props array', () => {
-      const button = getComponent('button');
-      expect(button).toBeDefined();
-
-      if (!button) return;
-
-      const context = buildTemplateContext(button);
-
-      expect(context.props).toEqual(button.props);
     });
   });
 
@@ -109,7 +96,6 @@ describe('template utilities', () => {
         tagName: 'wa-button',
         description: 'Test',
         importPath: 'test',
-        props: [],
       });
 
       expect(result).toBe('Hello Button!');
@@ -124,8 +110,7 @@ describe('template utilities', () => {
         tagName: 'wa-button',
         description: 'Test',
         importPath: 'test',
-        props: [],
-      } as unknown as Parameters<typeof renderTemplate>[1]);
+      });
 
       expect(result).toBe('Name: Button, Missing: ');
     });
@@ -139,7 +124,6 @@ describe('template utilities', () => {
         tagName: 'wa-button',
         description: 'Test',
         importPath: 'test',
-        props: [],
       };
 
       // First render
@@ -161,7 +145,6 @@ describe('template utilities', () => {
           tagName: 'wa-test',
           description: 'Test',
           importPath: 'test',
-          props: [],
         })
       ).rejects.toThrow();
     });
@@ -618,7 +601,6 @@ describe('template utilities', () => {
         tagName: 'wa-button',
         description: 'Test',
         importPath: 'test',
-        props: [],
       };
 
       // First call - compiles and caches
@@ -653,36 +635,6 @@ describe('template utilities', () => {
     });
   });
 
-  describe('Handlebars helpers', () => {
-    it('should quote prop names with hyphens', async () => {
-      const templatePath = path.join(testDir, 'test.hbs');
-      // Use triple braces to avoid HTML escaping
-      await fs.writeFile(
-        templatePath,
-        '{{#each props}}{{{quoteProp name}}}: {{type}}\n{{/each}}'
-      );
-
-      const context = {
-        name: 'Test',
-        tagName: 'wa-test',
-        description: 'Test',
-        importPath: 'test',
-        props: [
-          { name: 'with-caret', type: 'boolean' },
-          { name: 'disabled', type: 'boolean' },
-        ],
-      };
-
-      const result = await renderTemplate(templatePath, context);
-
-      // quoteProp should quote hyphenated names
-      expect(result).toMatch(/'with-caret'/);
-      expect(result).toContain('disabled:');
-      // Regular names should not be quoted
-      expect(result).not.toMatch(/'disabled':/);
-    });
-  });
-
   describe('error handling', () => {
     it('should handle template syntax errors', async () => {
       const templatePath = path.join(testDir, 'bad.hbs');
@@ -694,7 +646,6 @@ describe('template utilities', () => {
           tagName: 'wa-test',
           description: 'Test',
           importPath: 'test',
-          props: [],
         })
       ).rejects.toThrow();
     });
@@ -708,7 +659,6 @@ describe('template utilities', () => {
           tagName: 'wa-test',
           description: 'Test',
           importPath: 'test',
-          props: [],
         })
       ).rejects.toThrow();
     });

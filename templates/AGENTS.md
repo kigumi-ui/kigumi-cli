@@ -12,20 +12,22 @@ templates/
 │       ├── {Component}.jsx.hbs    # JavaScript (with JSDoc)
 │       ├── {Component}.test.tsx.hbs
 │       ├── {Component}.test.jsx.hbs
-│       └── {Component}.css.hbs
+│       └── {Component}.css        # Static CSS, no Handlebars
 ├── vue/
 │   └── {Component}/
 │       ├── {Component}.vue.hbs      # TypeScript (Options API + defineExpose)
 │       ├── {Component}.js.vue.hbs   # JavaScript (no types)
 │       ├── {Component}.test.ts.hbs
 │       ├── {Component}.test.js.hbs
-│       └── {Component}.css.hbs      # Identical content to react CSS template
+│       └── {Component}.css          # Identical content to react CSS template
 └── angular/
     └── {Component}/                 # PascalCase directory name
         ├── {kebab-name}.component.ts.hbs    # Always TypeScript
         ├── {kebab-name}.component.spec.ts.hbs
-        └── {kebab-name}.component.css.hbs
+        └── {kebab-name}.component.css       # Static CSS, no Handlebars
 ```
+
+> **CSS files are not Handlebars.** They carry the `.css` extension (not `.css.hbs`) because they contain no template expressions. The CLI reads them verbatim via `fs.readFile` instead of running them through `Handlebars.compile`.
 
 ### Angular Template Notes
 
@@ -251,14 +253,14 @@ Every React `.tsx.hbs` template emits `suppressHydrationWarning` on its Web Awes
    - `{Name}.jsx.hbs` (JavaScript)
    - `{Name}.test.tsx.hbs`
    - `{Name}.test.jsx.hbs`
-   - `{Name}.css.hbs`
+   - `{Name}.css` (static, no Handlebars)
 
    Vue (`templates/vue/{Name}/`):
    - `{Name}.vue.hbs` (TypeScript)
    - `{Name}.js.vue.hbs` (JavaScript)
    - `{Name}.test.ts.hbs`
    - `{Name}.test.js.hbs`
-   - `{Name}.css.hbs` (same content as React CSS template)
+   - `{Name}.css` (same content as React CSS template)
 
    Angular: **Do not create manually.** Run `npx tsx scripts/generate-angular-templates.ts` to regenerate all Angular templates from component metadata.
 
@@ -284,4 +286,4 @@ Every React `.tsx.hbs` template emits `suppressHydrationWarning` on its Web Awes
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-22
+**Last Updated:** 2026-04-23
