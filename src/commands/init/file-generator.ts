@@ -81,7 +81,9 @@ export async function generateProjectFiles(
       config,
       utilsDir,
       tier,
-      { preserveLayersCSS: true }
+      { preserveLayersCSS: true },
+      isNext,
+      nextRouter
     );
     output.log(`[DEBUG] ✓ kigumi.ts generated`);
     if (layersPreserved) {

@@ -86,7 +86,7 @@ describe('handleExistingConfig', () => {
 
       await handleExistingConfig(
         makeConfig({ framework: 'vue', typescript: false }),
-        tempDir,
+        'free',
         mockOutput
       );
 
@@ -104,7 +104,7 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
+      await handleExistingConfig(makeConfig(), 'free', mockOutput);
 
       expect(mockOutput.note).toHaveBeenCalledWith(
         'Current Configuration',
@@ -128,7 +128,7 @@ describe('handleExistingConfig', () => {
             brandColor: 'purple',
           },
         }),
-        tempDir,
+        'free',
         mockOutput
       );
 
@@ -147,7 +147,7 @@ describe('handleExistingConfig', () => {
 
       const result = await handleExistingConfig(
         makeConfig(),
-        tempDir,
+        'free',
         mockOutput,
         true
       );
@@ -160,7 +160,7 @@ describe('handleExistingConfig', () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
 
-      await handleExistingConfig(makeConfig(), tempDir, mockOutput, true);
+      await handleExistingConfig(makeConfig(), 'free', mockOutput, true);
 
       expect(mockOutput.info).toHaveBeenCalledWith(
         expect.stringContaining('non-interactive mode')
@@ -179,7 +179,7 @@ describe('handleExistingConfig', () => {
 
       const result = await handleExistingConfig(
         makeConfig(),
-        tempDir,
+        'free',
         mockOutput
       );
       expect(result).toBe('update');
@@ -195,7 +195,7 @@ describe('handleExistingConfig', () => {
 
       const result = await handleExistingConfig(
         makeConfig(),
-        tempDir,
+        'free',
         mockOutput
       );
       expect(result).toBe('reinstall');
@@ -211,7 +211,7 @@ describe('handleExistingConfig', () => {
 
       const result = await handleExistingConfig(
         makeConfig(),
-        tempDir,
+        'free',
         mockOutput
       );
       expect(result).toBe('cancel');
@@ -230,7 +230,7 @@ describe('handleExistingConfig', () => {
 
       const result = await handleExistingConfig(
         makeConfig(),
-        tempDir,
+        'free',
         mockOutput
       );
       expect(result).toBe('cancel');
@@ -244,7 +244,7 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
+      await handleExistingConfig(makeConfig(), 'free', mockOutput);
 
       expect(clackModule.select).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -271,7 +271,7 @@ describe('handleExistingConfig', () => {
         );
         const result = await handleExistingConfig(
           makeConfig(),
-          tempDir,
+          'free',
           mockOutput
         );
         expect(['update', 'reinstall', 'cancel']).toContain(result);
@@ -279,13 +279,8 @@ describe('handleExistingConfig', () => {
     });
   });
 
-  describe('pro tier detection', () => {
-    it('should show pro tier in config details when detected', async () => {
-      const tierModule = await import('../../src/utils/tier.js');
-      (tierModule.detectTier as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'pro'
-      );
-
+  describe('pro tier display', () => {
+    it('should show pro tier in config details when the caller resolved pro', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
       const clackModule = await import('@clack/prompts');
@@ -293,15 +288,11 @@ describe('handleExistingConfig', () => {
         'update'
       );
 
-      await handleExistingConfig(makeConfig(), tempDir, mockOutput);
+      await handleExistingConfig(makeConfig(), 'pro', mockOutput);
 
       expect(mockOutput.note).toHaveBeenCalledWith(
         'Current Configuration',
         expect.stringContaining('pro')
-      );
-
-      (tierModule.detectTier as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'free'
       );
     });
   });

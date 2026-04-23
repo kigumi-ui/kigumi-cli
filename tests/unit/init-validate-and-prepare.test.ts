@@ -125,4 +125,79 @@ describe('validateAndPrepare', () => {
       expect(mockOutput.warning).not.toHaveBeenCalled();
     });
   });
+
+  describe('previousTier detection', () => {
+    beforeEach(async () => {
+      // Existing config required for previousTier to be computed
+      await fs.writeJSON(path.join(tempDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components/ui',
+        theme: {
+          selected: 'default',
+          palette: 'default',
+          brandColor: 'blue',
+        },
+      });
+
+      const clackModule = await import('@clack/prompts');
+      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
+        'update'
+      );
+    });
+
+    it('returns "pro" when webawesome-pro is only in devDependencies', async () => {
+      // detectPreviousTier previously only checked dependencies. Projects that
+      // install webawesome-pro in devDependencies (e.g. component libraries)
+      // must still be detected as previously Pro so tier-migration triggers.
+      await fs.writeJSON(path.join(tempDir, 'package.json'), {
+        name: 'test-project',
+        version: '0.0.0',
+        devDependencies: {
+          '@awesome.me/webawesome-pro': '^3.0.0',
+        },
+      });
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+
+      const ctx = await validateAndPrepare({}, tempDir, mockOutput);
+
+      expect(ctx.previousTier).toBe('pro');
+    });
+
+    it('returns "pro" when webawesome-pro is in dependencies', async () => {
+      await fs.writeJSON(path.join(tempDir, 'package.json'), {
+        name: 'test-project',
+        version: '0.0.0',
+        dependencies: {
+          '@awesome.me/webawesome-pro': '^3.0.0',
+        },
+      });
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+
+      const ctx = await validateAndPrepare({}, tempDir, mockOutput);
+
+      expect(ctx.previousTier).toBe('pro');
+    });
+
+    it('returns "free" when neither webawesome-pro nor Pro token is present', async () => {
+      await fs.writeJSON(path.join(tempDir, 'package.json'), {
+        name: 'test-project',
+        version: '0.0.0',
+        dependencies: {
+          '@awesome.me/webawesome': '^3.0.0',
+        },
+      });
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+
+      const ctx = await validateAndPrepare({}, tempDir, mockOutput);
+
+      expect(ctx.previousTier).toBe('free');
+    });
+  });
 });

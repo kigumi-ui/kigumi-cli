@@ -69,8 +69,15 @@ async function detectPreviousTier(cwd: string): Promise<Tier> {
 
     const packageJson = await fs.readJSON(packageJsonPath);
 
-    // If Pro package is installed, previous tier was Pro
-    if (packageJson.dependencies?.[WEB_AWESOME_PRO_PACKAGE]) {
+    // If Pro package is installed, previous tier was Pro.
+    // Check both dependency fields so we match detectTier() — installing the
+    // Pro package in devDependencies (e.g. for a component library) must still
+    // trigger tier-migration detection.
+    const deps = {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
+    };
+    if (deps[WEB_AWESOME_PRO_PACKAGE]) {
       return 'pro';
     }
 
@@ -129,6 +136,13 @@ interface InitContext {
   existingAction: import('./existing-config.js').ExistingConfigAction | null;
   projectInfo: Awaited<ReturnType<typeof getProjectInfo>>;
   previousTier: Tier;
+  /**
+   * Tier as detected at the command entry (from .env / package.json).
+   * A Pro token provided via CLI or interactive prompt may upgrade this
+   * later — captured on ConfigResult.newTier. Passing this value down
+   * avoids redundant detectTier calls in downstream helpers.
+   */
+  initialTier: Tier;
 }
 
 /** Result from configuration phase */
@@ -168,7 +182,7 @@ export async function initCommand(options: InitOptions = {}) {
 
     // Reinstall: skip config wizard, just reinstall deps with existing config
     if (context.existingAction === 'reinstall' && context.existingConfig) {
-      const newTier = await detectTier(cwd);
+      const newTier = context.initialTier;
       const skipInstall = options.install === false;
       await handleDependencies(
         context,
@@ -247,16 +261,26 @@ export async function validateAndPrepare(
     (validatedOptions.framework && validatedOptions.theme)
   );
 
-  // 5. Check for existing config
+  // 5. Detect tier once — reused by handleExistingConfig (display), the
+  //    config-builders (theme gating), and the reinstall branch. Downstream
+  //    helpers must not re-detect.
+  const initialTier = await detectTier(cwd);
+
+  // 6. Check for existing config
   const existingConfig = loadConfig(cwd);
   const existingAction = existingConfig
-    ? await handleExistingConfig(existingConfig, cwd, output, isNonInteractive)
+    ? await handleExistingConfig(
+        existingConfig,
+        initialTier,
+        output,
+        isNonInteractive
+      )
     : null;
   if (existingAction === 'cancel') {
     throw new UserCancelledError('Configuration cancelled by user');
   }
 
-  // 6. Detect previous tier from installed packages
+  // 7. Detect previous tier from installed packages
   const previousTier = existingConfig ? await detectPreviousTier(cwd) : 'free';
 
   return {
@@ -267,6 +291,7 @@ export async function validateAndPrepare(
     existingAction,
     projectInfo,
     previousTier,
+    initialTier,
   };
 }
 
@@ -283,7 +308,7 @@ async function buildConfiguration(
   context: InitContext,
   options: InitOptions
 ): Promise<ConfigResult> {
-  const { cwd, output, isNonInteractive, projectInfo } = context;
+  const { cwd, output, isNonInteractive, projectInfo, initialTier } = context;
   const validatedOptions = validators.init(options);
 
   const { config, proToken } = isNonInteractive
@@ -292,6 +317,7 @@ async function buildConfiguration(
         projectInfo,
         cwd,
         output,
+        initialTier,
         context.existingConfig
       )
     : await buildConfigInteractive(
@@ -299,11 +325,15 @@ async function buildConfiguration(
         projectInfo,
         cwd,
         output,
+        initialTier,
         context.existingConfig
       );
 
-  // Detect NEW tier from current .env state
-  const newTier = proToken ? 'pro' : await detectTier(cwd);
+  // Derive NEW tier: a Pro token collected via options or interactive prompt
+  // upgrades tier to 'pro'. Otherwise the tier detected at command entry still
+  // stands — .env is only written later in installer/file-generator, so
+  // re-detecting here would observe the same state.
+  const newTier = proToken ? 'pro' : initialTier;
 
   return { config, proToken, newTier };
 }

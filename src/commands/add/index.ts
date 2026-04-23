@@ -37,6 +37,10 @@ import {
 import { getGitHubToken } from '../../utils/github-token.js';
 import { resolveRegistrySource } from '../../utils/registry-resolver.js';
 import { detectTier } from '../../utils/tier.js';
+import {
+  isNextProject,
+  detectNextRouter,
+} from '../../utils/detect-framework.js';
 import { updateViteEnvTypes } from '../../utils/vite-env.js';
 
 /**
@@ -252,6 +256,12 @@ async function addFromBuiltinRegistry(
   // so one detection suffices.
   const tier = await detectTier(cwd);
 
+  // Detect Next-project context once per command. Router-dependent
+  // post-render logic in generateComponent would otherwise probe the
+  // filesystem for each of N components, costing ~10 stats per probe.
+  const isNext = await isNextProject(cwd);
+  const nextRouter = isNext ? await detectNextRouter(cwd) : undefined;
+
   // 2. Determine components to add
   const componentsToAdd = await selectComponents(
     components,
@@ -264,7 +274,14 @@ async function addFromBuiltinRegistry(
   await validateComponents(componentsToAdd, tier, output);
 
   // 4. Install components
-  const installer = new ComponentInstaller(cwd, config, output, tier);
+  const installer = new ComponentInstaller(
+    cwd,
+    config,
+    output,
+    tier,
+    isNext,
+    nextRouter
+  );
   const results = await installer.installComponents(componentsToAdd, options);
 
   // 5. Update provenance tracking for builtin components

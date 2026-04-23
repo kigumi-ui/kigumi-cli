@@ -32,7 +32,11 @@ import type { KigumiConfig } from './config.js';
 import type { Tier } from './tier.js';
 import { generateCSSTemplate } from './css-metadata.js';
 import { toKebabCase } from './naming.js';
-import { isNextProject, detectNextRouter } from './detect-framework.js';
+import {
+  isNextProject,
+  detectNextRouter,
+  type NextRouter,
+} from './detect-framework.js';
 
 // Register Handlebars helper to quote property names with hyphens
 Handlebars.registerHelper('quoteProp', function (propName: string) {
@@ -199,11 +203,16 @@ export function getFileBaseName(
  * @param component - Component definition from registry
  * @param config - Kigumi configuration
  * @param typescript - Whether to generate TypeScript (.tsx) or JavaScript (.jsx)
- * @param cwd - Working directory (used for the tier fallback)
+ * @param cwd - Working directory (used for the tier / Next fallbacks)
  * @param tier - Pre-resolved tier. Callers that already know the tier should
  *   pass it through to avoid redundant disk I/O. Callers without
- *   a tier in context (update/diff commands, framework plugins) may omit it;
- *   detection falls back to `detectTierSync(cwd)`.
+ *   a tier in context (framework plugins) may omit it; detection
+ *   falls back to `detectTierSync(cwd)`.
+ * @param isNext - Pre-resolved Next-project flag. Same contract as `tier`:
+ *   pass through when known, fall back to `isNextProject(cwd)` otherwise.
+ * @param nextRouter - Pre-resolved Next router. Ignored unless `isNext` is
+ *   true. Callers that already detected the router at the command entry
+ *   should pass it through to avoid repeating the filesystem probe.
  * @returns Generated component code
  */
 export async function generateComponent(
@@ -211,7 +220,9 @@ export async function generateComponent(
   config: KigumiConfig,
   typescript: boolean = true,
   cwd: string = process.cwd(),
-  tier?: Tier
+  tier?: Tier,
+  isNext?: boolean,
+  nextRouter?: NextRouter
 ): Promise<string> {
   // Build context with correct import path based on tier
   const { detectTierSync, getWebAwesomePackage } = await import('./tier.js');
@@ -252,11 +263,17 @@ export async function generateComponent(
   const rendered = await renderTemplate(templatePath, context);
 
   // Next-specific post-render transforms for React wrappers.
-  if (config.framework !== 'react' || !(await isNextProject(cwd))) {
+  // Prefer caller-provided context so a `kigumi add --all` or update sweep
+  // does not repeat the project-type probe for every component.
+  if (config.framework !== 'react') {
+    return rendered;
+  }
+  const resolvedIsNext = isNext ?? (await isNextProject(cwd));
+  if (!resolvedIsNext) {
     return rendered;
   }
 
-  const router = await detectNextRouter(cwd);
+  const router = nextRouter ?? (await detectNextRouter(cwd));
   let output = rendered;
 
   // Pages Router rejects side-effect global CSS imports from any file other
