@@ -18,6 +18,7 @@ export const Tree = React.forwardRef(
     }), []);
 
     useEffect(() => {
+      ensureLoaded();
       const el = treeRef.current;
       if (!el) return;
 
@@ -30,9 +31,6 @@ export const Tree = React.forwardRef(
       };
     }, [onSelectionChange]);
 
-    React.useEffect(() => {
-      ensureLoaded();
-    }, []);
 
     return (
       <wa-tree

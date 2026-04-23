@@ -20,6 +20,7 @@ export const Tooltip = React.forwardRef(
     }), []);
 
     useEffect(() => {
+      ensureLoaded();
       const el = tooltipRef.current;
       if (!el || open === undefined) return;
       const isOpen = el.open ?? false;
@@ -52,9 +53,6 @@ export const Tooltip = React.forwardRef(
       };
     }, [onShow, onAfterShow, onHide, onAfterHide]);
 
-    React.useEffect(() => {
-      ensureLoaded();
-    }, []);
 
     return (
       <wa-tooltip

@@ -19,6 +19,7 @@ export const TreeItem = React.forwardRef(
     }), []);
 
     useEffect(() => {
+      ensureLoaded();
       const el = treeItemRef.current;
       if (!el) return;
 
@@ -46,9 +47,6 @@ export const TreeItem = React.forwardRef(
       };
     }, [onCollapse, onAfterCollapse, onExpand, onAfterExpand, onLazyChange, onLazyLoad]);
 
-    React.useEffect(() => {
-      ensureLoaded();
-    }, []);
 
     return (
       <wa-tree-item

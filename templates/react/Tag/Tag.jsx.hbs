@@ -18,6 +18,7 @@ export const Tag = React.forwardRef(
     }), []);
 
     useEffect(() => {
+      ensureLoaded();
       const el = tagRef.current;
       if (!el) return;
 
@@ -30,9 +31,6 @@ export const Tag = React.forwardRef(
       };
     }, [onRemove]);
 
-    React.useEffect(() => {
-      ensureLoaded();
-    }, []);
 
     return (
       <wa-tag

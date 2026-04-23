@@ -25,6 +25,7 @@ export const Textarea = React.forwardRef(
     }), []);
 
     useEffect(() => {
+      ensureLoaded();
       const el = textareaRef.current;
       if (!el) return;
 
@@ -49,9 +50,6 @@ export const Textarea = React.forwardRef(
       };
     }, [onInput, onChange, onInvalid, onFocus, onBlur]);
 
-    React.useEffect(() => {
-      ensureLoaded();
-    }, []);
 
     return (
       <wa-textarea
