@@ -16,7 +16,8 @@ import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { handleError, ConfigNotFoundError } from '../errors/index.js';
-import { getComponent } from '../utils/registry.js';
+import { getComponent, normalizeComponentName } from '../utils/registry.js';
+import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
   generateComponentCSSContent,
@@ -177,14 +178,15 @@ export async function diffCommand(
  * Resolve which components to check.
  * If specific names given, use those. Otherwise, scan the components directory.
  */
-async function resolveComponents(
+export async function resolveComponents(
   names: string[],
   config: KigumiConfig,
   cwd: string
 ): Promise<string[]> {
   if (names.length > 0) {
-    // Normalize: accept lowercase, return PascalCase
-    return names.map((n) => n.charAt(0).toUpperCase() + n.slice(1));
+    // Canonicalize user input (kebab or PascalCase) to the registry's PascalCase name.
+    // Unknown inputs pass through unchanged so diffComponent() can report the miss.
+    return names.map((n) => normalizeComponentName(n) ?? n);
   }
 
   // Scan components directory for installed components
@@ -197,7 +199,7 @@ async function resolveComponents(
   return entries
     .filter((e) => e.isDirectory())
     .map((e) => e.name)
-    .filter((name) => getComponent(name.toLowerCase()) !== null) // Only builtin components
+    .filter((name) => getComponent(toKebabCase(name)) !== null) // Only builtin components
     .sort();
 }
 
@@ -209,7 +211,7 @@ async function diffComponent(
   config: KigumiConfig,
   cwd: string
 ): Promise<ComponentDiffResult | null> {
-  const component = getComponent(componentName.toLowerCase());
+  const component = getComponent(toKebabCase(componentName));
   if (!component) {
     return null; // Not a builtin component, skip
   }

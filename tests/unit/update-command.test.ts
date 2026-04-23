@@ -90,39 +90,55 @@ vi.mock('../../src/utils/template.js', async () => {
 });
 
 // Mock registry
-vi.mock('../../src/utils/registry.js', () => ({
-  getComponent: vi.fn((name: string) => {
-    const registry: Record<
-      string,
-      {
-        name: string;
-        tagName: string;
-        importPath: string;
-        tier: string;
-        category: string;
-        description: string;
-      }
-    > = {
-      button: {
-        name: 'Button',
-        tagName: 'wa-button',
-        importPath: '@awesome.me/webawesome/dist/components/button/button.js',
-        tier: 'free',
-        category: 'Actions',
-        description: 'Buttons represent actions available to the user',
-      },
-      dialog: {
-        name: 'Dialog',
-        tagName: 'wa-dialog',
-        importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
-        tier: 'free',
-        category: 'Overlays',
-        description: 'Dialogs display interactive content',
-      },
-    };
-    return registry[name.toLowerCase()] ?? null;
-  }),
-}));
+vi.mock('../../src/utils/registry.js', async () => {
+  const { toKebabCase } = await vi.importActual<
+    typeof import('../../src/utils/naming.js')
+  >('../../src/utils/naming.js');
+  const registry: Record<
+    string,
+    {
+      name: string;
+      tagName: string;
+      importPath: string;
+      tier: string;
+      category: string;
+      description: string;
+    }
+  > = {
+    button: {
+      name: 'Button',
+      tagName: 'wa-button',
+      importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+      tier: 'free',
+      category: 'Actions',
+      description: 'Buttons represent actions available to the user',
+    },
+    dialog: {
+      name: 'Dialog',
+      tagName: 'wa-dialog',
+      importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
+      tier: 'free',
+      category: 'Overlays',
+      description: 'Dialogs display interactive content',
+    },
+    'button-group': {
+      name: 'ButtonGroup',
+      tagName: 'wa-button-group',
+      importPath:
+        '@awesome.me/webawesome/dist/components/button-group/button-group.js',
+      tier: 'free',
+      category: 'Actions',
+      description: 'Groups related buttons together',
+    },
+  };
+  return {
+    getComponent: vi.fn((name: string) => registry[name.toLowerCase()] ?? null),
+    normalizeComponentName: vi.fn((input: string) => {
+      const match = registry[toKebabCase(input)];
+      return match ? match.name : null;
+    }),
+  };
+});
 
 // Mock tier detection
 vi.mock('../../src/utils/tier.js', () => ({
@@ -744,5 +760,112 @@ describe('updateCommand', () => {
     // No snapshot created
     const snapshotDir = path.join(testDir, '.kigumi/snapshots/Button');
     expect(await fs.pathExists(snapshotDir)).toBe(false);
+  });
+
+  describe('resolveComponents (multi-word regression)', () => {
+    // Regression guard: previously the scan branch used name.toLowerCase()
+    // to build registry keys, so ButtonGroup → buttongroup missed the
+    // button-group key and was silently dropped. The names branch used
+    // charAt(0).toUpperCase() which turned button-group into Button-group.
+    it('recognizes PascalCase multi-word directories in the scan branch', async () => {
+      const { resolveComponents } =
+        await import('../../src/commands/update.js');
+      const componentsDir = path.join(testDir, 'src/components');
+      await fs.ensureDir(path.join(componentsDir, 'Button'));
+      await fs.ensureDir(path.join(componentsDir, 'ButtonGroup'));
+      await fs.ensureDir(path.join(componentsDir, 'NotAComponent'));
+
+      const config = {
+        framework: 'react' as const,
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const result = await resolveComponents([], config, testDir);
+
+      expect(result).toEqual(['Button', 'ButtonGroup']);
+    });
+
+    it('canonicalizes kebab-case name arguments to PascalCase', async () => {
+      const { resolveComponents } =
+        await import('../../src/commands/update.js');
+      const config = {
+        framework: 'react' as const,
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const result = await resolveComponents(
+        ['button-group', 'button'],
+        config,
+        testDir
+      );
+
+      expect(result).toEqual(['ButtonGroup', 'Button']);
+    });
+
+    it('accepts PascalCase name arguments unchanged', async () => {
+      const { resolveComponents } =
+        await import('../../src/commands/update.js');
+      const config = {
+        framework: 'react' as const,
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const result = await resolveComponents(
+        ['ButtonGroup', 'Button'],
+        config,
+        testDir
+      );
+
+      expect(result).toEqual(['ButtonGroup', 'Button']);
+    });
+
+    it('passes unknown name arguments through so the caller can report the miss', async () => {
+      const { resolveComponents } =
+        await import('../../src/commands/update.js');
+      const config = {
+        framework: 'react' as const,
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const result = await resolveComponents(
+        ['not-a-real-component'],
+        config,
+        testDir
+      );
+
+      expect(result).toEqual(['not-a-real-component']);
+    });
   });
 });

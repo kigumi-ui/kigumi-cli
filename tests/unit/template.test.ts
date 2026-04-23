@@ -4,7 +4,7 @@
  * Tests for src/utils/template.ts - Handlebars rendering
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
@@ -478,6 +478,97 @@ describe('template utilities', () => {
         'js/src/components/Input/Input.test.jsx'
       );
       expect(await fs.pathExists(jsTestPath)).toBe(true);
+    });
+  });
+
+  describe('generateComponentTestContent - Angular kebab-case template lookup', () => {
+    // Regression guard against a bug where the Angular test-template lookup
+    // used PascalCase filenames (ButtonGroup.component.spec.ts.hbs) while the
+    // actual template files use kebab-case (button-group.component.spec.ts.hbs).
+    // On case-insensitive macOS the lookup coincidentally succeeded; on
+    // case-sensitive Linux CI it fell through to the inline fallback generator,
+    // producing different output per OS.
+    it('probes the kebab-case filename for multi-word Angular components', async () => {
+      const buttonGroup = getComponent('button-group');
+      expect(buttonGroup).not.toBeNull();
+
+      const angularConfig: KigumiConfig = {
+        framework: 'angular',
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const pathExistsSpy = vi.spyOn(fs, 'pathExists');
+      try {
+        await generateComponentTestContent(
+          buttonGroup as ComponentDefinition,
+          angularConfig
+        );
+
+        const checkedPaths = pathExistsSpy.mock.calls.map(
+          (call) => call[0] as string
+        );
+        const testTemplatePaths = checkedPaths.filter((p) =>
+          p.endsWith('.component.spec.ts.hbs')
+        );
+
+        expect(testTemplatePaths.length).toBeGreaterThan(0);
+        expect(testTemplatePaths.every((p) => p.includes('button-group'))).toBe(
+          true
+        );
+        expect(
+          testTemplatePaths.some((p) => /ButtonGroup\.component\.spec/.test(p))
+        ).toBe(false);
+      } finally {
+        pathExistsSpy.mockRestore();
+      }
+    });
+
+    it('keeps non-Angular frameworks on the PascalCase filename', async () => {
+      const buttonGroup = getComponent('button-group');
+      expect(buttonGroup).not.toBeNull();
+
+      const reactConfig: KigumiConfig = {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const pathExistsSpy = vi.spyOn(fs, 'pathExists');
+      try {
+        await generateComponentTestContent(
+          buttonGroup as ComponentDefinition,
+          reactConfig
+        );
+
+        const checkedPaths = pathExistsSpy.mock.calls.map(
+          (call) => call[0] as string
+        );
+        const testTemplatePaths = checkedPaths.filter(
+          (p) => p.endsWith('.test.tsx.hbs') || p.endsWith('.test.ts.hbs')
+        );
+
+        expect(testTemplatePaths.length).toBeGreaterThan(0);
+        expect(
+          testTemplatePaths.every((p) => p.includes('ButtonGroup.test'))
+        ).toBe(true);
+      } finally {
+        pathExistsSpy.mockRestore();
+      }
     });
   });
 
