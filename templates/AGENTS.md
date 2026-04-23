@@ -60,19 +60,28 @@ Available in all `.hbs` templates:
 Use for: Icon, Badge, Divider, Spinner, etc.
 
 ```typescript
-import { forwardRef, type HTMLAttributes } from 'react';
+import { forwardRef, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './{{name}}.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export interface {{name}}Props extends HTMLAttributes<HTMLElement> {
   // Props matching wa-* attributes
 }
 
 export const {{name}} = forwardRef<HTMLElement, {{name}}Props>(
-  ({ className, ...props }, ref) => (
-    <wa-{{tagName}} ref={ref} class={clsx('{{name}}', className)} {...props} />
-  )
+  ({ className, ...props }, ref) => {
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
+    return (
+      <wa-{{tagName}} ref={ref} class={clsx('{{name}}', className)} {...props} />
+    );
+  }
 );
 
 {{name}}.displayName = '{{name}}';
@@ -85,8 +94,12 @@ Use for: Dialog, Drawer, Dropdown, Select, etc.
 ```typescript
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './{{name}}.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 export interface {{name}}Props extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   // Props
@@ -111,6 +124,7 @@ export const {{name}} = forwardRef<{{name}}Ref, {{name}}Props>(
     }), []);
 
     useEffect(() => {
+      ensureLoaded();
       const el = internalRef.current;
       if (!el) return;
 

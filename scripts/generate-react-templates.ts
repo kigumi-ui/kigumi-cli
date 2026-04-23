@@ -247,8 +247,12 @@ function generateReactTypescriptTemplate(
   // Template
   return `import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
 import './${component.name}.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('{{{importPath}}}'));
+}
 
 /**
  * ${component.description}
@@ -295,6 +299,7 @@ ${
   metadata.events.length > 0
     ? `
     useEffect(() => {
+      ensureLoaded();
       const el = ${component.name.toLowerCase()}Ref.current;
       if (!el) return;
 
@@ -307,7 +312,11 @@ ${removeEventListeners}
       };
     }, [${useEffectDeps}]);
 `
-    : ''
+    : `
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
+`
 }
     return (
       <${component.tagName}

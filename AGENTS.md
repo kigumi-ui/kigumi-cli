@@ -186,13 +186,11 @@ useEffect(() => {
 
 ### 6. Web Component Registration
 
-Components must be imported in `src/lib/kigumi.ts`:
+Generated wrappers register their WA component via a mount-triggered dynamic `import()` inside the wrapper itself, not through a central barrel. Each component becomes its own async chunk, so unused components are tree-shaken out of route bundles. For LCP-critical components that must ship in the initial chunk, add an explicit eager import in `src/lib/kigumi.ts`:
 
 ```typescript
 import '@awesome.me/webawesome/dist/components/button/button.js';
 ```
-
-Auto-managed by `updateKigumiImports()` in `src/commands/add/installer.ts`.
 
 ### 7. Dialog API: `requestClose()` not `hide()`
 
@@ -667,7 +665,7 @@ flowchart TB
 
 | Problem             | Check                       | Fix                                                                            |
 | ------------------- | --------------------------- | ------------------------------------------------------------------------------ |
-| Components unstyled | `kigumi.ts` imports?        | Run `updateKigumiImports()`                                                    |
+| Components unstyled | `kigumi.ts` imports?        | Confirm `layers.css` import. WA JS loads per-component on mount (no barrel).   |
 | TypeScript errors   | `declare module 'react'`?   | Use `declare global` instead                                                   |
 | wa-\* type errors   | `vite-env.d.ts` exists?     | Run `generateViteEnvDts()`                                                     |
 | Theme not applying  | CSS imported? HTML classes? | Check `kigumi.ts` imports                                                      |
