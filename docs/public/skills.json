@@ -61,11 +61,6 @@
       "status": "pending"
     },
     {
-      "name": "transform-webawesome-to-svelte",
-      "framework": "svelte",
-      "status": "pending"
-    },
-    {
       "name": "transform-webawesome-to-angular",
       "framework": "angular",
       "status": "pending"

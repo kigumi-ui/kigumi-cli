@@ -12,6 +12,7 @@ import {
   DEFAULT_CONFIG,
   kigumiConfigSchema,
 } from '../../src/schemas/config.js';
+import { ConfigInvalidError } from '../../src/errors/config.js';
 
 const validConfig = {
   framework: 'react',
@@ -59,9 +60,24 @@ describe('validateConfig', () => {
     expect(result.framework).toBe('vue');
   });
 
-  it('validates svelte framework', () => {
-    const result = validateConfig({ ...validConfig, framework: 'svelte' });
-    expect(result.framework).toBe('svelte');
+  it('rejects svelte framework', () => {
+    let thrown: unknown;
+    try {
+      validateConfig({ ...validConfig, framework: 'svelte' });
+    } catch (err) {
+      thrown = err;
+    }
+    expect(thrown).toBeInstanceOf(ConfigInvalidError);
+    const errors = (thrown as ConfigInvalidError).context.details
+      ?.errors as string[];
+    expect(errors).toEqual(
+      expect.arrayContaining([expect.stringContaining('framework')])
+    );
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Must be one of: react, vue, angular'),
+      ])
+    );
   });
 
   it('validates angular framework', () => {

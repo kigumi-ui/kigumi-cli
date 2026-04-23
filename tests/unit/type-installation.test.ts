@@ -90,8 +90,8 @@ describe('Type Installation Logic', () => {
       expect(devDependencies).not.toContain('@types/react');
     });
 
-    it('should NOT install React types for Svelte projects', () => {
-      const config = { framework: 'svelte', typescript: true };
+    it('should NOT install React types for Angular projects', () => {
+      const config = { framework: 'angular', typescript: true };
       const { dependencies, devDependencies } = calculateDependencies(
         config,
         'free'

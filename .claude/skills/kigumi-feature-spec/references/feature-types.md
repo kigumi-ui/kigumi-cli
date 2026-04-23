@@ -82,8 +82,8 @@ Adding or significantly improving support for a framework target.
 
 **Key files to read:**
 
-- Framework plugin interface: `src/frameworks/` (especially `react.ts` or `vue.ts` as reference)
-- Detection: `src/frameworks/detect-framework.ts`
+- Framework detection: `src/utils/detect-framework.ts` (per-framework branches + `ProjectInfo`)
+- Component generation: `src/utils/template.ts` (Handlebars render + per-framework code paths like Next.js `'use client'` injection)
 - Template structure: `templates/react/` or `templates/vue/` (for pattern reference)
 - Existing worktrees: `.claude/worktrees/` (check if work already started)
 

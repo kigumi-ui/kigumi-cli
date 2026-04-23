@@ -100,7 +100,7 @@ describe('config management', () => {
 
     it('should load config from .kigumirc', async () => {
       const testConfig = {
-        framework: 'svelte',
+        framework: 'react',
         typescript: true,
         componentsDir: 'lib/components',
         theme: { selected: 'default', palette: 'mild', brandColor: 'green' },
@@ -108,7 +108,7 @@ describe('config management', () => {
       await fs.writeJson(path.join(testDir, '.kigumirc'), testConfig);
 
       const config = loadConfig(testDir);
-      expect(config?.framework).toBe('svelte');
+      expect(config?.framework).toBe('react');
     });
 
     it('should load config from package.json kigumi key', async () => {

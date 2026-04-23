@@ -345,19 +345,19 @@ git push                       # Push to GitHub — done!
 }
 ```
 
-| Field                                  | Required | Description                                |
-| -------------------------------------- | -------- | ------------------------------------------ |
-| `name`                                 | Yes      | Registry name                              |
-| `version`                              | Yes      | Semver version (e.g. `1.0.0`)              |
-| `frameworks`                           | Yes      | Array: `react`, `vue`, `svelte`, `angular` |
-| `components[slug].files[fw].component` | Yes      | Main component file path                   |
-| `components[slug].files[fw].css`       | No       | CSS file path                              |
-| `components[slug].files[fw].test`      | No       | Test file path                             |
-| `components[slug].files[fw].extras`    | No       | Additional files (hooks, utils)            |
-| `components[slug].dependencies`        | No       | Other component slugs in this registry     |
-| `themes[slug].files.css`               | Yes      | Main theme CSS file                        |
-| `themes[slug].files.variables`         | No       | CSS variables file                         |
-| `themes[slug].extends`                 | No       | Built-in theme to extend                   |
+| Field                                  | Required | Description                            |
+| -------------------------------------- | -------- | -------------------------------------- |
+| `name`                                 | Yes      | Registry name                          |
+| `version`                              | Yes      | Semver version (e.g. `1.0.0`)          |
+| `frameworks`                           | Yes      | Array: `react`, `vue`, `angular`       |
+| `components[slug].files[fw].component` | Yes      | Main component file path               |
+| `components[slug].files[fw].css`       | No       | CSS file path                          |
+| `components[slug].files[fw].test`      | No       | Test file path                         |
+| `components[slug].files[fw].extras`    | No       | Additional files (hooks, utils)        |
+| `components[slug].dependencies`        | No       | Other component slugs in this registry |
+| `themes[slug].files.css`               | Yes      | Main theme CSS file                    |
+| `themes[slug].files.variables`         | No       | CSS variables file                     |
+| `themes[slug].extends`                 | No       | Built-in theme to extend               |
 
 ## Global Options
 
