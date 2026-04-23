@@ -19,7 +19,7 @@ import type {
   Framework,
 } from '../../schemas/index.js';
 import type { ProjectInfo } from '../../utils/detect-framework.js';
-import { detectTierSync } from '../../utils/tier.js';
+import type { Tier } from '../../utils/tier.js';
 import {
   getAvailableThemes,
   getAvailablePalettes,
@@ -154,6 +154,7 @@ export async function buildConfigNonInteractive(
   projectInfo: ProjectInfo,
   cwd: string,
   output: OutputInterface,
+  initialTier: Tier,
   existingConfig?: KigumiConfig | null
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
   // Framework selection
@@ -189,8 +190,9 @@ export async function buildConfigNonInteractive(
   // Token provided via CLI flag (will be written to .env later)
   const proToken = options.token;
 
-  // Determine tier: Pro if token provided, otherwise detect from .env
-  const tier = proToken ? 'pro' : detectTierSync(cwd);
+  // Determine tier: Pro if token provided, otherwise use the initial tier
+  // detected by the caller at the command entry.
+  const tier = proToken ? 'pro' : initialTier;
 
   const theme = options.theme || 'default';
   const palette = options.palette || 'default';
@@ -248,12 +250,14 @@ export async function buildConfigInteractive(
   projectInfo: ProjectInfo,
   cwd: string,
   output: OutputInterface,
+  initialTier: Tier,
   existingConfig?: KigumiConfig | null
 ): Promise<{ config: KigumiConfig; proToken?: string }> {
   output.info("Let's configure your project");
 
-  // Detect tier from .env
-  const detectedTier = detectTierSync(cwd);
+  // Tier as resolved at the command entry — used to decide whether to
+  // offer the Pro-token prompt and which theme/palette set to show.
+  const detectedTier = initialTier;
 
   // Framework selection
   const SUPPORTED_FRAMEWORKS: Framework[] = ['react', 'vue', 'angular'];

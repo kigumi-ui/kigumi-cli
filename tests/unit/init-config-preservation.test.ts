@@ -116,6 +116,7 @@ describe('config preservation during re-init', () => {
         defaultProjectInfo,
         '/tmp/test',
         mockOutput,
+        'free',
         baseExistingConfig
       );
 
@@ -133,6 +134,7 @@ describe('config preservation during re-init', () => {
         defaultProjectInfo,
         '/tmp/test',
         mockOutput,
+        'free',
         baseExistingConfig
       );
 
@@ -148,6 +150,7 @@ describe('config preservation during re-init', () => {
         defaultProjectInfo,
         '/tmp/test',
         mockOutput,
+        'free',
         baseExistingConfig
       );
 
@@ -164,7 +167,8 @@ describe('config preservation during re-init', () => {
         { yes: true },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput
+        mockOutput,
+        'free'
       );
 
       expect(config.installedComponents).toBeUndefined();
@@ -188,6 +192,7 @@ describe('config preservation during re-init', () => {
         defaultProjectInfo,
         '/tmp/test',
         mockOutput,
+        'free',
         emptyConfig
       );
 
@@ -226,6 +231,7 @@ describe('config preservation during re-init', () => {
         defaultProjectInfo,
         '/tmp/test',
         mockOutput,
+        'free',
         baseExistingConfig
       );
 
@@ -250,6 +256,7 @@ describe('config preservation during re-init', () => {
         defaultProjectInfo,
         '/tmp/test',
         mockOutput,
+        'free',
         baseExistingConfig
       );
 
@@ -275,6 +282,7 @@ describe('config preservation during re-init', () => {
         defaultProjectInfo,
         '/tmp/test',
         mockOutput,
+        'free',
         null
       );
 

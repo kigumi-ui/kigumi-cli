@@ -25,7 +25,11 @@ import {
 import type { KigumiConfig } from '../schemas/config.js';
 import type { Tier } from './tier.js';
 import { detectTierSync, getWebAwesomePackage } from './tier.js';
-import { isNextProject, detectNextRouter } from './detect-framework.js';
+import {
+  isNextProject,
+  detectNextRouter,
+  type NextRouter,
+} from './detect-framework.js';
 import { toKigumiAlias } from './project-config.js';
 import { LayersCssRewriteError } from '../errors/layers-css.js';
 
@@ -45,6 +49,10 @@ export interface RegenerateOptions {
  * @param utilsDir - Path to utils directory (e.g., 'src/lib')
  * @param tierOverride - Optional tier override (uses .env detection if not provided)
  * @param options - Optional regeneration options
+ * @param isNextOverride - Pre-resolved Next-project flag. Callers that
+ *   already detected this at the command entry should pass it through so
+ *   the setup regeneration does not repeat the filesystem probe.
+ * @param nextRouterOverride - Pre-resolved Next router. Same contract.
  * @returns Object indicating if layers.css was preserved
  */
 export async function regenerateKigumiSetup(
@@ -52,7 +60,9 @@ export async function regenerateKigumiSetup(
   config: KigumiConfig,
   utilsDir: string,
   tierOverride?: Tier,
-  options?: RegenerateOptions
+  options?: RegenerateOptions,
+  isNextOverride?: boolean,
+  nextRouterOverride?: NextRouter
 ): Promise<{ layersPreserved: boolean }> {
   // Detect tier from .env, or use override
   const tier = tierOverride || detectTierSync(cwd);
@@ -88,8 +98,11 @@ export async function regenerateKigumiSetup(
   // than `pages/_app.tsx` — including transitively via `lib/kigumi.ts`. Skip
   // the `layers.css` import in that case; the user adds it directly in
   // `_app.tsx` (post-install instructions + Upgrading guide spell this out).
-  const isNext = await isNextProject(cwd);
-  const nextRouter = isNext ? await detectNextRouter(cwd) : undefined;
+  // Prefer caller-provided context so init/add/update sweeps skip the probe.
+  const isNext = isNextOverride ?? (await isNextProject(cwd));
+  const nextRouter = isNext
+    ? (nextRouterOverride ?? (await detectNextRouter(cwd)))
+    : undefined;
   const skipLayersImport = nextRouter === 'pages';
 
   const layersImportLine = skipLayersImport

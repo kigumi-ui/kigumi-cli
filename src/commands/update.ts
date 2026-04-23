@@ -32,6 +32,12 @@ import {
   type FileStatus,
 } from '../utils/three-way-merge.js';
 import { renderDiff } from '../utils/diff-renderer.js';
+import { detectTier, type Tier } from '../utils/tier.js';
+import {
+  isNextProject,
+  detectNextRouter,
+  type NextRouter,
+} from '../utils/detect-framework.js';
 import type { KigumiConfig } from '../schemas/config.js';
 import type { ComponentDefinition } from '../utils/registry.js';
 
@@ -66,6 +72,14 @@ export async function updateCommand(
       throw new ConfigNotFoundError(cwd);
     }
 
+    // Detect tier and Next-project context once here so generateComponent
+    // does not repeat the package.json / .env / next.config probes for every
+    // component we visit. An update sweep across the full installed set
+    // would otherwise hit ~10 fs stats per component for the router check.
+    const tier = await detectTier(cwd);
+    const isNext = await isNextProject(cwd);
+    const nextRouter = isNext ? await detectNextRouter(cwd) : undefined;
+
     // 2. Determine which components to check
     const componentsToCheck = await resolveComponents(components, config, cwd);
 
@@ -90,6 +104,9 @@ export async function updateCommand(
         componentName,
         config,
         cwd,
+        tier,
+        isNext,
+        nextRouter,
         options
       );
       if (result) {
@@ -197,6 +214,9 @@ async function processComponent(
   componentName: string,
   config: KigumiConfig,
   cwd: string,
+  tier: Tier,
+  isNext: boolean,
+  nextRouter: NextRouter | undefined,
   options: UpdateOptions
 ): Promise<ComponentUpdateResult | null> {
   const component = getComponent(toKebabCase(componentName));
@@ -220,7 +240,10 @@ async function processComponent(
     componentDir,
     ext,
     testExt,
-    cwd
+    cwd,
+    tier,
+    isNext,
+    nextRouter
   );
 
   const mergeResults: FileMergeResult[] = [];
@@ -346,7 +369,10 @@ async function buildFileSpecs(
   componentDir: string,
   ext: string,
   testExt: string,
-  cwd: string
+  cwd: string,
+  tier: Tier,
+  isNext: boolean,
+  nextRouter: NextRouter | undefined
 ): Promise<FileSpec[]> {
   const specs: FileSpec[] = [];
   const fileBaseName = getFileBaseName(config.framework, component.name);
@@ -357,7 +383,15 @@ async function buildFileSpecs(
     fileName: componentFileName,
     oursPath: path.join(componentDir, componentFileName),
     generateTheirs: () =>
-      generateComponent(component, config, config.typescript, cwd),
+      generateComponent(
+        component,
+        config,
+        config.typescript,
+        cwd,
+        tier,
+        isNext,
+        nextRouter
+      ),
   });
 
   // CSS file

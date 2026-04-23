@@ -41,6 +41,7 @@ import {
 import { saveSnapshot } from '../../utils/snapshot.js';
 import { renderDiff } from '../../utils/diff-renderer.js';
 import type { Tier } from '../../utils/tier.js';
+import type { NextRouter } from '../../utils/detect-framework.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../schemas/config.js';
@@ -74,7 +75,9 @@ export class ComponentInstaller {
     private cwd: string,
     private config: KigumiConfig,
     private output: OutputInterface,
-    private tier: Tier
+    private tier: Tier,
+    private isNext?: boolean,
+    private nextRouter?: NextRouter
   ) {}
 
   /**
@@ -137,7 +140,9 @@ export class ComponentInstaller {
       this.config,
       this.config.typescript,
       this.cwd,
-      this.tier
+      this.tier,
+      this.isNext,
+      this.nextRouter
     );
 
     const ext = getComponentExtension(
