@@ -126,6 +126,31 @@ describe('validateAndPrepare', () => {
     });
   });
 
+  describe('when the existing config is invalid', () => {
+    it('warns, skips the existing-config prompt, and returns existingConfig=null', async () => {
+      await fs.writeJSON(path.join(tempDir, 'kigumi.config.json'), {
+        framework: 'bogus',
+        theme: { selected: 'nope' },
+      });
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+
+      const ctx = await validateAndPrepare({}, tempDir, mockOutput);
+
+      expect(mockOutput.warning).toHaveBeenCalledTimes(1);
+      expect(mockOutput.warning).toHaveBeenCalledWith(
+        expect.stringContaining('invalid')
+      );
+      expect(ctx.existingConfig).toBeNull();
+      expect(ctx.existingAction).toBeNull();
+      expect(mockOutput.note).not.toHaveBeenCalledWith(
+        'Current Configuration',
+        expect.anything()
+      );
+    });
+  });
+
   describe('previousTier detection', () => {
     beforeEach(async () => {
       // Existing config required for previousTier to be computed
