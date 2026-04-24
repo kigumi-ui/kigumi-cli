@@ -3,10 +3,10 @@
  * Documentation: https://webawesome.com/docs/components/split-panel
  *
  * CSS Custom Properties:
- * - --divider-width: The width of the visible divider.
- * - --divider-hit-area: The invisible region around the divider where dragging can occur. This is usually wider than the divider to facilitate easier dragging.
- * - --min: The minimum allowed size of the primary panel.
- * - --max: The maximum allowed size of the primary panel.
+ * - --divider-width: The width of the visible divider. (default: 4px)
+ * - --divider-hit-area: The invisible region around the divider where dragging can occur. This is usually wider than the divider to facilitate easier dragging. (default: 12px)
+ * - --min: The minimum allowed size of the primary panel. (default: 0)
+ * - --max: The maximum allowed size of the primary panel. (default: 100%)
  *
  * CSS Parts:
  * - start: The start panel.

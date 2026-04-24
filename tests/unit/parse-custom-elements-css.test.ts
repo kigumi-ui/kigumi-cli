@@ -106,6 +106,24 @@ describe('extractCssMetadata (pure)', () => {
     expect(Object.keys(prop)).toEqual(['name', 'description']);
   });
 
+  it('preserves an empty-string default (distinguishes "no default" from "default is empty")', () => {
+    // Guard: a truthiness check (`if (p.default)`) would silently drop this.
+    // CEM is free to ship `default: ""` for reset-style properties, so the
+    // contract must be "present iff CEM says it's present".
+    const result = extractCssMetadata({
+      tagName: 'wa-dialog',
+      cssParts: [],
+      cssProperties: [
+        { name: '--reset-color', description: 'Reset color.', default: '' },
+      ],
+    });
+    expect(result?.customProperties[0]).toEqual({
+      name: '--reset-color',
+      description: 'Reset color.',
+      default: '',
+    });
+  });
+
   it('filters entries where CEM omits the name field', () => {
     const result = extractCssMetadata({
       tagName: 'wa-dialog',
@@ -382,15 +400,27 @@ describe('Generated CSS templates use CSS_METADATA consistently', () => {
     }
   });
 
-  it('Angular Dialog CSS exposes --show-duration with its default, matching CEM', async () => {
-    const angular = await fs.readFile(
-      path.join(TEMPLATES_DIR, 'angular/Dialog/dialog.component.css'),
-      'utf-8'
-    );
-    // Regression guard: verify the custom-properties section renders AND
-    // includes default values. Angular used to only emit parts.
-    expect(angular).toMatch(/CSS Custom Properties:/);
-    expect(angular).toMatch(/--show-duration.*default: 200ms/);
+  it('Dialog CSS exposes --show-duration with its default in all three frameworks', async () => {
+    // Guards two related classes of bug:
+    //   1. Angular previously only emitted parts (never customProperties).
+    //   2. React/Vue emitted customProperties but dropped the default value.
+    // All three generators must now surface CEM defaults consistently.
+    const frameworks = [
+      ['react', 'react/Dialog/Dialog.css'],
+      ['vue', 'vue/Dialog/Dialog.css'],
+      ['angular', 'angular/Dialog/dialog.component.css'],
+    ] as const;
+    for (const [framework, rel] of frameworks) {
+      const content = await fs.readFile(path.join(TEMPLATES_DIR, rel), 'utf-8');
+      expect(
+        content,
+        `${framework} Dialog.css is missing the CSS Custom Properties section`
+      ).toMatch(/CSS Custom Properties:/);
+      expect(
+        content,
+        `${framework} Dialog.css is missing the "default: 200ms" annotation for --show-duration`
+      ).toMatch(/--show-duration.*default: 200ms/);
+    }
   });
 
   it('a Tooltip-class component carries parts + properties in all frameworks', async () => {

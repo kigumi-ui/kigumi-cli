@@ -3,10 +3,10 @@
  * Documentation: https://webawesome.com/docs/components/popover
  *
  * CSS Custom Properties:
- * - --arrow-size: The size of the tiny arrow that points to the popover (set to zero to remove).
- * - --max-width: The maximum width of the popover's body content.
- * - --show-duration: The speed of the show animation.
- * - --hide-duration: The speed of the hide animation.
+ * - --arrow-size: The size of the tiny arrow that points to the popover (set to zero to remove). (default: 0.375rem)
+ * - --max-width: The maximum width of the popover's body content. (default: 25rem)
+ * - --show-duration: The speed of the show animation. (default: 100ms)
+ * - --hide-duration: The speed of the hide animation. (default: 100ms)
  *
  * CSS Parts:
  * - dialog: The native dialog element that contains the popover content.

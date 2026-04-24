@@ -3,12 +3,12 @@
  * Documentation: https://webawesome.com/docs/components/page
  *
  * CSS Custom Properties:
- * - --menu-width: The width of the page's "menu" section.
- * - --main-width: The width of the page's "main" section.
- * - --aside-width: The wide of the page's "aside" section.
- * - --banner-height: The height of the banner. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
- * - --header-height: The height of the header. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
- * - --subheader-height: The height of the subheader. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
+ * - --menu-width: The width of the page's "menu" section. (default: auto)
+ * - --main-width: The width of the page's "main" section. (default: 1fr)
+ * - --aside-width: The wide of the page's "aside" section. (default: auto)
+ * - --banner-height: The height of the banner. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads. (default: 0px)
+ * - --header-height: The height of the header. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads. (default: 0px)
+ * - --subheader-height: The height of the subheader. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads. (default: 0px)
  *
  * CSS Parts:
  * - base: The component's base wrapper.

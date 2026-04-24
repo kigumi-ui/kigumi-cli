@@ -355,7 +355,8 @@ function generateCSSTemplate(componentName: string): string {
   if (metadata?.customProperties && metadata.customProperties.length > 0) {
     content += ` * CSS Custom Properties:\n`;
     metadata.customProperties.forEach((prop) => {
-      content += ` * - ${prop.name}: ${prop.description}\n`;
+      const suffix = prop.default ? ` (default: ${prop.default})` : '';
+      content += ` * - ${prop.name}: ${prop.description}${suffix}\n`;
     });
   } else {
     content += ` * CSS Custom Properties:\n * (No custom properties defined for this component)\n`;
