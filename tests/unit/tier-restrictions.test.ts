@@ -78,16 +78,19 @@ describe('tier restrictions', () => {
   });
 
   describe('isPaletteAvailable', () => {
-    it('should allow all standard palettes for free tier', () => {
+    it('should allow free palettes for free tier', () => {
       expect(isPaletteAvailable('default', 'free')).toBe(true);
       expect(isPaletteAvailable('bright', 'free')).toBe(true);
       expect(isPaletteAvailable('shoelace', 'free')).toBe(true);
-      expect(isPaletteAvailable('rudimentary', 'free')).toBe(true);
-      expect(isPaletteAvailable('elegant', 'free')).toBe(true);
-      expect(isPaletteAvailable('mild', 'free')).toBe(true);
-      expect(isPaletteAvailable('natural', 'free')).toBe(true);
-      expect(isPaletteAvailable('anodized', 'free')).toBe(true);
-      expect(isPaletteAvailable('vogue', 'free')).toBe(true);
+    });
+
+    it('should deny pro palettes for free tier', () => {
+      expect(isPaletteAvailable('rudimentary', 'free')).toBe(false);
+      expect(isPaletteAvailable('elegant', 'free')).toBe(false);
+      expect(isPaletteAvailable('mild', 'free')).toBe(false);
+      expect(isPaletteAvailable('natural', 'free')).toBe(false);
+      expect(isPaletteAvailable('anodized', 'free')).toBe(false);
+      expect(isPaletteAvailable('vogue', 'free')).toBe(false);
     });
 
     it('should allow all standard palettes for pro tier', () => {
@@ -272,18 +275,10 @@ describe('tier restrictions', () => {
   });
 
   describe('getAvailablePalettes', () => {
-    it('should return all palettes for free tier', () => {
+    it('should return only free palettes for free tier', () => {
       const palettes = getAvailablePalettes('free');
 
-      expect(palettes).toContain('default');
-      expect(palettes).toContain('bright');
-      expect(palettes).toContain('shoelace');
-      expect(palettes).toContain('rudimentary');
-      expect(palettes).toContain('elegant');
-      expect(palettes).toContain('mild');
-      expect(palettes).toContain('natural');
-      expect(palettes).toContain('anodized');
-      expect(palettes).toContain('vogue');
+      expect(palettes).toEqual(['default', 'bright', 'shoelace']);
     });
 
     it('should return all palettes for pro tier', () => {
@@ -300,15 +295,17 @@ describe('tier restrictions', () => {
       expect(palettes).toContain('vogue');
     });
 
-    it('should have same palettes for both tiers', () => {
+    it('should have pro as a superset of free', () => {
       const freePalettes = getAvailablePalettes('free');
       const proPalettes = getAvailablePalettes('pro');
 
-      expect(freePalettes).toEqual(proPalettes);
+      for (const palette of freePalettes) {
+        expect(proPalettes).toContain(palette);
+      }
     });
 
-    it('should have correct length', () => {
-      expect(getAvailablePalettes('free')).toHaveLength(9);
+    it('should have correct length per tier', () => {
+      expect(getAvailablePalettes('free')).toHaveLength(3);
       expect(getAvailablePalettes('pro')).toHaveLength(9);
     });
   });
@@ -322,12 +319,15 @@ describe('tier restrictions', () => {
       expect(TIER_RESTRICTIONS.themes.pro).toHaveLength(11);
     });
 
-    it('should have same 9 palettes for both tiers', () => {
-      expect(TIER_RESTRICTIONS.palettes.free).toHaveLength(9);
+    it('should have 3 free palettes', () => {
+      expect(TIER_RESTRICTIONS.palettes.free).toHaveLength(3);
+    });
+
+    it('should have 9 pro palettes (superset of free)', () => {
       expect(TIER_RESTRICTIONS.palettes.pro).toHaveLength(9);
-      expect(TIER_RESTRICTIONS.palettes.free).toEqual(
-        TIER_RESTRICTIONS.palettes.pro
-      );
+      for (const palette of TIER_RESTRICTIONS.palettes.free) {
+        expect(TIER_RESTRICTIONS.palettes.pro).toContain(palette);
+      }
     });
 
     it('should NOT have a components field (deleted in favor of registry)', () => {

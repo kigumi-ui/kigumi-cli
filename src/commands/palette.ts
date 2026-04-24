@@ -84,7 +84,7 @@ async function paletteAction(paletteName?: string) {
       throw new UserCancelledError();
     }
 
-    // 4. Validate palette (all palettes available to all tiers)
+    // 4. Validate palette against the caller's tier
     if (!availablePalettes.includes(selectedPalette)) {
       throw new ValidationError('palette', selectedPalette, availablePalettes);
     }
