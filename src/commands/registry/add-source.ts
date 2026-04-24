@@ -16,7 +16,7 @@ import {
   PreFlightCheckError,
   CommunityRegistryNotFoundError,
 } from '../../errors/index.js';
-import { loadConfig, saveConfig, getConfig } from '../../utils/config.js';
+import { saveConfig, getConfig } from '../../utils/config.js';
 import {
   parseRegistrySource,
   fetchRegistryJson,
@@ -38,10 +38,12 @@ export async function registryConnectAction(
   const cwd = options?.cwd || process.cwd();
 
   try {
-    // 1. Load config
+    // 1. Load configuration (needed for checks).
+    // getConfig() internally calls loadConfig() and deep-merges with defaults,
+    // so a single call is sufficient. A throw here means malformed config;
+    // the pre-flight checks below surface a readable error.
     let config: KigumiConfig | undefined;
     try {
-      loadConfig(cwd);
       config = getConfig(cwd);
     } catch (_error) {
       // Will be caught by checks
