@@ -22,7 +22,6 @@ flowchart LR
         COMP[".tsx / .jsx / .vue / .js.vue"]
         TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
         CSS[".css (read verbatim from templates/)"]
-        TYPES["web-awesome.d.ts\nupdateTypeDeclarations\n(React + TS only)"]
         INDEX["index.ts barrel export\nupdateComponentIndex"]
     end
 
@@ -35,4 +34,4 @@ flowchart LR
     COMPILE --> CACHE
     RENDER --> COMP & TEST
     CSS -.-> COMP
-    COMP --> TYPES & INDEX
+    COMP --> INDEX

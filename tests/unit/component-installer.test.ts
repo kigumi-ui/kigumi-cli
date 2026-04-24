@@ -64,7 +64,6 @@ vi.mock('../../src/utils/template.js', () => ({
   getFileBaseName: vi
     .fn()
     .mockImplementation((_fw: string, name: string) => name),
-  updateTypeDeclarations: vi.fn().mockResolvedValue(undefined),
   updateComponentIndex: vi.fn().mockResolvedValue(undefined),
 }));
 

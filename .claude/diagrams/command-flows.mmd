@@ -36,6 +36,5 @@ sequenceDiagram
     Tpl->>FS: read .hbs from templates/{framework}/{Component}/
     Tpl-->>CLI: GeneratedFile[]
     CLI->>FS: write .tsx/.vue + .test + .css
-    CLI->>Tpl: updateTypeDeclarations (React only)
     CLI->>Tpl: updateComponentIndex (barrel export)
     CLI-->>User: Added 1 component(s)

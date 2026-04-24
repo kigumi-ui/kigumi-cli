@@ -41,7 +41,6 @@ import {
   isNextProject,
   detectNextRouter,
 } from '../../utils/detect-framework.js';
-import { updateViteEnvTypes } from '../../utils/vite-env.js';
 
 /**
  * Add command
@@ -298,16 +297,7 @@ async function addFromBuiltinRegistry(
     await saveConfig(config, cwd);
   }
 
-  // 6. Update vite-env.d.ts with new component types (React + TypeScript only)
-  if (config.typescript && config.framework === 'react') {
-    const addedComponents = added.map((r) => r.name);
-
-    if (addedComponents.length > 0) {
-      await updateViteEnvTypes(cwd, addedComponents, output);
-    }
-  }
-
-  // 7. Summary
+  // 6. Summary
   printSummary(results, config, output);
 }
 

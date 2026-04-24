@@ -230,6 +230,39 @@ describe('kigumi init', () => {
       expect(button.startsWith("'use client';")).toBe(true);
     });
 
+    it('does not create src/types/web-awesome.d.ts and does not mutate vite-env.d.ts on add (F-030)', async () => {
+      // Regression guard: before F-030 the add command wrote a hand-rolled
+      // src/types/web-awesome.d.ts that shadowed the official Web Awesome
+      // CustomElements types and also rewrote src/vite-env.d.ts via a regex
+      // inserter. Both paths are gone — init's vite-env.d.ts must remain the
+      // single source of truth, byte-identical before and after `add`.
+      testDir = await createTempProject('react-vite');
+
+      const initResult = await runKigumi(testDir, [
+        'init',
+        '--no-install',
+        '-y',
+      ]);
+      expect(initResult.exitCode).toBe(0);
+
+      const viteEnvBefore = await readFile(testDir, 'src/vite-env.d.ts');
+
+      const addResult = await runKigumi(testDir, [
+        'add',
+        'button',
+        'button-group',
+        '-y',
+      ]);
+      expect(addResult.exitCode).toBe(0);
+
+      expect(await fileExists(testDir, 'src/types/web-awesome.d.ts')).toBe(
+        false
+      );
+
+      const viteEnvAfter = await readFile(testDir, 'src/vite-env.d.ts');
+      expect(viteEnvAfter).toBe(viteEnvBefore);
+    });
+
     it('adds .kigumi/cache/ to .gitignore', async () => {
       testDir = await createTempProject('react-vite');
 

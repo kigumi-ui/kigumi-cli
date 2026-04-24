@@ -8,7 +8,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { doctorCommand } from '../../src/commands/doctor.js';
+import {
+  doctorCommand,
+  diagnoseObsoleteTypeDecls,
+} from '../../src/commands/doctor.js';
 import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
@@ -648,5 +651,84 @@ describe('doctor command', () => {
       // instead of blindly mangling the file.
       expect(content).toBe(restructured);
     });
+  });
+});
+
+// F-030 advisory: obsolete src/types/web-awesome.d.ts detection.
+// Kept at the module level (outside the main `describe('doctor command')`
+// block) so it can call the unit under test directly without the enclosing
+// beforeEach/afterEach tear-down around WEBAWESOME_NPM_TOKEN.
+describe('diagnoseObsoleteTypeDecls', () => {
+  let testDir: string;
+
+  beforeEach(async () => {
+    testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-obsolete-dts-'));
+  });
+
+  afterEach(async () => {
+    await fs.remove(testDir);
+  });
+
+  async function seedLegacyFile() {
+    const filePath = path.join(testDir, 'src', 'types', 'web-awesome.d.ts');
+    await fs.ensureDir(path.dirname(filePath));
+    await fs.writeFile(
+      filePath,
+      `declare global { namespace JSX { interface IntrinsicElements { 'wa-button': never } } }\nexport {};\n`
+    );
+    return filePath;
+  }
+
+  const reactTsConfig = {
+    framework: 'react',
+    typescript: true,
+    componentsDir: 'src/components',
+    stylesDir: 'src/styles',
+    theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
+    // Cast through unknown to satisfy the KigumiConfig shape for the helper
+    // without pulling in the full schema fixture (this helper only reads
+    // framework + typescript).
+  } as unknown as Parameters<typeof diagnoseObsoleteTypeDecls>[1];
+
+  it('flags the legacy file on a React+TS project and does not delete it', async () => {
+    const filePath = await seedLegacyFile();
+
+    const results = await diagnoseObsoleteTypeDecls(testDir, reactTsConfig);
+
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatchObject({
+      filePath,
+      relativePath: path.join('src', 'types', 'web-awesome.d.ts'),
+      fixed: false,
+    });
+    expect(results[0].issue).toContain('Obsolete type declarations file');
+    expect(await fs.pathExists(filePath)).toBe(true);
+  });
+
+  it('returns empty when the legacy file is absent', async () => {
+    const results = await diagnoseObsoleteTypeDecls(testDir, reactTsConfig);
+    expect(results).toEqual([]);
+  });
+
+  it('returns empty for a React JavaScript project (no typescript)', async () => {
+    await seedLegacyFile();
+    const config = {
+      ...reactTsConfig,
+      typescript: false,
+    } as typeof reactTsConfig;
+
+    const results = await diagnoseObsoleteTypeDecls(testDir, config);
+    expect(results).toEqual([]);
+  });
+
+  it('returns empty for a non-React framework even with the file present', async () => {
+    await seedLegacyFile();
+    const config = {
+      ...reactTsConfig,
+      framework: 'vue',
+    } as typeof reactTsConfig;
+
+    const results = await diagnoseObsoleteTypeDecls(testDir, config);
+    expect(results).toEqual([]);
   });
 });

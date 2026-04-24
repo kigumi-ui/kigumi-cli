@@ -290,6 +290,42 @@ async function diagnoseAndFixLayersCss(
 }
 
 /**
+ * Detect `src/types/web-awesome.d.ts` left over from older Kigumi versions.
+ *
+ * The file used to be written by the `add` command with hand-rolled
+ * `IntrinsicElements` entries. It is now redundant: `vite-env.d.ts` imports
+ * the official Web Awesome `CustomElements` types, which cover every `wa-*`
+ * element with full prop, event, and ref typing. Keeping the old file
+ * around causes TypeScript to merge two incompatible shapes for the same
+ * JSX tag.
+ *
+ * Advisory-only — the file may contain hand edits, so we never auto-delete.
+ */
+export async function diagnoseObsoleteTypeDecls(
+  cwd: string,
+  config: KigumiConfig
+): Promise<DiagnosticResult[]> {
+  if (config.framework !== 'react' || !config.typescript) {
+    return [];
+  }
+
+  const obsoletePath = path.join(cwd, 'src', 'types', 'web-awesome.d.ts');
+  if (!(await fs.pathExists(obsoletePath))) {
+    return [];
+  }
+
+  return [
+    {
+      filePath: obsoletePath,
+      relativePath: path.relative(cwd, obsoletePath),
+      issue:
+        'Obsolete type declarations file. Kigumi no longer generates src/types/web-awesome.d.ts — official Web Awesome types now cover all wa-* elements via src/vite-env.d.ts. Delete this file (and the src/types/ directory if empty) unless you have hand edits to preserve.',
+      fixed: false,
+    },
+  ];
+}
+
+/**
  * Diagnose and fix import path issues
  */
 async function diagnoseAndFix(
@@ -370,6 +406,10 @@ async function diagnoseAndFix(
     output
   );
   results.push(...stylesResults);
+
+  // Flag obsolete web-awesome.d.ts from older Kigumi versions.
+  const obsoleteTypeResults = await diagnoseObsoleteTypeDecls(cwd, config);
+  results.push(...obsoleteTypeResults);
 
   return results;
 }
