@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (74 files, 1177 tests)
+├── unit/                    # Fast, isolated tests (73 files, 1130 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -33,6 +33,7 @@ tests/
 │   ├── init-config-preservation.test.ts # Init with config preservation scenarios
 │   ├── init-existing-config.test.ts # Init with existing project
 │   ├── init-installer.test.ts       # Init installer logic
+│   ├── init-validate-and-prepare.test.ts # Init pre-flight validation + prep
 │   ├── json.test.ts                 # JSON with comments parsing
 │   ├── list.test.ts                 # List command
 │   ├── list-json.test.ts            # List --json output
@@ -75,6 +76,7 @@ tests/
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)
 │   ├── validate-cem-sync.test.ts    # CEM sync validation
 │   ├── validate-parity.test.ts      # Template parity validation
+│   ├── validate-registry.test.ts    # Registry validator (fields, props, tags, CSS coverage)
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── version-error.test.ts        # Version error classes
@@ -318,4 +320,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-23
+**Last Updated:** 2026-04-24

@@ -401,7 +401,7 @@ flowchart TD
     end
 
     subgraph Utils["utils/"]
-        registry["registry.ts\n74 ComponentDefinitions\nprops, events, slots, methods"]
+        registry["registry.ts\n74 ComponentDefinitions\nprops, deps, files, importPath"]
         template["template.ts\nHandlebars compile + cache"]
         tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
@@ -527,7 +527,7 @@ sequenceDiagram
     CLI->>Tier: detectTier(cwd)
     Tier-->>CLI: free | pro
     CLI->>Reg: getComponent("button") → ComponentDefinition
-    Reg-->>CLI: { name, tagName, props, events, slots, importPath, tier }
+    Reg-->>CLI: { name, tagName, props, dependencies, files, importPath, tier }
     CLI->>Tpl: renderTemplate(hbs path, context)
     Tpl->>Tpl: getCompiledTemplate (cached) → Handlebars.compile
     Tpl->>FS: read .hbs from templates/{framework}/{Component}/
@@ -558,7 +558,7 @@ sequenceDiagram
 flowchart LR
     subgraph Input
         HBS["templates/{framework}/{Component}/\n{Component}.tsx.hbs"]
-        REG["registry.ts\nComponentDefinition\nname, tagName, props,\nevents, slots, methods"]
+        REG["registry.ts\nComponentDefinition\nname, tagName, props,\ndependencies, files"]
         CFG["KigumiConfig\nframework, tier, typescript"]
     end
 
@@ -1016,4 +1016,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-23
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-24

@@ -87,6 +87,8 @@ export class ComponentInstaller {
     componentNames: string[],
     options: AddOptions
   ): Promise<InstallResult[]> {
+    await this.warnOnMissingDependencies(componentNames);
+
     const results: InstallResult[] = [];
 
     for (const componentName of componentNames) {
@@ -344,5 +346,67 @@ export class ComponentInstaller {
     } catch (_error) {
       return false;
     }
+  }
+
+  /**
+   * Warn when any component in the install set has registered dependencies
+   * that are not being installed and are not already present on disk.
+   *
+   * Does not mutate the install list. Users must add missing deps explicitly,
+   * which keeps the local `add` command predictable (matching shadcn-style
+   * philosophy) while still surfacing the gap that used to silently break
+   * runtime behavior (e.g. `select` without `option`).
+   */
+  private async warnOnMissingDependencies(
+    componentNames: string[]
+  ): Promise<void> {
+    const requested = new Set(componentNames.map((n) => n.toLowerCase()));
+
+    for (const requestedName of componentNames) {
+      const component = getComponent(requestedName);
+      if (!component || component.dependencies.length === 0) continue;
+
+      // Suppress on re-runs: if the parent is already installed, the dep
+      // decision was made on the first install. Warning on every rerun would
+      // be noise.
+      if (await this.isComponentInstalled(component.name)) continue;
+
+      const missing: string[] = [];
+      for (const depKey of component.dependencies) {
+        if (requested.has(depKey.toLowerCase())) continue;
+        const depDef = getComponent(depKey);
+        if (!depDef) continue; // dep not in local registry — nothing to warn
+        if (await this.isComponentInstalled(depDef.name)) continue;
+        missing.push(depKey);
+      }
+
+      if (missing.length === 0) continue;
+
+      const depList = missing.map((d) => pc.cyan(d)).join(', ');
+      const addCmd = pc.dim(`kigumi add ${missing.join(' ')}`);
+      this.output.warn(
+        `${pc.cyan(component.name)} depends on ${depList} which ${
+          missing.length === 1 ? 'is' : 'are'
+        } not installed. Run ${addCmd} to add ${
+          missing.length === 1 ? 'it' : 'them'
+        }.`
+      );
+    }
+  }
+
+  /**
+   * Detect whether a component's directory already exists on disk.
+   * Used only for dependency-presence warnings — a directory is sufficient
+   * evidence that the user has opted in.
+   */
+  private async isComponentInstalled(
+    componentPascalName: string
+  ): Promise<boolean> {
+    const dir = path.join(
+      this.cwd,
+      this.config.componentsDir,
+      componentPascalName
+    );
+    return fs.pathExists(dir);
   }
 }

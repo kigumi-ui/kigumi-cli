@@ -68,25 +68,47 @@ vi.mock('../../src/utils/template.js', () => ({
   updateComponentIndex: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock registry — return Button definition for any lookup
-vi.mock('../../src/utils/registry.js', () => ({
-  getComponent: vi.fn((name: string) => {
-    if (name.toLowerCase() === 'button') {
-      return {
-        name: 'Button',
-        tagName: 'wa-button',
-        importPath: '@awesome.me/webawesome/dist/components/button/button.js',
-        tier: 'free',
-        category: 'Actions',
-        description: 'Buttons',
-        dependencies: [],
-        files: { react: { component: 'Button.tsx', css: 'Button.css' } },
-        props: [],
-      };
-    }
-    return null;
-  }),
-}));
+// Mock registry — return stub definitions keyed by lowercase name
+vi.mock('../../src/utils/registry.js', () => {
+  const defs: Record<string, unknown> = {
+    button: {
+      name: 'Button',
+      tagName: 'wa-button',
+      importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+      tier: 'free',
+      category: 'Actions',
+      description: 'Buttons',
+      dependencies: [],
+      files: { react: { component: 'Button.tsx', css: 'Button.css' } },
+      props: [],
+    },
+    select: {
+      name: 'Select',
+      tagName: 'wa-select',
+      importPath: '@awesome.me/webawesome/dist/components/select/select.js',
+      tier: 'free',
+      category: 'Form controls',
+      description: 'Select',
+      dependencies: ['option'],
+      files: { react: { component: 'Select.tsx', css: 'Select.css' } },
+      props: [],
+    },
+    option: {
+      name: 'Option',
+      tagName: 'wa-option',
+      importPath: '@awesome.me/webawesome/dist/components/option/option.js',
+      tier: 'free',
+      category: 'Form controls',
+      description: 'Option',
+      dependencies: [],
+      files: { react: { component: 'Option.tsx', css: 'Option.css' } },
+      props: [],
+    },
+  };
+  return {
+    getComponent: vi.fn((name: string) => defs[name.toLowerCase()] ?? null),
+  };
+});
 
 // Mock tier detection
 vi.mock('../../src/utils/tier.js', () => ({
@@ -292,5 +314,62 @@ describe('ComponentInstaller', () => {
       '// generated component',
       'Button.tsx'
     );
+  });
+
+  // ── F-020: Dependency warnings ─────────────────────────────────────────
+
+  it('warns when a component has deps that are neither requested nor installed', async () => {
+    const { installer, output } = await createInstaller(testDir);
+
+    await installer.installComponents(['select'], { yes: true });
+
+    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
+    const depWarning = warnCalls.find(
+      (msg) => msg.includes('depends on') && msg.includes('option')
+    );
+    expect(depWarning).toBeDefined();
+    expect(depWarning).toContain('kigumi add option');
+  });
+
+  it('does not warn when a dep is requested in the same install', async () => {
+    const { installer, output } = await createInstaller(testDir);
+
+    await installer.installComponents(['select', 'option'], { yes: true });
+
+    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
+    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
+  });
+
+  it('does not warn when the dep is already installed on disk', async () => {
+    // Pre-create an Option directory to simulate a prior install
+    await fs.ensureDir(path.join(testDir, 'src/components/Option'));
+
+    const { installer, output } = await createInstaller(testDir);
+
+    await installer.installComponents(['select'], { yes: true });
+
+    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
+    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
+  });
+
+  it('does not warn when the parent component is already installed', async () => {
+    // Simulate a re-run: Select has been installed previously
+    await fs.ensureDir(path.join(testDir, 'src/components/Select'));
+
+    const { installer, output } = await createInstaller(testDir);
+
+    await installer.installComponents(['select'], { yes: true });
+
+    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
+    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
+  });
+
+  it('does not warn for a component with no dependencies', async () => {
+    const { installer, output } = await createInstaller(testDir);
+
+    await installer.installComponents(['Button'], { yes: true });
+
+    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
+    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
   });
 });
