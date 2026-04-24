@@ -26,7 +26,12 @@ import {
 import { getOutput } from '../../output/index.js';
 import { CheckRunner, PackageJsonExistsCheck } from '../../checks/index.js';
 import { handleError } from '../../errors/index.js';
-import { validators, type InitOptions } from '../../schemas/index.js';
+import {
+  kigumiConfigSchema,
+  validators,
+  type InitOptions,
+  type KigumiConfig,
+} from '../../schemas/index.js';
 import { handleExistingConfig } from './existing-config.js';
 import {
   buildConfigInteractive,
@@ -267,7 +272,25 @@ export async function validateAndPrepare(
   const initialTier = await detectTier(cwd);
 
   // 6. Check for existing config
-  const existingConfig = loadConfig(cwd);
+  const rawExistingConfig = loadConfig(cwd);
+  let existingConfig: KigumiConfig | null = null;
+  if (rawExistingConfig !== null) {
+    const parsed = kigumiConfigSchema.safeParse(rawExistingConfig);
+    if (parsed.success) {
+      existingConfig = parsed.data;
+    } else {
+      const issueSummary = parsed.error.issues
+        .slice(0, 3)
+        .map((err) => {
+          const issuePath = err.path.join('.');
+          return issuePath ? `${issuePath}: ${err.message}` : err.message;
+        })
+        .join('; ');
+      output.warning(
+        `Existing kigumi.config.json is invalid and will be overwritten: ${issueSummary}`
+      );
+    }
+  }
   const existingAction = existingConfig
     ? await handleExistingConfig(
         existingConfig,
