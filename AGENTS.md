@@ -533,7 +533,6 @@ sequenceDiagram
     Tpl->>FS: read .hbs from templates/{framework}/{Component}/
     Tpl-->>CLI: GeneratedFile[]
     CLI->>FS: write .tsx/.vue + .test + .css
-    CLI->>Tpl: updateTypeDeclarations (React only)
     CLI->>Tpl: updateComponentIndex (barrel export)
     CLI-->>User: Added 1 component(s)
 
@@ -579,7 +578,6 @@ flowchart LR
         COMP[".tsx / .jsx / .vue / .js.vue"]
         TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
         CSS[".css (read verbatim, no Handlebars)"]
-        TYPES["web-awesome.d.ts\nupdateTypeDeclarations\n(React + TS only, includes class?)"]
         INDEX["index.ts barrel export\nupdateComponentIndex"]
     end
 
@@ -592,7 +590,7 @@ flowchart LR
     COMPILE --> CACHE
     RENDER --> COMP & TEST
     CSS -.-> COMP
-    COMP --> TYPES & INDEX
+    COMP --> INDEX
 ```
 
 ---
@@ -642,15 +640,16 @@ flowchart LR
 
 ## Auto-Generated Files
 
-| File                                | Purpose                                                  | Regenerated When              | User-Editable      |
-| ----------------------------------- | -------------------------------------------------------- | ----------------------------- | ------------------ |
-| `src/lib/kigumi.ts`                 | Imports layers.css and applies theme classes to `<html>` | Theme/brand/palette commands  | ❌ No              |
-| `src/styles/layers.css`             | Wraps Web Awesome CSS in cascade layers                  | Theme/brand/palette commands  | ❌ No              |
-| `src/styles/theme.css`              | User custom CSS overrides                                | Only on init (if missing)     | ✅ Yes - preserved |
-| `src/types/web-awesome.d.ts`        | TypeScript declarations for wa-\* elements (incl. class) | `kigumi add` (React + TS)     | ❌ No              |
-| `src/styles/community-themes/*.css` | Downloaded community theme CSS                           | `kigumi theme install --from` | ❌ No              |
-| `.npmrc` (user project)             | Registry URL only (no token)                             | Only on init                  | ❌ No              |
-| `docs/.npmrc`                       | Registry + token (gitignored)                            | `pnpm run setup:npmrc`        | ❌ No              |
+| File                                | Purpose                                                                                  | Regenerated When                                                                                 | User-Editable      |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------ |
+| `src/lib/kigumi.ts`                 | Imports layers.css and applies theme classes to `<html>`                                 | Theme/brand/palette commands                                                                     | ❌ No              |
+| `src/styles/layers.css`             | Wraps Web Awesome CSS in cascade layers                                                  | Theme/brand/palette commands                                                                     | ❌ No              |
+| `src/styles/theme.css`              | User custom CSS overrides                                                                | Only on init (if missing)                                                                        | ✅ Yes - preserved |
+| `src/vite-env.d.ts`                 | JSX augmentation importing official Web Awesome `CustomElements` / `CustomCssProperties` | Only on init (React Vite + TS); `kigumi doctor` advisory for legacy `src/types/web-awesome.d.ts` | ❌ No              |
+| `src/web-awesome.d.ts`              | Next.js-flavored variant of `vite-env.d.ts` (no `vite/client` reference)                 | Only on init (Next.js + TS)                                                                      | ❌ No              |
+| `src/styles/community-themes/*.css` | Downloaded community theme CSS                                                           | `kigumi theme install --from`                                                                    | ❌ No              |
+| `.npmrc` (user project)             | Registry URL only (no token)                                                             | Only on init                                                                                     | ❌ No              |
+| `docs/.npmrc`                       | Registry + token (gitignored)                                                            | `pnpm run setup:npmrc`                                                                           | ❌ No              |
 
 **Key Points:**
 
@@ -658,7 +657,7 @@ flowchart LR
 - `layers.css` distinguishes built-in themes (from WA package) vs community themes (from `community-themes/` dir)
 - `theme.css` is preserved on re-init - existing user styles won't be overwritten
 - Theme/brand commands regenerate `kigumi.ts` + `layers.css` but preserve `theme.css`
-- Type declarations include `class?: string` on all `wa-*` elements (web components use `class`, not `className`)
+- JSX type declarations (`vite-env.d.ts` / `web-awesome.d.ts`) augment `IntrinsicElements` with `CustomElements` from the official Web Awesome package. That covers every `wa-*` element (including the `class?` attribute and all WA events). Kigumi no longer hand-rolls per-component types; legacy `src/types/web-awesome.d.ts` files are flagged by `kigumi doctor`.
 
 ---
 

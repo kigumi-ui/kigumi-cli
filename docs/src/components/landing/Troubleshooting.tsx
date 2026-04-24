@@ -230,7 +230,7 @@ const FAQ_ITEMS: FaqItem[] = [
     id: 'typescript-wa-elements',
     summary: 'TypeScript errors on wa-* elements',
     searchText:
-      'TypeScript wa-button JSX.IntrinsicElements type declarations web-awesome.d.ts tsconfig include',
+      'TypeScript wa-button JSX.IntrinsicElements type declarations vite-env.d.ts web-awesome.d.ts src/types tsconfig include',
     content: (
       <div className="wa-stack wa-gap-m">
         <p>
@@ -239,15 +239,23 @@ const FAQ_ITEMS: FaqItem[] = [
             "Property 'wa-button' does not exist on type
             'JSX.IntrinsicElements'"
           </em>
-          , the type declarations for Web Awesome components are missing. Re-add
-          the component to regenerate them:
+          , the Web Awesome JSX types are not being picked up. The{' '}
+          <code>kigumi init</code> command writes <code>src/vite-env.d.ts</code>{' '}
+          (or <code>src/web-awesome.d.ts</code> for Next.js), which augments{' '}
+          <code>JSX.IntrinsicElements</code> with every <code>wa-*</code>{' '}
+          element via the official types shipped in the Web Awesome package.
         </p>
-        <CodeBlock value="npx kigumi add button" />
         <p>
-          Also verify that <code>src/types/web-awesome.d.ts</code> is included
-          in your <code>tsconfig.json</code>:
+          Verify that the generated file exists and that your{' '}
+          <code>tsconfig.json</code> includes it:
         </p>
         <CodeBlock value={`"include": ["src"]`} />
+        <p>
+          Run <code>npx kigumi doctor</code> if you still see errors — it will
+          flag a stale <code>src/types/web-awesome.d.ts</code> left over from
+          older Kigumi versions, which now shadows the official types and should
+          be deleted.
+        </p>
       </div>
     ),
   },

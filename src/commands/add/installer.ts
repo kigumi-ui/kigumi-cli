@@ -30,7 +30,6 @@ import {
   getComponentExtension,
   getTestExtension,
   getFileBaseName,
-  updateTypeDeclarations,
   updateComponentIndex,
 } from '../../utils/template.js';
 import {
@@ -294,11 +293,8 @@ export class ComponentInstaller {
     }
 
     // SEQUENTIAL OPERATIONS
-    // WHY: These operations modify shared files (index.ts, kigumi.ts, type declarations)
-    // and must be sequential to avoid race conditions
-    if (this.config.typescript) {
-      await updateTypeDeclarations(component, this.config, this.cwd);
-    }
+    // WHY: updateComponentIndex modifies a shared barrel file, must run
+    // sequentially to avoid race conditions when installing multiple components.
     await updateComponentIndex(component, this.config, this.cwd);
 
     return {

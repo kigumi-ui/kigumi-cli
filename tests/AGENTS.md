@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (73 files, 1130 tests)
+├── unit/                    # Fast, isolated tests (72 files, 1135 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -70,7 +70,6 @@ tests/
 │   ├── tier-schema.test.ts          # Tier schema validation
 │   ├── token.test.ts                # Token handling
 │   ├── type-installation.test.ts    # TypeScript type installation
-│   ├── vite-env-types.test.ts       # vite-env.d.ts tag name generation (F-001 regression)
 │   ├── update-check.test.ts         # CLI update notification check
 │   ├── update-command.test.ts       # Update command (three-way merge)
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)

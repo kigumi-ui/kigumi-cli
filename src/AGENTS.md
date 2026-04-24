@@ -215,7 +215,7 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 - **`layers.css`** (auto-generated): Wraps all Web Awesome imports in `@layer` for cascade control. Base layer (Web Awesome CSS) < theme layer (user custom CSS). Regenerated on every theme/brand/palette change.
 - **`kigumi.ts`** (auto-generated): Imports layers.css and applies theme classes to `<html>`. Regenerated on every theme/brand/palette change. For Next.js projects (`isNextProject(cwd)` returns true), `regenerateKigumiSetup` prepends `'use client';` so the `customElements.define` patch runs on the client.
 - **`theme.css`** (user-editable): User's custom CSS overrides ONLY. Generated only on `init` if file doesn't exist, then preserved on subsequent inits.
-- **`vite-env.d.ts`** / **`web-awesome.d.ts`**: TypeScript declarations. Must use `declare global`, not `declare module 'react'`. Vite projects get `vite-env.d.ts` (with the `/// <reference types="vite/client" />` directive); Next.js projects get `web-awesome.d.ts` (no vite reference, Next owns `next-env.d.ts`).
+- **`vite-env.d.ts`** / **`web-awesome.d.ts`**: TypeScript declarations for React+TS projects. Written once by `init` via `generateViteEnvDts()` / `generateNextEnvDts()` in `utils/regenerate.ts` — both emit a string literal that imports `CustomElements` and `CustomCssProperties` from the official Web Awesome package and augments `JSX.IntrinsicElements` with `declare global`. `add` does not touch these files; per-component prop types come straight from the WA package. Vite projects get `vite-env.d.ts` (with the `/// <reference types="vite/client" />` directive); Next.js projects get `web-awesome.d.ts` (no vite reference, Next owns `next-env.d.ts`).
 
 **When regenerated:**
 
@@ -225,10 +225,6 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 ### `utils/naming.ts` - Naming Conventions
 
 Converts between PascalCase and kebab-case. Used for Angular's lowercase file naming convention and tag name construction (`ButtonGroup` -> `button-group`).
-
-### `utils/vite-env.ts` - Vite Environment Type Declarations
-
-Updates `vite-env.d.ts` with component `IntrinsicElements` entries for React + TypeScript projects. Only modifies auto-managed files (checks for `auto-managed` comment). Uses `toKebabCase()` from `naming.ts` to convert PascalCase component names to correct kebab-case tag names.
 
 ### `utils/template.ts` - Extension Utilities
 
