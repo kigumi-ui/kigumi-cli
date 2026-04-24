@@ -33,12 +33,13 @@ export const PALETTE_OPTIONS = [
   { value: 'default', label: 'Default' },
   { value: 'bright', label: 'Bright' },
   { value: 'shoelace', label: 'Shoelace' },
-  { value: 'rudimentary', label: 'Rudimentary' },
-  { value: 'elegant', label: 'Elegant' },
-  { value: 'mild', label: 'Mild' },
-  { value: 'natural', label: 'Natural' },
-  { value: 'anodized', label: 'Anodized' },
-  { value: 'vogue', label: 'Vogue' },
+  // Pro palettes
+  { value: 'rudimentary', label: 'Rudimentary', pro: true },
+  { value: 'elegant', label: 'Elegant', pro: true },
+  { value: 'mild', label: 'Mild', pro: true },
+  { value: 'natural', label: 'Natural', pro: true },
+  { value: 'anodized', label: 'Anodized', pro: true },
+  { value: 'vogue', label: 'Vogue', pro: true },
 ] as const;
 
 /**
@@ -89,6 +90,20 @@ export function getThemeOptionsForTier(
   tier: 'free' | 'pro'
 ): Array<{ value: string; label: string }> {
   return THEME_OPTIONS.filter((o) => {
+    if ('pro' in o && o.pro) {
+      return tier === 'pro';
+    }
+    return true;
+  }).map(({ value, label }) => ({ value, label }));
+}
+
+/**
+ * Get palette options for a specific tier
+ */
+export function getPaletteOptionsForTier(
+  tier: 'free' | 'pro'
+): Array<{ value: string; label: string }> {
+  return PALETTE_OPTIONS.filter((o) => {
     if ('pro' in o && o.pro) {
       return tier === 'pro';
     }

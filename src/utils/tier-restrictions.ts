@@ -56,18 +56,7 @@ export const TIER_RESTRICTIONS: TierRestrictions = {
     ],
   },
   palettes: {
-    // CRITICAL: ALL palettes available to BOTH tiers
-    free: [
-      'default',
-      'bright',
-      'shoelace',
-      'rudimentary',
-      'elegant',
-      'mild',
-      'natural',
-      'anodized',
-      'vogue',
-    ],
+    free: ['default', 'bright', 'shoelace'],
     pro: [
       'default',
       'bright',

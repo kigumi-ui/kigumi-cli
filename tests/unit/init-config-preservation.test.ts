@@ -33,9 +33,11 @@ vi.mock('../../src/utils/tier-restrictions.js', () => ({
 
 // Mock display-options
 vi.mock('../../src/utils/display-options.js', () => ({
-  PALETTE_OPTIONS: [{ value: 'default', label: 'Default' }],
   BRAND_COLOR_OPTIONS: [{ value: 'blue', label: 'Blue' }],
   getThemeOptionsForTier: vi.fn(() => [{ value: 'default', label: 'Default' }]),
+  getPaletteOptionsForTier: vi.fn(() => [
+    { value: 'default', label: 'Default' },
+  ]),
 }));
 
 function createMockOutput(): OutputInterface {

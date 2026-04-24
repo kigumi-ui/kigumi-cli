@@ -10,10 +10,12 @@ import {
   getPaletteLabel,
   getBrandColorLabel,
   getThemeOptionsForTier,
+  getPaletteOptionsForTier,
   THEME_OPTIONS,
   PALETTE_OPTIONS,
   BRAND_COLOR_OPTIONS,
 } from '../../src/utils/display-options.js';
+import { TIER_RESTRICTIONS } from '../../src/utils/tier-restrictions.js';
 
 describe('THEME_OPTIONS', () => {
   it('should include free themes', () => {
@@ -131,6 +133,46 @@ describe('getThemeOptionsForTier', () => {
       expect(Object.keys(opt)).toEqual(
         expect.arrayContaining(['value', 'label'])
       );
+    }
+  });
+});
+
+describe('PALETTE_OPTIONS pro flags', () => {
+  it('match TIER_RESTRICTIONS.palettes set-difference', () => {
+    const flaggedAsPro = PALETTE_OPTIONS.filter((p) => 'pro' in p && p.pro).map(
+      (p) => p.value
+    );
+    const expectedProOnly = TIER_RESTRICTIONS.palettes.pro.filter(
+      (v) => !TIER_RESTRICTIONS.palettes.free.includes(v)
+    );
+    expect(new Set(flaggedAsPro)).toEqual(new Set(expectedProOnly));
+  });
+});
+
+describe('getPaletteOptionsForTier', () => {
+  it('returns 3 palettes for free tier', () => {
+    const options = getPaletteOptionsForTier('free');
+    expect(options).toHaveLength(3);
+    expect(options.map((o) => o.value)).toEqual([
+      'default',
+      'bright',
+      'shoelace',
+    ]);
+  });
+
+  it('returns all 9 palettes for pro tier', () => {
+    const options = getPaletteOptionsForTier('pro');
+    expect(options).toHaveLength(9);
+  });
+
+  it('strips the pro flag from returned objects', () => {
+    const options = getPaletteOptionsForTier('pro');
+    for (const option of options) {
+      expect(option).toEqual({
+        value: expect.any(String),
+        label: expect.any(String),
+      });
+      expect('pro' in option).toBe(false);
     }
   });
 });

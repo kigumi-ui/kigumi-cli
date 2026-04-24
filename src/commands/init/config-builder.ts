@@ -26,9 +26,9 @@ import {
   isThemeAvailable,
 } from '../../utils/tier-restrictions.js';
 import {
-  PALETTE_OPTIONS,
   BRAND_COLOR_OPTIONS,
   getThemeOptionsForTier,
+  getPaletteOptionsForTier,
 } from '../../utils/display-options.js';
 import { DEFAULT_CONFIG } from '../../schemas/config.js';
 import {
@@ -359,9 +359,7 @@ export async function buildConfigInteractive(
 
   // Palette - use existing value if available and valid for current tier
   const availablePalettes = getAvailablePalettes(finalTier);
-  const paletteOptions = PALETTE_OPTIONS.filter((o) =>
-    availablePalettes.includes(o.value)
-  );
+  const paletteOptions = getPaletteOptionsForTier(finalTier);
   const getInitialPalette = (): string => {
     if (
       existingConfig?.theme?.palette &&

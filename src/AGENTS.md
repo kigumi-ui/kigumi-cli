@@ -59,7 +59,7 @@ src/
 │   ├── registry-cache.ts # Disk cache for registry data (~/.kigumi/cache)
 │   ├── github-token.ts   # GitHub PAT resolution chain
 │   ├── registry-resolver.ts # Resolve --from value (URL or saved name)
-│   ├── display-options.ts # Theme/palette/brand display labels and options
+│   ├── display-options.ts # Theme/palette/brand display labels + tier-aware option helpers (getThemeOptionsForTier, getPaletteOptionsForTier)
 │   ├── project-config.ts # Project configuration helpers (configureVueCustomElements, configureVueTypes)
 │   ├── component-metadata.ts # Auto-generated component metadata (events, slots, methods) — single source for CEM-derived data, used by template generator scripts
 │   ├── detect-framework.ts # Framework, TypeScript, package manager, Next router, source-layout detection

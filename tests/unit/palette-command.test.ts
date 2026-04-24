@@ -129,18 +129,8 @@ describe('paletteCommand', () => {
       expect(savedConfig.theme.palette).toBe('bright');
     });
 
-    it('should accept all available free palettes', async () => {
-      const freePalettes = [
-        'default',
-        'bright',
-        'shoelace',
-        'rudimentary',
-        'elegant',
-        'mild',
-        'natural',
-        'anodized',
-        'vogue',
-      ];
+    it('should accept all free palettes on free tier', async () => {
+      const freePalettes = ['default', 'bright', 'shoelace'];
 
       for (const palette of freePalettes) {
         await createConfig();
@@ -155,6 +145,35 @@ describe('paletteCommand', () => {
           path.join(testDir, 'kigumi.config.json')
         );
         expect(savedConfig.theme.palette).toBe(palette);
+      }
+    });
+
+    it('should reject pro palettes on free tier', async () => {
+      const proPalettes = [
+        'rudimentary',
+        'elegant',
+        'mild',
+        'natural',
+        'anodized',
+        'vogue',
+      ];
+
+      for (const palette of proPalettes) {
+        await createConfig();
+        vi.resetModules();
+        vi.clearAllMocks();
+
+        const { paletteCommand } =
+          await import('../../src/commands/palette.js');
+        await paletteCommand.parseAsync(['node', 'palette', palette]);
+
+        expect(process.exit).toHaveBeenCalled();
+        // The bug was that the CLI wrote the Pro palette to config anyway;
+        // assert the config stayed on the createConfig() default.
+        const savedConfig = await fs.readJSON(
+          path.join(testDir, 'kigumi.config.json')
+        );
+        expect(savedConfig.theme.palette).toBe('default');
       }
     });
 
@@ -187,12 +206,12 @@ describe('paletteCommand', () => {
       const { regenerateKigumiSetup } =
         await import('../../src/utils/regenerate.js');
       const { paletteCommand } = await import('../../src/commands/palette.js');
-      await paletteCommand.parseAsync(['node', 'palette', 'elegant']);
+      await paletteCommand.parseAsync(['node', 'palette', 'bright']);
 
       expect(regenerateKigumiSetup).toHaveBeenCalledWith(
         testDir,
         expect.objectContaining({
-          theme: expect.objectContaining({ palette: 'elegant' }),
+          theme: expect.objectContaining({ palette: 'bright' }),
         }),
         'src/lib'
       );
@@ -204,12 +223,12 @@ describe('paletteCommand', () => {
       const { regenerateKigumiSetup } =
         await import('../../src/utils/regenerate.js');
       const { paletteCommand } = await import('../../src/commands/palette.js');
-      await paletteCommand.parseAsync(['node', 'palette', 'mild']);
+      await paletteCommand.parseAsync(['node', 'palette', 'shoelace']);
 
       expect(regenerateKigumiSetup).toHaveBeenCalledWith(
         testDir,
         expect.objectContaining({
-          theme: expect.objectContaining({ palette: 'mild' }),
+          theme: expect.objectContaining({ palette: 'shoelace' }),
         }),
         'lib/utils'
       );
@@ -233,6 +252,23 @@ describe('paletteCommand', () => {
       expect(savedConfig.theme.selected).toBe('awesome');
       expect(savedConfig.theme.palette).toBe('bright');
       expect(savedConfig.theme.brandColor).toBe('purple');
+    });
+
+    it('should accept pro palettes on pro tier', async () => {
+      // detectTier is dynamically imported inside paletteAction, so import it
+      // first to target the same module instance for the one-shot override.
+      const { detectTier } = await import('../../src/utils/tier.js');
+      vi.mocked(detectTier).mockResolvedValueOnce('pro');
+
+      await createConfig();
+
+      const { paletteCommand } = await import('../../src/commands/palette.js');
+      await paletteCommand.parseAsync(['node', 'palette', 'elegant']);
+
+      const savedConfig = await fs.readJSON(
+        path.join(testDir, 'kigumi.config.json')
+      );
+      expect(savedConfig.theme.palette).toBe('elegant');
     });
   });
 
@@ -307,7 +343,7 @@ describe('paletteCommand', () => {
       await createConfig();
 
       const { paletteCommand } = await import('../../src/commands/palette.js');
-      await paletteCommand.parseAsync(['node', 'palette', 'natural']);
+      await paletteCommand.parseAsync(['node', 'palette', 'bright']);
 
       expect(mockOutput.spinner).toHaveBeenCalledWith('Updating palette...');
       expect(mockSpinner.stop).toHaveBeenCalledWith('Palette updated');
@@ -317,10 +353,10 @@ describe('paletteCommand', () => {
       await createConfig();
 
       const { paletteCommand } = await import('../../src/commands/palette.js');
-      await paletteCommand.parseAsync(['node', 'palette', 'anodized']);
+      await paletteCommand.parseAsync(['node', 'palette', 'shoelace']);
 
       expect(mockOutput.outro).toHaveBeenCalledWith(
-        expect.stringContaining('anodized')
+        expect.stringContaining('shoelace')
       );
     });
   });
