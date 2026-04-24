@@ -39,7 +39,7 @@ tests/
 │   ├── list-json.test.ts            # List --json output
 │   ├── migration.test.ts            # Free↔Pro migration
 │   ├── network-errors.test.ts       # Network error classes
-│   ├── next-support.test.ts         # Next.js detection + 'use client' + suppressHydrationWarning (App + Pages)
+│   ├── next-support.test.ts         # Next.js detection + 'use client' + suppressHydrationWarning + layers.css emission (App + Pages)
 │   ├── options-schema.test.ts       # Command options schemas
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes

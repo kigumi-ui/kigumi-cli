@@ -357,6 +357,48 @@ describe('surgicalRewriteLayersCss', () => {
     );
   });
 
+  it('round-trips a Pages-Router-flavored layers.css (F-038 regression guard)', async () => {
+    // Pages Router emits layers.css without `layer(…)` qualifiers to work
+    // around Webpack's postcss-import dropping the qualifier (see F-038).
+    // Tier migration must still rewrite the @import lines so free↔pro swaps
+    // continue to work for Pages Router consumers.
+    const pagesFlavor = `/**
+ * Web Awesome CSS Cascade Layers
+ */
+
+@layer base, theme;
+
+@import '@awesome.me/webawesome/dist/styles/webawesome.css';
+@import '@awesome.me/webawesome/dist/styles/themes/default.css';
+@import './theme.css';
+`;
+    await fs.writeFile(filePath, pagesFlavor);
+
+    const result = await surgicalRewriteLayersCss(
+      filePath,
+      WEB_AWESOME_PRO_PACKAGE,
+      'default'
+    );
+
+    expect(result.changed).toBe(true);
+    const content = await fs.readFile(filePath, 'utf-8');
+    expect(content).toContain(
+      `@import '${WEB_AWESOME_PRO_PACKAGE}/dist/styles/webawesome.css';`
+    );
+    expect(content).toContain(
+      `@import '${WEB_AWESOME_PRO_PACKAGE}/dist/styles/themes/default.css';`
+    );
+    expect(content).not.toContain(
+      `@import '${WEB_AWESOME_FREE_PACKAGE}/dist/styles/`
+    );
+    // Layer declaration + theme.css import survive verbatim.
+    expect(content).toContain('@layer base, theme;');
+    expect(content).toContain("@import './theme.css';");
+    // No stray `layer(…)` got introduced by the rewrite.
+    expect(content).not.toMatch(/layer\(base\)/);
+    expect(content).not.toMatch(/layer\(theme\)/);
+  });
+
   it('handles hyphenated theme names', async () => {
     const input = FREE_DEFAULT_LAYERS.replace(
       'themes/default.css',

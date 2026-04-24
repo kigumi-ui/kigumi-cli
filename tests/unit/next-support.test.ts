@@ -283,6 +283,136 @@ describe('next.js support', () => {
       );
       expect(kigumiTs).toContain("import '@/styles/layers.css';");
     });
+
+    it('emits layers.css without layer() qualifiers on Pages Router (F-038)', async () => {
+      // Pages Router + Webpack's postcss-import strips the `layer(…)` qualifier
+      // on `@import` when it inlines the chain. WA rules then never land in the
+      // named `base` layer, so the theme's :root { --wa-* } block never applies.
+      // Emit plain `@import` statements on that path; keep the layer declaration.
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'pages'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'lib'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'styles'));
+
+      const { regenerateKigumiSetup } =
+        await import('../../src/utils/regenerate.js');
+
+      await regenerateKigumiSetup(tempDir, DEFAULT_CONFIG, 'src/lib', 'free');
+
+      const layersCss = await fs.readFile(
+        path.join(tempDir, 'src', 'styles', 'layers.css'),
+        'utf-8'
+      );
+      // Declaration stays so any named-layer authoring the user adds keeps
+      // `base < theme` order. WA rules themselves end up unlayered on this
+      // path, which outranks named layers via cascade semantics.
+      expect(layersCss).toContain('@layer base, theme;');
+      // Qualifiers must be absent.
+      expect(layersCss).not.toMatch(/layer\(base\)/);
+      expect(layersCss).not.toMatch(/layer\(theme\)/);
+      // The three @import lines still emit, just unqualified.
+      expect(layersCss).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/webawesome.css';"
+      );
+      expect(layersCss).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/themes/default.css';"
+      );
+      expect(layersCss).toContain("@import './theme.css';");
+    });
+
+    it('keeps layer() qualifiers on App Router (F-038 regression guard)', async () => {
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'app'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'lib'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'styles'));
+
+      const { regenerateKigumiSetup } =
+        await import('../../src/utils/regenerate.js');
+
+      await regenerateKigumiSetup(tempDir, DEFAULT_CONFIG, 'src/lib', 'free');
+
+      const layersCss = await fs.readFile(
+        path.join(tempDir, 'src', 'styles', 'layers.css'),
+        'utf-8'
+      );
+      expect(layersCss).toContain('@layer base, theme;');
+      expect(layersCss).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/webawesome.css' layer(base);"
+      );
+      expect(layersCss).toContain(
+        "@import '@awesome.me/webawesome/dist/styles/themes/default.css' layer(base);"
+      );
+      expect(layersCss).toContain("@import './theme.css' layer(theme);");
+    });
+
+    it('keeps layer() qualifiers in non-Next projects (F-038 scope guard)', async () => {
+      // Vite + React is the baseline. The F-038 branch must not leak into
+      // non-Next projects.
+      await writeVitReactProject();
+      await fs.ensureDir(path.join(tempDir, 'src', 'lib'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'styles'));
+
+      const { regenerateKigumiSetup } =
+        await import('../../src/utils/regenerate.js');
+
+      await regenerateKigumiSetup(tempDir, DEFAULT_CONFIG, 'src/lib', 'free');
+
+      const layersCss = await fs.readFile(
+        path.join(tempDir, 'src', 'styles', 'layers.css'),
+        'utf-8'
+      );
+      expect(layersCss).toContain(' layer(base)');
+      expect(layersCss).toContain(' layer(theme)');
+    });
+
+    it("keeps layer() qualifiers when Next router is 'unknown' (F-038 scope guard)", async () => {
+      // Next project with neither `app/` nor `pages/` resolves to router
+      // 'unknown'. Only `'pages'` should trigger the F-038 plain-import branch;
+      // 'unknown' must keep the App-Router-style qualifiers.
+      await writeNextProject();
+      // Deliberately no `app/` or `pages/` dir.
+      await fs.ensureDir(path.join(tempDir, 'src', 'lib'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'styles'));
+
+      const { regenerateKigumiSetup } =
+        await import('../../src/utils/regenerate.js');
+
+      await regenerateKigumiSetup(tempDir, DEFAULT_CONFIG, 'src/lib', 'free');
+
+      const layersCss = await fs.readFile(
+        path.join(tempDir, 'src', 'styles', 'layers.css'),
+        'utf-8'
+      );
+      expect(layersCss).toContain(' layer(base)');
+      expect(layersCss).toContain(' layer(theme)');
+    });
+
+    it('strips qualifiers on Pages Router with Pro tier (F-038 tier coverage)', async () => {
+      // The end-to-end repro used WA Pro. Confirm the branch fires regardless
+      // of which WA package flows through `generateLayersCSS`.
+      await writeNextProject();
+      await fs.ensureDir(path.join(tempDir, 'pages'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'lib'));
+      await fs.ensureDir(path.join(tempDir, 'src', 'styles'));
+
+      const { regenerateKigumiSetup } =
+        await import('../../src/utils/regenerate.js');
+
+      await regenerateKigumiSetup(tempDir, DEFAULT_CONFIG, 'src/lib', 'pro');
+
+      const layersCss = await fs.readFile(
+        path.join(tempDir, 'src', 'styles', 'layers.css'),
+        'utf-8'
+      );
+      expect(layersCss).toContain(
+        "@import '@awesome.me/webawesome-pro/dist/styles/webawesome.css';"
+      );
+      expect(layersCss).toContain(
+        "@import '@awesome.me/webawesome-pro/dist/styles/themes/default.css';"
+      );
+      expect(layersCss).not.toMatch(/layer\(base\)/);
+      expect(layersCss).not.toMatch(/layer\(theme\)/);
+    });
   });
 
   describe('generateNextEnvDts', () => {
