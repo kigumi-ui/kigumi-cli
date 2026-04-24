@@ -10,6 +10,7 @@
  * - No duplicate component names
  * - Template files exist for each registry entry
  * - TypeScript types match registry definitions
+ * - CSS_METADATA coverage (warning-only)
  *
  * USAGE:
  *   pnpm validate:registry
@@ -24,6 +25,7 @@ import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
+import { CSS_METADATA } from './css-metadata.js';
 import { toKebabCase } from '../src/utils/naming.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -298,6 +300,24 @@ export function validateTagName(
 }
 
 /**
+ * Warn when a registry component has no CSS_METADATA entry.
+ *
+ * Missing entries cause the build-time template generators
+ * (scripts/generate-{angular,react,vue}-templates.ts) to emit a .css.hbs
+ * without parts / custom-property comments, which users only discover later.
+ * Warning surfaces the gap at validation time.
+ */
+function validateCSSMetadataCoverage(
+  component: ComponentDefinition,
+  key: string
+): string[] {
+  if (CSS_METADATA[key.toLowerCase()]) return [];
+  return [
+    `Component '${component.name}' has no CSS_METADATA entry in scripts/css-metadata.ts; the generated .css scaffold will lack parts / custom-property comments.`,
+  ];
+}
+
+/**
  * Main validation function
  */
 export async function validateRegistry(): Promise<ValidationResult> {
@@ -351,6 +371,10 @@ export async function validateRegistry(): Promise<ValidationResult> {
     // Tag name validation
     const tagErrors = validateTagName(component, key);
     result.errors.push(...tagErrors);
+
+    // CSS metadata coverage (warning-only — missing entries don't block merge)
+    const cssWarnings = validateCSSMetadataCoverage(component, key);
+    result.warnings.push(...cssWarnings);
 
     // Template files validation (React and Vue)
     for (const framework of ['react', 'vue', 'angular'] as const) {

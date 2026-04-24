@@ -22,22 +22,11 @@ import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
 import { toKebabCase } from './naming.js';
 import type {
   ComponentProp,
-  ComponentEvent,
-  ComponentSlot,
-  ComponentMethod,
   ComponentDefinition,
   ComponentRegistry,
 } from './registry/types.js';
 
-// Re-export types for backwards compatibility
-export type {
-  ComponentProp,
-  ComponentEvent,
-  ComponentSlot,
-  ComponentMethod,
-  ComponentDefinition,
-  ComponentRegistry,
-};
+export type { ComponentProp, ComponentDefinition, ComponentRegistry };
 
 /**
  * Local registry - single source of truth for component definitions
