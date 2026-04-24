@@ -3,8 +3,16 @@
  * Documentation: https://webawesome.com/docs/components/switch
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --width: The width of the switch.
+ * - --height: The height of the switch.
+ * - --thumb-size: The size of the thumb.
  *
+ * CSS Parts:
+ * - base: The component's base wrapper.
+ * - control: The control that houses the switch's thumb.
+ * - thumb: The switch's thumb.
+ * - label: The switch's label.
+ * - hint: The hint's wrapper.
  */
 .Switch {
   /* Add your custom styles here */

@@ -1,6 +1,30 @@
 /**
  * Slider Component Styles
  * Documentation: https://webawesome.com/docs/components/slider
+ *
+ * CSS Custom Properties:
+ * --track-size - The height or width of the slider's track. (default: 0.75em)
+ * --marker-width - The width of each individual marker. (default: 0.1875em)
+ * --marker-height - The height of each individual marker. (default: 0.1875em)
+ * --thumb-width - The width of the thumb. (default: 1.25em)
+ * --thumb-height - The height of the thumb. (default: 1.25em)
+ *
+ * CSS Parts:
+ * label - The element that contains the sliders's label.
+ * hint - The element that contains the slider's description.
+ * slider - The focusable element with `role="slider"`. Contains the track and reference slot.
+ * track - The slider's track.
+ * indicator - The colored indicator that shows from the start of the slider to the current value.
+ * markers - The container that holds all the markers when `with-markers` is used.
+ * marker - The individual markers that are shown when `with-markers` is used.
+ * references - The container that holds references that get slotted in.
+ * thumb - The slider's thumb.
+ * thumb-min - The min value thumb in a range slider.
+ * thumb-max - The max value thumb in a range slider.
+ * tooltip - The tooltip, a `<wa-tooltip>` element.
+ * tooltip__tooltip - The tooltip's `tooltip` part.
+ * tooltip__content - The tooltip's `content` part.
+ * tooltip__arrow - The tooltip's `arrow` part.
  */
 :host {
   display: contents;

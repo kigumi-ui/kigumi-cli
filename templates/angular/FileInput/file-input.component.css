@@ -1,6 +1,23 @@
 /**
  * FileInput Component Styles
  * Documentation: https://webawesome.com/docs/components/file-input
+ *
+ * CSS Parts:
+ * label - The label element.
+ * hint - The hint element.
+ * base - The main component wrapper.
+ * dropzone - The drag-and-drop area.
+ * dropzone-icon - The upload icon in the dropzone.
+ * dropzone-text - The instruction text in the dropzone.
+ * file-list - The container for selected files.
+ * file - Individual file item container.
+ * file-thumbnail - The thumbnail/icon container for a file.
+ * file-image - The image element for image thumbnails.
+ * file-icon - The icon for non-image files.
+ * file-details - Container for file name and size.
+ * file-name - The file name text.
+ * file-size - The file size text.
+ * remove-button - The remove button for each file.
  */
 :host {
   display: contents;

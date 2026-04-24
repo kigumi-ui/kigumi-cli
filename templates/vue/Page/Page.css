@@ -3,8 +3,33 @@
  * Documentation: https://webawesome.com/docs/components/page
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --menu-width: The width of the page's "menu" section.
+ * - --main-width: The width of the page's "main" section.
+ * - --aside-width: The wide of the page's "aside" section.
+ * - --banner-height: The height of the banner. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
+ * - --header-height: The height of the header. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
+ * - --subheader-height: The height of the subheader. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads.
  *
+ * CSS Parts:
+ * - base: The component's base wrapper.
+ * - banner: The banner to show above header.
+ * - header: The header, usually for top level navigation / branding.
+ * - subheader: Shown below the header, usually intended for things like breadcrumbs and other page level navigation.
+ * - body: The wrapper around menu, main, and aside.
+ * - menu: The left hand side of the page. Generally intended for navigation.
+ * - navigation: The `<nav>` that wraps the navigation slots on desktop viewports.
+ * - navigation-header: The header for a navigation area. On mobile this will be the header for `<wa-drawer>`.
+ * - navigation-footer: The footer for a navigation area. On mobile this will be the footer for `<wa-drawer>`.
+ * - navigation-toggle: The default `<wa-button>` that will toggle the `<wa-drawer>` for mobile viewports.
+ * - navigation-toggle-icon: The default `<wa-icon>` displayed inside of the navigation-toggle button.
+ * - main-header: The header above main content.
+ * - main-content: The main content.
+ * - main-footer: The footer below main content.
+ * - aside: The right hand side of the page. Used for things like table of contents, ads, etc.
+ * - skip-links: Wrapper around skip-link
+ * - skip-link: The "skip to main content" link
+ * - footer: The footer of the page. This is always below the initial viewport size.
+ * - dialog-wrapper: A wrapper around elements such as dialogs or other modal-like elements.
  */
 .Page {
   /* Add your custom styles here */

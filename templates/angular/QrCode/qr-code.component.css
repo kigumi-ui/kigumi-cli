@@ -1,6 +1,9 @@
 /**
  * QrCode Component Styles
  * Documentation: https://webawesome.com/docs/components/qr-code
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
  */
 :host {
   display: contents;

@@ -1,6 +1,37 @@
 /**
  * Icon Component Styles
  * Documentation: https://webawesome.com/docs/components/icon
+ *
+ * CSS Custom Properties:
+ * --animation-delay - Sets when the animation will start. (default: 0)
+ * --animation-direction - Defines whether or not the animation should play in reverse on alternate cycles. (default: normal)
+ * --animation-duration - Defines the length of time that an animation takes to complete one cycle. (default: 1s)
+ * --animation-iteration-count - Defines the number of times an animation cycle is played. (default: infinite)
+ * --animation-timing - Describes how the animation will progress over one cycle of its duration.
+ * --beat-fade-opacity - Set lowest opacity value an icon with `beat-fade` animation will fade to and from.
+ * --beat-fade-scale - Set max value that an icon with `beat-fade` animation will scale.
+ * --beat-scale - Set max value that an icon with `beat` animation will scale.
+ * --bounce-height - Set the max height an icon with `bounce` animation will jump to when bouncing.
+ * --bounce-jump-scale-x - Set the icon’s horizontal distortion (“squish”) at the top of the jump.
+ * --bounce-jump-scale-y - Set the icon’s vertical distortion (“squish”) at the top of the jump.
+ * --bounce-land-scale-x - Set the icon’s horizontal distortion (“squish”) when landing after the jump.
+ * --bounce-land-scale-y - Set the icon’s vertical distortion (“squish”) when landing after the jump.
+ * --bounce-rebound - Set the amount of rebound an icon with `bounce` animation has when landing after the jump.
+ * --bounce-start-scale-x - Set the icon’s horizontal distortion (“squish”) when starting to bounce.
+ * --bounce-start-scale-y - Set the icon’s vertical distortion (“squish”) when starting to bounce.
+ * --fade-opacity - Set lowest opacity value an icon with `fade` animation will fade to and from.
+ * --flip-angle - Set rotation angle of flip for an icon with `flip` animation. A positive angle denotes a clockwise rotation, a negative angle a counter-clockwise one.
+ * --flip-x - Set x-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` animation.
+ * --flip-y - Set y-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` animation.
+ * --flip-z - Set z-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` animation.
+ * --primary-color - Sets a duotone icon's primary color. (default: currentColor)
+ * --primary-opacity - Sets a duotone icon's primary opacity. (default: 1)
+ * --secondary-color - Sets a duotone icon's secondary color. (default: currentColor)
+ * --secondary-opacity - Sets a duotone icon's secondary opacity. (default: 0.4)
+ *
+ * CSS Parts:
+ * svg - The internal SVG element.
+ * use - The `<use>` element generated when using `spriteSheet: true`
  */
 :host {
   display: contents;

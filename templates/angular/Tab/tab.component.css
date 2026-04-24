@@ -1,6 +1,9 @@
 /**
  * Tab Component Styles
  * Documentation: https://webawesome.com/docs/components/tab
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
  */
 :host {
   display: contents;

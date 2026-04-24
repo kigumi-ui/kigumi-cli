@@ -1,6 +1,16 @@
 /**
  * Input Component Styles
  * Documentation: https://webawesome.com/docs/components/input
+ *
+ * CSS Parts:
+ * label - The label
+ * hint - The hint's wrapper.
+ * base - The wrapper being rendered as an input
+ * input - The internal `<input>` control.
+ * start - The container that wraps the `start` slot.
+ * clear-button - The clear button.
+ * password-toggle-button - The password toggle button.
+ * end - The container that wraps the `end` slot.
  */
 :host {
   display: contents;

@@ -1,6 +1,10 @@
 /**
  * Callout Component Styles
  * Documentation: https://webawesome.com/docs/components/callout
+ *
+ * CSS Parts:
+ * icon - The container that wraps the optional icon.
+ * message - The container that wraps the callout's main content.
  */
 :host {
   display: contents;

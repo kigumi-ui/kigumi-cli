@@ -3,17 +3,15 @@
  * Documentation: https://webawesome.com/docs/components/button
  *
  * CSS Custom Properties:
- * - --wa-spacing-small: Spacing for small size
- * - --wa-spacing-medium: Spacing for medium size
- * - --wa-spacing-large: Spacing for large size
+ * (No custom properties defined for this component)
  *
  * CSS Parts:
- * - base: The component's base wrapper
- * - prefix: The container that wraps the prefix
- * - label: The button label
- * - suffix: The container that wraps the suffix
- * - caret: The dropdown caret icon
- * - spinner: The loading spinner
+ * - base: The component's base wrapper.
+ * - start: The container that wraps the `start` slot.
+ * - label: The button's label.
+ * - end: The container that wraps the `end` slot.
+ * - caret: The button's caret icon, a `<wa-icon>` element.
+ * - spinner: The spinner that shows when the button is in the loading state.
  */
 .Button {
   /* Add your custom styles here */

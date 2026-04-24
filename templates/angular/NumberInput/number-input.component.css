@@ -1,6 +1,18 @@
 /**
  * NumberInput Component Styles
  * Documentation: https://webawesome.com/docs/components/number-input
+ *
+ * CSS Parts:
+ * label - The label element.
+ * form-control-label - Alias for the label element.
+ * hint - The hint element.
+ * base - The wrapper containing the input and steppers.
+ * input - The internal `<input>` control.
+ * start - The container that wraps the `start` slot.
+ * end - The container that wraps the `end` slot.
+ * stepper - Both stepper buttons (for shared styling).
+ * stepper-increment - The increment (+) button on the end side.
+ * stepper-decrement - The decrement (-) button on the start side.
  */
 :host {
   display: contents;

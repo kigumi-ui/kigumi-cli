@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (72 files, 1135 tests)
+├── unit/                    # Fast, isolated tests (73 files, 1160 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -75,7 +75,8 @@ tests/
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)
 │   ├── validate-cem-sync.test.ts    # CEM sync validation
 │   ├── validate-parity.test.ts      # Template parity validation
-│   ├── validate-registry.test.ts    # Registry validator (fields, props, tags, CSS coverage)
+│   ├── validate-registry.test.ts    # Registry validator (fields, props, tags)
+│   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── version-error.test.ts        # Version error classes

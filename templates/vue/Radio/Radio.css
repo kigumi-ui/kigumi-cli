@@ -3,8 +3,13 @@
  * Documentation: https://webawesome.com/docs/components/radio
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --checked-icon-color: The color of the checked icon.
+ * - --checked-icon-scale: The size of the checked icon relative to the radio.
  *
+ * CSS Parts:
+ * - control: The circular container that wraps the radio's checked state.
+ * - checked-icon: The checked icon.
+ * - label: The container that wraps the radio's label.
  */
 .Radio {
   /* Add your custom styles here */

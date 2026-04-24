@@ -1,6 +1,12 @@
 /**
  * Tag Component Styles
  * Documentation: https://webawesome.com/docs/components/tag
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
+ * content - The tag's content.
+ * remove-button - The tag's remove button, a `<wa-button>`.
+ * remove-button__base - The remove button's exported `base` part.
  */
 :host {
   display: contents;

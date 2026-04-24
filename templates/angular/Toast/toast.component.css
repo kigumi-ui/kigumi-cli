@@ -1,6 +1,13 @@
 /**
  * Toast Component Styles
  * Documentation: https://webawesome.com/docs/components/toast
+ *
+ * CSS Custom Properties:
+ * --gap - The gap between stacked toast items. (default: var(--wa-space-s))
+ * --width - The width of the toast stack. (default: 28rem)
+ *
+ * CSS Parts:
+ * stack - The container that holds the toast items.
  */
 :host {
   display: contents;
