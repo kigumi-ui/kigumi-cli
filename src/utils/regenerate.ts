@@ -70,6 +70,21 @@ export async function regenerateKigumiSetup(
   const stylesDir = config.stylesDir || 'src/styles';
   const stylesAlias = toKigumiAlias(stylesDir);
 
+  // Pages Router rejects side-effect global CSS imports from any file other
+  // than `pages/_app.tsx`, including transitively via `lib/kigumi.ts`. Skip
+  // the `layers.css` import in that case; the user adds it directly in
+  // `_app.tsx` (post-install instructions + Upgrading guide spell this out).
+  // Prefer caller-provided context so init/add/update sweeps skip the probe.
+  //
+  // Resolved up-front because `generateLayersCSS` also branches on
+  // `nextRouter` (see F-038: the `layer(…)` qualifier on `@import` is not
+  // preserved by Pages Router's Webpack postcss-import pass).
+  const isNext = isNextOverride ?? (await isNextProject(cwd));
+  const nextRouter = isNext
+    ? (nextRouterOverride ?? (await detectNextRouter(cwd)))
+    : undefined;
+  const skipLayersImport = nextRouter === 'pages';
+
   // Check if layers.css exists and should be preserved
   const layersPath = path.join(cwd, stylesDir, 'layers.css');
   const layersExists = await fs.pathExists(layersPath);
@@ -85,7 +100,8 @@ export async function regenerateKigumiSetup(
       packageName,
       config.theme.selected,
       stylesDir,
-      isCommunityTheme
+      isCommunityTheme,
+      nextRouter
     );
     await fs.writeFile(layersPath, layersContent);
   }
@@ -93,17 +109,6 @@ export async function regenerateKigumiSetup(
   // Generate theme classes script
   const themeClasses =
     config.theme.selected !== 'none' ? generateThemeClassesScript(config) : '';
-
-  // Pages Router rejects side-effect global CSS imports from any file other
-  // than `pages/_app.tsx` — including transitively via `lib/kigumi.ts`. Skip
-  // the `layers.css` import in that case; the user adds it directly in
-  // `_app.tsx` (post-install instructions + Upgrading guide spell this out).
-  // Prefer caller-provided context so init/add/update sweeps skip the probe.
-  const isNext = isNextOverride ?? (await isNextProject(cwd));
-  const nextRouter = isNext
-    ? (nextRouterOverride ?? (await detectNextRouter(cwd)))
-    : undefined;
-  const skipLayersImport = nextRouter === 'pages';
 
   const layersImportLine = skipLayersImport
     ? `// Pages Router: layers.css must be imported from pages/_app.tsx
@@ -187,13 +192,16 @@ if (typeof document !== 'undefined') {
  * @param packageName - Web Awesome package name (e.g., '@awesome.me/webawesome-pro')
  * @param themeName - Selected theme name (e.g., 'tailspin')
  * @param stylesDir - Styles directory path (e.g., 'src/styles')
+ * @param isCommunityTheme - Whether the selected theme is a community theme
+ * @param nextRouter - Next.js router flavor (drives the F-038 Pages Router branch)
  * @returns CSS content string
  */
 export async function generateLayersCSS(
   packageName: string,
   themeName: string,
   _stylesDir: string,
-  isCommunityTheme = false
+  isCommunityTheme = false,
+  nextRouter?: NextRouter
 ): Promise<string> {
   // Community themes are stored locally (sibling of layers.css); built-in
   // themes come from the WA package. Use relative paths inside layers.css
@@ -203,6 +211,23 @@ export async function generateLayersCSS(
   const themeImport = isCommunityTheme
     ? `./community-themes/${themeName}.css`
     : `${packageName}/dist/styles/themes/${themeName}.css`;
+
+  // F-038: Next.js Pages Router runs CSS through Webpack's `next-css-loader`
+  // + `postcss-import`, which drops the whole `@import … layer(…)` line
+  // when it inlines the chain (not just the qualifier). The theme file never
+  // lands in the bundle, so `--wa-color-brand-*` / `--wa-font-family-*` are
+  // empty at `:root`. Emit plain `@import` statements on that path so Webpack
+  // accepts them. WA rules then load as *unlayered* styles, which in the CSS
+  // cascade outrank any named layer. That's fine for the stock `theme.css`
+  // template (plain `:root { --wa-* }` overrides win via source order), but
+  // it does mean a user who wraps overrides in `@layer theme { … }` on Pages
+  // Router will lose to WA's unlayered rules. The `@layer base, theme;`
+  // declaration still emits so any named-layer authoring the user adds keeps
+  // `base < theme` order relative to other named layers.
+  // App Router (Turbopack) and Vite both preserve the qualifier.
+  const usePlainImports = nextRouter === 'pages';
+  const baseLayer = usePlainImports ? '' : ' layer(base)';
+  const themeLayer = usePlainImports ? '' : ' layer(theme)';
 
   return `/**
  * Web Awesome CSS Cascade Layers
@@ -221,13 +246,13 @@ export async function generateLayersCSS(
 @layer base, theme;
 
 /* Layer 1: Web Awesome base styles */
-@import '${packageName}/dist/styles/webawesome.css' layer(base);
+@import '${packageName}/dist/styles/webawesome.css'${baseLayer};
 
 /* Layer 1: Web Awesome theme styles */
-@import '${themeImport}' layer(base);
+@import '${themeImport}'${baseLayer};
 
 /* Layer 2: Your custom CSS overrides (sibling of layers.css) */
-@import './theme.css' layer(theme);
+@import './theme.css'${themeLayer};
 `;
 }
 

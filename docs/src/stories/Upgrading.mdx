@@ -53,17 +53,6 @@ export default nextConfig;`;
 export const npmrcSnippet = `# .npmrc
 shamefully-hoist=true`;
 
-export const pagesWorkaroundSnippet = `// pages/_app.tsx
-import type { AppProps } from 'next/app';
-import '@awesome.me/webawesome-pro/dist/styles/webawesome.css';
-import '@awesome.me/webawesome-pro/dist/styles/themes/default.css';
-import '@/styles/theme.css';
-import '@/lib/kigumi';
-
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
-}`;
-
 export const addComponentsSnippet = `npx kigumi add button card dialog input`;
 
 export const generatedButtonSnippet = `// src/components/ui/Button/Button.tsx (generated)
@@ -192,8 +181,7 @@ export const regenerateSnippet = `npx kigumi update --force`;
           <div className="wa-stack wa-gap-s">
             <p>
               <strong>Environment setup.</strong> Pages Router needs two
-              config changes before the imports work, plus awareness of one
-              known visual limitation.
+              config changes before the imports work.
             </p>
             <ol>
               <li>
@@ -223,20 +211,6 @@ export const regenerateSnippet = `npx kigumi update --force`;
                   during SSR.
                 </p>
                 <CodeBlock language="ini" value={npmrcSnippet} />
-              </li>
-              <li>
-                <p>
-                  <strong>Known limitation.</strong> On some pnpm + Next
-                  Pages Router + Webpack combinations, WA theme CSS
-                  variables don't apply at <code>:root</code> even when
-                  components upgrade correctly (components work, but theme
-                  font and brand color don't reach the document root). App
-                  Router projects are unaffected. If you hit this, replace
-                  the Kigumi <code>layers.css</code> import in{' '}
-                  <code>_app.tsx</code> with direct imports of WA's base and
-                  theme stylesheets:
-                </p>
-                <CodeBlock language="tsx" value={pagesWorkaroundSnippet} />
               </li>
             </ol>
           </div>
