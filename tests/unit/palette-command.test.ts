@@ -275,6 +275,31 @@ describe('paletteCommand', () => {
 
       expect(process.exit).toHaveBeenCalled();
     });
+
+    // paletteCommand must call getConfig only; calling loadConfig directly is
+    // redundant because getConfig() calls loadConfig() internally.
+    //
+    // Note on spy scope: vi.spyOn on a module namespace only intercepts
+    // calls made through the namespace (from other modules via their named
+    // imports). It does NOT see getConfig()'s same-file lexical call to
+    // loadConfig(). That's exactly what we want: the spy is scoped to
+    // external callers.
+    it('should not call loadConfig directly from paletteCommand', async () => {
+      await createConfig();
+
+      const configModule = await import('../../src/utils/config.js');
+      const loadSpy = vi.spyOn(configModule, 'loadConfig');
+      const getSpy = vi.spyOn(configModule, 'getConfig');
+
+      const { paletteCommand } = await import('../../src/commands/palette.js');
+      await paletteCommand.parseAsync(['node', 'palette', 'bright']);
+
+      expect(loadSpy).not.toHaveBeenCalled();
+      expect(getSpy).toHaveBeenCalledTimes(1);
+
+      loadSpy.mockRestore();
+      getSpy.mockRestore();
+    });
   });
 
   describe('spinner output', () => {

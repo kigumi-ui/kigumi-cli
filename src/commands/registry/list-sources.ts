@@ -12,7 +12,7 @@ import {
   ConfigValidCheck,
 } from '../../checks/index.js';
 import { handleError, PreFlightCheckError } from '../../errors/index.js';
-import { loadConfig, getConfig } from '../../utils/config.js';
+import { getConfig } from '../../utils/config.js';
 import type { KigumiConfig } from '../../schemas/config.js';
 
 interface ListSourcesOptions {
@@ -26,10 +26,12 @@ export async function registryListSourcesAction(options?: ListSourcesOptions) {
   const cwd = options?.cwd || process.cwd();
 
   try {
-    // 1. Load config
+    // 1. Load configuration (needed for checks).
+    // getConfig() internally calls loadConfig() and deep-merges with defaults,
+    // so a single call is sufficient. A throw here means malformed config;
+    // the pre-flight checks below surface a readable error.
     let config: KigumiConfig | undefined;
     try {
-      loadConfig(cwd);
       config = getConfig(cwd);
     } catch (_error) {
       // Will be caught by checks

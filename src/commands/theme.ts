@@ -23,7 +23,7 @@ import {
   PreFlightCheckError,
 } from '../errors/index.js';
 import { TierRestrictionError } from '../errors/tier.js';
-import { loadConfig, saveConfig, getConfig } from '../utils/config.js';
+import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
 import {
   getAvailableThemes,
@@ -35,10 +35,12 @@ async function themeAction(themeName?: string) {
   const cwd = process.cwd();
 
   try {
-    // 1. Load configuration (needed for checks)
+    // 1. Load configuration (needed for checks).
+    // getConfig() internally calls loadConfig() and deep-merges with defaults,
+    // so a single call is sufficient. A throw here means malformed config;
+    // the pre-flight checks below surface a readable error.
     let config: KigumiConfig | undefined;
     try {
-      loadConfig(cwd);
       config = getConfig(cwd);
     } catch (_error) {
       // Config loading failed - will be caught by checks

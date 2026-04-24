@@ -8,7 +8,7 @@ import type { KigumiConfig } from '../../schemas/config.js';
 import { Command } from 'commander';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
-import { loadConfig, saveConfig, getConfig } from '../../utils/config.js';
+import { saveConfig, getConfig } from '../../utils/config.js';
 import { regenerateKigumiSetup } from '../../utils/regenerate.js';
 import {
   getAvailableThemes,
@@ -29,10 +29,12 @@ export const setCommand = new Command('set')
     const cwd = process.cwd();
 
     try {
-      // 1. Load configuration (needed for checks)
+      // 1. Load configuration (needed for checks).
+      // getConfig() internally calls loadConfig() and deep-merges with defaults,
+      // so a single call is sufficient. A throw here means malformed config;
+      // the pre-flight checks below surface a readable error.
       let config: KigumiConfig | undefined;
       try {
-        loadConfig(cwd);
         config = getConfig(cwd);
       } catch (_error) {
         // Config loading failed - will be caught by checks
