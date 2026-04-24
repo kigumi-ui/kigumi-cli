@@ -3,9 +3,9 @@
  * Documentation: https://webawesome.com/docs/components/progress-bar
  *
  * CSS Custom Properties:
- * - --track-height: The color of the track.
- * - --track-color: The color of the track.
- * - --indicator-color: The color of the indicator.
+ * - --track-height: The color of the track. (default: 1rem)
+ * - --track-color: The color of the track. (default: var(--wa-color-neutral-fill-normal))
+ * - --indicator-color: The color of the indicator. (default: var(--wa-color-brand-fill-loud))
  *
  * CSS Parts:
  * - base: The component's base wrapper.

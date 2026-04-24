@@ -3,11 +3,11 @@
  * Documentation: https://webawesome.com/docs/components/slider
  *
  * CSS Custom Properties:
- * - --track-size: The height or width of the slider's track.
- * - --marker-width: The width of each individual marker.
- * - --marker-height: The height of each individual marker.
- * - --thumb-width: The width of the thumb.
- * - --thumb-height: The height of the thumb.
+ * - --track-size: The height or width of the slider's track. (default: 0.75em)
+ * - --marker-width: The width of each individual marker. (default: 0.1875em)
+ * - --marker-height: The height of each individual marker. (default: 0.1875em)
+ * - --thumb-width: The width of the thumb. (default: 1.25em)
+ * - --thumb-height: The height of the thumb. (default: 1.25em)
  *
  * CSS Parts:
  * - label: The element that contains the sliders's label.

@@ -141,7 +141,7 @@ export function extractCssMetadata(
         name: p.name,
         description: p.description || '',
       };
-      if (p.default) entry.default = p.default;
+      if (p.default !== undefined) entry.default = p.default;
       return entry;
     });
 

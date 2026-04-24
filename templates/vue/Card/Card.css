@@ -3,7 +3,7 @@
  * Documentation: https://webawesome.com/docs/components/card
  *
  * CSS Custom Properties:
- * - --spacing: The amount of space around and between sections of the card. Expects a single value.
+ * - --spacing: The amount of space around and between sections of the card. Expects a single value. (default: var(--wa-space-l))
  *
  * CSS Parts:
  * - media: The container that wraps the card's media.

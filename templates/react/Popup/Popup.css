@@ -3,13 +3,13 @@
  * Documentation: https://webawesome.com/docs/components/popup
  *
  * CSS Custom Properties:
- * - --arrow-size: The size of the arrow. Note that an arrow won't be shown unless the `arrow` attribute is used.
+ * - --arrow-size: The size of the arrow. Note that an arrow won't be shown unless the `arrow` attribute is used. (default: 6px)
  * - --popup-border-width: The width of any custom border applied to the popup. This is used to reposition the arrow to overlap to the inside edge of the popup border.
- * - --arrow-color: The color of the arrow.
+ * - --arrow-color: The color of the arrow. (default: black)
  * - --auto-size-available-width: A read-only custom property that determines the amount of width the popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only available when using `auto-size`.
  * - --auto-size-available-height: A read-only custom property that determines the amount of height the popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only available when using `auto-size`.
- * - --show-duration: The show duration to use when applying built-in animation classes.
- * - --hide-duration: The hide duration to use when applying built-in animation classes.
+ * - --show-duration: The show duration to use when applying built-in animation classes. (default: 100ms)
+ * - --hide-duration: The hide duration to use when applying built-in animation classes. (default: 100ms)
  *
  * CSS Parts:
  * - arrow: The arrow's container. Avoid setting `top|bottom|left|right` properties, as these values are assigned dynamically as the popup moves. This is most useful for applying a background color to match the popup, and maybe a border or box shadow.

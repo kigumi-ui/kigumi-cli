@@ -5,8 +5,8 @@
  * CSS Custom Properties:
  * - --spacing: The amount of space around and between the dialog's content.
  * - --width: The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.
- * - --show-duration: The animation duration when showing the dialog.
- * - --hide-duration: The animation duration when hiding the dialog.
+ * - --show-duration: The animation duration when showing the dialog. (default: 200ms)
+ * - --hide-duration: The animation duration when hiding the dialog. (default: 200ms)
  *
  * CSS Parts:
  * - dialog: The dialog's internal `<dialog>` element.

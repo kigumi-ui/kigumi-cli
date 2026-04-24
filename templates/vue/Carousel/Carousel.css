@@ -3,9 +3,9 @@
  * Documentation: https://webawesome.com/docs/components/carousel
  *
  * CSS Custom Properties:
- * - --aspect-ratio: The aspect ratio of each slide.
+ * - --aspect-ratio: The aspect ratio of each slide. (default: 16/9)
  * - --scroll-hint: The amount of padding to apply to the scroll area, allowing adjacent slides to become partially visible as a scroll hint.
- * - --slide-gap: The space between each slide.
+ * - --slide-gap: The space between each slide. (default: var(--wa-space-m))
  *
  * CSS Parts:
  * - base: The carousel's internal wrapper.
