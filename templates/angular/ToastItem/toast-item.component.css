@@ -1,6 +1,25 @@
 /**
  * ToastItem Component Styles
  * Documentation: https://webawesome.com/docs/components/toast-item
+ *
+ * CSS Custom Properties:
+ * --accent-width - The width of the accent line. Defaults to 4px.
+ * --show-duration - The animation duration when showing. Defaults to 200ms.
+ * --hide-duration - The animation duration when hiding. Defaults to 200ms.
+ *
+ * CSS Parts:
+ * toast-item - The toast item's main container.
+ * accent - The colored accent line on the start side.
+ * icon - The icon container.
+ * content - The message content container.
+ * close-button - The close button element.
+ * progress-ring - The progress ring component.
+ * progress-ring__base - The progress ring's exported base part.
+ * progress-ring__label - The progress ring's exported label part.
+ * progress-ring__track - The progress ring's exported track part.
+ * progress-ring__indicator - The progress ring's exported indicator part.
+ * close-icon - The close icon element.
+ * close-icon__svg - The close icon's exported svg part.
  */
 :host {
   display: contents;

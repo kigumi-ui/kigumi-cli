@@ -3,8 +3,17 @@
  * Documentation: https://webawesome.com/docs/components/popover
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --arrow-size: The size of the tiny arrow that points to the popover (set to zero to remove).
+ * - --max-width: The maximum width of the popover's body content.
+ * - --show-duration: The speed of the show animation.
+ * - --hide-duration: The speed of the hide animation.
  *
+ * CSS Parts:
+ * - dialog: The native dialog element that contains the popover content.
+ * - body: The popover's body where its content is rendered.
+ * - popup: The internal `<wa-popup>` element that positions the popover.
+ * - popup__popup: The popup's exported `popup` part. Use this to target the popover's popup container.
+ * - popup__arrow: The popup's exported `arrow` part. Use this to target the popover's arrow.
  */
 .Popover {
   /* Add your custom styles here */

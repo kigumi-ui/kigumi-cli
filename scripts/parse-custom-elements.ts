@@ -6,9 +6,12 @@
  * Parses Web Awesome's custom-elements.json and generates component metadata
  * for use in template generators.
  *
- * Output: src/utils/component-metadata.ts
+ * Outputs:
+ * - src/utils/component-metadata.ts — runtime component metadata (events, slots, methods)
+ * - scripts/css-metadata.ts — build-time CSS parts / custom-properties data
  */
 
+import { spawn } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,32 +20,43 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.join(__dirname, '..');
 
+export interface CustomElementDeclaration {
+  kind?: string;
+  name?: string;
+  tagName?: string;
+  members?: Array<{
+    kind?: string;
+    name?: string;
+    description?: string;
+    privacy?: string;
+    type?: { text?: string };
+    parameters?: Array<{ name?: string; type?: { text?: string } }>;
+  }>;
+  events?: Array<{
+    name?: string;
+    description?: string;
+    reactName?: string;
+    eventName?: string;
+    type?: { text?: string };
+  }>;
+  slots?: Array<{
+    name?: string;
+    description?: string;
+  }>;
+  cssParts?: Array<{
+    name?: string;
+    description?: string;
+  }>;
+  cssProperties?: Array<{
+    name?: string;
+    description?: string;
+    default?: string;
+  }>;
+}
+
 interface CustomElementsJSON {
   modules: Array<{
-    declarations?: Array<{
-      kind?: string;
-      name?: string;
-      tagName?: string;
-      members?: Array<{
-        kind?: string;
-        name?: string;
-        description?: string;
-        privacy?: string;
-        type?: { text?: string };
-        parameters?: Array<{ name?: string; type?: { text?: string } }>;
-      }>;
-      events?: Array<{
-        name?: string;
-        description?: string;
-        reactName?: string;
-        eventName?: string;
-        type?: { text?: string };
-      }>;
-      slots?: Array<{
-        name?: string;
-        description?: string;
-      }>;
-    }>;
+    declarations?: Array<CustomElementDeclaration>;
   }>;
 }
 
@@ -66,6 +80,28 @@ interface ComponentMetadata {
   }>;
 }
 
+interface CSSPart {
+  name: string;
+  description: string;
+}
+
+interface CSSCustomProperty {
+  name: string;
+  description: string;
+  default?: string;
+}
+
+interface ComponentCSSMetadata {
+  parts: CSSPart[];
+  customProperties: CSSCustomProperty[];
+  docsUrl: string;
+}
+
+interface ParsedOutput {
+  components: Record<string, ComponentMetadata>;
+  cssMetadata: Record<string, ComponentCSSMetadata>;
+}
+
 /**
  * Method overrides for components where custom-elements.json marks methods
  * as private or lacks descriptions, causing them to be filtered out.
@@ -80,6 +116,63 @@ const METHOD_OVERRIDES: Record<string, ComponentMetadata['methods']> = {
     { name: 'requestClose', description: 'Closes the drawer.' },
   ],
 };
+
+/**
+ * Pure extractor: given a CEM class declaration, return its CSS metadata or
+ * null when the component has neither parts nor custom properties. Exported
+ * for unit testing.
+ */
+export function extractCssMetadata(
+  declaration: CustomElementDeclaration
+): ComponentCSSMetadata | null {
+  const parts: CSSPart[] = (declaration.cssParts || [])
+    .filter((p): p is { name: string; description?: string } => !!p.name)
+    .map((p) => ({ name: p.name, description: p.description || '' }));
+
+  const customProperties: CSSCustomProperty[] = (
+    declaration.cssProperties || []
+  )
+    .filter(
+      (p): p is { name: string; description?: string; default?: string } =>
+        !!p.name
+    )
+    .map((p) => {
+      const entry: CSSCustomProperty = {
+        name: p.name,
+        description: p.description || '',
+      };
+      if (p.default) entry.default = p.default;
+      return entry;
+    });
+
+  if (parts.length === 0 && customProperties.length === 0) return null;
+
+  const componentKey = (declaration.tagName || '').replace(/^wa-/, '');
+  return {
+    parts,
+    customProperties,
+    docsUrl: `https://webawesome.com/docs/components/${componentKey}`,
+  };
+}
+
+/**
+ * Run prettier against the given files via the local binary, resolving when
+ * the process exits cleanly. Throws on non-zero exit or spawn error.
+ */
+function formatWithPrettier(files: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const relative = files.map((f) => path.relative(PROJECT_ROOT, f));
+    const child = spawn('pnpm', ['exec', 'prettier', '--write', ...relative], {
+      cwd: PROJECT_ROOT,
+      stdio: 'inherit',
+    });
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`prettier exited with code ${code}`));
+    });
+  });
+}
 
 /**
  * Find custom-elements.json in node_modules
@@ -123,9 +216,7 @@ async function findCustomElementsJson(): Promise<string | null> {
 /**
  * Parse custom-elements.json and extract component metadata
  */
-async function parseCustomElements(): Promise<
-  Record<string, ComponentMetadata>
-> {
+async function parseCustomElements(): Promise<ParsedOutput> {
   const filePath = await findCustomElementsJson();
 
   if (!filePath) {
@@ -140,6 +231,7 @@ async function parseCustomElements(): Promise<
 
   const data = (await fs.readJson(filePath)) as CustomElementsJSON;
   const metadata: Record<string, ComponentMetadata> = {};
+  const cssMetadata: Record<string, ComponentCSSMetadata> = {};
 
   for (const module of data.modules) {
     if (!module.declarations) continue;
@@ -217,10 +309,16 @@ async function parseCustomElements(): Promise<
       ) {
         metadata[componentKey].methods = METHOD_OVERRIDES[componentKey];
       }
+
+      // Extract CSS parts and custom properties. Components where CEM
+      // provides neither (utility components like wa-animation) are simply
+      // absent from the map; template generators handle the missing case.
+      const css = extractCssMetadata(declaration);
+      if (css) cssMetadata[componentKey] = css;
     }
   }
 
-  return metadata;
+  return { components: metadata, cssMetadata };
 }
 
 /**
@@ -260,23 +358,71 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = ${JSON.stri
 }
 
 /**
+ * Generate scripts/css-metadata.ts source file.
+ *
+ * Consumed by scripts/generate-{angular,react,vue}-templates.ts to emit CSS
+ * parts / custom-property comment blocks into the generated CSS templates.
+ * Keys are the WA tag name stripped of the `wa-` prefix (kebab-case, matching
+ * how consumers look it up).
+ */
+function generateCssMetadataSource(
+  cssMetadata: Record<string, ComponentCSSMetadata>
+): string {
+  const sortedKeys = Object.keys(cssMetadata).sort();
+  const sorted: Record<string, ComponentCSSMetadata> = {};
+  for (const key of sortedKeys) sorted[key] = cssMetadata[key];
+
+  return `// Auto-generated by scripts/parse-custom-elements.ts
+// DO NOT EDIT MANUALLY — run \`pnpm generate:metadata\` to regenerate.
+//
+// Build-time data consumed by generate-{angular,react,vue}-templates.ts to
+// emit CSS parts / custom-property comments into the generated CSS templates.
+// Not used at runtime. Data is derived from Web Awesome's custom-elements.json
+// (cssParts + cssProperties fields per component declaration).
+
+export interface CSSPart {
+  name: string;
+  description: string;
+}
+
+export interface CSSCustomProperty {
+  name: string;
+  description: string;
+  default?: string;
+}
+
+export interface ComponentCSSMetadata {
+  parts: CSSPart[];
+  customProperties: CSSCustomProperty[];
+  docsUrl: string;
+}
+
+export const CSS_METADATA: Record<string, ComponentCSSMetadata> = ${JSON.stringify(sorted, null, 2)};
+`;
+}
+
+/**
  * Main execution
  */
 async function main() {
   console.log('🔨 Parsing Web Awesome custom-elements.json...\n');
 
-  // Check if metadata file exists and docs not installed - skip regeneration
   const metadataPath = path.join(
     PROJECT_ROOT,
     'src/utils/component-metadata.ts'
   );
+  const cssMetadataPath = path.join(PROJECT_ROOT, 'scripts/css-metadata.ts');
   const docsInstalled = await fs.pathExists(
     path.join(PROJECT_ROOT, 'docs/node_modules')
   );
 
-  if ((await fs.pathExists(metadataPath)) && !docsInstalled) {
+  if (
+    (await fs.pathExists(metadataPath)) &&
+    (await fs.pathExists(cssMetadataPath)) &&
+    !docsInstalled
+  ) {
     console.log(
-      '⏭️  Skipping metadata generation (file exists, docs not installed)'
+      '⏭️  Skipping metadata generation (files exist, docs not installed)'
     );
     console.log(
       '   Run `pnpm install` in docs/ to regenerate from custom-elements.json\n'
@@ -285,10 +431,12 @@ async function main() {
   }
 
   try {
-    const metadata = await parseCustomElements();
+    const { components: metadata, cssMetadata } = await parseCustomElements();
     const componentCount = Object.keys(metadata).length;
+    const cssCount = Object.keys(cssMetadata).length;
 
-    console.log(`\n✅ Parsed ${componentCount} components\n`);
+    console.log(`\n✅ Parsed ${componentCount} components`);
+    console.log(`   ${cssCount} with CSS parts or custom-properties data\n`);
 
     // Show sample stats
     const stats = Object.entries(metadata)
@@ -321,21 +469,26 @@ async function main() {
         );
       });
 
-    // Generate TypeScript file
-    const outputPath = path.join(
-      PROJECT_ROOT,
-      'src',
-      'utils',
-      'component-metadata.ts'
-    );
-    const source = generateTypeScriptSource(metadata);
-
-    await fs.writeFile(outputPath, source, 'utf-8');
-
-    console.log(`\n✅ Generated: ${path.relative(PROJECT_ROOT, outputPath)}`);
+    const metadataSource = generateTypeScriptSource(metadata);
+    await fs.writeFile(metadataPath, metadataSource, 'utf-8');
+    console.log(`\n✅ Generated: ${path.relative(PROJECT_ROOT, metadataPath)}`);
     console.log(
-      `   ${source.split('\n').length} lines, ${(source.length / 1024).toFixed(1)} KB\n`
+      `   ${metadataSource.split('\n').length} lines, ${(metadataSource.length / 1024).toFixed(1)} KB`
     );
+
+    const cssMetadataSource = generateCssMetadataSource(cssMetadata);
+    await fs.writeFile(cssMetadataPath, cssMetadataSource, 'utf-8');
+    console.log(
+      `✅ Generated: ${path.relative(PROJECT_ROOT, cssMetadataPath)}`
+    );
+    console.log(
+      `   ${cssMetadataSource.split('\n').length} lines, ${(cssMetadataSource.length / 1024).toFixed(1)} KB`
+    );
+
+    // Format both outputs so regeneration stays idempotent with the committed
+    // prettier-formatted versions (JSON.stringify emits raw double-quoted JSON).
+    await formatWithPrettier([metadataPath, cssMetadataPath]);
+    console.log();
   } catch (error) {
     console.error('❌ Error:', error);
     process.exit(1);

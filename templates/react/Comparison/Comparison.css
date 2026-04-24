@@ -3,8 +3,15 @@
  * Documentation: https://webawesome.com/docs/components/comparison
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --divider-width: The width of the dividing line.
+ * - --handle-size: The size of the compare handle.
  *
+ * CSS Parts:
+ * - base: The container that wraps the before and after content.
+ * - before: The container that wraps the before content.
+ * - after: The container that wraps the after content.
+ * - divider: The divider that separates the before and after content.
+ * - handle: The handle that the user drags to expose the after content.
  */
 .Comparison {
   /* Add your custom styles here */

@@ -3,7 +3,7 @@
  * Documentation: https://webawesome.com/docs/components/carousel-item
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --aspect-ratio: The slide's aspect ratio. Inherited from the carousel by default.
  *
  */
 .CarouselItem {

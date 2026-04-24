@@ -447,14 +447,24 @@ function generateCSS(
   component: ComponentDefinition,
   _componentKey: string
 ): string {
-  const cssInfo = CSS_METADATA[component.name];
+  const kebabName = toKebabCase(component.name);
+  const cssInfo = CSS_METADATA[kebabName];
   const lines: string[] = [];
 
   lines.push('/**');
   lines.push(` * ${component.name} Component Styles`);
   lines.push(
-    ` * Documentation: https://webawesome.com/docs/components/${toKebabCase(component.name)}`
+    ` * Documentation: https://webawesome.com/docs/components/${kebabName}`
   );
+
+  if (cssInfo?.customProperties && cssInfo.customProperties.length > 0) {
+    lines.push(' *');
+    lines.push(' * CSS Custom Properties:');
+    for (const prop of cssInfo.customProperties) {
+      const suffix = prop.default ? ` (default: ${prop.default})` : '';
+      lines.push(` * ${prop.name} - ${prop.description}${suffix}`);
+    }
+  }
 
   if (cssInfo?.parts && cssInfo.parts.length > 0) {
     lines.push(' *');

@@ -5,6 +5,11 @@
  * CSS Custom Properties:
  * (No custom properties defined for this component)
  *
+ * CSS Parts:
+ * - base: The component's base wrapper.
+ * - content: The tag's content.
+ * - remove-button: The tag's remove button, a `<wa-button>`.
+ * - remove-button__base: The remove button's exported `base` part.
  */
 .Tag {
   /* Add your custom styles here */

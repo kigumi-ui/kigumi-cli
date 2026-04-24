@@ -1,6 +1,12 @@
 /**
  * TabPanel Component Styles
  * Documentation: https://webawesome.com/docs/components/tab-panel
+ *
+ * CSS Custom Properties:
+ * --padding - The tab panel's padding.
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
  */
 :host {
   display: contents;

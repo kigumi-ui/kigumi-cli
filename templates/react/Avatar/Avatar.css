@@ -3,8 +3,12 @@
  * Documentation: https://webawesome.com/docs/components/avatar
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --size: The size of the avatar.
  *
+ * CSS Parts:
+ * - icon: The container that wraps the avatar's icon.
+ * - initials: The container that wraps the avatar's initials.
+ * - image: The avatar image. Only shown when the `image` attribute is set.
  */
 .Avatar {
   /* Add your custom styles here */

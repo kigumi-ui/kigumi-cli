@@ -3,8 +3,24 @@
  * Documentation: https://webawesome.com/docs/components/tree-item
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --show-duration: The animation duration when expanding tree items.
+ * - --hide-duration: The animation duration when collapsing tree items.
  *
+ * CSS Parts:
+ * - base: The component's base wrapper.
+ * - item: The tree item's container. This element wraps everything except slotted tree item children.
+ * - indentation: The tree item's indentation container.
+ * - expand-button: The container that wraps the tree item's expand button and spinner.
+ * - spinner: The spinner that shows when a lazy tree item is in the loading state.
+ * - spinner__base: The spinner's base part.
+ * - label: The tree item's label.
+ * - children: The container that wraps the tree item's nested children.
+ * - checkbox: The checkbox that shows when using multiselect.
+ * - checkbox__base: The checkbox's exported `base` part.
+ * - checkbox__control: The checkbox's exported `control` part.
+ * - checkbox__checked-icon: The checkbox's exported `checked-icon` part.
+ * - checkbox__indeterminate-icon: The checkbox's exported `indeterminate-icon` part.
+ * - checkbox__label: The checkbox's exported `label` part.
  */
 .TreeItem {
   /* Add your custom styles here */

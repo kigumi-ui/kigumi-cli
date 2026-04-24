@@ -1,6 +1,9 @@
 /**
  * Breadcrumb Component Styles
  * Documentation: https://webawesome.com/docs/components/breadcrumb
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
  */
 :host {
   display: contents;

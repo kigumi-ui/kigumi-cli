@@ -1,6 +1,14 @@
 /**
  * Dropdown Component Styles
  * Documentation: https://webawesome.com/docs/components/dropdown
+ *
+ * CSS Custom Properties:
+ * --show-duration - The duration of the show animation.
+ * --hide-duration - The duration of the hide animation.
+ *
+ * CSS Parts:
+ * base - The component's host element.
+ * menu - The dropdown menu container.
  */
 :host {
   display: contents;

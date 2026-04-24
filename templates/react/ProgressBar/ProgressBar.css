@@ -3,8 +3,14 @@
  * Documentation: https://webawesome.com/docs/components/progress-bar
  *
  * CSS Custom Properties:
- * (No custom properties defined for this component)
+ * - --track-height: The color of the track.
+ * - --track-color: The color of the track.
+ * - --indicator-color: The color of the indicator.
  *
+ * CSS Parts:
+ * - base: The component's base wrapper.
+ * - indicator: The progress bar's indicator.
+ * - label: The progress bar's label.
  */
 .ProgressBar {
   /* Add your custom styles here */

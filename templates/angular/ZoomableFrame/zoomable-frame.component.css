@@ -1,6 +1,12 @@
 /**
  * ZoomableFrame Component Styles
  * Documentation: https://webawesome.com/docs/components/zoomable-frame
+ *
+ * CSS Parts:
+ * iframe - The internal `<iframe>` element.
+ * controls - The container that surrounds zoom control buttons.
+ * zoom-in-button - The zoom in button.
+ * zoom-out-button - The zoom out button.
  */
 :host {
   display: contents;

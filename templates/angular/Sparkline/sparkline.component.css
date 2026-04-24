@@ -1,6 +1,16 @@
 /**
  * Sparkline Component Styles
  * Documentation: https://webawesome.com/docs/components/sparkline
+ *
+ * CSS Custom Properties:
+ * --fill-color - The fill color for the area under the line.
+ * --line-color - The color of the sparkline stroke.
+ * --line-width - The width of the sparkline stroke.
+ *
+ * CSS Parts:
+ * base - The SVG container element.
+ * line - The sparkline stroke path.
+ * fill - The filled area under the line (visible with gradient or solid appearance).
  */
 :host {
   display: contents;

@@ -1,6 +1,12 @@
 /**
  * BreadcrumbItem Component Styles
  * Documentation: https://webawesome.com/docs/components/breadcrumb-item
+ *
+ * CSS Parts:
+ * label - The breadcrumb item's label.
+ * start - The container that wraps the `start` slot.
+ * end - The container that wraps the `end` slot.
+ * separator - The container that wraps the separator.
  */
 :host {
   display: contents;

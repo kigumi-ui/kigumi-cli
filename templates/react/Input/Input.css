@@ -3,21 +3,17 @@
  * Documentation: https://webawesome.com/docs/components/input
  *
  * CSS Custom Properties:
- * - --wa-spacing-small: Spacing for small size
- * - --wa-spacing-medium: Spacing for medium size
- * - --wa-spacing-large: Spacing for large size
+ * (No custom properties defined for this component)
  *
  * CSS Parts:
- * - form-control: The form control wrapper
- * - form-control-label: The label wrapper
- * - form-control-input: The input wrapper
- * - form-control-help-text: The help text wrapper
- * - base: The component's base wrapper
- * - input: The internal input element
- * - prefix: The container that wraps the prefix
- * - clear-button: The clear button
- * - password-toggle-button: The password toggle button
- * - suffix: The container that wraps the suffix
+ * - label: The label
+ * - hint: The hint's wrapper.
+ * - base: The wrapper being rendered as an input
+ * - input: The internal `<input>` control.
+ * - start: The container that wraps the `start` slot.
+ * - clear-button: The clear button.
+ * - password-toggle-button: The password toggle button.
+ * - end: The container that wraps the `end` slot.
  */
 .Input {
   /* Add your custom styles here */

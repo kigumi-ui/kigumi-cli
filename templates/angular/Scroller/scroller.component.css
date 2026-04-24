@@ -1,6 +1,13 @@
 /**
  * Scroller Component Styles
  * Documentation: https://webawesome.com/docs/components/scroller
+ *
+ * CSS Custom Properties:
+ * --shadow-color - The base color of the shadow. (default: var(--wa-color-surface-default))
+ * --shadow-size - The size of the shadow. (default: 2rem)
+ *
+ * CSS Parts:
+ * content - The container that wraps the slotted content.
  */
 :host {
   display: contents;
