@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaCarousel from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
 import './Carousel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -69,16 +70,15 @@ export interface CarouselRef {
   /** Scrolls the carousel to the slide specified by `index`. */
   goToSlide: (index: number, behavior: ScrollBehavior) => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaCarousel | null;
 }
 
 export const Carousel = forwardRef<CarouselRef, CarouselProps>(
   ({ children, className, onSlideChange, ...props }, ref) => {
-    const carouselRef = useRef<HTMLElement & {
-      previous?: (behavior: ScrollBehavior) => void;
-      next?: (behavior: ScrollBehavior) => void;
-      goToSlide?: (index: number, behavior: ScrollBehavior) => void;
-    }>(null);
+    const carouselRef = useRef<WaCarousel | null>(null);
+    const setCarouselRef = useCallback((el: WaCarousel | null) => {
+      carouselRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -123,10 +123,9 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     return (
       <wa-carousel
-        ref={carouselRef}
+        ref={setCarouselRef}
         class={clsx('Carousel', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-carousel>

@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaTextarea from '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 import './Textarea.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -123,22 +124,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaTextarea | null;
 }
 
 export const Textarea = forwardRef<TextareaRef, TextareaProps>(
   ({ children, className, onBlur, onChange, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const textareaRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      select?: () => void;
-      scrollPosition?: (position: { top?: number; left?: number }) => void;
-      setSelectionRange?: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
-      setRangeText?: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const textareaRef = useRef<WaTextarea | null>(null);
+    const setTextareaRef = useCallback((el: WaTextarea | null) => {
+      textareaRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -237,10 +231,9 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
 
     return (
       <wa-textarea
-        ref={textareaRef}
+        ref={setTextareaRef}
         class={clsx('Textarea', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-textarea>

@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaPolarAreaChart from '@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js';
 import './PolarAreaChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -43,13 +44,15 @@ export interface PolarAreaChartProps extends Omit<HTMLAttributes<HTMLElement>, '
 
 export interface PolarAreaChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaPolarAreaChart | null;
 }
 
 export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>(
   ({ children, className, ...props }, ref) => {
-    const polarareachartRef = useRef<HTMLElement & {
-    }>(null);
+    const polarareachartRef = useRef<WaPolarAreaChart | null>(null);
+    const setPolarAreaChartRef = useCallback((el: WaPolarAreaChart | null) => {
+      polarareachartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -67,10 +70,9 @@ export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>
 
     return (
       <wa-polar-area-chart
-        ref={polarareachartRef}
+        ref={setPolarAreaChartRef}
         class={clsx('PolarAreaChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-polar-area-chart>

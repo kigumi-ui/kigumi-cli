@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaZoomableFrame from '@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js';
 import './ZoomableFrame.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -72,15 +73,15 @@ export interface ZoomableFrameRef {
   /** Zooms out to the previous available zoom level. */
   zoomOut: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaZoomableFrame | null;
 }
 
 export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
-    const zoomableframeRef = useRef<HTMLElement & {
-      zoomIn?: () => void;
-      zoomOut?: () => void;
-    }>(null);
+    const zoomableframeRef = useRef<WaZoomableFrame | null>(null);
+    const setZoomableFrameRef = useCallback((el: WaZoomableFrame | null) => {
+      zoomableframeRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -126,10 +127,9 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
 
     return (
       <wa-zoomable-frame
-        ref={zoomableframeRef}
+        ref={setZoomableFrameRef}
         class={clsx('ZoomableFrame', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-zoomable-frame>

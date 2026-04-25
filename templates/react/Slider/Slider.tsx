@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaSlider from '@awesome.me/webawesome/dist/components/slider/slider.js';
 import './Slider.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -116,20 +117,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaSlider | null;
 }
 
 export const Slider = forwardRef<SliderRef, SliderProps>(
   ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const sliderRef = useRef<HTMLElement & {
-      focus?: () => void;
-      blur?: () => void;
-      stepDown?: () => void;
-      stepUp?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const sliderRef = useRef<WaSlider | null>(null);
+    const setSliderRef = useCallback((el: WaSlider | null) => {
+      sliderRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -218,10 +214,9 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
 
     return (
       <wa-slider
-        ref={sliderRef}
+        ref={setSliderRef}
         class={clsx('Slider', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-slider>

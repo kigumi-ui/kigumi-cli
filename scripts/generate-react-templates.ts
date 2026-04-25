@@ -149,22 +149,8 @@ function generateReactTypescriptTemplate(
 
   const refInterface =
     metadata.methods.length > 0
-      ? `${refMethods}\n  /** Reference to the underlying HTML element */\n  element: HTMLElement | null;`
-      : `  /** Reference to the underlying HTML element */\n  element: HTMLElement | null;`;
-
-  // 4. useRef type definition
-  const refTypeMethods = metadata.methods
-    .map((method) => {
-      if (method.parameters && method.parameters.length > 0) {
-        const params = method.parameters
-          .map((p) => `${p.name}: ${p.type}`)
-          .join(', ');
-        return `\n      ${method.name}?: (${params}) => void;`;
-      } else {
-        return `\n      ${method.name}?: () => void;`;
-      }
-    })
-    .join('');
+      ? `${refMethods}\n  /** Reference to the underlying HTML element */\n  element: Wa${component.name} | null;`
+      : `  /** Reference to the underlying HTML element */\n  element: Wa${component.name} | null;`;
 
   // 5. useImperativeHandle implementation
   const imperativeHandleMethods = metadata.methods
@@ -255,9 +241,13 @@ function generateReactTypescriptTemplate(
       ? `import type { ${customTypes.join(', ')} } from '${component.importPath}';\n`
       : '';
 
+  // Convert "AnimatedImage" → "animated-image" for the WA Free path.
+  const kebabName = component.tagName.replace(/^wa-/, '');
+
   // Template
-  return `import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+  return `import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type Wa${component.name} from '@awesome.me/webawesome/dist/components/${kebabName}/${kebabName}.js';
 ${typeImport}import './${component.name}.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -296,8 +286,10 @@ ${refInterface}
 
 export const ${component.name} = forwardRef<${component.name}Ref, ${component.name}Props>(
   ({ children, className${eventPropsDestructure}, ...props }, ref) => {
-    const ${component.name.toLowerCase()}Ref = useRef<HTMLElement & {${refTypeMethods}
-    }>(null);
+    const ${component.name.toLowerCase()}Ref = useRef<Wa${component.name} | null>(null);
+    const set${component.name}Ref = useCallback((el: Wa${component.name} | null) => {
+      ${component.name.toLowerCase()}Ref.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -331,10 +323,9 @@ ${removeEventListeners}
 }
     return (
       <${component.tagName}
-        ref={${component.name.toLowerCase()}Ref}
+        ref={set${component.name}Ref}
         class={clsx('${component.name}', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </${component.tagName}>

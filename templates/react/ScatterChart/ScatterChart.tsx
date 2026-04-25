@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaScatterChart from '@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js';
 import './ScatterChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -58,13 +59,15 @@ export interface ScatterChartProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 
 export interface ScatterChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaScatterChart | null;
 }
 
 export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
   ({ children, className, ...props }, ref) => {
-    const scatterchartRef = useRef<HTMLElement & {
-    }>(null);
+    const scatterchartRef = useRef<WaScatterChart | null>(null);
+    const setScatterChartRef = useCallback((el: WaScatterChart | null) => {
+      scatterchartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -82,10 +85,9 @@ export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
 
     return (
       <wa-scatter-chart
-        ref={scatterchartRef}
+        ref={setScatterChartRef}
         class={clsx('ScatterChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-scatter-chart>

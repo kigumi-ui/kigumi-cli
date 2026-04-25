@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaTabGroup from '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
 import './TabGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -44,13 +45,15 @@ export interface TabGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onTabS
 
 export interface TabGroupRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaTabGroup | null;
 }
 
 export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
   ({ children, className, onTabShow, onTabHide, ...props }, ref) => {
-    const tabgroupRef = useRef<HTMLElement & {
-    }>(null);
+    const tabgroupRef = useRef<WaTabGroup | null>(null);
+    const setTabGroupRef = useCallback((el: WaTabGroup | null) => {
+      tabgroupRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -86,10 +89,9 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
 
     return (
       <wa-tab-group
-        ref={tabgroupRef}
+        ref={setTabGroupRef}
         class={clsx('TabGroup', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-tab-group>

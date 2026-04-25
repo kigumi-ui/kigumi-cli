@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaResizeObserver from '@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js';
 import './ResizeObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -32,13 +33,15 @@ export interface ResizeObserverProps extends Omit<HTMLAttributes<HTMLElement>, '
 
 export interface ResizeObserverRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaResizeObserver | null;
 }
 
 export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>(
   ({ children, className, onResize, ...props }, ref) => {
-    const resizeobserverRef = useRef<HTMLElement & {
-    }>(null);
+    const resizeobserverRef = useRef<WaResizeObserver | null>(null);
+    const setResizeObserverRef = useCallback((el: WaResizeObserver | null) => {
+      resizeobserverRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -68,10 +71,9 @@ export const ResizeObserver = forwardRef<ResizeObserverRef, ResizeObserverProps>
 
     return (
       <wa-resize-observer
-        ref={resizeobserverRef}
+        ref={setResizeObserverRef}
         class={clsx('ResizeObserver', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-resize-observer>

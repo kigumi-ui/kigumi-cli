@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaPage from '@awesome.me/webawesome/dist/components/page/page.js';
 import './Page.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -57,17 +58,15 @@ This prevents awkward gaps when scrolling the page and the aside / menu dont "fi
   /** Toggles the mobile navigation drawer */
   toggleNavigation: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaPage | null;
 }
 
 export const Page = forwardRef<PageRef, PageProps>(
   ({ children, className, ...props }, ref) => {
-    const pageRef = useRef<HTMLElement & {
-      visiblePixelsInViewport?: (element: HTMLElement | null) => void;
-      showNavigation?: () => void;
-      hideNavigation?: () => void;
-      toggleNavigation?: () => void;
-    }>(null);
+    const pageRef = useRef<WaPage | null>(null);
+    const setPageRef = useCallback((el: WaPage | null) => {
+      pageRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -105,10 +104,9 @@ export const Page = forwardRef<PageRef, PageProps>(
 
     return (
       <wa-page
-        ref={pageRef}
+        ref={setPageRef}
         class={clsx('Page', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-page>

@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaNumberInput from '@awesome.me/webawesome/dist/components/number-input/number-input.js';
 import './NumberInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -108,21 +109,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaNumberInput | null;
 }
 
 export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
   ({ children, className, onInput, onChange, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const numberinputRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      select?: () => void;
-      stepUp?: () => void;
-      stepDown?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const numberinputRef = useRef<WaNumberInput | null>(null);
+    const setNumberInputRef = useCallback((el: WaNumberInput | null) => {
+      numberinputRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -216,10 +211,9 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
 
     return (
       <wa-number-input
-        ref={numberinputRef}
+        ref={setNumberInputRef}
         class={clsx('NumberInput', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-number-input>

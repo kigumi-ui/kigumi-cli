@@ -1,0 +1,340 @@
+#!/usr/bin/env tsx
+/* eslint-disable no-console */
+/**
+ * Sync Pro Shim Generator
+ *
+ * Reads installed @awesome.me/webawesome-pro types and writes
+ * accurate ambient declarations to typecheck-shims/wa-pro-{paths,jsx}.d.ts.
+ *
+ * Run when:
+ *   - First time setting up the accurate Pro shim
+ *   - After any @awesome.me/webawesome (Free) version bump in package.json
+ *     (Pro tracks Free's versioning)
+ *
+ * Prerequisites:
+ *   pnpm setup:npmrc                                 # token in ~/.npmrc
+ *   pnpm add -D @awesome.me/webawesome-pro           # local install
+ *
+ * The script is idempotent: 2 runs produce identical output.
+ */
+
+import { Project } from 'ts-morph';
+import fs from 'fs-extra';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = path.join(__dirname, '..');
+const PRO_PKG = path.join(
+  PROJECT_ROOT,
+  'node_modules/@awesome.me/webawesome-pro/dist'
+);
+const SHIMS_DIR = path.join(PROJECT_ROOT, 'typecheck-shims');
+const FREE_PATH_PREFIX = '@awesome.me/webawesome/dist/components';
+
+// 15 Pro component tags (kebab-case file names).
+// Identical to current wa-pro-paths.d.ts coverage.
+const PRO_COMPONENTS = [
+  'bar-chart',
+  'bubble-chart',
+  'chart',
+  'combobox',
+  'doughnut-chart',
+  'file-input',
+  'line-chart',
+  'number-input',
+  'pie-chart',
+  'polar-area-chart',
+  'radar-chart',
+  'scatter-chart',
+  'sparkline',
+  'toast',
+  'toast-item',
+] as const;
+
+function kebabToPascal(kebab: string): string {
+  return kebab
+    .split('-')
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join('');
+}
+
+function classNameFor(comp: string): string {
+  return 'Wa' + kebabToPascal(comp);
+}
+
+// Primitives and built-in types that don't need a local `export type` stub.
+const KNOWN_TYPES = new Set([
+  'string',
+  'number',
+  'boolean',
+  'null',
+  'undefined',
+  'void',
+  'any',
+  'unknown',
+  'never',
+  'File',
+  'FormData',
+  'FocusOptions',
+]);
+
+/**
+ * Collect PascalCase type identifiers from a type string that aren't in the
+ * known-safe set and therefore need a local `export type X = unknown;` stub
+ * to avoid TS2304 (Cannot find name 'X').
+ */
+function collectUnknownTypeIdents(typeStr: string): string[] {
+  const matches = typeStr.match(/\b([A-Z][A-Za-z0-9]*)\b/g) ?? [];
+  return [...new Set(matches.filter((t) => !KNOWN_TYPES.has(t)))];
+}
+
+/**
+ * Verify the expected class exists in the Pro component .d.ts, then build
+ * an enriched stub that includes method signatures sourced from
+ * COMPONENT_METADATA — the same source of truth the React generator uses.
+ *
+ * Methods are emitted as optional (methodName?(...): void) to match the
+ * `typeof xRef.current.method === 'function'` guard pattern in the generator.
+ *
+ * For parameter types that reference Pro-specific identifiers (e.g.
+ * ToastCreateOptions) we emit `export type X = unknown;` alongside the class
+ * so TS can resolve the name without importing the real Pro package.
+ */
+function buildClassDeclaration(comp: string): {
+  extraTypes: string[];
+  classDecl: string;
+} {
+  const dtsPath = path.join(PRO_PKG, 'components', comp, `${comp}.d.ts`);
+  if (!fs.existsSync(dtsPath)) {
+    throw new Error(`Pro component .d.ts not found: ${dtsPath}`);
+  }
+  const project = new Project({ skipAddingFilesFromTsConfig: true });
+  const sf = project.addSourceFileAtPath(dtsPath);
+  const expectedName = classNameFor(comp);
+  const cls = sf.getClass(expectedName);
+  if (!cls) {
+    throw new Error(
+      `Class ${expectedName} not found in ${dtsPath}. ` +
+        `Got: ${sf
+          .getClasses()
+          .map((c) => c.getName())
+          .join(', ')}`
+    );
+  }
+
+  const metadata = COMPONENT_METADATA[comp];
+  if (!metadata) {
+    console.warn(
+      `⚠ No COMPONENT_METADATA entry for Pro component "${comp}". ` +
+        `The shim class will be method-less. Add an entry to ` +
+        `src/utils/component-metadata.ts to expose its methods.`
+    );
+  }
+  const methods = metadata?.methods ?? [];
+
+  const extraTypeIdents: string[] = [];
+  const methodLines = methods.map((m) => {
+    const params = (m.parameters ?? [])
+      .map((p) => {
+        // Collect any unknown PascalCase type idents for stub export
+        collectUnknownTypeIdents(p.type).forEach((t) => {
+          if (!extraTypeIdents.includes(t)) extraTypeIdents.push(t);
+        });
+        return `${p.name}: ${p.type}`;
+      })
+      .join(', ');
+    return `    ${m.name}?(${params}): void;`;
+  });
+
+  const className = classNameFor(comp);
+
+  if (methodLines.length === 0) {
+    return {
+      extraTypes: [],
+      classDecl: `class ${className} extends HTMLElement {}`,
+    };
+  }
+
+  return {
+    extraTypes: extraTypeIdents,
+    classDecl: `class ${className} extends HTMLElement {
+${methodLines.join('\n')}
+  }`,
+  };
+}
+
+function buildPathsContent(): string {
+  const header = `/**
+ * GENERATED by scripts/sync-wa-pro-shim.ts. Do not edit by hand.
+ *
+ * Ambient module declarations for Pro-only Web Awesome import paths.
+ * Templates import from the Free path (\`@awesome.me/webawesome/dist/...\`);
+ * at materialize time the path is rewritten to \`webawesome-pro/...\`.
+ *
+ * MUST be a SCRIPT file (no top-level import/export). In a module file,
+ * \`declare module 'X' { ... }\` becomes a module *augmentation* that
+ * requires 'X' to already be known — defeating the purpose for unknown
+ * Pro paths.
+ */
+
+`;
+
+  const blocks = PRO_COMPONENTS.map((comp) => {
+    const { extraTypes, classDecl } = buildClassDeclaration(comp);
+    const typeLines = extraTypes
+      .map((t) => `  export type ${t} = unknown;`)
+      .join('\n');
+    const body = typeLines
+      ? `${typeLines}\n  export default ${classDecl}`
+      : `  export default ${classDecl}`;
+    return `declare module '${FREE_PATH_PREFIX}/${comp}/${comp}.js' {
+${body}
+}
+`;
+  });
+
+  return header + blocks.join('\n');
+}
+
+function buildJsxContent(): string {
+  const proJsxPath = path.join(PRO_PKG, 'custom-elements-jsx.d.ts');
+  if (!fs.existsSync(proJsxPath)) {
+    throw new Error(`Pro JSX d.ts not found: ${proJsxPath}`);
+  }
+  const project = new Project({ skipAddingFilesFromTsConfig: true });
+  const sf = project.addSourceFileAtPath(proJsxPath);
+
+  // CustomElements and WaXxxProps are type aliases, not interfaces.
+  const customElementsAlias = sf.getTypeAlias('CustomElements');
+  if (!customElementsAlias) {
+    throw new Error('CustomElements type alias not found in Pro JSX d.ts');
+  }
+  const customElementsTypeLiteral = customElementsAlias.getTypeNodeOrThrow();
+
+  const proTags = new Set(PRO_COMPONENTS.map((c) => `wa-${c}`));
+  const tagEntries: string[] = [];
+  const propsTypeNames = new Set<string>();
+
+  for (const member of customElementsTypeLiteral.getMembers()) {
+    const name = member.getName().replace(/^['"]|['"]$/g, '');
+    if (!proTags.has(name)) continue;
+
+    const typeText = member.getTypeNodeOrThrow().getText();
+    tagEntries.push(`  '${name}': ${typeText};`);
+
+    const propsMatches = typeText.match(/Wa\w+Props/g);
+    propsMatches?.forEach((p) => propsTypeNames.add(p));
+  }
+
+  // Sort to keep deterministic output across runs
+  const sortedTagEntries = [...tagEntries].sort();
+  const sortedPropsNames = [...propsTypeNames].sort();
+
+  const inlinedInterfaces: string[] = [];
+  for (const typeName of sortedPropsNames) {
+    const typeAlias = sf.getTypeAlias(typeName);
+    if (!typeAlias) {
+      console.warn(`Props type alias ${typeName} not found, skipping inline`);
+      continue;
+    }
+    // Props type aliases only use WaXxx['prop'] indexed accesses,
+    // which resolve via the imports block at the top of the JSX file.
+    // No external stubbing needed.
+    inlinedInterfaces.push(typeAlias.getText());
+  }
+
+  const importsBlock = PRO_COMPONENTS.slice()
+    .sort()
+    .map((c) => {
+      const cls = classNameFor(c);
+      return `import type ${cls} from '${FREE_PATH_PREFIX}/${c}/${c}.js';`;
+    })
+    .join('\n');
+
+  return `/**
+ * GENERATED by scripts/sync-wa-pro-shim.ts. Do not edit by hand.
+ *
+ * JSX intrinsic-element declarations for Pro-only Web Awesome components.
+ * Mirrors Free's CustomElements shape so React 19 (\`React.JSX\`),
+ * Vue, and global JSX fallbacks all see Pro tags with accurate ref types.
+ *
+ * NOTE: Both \`declare module 'react'\` and \`declare global\` augmentations
+ * are intentional and additive. Critical Rule #3 in CLAUDE.md ("declare
+ * global not declare module 'react'") guards against overwriting React's
+ * exports, but namespace-only augmentation of JSX.IntrinsicElements is
+ * the standard idiom and what WA's own custom-elements-jsx.d.ts uses.
+ */
+
+${importsBlock}
+
+// Inlined Pro props interfaces
+${inlinedInterfaces.join('\n\n')}
+
+type BaseProps<T extends HTMLElement> = {
+  children?: any;
+  class?: string;
+  className?: string;
+  ref?: T | ((e: T) => void);
+  slot?: string;
+  style?: any;
+  [key: string]: any;
+};
+
+type BaseEvents = Record<string, ((e: any) => void) | undefined>;
+
+interface WaProIntrinsicElements {
+${sortedTagEntries.join('\n')}
+}
+
+declare module 'react' {
+  namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface IntrinsicElements extends WaProIntrinsicElements {}
+  }
+}
+
+declare global {
+  namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface IntrinsicElements extends WaProIntrinsicElements {}
+  }
+}
+
+export {};
+`;
+}
+
+async function main() {
+  if (!fs.existsSync(PRO_PKG)) {
+    console.error(
+      '❌ Pro package not installed. Run:\n' +
+        '   pnpm setup:npmrc\n' +
+        '   pnpm add -D @awesome.me/webawesome-pro\n' +
+        '   (then revert package.json + pnpm-lock.yaml)\n'
+    );
+    process.exit(1);
+  }
+
+  console.log('Syncing Pro shim from', PRO_PKG);
+
+  const pathsContent = buildPathsContent();
+  const jsxContent = buildJsxContent();
+
+  await fs.writeFile(path.join(SHIMS_DIR, 'wa-pro-paths.d.ts'), pathsContent);
+  console.log('✓ wrote wa-pro-paths.d.ts');
+
+  await fs.writeFile(path.join(SHIMS_DIR, 'wa-pro-jsx.d.ts'), jsxContent);
+  console.log('✓ wrote wa-pro-jsx.d.ts');
+
+  console.log(
+    '\nNext: pnpm tsx scripts/generate-react-templates.ts && npx tsc -p templates/react/tsconfig.json --noEmit'
+  );
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

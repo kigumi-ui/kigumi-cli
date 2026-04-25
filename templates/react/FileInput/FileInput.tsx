@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaFileInput from '@awesome.me/webawesome/dist/components/file-input/file-input.js';
 import './FileInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -84,18 +85,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaFileInput | null;
 }
 
 export const FileInput = forwardRef<FileInputRef, FileInputProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onInvalid, ...props }, ref) => {
-    const fileinputRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const fileinputRef = useRef<WaFileInput | null>(null);
+    const setFileInputRef = useCallback((el: WaFileInput | null) => {
+      fileinputRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -174,10 +172,9 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
 
     return (
       <wa-file-input
-        ref={fileinputRef}
+        ref={setFileInputRef}
         class={clsx('FileInput', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-file-input>

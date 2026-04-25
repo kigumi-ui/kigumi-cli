@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaSparkline from '@awesome.me/webawesome/dist/components/sparkline/sparkline.js';
 import './Sparkline.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -40,13 +41,15 @@ export interface SparklineProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
 
 export interface SparklineRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaSparkline | null;
 }
 
 export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
   ({ children, className, ...props }, ref) => {
-    const sparklineRef = useRef<HTMLElement & {
-    }>(null);
+    const sparklineRef = useRef<WaSparkline | null>(null);
+    const setSparklineRef = useCallback((el: WaSparkline | null) => {
+      sparklineRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -64,10 +67,9 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
 
     return (
       <wa-sparkline
-        ref={sparklineRef}
+        ref={setSparklineRef}
         class={clsx('Sparkline', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-sparkline>

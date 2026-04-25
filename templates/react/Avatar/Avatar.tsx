@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaAvatar from '@awesome.me/webawesome/dist/components/avatar/avatar.js';
 import './Avatar.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -44,13 +45,15 @@ export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onError'
 
 export interface AvatarRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaAvatar | null;
 }
 
 export const Avatar = forwardRef<AvatarRef, AvatarProps>(
   ({ children, className, onError, ...props }, ref) => {
-    const avatarRef = useRef<HTMLElement & {
-    }>(null);
+    const avatarRef = useRef<WaAvatar | null>(null);
+    const setAvatarRef = useCallback((el: WaAvatar | null) => {
+      avatarRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -80,10 +83,9 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
 
     return (
       <wa-avatar
-        ref={avatarRef}
+        ref={setAvatarRef}
         class={clsx('Avatar', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-avatar>

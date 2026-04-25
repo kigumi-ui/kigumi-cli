@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaRadio from '@awesome.me/webawesome/dist/components/radio/radio.js';
 import './Radio.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -60,16 +61,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaRadio | null;
 }
 
 export const Radio = forwardRef<RadioRef, RadioProps>(
   ({ children, className, onBlur, onFocus, ...props }, ref) => {
-    const radioRef = useRef<HTMLElement & {
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const radioRef = useRef<WaRadio | null>(null);
+    const setRadioRef = useCallback((el: WaRadio | null) => {
+      radioRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -120,10 +120,9 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
 
     return (
       <wa-radio
-        ref={radioRef}
+        ref={setRadioRef}
         class={clsx('Radio', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-radio>

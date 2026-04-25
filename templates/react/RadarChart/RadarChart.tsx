@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaRadarChart from '@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js';
 import './RadarChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -55,13 +56,15 @@ export interface RadarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'
 
 export interface RadarChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaRadarChart | null;
 }
 
 export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
   ({ children, className, ...props }, ref) => {
-    const radarchartRef = useRef<HTMLElement & {
-    }>(null);
+    const radarchartRef = useRef<WaRadarChart | null>(null);
+    const setRadarChartRef = useCallback((el: WaRadarChart | null) => {
+      radarchartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -79,10 +82,9 @@ export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
 
     return (
       <wa-radar-chart
-        ref={radarchartRef}
+        ref={setRadarChartRef}
         class={clsx('RadarChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-radar-chart>

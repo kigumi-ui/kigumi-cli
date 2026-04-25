@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaChart from '@awesome.me/webawesome/dist/components/chart/chart.js';
 import './Chart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -67,13 +68,15 @@ export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
 export interface ChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaChart | null;
 }
 
 export const Chart = forwardRef<ChartRef, ChartProps>(
   ({ children, className, ...props }, ref) => {
-    const chartRef = useRef<HTMLElement & {
-    }>(null);
+    const chartRef = useRef<WaChart | null>(null);
+    const setChartRef = useCallback((el: WaChart | null) => {
+      chartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -91,10 +94,9 @@ export const Chart = forwardRef<ChartRef, ChartProps>(
 
     return (
       <wa-chart
-        ref={chartRef}
+        ref={setChartRef}
         class={clsx('Chart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-chart>

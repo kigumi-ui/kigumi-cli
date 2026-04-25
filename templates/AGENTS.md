@@ -86,11 +86,14 @@ Badge.displayName = 'Badge';
 
 ### Complex Component (with events/methods)
 
-Use for: Dialog, Drawer, Dropdown, Select, etc. The example below mirrors the shape of `templates/react/Dialog/Dialog.tsx`.
+Use for: Dialog, Drawer, Dropdown, Select, etc. The example below mirrors the current shape of `templates/react/Dialog/Dialog.tsx`.
+
+Note: `wa-dialog` / `wa-drawer` `show()` and `requestClose()` are declared `private` in WA's `.d.ts`. The `DialogRef` interface therefore exposes only `element` — no `show` or `hide` methods. To open or close a dialog programmatically, toggle the `open` prop (see Rule 5).
 
 ```typescript
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js';
 import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -98,47 +101,68 @@ function ensureLoaded() {
   return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
 }
 
-export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-  // Props
-  onShow?: (event: CustomEvent) => void;   // wa-show
-  onHide?: (event: CustomEvent) => void;   // wa-hide
+export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
+  open?: boolean;
+  label: string;
+  onShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: CustomEvent) => void;
+  onHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: CustomEvent) => void;
 }
 
 export interface DialogRef {
-  show: () => void;
-  hide: () => void;
-  element: HTMLElement | null;
+  /** Reference to the underlying HTML element */
+  element: WaDialog | null;
 }
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
-  ({ className, onShow, onHide, ...props }, ref) => {
-    const internalRef = useRef<HTMLElement & { show?: () => void; requestClose?: () => void }>(null);
+  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+    const dialogRef = useRef<WaDialog | null>(null);
+    const setDialogRef = useCallback((el: WaDialog | null) => {
+      dialogRef.current = el;
+    }, []);
 
-    useImperativeHandle(ref, () => ({
-      show: () => internalRef.current?.show?.(),
-      hide: () => internalRef.current?.requestClose?.(),
-      get element() { return internalRef.current; },
-    }), []);
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return dialogRef.current;
+        },
+      }),
+      []
+    );
 
     useEffect(() => {
       ensureLoaded();
-      const el = internalRef.current;
+      const el = dialogRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
+      const handleWaShow = (e: Event) => { if (onShow) onShow(e as CustomEvent); };
+      const handleWaAfterShow = (e: Event) => { if (onAfterShow) onAfterShow(e as CustomEvent); };
+      const handleWaHide = (e: Event) => { if (onHide) onHide(e as CustomEvent); };
+      const handleWaAfterHide = (e: Event) => { if (onAfterHide) onAfterHide(e as CustomEvent); };
 
-      el.addEventListener('wa-show', handleShow);
-      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-show', handleWaShow);
+      el.addEventListener('wa-after-show', handleWaAfterShow);
+      el.addEventListener('wa-hide', handleWaHide);
+      el.addEventListener('wa-after-hide', handleWaAfterHide);
 
       return () => {
-        el.removeEventListener('wa-show', handleShow);
-        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-show', handleWaShow);
+        el.removeEventListener('wa-after-show', handleWaAfterShow);
+        el.removeEventListener('wa-hide', handleWaHide);
+        el.removeEventListener('wa-after-hide', handleWaAfterHide);
       };
-    }, [onShow, onHide]);
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
 
     return (
-      <wa-dialog ref={internalRef} class={clsx('Dialog', className)} {...props} />
+      <wa-dialog
+        ref={setDialogRef}
+        class={clsx('Dialog', className)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+      >
+        {children}
+      </wa-dialog>
     );
   }
 );
@@ -209,13 +233,21 @@ useEffect(() => {
 }, [dep]);
 ```
 
-### 5. Use `requestClose()`, not `hide()`
+### 5. Dialog/Drawer use the `open` attribute, not ref methods
 
-For dialogs/drawers, Web Awesome uses `requestClose()`:
+WA's `wa-dialog` / `wa-drawer` `show()` and `requestClose()` methods are
+declared `private` in WA's `.d.ts`. They are not exposed on the React
+wrapper's `*Ref` interface. To programmatically open or close a dialog,
+toggle the `open` attribute:
 
-```typescript
-hide: () => dialogRef.current?.requestClose(),
+```tsx
+<Dialog open={isOpen} onAfterHide={() => setIsOpen(false)}>
+  ...
+</Dialog>
 ```
+
+This is the WA-recommended API and matches the framework-agnostic shape
+of the underlying web component.
 
 ### 6. Omit Conflicting HTMLAttributes
 
@@ -233,6 +265,30 @@ React templates stay framework-agnostic: do **not** put `'use client';` at the t
 ### 8. `suppressHydrationWarning` on the `<wa-*>` Host
 
 Every React `.tsx` template emits `suppressHydrationWarning` on its Web Awesome host element. Lit reflects default attributes during `connectedCallback` (e.g., `appearance="outlined"`, `library="default"`), and React's hydration checker would flag the delta on every page that mounts a Kigumi component. `suppressHydrationWarning` is the documented React API for this scenario — it suppresses only the host element's own reconcile pass; children are still hydration-checked. In Vite SPAs the attribute is a no-op. Keep it in the templates; the scripts/generate-react-templates.ts emitter is the source of truth.
+
+### 9. React ref pattern (since F-072)
+
+React templates use a callback-ref pattern, not a direct `ref={refObject}`:
+
+```tsx
+import type WaAvatar from '@awesome.me/webawesome/dist/components/avatar/avatar.js';
+
+const avatarRef = useRef<WaAvatar | null>(null);
+const setAvatarRef = useCallback((el: WaAvatar | null) => {
+  avatarRef.current = el;
+}, []);
+// ...
+<wa-avatar ref={setAvatarRef} ...>
+```
+
+**Why:** Web Awesome's JSX augmentation declares `ref?: T | ((e: T) => void)`
+on every `<wa-X>` tag. This shape is framework-agnostic (Vue/Solid-style)
+and does NOT accept React's `RefObject<T>` from `useRef<T>(null)`. A
+`useCallback` setter with stable identity satisfies the `(e: T) => void`
+branch.
+
+This is generator-side; never edit the emitted ref pattern by hand. Edit
+`scripts/generate-react-templates.ts` instead.
 
 ---
 
@@ -283,4 +339,4 @@ Every React `.tsx` template emits `suppressHydrationWarning` on its Web Awesome 
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-24
+**Last Updated:** 2026-04-25

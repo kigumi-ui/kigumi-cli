@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaCombobox from '@awesome.me/webawesome/dist/components/combobox/combobox.js';
 import './Combobox.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -153,20 +154,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaCombobox | null;
 }
 
 export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onCreate, onInvalid, ...props }, ref) => {
-    const comboboxRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const comboboxRef = useRef<WaCombobox | null>(null);
+    const setComboboxRef = useCallback((el: WaCombobox | null) => {
+      comboboxRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -291,10 +287,9 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
 
     return (
       <wa-combobox
-        ref={comboboxRef}
+        ref={setComboboxRef}
         class={clsx('Combobox', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-combobox>

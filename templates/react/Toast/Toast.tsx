@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import './Toast.css';
 
@@ -37,14 +38,15 @@ export interface ToastRef {
 item element. */
   create: (message: string, options: ToastCreateOptions) => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaToast | null;
 }
 
 export const Toast = forwardRef<ToastRef, ToastProps>(
   ({ children, className, ...props }, ref) => {
-    const toastRef = useRef<HTMLElement & {
-      create?: (message: string, options: ToastCreateOptions) => void;
-    }>(null);
+    const toastRef = useRef<WaToast | null>(null);
+    const setToastRef = useCallback((el: WaToast | null) => {
+      toastRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -67,10 +69,9 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
 
     return (
       <wa-toast
-        ref={toastRef}
+        ref={setToastRef}
         class={clsx('Toast', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-toast>

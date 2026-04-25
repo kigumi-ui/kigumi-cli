@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaSelect from '@awesome.me/webawesome/dist/components/select/select.js';
 import './Select.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -138,20 +139,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaSelect | null;
 }
 
 export const Select = forwardRef<SelectRef, SelectProps>(
   ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, ...props }, ref) => {
-    const selectRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const selectRef = useRef<WaSelect | null>(null);
+    const setSelectRef = useCallback((el: WaSelect | null) => {
+      selectRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -270,10 +266,9 @@ export const Select = forwardRef<SelectRef, SelectProps>(
 
     return (
       <wa-select
-        ref={selectRef}
+        ref={setSelectRef}
         class={clsx('Select', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-select>

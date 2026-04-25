@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaTooltip from '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 import './Tooltip.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -78,15 +79,15 @@ export interface TooltipRef {
   /** Hides the tooltip */
   hide: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaTooltip | null;
 }
 
 export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const tooltipRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-    }>(null);
+    const tooltipRef = useRef<WaTooltip | null>(null);
+    const setTooltipRef = useCallback((el: WaTooltip | null) => {
+      tooltipRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -144,10 +145,9 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
 
     return (
       <wa-tooltip
-        ref={tooltipRef}
+        ref={setTooltipRef}
         class={clsx('Tooltip', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-tooltip>

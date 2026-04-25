@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaToastItem from '@awesome.me/webawesome/dist/components/toast-item/toast-item.js';
 import './ToastItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -54,14 +55,15 @@ export interface ToastItemRef {
   /** Hides the toast item with animation and removes it from the DOM. */
   hide: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaToastItem | null;
 }
 
 export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const toastitemRef = useRef<HTMLElement & {
-      hide?: () => void;
-    }>(null);
+    const toastitemRef = useRef<WaToastItem | null>(null);
+    const setToastItemRef = useCallback((el: WaToastItem | null) => {
+      toastitemRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -114,10 +116,9 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
 
     return (
       <wa-toast-item
-        ref={toastitemRef}
+        ref={setToastItemRef}
         class={clsx('ToastItem', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-toast-item>

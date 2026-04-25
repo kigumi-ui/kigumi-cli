@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDetails from '@awesome.me/webawesome/dist/components/details/details.js';
 import './Details.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -66,15 +67,15 @@ export interface DetailsRef {
   /** Hides the details */
   hide: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaDetails | null;
 }
 
 export const Details = forwardRef<DetailsRef, DetailsProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const detailsRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-    }>(null);
+    const detailsRef = useRef<WaDetails | null>(null);
+    const setDetailsRef = useCallback((el: WaDetails | null) => {
+      detailsRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -132,10 +133,9 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
 
     return (
       <wa-details
-        ref={detailsRef}
+        ref={setDetailsRef}
         class={clsx('Details', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-details>

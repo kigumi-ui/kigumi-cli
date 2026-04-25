@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaButton from '@awesome.me/webawesome/dist/components/button/button.js';
 import './Button.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -117,19 +118,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaButton | null;
 }
 
 export const Button = forwardRef<ButtonRef, ButtonProps>(
   ({ children, className, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const buttonRef = useRef<HTMLElement & {
-      click?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const buttonRef = useRef<WaButton | null>(null);
+    const setButtonRef = useCallback((el: WaButton | null) => {
+      buttonRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -201,10 +198,9 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
 
     return (
       <wa-button
-        ref={buttonRef}
+        ref={setButtonRef}
         class={clsx('Button', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-button>

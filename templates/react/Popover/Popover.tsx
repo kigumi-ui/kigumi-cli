@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaPopover from '@awesome.me/webawesome/dist/components/popover/popover.js';
 import './Popover.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -75,15 +76,15 @@ export interface PopoverRef {
   /** Hides the popover. */
   hide: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaPopover | null;
 }
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const popoverRef = useRef<HTMLElement & {
-      show?: () => void;
-      hide?: () => void;
-    }>(null);
+    const popoverRef = useRef<WaPopover | null>(null);
+    const setPopoverRef = useCallback((el: WaPopover | null) => {
+      popoverRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -141,10 +142,9 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
 
     return (
       <wa-popover
-        ref={popoverRef}
+        ref={setPopoverRef}
         class={clsx('Popover', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-popover>

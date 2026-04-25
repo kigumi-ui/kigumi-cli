@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaTreeItem from '@awesome.me/webawesome/dist/components/tree-item/tree-item.js';
 import './TreeItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -63,14 +64,15 @@ export interface TreeItemRef {
   /** Gets all the nested tree items in this node. */
   getChildrenItems: (options: { includeDisabled?: boolean }) => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaTreeItem | null;
 }
 
 export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
   ({ children, className, onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad, ...props }, ref) => {
-    const treeitemRef = useRef<HTMLElement & {
-      getChildrenItems?: (options: { includeDisabled?: boolean }) => void;
-    }>(null);
+    const treeitemRef = useRef<WaTreeItem | null>(null);
+    const setTreeItemRef = useCallback((el: WaTreeItem | null) => {
+      treeitemRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -135,10 +137,9 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
 
     return (
       <wa-tree-item
-        ref={treeitemRef}
+        ref={setTreeItemRef}
         class={clsx('TreeItem', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-tree-item>

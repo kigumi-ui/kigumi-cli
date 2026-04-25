@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaQrCode from '@awesome.me/webawesome/dist/components/qr-code/qr-code.js';
 import './QrCode.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -46,13 +47,15 @@ export interface QrCodeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
 export interface QrCodeRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaQrCode | null;
 }
 
 export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
   ({ children, className, ...props }, ref) => {
-    const qrcodeRef = useRef<HTMLElement & {
-    }>(null);
+    const qrcodeRef = useRef<WaQrCode | null>(null);
+    const setQrCodeRef = useCallback((el: WaQrCode | null) => {
+      qrcodeRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -70,10 +73,9 @@ export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
 
     return (
       <wa-qr-code
-        ref={qrcodeRef}
+        ref={setQrCodeRef}
         class={clsx('QrCode', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-qr-code>

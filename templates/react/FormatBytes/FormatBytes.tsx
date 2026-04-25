@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaFormatBytes from '@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js';
 import './FormatBytes.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -37,13 +38,15 @@ export interface FormatBytesProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 
 export interface FormatBytesRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaFormatBytes | null;
 }
 
 export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
   ({ children, className, ...props }, ref) => {
-    const formatbytesRef = useRef<HTMLElement & {
-    }>(null);
+    const formatbytesRef = useRef<WaFormatBytes | null>(null);
+    const setFormatBytesRef = useCallback((el: WaFormatBytes | null) => {
+      formatbytesRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -61,10 +64,9 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
 
     return (
       <wa-format-bytes
-        ref={formatbytesRef}
+        ref={setFormatBytesRef}
         class={clsx('FormatBytes', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-format-bytes>

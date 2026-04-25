@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaAnimation from '@awesome.me/webawesome/dist/components/animation/animation.js';
 import './Animation.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -78,15 +79,15 @@ export interface AnimationRef {
   /** Sets the playback time to the end of the animation corresponding to the current playback direction. */
   finish: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaAnimation | null;
 }
 
 export const Animation = forwardRef<AnimationRef, AnimationProps>(
   ({ children, className, onCancel, onFinish, onStart, ...props }, ref) => {
-    const animationRef = useRef<HTMLElement & {
-      cancel?: () => void;
-      finish?: () => void;
-    }>(null);
+    const animationRef = useRef<WaAnimation | null>(null);
+    const setAnimationRef = useCallback((el: WaAnimation | null) => {
+      animationRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -138,10 +139,9 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
 
     return (
       <wa-animation
-        ref={animationRef}
+        ref={setAnimationRef}
         class={clsx('Animation', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-animation>

@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDivider from '@awesome.me/webawesome/dist/components/divider/divider.js';
 import './Divider.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -28,13 +29,15 @@ export interface DividerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
 export interface DividerRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaDivider | null;
 }
 
 export const Divider = forwardRef<DividerRef, DividerProps>(
   ({ children, className, ...props }, ref) => {
-    const dividerRef = useRef<HTMLElement & {
-    }>(null);
+    const dividerRef = useRef<WaDivider | null>(null);
+    const setDividerRef = useCallback((el: WaDivider | null) => {
+      dividerRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -52,10 +55,9 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
 
     return (
       <wa-divider
-        ref={dividerRef}
+        ref={setDividerRef}
         class={clsx('Divider', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-divider>

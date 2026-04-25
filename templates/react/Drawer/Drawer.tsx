@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDrawer from '@awesome.me/webawesome/dist/components/drawer/drawer.js';
 import './Drawer.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -19,10 +20,6 @@ function ensureLoaded() {
  * <Drawer
  *   onShow={(e) => console.log(e)} />
  *
- * // With ref methods
- * const ref = useRef<DrawerRef>(null);
- * <button onClick={() => ref.current?.show()}>Call Method</button>
- * <Drawer ref={ref} />
  * ```
  */
 export interface DrawerProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
@@ -56,36 +53,20 @@ export interface DrawerProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' 
 }
 
 export interface DrawerRef {
-
-  /** Shows the drawer. */
-  show: () => void;
-
-  /** Closes the drawer. */
-  requestClose: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaDrawer | null;
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const drawerRef = useRef<HTMLElement & {
-      show?: () => void;
-      requestClose?: () => void;
-    }>(null);
+    const drawerRef = useRef<WaDrawer | null>(null);
+    const setDrawerRef = useCallback((el: WaDrawer | null) => {
+      drawerRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
       () => ({
-        show: () => {
-          if (drawerRef.current && typeof drawerRef.current.show === 'function') {
-            drawerRef.current.show();
-          }
-        },
-        requestClose: () => {
-          if (drawerRef.current && typeof drawerRef.current.requestClose === 'function') {
-            drawerRef.current.requestClose();
-          }
-        },
         get element() {
           return drawerRef.current;
         },
@@ -129,10 +110,9 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
     return (
       <wa-drawer
-        ref={drawerRef}
+        ref={setDrawerRef}
         class={clsx('Drawer', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-drawer>

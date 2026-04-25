@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaButtonGroup from '@awesome.me/webawesome/dist/components/button-group/button-group.js';
 import './ButtonGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -31,13 +32,15 @@ export interface ButtonGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 
 export interface ButtonGroupRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaButtonGroup | null;
 }
 
 export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
   ({ children, className, ...props }, ref) => {
-    const buttongroupRef = useRef<HTMLElement & {
-    }>(null);
+    const buttongroupRef = useRef<WaButtonGroup | null>(null);
+    const setButtonGroupRef = useCallback((el: WaButtonGroup | null) => {
+      buttongroupRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -55,10 +58,9 @@ export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
 
     return (
       <wa-button-group
-        ref={buttongroupRef}
+        ref={setButtonGroupRef}
         class={clsx('ButtonGroup', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-button-group>

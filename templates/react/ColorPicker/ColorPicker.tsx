@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaColorPicker from '@awesome.me/webawesome/dist/components/color-picker/color-picker.js';
 import './ColorPicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -131,23 +132,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaColorPicker | null;
 }
 
 export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
   ({ children, className, onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const colorpickerRef = useRef<HTMLElement & {
-      getHexString?: (hue: number, saturation: number, brightness: number, alpha: any) => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      getFormattedValue?: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => void;
-      reportValidity?: () => void;
-      show?: () => void;
-      hide?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const colorpickerRef = useRef<WaColorPicker | null>(null);
+    const setColorPickerRef = useCallback((el: WaColorPicker | null) => {
+      colorpickerRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -275,10 +268,9 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
 
     return (
       <wa-color-picker
-        ref={colorpickerRef}
+        ref={setColorPickerRef}
         class={clsx('ColorPicker', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-color-picker>

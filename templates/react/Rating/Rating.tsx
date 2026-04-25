@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaRating from '@awesome.me/webawesome/dist/components/rating/rating.js';
 import './Rating.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -78,16 +79,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaRating | null;
 }
 
 export const Rating = forwardRef<RatingRef, RatingProps>(
   ({ children, className, onChange, onHover, onInvalid, ...props }, ref) => {
-    const ratingRef = useRef<HTMLElement & {
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const ratingRef = useRef<WaRating | null>(null);
+    const setRatingRef = useCallback((el: WaRating | null) => {
+      ratingRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -144,10 +144,9 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
 
     return (
       <wa-rating
-        ref={ratingRef}
+        ref={setRatingRef}
         class={clsx('Rating', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-rating>

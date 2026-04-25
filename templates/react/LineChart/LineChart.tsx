@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaLineChart from '@awesome.me/webawesome/dist/components/line-chart/line-chart.js';
 import './LineChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -64,13 +65,15 @@ export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'>
 
 export interface LineChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaLineChart | null;
 }
 
 export const LineChart = forwardRef<LineChartRef, LineChartProps>(
   ({ children, className, ...props }, ref) => {
-    const linechartRef = useRef<HTMLElement & {
-    }>(null);
+    const linechartRef = useRef<WaLineChart | null>(null);
+    const setLineChartRef = useCallback((el: WaLineChart | null) => {
+      linechartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -88,10 +91,9 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
 
     return (
       <wa-line-chart
-        ref={linechartRef}
+        ref={setLineChartRef}
         class={clsx('LineChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-line-chart>

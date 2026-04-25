@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaBarChart from '@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js';
 import './BarChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -67,13 +68,15 @@ export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 
 export interface BarChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaBarChart | null;
 }
 
 export const BarChart = forwardRef<BarChartRef, BarChartProps>(
   ({ children, className, ...props }, ref) => {
-    const barchartRef = useRef<HTMLElement & {
-    }>(null);
+    const barchartRef = useRef<WaBarChart | null>(null);
+    const setBarChartRef = useCallback((el: WaBarChart | null) => {
+      barchartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -91,10 +94,9 @@ export const BarChart = forwardRef<BarChartRef, BarChartProps>(
 
     return (
       <wa-bar-chart
-        ref={barchartRef}
+        ref={setBarChartRef}
         class={clsx('BarChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-bar-chart>

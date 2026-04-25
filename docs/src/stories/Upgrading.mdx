@@ -55,17 +55,25 @@ shamefully-hoist=true`;
 
 export const addComponentsSnippet = `npx kigumi add button card dialog input`;
 
-export const generatedButtonSnippet = `// src/components/ui/Button/Button.tsx (generated)
+export const generatedButtonSnippet = `// components/ui/Button/Button.tsx (generated)
 'use client';
 
-import { forwardRef, /* ... */ } from 'react';
-import '@awesome.me/webawesome/dist/components/button/button.js';
+import { forwardRef, useRef, useCallback, /* ... */ } from 'react';
+import type WaButton from '@awesome.me/webawesome/dist/components/button/button.js';
 
 export const Button = forwardRef<ButtonRef, ButtonProps>(
-  function Button({ children, ...props }, ref) {
+  function Button({ children, className, ...props }, ref) {
+    const buttonRef = useRef<WaButton | null>(null);
+    const setButtonRef = useCallback((el: WaButton | null) => {
+      buttonRef.current = el;
+    }, []);
     // ...
     return (
-      <wa-button ref={innerRef} suppressHydrationWarning {...props}>
+      <wa-button
+        ref={setButtonRef}
+        class={clsx('Button', className)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+      >
         {children}
       </wa-button>
     );

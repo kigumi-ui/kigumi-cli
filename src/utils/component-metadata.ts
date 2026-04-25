@@ -1238,16 +1238,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "The dialog's footer, usually one or more buttons representing various options.",
       },
     ],
-    methods: [
-      {
-        name: 'show',
-        description: 'Shows the dialog.',
-      },
-      {
-        name: 'requestClose',
-        description: 'Closes the dialog.',
-      },
-    ],
+    methods: [],
   },
   divider: {
     tagName: 'wa-divider',
@@ -1309,16 +1300,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           "The drawer's footer, usually one or more buttons representing various options.",
       },
     ],
-    methods: [
-      {
-        name: 'show',
-        description: 'Shows the drawer.',
-      },
-      {
-        name: 'requestClose',
-        description: 'Closes the drawer.',
-      },
-    ],
+    methods: [],
   },
   'dropdown-item': {
     tagName: 'wa-dropdown-item',
@@ -2668,16 +2650,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [],
     slots: [],
     methods: [
-      {
-        name: 'getMarked',
-        description:
-          'Returns the shared Marked instance used by all `<wa-markdown>` components.',
-      },
-      {
-        name: 'updateAll',
-        description:
-          'Re-renders all connected `<wa-markdown>` instances. Call this after changing the Marked configuration.',
-      },
       {
         name: 'renderMarkdown',
         description:

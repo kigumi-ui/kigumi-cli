@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaPieChart from '@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js';
 import './PieChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -43,13 +44,15 @@ export interface PieChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 
 export interface PieChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaPieChart | null;
 }
 
 export const PieChart = forwardRef<PieChartRef, PieChartProps>(
   ({ children, className, ...props }, ref) => {
-    const piechartRef = useRef<HTMLElement & {
-    }>(null);
+    const piechartRef = useRef<WaPieChart | null>(null);
+    const setPieChartRef = useCallback((el: WaPieChart | null) => {
+      piechartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -67,10 +70,9 @@ export const PieChart = forwardRef<PieChartRef, PieChartProps>(
 
     return (
       <wa-pie-chart
-        ref={piechartRef}
+        ref={setPieChartRef}
         class={clsx('PieChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-pie-chart>

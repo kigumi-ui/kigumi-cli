@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaCallout from '@awesome.me/webawesome/dist/components/callout/callout.js';
 import './Callout.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -34,13 +35,15 @@ export interface CalloutProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
 export interface CalloutRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaCallout | null;
 }
 
 export const Callout = forwardRef<CalloutRef, CalloutProps>(
   ({ children, className, ...props }, ref) => {
-    const calloutRef = useRef<HTMLElement & {
-    }>(null);
+    const calloutRef = useRef<WaCallout | null>(null);
+    const setCalloutRef = useCallback((el: WaCallout | null) => {
+      calloutRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -58,10 +61,9 @@ export const Callout = forwardRef<CalloutRef, CalloutProps>(
 
     return (
       <wa-callout
-        ref={calloutRef}
+        ref={setCalloutRef}
         class={clsx('Callout', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-callout>
