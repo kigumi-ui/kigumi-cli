@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaIcon from '@awesome.me/webawesome/dist/components/icon/icon.js';
 import './Icon.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -65,13 +66,15 @@ export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 
 
 export interface IconRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaIcon | null;
 }
 
 export const Icon = forwardRef<IconRef, IconProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
-    const iconRef = useRef<HTMLElement & {
-    }>(null);
+    const iconRef = useRef<WaIcon | null>(null);
+    const setIconRef = useCallback((el: WaIcon | null) => {
+      iconRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -107,10 +110,9 @@ export const Icon = forwardRef<IconRef, IconProps>(
 
     return (
       <wa-icon
-        ref={iconRef}
+        ref={setIconRef}
         class={clsx('Icon', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-icon>

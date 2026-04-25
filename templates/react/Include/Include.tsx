@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaInclude from '@awesome.me/webawesome/dist/components/include/include.js';
 import './Include.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -41,13 +42,15 @@ export interface IncludeProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad'
 
 export interface IncludeRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaInclude | null;
 }
 
 export const Include = forwardRef<IncludeRef, IncludeProps>(
   ({ children, className, onLoad, onIncludeError, ...props }, ref) => {
-    const includeRef = useRef<HTMLElement & {
-    }>(null);
+    const includeRef = useRef<WaInclude | null>(null);
+    const setIncludeRef = useCallback((el: WaInclude | null) => {
+      includeRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -83,10 +86,9 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
 
     return (
       <wa-include
-        ref={includeRef}
+        ref={setIncludeRef}
         class={clsx('Include', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-include>

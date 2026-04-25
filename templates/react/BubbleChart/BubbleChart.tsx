@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaBubbleChart from '@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js';
 import './BubbleChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -64,13 +65,15 @@ export interface BubbleChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir
 
 export interface BubbleChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaBubbleChart | null;
 }
 
 export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
   ({ children, className, ...props }, ref) => {
-    const bubblechartRef = useRef<HTMLElement & {
-    }>(null);
+    const bubblechartRef = useRef<WaBubbleChart | null>(null);
+    const setBubbleChartRef = useCallback((el: WaBubbleChart | null) => {
+      bubblechartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -88,10 +91,9 @@ export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
 
     return (
       <wa-bubble-chart
-        ref={bubblechartRef}
+        ref={setBubbleChartRef}
         class={clsx('BubbleChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-bubble-chart>

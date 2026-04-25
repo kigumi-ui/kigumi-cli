@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaMarkdown from '@awesome.me/webawesome/dist/components/markdown/markdown.js';
 import './Markdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -20,7 +21,7 @@ function ensureLoaded() {
  *
  * // With ref methods
  * const ref = useRef<MarkdownRef>(null);
- * <button onClick={() => ref.current?.getMarked()}>Call Method</button>
+ * <button onClick={() => ref.current?.renderMarkdown()}>Call Method</button>
  * <Markdown ref={ref} />
  * ```
  */
@@ -32,39 +33,22 @@ export interface MarkdownProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> 
 
 export interface MarkdownRef {
 
-  /** Returns the shared Marked instance used by all `<wa-markdown>` components. */
-  getMarked: () => void;
-
-  /** Re-renders all connected `<wa-markdown>` instances. Call this after changing the Marked configuration. */
-  updateAll: () => void;
-
   /** Reads the script content, normalizes whitespace, parses markdown, and injects the result. */
   renderMarkdown: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaMarkdown | null;
 }
 
 export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
   ({ children, className, ...props }, ref) => {
-    const markdownRef = useRef<HTMLElement & {
-      getMarked?: () => void;
-      updateAll?: () => void;
-      renderMarkdown?: () => void;
-    }>(null);
+    const markdownRef = useRef<WaMarkdown | null>(null);
+    const setMarkdownRef = useCallback((el: WaMarkdown | null) => {
+      markdownRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
       () => ({
-        getMarked: () => {
-          if (markdownRef.current && typeof markdownRef.current.getMarked === 'function') {
-            markdownRef.current.getMarked();
-          }
-        },
-        updateAll: () => {
-          if (markdownRef.current && typeof markdownRef.current.updateAll === 'function') {
-            markdownRef.current.updateAll();
-          }
-        },
         renderMarkdown: () => {
           if (markdownRef.current && typeof markdownRef.current.renderMarkdown === 'function') {
             markdownRef.current.renderMarkdown();
@@ -83,10 +67,9 @@ export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
 
     return (
       <wa-markdown
-        ref={markdownRef}
+        ref={setMarkdownRef}
         class={clsx('Markdown', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-markdown>

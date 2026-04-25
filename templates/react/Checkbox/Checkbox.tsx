@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaCheckbox from '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
 import './Checkbox.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -90,19 +91,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaCheckbox | null;
 }
 
 export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
   ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
-    const checkboxRef = useRef<HTMLElement & {
-      click?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const checkboxRef = useRef<WaCheckbox | null>(null);
+    const setCheckboxRef = useCallback((el: WaCheckbox | null) => {
+      checkboxRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -186,10 +183,9 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
 
     return (
       <wa-checkbox
-        ref={checkboxRef}
+        ref={setCheckboxRef}
         class={clsx('Checkbox', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-checkbox>

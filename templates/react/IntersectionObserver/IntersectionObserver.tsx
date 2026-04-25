@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaIntersectionObserver from '@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js';
 import './IntersectionObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -44,13 +45,15 @@ export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLEleme
 
 export interface IntersectionObserverRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaIntersectionObserver | null;
 }
 
 export const IntersectionObserver = forwardRef<IntersectionObserverRef, IntersectionObserverProps>(
   ({ children, className, onIntersect, ...props }, ref) => {
-    const intersectionobserverRef = useRef<HTMLElement & {
-    }>(null);
+    const intersectionobserverRef = useRef<WaIntersectionObserver | null>(null);
+    const setIntersectionObserverRef = useCallback((el: WaIntersectionObserver | null) => {
+      intersectionobserverRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -80,10 +83,9 @@ export const IntersectionObserver = forwardRef<IntersectionObserverRef, Intersec
 
     return (
       <wa-intersection-observer
-        ref={intersectionobserverRef}
+        ref={setIntersectionObserverRef}
         class={clsx('IntersectionObserver', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-intersection-observer>

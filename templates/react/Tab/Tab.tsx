@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaTab from '@awesome.me/webawesome/dist/components/tab/tab.js';
 import './Tab.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -31,13 +32,15 @@ export interface TabProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
 export interface TabRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaTab | null;
 }
 
 export const Tab = forwardRef<TabRef, TabProps>(
   ({ children, className, ...props }, ref) => {
-    const tabRef = useRef<HTMLElement & {
-    }>(null);
+    const tabRef = useRef<WaTab | null>(null);
+    const setTabRef = useCallback((el: WaTab | null) => {
+      tabRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -55,10 +58,9 @@ export const Tab = forwardRef<TabRef, TabProps>(
 
     return (
       <wa-tab
-        ref={tabRef}
+        ref={setTabRef}
         class={clsx('Tab', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-tab>

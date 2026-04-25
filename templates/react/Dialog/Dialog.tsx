@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js';
 import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -19,10 +20,6 @@ function ensureLoaded() {
  * <Dialog
  *   onShow={(e) => console.log(e)} />
  *
- * // With ref methods
- * const ref = useRef<DialogRef>(null);
- * <button onClick={() => ref.current?.show()}>Call Method</button>
- * <Dialog ref={ref} />
  * ```
  */
 export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
@@ -53,36 +50,20 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' 
 }
 
 export interface DialogRef {
-
-  /** Shows the dialog. */
-  show: () => void;
-
-  /** Closes the dialog. */
-  requestClose: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaDialog | null;
 }
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
-    const dialogRef = useRef<HTMLElement & {
-      show?: () => void;
-      requestClose?: () => void;
-    }>(null);
+    const dialogRef = useRef<WaDialog | null>(null);
+    const setDialogRef = useCallback((el: WaDialog | null) => {
+      dialogRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
       () => ({
-        show: () => {
-          if (dialogRef.current && typeof dialogRef.current.show === 'function') {
-            dialogRef.current.show();
-          }
-        },
-        requestClose: () => {
-          if (dialogRef.current && typeof dialogRef.current.requestClose === 'function') {
-            dialogRef.current.requestClose();
-          }
-        },
         get element() {
           return dialogRef.current;
         },
@@ -126,10 +107,9 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return (
       <wa-dialog
-        ref={dialogRef}
+        ref={setDialogRef}
         class={clsx('Dialog', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-dialog>

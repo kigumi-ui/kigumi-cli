@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaFormatNumber from '@awesome.me/webawesome/dist/components/format-number/format-number.js';
 import './FormatNumber.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -58,13 +59,15 @@ export interface FormatNumberProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 
 export interface FormatNumberRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaFormatNumber | null;
 }
 
 export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
   ({ children, className, ...props }, ref) => {
-    const formatnumberRef = useRef<HTMLElement & {
-    }>(null);
+    const formatnumberRef = useRef<WaFormatNumber | null>(null);
+    const setFormatNumberRef = useCallback((el: WaFormatNumber | null) => {
+      formatnumberRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -82,10 +85,9 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
 
     return (
       <wa-format-number
-        ref={formatnumberRef}
+        ref={setFormatNumberRef}
         class={clsx('FormatNumber', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-format-number>

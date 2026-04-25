@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDoughnutChart from '@awesome.me/webawesome/dist/components/doughnut-chart/doughnut-chart.js';
 import './DoughnutChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -43,13 +44,15 @@ export interface DoughnutChartProps extends Omit<HTMLAttributes<HTMLElement>, 'd
 
 export interface DoughnutChartRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaDoughnutChart | null;
 }
 
 export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
   ({ children, className, ...props }, ref) => {
-    const doughnutchartRef = useRef<HTMLElement & {
-    }>(null);
+    const doughnutchartRef = useRef<WaDoughnutChart | null>(null);
+    const setDoughnutChartRef = useCallback((el: WaDoughnutChart | null) => {
+      doughnutchartRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -67,10 +70,9 @@ export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
 
     return (
       <wa-doughnut-chart
-        ref={doughnutchartRef}
+        ref={setDoughnutChartRef}
         class={clsx('DoughnutChart', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-doughnut-chart>

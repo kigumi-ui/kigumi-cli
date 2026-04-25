@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaRadioGroup from '@awesome.me/webawesome/dist/components/radio-group/radio-group.js';
 import './RadioGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -84,17 +85,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaRadioGroup | null;
 }
 
 export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
   ({ children, className, onInput, onChange, onInvalid, ...props }, ref) => {
-    const radiogroupRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const radiogroupRef = useRef<WaRadioGroup | null>(null);
+    const setRadioGroupRef = useCallback((el: WaRadioGroup | null) => {
+      radiogroupRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -156,10 +155,9 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
 
     return (
       <wa-radio-group
-        ref={radiogroupRef}
+        ref={setRadioGroupRef}
         class={clsx('RadioGroup', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-radio-group>

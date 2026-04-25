@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDropdownItem from '@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js';
 import './DropdownItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -60,15 +61,15 @@ export interface DropdownItemRef {
   /** Closes the submenu. */
   closeSubmenu: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaDropdownItem | null;
 }
 
 export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
   ({ children, className, onBlur, onFocus, ...props }, ref) => {
-    const dropdownitemRef = useRef<HTMLElement & {
-      openSubmenu?: () => void;
-      closeSubmenu?: () => void;
-    }>(null);
+    const dropdownitemRef = useRef<WaDropdownItem | null>(null);
+    const setDropdownItemRef = useCallback((el: WaDropdownItem | null) => {
+      dropdownitemRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -114,10 +115,9 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
 
     return (
       <wa-dropdown-item
-        ref={dropdownitemRef}
+        ref={setDropdownItemRef}
         class={clsx('DropdownItem', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-dropdown-item>

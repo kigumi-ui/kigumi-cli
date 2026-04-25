@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
 import './CarouselItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -26,13 +27,15 @@ export interface CarouselItemProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 
 export interface CarouselItemRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaCarouselItem | null;
 }
 
 export const CarouselItem = forwardRef<CarouselItemRef, CarouselItemProps>(
   ({ children, className, ...props }, ref) => {
-    const carouselitemRef = useRef<HTMLElement & {
-    }>(null);
+    const carouselitemRef = useRef<WaCarouselItem | null>(null);
+    const setCarouselItemRef = useCallback((el: WaCarouselItem | null) => {
+      carouselitemRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -50,10 +53,9 @@ export const CarouselItem = forwardRef<CarouselItemRef, CarouselItemProps>(
 
     return (
       <wa-carousel-item
-        ref={carouselitemRef}
+        ref={setCarouselItemRef}
         class={clsx('CarouselItem', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-carousel-item>

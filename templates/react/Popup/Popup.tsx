@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaPopup from '@awesome.me/webawesome/dist/components/popup/popup.js';
 import './Popup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -90,14 +91,15 @@ export interface PopupRef {
   /** Forces the popup to recalculate and reposition itself. */
   reposition: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaPopup | null;
 }
 
 export const Popup = forwardRef<PopupRef, PopupProps>(
   ({ children, className, onReposition, ...props }, ref) => {
-    const popupRef = useRef<HTMLElement & {
-      reposition?: () => void;
-    }>(null);
+    const popupRef = useRef<WaPopup | null>(null);
+    const setPopupRef = useCallback((el: WaPopup | null) => {
+      popupRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -132,10 +134,9 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
 
     return (
       <wa-popup
-        ref={popupRef}
+        ref={setPopupRef}
         class={clsx('Popup', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-popup>

@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaProgressRing from '@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js';
 import './ProgressRing.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -31,13 +32,15 @@ export interface ProgressRingProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 
 export interface ProgressRingRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaProgressRing | null;
 }
 
 export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
   ({ children, className, ...props }, ref) => {
-    const progressringRef = useRef<HTMLElement & {
-    }>(null);
+    const progressringRef = useRef<WaProgressRing | null>(null);
+    const setProgressRingRef = useCallback((el: WaProgressRing | null) => {
+      progressringRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -55,10 +58,9 @@ export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
 
     return (
       <wa-progress-ring
-        ref={progressringRef}
+        ref={setProgressRingRef}
         class={clsx('ProgressRing', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-progress-ring>

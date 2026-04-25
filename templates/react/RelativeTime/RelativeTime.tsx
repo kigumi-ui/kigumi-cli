@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaRelativeTime from '@awesome.me/webawesome/dist/components/relative-time/relative-time.js';
 import './RelativeTime.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -40,13 +41,15 @@ export interface RelativeTimeProps extends Omit<HTMLAttributes<HTMLElement>, 'di
 
 export interface RelativeTimeRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaRelativeTime | null;
 }
 
 export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
   ({ children, className, ...props }, ref) => {
-    const relativetimeRef = useRef<HTMLElement & {
-    }>(null);
+    const relativetimeRef = useRef<WaRelativeTime | null>(null);
+    const setRelativeTimeRef = useCallback((el: WaRelativeTime | null) => {
+      relativetimeRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -64,10 +67,9 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
 
     return (
       <wa-relative-time
-        ref={relativetimeRef}
+        ref={setRelativeTimeRef}
         class={clsx('RelativeTime', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-relative-time>

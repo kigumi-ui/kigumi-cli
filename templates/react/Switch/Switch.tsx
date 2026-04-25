@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaSwitch from '@awesome.me/webawesome/dist/components/switch/switch.js';
 import './Switch.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -87,19 +88,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaSwitch | null;
 }
 
 export const Switch = forwardRef<SwitchRef, SwitchProps>(
   ({ children, className, onChange, onInput, onBlur, onFocus, onInvalid, ...props }, ref) => {
-    const switchRef = useRef<HTMLElement & {
-      click?: () => void;
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const switchRef = useRef<WaSwitch | null>(null);
+    const setSwitchRef = useCallback((el: WaSwitch | null) => {
+      switchRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -183,10 +180,9 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
 
     return (
       <wa-switch
-        ref={switchRef}
+        ref={setSwitchRef}
         class={clsx('Switch', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-switch>

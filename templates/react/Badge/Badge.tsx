@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaBadge from '@awesome.me/webawesome/dist/components/badge/badge.js';
 import './Badge.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -37,13 +38,15 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 
 export interface BadgeRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaBadge | null;
 }
 
 export const Badge = forwardRef<BadgeRef, BadgeProps>(
   ({ children, className, ...props }, ref) => {
-    const badgeRef = useRef<HTMLElement & {
-    }>(null);
+    const badgeRef = useRef<WaBadge | null>(null);
+    const setBadgeRef = useCallback((el: WaBadge | null) => {
+      badgeRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -61,10 +64,9 @@ export const Badge = forwardRef<BadgeRef, BadgeProps>(
 
     return (
       <wa-badge
-        ref={badgeRef}
+        ref={setBadgeRef}
         class={clsx('Badge', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-badge>

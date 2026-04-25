@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import './Input.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -168,24 +169,15 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaInput | null;
 }
 
 export const Input = forwardRef<InputRef, InputProps>(
   ({ children, className, onInput, onChange, onBlur, onFocus, onClear, onInvalid, ...props }, ref) => {
-    const inputRef = useRef<HTMLElement & {
-      focus?: (options: FocusOptions) => void;
-      blur?: () => void;
-      select?: () => void;
-      setSelectionRange?: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
-      setRangeText?: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
-      showPicker?: () => void;
-      stepUp?: () => void;
-      stepDown?: () => void;
-      setCustomValidity?: (message: string) => void;
-      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
-      resetValidity?: () => void;
-    }>(null);
+    const inputRef = useRef<WaInput | null>(null);
+    const setInputRef = useCallback((el: WaInput | null) => {
+      inputRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -300,10 +292,9 @@ export const Input = forwardRef<InputRef, InputProps>(
 
     return (
       <wa-input
-        ref={inputRef}
+        ref={setInputRef}
         class={clsx('Input', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-input>

@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaComparison from '@awesome.me/webawesome/dist/components/comparison/comparison.js';
 import './Comparison.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -32,13 +33,15 @@ export interface ComparisonProps extends Omit<HTMLAttributes<HTMLElement>, 'onCh
 
 export interface ComparisonRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaComparison | null;
 }
 
 export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
   ({ children, className, onChange, ...props }, ref) => {
-    const comparisonRef = useRef<HTMLElement & {
-    }>(null);
+    const comparisonRef = useRef<WaComparison | null>(null);
+    const setComparisonRef = useCallback((el: WaComparison | null) => {
+      comparisonRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -68,10 +71,9 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
 
     return (
       <wa-comparison
-        ref={comparisonRef}
+        ref={setComparisonRef}
         class={clsx('Comparison', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-comparison>

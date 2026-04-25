@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type WaDropdown from '@awesome.me/webawesome/dist/components/dropdown/dropdown.js';
 import './Dropdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -65,13 +66,15 @@ export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow
 
 export interface DropdownRef {
   /** Reference to the underlying HTML element */
-  element: HTMLElement | null;
+  element: WaDropdown | null;
 }
 
 export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
   ({ children, className, onShow, onAfterShow, onHide, onAfterHide, onSelect, ...props }, ref) => {
-    const dropdownRef = useRef<HTMLElement & {
-    }>(null);
+    const dropdownRef = useRef<WaDropdown | null>(null);
+    const setDropdownRef = useCallback((el: WaDropdown | null) => {
+      dropdownRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -125,10 +128,9 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
 
     return (
       <wa-dropdown
-        ref={dropdownRef}
+        ref={setDropdownRef}
         class={clsx('Dropdown', className)}
-        suppressHydrationWarning
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
       >
         {children}
       </wa-dropdown>
