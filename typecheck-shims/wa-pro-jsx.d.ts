@@ -10,6 +10,12 @@
  *
  * Used together with `wa-pro-paths.d.ts` (ambient module paths) so that
  * Pro-tier templates type-check without installing `webawesome-pro`.
+ *
+ * Note: the `declare module 'react'` block below is module augmentation
+ * (interface merging), not a replacement. CLAUDE.md rule #3's intent —
+ * "don't overwrite React exports" — does not apply here; augmentation is
+ * the only mechanism for React 19's `React.JSX.IntrinsicElements`
+ * namespace lookup.
  */
 
 interface WaProIntrinsicElements {
