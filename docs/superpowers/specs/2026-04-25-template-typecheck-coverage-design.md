@@ -97,6 +97,7 @@ CI runtime delta: ~15-30s for the new typecheck step (3 frameworks, ~75 componen
 - [ ] F-068 (Vue boolean-prop filter) — surfaces as a runtime DOM bug, not a typecheck bug, but its fix changes the same Vue Button.vue this PR will typecheck. **Order:** PR #122 (this) opens first with red typecheck on the React 19 issue. F-068 fix can land in parallel or be folded in. Both must be green before merging this PR.
 - [ ] React 19 JSX-types issue from `feedback-react-jsx-types` memory — likely surfaces as the `RefObject<HTMLElement & ...>` errors I saw in the kigumi-react starter build during PR #121 review. Must be fixed before CI is green.
 - [ ] Possibly more — the only honest answer is "we'll see what `tsc` says." Phase 1 of the plan is dedicated to enumerating findings.
+- [ ] `pnpm typecheck:templates` is not yet defined as a script. F-072 (60 React errors, separate PR per the spec) means Phase 4 may need to gate Vue + Angular as mandatory and React as advisory until F-072 lands.
 
 ## Breaking Changes
 
@@ -124,3 +125,24 @@ For contributors: the `pnpm type-check` script now also runs `typecheck:template
 - ❓ **Should Vitest `globals: true` be configured?** The tests in templates use `import { describe, it, expect } from 'vitest'` — they're not relying on globals. Probably no. Confirm during Phase 1.
 - ❓ **`@awesome.me/webawesome` Free vs. Pro version pin.** Templates target both tiers. The free package types should be a superset compatible enough for typecheck. If they're not (e.g. Pro components have prop types that aren't in free), we hit "What happens when..." case 2 above. Best to install the latest free version (~3.5) and see.
 - ❓ **Should we add the typecheck to the local `.claude/hooks/stop-quality-check.sh`?** Probably yes, but as a follow-up — keeping this PR focused on CI integration. Tracked in Next Steps.
+
+## Phase 4 Backlog
+
+Items the PR #122 reviewer surfaced. Not merge-blockers for #122, but should land before Phase 4 makes `pnpm typecheck:templates` a mandatory CI gate.
+
+### F-074 — Extract shared generator helpers (drift risk)
+
+`DOM_GLOBALS` (~45 entries) and `extractCustomTypeImports` are duplicated between `scripts/generate-react-templates.ts:393–461` and `scripts/generate-vue-templates.ts:24–87` with a "Kept in sync with the matching helper in generate-react-templates.ts" comment. A new Pro DOM type used as a parameter would silently miss the Vue copy and surface as a missing import only in Vue.
+
+**Fix sketch:** Create `scripts/generator-utils.ts` exporting `DOM_GLOBALS` and `extractCustomTypeImports`. Update both generators to import from it. Run both generator scripts and confirm byte-identical output. Land before Phase 4 wires the CI step so the contract has one source of truth.
+
+### F-075 — Generated `.test.tsx` quality gap vs hand-maintained `.test.jsx`
+
+Auto-generated React TS test stubs (e.g. `templates/react/AnimatedImage/AnimatedImage.test.tsx`) check only "renders without crashing" with prop-name-as-value placeholders (`src="src" alt="alt"`). The hand-maintained JS counterparts (`templates/react/AnimatedImage/AnimatedImage.test.jsx`) have richer cases — className passthrough, attribute reflection, realistic prop values. Consumers materializing both flavors see a test-quality cliff between TS and JS variants.
+
+**Fix sketch:** Either (a) treat `.test.jsx` as the canonical source and generate `.test.tsx` from it, or (b) extend the test-stub generator (`generateTestTypescriptTemplate` in the React generator) to emit the same three-case pattern (renders / className passthrough / prop reflection) using realistic placeholder values from the registry. Option (b) is lower-risk; (a) eliminates the duplication entirely.
+
+### F-076 — Cosmetic / minor
+
+- Add a comment to `templates/vue/tsconfig.json` explaining why `jsx` is intentionally omitted: `vue-tsc` compiles Vue templates without it, and adding it would conflict with SFC `<template>` handling.
+- Latent: `templates/react/tsconfig.json` `include` uses `**/*.ts`, which would pull in any `.d.ts` files placed directly inside `templates/react/` later (the `typecheck-shims/` siblings are referenced by explicit path, not affected). No action now (no such files exist), but flag for the next time someone adds ambient types under `templates/react/`.
