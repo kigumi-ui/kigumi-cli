@@ -1,0 +1,117 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/popup/popup.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popup/popup.js'));
+}
+
+/**
+ * Popup is a utility component for positioning elements relative to an anchor
+ *
+ * @see https://webawesome.com/docs/components/popup
+ */
+@Component({
+  selector: 'k-popup',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-popup
+        #element
+        [attr.active]="active || null"
+        [attr.anchor]="anchor"
+        [attr.placement]="placement"
+        [attr.strategy]="strategy"
+        [attr.distance]="distance"
+        [attr.skidding]="skidding"
+        [attr.arrow]="arrow || null"
+        [attr.arrow-placement]="arrowPlacement"
+        [attr.arrow-padding]="arrowPadding"
+        [attr.flip]="flip || null"
+        [attr.flip-fallback-placements]="flipFallbackPlacements"
+        [attr.flip-fallback-strategy]="flipFallbackStrategy"
+        [attr.flip-padding]="flipPadding"
+        [attr.shift]="shift || null"
+        [attr.shift-padding]="shiftPadding"
+        [attr.auto-size]="autoSize"
+        [attr.sync]="sync"
+        [attr.auto-size-padding]="autoSizePadding">
+      <ng-content />
+    </wa-popup>
+  `,
+  styleUrl: './popup.component.css',
+})
+export class PopupComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** Activates the positioning logic */
+  @Input() active?: boolean;
+  /** Anchor element ID or reference */
+  @Input() anchor?: string;
+  /** Preferred placement */
+  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  /** Positioning strategy */
+  @Input() strategy?: 'absolute' | 'fixed';
+  /** Distance from anchor */
+  @Input() distance?: number;
+  /** Offset along anchor */
+  @Input() skidding?: number;
+  /** Shows an arrow */
+  @Input() arrow?: boolean;
+  /** Arrow position */
+  @Input() arrowPlacement?: 'start' | 'end' | 'center' | 'anchor';
+  /** Arrow edge padding */
+  @Input() arrowPadding?: number;
+  /** Flips when constrained */
+  @Input() flip?: boolean;
+  /** Fallback placements */
+  @Input() flipFallbackPlacements?: string;
+  /** Fallback strategy */
+  @Input() flipFallbackStrategy?: 'best-fit' | 'initial';
+  /** Flip boundary padding */
+  @Input() flipPadding?: number;
+  /** Shifts to stay visible */
+  @Input() shift?: boolean;
+  /** Shift boundary padding */
+  @Input() shiftPadding?: number;
+  /** Auto-resize behavior */
+  @Input() autoSize?: 'horizontal' | 'vertical' | 'both';
+  /** Syncs dimensions with anchor */
+  @Input() sync?: 'width' | 'height' | 'both';
+  /** Auto-size boundary padding */
+  @Input() autoSizePadding?: number;
+
+  @Output() repositionEvent = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+
+    const handleRepositionEvent = (e: Event) => this.repositionEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-reposition', handleRepositionEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-reposition', handleRepositionEvent));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  reposition(): void {
+    (this.elementRef.nativeElement as unknown as { reposition: () => void }).reposition();
+  }
+}

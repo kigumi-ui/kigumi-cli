@@ -1,0 +1,124 @@
+import React from 'react';
+import { createPortal } from 'react-dom';
+import clsx from 'clsx';
+import './Drawer.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/drawer/drawer.js'));
+}
+
+/**
+ * Drawers slide in from a container edge to expose additional options
+ *
+ * @example
+ * // Using open prop (recommended)
+ * const [open, setOpen] = React.useState(false);
+ * <Drawer open={open} label="Drawer Title" onHide={() => setOpen(false)}>
+ *   <p>Drawer content</p>
+ * </Drawer>
+ *
+ * // Using ref methods (alternative)
+ * const drawerRef = React.useRef(null);
+ * <Drawer ref={drawerRef} label="Drawer Title">
+ *   <p>Drawer content</p>
+ * </Drawer>
+ * drawerRef.current?.show();
+ *
+ * @typedef {Object} DrawerRef
+ * @property {() => void} show
+ * @property {() => void} hide
+ * @property {() => void} requestClose
+ * @property {HTMLElement | null} element
+ *
+ * @param {Object} props
+ * @param {boolean} [props.open] - Indicates whether the drawer is open
+ * @param {string} [props.label] - The drawer's label as displayed in the header
+ * @param {'top' | 'end' | 'bottom' | 'start'} [props.placement] - The direction from which the drawer will open
+ * @param {boolean} [props['light-dismiss']] - Closes the drawer when the user clicks outside of it
+ * @param {boolean} [props['without-header']] - Removes the header
+ * @param {function} [props.onShow] - Event fired when the drawer is shown
+ * @param {function} [props.onAfterShow] - Event fired after the drawer is shown
+ * @param {function} [props.onHide] - Event fired when the drawer is about to hide
+ * @param {function} [props.onAfterHide] - Event fired after the drawer is hidden
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {React.ReactNode} [props.children] - Drawer content
+ * @param {React.Ref} ref - Ref with methods: show(), hide()
+ */
+export const Drawer = React.forwardRef(
+  (
+    {
+      children,
+      className,
+      open,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      ...props
+    },
+    ref
+  ) => {
+    const drawerRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => {
+          if (drawerRef.current) drawerRef.current.open = true;
+        },
+        hide: () => {
+          if (drawerRef.current) drawerRef.current.open = false;
+        },
+        requestClose: () => {
+          if (drawerRef.current) drawerRef.current.open = false;
+        },
+        get element() {
+          return drawerRef.current;
+        },
+      }),
+      []
+    );
+
+    // Sync open prop with drawer element
+    React.useEffect(() => {
+      ensureLoaded();
+      const el = drawerRef.current;
+      if (!el || open === undefined) return;
+      el.open = open;
+    }, [open]);
+
+    // Setup event listeners
+    React.useEffect(() => {
+      const el = drawerRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return createPortal(
+      <wa-drawer ref={drawerRef} class={clsx('Drawer', className)} {...props}>
+        {children}
+      </wa-drawer>,
+      document.body
+    );
+  }
+);
+
+Drawer.displayName = 'Drawer';

@@ -1,0 +1,32 @@
+import React from 'react';
+import clsx from 'clsx';
+import './FormatBytes.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
+}
+
+/**
+ * @typedef {Object} FormatBytesProps
+ * @property {number} value - The number to format in bytes
+ * @property {'byte' | 'bit'} [unit] - The type of unit to display
+ * @property {'long' | 'short' | 'narrow'} [display] - Determines how to display the result
+ */
+
+export const FormatBytes = React.forwardRef(({ className, ...props }, ref) => {
+  React.useEffect(() => {
+    ensureLoaded();
+  }, []);
+
+  return (
+    <wa-format-bytes
+      ref={ref}
+      class={clsx('FormatBytes', className)}
+      {...props}
+    />
+  );
+});
+
+FormatBytes.displayName = 'FormatBytes';

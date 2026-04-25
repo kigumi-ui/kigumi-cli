@@ -83,7 +83,7 @@ Adding or significantly improving support for a framework target.
 **Key files to read:**
 
 - Framework detection: `src/utils/detect-framework.ts` (per-framework branches + `ProjectInfo`)
-- Component generation: `src/utils/template.ts` (Handlebars render + per-framework code paths like Next.js `'use client'` injection)
+- Component generation: `src/utils/template.ts` (`materializeTemplate` + per-framework code paths like Next.js `'use client'` injection)
 - Template structure: `templates/react/` or `templates/vue/` (for pattern reference)
 - Existing worktrees: `.claude/worktrees/` (check if work already started)
 

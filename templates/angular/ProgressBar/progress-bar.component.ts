@@ -1,0 +1,56 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js'));
+}
+
+/**
+ * Progress bars are used to show the completion of a task or operation
+ *
+ * @see https://webawesome.com/docs/components/progress-bar
+ */
+@Component({
+  selector: 'k-progress-bar',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-progress-bar
+        #element
+        [attr.value]="value"
+        [attr.indeterminate]="indeterminate || null"
+        [attr.label]="label">
+      <ng-content />
+    </wa-progress-bar>
+  `,
+  styleUrl: './progress-bar.component.css',
+})
+export class ProgressBarComponent implements AfterViewInit {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** Current progress (0-100) */
+  @Input() value?: number;
+  /** Shows indeterminate state */
+  @Input() indeterminate?: boolean;
+  /** Accessible label */
+  @Input() label?: string;
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+  }
+}

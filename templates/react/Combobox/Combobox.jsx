@@ -1,0 +1,118 @@
+import React from 'react';
+import clsx from 'clsx';
+import './Combobox.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/combobox/combobox.js'));
+}
+
+/**
+ * Combines a text input with a listbox for filtering and selecting options
+ */
+export const Combobox = React.forwardRef(
+  (
+    {
+      children,
+      className,
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onClear,
+      onInvalid,
+      onCreate,
+      ...props
+    },
+    ref
+  ) => {
+    const comboboxRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => comboboxRef.current?.show?.(),
+        hide: () => comboboxRef.current?.hide?.(),
+        focus: (options) => comboboxRef.current?.focus?.(options),
+        blur: () => comboboxRef.current?.blur?.(),
+        get element() {
+          return comboboxRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      ensureLoaded();
+      const el = comboboxRef.current;
+      if (!el) return;
+
+      const handleInput = (e) => onInput?.(e);
+      const handleChange = (e) => onChange?.(e);
+      const handleFocus = (e) => onFocus?.(e);
+      const handleBlur = (e) => onBlur?.(e);
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+      const handleClear = (e) => onClear?.(e);
+      const handleInvalid = (e) => onInvalid?.(e);
+      const handleCreate = (e) => onCreate?.(e);
+
+      el.addEventListener('input', handleInput);
+      el.addEventListener('change', handleChange);
+      el.addEventListener('focus', handleFocus);
+      el.addEventListener('blur', handleBlur);
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+      el.addEventListener('wa-clear', handleClear);
+      el.addEventListener('wa-invalid', handleInvalid);
+      el.addEventListener('wa-create', handleCreate);
+
+      return () => {
+        el.removeEventListener('input', handleInput);
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('blur', handleBlur);
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+        el.removeEventListener('wa-clear', handleClear);
+        el.removeEventListener('wa-invalid', handleInvalid);
+        el.removeEventListener('wa-create', handleCreate);
+      };
+    }, [
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onClear,
+      onInvalid,
+      onCreate,
+    ]);
+
+    return (
+      <wa-combobox
+        ref={comboboxRef}
+        class={clsx('Combobox', className)}
+        {...props}
+      >
+        {children}
+      </wa-combobox>
+    );
+  }
+);
+
+Combobox.displayName = 'Combobox';

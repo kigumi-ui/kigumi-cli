@@ -56,10 +56,8 @@ describe('next.js support', () => {
     it("prepends 'use client' in a Next.js project", async () => {
       await writeNextProject();
 
-      const { generateComponent, clearTemplateCache } =
-        await import('../../src/utils/template.js');
+      const { generateComponent } = await import('../../src/utils/template.js');
       const { getComponent } = await import('../../src/utils/registry.js');
-      clearTemplateCache();
 
       const button = getComponent('button');
       expect(button).toBeDefined();
@@ -78,10 +76,8 @@ describe('next.js support', () => {
     it("does not prepend 'use client' in a Vite + React project", async () => {
       await writeVitReactProject();
 
-      const { generateComponent, clearTemplateCache } =
-        await import('../../src/utils/template.js');
+      const { generateComponent } = await import('../../src/utils/template.js');
       const { getComponent } = await import('../../src/utils/registry.js');
-      clearTemplateCache();
 
       const button = getComponent('button');
       const rendered = await generateComponent(
@@ -108,10 +104,8 @@ describe('next.js support', () => {
         'export default function App() { return null; }'
       );
 
-      const { generateComponent, clearTemplateCache } =
-        await import('../../src/utils/template.js');
+      const { generateComponent } = await import('../../src/utils/template.js');
       const { getComponent } = await import('../../src/utils/registry.js');
-      clearTemplateCache();
 
       const button = getComponent('button');
       const rendered = await generateComponent(
@@ -136,10 +130,8 @@ describe('next.js support', () => {
         'export default function App() { return null; }'
       );
 
-      const { generateComponent, clearTemplateCache } =
-        await import('../../src/utils/template.js');
+      const { generateComponent } = await import('../../src/utils/template.js');
       const { getComponent } = await import('../../src/utils/registry.js');
-      clearTemplateCache();
 
       const button = getComponent('button');
       const rendered = await generateComponent(
@@ -161,10 +153,8 @@ describe('next.js support', () => {
       await writeNextProject();
       await fs.ensureDir(path.join(tempDir, 'app'));
 
-      const { generateComponent, clearTemplateCache } =
-        await import('../../src/utils/template.js');
+      const { generateComponent } = await import('../../src/utils/template.js');
       const { getComponent } = await import('../../src/utils/registry.js');
-      clearTemplateCache();
 
       const button = getComponent('button');
       const rendered = await generateComponent(
@@ -186,10 +176,8 @@ describe('next.js support', () => {
       // post-hydration via a custom element runtime.
       await writeNextProject();
 
-      const { generateComponent, clearTemplateCache } =
-        await import('../../src/utils/template.js');
+      const { generateComponent } = await import('../../src/utils/template.js');
       const { getComponent } = await import('../../src/utils/registry.js');
-      clearTemplateCache();
 
       const button = getComponent('button');
       const rendered = await generateComponent(

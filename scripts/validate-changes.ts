@@ -9,7 +9,7 @@
  * - Catch regressions before they reach production
  *
  * CHECKS:
- * - Template changes must not bypass the .hbs files
+ * - Template changes maintain TS/JS variant parity (e.g. .tsx + .jsx pair)
  * - Component registry consistency
  * - Import path correctness (free vs pro)
  * - TypeScript/JavaScript variant parity
@@ -250,16 +250,16 @@ async function checkTemplateParity(): Promise<void> {
       const requiredVariants =
         framework === 'react'
           ? [
-              `${component.name}.tsx.hbs`,
-              `${component.name}.jsx.hbs`,
-              `${component.name}.test.tsx.hbs`,
-              `${component.name}.test.jsx.hbs`,
+              `${component.name}.tsx`,
+              `${component.name}.jsx`,
+              `${component.name}.test.tsx`,
+              `${component.name}.test.jsx`,
             ]
           : [
-              `${component.name}.vue.hbs`,
-              `${component.name}.js.vue.hbs`,
-              `${component.name}.test.ts.hbs`,
-              `${component.name}.test.js.hbs`,
+              `${component.name}.vue`,
+              `${component.name}.js.vue`,
+              `${component.name}.test.ts`,
+              `${component.name}.test.js`,
             ];
 
       for (const variant of requiredVariants) {

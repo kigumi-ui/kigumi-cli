@@ -129,7 +129,7 @@ WA docs/examples use variant names that differ from Kigumi's prop values:
 
 **Critical rule:** In React, ALWAYS use `className` -- on both standard HTML elements (`<div>`, `<span>`) AND Kigumi wrapper components (`<Button>`, `<Card>`, etc.). The Kigumi wrapper accepts `className` via its `HTMLAttributes` interface and internally passes it to the web component as `class={clsx('ComponentName', className)}`. Using `class` on a Kigumi React wrapper causes TS2322.
 
-> **Note on CLAUDE.md rule #2:** CLAUDE.md says "`class` not `className` on `<wa-*>` elements." That rule applies to **template/wrapper source code** (the `.tsx.hbs` files that generate the wrapper internals). In **consumer code** (your app code using `<Button>`, `<Card>`, etc.), always use `className` because you are using React wrapper components, not raw `<wa-*>` elements.
+> **Note on CLAUDE.md rule #2:** CLAUDE.md says "`class` not `className` on `<wa-*>` elements." That rule applies to **template/wrapper source code** (the `.tsx` files in `templates/react/` that generate the wrapper internals). In **consumer code** (your app code using `<Button>`, `<Card>`, etc.), always use `className` because you are using React wrapper components, not raw `<wa-*>` elements.
 
 ### Event Handlers
 

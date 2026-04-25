@@ -1,0 +1,119 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import './Page.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/page/page.js'));
+}
+
+/**
+ * Pages offer an easy way to scaffold entire page layouts using minimal markup
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Page />
+ *
+ * // With event handlers
+ * <Page />
+ *
+ * // With ref methods
+ * const ref = useRef<PageRef>(null);
+ * <button onClick={() => ref.current?.visiblePixelsInViewport()}>Call Method</button>
+ * <Page ref={ref} />
+ * ```
+ */
+export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
+  /** Hide default hamburger button; auto-sets true if custom toggle element present */
+  'disable-navigation-toggle'?: boolean;
+
+  /** Viewport width threshold for navigation collapse; accepts numbers (px) or CSS lengths */
+  'mobile-breakpoint'?: string;
+
+  /** Navigation drawer position on mobile */
+  'navigation-placement'?: 'start' | 'end';
+
+  /** Mobile navigation drawer open state */
+  'nav-open'?: boolean;
+
+  /** Current viewport classification relative to breakpoint */
+  view?: 'mobile' | 'desktop';
+}
+
+export interface PageRef {
+
+  /** https://stackoverflow.com/a/26831113
+This prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps. */
+  visiblePixelsInViewport: (element: HTMLElement | null) => void;
+
+  /** Shows the mobile navigation drawer */
+  showNavigation: () => void;
+
+  /** Hides the mobile navigation drawer */
+  hideNavigation: () => void;
+
+  /** Toggles the mobile navigation drawer */
+  toggleNavigation: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Page = forwardRef<PageRef, PageProps>(
+  ({ children, className, ...props }, ref) => {
+    const pageRef = useRef<HTMLElement & {
+      visiblePixelsInViewport?: (element: HTMLElement | null) => void;
+      showNavigation?: () => void;
+      hideNavigation?: () => void;
+      toggleNavigation?: () => void;
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        visiblePixelsInViewport: (element: HTMLElement | null) => {
+          if (pageRef.current && typeof pageRef.current.visiblePixelsInViewport === 'function') {
+            pageRef.current.visiblePixelsInViewport(element);
+          }
+        },
+        showNavigation: () => {
+          if (pageRef.current && typeof pageRef.current.showNavigation === 'function') {
+            pageRef.current.showNavigation();
+          }
+        },
+        hideNavigation: () => {
+          if (pageRef.current && typeof pageRef.current.hideNavigation === 'function') {
+            pageRef.current.hideNavigation();
+          }
+        },
+        toggleNavigation: () => {
+          if (pageRef.current && typeof pageRef.current.toggleNavigation === 'function') {
+            pageRef.current.toggleNavigation();
+          }
+        },
+        get element() {
+          return pageRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
+
+    return (
+      <wa-page
+        ref={pageRef}
+        class={clsx('Page', className)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-page>
+    );
+  }
+);
+
+Page.displayName = 'Page';

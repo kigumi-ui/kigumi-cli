@@ -1,0 +1,86 @@
+import React from 'react';
+import clsx from 'clsx';
+import './Checkbox.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/checkbox/checkbox.js'));
+}
+
+/**
+ * Checkboxes allow the user to toggle an option on or off
+ *
+ * @example
+ * ```jsx
+ * <Checkbox checked>Remember me</Checkbox>
+ * <Checkbox indeterminate>Select all</Checkbox>
+ * ```
+ *
+ * @typedef {Object} CheckboxProps
+ * @property {boolean} [checked] - Checked state
+ * @property {boolean} [disabled] - Disabled state
+ * @property {string} [hint] - Helper text
+ * @property {boolean} [indeterminate] - Mixed state
+ * @property {string} [name] - Form field name
+ * @property {boolean} [required] - Required field
+ * @property {'small'|'medium'|'large'} [size] - Checkbox size
+ * @property {string} [value] - Form value
+ * @property {(event: CustomEvent) => void} [onInvalid] - Invalid handler
+ */
+
+export const Checkbox = React.forwardRef(
+  ({ children, className, onInvalid, ...props }, ref) => {
+    const checkboxRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        focus: (options) => {
+          checkboxRef.current?.focus?.(options);
+        },
+        blur: () => {
+          checkboxRef.current?.blur?.();
+        },
+        click: () => {
+          checkboxRef.current?.click?.();
+        },
+        setCustomValidity: (message) => {
+          checkboxRef.current?.setCustomValidity?.(message);
+        },
+        get element() {
+          return checkboxRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      ensureLoaded();
+      const el = checkboxRef.current;
+      if (!el) return;
+
+      const handleInvalid = (e) => {
+        if (onInvalid) onInvalid(e);
+      };
+
+      el.addEventListener('wa-invalid', handleInvalid);
+
+      return () => {
+        el.removeEventListener('wa-invalid', handleInvalid);
+      };
+    }, [onInvalid]);
+
+    return (
+      <wa-checkbox
+        ref={checkboxRef}
+        class={clsx('Checkbox', className)}
+        {...props}
+      >
+        {children}
+      </wa-checkbox>
+    );
+  }
+);
+
+Checkbox.displayName = 'Checkbox';

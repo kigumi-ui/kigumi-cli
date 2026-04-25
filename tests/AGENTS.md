@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (73 files, 1160 tests)
+├── unit/                    # Fast, isolated tests (74 files, 1158 tests)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -40,6 +40,7 @@ tests/
 │   ├── migration.test.ts            # Free↔Pro migration
 │   ├── network-errors.test.ts       # Network error classes
 │   ├── next-support.test.ts         # Next.js detection + 'use client' + suppressHydrationWarning + layers.css emission (App + Pages)
+│   ├── no-handlebars-tokens.test.ts # Regression guard: no `{{...}}` tokens in any template
 │   ├── options-schema.test.ts       # Command options schemas
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
@@ -59,7 +60,7 @@ tests/
 │   ├── status-json.test.ts          # Status --json output
 │   ├── storybook-generator.test.ts  # Storybook story generation
 │   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
-│   ├── template.test.ts             # Handlebars template rendering
+│   ├── template.test.ts             # Template materialization + tier swap
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
@@ -187,7 +188,7 @@ describe('smoke test', () => {
 
 ### Don't Test
 
-- Third-party libraries (Handlebars, Commander)
+- Third-party libraries (Commander, Zod)
 - File system mocking (use real temp dirs)
 - Generated component output (test in browser)
 

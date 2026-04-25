@@ -1,0 +1,47 @@
+import React from 'react';
+import clsx from 'clsx';
+import './Popup.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/popup/popup.js'));
+}
+
+export const Popup = React.forwardRef(
+  ({ children, className, onReposition, ...props }, ref) => {
+    const popupRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        reposition: () => popupRef.current?.reposition?.(),
+        get element() {
+          return popupRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      ensureLoaded();
+      const el = popupRef.current;
+      if (!el) return;
+
+      const handleReposition = (e) => onReposition?.(e);
+      el.addEventListener('wa-reposition', handleReposition);
+
+      return () => {
+        el.removeEventListener('wa-reposition', handleReposition);
+      };
+    }, [onReposition]);
+
+    return (
+      <wa-popup ref={popupRef} class={clsx('Popup', className)} {...props}>
+        {children}
+      </wa-popup>
+    );
+  }
+);
+
+Popup.displayName = 'Popup';

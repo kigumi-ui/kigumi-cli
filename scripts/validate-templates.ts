@@ -3,13 +3,15 @@
 /**
  * Template Consistency Checker
  *
- * PURPOSE: Validates that all templates are consistent and complete
+ * PURPOSE: Validates that all templates are consistent and complete.
  *
  * CHECKS:
- * - All registry components have templates (React + Vue)
- * - All templates have test templates
- * - TypeScript and JavaScript variants exist
- * - Naming conventions are followed
+ * - Every registry component has the expected template files (React + Vue + Angular)
+ * - TypeScript and JavaScript variants exist where required
+ * - PascalCase naming convention is followed
+ * - No template file contains an unresolved Handlebars-style token
+ *   (`{{...}}`). Templates are real framework source files; any token is
+ *   a regression from the contributor pipeline.
  *
  * USAGE:
  *   pnpm validate:templates
@@ -20,7 +22,6 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
-import Handlebars from 'handlebars';
 import { getAllComponents } from '../src/utils/registry.js';
 import { toKebabCase } from '../src/utils/naming.js';
 
@@ -64,26 +65,25 @@ async function validateComponentTemplates(
     return errors;
   }
 
-  // Define required files based on framework
   const kebabName = toKebabCase(componentName);
   const requiredFiles: Record<SupportedFramework, string[]> = {
     react: [
-      `${componentName}.tsx.hbs`,
-      `${componentName}.jsx.hbs`,
-      `${componentName}.test.tsx.hbs`,
-      `${componentName}.test.jsx.hbs`,
+      `${componentName}.tsx`,
+      `${componentName}.jsx`,
+      `${componentName}.test.tsx`,
+      `${componentName}.test.jsx`,
       `${componentName}.css`,
     ],
     vue: [
-      `${componentName}.vue.hbs`,
-      `${componentName}.js.vue.hbs`,
-      `${componentName}.test.ts.hbs`,
-      `${componentName}.test.js.hbs`,
+      `${componentName}.vue`,
+      `${componentName}.js.vue`,
+      `${componentName}.test.ts`,
+      `${componentName}.test.js`,
       `${componentName}.css`,
     ],
     angular: [
-      `${kebabName}.component.ts.hbs`,
-      `${kebabName}.component.spec.ts.hbs`,
+      `${kebabName}.component.ts`,
+      `${kebabName}.component.spec.ts`,
       `${kebabName}.component.css`,
     ],
   };
@@ -93,38 +93,6 @@ async function validateComponentTemplates(
     if (!(await fs.pathExists(filePath))) {
       errors.push(
         `Missing file: templates/${framework}/${componentName}/${file}`
-      );
-    }
-  }
-
-  return errors;
-}
-
-/**
- * Validate that all .hbs files in a component directory compile as valid Handlebars
- */
-async function validateTemplateContent(
-  componentName: string,
-  framework: SupportedFramework
-): Promise<string[]> {
-  const errors: string[] = [];
-  const componentDir = path.join(TEMPLATES_DIR, framework, componentName);
-
-  if (!(await fs.pathExists(componentDir))) {
-    return errors; // Already reported by file-existence check
-  }
-
-  const entries = await fs.readdir(componentDir);
-  const hbsFiles = entries.filter((f) => f.endsWith('.hbs'));
-
-  for (const file of hbsFiles) {
-    const filePath = path.join(componentDir, file);
-    try {
-      const content = await fs.readFile(filePath, 'utf-8');
-      Handlebars.precompile(content);
-    } catch (err) {
-      errors.push(
-        `Template compile error: templates/${framework}/${componentName}/${file} — ${err instanceof Error ? err.message : String(err)}`
       );
     }
   }
@@ -143,6 +111,62 @@ function validateNaming(componentName: string): string[] {
     errors.push(`Component name '${componentName}' is not PascalCase`);
   }
 
+  return errors;
+}
+
+const TEMPLATE_SOURCE_EXTENSIONS = new Set([
+  '.ts',
+  '.tsx',
+  '.js',
+  '.jsx',
+  '.vue',
+]);
+
+/**
+ * Recursively collect all template source files (excluding `.css` and other
+ * static assets). Used by the no-token check.
+ */
+async function collectSourceFiles(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  const stack = [dir];
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    if (!(await fs.pathExists(current))) continue;
+    const entries = await fs.readdir(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(full);
+      } else if (entry.isFile()) {
+        const dot = entry.name.lastIndexOf('.');
+        if (dot >= 0 && TEMPLATE_SOURCE_EXTENSIONS.has(entry.name.slice(dot))) {
+          out.push(full);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Assert that no template source file contains an unresolved Handlebars-style
+ * token. The previous validator used `Handlebars.precompile()`; the new
+ * pipeline has no templating engine, so a stray `{{…}}` is always a bug.
+ */
+async function validateNoTokens(): Promise<string[]> {
+  const errors: string[] = [];
+  const tokenPattern = /\{\{[^}]+\}\}/;
+  for (const framework of ['react', 'vue', 'angular'] as const) {
+    const files = await collectSourceFiles(path.join(TEMPLATES_DIR, framework));
+    for (const file of files) {
+      const content = await fs.readFile(file, 'utf-8');
+      const match = content.match(tokenPattern);
+      if (match) {
+        const rel = path.relative(PROJECT_ROOT, file);
+        errors.push(`Stray token in ${rel}: ${match[0]}`);
+      }
+    }
+  }
   return errors;
 }
 
@@ -185,13 +209,6 @@ async function validateTemplates(): Promise<ValidationResult> {
         framework
       );
 
-      // Validate template content compiles
-      const contentErrors = await validateTemplateContent(
-        component.name,
-        framework
-      );
-      result.errors.push(...contentErrors);
-
       if (templateErrors.length === 0) {
         if (framework === 'react') {
           result.stats.reactComponents++;
@@ -205,11 +222,13 @@ async function validateTemplates(): Promise<ValidationResult> {
 
         // Track specific missing files
         for (const error of templateErrors) {
-          if (error.includes('.tsx.hbs')) result.stats.missingReactTS++;
-          if (error.includes('.jsx.hbs')) result.stats.missingReactJS++;
-          if (error.includes('.vue.hbs')) result.stats.missingVueTS++;
-          if (error.includes('.js.vue.hbs')) result.stats.missingVueJS++;
-          if (error.includes('.component.ts.hbs'))
+          if (error.includes('.tsx') && !error.includes('.test.'))
+            result.stats.missingReactTS++;
+          if (error.includes('.jsx') && !error.includes('.test.'))
+            result.stats.missingReactJS++;
+          if (error.endsWith('.vue')) result.stats.missingVueTS++;
+          if (error.endsWith('.js.vue')) result.stats.missingVueJS++;
+          if (error.includes('.component.ts') && !error.includes('.spec.'))
             result.stats.missingAngularTS++;
           if (error.includes('.test.') || error.includes('.spec.'))
             result.stats.missingTests++;
@@ -247,6 +266,10 @@ async function validateTemplates(): Promise<ValidationResult> {
       }
     }
   }
+
+  // Stray-token check (replaces the old Handlebars precompile pass).
+  const tokenErrors = await validateNoTokens();
+  result.errors.push(...tokenErrors);
 
   result.passed = result.errors.length === 0;
 

@@ -6,7 +6,7 @@
  * Generates compact API surface files for agent skills by combining:
  * - LOCAL_REGISTRY (props, names, descriptions, tier)
  * - custom-elements.json (events, slots, CSS parts, CSS custom properties)
- * - Template verification (event handler names verified against .tsx.hbs files)
+ * - Template verification (event handler names verified against .tsx files)
  *
  * Output:
  * - .claude/skills/shared/react-api-surface.md
@@ -551,7 +551,7 @@ async function verifyEventNamesAgainstTemplates(
     const templatePath = join(
       templatesDir,
       component.name,
-      `${component.name}.tsx.hbs`
+      `${component.name}.tsx`
     );
     if (!existsSync(templatePath)) continue;
 
@@ -595,7 +595,7 @@ async function extractAngularOutputMap(): Promise<
     const templatePath = join(
       templatesDir,
       component.name,
-      `${kebab}.component.ts.hbs`
+      `${kebab}.component.ts`
     );
 
     if (!existsSync(templatePath)) continue;
@@ -669,7 +669,7 @@ async function detectCVAComponents(): Promise<Set<string>> {
     const templatePath = join(
       templatesDir,
       component.name,
-      `${kebab}.component.ts.hbs`
+      `${kebab}.component.ts`
     );
 
     try {

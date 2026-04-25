@@ -1,0 +1,148 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
+import type WaElement from '@awesome.me/webawesome/dist/components/radio-group/radio-group.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radio-group/radio-group.js'));
+}
+
+/**
+ * Radio groups are used to group multiple radios so only one can be selected
+ *
+ * @see https://webawesome.com/docs/components/radio-group
+ */
+@Component({
+  selector: 'k-radio-group',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-radio-group
+        #element
+        [attr.label]="label"
+        [attr.hint]="hint"
+        [attr.name]="name"
+        [attr.value]="value"
+        [attr.size]="size"
+        [attr.required]="required || null"
+        [attr.orientation]="orientation"
+        [attr.disabled]="disabled || null"
+        [attr.invalid]="invalid || null"
+        [attr.help-text]="helpText">
+      <ng-content />
+    </wa-radio-group>
+  `,
+  styleUrl: './radio-group.component.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => RadioGroupComponent),
+      multi: true,
+    },
+  ],
+})
+export class RadioGroupComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** Group label */
+  @Input() label?: string;
+  /** Hint text */
+  @Input() hint?: string;
+  /** Form field name */
+  @Input() name?: string;
+  /** Selected value */
+  @Input() value?: string;
+  /** Radio size */
+  @Input() size?: 'small' | 'medium' | 'large';
+  /** Makes selection required */
+  @Input() required?: boolean;
+  /** Layout direction */
+  @Input() orientation?: 'horizontal' | 'vertical';
+  /** Disables the group */
+  @Input() disabled?: boolean;
+  /** Shows invalid/error state */
+  @Input() invalid?: boolean;
+  /** Help text below the group */
+  @Input() helpText?: string;
+
+  @Output() inputEvent = new EventEmitter<CustomEvent>();
+  @Output() change = new EventEmitter<CustomEvent>();
+  @Output() invalidEvent = new EventEmitter<CustomEvent>();
+
+  private onChangeCallback: (value: unknown) => void = () => {};
+  private onTouchedCallback: () => void = () => {};
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+
+    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    el.addEventListener('input', handleInputEvent);
+    this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
+    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    el.addEventListener('change', handleChange);
+    this.cleanups.push(() => el.removeEventListener('change', handleChange));
+    const handleInvalidEvent = (e: Event) => this.invalidEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-invalid', handleInvalidEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalidEvent));
+
+    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    el.addEventListener('input', handleValueChange);
+    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    const handleBlurTouch = () => this.onTouchedCallback();
+    el.addEventListener('blur', handleBlurTouch);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  writeValue(value: unknown): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+    }
+  }
+
+  registerOnChange(fn: (value: unknown) => void): void {
+    this.onChangeCallback = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouchedCallback = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    if (this.elementRef?.nativeElement) {
+      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+    }
+  }
+
+  focus(options?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  }
+  setCustomValidity(message?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  }
+  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  }
+  resetValidity(): void {
+    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+  }
+}

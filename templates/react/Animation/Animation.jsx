@@ -1,0 +1,112 @@
+import React from 'react';
+import clsx from 'clsx';
+import './Animation.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animation/animation.js'));
+}
+
+/**
+ * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
+ *
+ * @example
+ * ```jsx
+ * // Using built-in animations
+ * <Animation name="bounce" duration={2000} play>
+ *   <div className="box">Bouncing!</div>
+ * </Animation>
+ *
+ * // Using ref methods
+ * const animRef = React.useRef(null);
+ * <button onClick={() => animRef.current?.cancel()}>Cancel</button>
+ * <Animation ref={animRef} name="pulse" iterations={3}>
+ *   <div>Content</div>
+ * </Animation>
+ * ```
+ *
+ * @typedef {Object} AnimationProps
+ * @property {string} [name] - The name of the built-in animation to use
+ * @property {boolean} [play] - Plays the animation
+ * @property {number} [delay] - Milliseconds to delay the start
+ * @property {string} [direction] - Direction of playback
+ * @property {number} [duration] - Milliseconds each iteration takes
+ * @property {string} [easing] - The easing function to use
+ * @property {number} [iterations] - Number of iterations to run
+ * @property {function} [onCancel] - Event fired when canceled
+ * @property {function} [onFinish] - Event fired when finished
+ * @property {function} [onStart] - Event fired when started
+ */
+
+export const Animation = React.forwardRef(
+  ({ children, className, onCancel, onFinish, onStart, ...props }, ref) => {
+    const animationRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        cancel: () => {
+          if (
+            animationRef.current &&
+            typeof animationRef.current.cancel === 'function'
+          ) {
+            animationRef.current.cancel();
+          }
+        },
+        finish: () => {
+          if (
+            animationRef.current &&
+            typeof animationRef.current.finish === 'function'
+          ) {
+            animationRef.current.finish();
+          }
+        },
+        get element() {
+          return animationRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      ensureLoaded();
+      const el = animationRef.current;
+      if (!el) return;
+
+      const handleCancel = (e) => {
+        if (onCancel) onCancel(e);
+      };
+
+      const handleFinish = (e) => {
+        if (onFinish) onFinish(e);
+      };
+
+      const handleStart = (e) => {
+        if (onStart) onStart(e);
+      };
+
+      el.addEventListener('wa-cancel', handleCancel);
+      el.addEventListener('wa-finish', handleFinish);
+      el.addEventListener('wa-start', handleStart);
+
+      return () => {
+        el.removeEventListener('wa-cancel', handleCancel);
+        el.removeEventListener('wa-finish', handleFinish);
+        el.removeEventListener('wa-start', handleStart);
+      };
+    }, [onCancel, onFinish, onStart]);
+
+    return (
+      <wa-animation
+        ref={animationRef}
+        class={clsx('Animation', className)}
+        {...props}
+      >
+        {children}
+      </wa-animation>
+    );
+  }
+);
+
+Animation.displayName = 'Animation';

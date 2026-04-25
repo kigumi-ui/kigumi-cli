@@ -1,7 +1,10 @@
 /**
  * Template Tests
  *
- * Tests for src/utils/template.ts - Handlebars rendering
+ * Tests for src/utils/template.ts — template materialization and component
+ * generation. Templates are real framework source files; the only runtime
+ * substitution is the tier swap from `@awesome.me/webawesome` to
+ * `@awesome.me/webawesome-pro`.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -9,16 +12,18 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import {
-  renderTemplate,
-  buildTemplateContext,
   generateComponent,
   generateComponentCSS,
   generateComponentTest,
   generateComponentTestContent,
-  clearTemplateCache,
   getTemplatePath,
+  materializeTemplate,
   updateComponentIndex,
 } from '../../src/utils/template.js';
+import {
+  WEB_AWESOME_FREE_PACKAGE,
+  WEB_AWESOME_PRO_PACKAGE,
+} from '../../src/constants.js';
 import { getComponent } from '../../src/utils/registry.js';
 import type { ComponentDefinition } from '../../src/utils/registry.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
@@ -28,125 +33,116 @@ describe('template utilities', () => {
 
   beforeEach(async () => {
     testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-template-test-'));
-    clearTemplateCache();
   });
 
   afterEach(async () => {
     await fs.remove(testDir);
-    clearTemplateCache();
   });
 
   describe('getTemplatePath', () => {
     it('should construct correct template path', () => {
-      const templatePath = getTemplatePath('react', 'Button/Button.tsx.hbs');
+      const templatePath = getTemplatePath('react', 'Button/Button.tsx');
 
       expect(templatePath).toContain('templates');
       expect(templatePath).toContain('react');
       expect(templatePath).toContain('Button');
-      expect(templatePath).toMatch(/Button\.tsx\.hbs$/);
+      expect(templatePath).toMatch(/Button\.tsx$/);
     });
 
     it('should handle different frameworks', () => {
-      const reactPath = getTemplatePath('react', 'Button/Button.tsx.hbs');
-      const vuePath = getTemplatePath('vue', 'Button/Button.vue.hbs');
+      const reactPath = getTemplatePath('react', 'Button/Button.tsx');
+      const vuePath = getTemplatePath('vue', 'Button/Button.vue');
 
       expect(reactPath).toContain('react');
       expect(vuePath).toContain('vue');
     });
   });
 
-  describe('buildTemplateContext', () => {
-    it('should build context from component definition', () => {
-      const button = getComponent('button');
-      expect(button).toBeDefined();
+  describe('materializeTemplate', () => {
+    async function writeTemplate(
+      contents: string,
+      filename = 'fixture.tsx'
+    ): Promise<string> {
+      const filePath = path.join(testDir, filename);
+      await fs.writeFile(filePath, contents);
+      return filePath;
+    }
 
-      if (!button) return;
+    it('returns content verbatim on the Free tier', async () => {
+      const source = [
+        "import { Button } from '@awesome.me/webawesome/dist/components/button/button.js';",
+        '',
+        'export { Button };',
+        '',
+      ].join('\n');
+      const templatePath = await writeTemplate(source);
 
-      const context = buildTemplateContext(button);
+      const result = await materializeTemplate(
+        templatePath,
+        WEB_AWESOME_FREE_PACKAGE
+      );
 
-      expect(context.name).toBe('Button');
-      expect(context.tagName).toBe('wa-button');
-      expect(context.description).toBeDefined();
-      expect(context.importPath).toBeDefined();
+      expect(result).toBe(source);
     });
 
-    it('should include all required fields', () => {
-      const dialog = getComponent('dialog');
-      expect(dialog).toBeDefined();
+    it('rewrites a single import to the Pro package on Pro tier', async () => {
+      const source =
+        "import { Button } from '@awesome.me/webawesome/dist/components/button/button.js';\n";
+      const templatePath = await writeTemplate(source);
 
-      if (!dialog) return;
+      const result = await materializeTemplate(
+        templatePath,
+        WEB_AWESOME_PRO_PACKAGE
+      );
 
-      const context = buildTemplateContext(dialog);
-
-      expect(context).toHaveProperty('name');
-      expect(context).toHaveProperty('tagName');
-      expect(context).toHaveProperty('description');
-      expect(context).toHaveProperty('importPath');
-    });
-  });
-
-  describe('renderTemplate', () => {
-    it('should render simple template', async () => {
-      // Create a test template
-      const templatePath = path.join(testDir, 'test.hbs');
-      await fs.writeFile(templatePath, 'Hello {{name}}!');
-
-      const result = await renderTemplate(templatePath, {
-        name: 'Button',
-        tagName: 'wa-button',
-        description: 'Test',
-        importPath: 'test',
-      });
-
-      expect(result).toBe('Hello Button!');
+      expect(result).toBe(
+        "import { Button } from '@awesome.me/webawesome-pro/dist/components/button/button.js';\n"
+      );
+      expect(result).not.toMatch(/@awesome\.me\/webawesome\/dist/);
     });
 
-    it('should handle undefined values', async () => {
-      const templatePath = path.join(testDir, 'test.hbs');
-      await fs.writeFile(templatePath, 'Name: {{name}}, Missing: {{missing}}');
+    it('rewrites both occurrences of the Angular two-import pattern in one pass', async () => {
+      // Angular .component.ts files contain one `import type` and one dynamic
+      // `import()` of the same package — the global flag must hit both.
+      const source = [
+        "import type { Button } from '@awesome.me/webawesome/dist/components/button/button.js';",
+        '',
+        "void import('@awesome.me/webawesome/dist/components/button/button.js');",
+        '',
+      ].join('\n');
+      const templatePath = await writeTemplate(source, 'angular.component.ts');
 
-      const result = await renderTemplate(templatePath, {
-        name: 'Button',
-        tagName: 'wa-button',
-        description: 'Test',
-        importPath: 'test',
-      });
+      const result = await materializeTemplate(
+        templatePath,
+        WEB_AWESOME_PRO_PACKAGE
+      );
 
-      expect(result).toBe('Name: Button, Missing: ');
+      const matches = result.match(/@awesome\.me\/webawesome-pro/g) ?? [];
+      expect(matches).toHaveLength(2);
+      expect(result).not.toMatch(/@awesome\.me\/webawesome\/dist/);
     });
 
-    it('should cache compiled templates', async () => {
-      const templatePath = path.join(testDir, 'test.hbs');
-      await fs.writeFile(templatePath, 'Hello {{name}}!');
+    it('is idempotent when re-materialized against an already-Pro source', async () => {
+      // Guards the negative-lookahead semantics: running the rewrite twice
+      // must not produce `@awesome.me/webawesome-pro-pro`.
+      const source =
+        "import { Button } from '@awesome.me/webawesome/dist/components/button/button.js';\n";
+      const templatePath = await writeTemplate(source);
 
-      const context = {
-        name: 'Button',
-        tagName: 'wa-button',
-        description: 'Test',
-        importPath: 'test',
-      };
+      const firstPass = await materializeTemplate(
+        templatePath,
+        WEB_AWESOME_PRO_PACKAGE
+      );
 
-      // First render
-      const result1 = await renderTemplate(templatePath, context);
+      const secondPassPath = path.join(testDir, 'second-pass.tsx');
+      await fs.writeFile(secondPassPath, firstPass);
+      const secondPass = await materializeTemplate(
+        secondPassPath,
+        WEB_AWESOME_PRO_PACKAGE
+      );
 
-      // Second render (should use cache)
-      const result2 = await renderTemplate(templatePath, context);
-
-      expect(result1).toBe(result2);
-      expect(result1).toBe('Hello Button!');
-    });
-
-    it('should throw error for non-existent template', async () => {
-      const templatePath = path.join(testDir, 'nonexistent.hbs');
-
-      await expect(
-        renderTemplate(templatePath, {
-          name: 'Test',
-          tagName: 'wa-test',
-          description: 'Test',
-          importPath: 'test',
-        })
-      ).rejects.toThrow();
+      expect(secondPass).toBe(firstPass);
+      expect(secondPass).not.toContain('webawesome-pro-pro');
     });
   });
 
@@ -259,6 +255,42 @@ describe('template utilities', () => {
       // No bare-identifier form should survive for the known string enums.
       expect(component).not.toMatch(/default:\s+neutral\b/);
       expect(component).not.toMatch(/default:\s+filled\b/);
+    });
+
+    it('rewrites the import path to the Pro package on Pro tier', async () => {
+      const button = getComponent('button');
+      expect(button).toBeDefined();
+      if (!button) return;
+
+      const config: KigumiConfig = {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        aliases: {},
+        theme: {
+          selected: 'awesome',
+          palette: 'sky',
+          brandColor: '#0ea5e9',
+        },
+      };
+
+      const free = await generateComponent(
+        button,
+        config,
+        true,
+        testDir,
+        'free'
+      );
+      const pro = await generateComponent(button, config, true, testDir, 'pro');
+
+      expect(free).toContain('@awesome.me/webawesome/dist/components/button/');
+      expect(free).not.toContain('@awesome.me/webawesome-pro/');
+
+      expect(pro).toContain(
+        '@awesome.me/webawesome-pro/dist/components/button/'
+      );
+      expect(pro).not.toMatch(/@awesome\.me\/webawesome\/dist/);
     });
   });
 
@@ -466,8 +498,8 @@ describe('template utilities', () => {
 
   describe('generateComponentTestContent - Angular kebab-case template lookup', () => {
     // Regression guard against a bug where the Angular test-template lookup
-    // used PascalCase filenames (ButtonGroup.component.spec.ts.hbs) while the
-    // actual template files use kebab-case (button-group.component.spec.ts.hbs).
+    // used PascalCase filenames (ButtonGroup.component.spec.ts) while the
+    // actual template files use kebab-case (button-group.component.spec.ts).
     // On case-insensitive macOS the lookup coincidentally succeeded; on
     // case-sensitive Linux CI it fell through to the inline fallback generator,
     // producing different output per OS.
@@ -499,7 +531,7 @@ describe('template utilities', () => {
           (call) => call[0] as string
         );
         const testTemplatePaths = checkedPaths.filter((p) =>
-          p.endsWith('.component.spec.ts.hbs')
+          p.endsWith('.component.spec.ts')
         );
 
         expect(testTemplatePaths.length).toBeGreaterThan(0);
@@ -542,7 +574,7 @@ describe('template utilities', () => {
           (call) => call[0] as string
         );
         const testTemplatePaths = checkedPaths.filter(
-          (p) => p.endsWith('.test.tsx.hbs') || p.endsWith('.test.ts.hbs')
+          (p) => p.endsWith('.test.tsx') || p.endsWith('.test.ts')
         );
 
         expect(testTemplatePaths.length).toBeGreaterThan(0);
@@ -588,79 +620,6 @@ describe('template utilities', () => {
       expect(content).toContain("container.querySelector('wa-nonexistent')");
       expect(content).not.toContain("container.querySelector('.custom-class')");
       expect(content).toMatch(/\.className.*toContain\(['"]custom-class['"]\)/);
-    });
-  });
-
-  describe('template cache', () => {
-    it('should cache compiled templates', async () => {
-      const templatePath = path.join(testDir, 'test.hbs');
-      await fs.writeFile(templatePath, 'Test {{name}}');
-
-      const context = {
-        name: 'Button',
-        tagName: 'wa-button',
-        description: 'Test',
-        importPath: 'test',
-      };
-
-      // First call - compiles and caches
-      const result1 = await renderTemplate(templatePath, context);
-
-      // Second call - uses cache (should be faster)
-      const result2 = await renderTemplate(templatePath, context);
-
-      expect(result1).toBe(result2);
-    });
-
-    it('should clear cache', async () => {
-      const templatePath = path.join(testDir, 'test.hbs');
-      await fs.writeFile(templatePath, 'Test {{name}}');
-
-      const context = {
-        name: 'Button',
-        tagName: 'wa-button',
-        description: 'Test',
-        importPath: 'test',
-        props: [],
-      };
-
-      await renderTemplate(templatePath, context);
-
-      // Clear cache
-      clearTemplateCache();
-
-      // Should still work (recompiles)
-      const result = await renderTemplate(templatePath, context);
-      expect(result).toBe('Test Button');
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle template syntax errors', async () => {
-      const templatePath = path.join(testDir, 'bad.hbs');
-      await fs.writeFile(templatePath, 'Hello {{name unclosed');
-
-      await expect(
-        renderTemplate(templatePath, {
-          name: 'Test',
-          tagName: 'wa-test',
-          description: 'Test',
-          importPath: 'test',
-        })
-      ).rejects.toThrow();
-    });
-
-    it('should handle missing template files', async () => {
-      const templatePath = path.join(testDir, 'nonexistent.hbs');
-
-      await expect(
-        renderTemplate(templatePath, {
-          name: 'Test',
-          tagName: 'wa-test',
-          description: 'Test',
-          importPath: 'test',
-        })
-      ).rejects.toThrow();
     });
   });
 

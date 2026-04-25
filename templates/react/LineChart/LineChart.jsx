@@ -1,0 +1,75 @@
+import React from 'react';
+import clsx from 'clsx';
+import './LineChart.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/line-chart/line-chart.js'));
+}
+
+/**
+ * Connects sequential data points to reveal trends and patterns over a continuous axis
+ *
+ * @example
+ * ```jsx
+ * <LineChart label="Monthly growth">
+ *   <script type="application/json">{JSON.stringify({
+ *     data: {
+ *       labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+ *       datasets: [{ label: 'Users', data: [100, 145, 192, 260] }]
+ *     }
+ *   })}</script>
+ * </LineChart>
+ *
+ * // Stacked line chart
+ * <LineChart stacked without-tooltip label="Combined" />
+ * ```
+ *
+ * @typedef {Object} LineChartProps
+ * @property {string} [label] - Accessible name announced by assistive technology
+ * @property {string} [description] - Extended accessible description for the chart
+ * @property {string} [x-label] - Caption displayed beneath the horizontal axis
+ * @property {string} [y-label] - Caption displayed beside the vertical axis
+ * @property {string} [legend-position] - Placement of the legend: top | right | bottom | left | start | end
+ * @property {boolean} [stacked] - Layers multiple datasets on a single axis
+ * @property {string} [index-axis] - Base axis for category labels: x | y
+ * @property {string} [grid] - Background grid lines: x | y | both | none
+ * @property {number} [min] - Floor value for the value axis scale
+ * @property {number} [max] - Ceiling value for the value axis scale
+ * @property {boolean} [without-animation] - Disables entrance and update motion effects
+ * @property {boolean} [without-legend] - Hides the dataset legend entirely
+ * @property {boolean} [without-tooltip] - Prevents hover tooltips from appearing on data points
+ */
+
+export const LineChart = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    const lineChartRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return lineChartRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
+    return (
+      <wa-line-chart
+        ref={lineChartRef}
+        class={clsx('LineChart', className)}
+        {...props}
+      >
+        {children}
+      </wa-line-chart>
+    );
+  }
+);
+
+LineChart.displayName = 'LineChart';

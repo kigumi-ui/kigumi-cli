@@ -1,0 +1,67 @@
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import './Tag.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tag/tag.js'));
+}
+
+/**
+ * Tags are used as labels to organize things or indicate selections
+ */
+const props = defineProps({
+    appearance: { type: String, required: false, default: 'filled-outlined' },
+    pill: { type: Boolean, required: false, default: false },
+    size: { type: String, required: false, default: 'medium' },
+    variant: { type: String, required: false, default: 'neutral' },
+    'with-remove': { type: Boolean, required: false, default: false }
+});
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-remove']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleWaRemove = (e) => emit('wa-remove', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('wa-remove', handleWaRemove);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-remove', handleWaRemove);
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-tag
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-tag>
+</template>

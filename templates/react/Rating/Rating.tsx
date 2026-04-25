@@ -1,0 +1,158 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import './Rating.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/rating/rating.js'));
+}
+
+/**
+ * Ratings give users a way to quickly view and provide feedback
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Rating />
+ *
+ * // With event handlers
+ * <Rating
+ *   onChange={(e) => console.log(e)} />
+ *
+ * // With ref methods
+ * const ref = useRef<RatingRef>(null);
+ * <button onClick={() => ref.current?.setCustomValidity()}>Call Method</button>
+ * <Rating ref={ref} />
+ * ```
+ */
+export interface RatingProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onHover' | 'onInvalid' | 'dir'> {
+
+  /** Accessible label */
+  label?: string;
+
+  /** Current rating value */
+  value?: number;
+
+  /** Maximum rating value */
+  max?: number;
+
+  /** Rating precision (e.g., 0.5) */
+  precision?: number;
+
+  /** Makes the rating readonly */
+  readonly?: boolean;
+
+  /** Disables the rating */
+  disabled?: boolean;
+
+  /** Form field name for submission */
+  name?: string;
+
+  /** Makes the rating required for form submission */
+  required?: boolean;
+
+  /** Rating size */
+  size?: 'small' | 'medium' | 'large';
+
+  /** Emitted when the rating's value changes. */
+  onChange?: (event: CustomEvent) => void;
+
+  /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
+  onHover?: (event: CustomEvent) => void;
+
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  onInvalid?: (event: CustomEvent) => void;
+}
+
+export interface RatingRef {
+
+  /** Do not use this when creating a "Validator". This is intended for end users of components.
+We track manually defined custom errors so we don't clear them on accident in our validators. */
+  setCustomValidity: (message: string) => void;
+
+  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
+the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
+"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+
+  /** Reset validity is a way of removing manual custom errors and native validation. */
+  resetValidity: () => void;
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Rating = forwardRef<RatingRef, RatingProps>(
+  ({ children, className, onChange, onHover, onInvalid, ...props }, ref) => {
+    const ratingRef = useRef<HTMLElement & {
+      setCustomValidity?: (message: string) => void;
+      formStateRestoreCallback?: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+      resetValidity?: () => void;
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        setCustomValidity: (message: string) => {
+          if (ratingRef.current && typeof ratingRef.current.setCustomValidity === 'function') {
+            ratingRef.current.setCustomValidity(message);
+          }
+        },
+        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
+          if (ratingRef.current && typeof ratingRef.current.formStateRestoreCallback === 'function') {
+            ratingRef.current.formStateRestoreCallback(state, reason);
+          }
+        },
+        resetValidity: () => {
+          if (ratingRef.current && typeof ratingRef.current.resetValidity === 'function') {
+            ratingRef.current.resetValidity();
+          }
+        },
+        get element() {
+          return ratingRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      ensureLoaded();
+      const el = ratingRef.current;
+      if (!el) return;
+
+      const handleChange = (e: Event) => {
+        if (onChange) onChange(e as CustomEvent);
+      };
+
+      const handleWaHover = (e: Event) => {
+        if (onHover) onHover(e as CustomEvent);
+      };
+
+      const handleWaInvalid = (e: Event) => {
+        if (onInvalid) onInvalid(e as CustomEvent);
+      };
+
+      el.addEventListener('change', handleChange);
+      el.addEventListener('wa-hover', handleWaHover);
+      el.addEventListener('wa-invalid', handleWaInvalid);
+
+      return () => {
+        el.removeEventListener('change', handleChange);
+        el.removeEventListener('wa-hover', handleWaHover);
+        el.removeEventListener('wa-invalid', handleWaInvalid);
+      };
+    }, [onChange, onHover, onInvalid]);
+
+    return (
+      <wa-rating
+        ref={ratingRef}
+        class={clsx('Rating', className)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-rating>
+    );
+  }
+);
+
+Rating.displayName = 'Rating';

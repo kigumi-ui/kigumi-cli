@@ -1,0 +1,72 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/include/include.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/include/include.js'));
+}
+
+/**
+ * Includes give you the power to embed external HTML files into the page
+ *
+ * @see https://webawesome.com/docs/components/include
+ */
+@Component({
+  selector: 'k-include',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-include
+        #element
+        [attr.src]="src"
+        [attr.mode]="mode"
+        [attr.allow-scripts]="allowScripts || null">
+      <ng-content />
+    </wa-include>
+  `,
+  styleUrl: './include.component.css',
+})
+export class IncludeComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** The location of the HTML file to include */
+  @Input() src?: string;
+  /** The fetch mode */
+  @Input() mode?: 'cors' | 'no-cors' | 'same-origin';
+  /** Allows included scripts to be executed */
+  @Input() allowScripts?: boolean;
+
+  @Output() load = new EventEmitter<CustomEvent>();
+  @Output() includeError = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+
+    const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
+    el.addEventListener('wa-load', handleLoad);
+    this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
+    const handleIncludeError = (e: Event) => this.includeError.emit(e as CustomEvent);
+    el.addEventListener('wa-include-error', handleIncludeError);
+    this.cleanups.push(() => el.removeEventListener('wa-include-error', handleIncludeError));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+}

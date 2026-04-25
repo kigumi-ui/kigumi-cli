@@ -1,7 +1,7 @@
 /**
  * Angular Template Generator - Output Validation Tests
  *
- * Validates that the generated Angular .hbs templates follow all conventions:
+ * Validates that the Angular templates follow all conventions:
  * collision resolution, CVA wiring, type safety, and method signatures.
  */
 import { describe, it, expect } from 'vitest';
@@ -18,11 +18,7 @@ function readTemplate(component: string): string {
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
     .toLowerCase();
-  const filePath = path.join(
-    TEMPLATES_DIR,
-    component,
-    `${kebab}.component.ts.hbs`
-  );
+  const filePath = path.join(TEMPLATES_DIR, component, `${kebab}.component.ts`);
   return fs.readFileSync(filePath, 'utf-8');
 }
 
@@ -105,11 +101,7 @@ describe('Angular template generator', () => {
         .replace(/([a-z])([A-Z])/g, '$1-$2')
         .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
         .toLowerCase();
-      const tsFile = path.join(
-        TEMPLATES_DIR,
-        comp,
-        `${kebab}.component.ts.hbs`
-      );
+      const tsFile = path.join(TEMPLATES_DIR, comp, `${kebab}.component.ts`);
       if (fs.existsSync(tsFile)) {
         const content = fs.readFileSync(tsFile, 'utf-8');
         expect(content, `${comp} contains Function type`).not.toMatch(

@@ -1,0 +1,111 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Slider.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/slider/slider.js'));
+}
+
+/**
+ * Sliders allow the user to select a value within a range
+ */
+export interface SliderProps {
+  name?: string;
+  label?: string;
+  hint?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  orientation?: 'horizontal' | 'vertical';
+  disabled?: boolean;
+  readonly?: boolean;
+  range?: boolean;
+  'with-markers'?: boolean;
+  'with-tooltip'?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  autofocus?: boolean;
+}
+
+const props = defineProps<SliderProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  'change': [event: CustomEvent];
+  'blur': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'input': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const model = defineModel<number>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+watch(model, (val) => {
+  const el = elementRef.value as any;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleChange = (e: Event) => emit('change', e as CustomEvent);
+const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('change', handleChange);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('input', handleInput);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  focus: () => (elementRef.value as any)?.focus?.(),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  stepDown: () => (elementRef.value as any)?.stepDown?.(),
+  stepUp: () => (elementRef.value as any)?.stepUp?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-slider
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :value="model"
+  >
+    <slot />
+  </wa-slider>
+</template>

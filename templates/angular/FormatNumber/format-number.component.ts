@@ -1,0 +1,80 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/format-number/format-number.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
+}
+
+/**
+ * Formats a number using the Intl.NumberFormat API
+ *
+ * @see https://webawesome.com/docs/components/format-number
+ */
+@Component({
+  selector: 'k-format-number',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-format-number
+        #element
+        [attr.value]="value"
+        [attr.type]="type"
+        [attr.currency]="currency"
+        [attr.currency-display]="currencyDisplay"
+        [attr.minimum-integer-digits]="minimumIntegerDigits"
+        [attr.minimum-fraction-digits]="minimumFractionDigits"
+        [attr.maximum-fraction-digits]="maximumFractionDigits"
+        [attr.minimum-significant-digits]="minimumSignificantDigits"
+        [attr.maximum-significant-digits]="maximumSignificantDigits"
+        [attr.without-grouping]="withoutGrouping || null"
+        [attr.lang]="lang">
+      <ng-content />
+    </wa-format-number>
+  `,
+  styleUrl: './format-number.component.css',
+})
+export class FormatNumberComponent implements AfterViewInit {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** The number to format */
+  @Input() value?: number;
+  /** The formatting style */
+  @Input() type?: 'currency' | 'decimal' | 'percent';
+  /** The currency to use (ISO 4217) */
+  @Input() currency?: string;
+  /** How to display the currency */
+  @Input() currencyDisplay?: 'symbol' | 'narrowSymbol' | 'code' | 'name';
+  /** Minimum integer digits */
+  @Input() minimumIntegerDigits?: number;
+  /** Minimum fraction digits */
+  @Input() minimumFractionDigits?: number;
+  /** Maximum fraction digits */
+  @Input() maximumFractionDigits?: number;
+  /** Minimum significant digits */
+  @Input() minimumSignificantDigits?: number;
+  /** Maximum significant digits */
+  @Input() maximumSignificantDigits?: number;
+  /** Disables grouping separators */
+  @Input() withoutGrouping?: boolean;
+  /** The locale to use when formatting */
+  @Input() lang?: string;
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+  }
+}

@@ -1,6 +1,8 @@
 # Templates Guide
 
-> Handlebars templates for component generation - extends [root AGENTS.md](../AGENTS.md)
+> Component templates for the kigumi CLI - extends [root AGENTS.md](../AGENTS.md)
+
+Templates are real framework source files (`.tsx`, `.jsx`, `.vue`, `.component.ts`, `.test.*`). Editors / type-checkers / linters treat them like any other source. The CLI substitutes only one thing at runtime: the Free→Pro tier swap on the `@awesome.me/webawesome` import path. There is no Handlebars layer.
 
 ## Directory Structure
 
@@ -8,26 +10,24 @@
 templates/
 ├── react/
 │   └── {Component}/
-│       ├── {Component}.tsx.hbs    # TypeScript (with interfaces)
-│       ├── {Component}.jsx.hbs    # JavaScript (with JSDoc)
-│       ├── {Component}.test.tsx.hbs
-│       ├── {Component}.test.jsx.hbs
-│       └── {Component}.css        # Static CSS, no Handlebars
+│       ├── {Component}.tsx        # TypeScript (with interfaces)
+│       ├── {Component}.jsx        # JavaScript (with JSDoc)
+│       ├── {Component}.test.tsx
+│       ├── {Component}.test.jsx
+│       └── {Component}.css
 ├── vue/
 │   └── {Component}/
-│       ├── {Component}.vue.hbs      # TypeScript (Options API + defineExpose)
-│       ├── {Component}.js.vue.hbs   # JavaScript (no types)
-│       ├── {Component}.test.ts.hbs
-│       ├── {Component}.test.js.hbs
-│       └── {Component}.css          # Identical content to react CSS template
+│       ├── {Component}.vue        # TypeScript (Composition API + defineModel)
+│       ├── {Component}.js.vue     # JavaScript (no types)
+│       ├── {Component}.test.ts
+│       ├── {Component}.test.js
+│       └── {Component}.css        # Identical content to react CSS file
 └── angular/
     └── {Component}/                 # PascalCase directory name
-        ├── {kebab-name}.component.ts.hbs    # Always TypeScript
-        ├── {kebab-name}.component.spec.ts.hbs
-        └── {kebab-name}.component.css       # Static CSS, no Handlebars
+        ├── {kebab-name}.component.ts        # Always TypeScript
+        ├── {kebab-name}.component.spec.ts
+        └── {kebab-name}.component.css
 ```
-
-> **CSS files are not Handlebars.** They carry the `.css` extension (not `.css.hbs`) because they contain no template expressions. The CLI reads them verbatim via `fs.readFile` instead of running them through `Handlebars.compile`.
 
 ### Angular Template Notes
 
@@ -42,16 +42,11 @@ templates/
 - **CSS pattern:** `:host { display: contents }` makes wrapper DOM-transparent
 - **Event cleanup:** All listeners cleaned up in `ngOnDestroy`
 
-## Template Variables
+## Runtime Substitution
 
-Available in all `.hbs` templates:
+There is exactly one substitution at generation time, performed by `materializeTemplate()` in `src/utils/template.ts`: the literal string `@awesome.me/webawesome` is rewritten to `@awesome.me/webawesome-pro` for Pro-tier projects (every occurrence in the file, via a global regex with a negative lookahead). For Free-tier projects the file is read verbatim.
 
-| Variable           | Example                           | Description                 |
-| ------------------ | --------------------------------- | --------------------------- |
-| `{{{importPath}}}` | `@awesome.me/webawesome/dist/...` | Web Awesome import path     |
-| `{{name}}`         | `Button`                          | Component name (PascalCase) |
-| `{{tagName}}`      | `wa-button`                       | Web component tag           |
-| `{{description}}`  | `Buttons represent actions...`    | From Web Awesome docs       |
+Templates are otherwise canonical: the component name, tag name, and description match the directory layout and are baked into each file. There is no `{{name}}` / `{{tagName}}` / `{{description}}` token system — those went away when Handlebars went away. A regression guard (`tests/unit/no-handlebars-tokens.test.ts` + `pnpm validate:templates`) fails CI if any template ever sprouts a `{{...}}` token.
 
 ---
 
@@ -59,63 +54,63 @@ Available in all `.hbs` templates:
 
 ### Simple Component (no events/methods)
 
-Use for: Icon, Badge, Divider, Spinner, etc.
+Use for: Icon, Badge, Divider, Spinner, etc. The example below is a literal excerpt from `templates/react/Badge/Badge.tsx` — concrete, not parameterized.
 
 ```typescript
 import { forwardRef, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import './{{name}}.css';
+import './Badge.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('{{{importPath}}}'));
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
 }
 
-export interface {{name}}Props extends HTMLAttributes<HTMLElement> {
+export interface BadgeProps extends HTMLAttributes<HTMLElement> {
   // Props matching wa-* attributes
 }
 
-export const {{name}} = forwardRef<HTMLElement, {{name}}Props>(
+export const Badge = forwardRef<HTMLElement, BadgeProps>(
   ({ className, ...props }, ref) => {
     useEffect(() => {
       ensureLoaded();
     }, []);
     return (
-      <wa-{{tagName}} ref={ref} class={clsx('{{name}}', className)} {...props} />
+      <wa-badge ref={ref} class={clsx('Badge', className)} {...props} />
     );
   }
 );
 
-{{name}}.displayName = '{{name}}';
+Badge.displayName = 'Badge';
 ```
 
 ### Complex Component (with events/methods)
 
-Use for: Dialog, Drawer, Dropdown, Select, etc.
+Use for: Dialog, Drawer, Dropdown, Select, etc. The example below mirrors the shape of `templates/react/Dialog/Dialog.tsx`.
 
 ```typescript
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import './{{name}}.css';
+import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('{{{importPath}}}'));
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
 }
 
-export interface {{name}}Props extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   // Props
   onShow?: (event: CustomEvent) => void;   // wa-show
   onHide?: (event: CustomEvent) => void;   // wa-hide
 }
 
-export interface {{name}}Ref {
+export interface DialogRef {
   show: () => void;
   hide: () => void;
   element: HTMLElement | null;
 }
 
-export const {{name}} = forwardRef<{{name}}Ref, {{name}}Props>(
+export const Dialog = forwardRef<DialogRef, DialogProps>(
   ({ className, onShow, onHide, ...props }, ref) => {
     const internalRef = useRef<HTMLElement & { show?: () => void; requestClose?: () => void }>(null);
 
@@ -143,12 +138,12 @@ export const {{name}} = forwardRef<{{name}}Ref, {{name}}Props>(
     }, [onShow, onHide]);
 
     return (
-      <wa-{{tagName}} ref={internalRef} class={clsx('{{name}}', className)} {...props} />
+      <wa-dialog ref={internalRef} class={clsx('Dialog', className)} {...props} />
     );
   }
 );
 
-{{name}}.displayName = '{{name}}';
+Dialog.displayName = 'Dialog';
 ```
 
 ---
@@ -167,13 +162,13 @@ export const {{name}} = forwardRef<{{name}}Ref, {{name}}Props>(
 
 ### 2. React Import Style
 
-**TypeScript (.tsx.hbs):** Named imports
+**TypeScript (.tsx):** Named imports
 
 ```typescript
 import { forwardRef, useRef, useEffect } from 'react';
 ```
 
-**JavaScript (.jsx.hbs):** Default import
+**JavaScript (.jsx):** Default import
 
 ```javascript
 import React from 'react';
@@ -233,11 +228,11 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 ### 7. No `'use client'` in React Templates
 
-React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx.hbs` / `.jsx.hbs` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 74 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
+React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx` / `.jsx` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 74 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
 
 ### 8. `suppressHydrationWarning` on the `<wa-*>` Host
 
-Every React `.tsx.hbs` template emits `suppressHydrationWarning` on its Web Awesome host element. Lit reflects default attributes during `connectedCallback` (e.g., `appearance="outlined"`, `library="default"`), and React's hydration checker would flag the delta on every page that mounts a Kigumi component. `suppressHydrationWarning` is the documented React API for this scenario — it suppresses only the host element's own reconcile pass; children are still hydration-checked. In Vite SPAs the attribute is a no-op. Keep it in the templates; the scripts/generate-react-templates.ts emitter is the source of truth.
+Every React `.tsx` template emits `suppressHydrationWarning` on its Web Awesome host element. Lit reflects default attributes during `connectedCallback` (e.g., `appearance="outlined"`, `library="default"`), and React's hydration checker would flag the delta on every page that mounts a Kigumi component. `suppressHydrationWarning` is the documented React API for this scenario — it suppresses only the host element's own reconcile pass; children are still hydration-checked. In Vite SPAs the attribute is a no-op. Keep it in the templates; the scripts/generate-react-templates.ts emitter is the source of truth.
 
 ---
 
@@ -249,20 +244,22 @@ Every React `.tsx.hbs` template emits `suppressHydrationWarning` on its Web Awes
 4. **Create all files -- all frameworks:**
 
    React (`templates/react/{Name}/`):
-   - `{Name}.tsx.hbs` (TypeScript)
-   - `{Name}.jsx.hbs` (JavaScript)
-   - `{Name}.test.tsx.hbs`
-   - `{Name}.test.jsx.hbs`
-   - `{Name}.css` (static, no Handlebars)
+   - `{Name}.tsx` (TypeScript)
+   - `{Name}.jsx` (JavaScript)
+   - `{Name}.test.tsx`
+   - `{Name}.test.jsx`
+   - `{Name}.css`
 
    Vue (`templates/vue/{Name}/`):
-   - `{Name}.vue.hbs` (TypeScript)
-   - `{Name}.js.vue.hbs` (JavaScript)
-   - `{Name}.test.ts.hbs`
-   - `{Name}.test.js.hbs`
-   - `{Name}.css` (same content as React CSS template)
+   - `{Name}.vue` (TypeScript)
+   - `{Name}.js.vue` (JavaScript)
+   - `{Name}.test.ts`
+   - `{Name}.test.js`
+   - `{Name}.css` (same content as React CSS file)
 
    Angular: **Do not create manually.** Run `npx tsx scripts/generate-angular-templates.ts` to regenerate all Angular templates from component metadata.
+
+   Inside each file, write the canonical free-tier import path verbatim — `@awesome.me/webawesome/dist/components/{slug}/{slug}.js`. The CLI rewrites it to the Pro package at `kigumi add` time when the project is on Pro.
 
 5. **Build and test:**
    ```bash
@@ -274,16 +271,16 @@ Every React `.tsx.hbs` template emits `suppressHydrationWarning` on its Web Awes
 
 ## Reference Templates
 
-| Pattern                   | React                            | Vue                              | Angular                              |
-| ------------------------- | -------------------------------- | -------------------------------- | ------------------------------------ |
-| Simple                    | `Button/Button.tsx.hbs`          | `Button/Button.vue.hbs`          | `Button/button.component.ts.hbs`     |
-| Complex (events)          | `Dialog/Dialog.tsx.hbs`          | `Dialog/Dialog.vue.hbs`          | `Dialog/dialog.component.ts.hbs`     |
-| Complex (two-way binding) | `Input/Input.tsx.hbs`            | `Input/Input.vue.hbs`            | `Input/input.component.ts.hbs` (CVA) |
-| Portal + methods          | `Toast/Toast.tsx.hbs`            | `Toast/Toast.vue.hbs`            | `Toast/toast.component.ts.hbs`       |
-| Sub-components            | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/`     |
+| Pattern                   | React                            | Vue                              | Angular                          |
+| ------------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
+| Simple                    | `Button/Button.tsx`              | `Button/Button.vue`              | `Button/button.component.ts`     |
+| Complex (events)          | `Dialog/Dialog.tsx`              | `Dialog/Dialog.vue`              | `Dialog/dialog.component.ts`     |
+| Complex (two-way binding) | `Input/Input.tsx`                | `Input/Input.vue`                | `Input/input.component.ts` (CVA) |
+| Portal + methods          | `Toast/Toast.tsx`                | `Toast/Toast.vue`                | `Toast/toast.component.ts`       |
+| Sub-components            | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` | `Breadcrumb/`, `BreadcrumbItem/` |
 
 ---
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-23
+**Last Updated:** 2026-04-24

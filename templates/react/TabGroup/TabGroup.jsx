@@ -1,0 +1,48 @@
+import React from 'react';
+import clsx from 'clsx';
+import './TabGroup.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab-group/tab-group.js'));
+}
+
+export const TabGroup = React.forwardRef(
+  ({ children, className, onTabShow, onTabHide, ...props }, ref) => {
+    const groupRef = React.useRef(null);
+
+    React.useEffect(() => {
+      ensureLoaded();
+      const el = groupRef.current;
+      if (!el) return;
+
+      const handleTabShow = (e) => onTabShow?.(e);
+      const handleTabHide = (e) => onTabHide?.(e);
+
+      el.addEventListener('wa-tab-show', handleTabShow);
+      el.addEventListener('wa-tab-hide', handleTabHide);
+
+      return () => {
+        el.removeEventListener('wa-tab-show', handleTabShow);
+        el.removeEventListener('wa-tab-hide', handleTabHide);
+      };
+    }, [onTabShow, onTabHide]);
+
+    return (
+      <wa-tab-group
+        ref={(node) => {
+          groupRef.current = node;
+          if (typeof ref === 'function') ref(node);
+          else if (ref) ref.current = node;
+        }}
+        class={clsx('TabGroup', className)}
+        {...props}
+      >
+        {children}
+      </wa-tab-group>
+    );
+  }
+);
+
+TabGroup.displayName = 'TabGroup';

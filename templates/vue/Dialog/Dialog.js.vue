@@ -1,0 +1,87 @@
+<script setup>
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Dialog.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
+}
+
+/**
+ * Dialogs display important prompts and information
+ */
+const props = defineProps({
+    label: { type: String, required: true, default: '' },
+    'without-header': { type: Boolean, required: false, default: false },
+    'light-dismiss': { type: Boolean, required: false, default: false }
+});
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
+
+const open = defineModel('open', { default: false });
+
+const elementRef = ref(null);
+
+watch(open, (newOpen) => {
+  const el = elementRef.value;
+  if (!el) return;
+  const isOpen = el.open ?? false;
+  if (newOpen && !isOpen) el.show?.();
+  else if (!newOpen && isOpen) el.hide?.();
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
+const handleWaAfterShow = (e) => emit('wa-after-show', e);
+const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
+const handleWaAfterHide = (e) => emit('wa-after-hide', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('wa-show', handleWaShow);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  el.addEventListener('wa-hide', handleWaHide);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-show', handleWaShow);
+  el.removeEventListener('wa-after-show', handleWaAfterShow);
+  el.removeEventListener('wa-hide', handleWaHide);
+  el.removeEventListener('wa-after-hide', handleWaAfterHide);
+});
+
+defineExpose({
+  show: () => elementRef.value?.show?.(),
+  requestClose: () => elementRef.value?.requestClose?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-dialog
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :open="open"
+  >
+    <slot />
+  </wa-dialog>
+</template>
