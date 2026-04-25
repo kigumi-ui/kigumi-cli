@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import MutationObserver from './MutationObserver.vue';
 
 describe('MutationObserver', () => {
   it('renders without crashing', () => {
-    const { container } = mount(MutationObserver);
+    const { container } = render(MutationObserver);
     expect(container.querySelector('wa-mutation-observer')).toBeTruthy();
   });
 });

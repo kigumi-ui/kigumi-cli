@@ -15,6 +15,77 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+/**
+ * Extract custom (non-primitive, non-DOM-global) PascalCase identifiers
+ * from method parameter types so we can emit a type-only import for them.
+ * Kept in sync with the matching helper in generate-react-templates.ts.
+ */
+const DOM_GLOBALS = new Set([
+  'HTMLElement',
+  'Element',
+  'Node',
+  'Event',
+  'CustomEvent',
+  'MouseEvent',
+  'KeyboardEvent',
+  'FocusEvent',
+  'InputEvent',
+  'PointerEvent',
+  'TouchEvent',
+  'WheelEvent',
+  'AddEventListenerOptions',
+  'EventListenerOptions',
+  'ResizeObserverEntry',
+  'IntersectionObserverEntry',
+  'MutationRecord',
+  'FocusOptions',
+  'ScrollBehavior',
+  'ScrollIntoViewOptions',
+  'File',
+  'FileList',
+  'FormData',
+  'Blob',
+  'URL',
+  'URLSearchParams',
+  'Headers',
+  'Request',
+  'Response',
+  'ReadableStream',
+  'WritableStream',
+  'AbortController',
+  'AbortSignal',
+  'Array',
+  'Object',
+  'Map',
+  'Set',
+  'WeakMap',
+  'WeakSet',
+  'Date',
+  'Promise',
+  'Error',
+  'RegExp',
+  'Symbol',
+  'Number',
+  'String',
+  'Boolean',
+]);
+
+function extractCustomTypeImports(
+  methods: { parameters?: Array<{ name: string; type: string }> }[]
+): string[] {
+  const found = new Set<string>();
+  for (const m of methods) {
+    for (const p of m.parameters ?? []) {
+      const matches = p.type.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? [];
+      for (const id of matches) {
+        if (!DOM_GLOBALS.has(id)) found.add(id);
+      }
+    }
+  }
+  return [...found].sort();
+}
+
 import {
   getAllComponents,
   type ComponentDefinition,
@@ -438,10 +509,20 @@ onMounted(() => {
 });
 `;
 
+  // Component-specific type imports for non-primitive parameter types.
+  // Mirrors the React generator's heuristic: walk method parameter types,
+  // pull PascalCase identifiers, drop DOM/JS globals, import the rest from
+  // the component's own module (e.g. ToastCreateOptions from Toast).
+  const customTypes = extractCustomTypeImports(metadata.methods);
+  const typeImport =
+    customTypes.length > 0
+      ? `import type { ${customTypes.join(', ')} } from '${component.importPath}';\n`
+      : '';
+
   // Assemble the template
   return `<script setup lang="ts">
 import { ${vueImports.join(', ')} } from 'vue';
-import './${component.name}.css';
+${typeImport}import './${component.name}.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -740,12 +821,12 @@ function generateTestTypescriptTemplate(
   tagName: string
 ): string {
   return `import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import ${componentName} from './${componentName}.vue';
 
 describe('${componentName}', () => {
   it('renders without crashing', () => {
-    const { container } = mount(${componentName});
+    const { container } = render(${componentName});
     expect(container.querySelector('${tagName}')).toBeTruthy();
   });
 });
@@ -757,12 +838,12 @@ function generateTestJavascriptTemplate(
   tagName: string
 ): string {
   return `import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import ${componentName} from './${componentName}.vue';
 
 describe('${componentName}', () => {
   it('renders without crashing', () => {
-    const { container } = mount(${componentName});
+    const { container } = render(${componentName});
     expect(container.querySelector('${tagName}')).toBeTruthy();
   });
 });

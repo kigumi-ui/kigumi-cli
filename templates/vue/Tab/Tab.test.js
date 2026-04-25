@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Tab from './Tab.vue';
 
 describe('Tab', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Tab);
+    const { container } = render(Tab);
     expect(container.querySelector('wa-tab')).toBeTruthy();
   });
 });

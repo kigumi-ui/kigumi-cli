@@ -1,5 +1,6 @@
 import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
+import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import './Toast.css';
 
 let loadPromise: Promise<unknown> | null = null;

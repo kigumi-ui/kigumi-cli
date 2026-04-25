@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import ColorPicker from './ColorPicker.vue';
 
 describe('ColorPicker', () => {
   it('renders without crashing', () => {
-    const { container } = mount(ColorPicker);
+    const { container } = render(ColorPicker);
     expect(container.querySelector('wa-color-picker')).toBeTruthy();
   });
 });

@@ -244,10 +244,20 @@ function generateReactTypescriptTemplate(
       ? metadata.events.map((e) => toReactEventName(e.name)).join(', ')
       : '';
 
+  // 9. Component-specific type imports for non-primitive parameter types.
+  // Walks all method parameter types, extracts PascalCase identifiers,
+  // filters out DOM globals, and imports the rest from the component's
+  // own module (e.g. ToastCreateOptions from Toast).
+  const customTypes = extractCustomTypeImports(metadata.methods);
+  const typeImport =
+    customTypes.length > 0
+      ? `import type { ${customTypes.join(', ')} } from '${component.importPath}';\n`
+      : '';
+
   // Template
   return `import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import './${component.name}.css';
+${typeImport}import './${component.name}.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -377,19 +387,117 @@ function generateCSSTemplate(componentName: string): string {
 }
 
 /**
+ * Extract custom (non-primitive, non-DOM-global) PascalCase identifiers
+ * from method parameter types so we can emit a type-only import for them.
+ */
+const DOM_GLOBALS = new Set([
+  // Element / event types
+  'HTMLElement',
+  'Element',
+  'Node',
+  'Event',
+  'CustomEvent',
+  'MouseEvent',
+  'KeyboardEvent',
+  'FocusEvent',
+  'InputEvent',
+  'PointerEvent',
+  'TouchEvent',
+  'WheelEvent',
+  'AddEventListenerOptions',
+  'EventListenerOptions',
+  // DOM observers / scrolling
+  'ResizeObserverEntry',
+  'IntersectionObserverEntry',
+  'MutationRecord',
+  'FocusOptions',
+  'ScrollBehavior',
+  'ScrollIntoViewOptions',
+  // Web APIs
+  'File',
+  'FileList',
+  'FormData',
+  'Blob',
+  'URL',
+  'URLSearchParams',
+  'Headers',
+  'Request',
+  'Response',
+  'ReadableStream',
+  'WritableStream',
+  'AbortController',
+  'AbortSignal',
+  // JS built-ins
+  'Array',
+  'Object',
+  'Map',
+  'Set',
+  'WeakMap',
+  'WeakSet',
+  'Date',
+  'Promise',
+  'Error',
+  'RegExp',
+  'Symbol',
+  'Number',
+  'String',
+  'Boolean',
+]);
+
+function extractCustomTypeImports(
+  methods: { parameters?: Array<{ name: string; type: string }> }[]
+): string[] {
+  const found = new Set<string>();
+  for (const m of methods) {
+    for (const p of m.parameters ?? []) {
+      // Pull all PascalCase identifiers out of the type string.
+      const matches = p.type.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? [];
+      for (const id of matches) {
+        if (!DOM_GLOBALS.has(id)) found.add(id);
+      }
+    }
+  }
+  return [...found].sort();
+}
+
+/**
+ * Render a JSX attribute literal for a required prop, picking a placeholder
+ * value that matches the prop's declared type. Returns an empty string for
+ * shapes we don't auto-seed (function/event types).
+ */
+function renderRequiredPropPlaceholder(
+  prop: ComponentDefinition['props'][number]
+): string {
+  // Boolean: presence-truthy by convention, emit explicit `={true}`.
+  if (prop.type === 'boolean') return ` ${prop.name}={true}`;
+  // Number: use 0 unless the prop has a non-zero default in the registry.
+  if (prop.type === 'number') return ` ${prop.name}={0}`;
+  // String: seed a descriptive placeholder so the test name communicates intent.
+  if (prop.type === 'string') return ` ${prop.name}="${prop.name}"`;
+  // Enum (string with `values`): pick the first allowed value.
+  if (prop.values && prop.values.length > 0)
+    return ` ${prop.name}="${prop.values[0]}"`;
+  // Anything else (function/event/object) is not auto-seedable; fall through.
+  return '';
+}
+
+/**
  * Generate TypeScript test template
  */
 function generateTestTypescriptTemplate(
   componentName: string,
-  tagName: string
+  tagName: string,
+  props: ComponentDefinition['props']
 ): string {
+  const requiredProps = props.filter((p) => p.required);
+  const jsxAttrs = requiredProps.map(renderRequiredPropPlaceholder).join('');
   return `import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { ${componentName} } from './${componentName}';
 
 describe('${componentName}', () => {
   it('renders without crashing', () => {
-    const { container } = render(<${componentName} />);
+    const { container } = render(<${componentName}${jsxAttrs} />);
     expect(container.querySelector('${tagName}')).toBeTruthy();
   });
 });
@@ -422,7 +530,8 @@ async function generateComponentTemplates(
   // TypeScript test
   const testTs = generateTestTypescriptTemplate(
     component.name,
-    component.tagName
+    component.tagName,
+    component.props
   );
   await fs.writeFile(
     path.join(componentDir, `${component.name}.test.tsx`),

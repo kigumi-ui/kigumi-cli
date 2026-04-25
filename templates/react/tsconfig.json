@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "isolatedModules": true,
+    "types": ["vitest/globals"]
+  },
+  "include": [
+    "**/*.tsx",
+    "**/*.jsx",
+    "**/*.ts",
+    "../../typecheck-shims/css.d.ts",
+    "../../typecheck-shims/react-jsx.d.ts",
+    "../../typecheck-shims/wa-pro-paths.d.ts",
+    "../../typecheck-shims/wa-pro-jsx.d.ts"
+  ],
+  "exclude": ["**/*.css"]
+}

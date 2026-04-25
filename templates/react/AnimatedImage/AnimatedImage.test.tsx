@@ -4,7 +4,7 @@ import { AnimatedImage } from './AnimatedImage';
 
 describe('AnimatedImage', () => {
   it('renders without crashing', () => {
-    const { container } = render(<AnimatedImage />);
+    const { container } = render(<AnimatedImage src="src" alt="alt" />);
     expect(container.querySelector('wa-animated-image')).toBeTruthy();
   });
 });

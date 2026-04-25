@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Drawer from './Drawer.vue';
 
 describe('Drawer', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Drawer);
+    const { container } = render(Drawer);
     expect(container.querySelector('wa-drawer')).toBeTruthy();
   });
 });

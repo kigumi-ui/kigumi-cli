@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Popup from './Popup.vue';
 
 describe('Popup', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Popup);
+    const { container } = render(Popup);
     expect(container.querySelector('wa-popup')).toBeTruthy();
   });
 });

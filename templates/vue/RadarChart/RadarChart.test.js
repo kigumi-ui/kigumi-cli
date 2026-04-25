@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import RadarChart from './RadarChart.vue';
 
 describe('RadarChart', () => {
   it('renders without crashing', () => {
-    const { container } = mount(RadarChart);
+    const { container } = render(RadarChart);
     expect(container.querySelector('wa-radar-chart')).toBeTruthy();
   });
 });

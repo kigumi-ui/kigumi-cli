@@ -61,7 +61,7 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onExpa
 export interface TreeItemRef {
 
   /** Gets all the nested tree items in this node. */
-  getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => void;
+  getChildrenItems: (options: { includeDisabled?: boolean }) => void;
   /** Reference to the underlying HTML element */
   element: HTMLElement | null;
 }
@@ -69,15 +69,15 @@ export interface TreeItemRef {
 export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
   ({ children, className, onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad, ...props }, ref) => {
     const treeitemRef = useRef<HTMLElement & {
-      getChildrenItems?: ({ includeDisabled = true }: { includeDisabled?: boolean }) => void;
+      getChildrenItems?: (options: { includeDisabled?: boolean }) => void;
     }>(null);
 
     useImperativeHandle(
       ref,
       () => ({
-        getChildrenItems: ({ includeDisabled = true }: { includeDisabled?: boolean }) => {
+        getChildrenItems: (options: { includeDisabled?: boolean }) => {
           if (treeitemRef.current && typeof treeitemRef.current.getChildrenItems === 'function') {
-            treeitemRef.current.getChildrenItems({ includeDisabled = true });
+            treeitemRef.current.getChildrenItems(options);
           }
         },
         get element() {

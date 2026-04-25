@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Scroller from './Scroller.vue';
 
 describe('Scroller', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Scroller);
+    const { container } = render(Scroller);
     expect(container.querySelector('wa-scroller')).toBeTruthy();
   });
 });

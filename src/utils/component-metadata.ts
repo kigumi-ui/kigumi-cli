@@ -217,7 +217,7 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Gets all the nested tree items in this node.',
         parameters: [
           {
-            name: '{ includeDisabled = true }',
+            name: 'options',
             type: '{ includeDisabled?: boolean }',
           },
         ],

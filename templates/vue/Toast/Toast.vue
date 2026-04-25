@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import './Toast.css';
 
 let loadPromise: Promise<unknown> | null = null;
