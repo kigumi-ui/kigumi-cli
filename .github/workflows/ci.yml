@@ -50,6 +50,9 @@ jobs:
       - name: TypeScript strict check
         run: npx tsc --noEmit
 
+      - name: Type-check templates
+        run: pnpm run typecheck:templates
+
       - name: Validate Registry
         run: pnpm run validate:registry
 

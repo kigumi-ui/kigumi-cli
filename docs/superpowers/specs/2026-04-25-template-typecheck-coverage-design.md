@@ -3,7 +3,7 @@
 > Make `templates/**` first-class TypeScript: `tsc` (or `vue-tsc`) and ESLint validate every template file as the framework source it now is, in CI on every PR.
 
 **Type:** Build/Infra
-**Status:** Draft
+**Status:** Done
 **Author:** Mischa
 **Date:** 2026-04-25
 **Kigumi Version:** 0.19.2 (post-PR #121)
