@@ -337,6 +337,34 @@ This is generator-side; never edit the emitted ref pattern by hand. Edit
 
 ---
 
+## Typecheck Pipeline
+
+Templates have their own typecheck gate. Generated component code is validated by a real type-checker before any change can land.
+
+**What runs.** `pnpm typecheck:templates` runs three checks in sequence:
+
+- `tsc --noEmit -p templates/react/tsconfig.json`
+- `vue-tsc --noEmit -p templates/vue/tsconfig.json`
+- `tsc --noEmit -p templates/angular/tsconfig.json`
+
+The three commands are chained with `&&`, so the first failure short-circuits the run. `pnpm type-check` runs the `src/` typecheck first and then chains into `pnpm typecheck:templates`.
+
+**What CI enforces.** The `Quality Checks` job in `.github/workflows/ci.yml` runs `pnpm run typecheck:templates` immediately after the `src/` strict check. A red step blocks PR merge.
+
+**What the shims do.** Each per-framework tsconfig pulls ambient declarations from `../../typecheck-shims/`:
+
+- `css.d.ts` declares `*.css` side-effect imports so `import './Component.css'` typechecks.
+- `react-jsx.d.ts` registers Web Awesome JSX intrinsics from the Free package (`@awesome.me/webawesome`) onto `JSX.IntrinsicElements`.
+- `wa-pro-paths.d.ts` and `wa-pro-jsx.d.ts` shim Pro-package import paths and Pro JSX intrinsics so templates that reference Pro-only components still typecheck without the Pro tarball installed.
+
+The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists only `dist`, `templates`, `llms.txt`, and `README.md`, so the shims are excluded from the published npm tarball.
+
+**How to debug locally.** Run `pnpm typecheck:templates` from repo root. Errors point at `templates/<framework>/<Component>/<file>:line` like a normal TS error. If the error originates in a generator, fix the generator under `scripts/generate-<framework>-templates.ts` (or `scripts/generator-utils.ts` for shared helpers) and regenerate.
+
+**Pro tier note.** Templates always import from the Free literal `@awesome.me/webawesome`. The Pro rewrite happens in `materializeTemplate()` at `kigumi add` time, not at typecheck time, so the typecheck pipeline only needs the Free package installed.
+
+---
+
 **Parent:** [AGENTS.md](../AGENTS.md)
 
 **Last Updated:** 2026-04-25
