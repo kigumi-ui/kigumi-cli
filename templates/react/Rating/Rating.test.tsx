@@ -7,4 +7,10 @@ describe('Rating', () => {
     const { container } = render(<Rating />);
     expect(container.querySelector('wa-rating')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-rating', () => {
+    const { container } = render(<Rating className="custom-class" />);
+    const element = container.querySelector('wa-rating');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

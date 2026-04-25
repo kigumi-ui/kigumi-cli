@@ -7,4 +7,10 @@ describe('PieChart', () => {
     const { container } = render(<PieChart />);
     expect(container.querySelector('wa-pie-chart')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-pie-chart', () => {
+    const { container } = render(<PieChart className="custom-class" />);
+    const element = container.querySelector('wa-pie-chart');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

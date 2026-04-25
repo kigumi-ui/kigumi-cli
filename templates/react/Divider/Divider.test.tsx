@@ -7,4 +7,10 @@ describe('Divider', () => {
     const { container } = render(<Divider />);
     expect(container.querySelector('wa-divider')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-divider', () => {
+    const { container } = render(<Divider className="custom-class" />);
+    const element = container.querySelector('wa-divider');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

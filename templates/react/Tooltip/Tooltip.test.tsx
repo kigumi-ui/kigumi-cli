@@ -7,4 +7,10 @@ describe('Tooltip', () => {
     const { container } = render(<Tooltip />);
     expect(container.querySelector('wa-tooltip')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-tooltip', () => {
+    const { container } = render(<Tooltip className="custom-class" />);
+    const element = container.querySelector('wa-tooltip');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

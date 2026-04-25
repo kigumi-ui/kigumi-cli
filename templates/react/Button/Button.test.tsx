@@ -7,4 +7,10 @@ describe('Button', () => {
     const { container } = render(<Button />);
     expect(container.querySelector('wa-button')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-button', () => {
+    const { container } = render(<Button className="custom-class" />);
+    const element = container.querySelector('wa-button');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

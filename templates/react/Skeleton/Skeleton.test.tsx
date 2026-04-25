@@ -7,4 +7,10 @@ describe('Skeleton', () => {
     const { container } = render(<Skeleton />);
     expect(container.querySelector('wa-skeleton')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-skeleton', () => {
+    const { container } = render(<Skeleton className="custom-class" />);
+    const element = container.querySelector('wa-skeleton');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

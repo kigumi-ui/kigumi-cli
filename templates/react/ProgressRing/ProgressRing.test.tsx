@@ -7,4 +7,10 @@ describe('ProgressRing', () => {
     const { container } = render(<ProgressRing />);
     expect(container.querySelector('wa-progress-ring')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-progress-ring', () => {
+    const { container } = render(<ProgressRing className="custom-class" />);
+    const element = container.querySelector('wa-progress-ring');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

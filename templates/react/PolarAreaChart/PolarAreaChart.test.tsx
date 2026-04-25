@@ -7,4 +7,10 @@ describe('PolarAreaChart', () => {
     const { container } = render(<PolarAreaChart />);
     expect(container.querySelector('wa-polar-area-chart')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-polar-area-chart', () => {
+    const { container } = render(<PolarAreaChart className="custom-class" />);
+    const element = container.querySelector('wa-polar-area-chart');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

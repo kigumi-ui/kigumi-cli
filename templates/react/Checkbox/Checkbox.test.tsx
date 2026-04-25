@@ -7,4 +7,10 @@ describe('Checkbox', () => {
     const { container } = render(<Checkbox />);
     expect(container.querySelector('wa-checkbox')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-checkbox', () => {
+    const { container } = render(<Checkbox className="custom-class" />);
+    const element = container.querySelector('wa-checkbox');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

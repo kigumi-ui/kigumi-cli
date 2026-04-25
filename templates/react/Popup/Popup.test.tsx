@@ -7,4 +7,10 @@ describe('Popup', () => {
     const { container } = render(<Popup />);
     expect(container.querySelector('wa-popup')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-popup', () => {
+    const { container } = render(<Popup className="custom-class" />);
+    const element = container.querySelector('wa-popup');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

@@ -1,3 +1,6 @@
+// "jsx" is intentionally omitted: vue-tsc compiles SFC <template> blocks
+// via Vue's own SFC compiler, not React's JSX mode. Adding "jsx": "react-jsx"
+// here would conflict with that pipeline.
 {
   "compilerOptions": {
     "target": "ES2022",

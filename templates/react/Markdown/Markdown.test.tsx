@@ -7,4 +7,10 @@ describe('Markdown', () => {
     const { container } = render(<Markdown />);
     expect(container.querySelector('wa-markdown')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-markdown', () => {
+    const { container } = render(<Markdown className="custom-class" />);
+    const element = container.querySelector('wa-markdown');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

@@ -7,4 +7,10 @@ describe('Select', () => {
     const { container } = render(<Select />);
     expect(container.querySelector('wa-select')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-select', () => {
+    const { container } = render(<Select className="custom-class" />);
+    const element = container.querySelector('wa-select');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

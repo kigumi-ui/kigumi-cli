@@ -7,4 +7,10 @@ describe('QrCode', () => {
     const { container } = render(<QrCode />);
     expect(container.querySelector('wa-qr-code')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-qr-code', () => {
+    const { container } = render(<QrCode className="custom-class" />);
+    const element = container.querySelector('wa-qr-code');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

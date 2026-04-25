@@ -7,4 +7,10 @@ describe('CopyButton', () => {
     const { container } = render(<CopyButton />);
     expect(container.querySelector('wa-copy-button')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-copy-button', () => {
+    const { container } = render(<CopyButton className="custom-class" />);
+    const element = container.querySelector('wa-copy-button');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

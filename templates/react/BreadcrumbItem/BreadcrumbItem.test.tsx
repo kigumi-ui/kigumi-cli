@@ -7,4 +7,10 @@ describe('BreadcrumbItem', () => {
     const { container } = render(<BreadcrumbItem />);
     expect(container.querySelector('wa-breadcrumb-item')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-breadcrumb-item', () => {
+    const { container } = render(<BreadcrumbItem className="custom-class" />);
+    const element = container.querySelector('wa-breadcrumb-item');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

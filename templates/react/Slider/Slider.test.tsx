@@ -7,4 +7,10 @@ describe('Slider', () => {
     const { container } = render(<Slider />);
     expect(container.querySelector('wa-slider')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-slider', () => {
+    const { container } = render(<Slider className="custom-class" />);
+    const element = container.querySelector('wa-slider');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });
