@@ -1,6 +1,7 @@
 // @ts-check
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import vueParser from 'vue-eslint-parser';
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -11,10 +12,6 @@ export default tseslint.config(
       'docs/**',
       'node_modules/**',
       'coverage/**',
-      // Vue SFCs (<template>/<script>/<style>) need vue-eslint-parser. We
-      // don't ship that dep yet; covering Vue templates waits on the same
-      // follow-up that installs vue + the parser.
-      'templates/vue/**/*.vue',
       'tests/.tmp-*/**',
       '*.config.js',
       '*.config.ts',
@@ -36,9 +33,8 @@ export default tseslint.config(
   },
   // Templates ship as real framework source files. ESLint can syntactically
   // check them without resolving framework imports (typescript-eslint's parser
-  // doesn't require resolution by default). Type-check coverage requires
-  // installing react / vue / @angular/core / @awesome.me/webawesome as dev
-  // deps — deferred to a follow-up.
+  // doesn't require resolution by default). Type-check coverage runs as a
+  // separate `pnpm typecheck:templates` step, not via parserOptions.project.
   {
     files: ['templates/**/*.{ts,tsx,js,jsx}'],
     rules: {
@@ -54,6 +50,27 @@ export default tseslint.config(
       // `interface XProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {}`
       // is the canonical wrapper-with-no-extra-props pattern. Switching to a
       // type alias would change the user-facing template output.
+      '@typescript-eslint/no-empty-object-type': 'off',
+    },
+  },
+  // Vue SFCs need vue-eslint-parser to parse <template>/<script>/<style>.
+  // The inner <script> is delegated to typescript-eslint's parser.
+  {
+    files: ['templates/vue/**/*.vue'],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: ['.vue'],
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-undef': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-console': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
     },
   }

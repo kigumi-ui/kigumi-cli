@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Comparison from './Comparison.vue';
 
 describe('Comparison', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Comparison);
+    const { container } = render(Comparison);
     expect(container.querySelector('wa-comparison')).toBeTruthy();
   });
 });

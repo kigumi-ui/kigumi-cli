@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import TabPanel from './TabPanel.vue';
 
 describe('TabPanel', () => {
   it('renders without crashing', () => {
-    const { container } = mount(TabPanel);
+    const { container } = render(TabPanel);
     expect(container.querySelector('wa-tab-panel')).toBeTruthy();
   });
 });

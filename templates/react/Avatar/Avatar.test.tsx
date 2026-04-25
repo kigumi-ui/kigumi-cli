@@ -4,7 +4,7 @@ import { Avatar } from './Avatar';
 
 describe('Avatar', () => {
   it('renders without crashing', () => {
-    const { container } = render(<Avatar />);
+    const { container } = render(<Avatar label="label" />);
     expect(container.querySelector('wa-avatar')).toBeTruthy();
   });
 });

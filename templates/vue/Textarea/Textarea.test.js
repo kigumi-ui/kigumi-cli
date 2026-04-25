@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Textarea from './Textarea.vue';
 
 describe('Textarea', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Textarea);
+    const { container } = render(Textarea);
     expect(container.querySelector('wa-textarea')).toBeTruthy();
   });
 });

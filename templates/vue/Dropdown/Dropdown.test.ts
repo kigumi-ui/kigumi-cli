@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Dropdown from './Dropdown.vue';
 
 describe('Dropdown', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Dropdown);
+    const { container } = render(Dropdown);
     expect(container.querySelector('wa-dropdown')).toBeTruthy();
   });
 });

@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { mount } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import Select from './Select.vue';
 
 describe('Select', () => {
   it('renders without crashing', () => {
-    const { container } = mount(Select);
+    const { container } = render(Select);
     expect(container.querySelector('wa-select')).toBeTruthy();
   });
 });

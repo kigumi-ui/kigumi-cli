@@ -66,7 +66,7 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  getChildrenItems: ({ includeDisabled = true }) => elementRef.value?.getChildrenItems?.({ includeDisabled = true }),
+  getChildrenItems: (options) => elementRef.value?.getChildrenItems?.(options),
   element: elementRef,
 });
 </script>

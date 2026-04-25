@@ -89,7 +89,7 @@ export class TreeItemComponent implements AfterViewInit, OnDestroy {
     this.cleanups.forEach((fn) => fn());
   }
 
-  getChildrenItems({ includeDisabled = true }?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { getChildrenItems: ({ includeDisabled = true }: unknown) => void }).getChildrenItems({ includeDisabled = true });
+  getChildrenItems(options?: unknown): void {
+    (this.elementRef.nativeElement as unknown as { getChildrenItems: (options: unknown) => void }).getChildrenItems(options);
   }
 }
