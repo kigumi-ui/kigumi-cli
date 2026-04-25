@@ -7,4 +7,10 @@ describe('Tab', () => {
     const { container } = render(<Tab />);
     expect(container.querySelector('wa-tab')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-tab', () => {
+    const { container } = render(<Tab className="custom-class" />);
+    const element = container.querySelector('wa-tab');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

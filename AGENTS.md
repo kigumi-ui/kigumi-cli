@@ -59,6 +59,7 @@ node dist/index.js add button --force
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
 | `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
 | `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
+| `scripts/generator-utils.ts` | Shared helpers (`DOM_GLOBALS`, `extractCustomTypeImports`) used by React + Vue generators |
 | `scripts/generate-skill-references.ts` | Generate React/Vue/Angular API surface files for skills |
 | `scripts/publish-skills.mjs` | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here) |
 | `scripts/generate-skills-index.mjs` | Generate `.well-known/skills/index.json` from published skills |
@@ -1013,4 +1014,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-24
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-25

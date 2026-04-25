@@ -7,4 +7,10 @@ describe('Spinner', () => {
     const { container } = render(<Spinner />);
     expect(container.querySelector('wa-spinner')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-spinner', () => {
+    const { container } = render(<Spinner className="custom-class" />);
+    const element = container.querySelector('wa-spinner');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

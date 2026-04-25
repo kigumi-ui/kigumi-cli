@@ -14,6 +14,11 @@
     "isolatedModules": true,
     "types": ["vitest/globals"]
   },
+  // The "**/*.ts" glob picks up any future ambient .d.ts files added under
+  // templates/react/. Existing typecheck-shims live outside templates/ and
+  // are referenced by explicit relative path below. If a contributor adds
+  // .d.ts files inside a component directory in the future, decide whether
+  // they should typecheck here or be excluded.
   "include": [
     "**/*.tsx",
     "**/*.jsx",

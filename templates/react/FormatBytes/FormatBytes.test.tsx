@@ -7,4 +7,10 @@ describe('FormatBytes', () => {
     const { container } = render(<FormatBytes />);
     expect(container.querySelector('wa-format-bytes')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-format-bytes', () => {
+    const { container } = render(<FormatBytes className="custom-class" />);
+    const element = container.querySelector('wa-format-bytes');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

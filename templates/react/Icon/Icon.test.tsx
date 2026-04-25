@@ -7,4 +7,10 @@ describe('Icon', () => {
     const { container } = render(<Icon />);
     expect(container.querySelector('wa-icon')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-icon', () => {
+    const { container } = render(<Icon className="custom-class" />);
+    const element = container.querySelector('wa-icon');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

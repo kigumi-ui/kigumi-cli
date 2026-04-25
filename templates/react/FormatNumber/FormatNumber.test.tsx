@@ -7,4 +7,10 @@ describe('FormatNumber', () => {
     const { container } = render(<FormatNumber />);
     expect(container.querySelector('wa-format-number')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-format-number', () => {
+    const { container } = render(<FormatNumber className="custom-class" />);
+    const element = container.querySelector('wa-format-number');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

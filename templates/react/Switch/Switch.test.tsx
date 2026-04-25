@@ -7,4 +7,10 @@ describe('Switch', () => {
     const { container } = render(<Switch />);
     expect(container.querySelector('wa-switch')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-switch', () => {
+    const { container } = render(<Switch className="custom-class" />);
+    const element = container.querySelector('wa-switch');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

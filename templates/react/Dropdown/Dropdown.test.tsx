@@ -7,4 +7,10 @@ describe('Dropdown', () => {
     const { container } = render(<Dropdown />);
     expect(container.querySelector('wa-dropdown')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-dropdown', () => {
+    const { container } = render(<Dropdown className="custom-class" />);
+    const element = container.querySelector('wa-dropdown');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

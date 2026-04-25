@@ -7,4 +7,10 @@ describe('ToastItem', () => {
     const { container } = render(<ToastItem />);
     expect(container.querySelector('wa-toast-item')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-toast-item', () => {
+    const { container } = render(<ToastItem className="custom-class" />);
+    const element = container.querySelector('wa-toast-item');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

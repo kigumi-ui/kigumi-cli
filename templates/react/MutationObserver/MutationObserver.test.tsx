@@ -7,4 +7,10 @@ describe('MutationObserver', () => {
     const { container } = render(<MutationObserver />);
     expect(container.querySelector('wa-mutation-observer')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-mutation-observer', () => {
+    const { container } = render(<MutationObserver className="custom-class" />);
+    const element = container.querySelector('wa-mutation-observer');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

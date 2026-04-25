@@ -16,6 +16,7 @@ import {
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+import { extractCustomTypeImports } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -387,77 +388,25 @@ function generateCSSTemplate(componentName: string): string {
 }
 
 /**
- * Extract custom (non-primitive, non-DOM-global) PascalCase identifiers
- * from method parameter types so we can emit a type-only import for them.
+ * Realistic placeholder values for common required-string-prop names. Used
+ * by both the JSX attribute emitter and the prop-reflection assertion so
+ * the generated test communicates intent ("Test image", not "alt").
  */
-const DOM_GLOBALS = new Set([
-  // Element / event types
-  'HTMLElement',
-  'Element',
-  'Node',
-  'Event',
-  'CustomEvent',
-  'MouseEvent',
-  'KeyboardEvent',
-  'FocusEvent',
-  'InputEvent',
-  'PointerEvent',
-  'TouchEvent',
-  'WheelEvent',
-  'AddEventListenerOptions',
-  'EventListenerOptions',
-  // DOM observers / scrolling
-  'ResizeObserverEntry',
-  'IntersectionObserverEntry',
-  'MutationRecord',
-  'FocusOptions',
-  'ScrollBehavior',
-  'ScrollIntoViewOptions',
-  // Web APIs
-  'File',
-  'FileList',
-  'FormData',
-  'Blob',
-  'URL',
-  'URLSearchParams',
-  'Headers',
-  'Request',
-  'Response',
-  'ReadableStream',
-  'WritableStream',
-  'AbortController',
-  'AbortSignal',
-  // JS built-ins
-  'Array',
-  'Object',
-  'Map',
-  'Set',
-  'WeakMap',
-  'WeakSet',
-  'Date',
-  'Promise',
-  'Error',
-  'RegExp',
-  'Symbol',
-  'Number',
-  'String',
-  'Boolean',
-]);
+const STRING_PLACEHOLDER_BY_NAME: Record<string, string> = {
+  src: 'test.gif',
+  alt: 'Test image',
+  label: 'Test label',
+  image: '/avatar.jpg',
+  href: 'https://example.com',
+  value: 'test value',
+  name: 'test-name',
+  placeholder: 'placeholder text',
+};
 
-function extractCustomTypeImports(
-  methods: { parameters?: Array<{ name: string; type: string }> }[]
-): string[] {
-  const found = new Set<string>();
-  for (const m of methods) {
-    for (const p of m.parameters ?? []) {
-      // Pull all PascalCase identifiers out of the type string.
-      const matches = p.type.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? [];
-      for (const id of matches) {
-        if (!DOM_GLOBALS.has(id)) found.add(id);
-      }
-    }
-  }
-  return [...found].sort();
+function stringPlaceholderFor(
+  prop: ComponentDefinition['props'][number]
+): string {
+  return STRING_PLACEHOLDER_BY_NAME[prop.name] ?? prop.name;
 }
 
 /**
@@ -472,8 +421,9 @@ function renderRequiredPropPlaceholder(
   if (prop.type === 'boolean') return ` ${prop.name}={true}`;
   // Number: use 0 unless the prop has a non-zero default in the registry.
   if (prop.type === 'number') return ` ${prop.name}={0}`;
-  // String: seed a descriptive placeholder so the test name communicates intent.
-  if (prop.type === 'string') return ` ${prop.name}="${prop.name}"`;
+  // String: seed a realistic placeholder so the test name communicates intent.
+  if (prop.type === 'string')
+    return ` ${prop.name}="${stringPlaceholderFor(prop)}"`;
   // Enum (string with `values`): pick the first allowed value.
   if (prop.values && prop.values.length > 0)
     return ` ${prop.name}="${prop.values[0]}"`;
@@ -482,7 +432,12 @@ function renderRequiredPropPlaceholder(
 }
 
 /**
- * Generate TypeScript test template
+ * Generate TypeScript test template.
+ *
+ * Emits up to three `it` blocks matching the hand-maintained `.test.jsx`
+ * pattern (renders / className passthrough / required-attribute reflection).
+ * The reflection block is only emitted when there is at least one required
+ * string-or-enum prop whose value can be asserted via `getAttribute`.
  */
 function generateTestTypescriptTemplate(
   componentName: string,
@@ -491,6 +446,34 @@ function generateTestTypescriptTemplate(
 ): string {
   const requiredProps = props.filter((p) => p.required);
   const jsxAttrs = requiredProps.map(renderRequiredPropPlaceholder).join('');
+
+  // Props we can meaningfully assert via getAttribute — strings + enums only.
+  // Boolean and number types reflect to the DOM as serialized strings, but
+  // the round-trip is brittle enough that we leave them out of the test.
+  const reflectableProps = requiredProps.filter(
+    (p) => p.type === 'string' || (p.values && p.values.length > 0)
+  );
+  const reflectionAssertions = reflectableProps
+    .map((p) => {
+      const value =
+        p.type === 'string'
+          ? stringPlaceholderFor(p)
+          : (p.values?.[0] ?? p.name);
+      return `    expect(element?.getAttribute('${p.name}')).toBe('${value}');`;
+    })
+    .join('\n');
+
+  const reflectionBlock =
+    reflectableProps.length > 0
+      ? `
+
+  it('forwards required attributes to the underlying ${tagName}', () => {
+    const { container } = render(<${componentName}${jsxAttrs} />);
+    const element = container.querySelector('${tagName}');
+${reflectionAssertions}
+  });`
+      : '';
+
   return `import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { ${componentName} } from './${componentName}';
@@ -500,6 +483,12 @@ describe('${componentName}', () => {
     const { container } = render(<${componentName}${jsxAttrs} />);
     expect(container.querySelector('${tagName}')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying ${tagName}', () => {
+    const { container } = render(<${componentName}${jsxAttrs} className="custom-class" />);
+    const element = container.querySelector('${tagName}');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });${reflectionBlock}
 });
 `;
 }

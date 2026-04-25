@@ -7,4 +7,10 @@ describe('Tag', () => {
     const { container } = render(<Tag />);
     expect(container.querySelector('wa-tag')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-tag', () => {
+    const { container } = render(<Tag className="custom-class" />);
+    const element = container.querySelector('wa-tag');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

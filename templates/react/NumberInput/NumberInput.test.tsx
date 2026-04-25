@@ -7,4 +7,10 @@ describe('NumberInput', () => {
     const { container } = render(<NumberInput />);
     expect(container.querySelector('wa-number-input')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-number-input', () => {
+    const { container } = render(<NumberInput className="custom-class" />);
+    const element = container.querySelector('wa-number-input');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

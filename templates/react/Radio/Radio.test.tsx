@@ -7,4 +7,10 @@ describe('Radio', () => {
     const { container } = render(<Radio />);
     expect(container.querySelector('wa-radio')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-radio', () => {
+    const { container } = render(<Radio className="custom-class" />);
+    const element = container.querySelector('wa-radio');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

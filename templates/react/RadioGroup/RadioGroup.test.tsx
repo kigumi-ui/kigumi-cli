@@ -7,4 +7,10 @@ describe('RadioGroup', () => {
     const { container } = render(<RadioGroup />);
     expect(container.querySelector('wa-radio-group')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-radio-group', () => {
+    const { container } = render(<RadioGroup className="custom-class" />);
+    const element = container.querySelector('wa-radio-group');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

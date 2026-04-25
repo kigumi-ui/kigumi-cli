@@ -7,4 +7,10 @@ describe('Card', () => {
     const { container } = render(<Card />);
     expect(container.querySelector('wa-card')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-card', () => {
+    const { container } = render(<Card className="custom-class" />);
+    const element = container.querySelector('wa-card');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

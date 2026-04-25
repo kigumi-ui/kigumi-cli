@@ -15,83 +15,13 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-/**
- * Extract custom (non-primitive, non-DOM-global) PascalCase identifiers
- * from method parameter types so we can emit a type-only import for them.
- * Kept in sync with the matching helper in generate-react-templates.ts.
- */
-const DOM_GLOBALS = new Set([
-  'HTMLElement',
-  'Element',
-  'Node',
-  'Event',
-  'CustomEvent',
-  'MouseEvent',
-  'KeyboardEvent',
-  'FocusEvent',
-  'InputEvent',
-  'PointerEvent',
-  'TouchEvent',
-  'WheelEvent',
-  'AddEventListenerOptions',
-  'EventListenerOptions',
-  'ResizeObserverEntry',
-  'IntersectionObserverEntry',
-  'MutationRecord',
-  'FocusOptions',
-  'ScrollBehavior',
-  'ScrollIntoViewOptions',
-  'File',
-  'FileList',
-  'FormData',
-  'Blob',
-  'URL',
-  'URLSearchParams',
-  'Headers',
-  'Request',
-  'Response',
-  'ReadableStream',
-  'WritableStream',
-  'AbortController',
-  'AbortSignal',
-  'Array',
-  'Object',
-  'Map',
-  'Set',
-  'WeakMap',
-  'WeakSet',
-  'Date',
-  'Promise',
-  'Error',
-  'RegExp',
-  'Symbol',
-  'Number',
-  'String',
-  'Boolean',
-]);
-
-function extractCustomTypeImports(
-  methods: { parameters?: Array<{ name: string; type: string }> }[]
-): string[] {
-  const found = new Set<string>();
-  for (const m of methods) {
-    for (const p of m.parameters ?? []) {
-      const matches = p.type.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? [];
-      for (const id of matches) {
-        if (!DOM_GLOBALS.has(id)) found.add(id);
-      }
-    }
-  }
-  return [...found].sort();
-}
-
 import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+import { extractCustomTypeImports } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -7,4 +7,10 @@ describe('FileInput', () => {
     const { container } = render(<FileInput />);
     expect(container.querySelector('wa-file-input')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-file-input', () => {
+    const { container } = render(<FileInput className="custom-class" />);
+    const element = container.querySelector('wa-file-input');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

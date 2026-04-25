@@ -7,4 +7,10 @@ describe('Comparison', () => {
     const { container } = render(<Comparison />);
     expect(container.querySelector('wa-comparison')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-comparison', () => {
+    const { container } = render(<Comparison className="custom-class" />);
+    const element = container.querySelector('wa-comparison');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });

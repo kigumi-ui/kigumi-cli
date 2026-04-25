@@ -7,4 +7,10 @@ describe('Textarea', () => {
     const { container } = render(<Textarea />);
     expect(container.querySelector('wa-textarea')).toBeTruthy();
   });
+
+  it('applies custom className to the underlying wa-textarea', () => {
+    const { container } = render(<Textarea className="custom-class" />);
+    const element = container.querySelector('wa-textarea');
+    expect(element?.getAttribute('class')).toContain('custom-class');
+  });
 });
