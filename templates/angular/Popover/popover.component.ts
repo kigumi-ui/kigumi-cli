@@ -1,0 +1,105 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/popover/popover.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popover/popover.js'));
+}
+
+/**
+ * Popovers display additional content when users interact with a trigger element
+ *
+ * @see https://webawesome.com/docs/components/popover
+ */
+@Component({
+  selector: 'k-popover',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-popover
+        #element
+        [attr.open]="open || null"
+        [attr.disabled]="disabled || null"
+        [attr.placement]="placement"
+        [attr.trigger]="trigger"
+        [attr.distance]="distance"
+        [attr.skidding]="skidding"
+        [attr.with-arrow]="withArrow || null"
+        [attr.without-arrow]="withoutArrow || null"
+        [attr.for]="for">
+      <ng-content />
+    </wa-popover>
+  `,
+  styleUrl: './popover.component.css',
+})
+export class PopoverComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** Indicates whether the popover is open */
+  @Input() open?: boolean;
+  /** Disables the popover */
+  @Input() disabled?: boolean;
+  /** Preferred placement */
+  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  /** Activation events (click, hover, focus) */
+  @Input() trigger?: string;
+  /** Distance from trigger */
+  @Input() distance?: number;
+  /** Offset along trigger */
+  @Input() skidding?: number;
+  /** Shows an arrow */
+  @Input() withArrow?: boolean;
+  /** Hides the arrow */
+  @Input() withoutArrow?: boolean;
+  /** The ID of the element the popover is anchored to */
+  @Input() for?: string;
+
+  @Output() showEvent = new EventEmitter<CustomEvent>();
+  @Output() afterShow = new EventEmitter<CustomEvent>();
+  @Output() hideEvent = new EventEmitter<CustomEvent>();
+  @Output() afterHide = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+
+    const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-show', handleShowEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
+    el.addEventListener('wa-after-show', handleAfterShow);
+    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
+    el.addEventListener('wa-hide', handleHideEvent);
+    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
+    const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
+    el.addEventListener('wa-after-hide', handleAfterHide);
+    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  show(): void {
+    (this.elementRef.nativeElement as unknown as { show: () => void }).show();
+  }
+  hide(): void {
+    (this.elementRef.nativeElement as unknown as { hide: () => void }).hide();
+  }
+}

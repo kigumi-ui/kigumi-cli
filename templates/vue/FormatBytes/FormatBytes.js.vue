@@ -1,0 +1,50 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import './FormatBytes.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
+}
+
+/**
+ * Formats a number as a human-readable byte value
+ */
+const props = defineProps({
+    value: { type: Number, required: false, default: 0 },
+    unit: { type: String, required: false, default: 'byte' },
+    display: { type: String, required: false, default: 'short' },
+    lang: { type: String, required: false }
+});
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-format-bytes
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-format-bytes>
+</template>

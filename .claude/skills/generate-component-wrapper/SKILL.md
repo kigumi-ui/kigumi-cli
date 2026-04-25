@@ -164,46 +164,52 @@ Add to `src/utils/registry.ts` in the LOCAL_REGISTRY object:
 
 Create directory: `templates/react/{ComponentName}/`
 
-### 5a. TypeScript Component (.tsx.hbs)
+### 5a. TypeScript Component (.tsx)
 
-**For simple components:**
+Templates are real `.tsx` files — no Handlebars layer. Write the literal component name and tag name directly; for the import path, write the canonical free-tier package (`@awesome.me/webawesome/dist/components/{slug}/{slug}.js`). The CLI rewrites it to the Pro package at `kigumi add` time when the project is on Pro.
+
+**For simple components (e.g. Badge):**
 
 ```typescript
 import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
-import '{{{importPath}}}';
-import './{{name}}.css';
+import './Badge.css';
 
-export interface {{name}}Props extends HTMLAttributes<HTMLElement> {
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+}
+
+export interface BadgeProps extends HTMLAttributes<HTMLElement> {
   // Generate from metadata.props
 }
 
-export const {{name}} = forwardRef<HTMLElement, {{name}}Props>(
+export const Badge = forwardRef<HTMLElement, BadgeProps>(
   ({ children, className, ...props }, ref) => {
     return (
-      <{{tagName}} ref={ref} class={clsx('{{name}}', className)} {...props}>
+      <wa-badge ref={ref} class={clsx('Badge', className)} {...props}>
         {children}
-      </{{tagName}}>
+      </wa-badge>
     );
   }
 );
 
-{{name}}.displayName = '{{name}}';
+Badge.displayName = 'Badge';
 ```
 
-**For complex components (with events/methods):** See `templates/react/Dialog/Dialog.tsx.hbs` as reference. Key additions: `useRef`, `useImperativeHandle`, `useEffect` for event listeners with cleanup.
+**For complex components (with events/methods):** See `templates/react/Dialog/Dialog.tsx` as reference. Key additions: `useRef`, `useImperativeHandle`, `useEffect` for event listeners with cleanup.
 
-### 5b. JavaScript Component (.jsx.hbs)
+### 5b. JavaScript Component (.jsx)
 
 Same structure but with `import React from 'react'`, `React.forwardRef`, and JSDoc instead of TypeScript types.
 
-### 5c. Test Files (.test.tsx.hbs, .test.jsx.hbs)
+### 5c. Test Files (.test.tsx, .test.jsx)
 
 Generate basic render tests using vitest + @testing-library/react.
 
 ### 5d. CSS File (.css)
 
-Static CSS — no Handlebars. Saved as `{Component}.css`, not `{Component}.css.hbs`. Include CSS Parts documentation as commented-out selectors.
+Saved as `{Component}.css`. Include CSS Parts documentation as commented-out selectors.
 
 ## Step 6: Create Vue Templates
 
@@ -213,10 +219,10 @@ Vue templates follow a similar pattern. Reference the Vue template generator at 
 
 ### Vue Template Structure
 
-- **TypeScript SFC** (`.vue.hbs`): `<script setup lang="ts">` with typed props via `defineProps`
-- **JavaScript SFC** (`.js.vue.hbs`): `<script setup>` with runtime props
-- **Test files** (`.test.ts.hbs`, `.test.js.hbs`): vitest + @vue/test-utils
-- **CSS file** (`.css`): Same as React (static, no Handlebars)
+- **TypeScript SFC** (`.vue`): `<script setup lang="ts">` with typed props via `defineProps`
+- **JavaScript SFC** (`.js.vue`): `<script setup>` with runtime props
+- **Test files** (`.test.ts`, `.test.js`): vitest + @vue/test-utils
+- **CSS file** (`.css`): Same as React
 
 ### Current Vue Limitations
 
@@ -231,7 +237,7 @@ Check that generated templates:
 - [ ] Use correct React import pattern (named for .tsx, default for .jsx)
 - [ ] Use `class` on raw `<wa-*>` elements inside wrapper JSX (React < 19 custom element handling)
 - [ ] Forward refs correctly
-- [ ] Import Web Component JS file via `{{{importPath}}}` (triple braces)
+- [ ] Import Web Component JS file using the canonical free-tier path (`@awesome.me/webawesome/dist/components/{slug}/{slug}.js`); CLI rewrites to Pro at install time
 - [ ] Event listeners have cleanup in useEffect
 - [ ] No TypeScript errors
 - [ ] Follow AGENTS.md patterns
@@ -292,7 +298,7 @@ useImperativeHandle(ref, () => ({
 3. **Add cleanup to event listeners** — Return cleanup function from useEffect
 4. **Check tier restrictions** — Pro-only components go in tier: 'pro'
 5. **Import web component JS** — Required for registration
-6. **Use triple braces for importPath** — `{{{importPath}}}` to avoid Handlebars HTML escaping
+6. **Use the canonical free-tier package literal** — the CLI handles the Pro swap; never bake `webawesome-pro` into a template
 7. **Both frameworks required** — Create React AND Vue templates for every component
 
 ## Additional Resources
@@ -317,17 +323,17 @@ When complete, show:
   - Added 'component-name' entry
 
 ✓ Created React templates:
-  - templates/react/ComponentName/ComponentName.tsx.hbs
-  - templates/react/ComponentName/ComponentName.jsx.hbs
-  - templates/react/ComponentName/ComponentName.test.tsx.hbs
-  - templates/react/ComponentName/ComponentName.test.jsx.hbs
+  - templates/react/ComponentName/ComponentName.tsx
+  - templates/react/ComponentName/ComponentName.jsx
+  - templates/react/ComponentName/ComponentName.test.tsx
+  - templates/react/ComponentName/ComponentName.test.jsx
   - templates/react/ComponentName/ComponentName.css
 
 ✓ Created Vue templates:
-  - templates/vue/ComponentName/ComponentName.vue.hbs
-  - templates/vue/ComponentName/ComponentName.js.vue.hbs
-  - templates/vue/ComponentName/ComponentName.test.ts.hbs
-  - templates/vue/ComponentName/ComponentName.test.js.hbs
+  - templates/vue/ComponentName/ComponentName.vue
+  - templates/vue/ComponentName/ComponentName.js.vue
+  - templates/vue/ComponentName/ComponentName.test.ts
+  - templates/vue/ComponentName/ComponentName.test.js
   - templates/vue/ComponentName/ComponentName.css
 
 Next steps:

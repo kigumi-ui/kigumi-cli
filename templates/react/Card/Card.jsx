@@ -1,0 +1,44 @@
+import React from 'react';
+import clsx from 'clsx';
+import './Card.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/card/card.js'));
+}
+
+/**
+ * Cards can be used to group related subjects in a container
+ *
+ * @example
+ * <Card>
+ *   <div slot="header">Card Header</div>
+ *   <p>Card content goes here</p>
+ *   <div slot="footer">Card Footer</div>
+ * </Card>
+ *
+ * @param {Object} props
+ * @param {'outlined' | 'filled-outlined' | 'plain' | 'filled' | 'accent'} [props.appearance] - Visual appearance style
+ * @param {'vertical' | 'horizontal'} [props.orientation] - Card layout orientation
+ * @param {boolean} [props['with-header']] - Adds header section (for SSR)
+ * @param {boolean} [props['with-footer']] - Adds footer section (for SSR)
+ * @param {boolean} [props['with-media']] - Adds media section (for SSR)
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {React.ReactNode} [props.children] - Card content
+ */
+export const Card = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
+    return (
+      <wa-card ref={ref} class={clsx('Card', className)} {...props}>
+        {children}
+      </wa-card>
+    );
+  }
+);
+
+Card.displayName = 'Card';

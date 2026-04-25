@@ -1,0 +1,57 @@
+import React from 'react';
+import clsx from 'clsx';
+import './Breadcrumb.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js'));
+}
+
+/**
+ * Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
+ *
+ * @example
+ * ```jsx
+ * import { Breadcrumb, BreadcrumbItem } from './components/ui';
+ *
+ * <Breadcrumb>
+ *   <BreadcrumbItem>Home</BreadcrumbItem>
+ *   <BreadcrumbItem>Category</BreadcrumbItem>
+ *   <BreadcrumbItem>Product</BreadcrumbItem>
+ * </Breadcrumb>
+ *
+ * // With links
+ * <Breadcrumb>
+ *   <BreadcrumbItem href="/">Home</BreadcrumbItem>
+ *   <BreadcrumbItem href="/products">Products</BreadcrumbItem>
+ *   <BreadcrumbItem>Current Page</BreadcrumbItem>
+ * </Breadcrumb>
+ *
+ * // With custom separator
+ * <Breadcrumb>
+ *   <wa-icon slot="separator" name="angle-right" />
+ *   <BreadcrumbItem>First</BreadcrumbItem>
+ *   <BreadcrumbItem>Second</BreadcrumbItem>
+ * </Breadcrumb>
+ * ```
+ *
+ * @typedef {Object} BreadcrumbProps
+ * @property {string} [label] - The label for assistive devices
+ */
+
+export const Breadcrumb = React.forwardRef(
+  ({ children, className, ...props }, ref) => {
+    React.useEffect(() => {
+      ensureLoaded();
+    }, []);
+
+    return (
+      <wa-breadcrumb ref={ref} class={clsx('Breadcrumb', className)} {...props}>
+        {children}
+      </wa-breadcrumb>
+    );
+  }
+);
+
+Breadcrumb.displayName = 'Breadcrumb';

@@ -3,7 +3,9 @@
  *
  * Cross-file validation that the tier system is consistent across:
  * - src/utils/registry.ts (every component has a valid `tier` field)
- * - templates/**\/*.hbs (no hardcoded package imports — must use {{{importPath}}})
+ * - templates/** (no template hardcodes the Pro package — the runtime tier
+ *   swap rewrites the Free package on demand; baking Pro in would silently
+ *   break Free-tier users)
  *
  * NOTE: Previously this file also checked drift between `TIER_RESTRICTIONS.components.pro`
  * and the registry, and between `PRO_COMPONENTS` and
@@ -27,17 +29,23 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = resolve(__dirname, '../..');
 const TEMPLATES_DIR = join(ROOT_DIR, 'templates');
 
+const TEMPLATE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.vue']);
+
 /**
- * Recursively collect all .hbs files in a directory
+ * Recursively collect all framework source files in a directory.
+ * Excludes CSS (no imports) and any leftover docs.
  */
-function collectHbsFiles(dir: string): string[] {
+function collectTemplateFiles(dir: string): string[] {
   const files: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      files.push(...collectHbsFiles(fullPath));
-    } else if (entry.name.endsWith('.hbs')) {
-      files.push(fullPath);
+      files.push(...collectTemplateFiles(fullPath));
+    } else if (entry.isFile()) {
+      const dot = entry.name.lastIndexOf('.');
+      if (dot >= 0 && TEMPLATE_EXTENSIONS.has(entry.name.slice(dot))) {
+        files.push(fullPath);
+      }
     }
   }
   return files;
@@ -60,43 +68,22 @@ describe('tier consistency', () => {
   });
 
   describe('template import paths', () => {
-    it('no template contains hardcoded free package import', () => {
-      const reactTemplates = collectHbsFiles(join(TEMPLATES_DIR, 'react'));
-      const vueTemplates = collectHbsFiles(join(TEMPLATES_DIR, 'vue'));
-      const allTemplates = [...reactTemplates, ...vueTemplates];
-
-      const violations: string[] = [];
-
-      for (const filePath of allTemplates) {
-        const content = readFileSync(filePath, 'utf-8');
-        // Match literal @awesome.me/webawesome (not followed by -pro)
-        // but exclude Handlebars expressions like {{{importPath}}}
-        const lines = content.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          // Skip lines that are Handlebars import expressions
-          if (line.includes('{{{importPath}}}')) continue;
-
-          if (
-            line.includes(WEB_AWESOME_FREE_PACKAGE) &&
-            !line.includes(WEB_AWESOME_PRO_PACKAGE)
-          ) {
-            const relativePath = filePath.replace(ROOT_DIR + '/', '');
-            violations.push(`${relativePath}:${i + 1}: ${line.trim()}`);
-          }
-        }
-      }
-
-      expect(
-        violations,
-        `Templates contain hardcoded "${WEB_AWESOME_FREE_PACKAGE}" instead of {{{importPath}}}:\n${violations.join('\n')}`
-      ).toEqual([]);
-    });
-
-    it('no template contains hardcoded pro package import', () => {
-      const reactTemplates = collectHbsFiles(join(TEMPLATES_DIR, 'react'));
-      const vueTemplates = collectHbsFiles(join(TEMPLATES_DIR, 'vue'));
-      const allTemplates = [...reactTemplates, ...vueTemplates];
+    it('no template hardcodes the Pro package import', () => {
+      // Templates ship with the Free package as the canonical baseline.
+      // The runtime tier swap (`materializeTemplate`) rewrites Free → Pro
+      // for Pro-tier projects. A literal Pro import in any template would
+      // silently break Free-tier users (they'd try to import a package
+      // they don't have installed).
+      const reactTemplates = collectTemplateFiles(join(TEMPLATES_DIR, 'react'));
+      const vueTemplates = collectTemplateFiles(join(TEMPLATES_DIR, 'vue'));
+      const angularTemplates = collectTemplateFiles(
+        join(TEMPLATES_DIR, 'angular')
+      );
+      const allTemplates = [
+        ...reactTemplates,
+        ...vueTemplates,
+        ...angularTemplates,
+      ];
 
       const violations: string[] = [];
 
@@ -104,19 +91,16 @@ describe('tier consistency', () => {
         const content = readFileSync(filePath, 'utf-8');
         const lines = content.split('\n');
         for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          if (line.includes('{{{importPath}}}')) continue;
-
-          if (line.includes(WEB_AWESOME_PRO_PACKAGE)) {
+          if (lines[i].includes(WEB_AWESOME_PRO_PACKAGE)) {
             const relativePath = filePath.replace(ROOT_DIR + '/', '');
-            violations.push(`${relativePath}:${i + 1}: ${line.trim()}`);
+            violations.push(`${relativePath}:${i + 1}: ${lines[i].trim()}`);
           }
         }
       }
 
       expect(
         violations,
-        `Templates contain hardcoded "${WEB_AWESOME_PRO_PACKAGE}" instead of {{{importPath}}}:\n${violations.join('\n')}`
+        `Templates must not hardcode "${WEB_AWESOME_PRO_PACKAGE}" — the runtime tier swap handles Pro:\n${violations.join('\n')}`
       ).toEqual([]);
     });
   });

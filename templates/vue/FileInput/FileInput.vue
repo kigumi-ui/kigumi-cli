@@ -1,0 +1,94 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import './FileInput.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/file-input/file-input.js'));
+}
+
+/**
+ * File inputs allow users to select and upload files from their device
+ */
+export interface FileInputProps {
+  label?: string;
+  hint?: string;
+  accept?: string;
+  multiple?: boolean;
+  disabled?: boolean;
+  required?: boolean;
+  size?: 'small' | 'medium' | 'large';
+}
+
+const props = defineProps<FileInputProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  'input': [event: CustomEvent];
+  'change': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'blur': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleInput = (e: Event) => emit('input', e as CustomEvent);
+const handleChange = (e: Event) => emit('change', e as CustomEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('input', handleInput);
+  el.addEventListener('change', handleChange);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-file-input
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-file-input>
+</template>

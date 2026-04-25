@@ -1,0 +1,61 @@
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import './FormatNumber.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
+}
+
+/**
+ * Formats a number using the Intl.NumberFormat API
+ */
+export interface FormatNumberProps {
+  value?: number;
+  type?: 'currency' | 'decimal' | 'percent';
+  currency?: string;
+  'currency-display'?: 'symbol' | 'narrowSymbol' | 'code' | 'name';
+  'minimum-integer-digits'?: number;
+  'minimum-fraction-digits'?: number;
+  'maximum-fraction-digits'?: number;
+  'minimum-significant-digits'?: number;
+  'maximum-significant-digits'?: number;
+  'without-grouping'?: boolean;
+  lang?: string;
+}
+
+const props = defineProps<FormatNumberProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-format-number
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-format-number>
+</template>

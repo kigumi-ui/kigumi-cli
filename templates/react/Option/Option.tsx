@@ -1,0 +1,75 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import './Option.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/option/option.js'));
+}
+
+/**
+ * Options define the selectable items within various form controls
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Option />
+ *
+ * // With event handlers
+ * <Option />
+ *
+ * ```
+ */
+export interface OptionProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
+  /** The option value */
+  value?: string;
+
+  /** Disables the option */
+  disabled?: boolean;
+
+  /** Draws the option in a selected state */
+  selected?: boolean;
+
+  /** A custom label for the option (used by select's display input) */
+  label?: string;
+}
+
+export interface OptionRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const Option = forwardRef<OptionRef, OptionProps>(
+  ({ children, className, ...props }, ref) => {
+    const optionRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return optionRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
+
+    return (
+      <wa-option
+        ref={optionRef}
+        class={clsx('Option', className)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-option>
+    );
+  }
+);
+
+Option.displayName = 'Option';

@@ -251,7 +251,7 @@ import './${component.name}.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('{{{importPath}}}'));
+  return (loadPromise ??= import('${component.importPath}'));
 }
 
 /**
@@ -397,7 +397,14 @@ describe('${componentName}', () => {
 }
 
 /**
- * Generate all templates for a component
+ * Generate all templates for a component.
+ *
+ * NOTE: This generator only emits the TypeScript variants
+ * (`<Name>.tsx` / `<Name>.css` / `<Name>.test.tsx`). The matching `.jsx` /
+ * `.test.jsx` JavaScript variants are **hand-maintained** in
+ * `templates/react/<Name>/` — they were never produced by this script (the
+ * pre-Handlebars-removal version also only emitted `.tsx.hbs`). If you need
+ * to update JS variants, edit the `.jsx` / `.test.jsx` files directly.
  */
 async function generateComponentTemplates(
   component: ComponentDefinition
@@ -407,10 +414,7 @@ async function generateComponentTemplates(
 
   // TypeScript component
   const reactTs = generateReactTypescriptTemplate(component);
-  await fs.writeFile(
-    path.join(componentDir, `${component.name}.tsx.hbs`),
-    reactTs
-  );
+  await fs.writeFile(path.join(componentDir, `${component.name}.tsx`), reactTs);
 
   const css = generateCSSTemplate(component.name);
   await fs.writeFile(path.join(componentDir, `${component.name}.css`), css);
@@ -421,7 +425,7 @@ async function generateComponentTemplates(
     component.tagName
   );
   await fs.writeFile(
-    path.join(componentDir, `${component.name}.test.tsx.hbs`),
+    path.join(componentDir, `${component.name}.test.tsx`),
     testTs
   );
 

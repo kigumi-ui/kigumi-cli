@@ -1,0 +1,64 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import './CarouselItem.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js'));
+}
+
+/**
+ * Represents an individual slide within a carousel component
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <CarouselItem />
+ *
+ * // With event handlers
+ * <CarouselItem />
+ *
+ * ```
+ */
+export interface CarouselItemProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
+}
+
+export interface CarouselItemRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const CarouselItem = forwardRef<CarouselItemRef, CarouselItemProps>(
+  ({ children, className, ...props }, ref) => {
+    const carouselitemRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return carouselitemRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
+
+    return (
+      <wa-carousel-item
+        ref={carouselitemRef}
+        class={clsx('CarouselItem', className)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-carousel-item>
+    );
+  }
+);
+
+CarouselItem.displayName = 'CarouselItem';

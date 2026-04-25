@@ -445,7 +445,7 @@ import './${component.name}.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('{{{importPath}}}'));
+  return (loadPromise ??= import('${component.importPath}'));
 }
 
 /**
@@ -655,7 +655,7 @@ import './${component.name}.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('{{{importPath}}}'));
+  return (loadPromise ??= import('${component.importPath}'));
 }
 
 /**
@@ -776,14 +776,11 @@ async function generateComponentTemplates(
   await fs.ensureDir(componentDir);
 
   const vueTs = generateVueTypescriptTemplate(component);
-  await fs.writeFile(
-    path.join(componentDir, `${component.name}.vue.hbs`),
-    vueTs
-  );
+  await fs.writeFile(path.join(componentDir, `${component.name}.vue`), vueTs);
 
   const vueJs = generateVueJavascriptTemplate(component);
   await fs.writeFile(
-    path.join(componentDir, `${component.name}.js.vue.hbs`),
+    path.join(componentDir, `${component.name}.js.vue`),
     vueJs
   );
 
@@ -795,7 +792,7 @@ async function generateComponentTemplates(
     component.tagName
   );
   await fs.writeFile(
-    path.join(componentDir, `${component.name}.test.ts.hbs`),
+    path.join(componentDir, `${component.name}.test.ts`),
     testTs
   );
 
@@ -804,7 +801,7 @@ async function generateComponentTemplates(
     component.tagName
   );
   await fs.writeFile(
-    path.join(componentDir, `${component.name}.test.js.hbs`),
+    path.join(componentDir, `${component.name}.test.js`),
     testJs
   );
 

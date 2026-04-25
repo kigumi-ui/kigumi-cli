@@ -1,0 +1,86 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/format-date/format-date.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
+}
+
+/**
+ * Formats a date/time using the Intl.DateTimeFormat API
+ *
+ * @see https://webawesome.com/docs/components/format-date
+ */
+@Component({
+  selector: 'k-format-date',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-format-date
+        #element
+        [attr.date]="date"
+        [attr.weekday]="weekday"
+        [attr.era]="era"
+        [attr.year]="year"
+        [attr.month]="month"
+        [attr.day]="day"
+        [attr.hour]="hour"
+        [attr.minute]="minute"
+        [attr.second]="second"
+        [attr.hour-format]="hourFormat"
+        [attr.time-zone-name]="timeZoneName"
+        [attr.time-zone]="timeZone"
+        [attr.lang]="lang">
+      <ng-content />
+    </wa-format-date>
+  `,
+  styleUrl: './format-date.component.css',
+})
+export class FormatDateComponent implements AfterViewInit {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** The date/time to format */
+  @Input() date?: string;
+  /** How to display the weekday */
+  @Input() weekday?: 'narrow' | 'short' | 'long';
+  /** How to display the era */
+  @Input() era?: 'narrow' | 'short' | 'long';
+  /** How to display the year */
+  @Input() year?: 'numeric' | '2-digit';
+  /** How to display the month */
+  @Input() month?: 'numeric' | '2-digit' | 'narrow' | 'short' | 'long';
+  /** How to display the day */
+  @Input() day?: 'numeric' | '2-digit';
+  /** How to display the hour */
+  @Input() hour?: 'numeric' | '2-digit';
+  /** How to display the minute */
+  @Input() minute?: 'numeric' | '2-digit';
+  /** How to display the second */
+  @Input() second?: 'numeric' | '2-digit';
+  /** 12 or 24 hour format */
+  @Input() hourFormat?: 'auto' | '12' | '24';
+  /** How to display the time zone */
+  @Input() timeZoneName?: 'short' | 'long';
+  /** The time zone to use */
+  @Input() timeZone?: string;
+  /** The locale to use when formatting */
+  @Input() lang?: string;
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+  }
+}

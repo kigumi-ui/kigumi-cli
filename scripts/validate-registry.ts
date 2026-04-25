@@ -193,12 +193,12 @@ async function validateTemplateFiles(
 
   // Component files
   for (const ext of extensions[framework]) {
-    requiredFiles.push(`${fileName}.${ext}.hbs`);
+    requiredFiles.push(`${fileName}.${ext}`);
   }
 
   // Test files
   for (const ext of testExtensions[framework]) {
-    requiredFiles.push(`${fileName}.${ext}.hbs`);
+    requiredFiles.push(`${fileName}.${ext}`);
   }
 
   const cssName =

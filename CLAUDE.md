@@ -15,7 +15,7 @@ Sub-guides: [src/AGENTS.md](src/AGENTS.md) | [templates/AGENTS.md](templates/AGE
 
 ## Critical Rules (Always in Context)
 
-1. **Templates-first**: Never edit generated code. Always edit `.hbs` templates, then `pnpm build` and regenerate.
+1. **Templates-first**: Never edit generated code. Always edit the framework template files in `templates/` (real `.tsx` / `.vue` / `.component.ts` etc., validated by `tsc` and `eslint`), then `pnpm build` and regenerate.
 2. **`class` not `className`** on `<wa-*>` elements — web components don't use React's className.
 3. **`declare global`** not `declare module 'react'`\*\* — the latter overwrites React exports.
 4. **Event cleanup**: Always return cleanup functions in `useEffect` for `wa-*` event listeners.

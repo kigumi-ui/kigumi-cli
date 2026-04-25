@@ -5,7 +5,7 @@
  *
  * Generates Angular standalone component templates for all components in the registry.
  * TypeScript only (Angular is always TypeScript). Creates .component.ts, .component.css,
- * and .component.spec.ts Handlebars template files.
+ * and .component.spec.ts files (real framework source files; no templating layer).
  *
  * Key design decisions:
  * - Standalone components (Angular 17+ default, no NgModule)
@@ -179,11 +179,11 @@ function generateComponentTS(
     );
   }
 
-  lines.push(`import type WaElement from '{{{importPath}}}';`);
+  lines.push(`import type WaElement from '${component.importPath}';`);
   lines.push('');
   lines.push(`let loadPromise: Promise<unknown> | null = null;`);
   lines.push(`function ensureLoaded() {`);
-  lines.push(`  return (loadPromise ??= import('{{{importPath}}}'));`);
+  lines.push(`  return (loadPromise ??= import('${component.importPath}'));`);
   lines.push(`}`);
   lines.push('');
 
@@ -216,9 +216,9 @@ function generateComponentTS(
   lines.push('  standalone: true,');
   lines.push('  schemas: [CUSTOM_ELEMENTS_SCHEMA],');
   lines.push(`  template: \``);
-  lines.push(`    <{{tagName}}${templateAttrStr}>`);
+  lines.push(`    <${component.tagName}${templateAttrStr}>`);
   lines.push('      <ng-content />');
-  lines.push('    </{{tagName}}>');
+  lines.push(`    </${component.tagName}>`);
   lines.push('  `,');
   lines.push(`  styleUrl: './${kebabName}.component.css',`);
 
@@ -226,7 +226,9 @@ function generateComponentTS(
     lines.push('  providers: [');
     lines.push('    {');
     lines.push('      provide: NG_VALUE_ACCESSOR,');
-    lines.push(`      useExisting: forwardRef(() => {{name}}Component),`);
+    lines.push(
+      `      useExisting: forwardRef(() => ${component.name}Component),`
+    );
     lines.push('      multi: true,');
     lines.push('    },');
     lines.push('  ],');
@@ -243,7 +245,7 @@ function generateComponentTS(
 
   const implementsStr = ` implements ${interfaces.join(', ')}`;
 
-  lines.push(`export class {{name}}Component${implementsStr} {`);
+  lines.push(`export class ${component.name}Component${implementsStr} {`);
   lines.push("  @ViewChild('element') elementRef!: ElementRef<WaElement>;");
   lines.push('  private hostRef = inject(ElementRef<HTMLElement>);');
   lines.push('');
@@ -489,18 +491,18 @@ function generateCSS(
 function generateSpec(component: ComponentDefinition): string {
   const kebabName = toKebabCase(component.name);
   return `import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { {{name}}Component } from './${kebabName}.component';
+import { ${component.name}Component } from './${kebabName}.component';
 
-describe('{{name}}Component', () => {
-  let component: {{name}}Component;
-  let fixture: ComponentFixture<{{name}}Component>;
+describe('${component.name}Component', () => {
+  let component: ${component.name}Component;
+  let fixture: ComponentFixture<${component.name}Component>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [{{name}}Component],
+      imports: [${component.name}Component],
     }).compileComponents();
 
-    fixture = TestBed.createComponent({{name}}Component);
+    fixture = TestBed.createComponent(${component.name}Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -510,7 +512,7 @@ describe('{{name}}Component', () => {
   });
 
   it('should render the web component', () => {
-    const el = fixture.nativeElement.querySelector('{{tagName}}');
+    const el = fixture.nativeElement.querySelector('${component.tagName}');
     expect(el).toBeTruthy();
   });
 });
@@ -535,7 +537,7 @@ async function main() {
     // Component TypeScript
     const tsContent = generateComponentTS(component, key);
     await fs.writeFile(
-      path.join(componentDir, `${kebabName}.component.ts.hbs`),
+      path.join(componentDir, `${kebabName}.component.ts`),
       tsContent
     );
 
@@ -548,7 +550,7 @@ async function main() {
     // Component spec
     const specContent = generateSpec(component);
     await fs.writeFile(
-      path.join(componentDir, `${kebabName}.component.spec.ts.hbs`),
+      path.join(componentDir, `${kebabName}.component.spec.ts`),
       specContent
     );
 

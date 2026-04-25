@@ -1,0 +1,86 @@
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import './FileInput.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/file-input/file-input.js'));
+}
+
+/**
+ * File inputs allow users to select and upload files from their device
+ */
+const props = defineProps({
+    label: { type: String, required: false },
+    hint: { type: String, required: false },
+    accept: { type: String, required: false },
+    multiple: { type: Boolean, required: false, default: false },
+    disabled: { type: Boolean, required: false, default: false },
+    required: { type: Boolean, required: false, default: false },
+    size: { type: String, required: false, default: 'medium' }
+});
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleInput = (e) => emit('input', e);
+const handleChange = (e) => emit('change', e);
+const handleFocus = (e) => emit('focus', e);
+const handleBlur = (e) => emit('blur', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('input', handleInput);
+  el.addEventListener('change', handleChange);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-file-input
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-file-input>
+</template>

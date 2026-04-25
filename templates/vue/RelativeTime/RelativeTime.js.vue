@@ -1,0 +1,51 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import './RelativeTime.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
+}
+
+/**
+ * Outputs a localized time phrase relative to the current date and time
+ */
+const props = defineProps({
+    date: { type: String, required: false },
+    format: { type: String, required: false, default: 'long' },
+    numeric: { type: String, required: false, default: 'auto' },
+    sync: { type: Boolean, required: false, default: false },
+    lang: { type: String, required: false }
+});
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-relative-time
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-relative-time>
+</template>

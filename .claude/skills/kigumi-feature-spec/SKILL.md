@@ -215,7 +215,7 @@ The `llms.txt` file at `docs/node_modules/@awesome.me/webawesome-pro/dist/llms.t
 
 Key architectural constraints to keep in mind when speccing features:
 
-- **Templates-first**: Wrappers are Handlebars templates, not hand-written code. The CLI renders them at install time.
+- **Templates-first**: Wrappers live as real framework source files under `templates/{react,vue,angular}/{Component}/`. The CLI reads them at install time and applies a single substitution (Free→Pro tier swap on the `@awesome.me/webawesome` import path).
 - **Framework support**: Per-framework logic lives inline in `src/utils/template.ts` (generation) and `src/utils/detect-framework.ts` (detection). Adding a new framework means adding a `templates/<framework>/` directory, a detection branch in `detect-framework.ts`, and framework-specific code paths in `template.ts`.
 - **Tier system**: Free vs. Pro components. Tier is detected from the installed package, never stored in config.
 - **Registry as source of truth**: `src/utils/registry.ts` defines every component's metadata. New components must be added here.

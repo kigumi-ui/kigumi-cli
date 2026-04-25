@@ -227,7 +227,7 @@ Unresolved decisions that need input before or during implementation. Mark with 
 
 **Show, don't tell.** Every API decision should have a code example. If you can't write the example, the API isn't defined enough.
 
-**Steal from existing specs.** If Button already handles prop X a certain way, reference it: "Follows the same pattern as Button (see `templates/react/Button/Button.tsx.hbs` line 15)."
+**Steal from existing specs.** If Button already handles prop X a certain way, reference it: "Follows the same pattern as Button (see `templates/react/Button/Button.tsx` line 15)."
 
 **Keep Open Questions honest.** If you're not sure about something, say so. A spec with honest unknowns is better than one with hidden assumptions.
 ```

@@ -1,0 +1,75 @@
+import React from 'react';
+import clsx from 'clsx';
+import './Details.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/details/details.js'));
+}
+
+/**
+ * Shows a brief summary and expands to show additional content
+ *
+ * @example
+ * ```jsx
+ * <Details summary="Click to expand">
+ *   <p>Hidden content that reveals when expanded.</p>
+ * </Details>
+ * ```
+ */
+export const Details = React.forwardRef(
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
+    const detailsRef = React.useRef(null);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        show: () => detailsRef.current?.show?.(),
+        hide: () => detailsRef.current?.hide?.(),
+        get element() {
+          return detailsRef.current;
+        },
+      }),
+      []
+    );
+
+    React.useEffect(() => {
+      ensureLoaded();
+      const el = detailsRef.current;
+      if (!el) return;
+
+      const handleShow = (e) => onShow?.(e);
+      const handleAfterShow = (e) => onAfterShow?.(e);
+      const handleHide = (e) => onHide?.(e);
+      const handleAfterHide = (e) => onAfterHide?.(e);
+
+      el.addEventListener('wa-show', handleShow);
+      el.addEventListener('wa-after-show', handleAfterShow);
+      el.addEventListener('wa-hide', handleHide);
+      el.addEventListener('wa-after-hide', handleAfterHide);
+
+      return () => {
+        el.removeEventListener('wa-show', handleShow);
+        el.removeEventListener('wa-after-show', handleAfterShow);
+        el.removeEventListener('wa-hide', handleHide);
+        el.removeEventListener('wa-after-hide', handleAfterHide);
+      };
+    }, [onShow, onAfterShow, onHide, onAfterHide]);
+
+    return (
+      <wa-details
+        ref={detailsRef}
+        class={clsx('Details', className)}
+        {...props}
+      >
+        {children}
+      </wa-details>
+    );
+  }
+);
+
+Details.displayName = 'Details';

@@ -2,7 +2,7 @@
 
 > **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Angular wrappers around Web Awesome components.
 
-**Version**: 0.19.2 | **Stack**: TypeScript, Commander, Handlebars, Zod
+**Version**: 0.19.2 | **Stack**: TypeScript, Commander, Zod
 
 ## Quick Start
 
@@ -21,13 +21,13 @@ node dist/index.js add button --force
 
 ## Repository Structure
 
-| Directory         | Purpose              | Local AGENTS.md                            |
-| ----------------- | -------------------- | ------------------------------------------ |
-| `src/`            | CLI source code      | [src/AGENTS.md](src/AGENTS.md)             |
-| `templates/`      | Handlebars templates | [templates/AGENTS.md](templates/AGENTS.md) |
-| `tests/`          | Unit & E2E tests     | [tests/AGENTS.md](tests/AGENTS.md)         |
-| `.claude/skills/` | AI agent skills      | -                                          |
-| `dist/`           | Build output         | -                                          |
+| Directory         | Purpose                                                        | Local AGENTS.md                            |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------ |
+| `src/`            | CLI source code                                                | [src/AGENTS.md](src/AGENTS.md)             |
+| `templates/`      | Component templates (real `.tsx`/`.vue`/`.component.ts` files) | [templates/AGENTS.md](templates/AGENTS.md) |
+| `tests/`          | Unit & E2E tests                                               | [tests/AGENTS.md](tests/AGENTS.md)         |
+| `.claude/skills/` | AI agent skills                                                | -                                          |
+| `dist/`           | Build output                                                   | -                                          |
 
 **Key Files:**
 | File | Purpose |
@@ -115,14 +115,16 @@ End-user skills are published to `kigumi.style/.well-known/skills/` via Vercel. 
 
 ### 1. Templates-First Development
 
-**NEVER edit generated code. ALWAYS update `.hbs` templates.**
+**NEVER edit generated code. ALWAYS update the templates under `templates/`.**
+
+Templates are real framework source files (`.tsx`, `.jsx`, `.vue`, `.component.ts`, `.test.*`). They are validated by `tsc` and `eslint` like any other source file. The CLI substitutes only one thing at runtime — the Free→Pro tier swap on the `@awesome.me/webawesome` import path; everything else is read verbatim.
 
 ```
-Edit .hbs → pnpm build → node dist/index.js add {component} --force → Test
+Edit template → pnpm build → node dist/index.js add {component} --force → Test
 ```
 
-- TypeScript: `.tsx.hbs` (with interfaces)
-- JavaScript: `.jsx.hbs` (with JSDoc)
+- TypeScript: `.tsx` (with interfaces)
+- JavaScript: `.jsx` (with JSDoc)
 - See [templates/AGENTS.md](templates/AGENTS.md) for patterns
 
 ### 2. React Import Patterns
@@ -402,7 +404,7 @@ flowchart TD
 
     subgraph Utils["utils/"]
         registry["registry.ts\n74 ComponentDefinitions\nprops, deps, files, importPath"]
-        template["template.ts\nHandlebars compile + cache"]
+        template["template.ts\nmaterializeTemplate (read + tier swap)"]
         tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
         detect_fw["detect-framework.ts\ngetProjectInfo"]
@@ -440,9 +442,9 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 74 components\n.tsx.hbs, .jsx.hbs\n.test.tsx.hbs, .test.jsx.hbs, .css"]
-        tpl_vue["vue/ — 74 components\n.vue.hbs, .js.vue.hbs\n.test.ts.hbs, .test.js.hbs, .css"]
-        tpl_angular["angular/ — 74 components\n.component.ts.hbs, .component.spec.ts.hbs, .component.css"]
+        tpl_react["react/ — 74 components\n.tsx, .jsx\n.test.tsx, .test.jsx, .css"]
+        tpl_vue["vue/ — 74 components\n.vue, .js.vue\n.test.ts, .test.js, .css"]
+        tpl_angular["angular/ — 74 components\n.component.ts, .component.spec.ts, .component.css"]
     end
 
     CLI --> Commands
@@ -528,9 +530,9 @@ sequenceDiagram
     Tier-->>CLI: free | pro
     CLI->>Reg: getComponent("button") → ComponentDefinition
     Reg-->>CLI: { name, tagName, props, dependencies, files, importPath, tier }
-    CLI->>Tpl: renderTemplate(hbs path, context)
-    Tpl->>Tpl: getCompiledTemplate (cached) → Handlebars.compile
-    Tpl->>FS: read .hbs from templates/{framework}/{Component}/
+    CLI->>Tpl: materializeTemplate(template path, packageName)
+    Tpl->>FS: read template file from templates/{framework}/{Component}/
+    Tpl->>Tpl: replaceAll free-package → pro-package (if Pro tier)
     Tpl-->>CLI: GeneratedFile[]
     CLI->>FS: write .tsx/.vue + .test + .css
     CLI->>Tpl: updateComponentIndex (barrel export)
@@ -546,7 +548,7 @@ sequenceDiagram
     FS-->>CLI: CommunityRegistry
     CLI->>CLI: selectRemoteComponents (interactive)
     CLI->>CLI: resolveDependencies (topological sort)
-    CLI->>FS: fetchFile + write (no Handlebars)
+    CLI->>FS: fetchFile + write (no template substitution — community files ship verbatim)
     CLI->>Config: update installedComponents provenance
     CLI-->>User: Added N component(s) from registry
 ```
@@ -556,39 +558,32 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     subgraph Input
-        HBS["templates/{framework}/{Component}/\n{Component}.tsx.hbs"]
-        REG["registry.ts\nComponentDefinition\nname, tagName, props,\ndependencies, files"]
+        SRC["templates/{framework}/{Component}/\n{Component}.tsx (real source file)"]
+        REG["registry.ts\nComponentDefinition\nprops, dependencies, files"]
         CFG["KigumiConfig\nframework, tier, typescript"]
     end
 
-    subgraph TierResolution["Import Path Resolution"]
+    subgraph TierResolution["Tier Swap"]
         DETECT["detectTierSync(cwd)\nreads .env + package.json"]
         PKG["getWebAwesomePackage(tier)\nfree → @awesome.me/webawesome\npro → @awesome.me/webawesome-pro"]
-        REPLACE["importPath.replace(\npackageName pattern,\ncorrect package)"]
     end
 
     subgraph Processing
-        CTX["buildTemplateContext()\n→ { name, tagName,\ndescription, importPath }"]
-        CACHE["templateCache Map\nkey: absolute path\nvalue: compiled template"]
-        COMPILE["Handlebars.compile()\ncached via getCompiledTemplate()"]
-        RENDER["template(context)\n→ rendered string"]
+        READ["materializeTemplate(path, packageName)\nfs.readFile + replaceAll(\n/@awesome\\.me/webawesome(?!-pro)/g,\npackageName) when Pro"]
     end
 
     subgraph Output
         COMP[".tsx / .jsx / .vue / .js.vue"]
         TEST[".test.tsx / .test.jsx / .test.ts / .test.js"]
-        CSS[".css (read verbatim, no Handlebars)"]
+        CSS[".css (read verbatim — no substitution)"]
         INDEX["index.ts barrel export\nupdateComponentIndex"]
     end
 
-    REG --> CTX
+    REG --> READ
     CFG --> TierResolution
-    DETECT --> PKG --> REPLACE
-    REPLACE --> CTX
-    CTX --> RENDER
-    HBS --> COMPILE --> RENDER
-    COMPILE --> CACHE
-    RENDER --> COMP & TEST
+    DETECT --> PKG --> READ
+    SRC --> READ
+    READ --> COMP & TEST
     CSS -.-> COMP
     COMP --> INDEX
 ```
@@ -619,7 +614,7 @@ flowchart LR
 
 ## Common Mistakes
 
-1. Editing generated code instead of `.hbs` templates
+1. Editing generated code instead of the templates under `templates/`
 2. Using `className` on `<wa-*>` elements (use `class`)
 3. Using `declare module 'react'` (use `declare global`)
 4. Event listeners in ref callback (use `useEffect`)
@@ -679,7 +674,7 @@ START: User requests component change
 │
 ├─ "Fix/improve existing component"
 │  ├─ Check: Issue in generated code?
-│  │  └─ ACTION: Edit .hbs template
+│  │  └─ ACTION: Edit the framework template file
 │  │     └─ Path: templates/{framework}/{ComponentName}/
 │  │     └─ Rebuild: pnpm build
 │  │     └─ Test: node dist/index.js add {component} --force
@@ -728,10 +723,10 @@ START: Change affects tier detection or packages
 
 ### Checklist: Before Committing Template Changes
 
-- [ ] **Edited .hbs file (not generated code)**
-  - Path: `templates/{framework}/{ComponentName}/*.hbs`
-  - Both frameworks: React AND Vue
-  - Both variants: TypeScript AND JavaScript
+- [ ] **Edited the framework template (not generated code)**
+  - Path: `templates/{framework}/{ComponentName}/*.{tsx,jsx,vue,js.vue,component.ts,test.*}`
+  - All frameworks: React AND Vue AND Angular
+  - All variants: TypeScript AND JavaScript (Angular is TS-only)
 
 - [ ] **Rebuilt CLI**
   - `pnpm build` (compiles + copies templates)
@@ -743,7 +738,7 @@ START: Change affects tier detection or packages
   - Browser test: Events work, styles apply
 
 - [ ] **Verified template syntax**
-  - Handlebars: `{{variable}}`, `{{#if}}`, `{{#each}}`
+  - No stray `{{...}}` tokens (caught by `pnpm validate:templates` and the `no-handlebars-tokens` unit test)
   - React: `class` not `className` for `<wa-*>`
   - TypeScript: Named imports, interfaces
   - JavaScript: Default import, JSDoc
@@ -770,17 +765,20 @@ START: Change affects tier detection or packages
   - description (concise, user-facing)
   - props (array of objects with name, type, default, description)
 
-- [ ] **Templates created (both frameworks)**
-  - `templates/react/{ComponentName}/{ComponentName}.tsx.hbs`
-  - `templates/react/{ComponentName}/{ComponentName}.jsx.hbs`
-  - `templates/react/{ComponentName}/{ComponentName}.test.tsx.hbs`
-  - `templates/react/{ComponentName}/{ComponentName}.test.jsx.hbs`
+- [ ] **Templates created (all frameworks)**
+  - `templates/react/{ComponentName}/{ComponentName}.tsx`
+  - `templates/react/{ComponentName}/{ComponentName}.jsx`
+  - `templates/react/{ComponentName}/{ComponentName}.test.tsx`
+  - `templates/react/{ComponentName}/{ComponentName}.test.jsx`
   - `templates/react/{ComponentName}/{ComponentName}.css`
-  - `templates/vue/{ComponentName}/{ComponentName}.vue.hbs`
-  - `templates/vue/{ComponentName}/{ComponentName}.js.vue.hbs`
-  - `templates/vue/{ComponentName}/{ComponentName}.test.ts.hbs`
-  - `templates/vue/{ComponentName}/{ComponentName}.test.js.hbs`
+  - `templates/vue/{ComponentName}/{ComponentName}.vue`
+  - `templates/vue/{ComponentName}/{ComponentName}.js.vue`
+  - `templates/vue/{ComponentName}/{ComponentName}.test.ts`
+  - `templates/vue/{ComponentName}/{ComponentName}.test.js`
   - `templates/vue/{ComponentName}/{ComponentName}.css`
+  - `templates/angular/{ComponentName}/{kebab-name}.component.ts`
+  - `templates/angular/{ComponentName}/{kebab-name}.component.spec.ts`
+  - `templates/angular/{ComponentName}/{kebab-name}.component.css`
 
 - [ ] **Validation passed**
   - `pnpm validate:registry` → ✅
@@ -823,9 +821,9 @@ START: Change affects tier detection or packages
 
 ### Checklist: Debugging Failed Generation
 
-- [ ] **Check template syntax**
+- [ ] **Check template completeness**
   - Run: `pnpm validate:templates`
-  - Look for: Missing .hbs files, syntax errors
+  - Look for: Missing files per framework, stray `{{...}}` tokens
 
 - [ ] **Check registry consistency**
   - Run: `pnpm validate:registry`
@@ -848,7 +846,7 @@ START: Change affects tier detection or packages
 
 ## Questions Before Changes
 
-1. Does this need `.hbs` template changes?
+1. Does this need template changes (`templates/{framework}/{Component}/`)?
 2. Works with React 18 AND 19?
 3. Tier restrictions correct?
 4. TypeScript errors for users?

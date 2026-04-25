@@ -1,10 +1,15 @@
 /**
  * Template Utilities
  *
- * PURPOSE: Handles Handlebars template rendering for component generation.
+ * PURPOSE: Materializes per-component framework templates into project files.
+ *
+ * Templates on disk are real `.tsx` / `.jsx` / `.vue` / `.component.ts` /
+ * `.test.*` files. The only runtime substitution is the tier swap from
+ * `@awesome.me/webawesome` to `@awesome.me/webawesome-pro`. See
+ * `materializeTemplate` for the regex.
  *
  * EXPORTS:
- * - renderTemplate() - Render a Handlebars template
+ * - materializeTemplate() - Read a template file and apply tier substitution
  * - generateComponent() - Generate component file content
  * - updateComponentIndex() - Update barrel export file
  * - generateComponentCSSContent() - Generate CSS content string
@@ -17,14 +22,13 @@
  * - getTestExtension() - Get test file extension for framework
  * - getFileBaseName() - Get file base name (kebab for Angular, PascalCase otherwise)
  *
- * @see AGENTS.md Rule #2 for templates-first development
+ * @see AGENTS.md Rule #1 for templates-first development
  */
 
-import Handlebars from 'handlebars';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// Note: Package name constants not directly used here - tier.ts handles the mapping
+import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
 import type { ComponentDefinition } from './registry.js';
 import type { KigumiConfig } from './config.js';
 import type { Tier } from './tier.js';
@@ -34,44 +38,6 @@ import {
   detectNextRouter,
   type NextRouter,
 } from './detect-framework.js';
-
-/**
- * TEMPLATE COMPILATION CACHE
- *
- * WHY: Handlebars.compile() is expensive (~2-5ms per template). When adding
- * multiple components or regenerating files, we'd compile the same template
- * repeatedly. Caching compiled templates gives 2-5x performance improvement.
- *
- * Cache key: absolute template path
- * Cache value: compiled Handlebars template function
- */
-const templateCache = new Map<string, Handlebars.TemplateDelegate>();
-
-/**
- * Get a compiled template from cache or compile and cache it
- * @internal
- */
-async function getCompiledTemplate(
-  templatePath: string
-): Promise<Handlebars.TemplateDelegate> {
-  const cached = templateCache.get(templatePath);
-  if (cached) {
-    return cached;
-  }
-
-  const templateContent = await fs.readFile(templatePath, 'utf-8');
-  const compiled = Handlebars.compile(templateContent);
-  templateCache.set(templatePath, compiled);
-  return compiled;
-}
-
-/**
- * Clear the template cache (useful for testing)
- * @internal
- */
-export function clearTemplateCache(): void {
-  templateCache.clear();
-}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,16 +54,20 @@ function findPackageRoot(startDir: string): string {
   throw new Error('Could not find package.json');
 }
 
-// Template directory is in the package root
 const PACKAGE_ROOT = findPackageRoot(__dirname);
 const TEMPLATES_DIR = path.join(PACKAGE_ROOT, 'templates');
 
-interface TemplateContext {
-  name: string;
-  tagName: string;
-  description: string;
-  importPath: string;
-}
+/**
+ * Non-anchored, global tier-swap regex. Templates ship with the free package
+ * baked in as the canonical baseline; this rewrites every occurrence to the
+ * Pro package when generating for a Pro-tier project. The negative lookahead
+ * keeps `webawesome-pro` from being matched and re-doubled.
+ *
+ * Why global: Angular `.component.ts` templates contain two import
+ * statements per file (one `import type`, one dynamic `import()`); the
+ * substitution must hit both.
+ */
+const TIER_REWRITE_PATTERN = /@awesome\.me\/webawesome(?!-pro)/g;
 
 /**
  * Get the template path for a given framework
@@ -110,30 +80,21 @@ export function getTemplatePath(
 }
 
 /**
- * Render a template with the given context
+ * Read a template file and apply the tier substitution.
  *
- * Uses cached compiled templates for performance (2-5x faster on repeated calls)
+ * For Free-tier projects this is a verbatim file read — `WEB_AWESOME_FREE_PACKAGE`
+ * is the canonical baseline. For Pro-tier projects every occurrence of the
+ * free package is rewritten to the Pro package name.
  */
-export async function renderTemplate(
+export async function materializeTemplate(
   templatePath: string,
-  context: TemplateContext
+  packageName: string
 ): Promise<string> {
-  const template = await getCompiledTemplate(templatePath);
-  return template(context);
-}
-
-/**
- * Build template context from component definition
- */
-export function buildTemplateContext(
-  component: ComponentDefinition
-): TemplateContext {
-  return {
-    name: component.name,
-    tagName: component.tagName,
-    description: component.description,
-    importPath: component.importPath,
-  };
+  const content = await fs.readFile(templatePath, 'utf-8');
+  if (packageName === WEB_AWESOME_FREE_PACKAGE) {
+    return content;
+  }
+  return content.replaceAll(TIER_REWRITE_PATTERN, packageName);
 }
 
 /**
@@ -205,23 +166,9 @@ export async function generateComponent(
   isNext?: boolean,
   nextRouter?: NextRouter
 ): Promise<string> {
-  // Build context with correct import path based on tier
   const { detectTierSync, getWebAwesomePackage } = await import('./tier.js');
   const resolvedTier = tier ?? detectTierSync(cwd);
   const packageName = getWebAwesomePackage(resolvedTier);
-
-  // Replace package name in import path
-  // WHY: Component definitions use free package by default, but we need to
-  // substitute with the correct package based on the user's tier
-  const importPath = component.importPath.replace(
-    /^@awesome\.me\/(webawesome|webawesome-pro)/,
-    packageName
-  );
-
-  const context = {
-    ...buildTemplateContext(component),
-    importPath,
-  };
 
   // Use component-specific template if it exists
   const fileExtension = getComponentExtension(config.framework, typescript);
@@ -234,14 +181,14 @@ export async function generateComponent(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${templateFileName}.${fileExtension}.hbs`
+    `${templateFileName}.${fileExtension}`
   );
 
   const templatePath = (await fs.pathExists(componentTemplatePath))
     ? componentTemplatePath
-    : getTemplatePath(config.framework, `component.${fileExtension}.hbs`);
+    : getTemplatePath(config.framework, `component.${fileExtension}`);
 
-  const rendered = await renderTemplate(templatePath, context);
+  const rendered = await materializeTemplate(templatePath, packageName);
 
   // Next-specific post-render transforms for React wrappers.
   // Prefer caller-provided context so a `kigumi add --all` or update sweep
@@ -351,8 +298,7 @@ export function getComponentCSSPath(
 /**
  * Generate CSS content string for a component (without writing to disk).
  *
- * CSS templates are static (no Handlebars), so they are read verbatim
- * rather than compiled. The file extension on disk is `.css`, not `.css.hbs`.
+ * CSS templates ship as `.css` files with no substitution.
  */
 export async function generateComponentCSSContent(
   component: ComponentDefinition,
@@ -418,7 +364,7 @@ export async function generateComponentTestContent(
   const ext = getTestExtension(config.framework, config.typescript);
 
   // Angular test templates are stored with kebab-case filenames
-  // (e.g. button-group.component.spec.ts.hbs) to mirror the component
+  // (e.g. button-group.component.spec.ts) to mirror the component
   // template convention. Without this branch the lookup hits a
   // case-insensitive path only on macOS and silently falls back to the
   // inline generator on Linux CI, producing different output per OS.
@@ -431,14 +377,13 @@ export async function generateComponentTestContent(
     TEMPLATES_DIR,
     config.framework,
     component.name,
-    `${testBaseName}.${ext}.hbs`
+    `${testBaseName}.${ext}`
   );
 
   if (await fs.pathExists(componentTestTemplatePath)) {
-    return renderTemplate(
-      componentTestTemplatePath,
-      buildTemplateContext(component)
-    );
+    // Test templates carry no `importPath`, so the tier substitution is
+    // effectively a no-op; reading the file directly is sufficient.
+    return fs.readFile(componentTestTemplatePath, 'utf-8');
   }
 
   // Fallback to generic test

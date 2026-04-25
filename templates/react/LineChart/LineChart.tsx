@@ -1,0 +1,102 @@
+import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import clsx from 'clsx';
+import './LineChart.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/line-chart/line-chart.js'));
+}
+
+/**
+ * Connects sequential data points to reveal trends and patterns over a continuous axis
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <LineChart />
+ *
+ * // With event handlers
+ * <LineChart />
+ *
+ * ```
+ */
+export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
+
+  /** Accessible name announced by assistive technology */
+  label?: string;
+
+  /** Extended accessible description for the chart */
+  description?: string;
+
+  /** Caption displayed beneath the horizontal axis */
+  'x-label'?: string;
+
+  /** Caption displayed beside the vertical axis */
+  'y-label'?: string;
+
+  /** Placement of the dataset legend relative to the chart */
+  'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+
+  /** Layers multiple datasets on a single axis */
+  stacked?: boolean;
+
+  /** Base axis for category labels (swap to flip chart orientation) */
+  'index-axis'?: 'x' | 'y';
+
+  /** Selects which background grid lines are drawn */
+  grid?: 'x' | 'y' | 'both' | 'none';
+
+  /** Floor value for the value axis scale */
+  min?: number;
+
+  /** Ceiling value for the value axis scale */
+  max?: number;
+
+  /** Disables entrance and update motion effects */
+  'without-animation'?: boolean;
+
+  /** Hides the dataset legend entirely */
+  'without-legend'?: boolean;
+
+  /** Prevents hover tooltips from appearing on data points */
+  'without-tooltip'?: boolean;
+}
+
+export interface LineChartRef {
+  /** Reference to the underlying HTML element */
+  element: HTMLElement | null;
+}
+
+export const LineChart = forwardRef<LineChartRef, LineChartProps>(
+  ({ children, className, ...props }, ref) => {
+    const linechartRef = useRef<HTMLElement & {
+    }>(null);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        get element() {
+          return linechartRef.current;
+        },
+      }),
+      []
+    );
+
+    useEffect(() => {
+      ensureLoaded();
+    }, []);
+
+    return (
+      <wa-line-chart
+        ref={linechartRef}
+        class={clsx('LineChart', className)}
+        suppressHydrationWarning
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </wa-line-chart>
+    );
+  }
+);
+
+LineChart.displayName = 'LineChart';

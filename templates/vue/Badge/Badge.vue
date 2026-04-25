@@ -1,0 +1,54 @@
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import './Badge.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+}
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ */
+export interface BadgeProps {
+  variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  pill?: boolean;
+  attention?: 'none' | 'pulse' | 'bounce';
+}
+
+const props = defineProps<BadgeProps>();
+
+// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-badge
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-badge>
+</template>
