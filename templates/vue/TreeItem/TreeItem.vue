@@ -19,11 +19,14 @@ export interface TreeItemProps {
 
 const props = defineProps<TreeItemProps>();
 
-// Strip undefined props so Vue doesn't override web component defaults (e.g. wa-icon library)
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// `false`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward `false` to <wa-*> (would render pill="" / loading="").
 const definedProps = computed(() => {
   const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined) result[key] = value;
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
   }
   return result;
 });
