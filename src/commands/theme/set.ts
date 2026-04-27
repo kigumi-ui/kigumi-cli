@@ -6,10 +6,11 @@
 
 import type { KigumiConfig } from '../../schemas/config.js';
 import { Command } from 'commander';
-import * as p from '@clack/prompts';
 import pc from 'picocolors';
+import { getOutput } from '../../output/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
 import { regenerateKigumiSetup } from '../../utils/regenerate.js';
+import { detectTier } from '../../utils/tier.js';
 import {
   getAvailableThemes,
   isThemeAvailable,
@@ -27,6 +28,7 @@ export const setCommand = new Command('set')
   .argument('<theme>', 'Theme name (default, dark, or none)')
   .action(async (themeName: string) => {
     const cwd = process.cwd();
+    const output = getOutput();
 
     try {
       // 1. Load configuration (needed for checks).
@@ -56,7 +58,6 @@ export const setCommand = new Command('set')
       }
 
       // Detect tier from .env
-      const { detectTier } = await import('../../utils/tier.js');
       const tier = await detectTier(cwd);
 
       // 4. Validate theme name
@@ -66,15 +67,13 @@ export const setCommand = new Command('set')
       }
 
       // 5. Update theme
-      p.intro(pc.bgCyan(pc.black(` Switching to theme: ${themeName} `)));
-
-      const spinner = p.spinner();
+      output.intro(`Switching to theme: ${themeName}`);
 
       // Update config
       config.theme.selected = themeName;
 
       // Save config
-      spinner.start('Updating configuration...');
+      const spinner = output.spinner('Updating configuration...');
       await saveConfig(config, cwd);
       spinner.stop('Updated kigumi.config.json');
 
@@ -84,17 +83,17 @@ export const setCommand = new Command('set')
       await regenerateKigumiSetup(cwd, config, utilsDir);
       spinner.stop(`Regenerated ${utilsDir}/kigumi.ts`);
 
-      p.note(
+      output.note(
+        'Theme Updated! 🎨',
         `Theme: ${pc.cyan(themeName)}\n\n` +
           `HTML classes updated:\n` +
           `  ${pc.green('wa-theme-' + config.theme.selected)}\n` +
           `  ${pc.green('wa-palette-' + config.theme.palette)}\n` +
-          `  ${pc.green('wa-brand-' + config.theme.brandColor)}`,
-        'Theme Updated! 🎨'
+          `  ${pc.green('wa-brand-' + config.theme.brandColor)}`
       );
 
-      p.outro(pc.green('Reload your browser to see changes'));
+      output.outro(pc.green('Reload your browser to see changes'));
     } catch (error) {
-      handleError(error);
+      handleError(error, output);
     }
   });

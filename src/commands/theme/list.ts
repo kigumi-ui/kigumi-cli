@@ -1,18 +1,21 @@
 import { Command } from 'commander';
-import * as p from '@clack/prompts';
 import pc from 'picocolors';
+import { getOutput } from '../../output/index.js';
+import { detectTier } from '../../utils/tier.js';
 
 export const listCommand = new Command('list')
   .description('List available themes, palettes, and brand colors')
   .action(async () => {
-    p.intro(pc.bgCyan(pc.black(' Available Themes ')));
-
     const cwd = process.cwd();
-    const { detectTier } = await import('../../utils/tier.js');
+    const output = getOutput();
+
+    output.intro('Available Themes');
+
     const tier = await detectTier(cwd);
 
     // Themes
-    p.note(
+    output.note(
+      'Themes',
       `${pc.cyan('Free:')}\n` +
         `  - default (Recommended)\n` +
         `  - awesome\n` +
@@ -20,22 +23,22 @@ export const listCommand = new Command('list')
         `  - none (No theme, just base styles)\n` +
         (tier === 'pro'
           ? `\n${pc.cyan('Pro:')}\n  - Additional themes available (check webawesome.com)`
-          : ''),
-      'Themes'
+          : '')
     );
 
     // Palettes
-    p.note(
+    output.note(
+      'Color Palettes',
       `${pc.cyan('Free:')}\n` +
         `  - default\n` +
         (tier === 'pro'
           ? `\n${pc.cyan('Pro:')}\n  - Additional palettes available (check webawesome.com)`
-          : ''),
-      'Color Palettes'
+          : '')
     );
 
     // Brand Colors
-    p.note(
+    output.note(
+      'Brand Colors',
       `${pc.cyan('Available for all tiers:')}\n` +
         `  - blue (Recommended)\n` +
         `  - purple\n` +
@@ -46,9 +49,8 @@ export const listCommand = new Command('list')
         `  - cyan\n` +
         `  - indigo\n` +
         `  - pink\n` +
-        `  - gray`,
-      'Brand Colors'
+        `  - gray`
     );
 
-    p.outro(`Run ${pc.cyan('kigumi theme set <name>')} to switch themes`);
+    output.outro(`Run ${pc.cyan('kigumi theme set <name>')} to switch themes`);
   });
