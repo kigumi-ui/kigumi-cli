@@ -190,6 +190,62 @@ describe('communityRegistrySchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects single-dot segment in component file path', () => {
+    const invalid = {
+      ...validRegistry,
+      components: {
+        bad: {
+          name: 'Bad',
+          files: {
+            react: { component: 'src/./Bad.tsx', extras: [] },
+          },
+        },
+      },
+    };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects bare "." as component file path', () => {
+    const invalid = {
+      ...validRegistry,
+      components: {
+        bad: {
+          name: 'Bad',
+          files: {
+            react: { component: '.', extras: [] },
+          },
+        },
+      },
+    };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts valid kigumiVersion semver', () => {
+    const valid = { ...validRegistry, kigumiVersion: '0.19.0' };
+    const result = communityRegistrySchema.safeParse(valid);
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts pre-release kigumiVersion', () => {
+    const valid = { ...validRegistry, kigumiVersion: '1.0.0-beta.1' };
+    const result = communityRegistrySchema.safeParse(valid);
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects non-semver kigumiVersion', () => {
+    const invalid = { ...validRegistry, kigumiVersion: 'latest' };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects empty kigumiVersion', () => {
+    const invalid = { ...validRegistry, kigumiVersion: '' };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
   it('rejects empty frameworks array', () => {
     const invalid = { ...validRegistry, frameworks: [] };
     const result = communityRegistrySchema.safeParse(invalid);
