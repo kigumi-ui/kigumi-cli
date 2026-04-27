@@ -5,7 +5,10 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { checkVersionCompatibility } from '../../src/utils/version-check.js';
+import {
+  checkVersionCompatibility,
+  satisfiesMinimum,
+} from '../../src/utils/version-check.js';
 
 describe('checkVersionCompatibility', () => {
   it('returns no-pin when configVersion is undefined', () => {
@@ -59,5 +62,36 @@ describe('checkVersionCompatibility', () => {
   it('returns match when both are unparseable', () => {
     const result = checkVersionCompatibility('foo', 'bar');
     expect(result.status).toBe('match');
+  });
+});
+
+describe('satisfiesMinimum', () => {
+  it('returns true when version is greater than minimum', () => {
+    expect(satisfiesMinimum('1.2.0', '1.0.0')).toBe(true);
+  });
+
+  it('returns true when version equals minimum', () => {
+    expect(satisfiesMinimum('1.0.0', '1.0.0')).toBe(true);
+  });
+
+  it('returns false when version is below minimum', () => {
+    expect(satisfiesMinimum('0.9.0', '1.0.0')).toBe(false);
+  });
+
+  it('orders pre-releases correctly', () => {
+    expect(satisfiesMinimum('1.0.0-beta.1', '1.0.0-alpha.1')).toBe(true);
+    expect(satisfiesMinimum('1.0.0-alpha.1', '1.0.0-beta.1')).toBe(false);
+  });
+
+  it('treats stable as satisfying a pre-release minimum', () => {
+    expect(satisfiesMinimum('1.0.0', '1.0.0-beta.1')).toBe(true);
+  });
+
+  it('returns false for invalid version input', () => {
+    expect(satisfiesMinimum('invalid', '1.0.0')).toBe(false);
+  });
+
+  it('returns false for invalid minimum input', () => {
+    expect(satisfiesMinimum('1.0.0', 'invalid')).toBe(false);
   });
 });

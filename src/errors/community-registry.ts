@@ -149,3 +149,30 @@ export class CircularDependencyError extends KigumiError {
     );
   }
 }
+
+/**
+ * A registry-supplied file path attempted to escape the registry root.
+ * The schema rejects such paths up front; this is the runtime second-line
+ * of defense in `fetchFile` for local sources.
+ */
+export class PathTraversalError extends KigumiError {
+  constructor(filePath: string, registryRoot: string, cause?: Error) {
+    const suggestions: ErrorSuggestion[] = [
+      {
+        title: 'Path traversal blocked',
+        steps: [
+          `File path "${filePath}" resolves outside the registry root`,
+          'Only paths within the registry directory are permitted',
+        ],
+      },
+    ];
+
+    super(
+      ErrorCode.REGISTRY_ERROR,
+      `Path traversal attempt: "${filePath}" escapes registry root "${registryRoot}"`,
+      { filePath, registryRoot },
+      suggestions,
+      cause
+    );
+  }
+}

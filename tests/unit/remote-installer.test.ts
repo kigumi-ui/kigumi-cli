@@ -494,3 +494,120 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
     expect(snapshot!['MyCard.tsx']).toBe(diskContent);
   });
 });
+
+describe('RemoteComponentInstaller - peerDependencies surfacing (F-116)', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    tempDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-remote-installer-'))
+    );
+  });
+
+  afterEach(async () => {
+    await fs.remove(tempDir);
+  });
+
+  it('emits a single note listing every installed component peerDependency', async () => {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    const registryWithPeerDeps: CommunityRegistry = {
+      ...baseRegistry,
+      components: {
+        'my-card': {
+          ...baseRegistry.components['my-card'],
+          peerDependencies: { 'react-aria': '^3.0.0' },
+        },
+        chart: {
+          name: 'Chart',
+          dependencies: [],
+          files: {
+            react: { component: 'react/Chart/Chart.tsx', extras: [] },
+          },
+          peerDependencies: { recharts: '^2.0.0' },
+        },
+      },
+    };
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      registryWithPeerDeps,
+      output
+    );
+
+    await installer.installComponents(['my-card', 'chart'], {});
+
+    expect(output.note).toHaveBeenCalledTimes(1);
+    const [title, body] = vi.mocked(output.note).mock.calls[0];
+    expect(title).toBe('Peer dependencies');
+    expect(body).toContain('react-aria@^3.0.0');
+    expect(body).toContain('recharts@^2.0.0');
+  });
+
+  it('does not emit a note when no installed component has peerDependencies', async () => {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      baseRegistry,
+      output
+    );
+
+    await installer.installComponents(['my-card'], {});
+
+    expect(output.note).not.toHaveBeenCalled();
+  });
+
+  it('does not include peerDependencies from skipped components', async () => {
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    const registryWithPeerDeps: CommunityRegistry = {
+      ...baseRegistry,
+      components: {
+        'my-card': {
+          ...baseRegistry.components['my-card'],
+          peerDependencies: { 'react-aria': '^3.0.0' },
+        },
+      },
+    };
+
+    // Pre-create the component with identical content so the installer
+    // marks it as skipped.
+    const componentDir = path.join(tempDir, 'src/components/MyCard');
+    await fs.ensureDir(componentDir);
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.tsx'),
+      '// fetched component',
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(componentDir, 'MyCard.css'),
+      '/* fetched css */',
+      'utf-8'
+    );
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      tempDir,
+      testConfig,
+      testSource,
+      registryWithPeerDeps,
+      output
+    );
+
+    await installer.installComponents(['my-card'], {});
+
+    expect(output.note).not.toHaveBeenCalled();
+  });
+});

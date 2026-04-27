@@ -89,7 +89,7 @@ export async function registryConnectAction(
     // 5. Fetch and validate registry.json
     let registry;
     try {
-      registry = await fetchRegistryJson(source);
+      registry = await fetchRegistryJson(source, output);
     } catch (cause) {
       spinner.error('Failed to fetch registry');
       throw new CommunityRegistryNotFoundError(

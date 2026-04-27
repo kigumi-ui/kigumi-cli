@@ -6,21 +6,45 @@
  * that can be installed via `kigumi add --from <url>`.
  */
 
+import semver from 'semver';
 import { z } from 'zod';
+import { CommunityRegistryInvalidError } from '../errors/community-registry.js';
 import { frameworkSchema } from './config.js';
+
+/**
+ * Schema for a registry-supplied file path. Rejects absolute paths, parent
+ * traversal segments, empty segments, and Windows-style backslashes so a
+ * malicious registry.json cannot escape the registry root at validation time.
+ */
+const safePathSchema = z
+  .string()
+  .min(1)
+  .refine(
+    (value) => {
+      if (value.startsWith('/')) return false;
+      if (value.includes('\\')) return false;
+      return value
+        .split('/')
+        .every((segment) => segment !== '..' && segment !== '');
+    },
+    {
+      message:
+        "Path may not be absolute, contain '..', empty segments, or backslashes",
+    }
+  );
 
 /**
  * Component file references for a specific framework
  */
 export const componentFilesSchema = z.object({
   /** Path to main component file, relative to registry root */
-  component: z.string().min(1),
+  component: safePathSchema,
   /** Path to CSS file */
-  css: z.string().optional(),
+  css: safePathSchema.optional(),
   /** Path to test file */
-  test: z.string().optional(),
+  test: safePathSchema.optional(),
   /** Additional files (utils, hooks, types) */
-  extras: z.array(z.string()).default([]),
+  extras: z.array(safePathSchema).default([]),
 });
 
 export type ComponentFiles = z.infer<typeof componentFilesSchema>;
@@ -87,10 +111,10 @@ export const communityRegistrySchema = z.object({
   license: z.string().optional(),
   /** Homepage URL */
   homepage: z.string().url().optional(),
-  /** Semver version (no ranges) */
-  version: z
-    .string()
-    .regex(/^\d+\.\d+\.\d+$/, 'Must be a valid semver version (e.g., 1.0.0)'),
+  /** Semver version (no ranges); pre-release and build metadata permitted */
+  version: z.string().refine((value) => semver.valid(value) !== null, {
+    message: 'Must be a valid semver version (e.g., 1.0.0 or 1.0.0-beta.1)',
+  }),
   /** Frameworks this registry provides components for */
   frameworks: z.array(frameworkSchema).min(1),
   /** Minimum Kigumi CLI version required */
@@ -107,13 +131,17 @@ export const communityRegistrySchema = z.object({
 export type CommunityRegistry = z.infer<typeof communityRegistrySchema>;
 
 /**
- * Validate a community registry object
+ * Validate a community registry object.
  *
  * @param data - Raw registry data to validate
+ * @param url - Source URL of the registry, used for the typed error context
  * @returns Validated registry
- * @throws Error with formatted validation messages
+ * @throws CommunityRegistryInvalidError with the failing issues
  */
-export function validateCommunityRegistry(data: unknown): CommunityRegistry {
+export function validateCommunityRegistry(
+  data: unknown,
+  url: string
+): CommunityRegistry {
   const result = communityRegistrySchema.safeParse(data);
 
   if (!result.success) {
@@ -121,7 +149,7 @@ export function validateCommunityRegistry(data: unknown): CommunityRegistry {
       const path = issue.path.join('.');
       return path ? `${path}: ${issue.message}` : issue.message;
     });
-    throw new Error(`Invalid registry.json:\n${errors.join('\n')}`);
+    throw new CommunityRegistryInvalidError(url, errors);
   }
 
   return result.data;
