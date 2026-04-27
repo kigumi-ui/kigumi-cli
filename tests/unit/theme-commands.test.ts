@@ -164,6 +164,18 @@ describe('theme command (parent + default set)', () => {
       const subCommands = themeCommand.commands.map((c) => c.name());
       expect(subCommands).toContain('install');
     });
+
+    it('should have "list" as a subcommand', async () => {
+      const { themeCommand } = await import('../../src/commands/theme.js');
+      const subCommands = themeCommand.commands.map((c) => c.name());
+      expect(subCommands).toContain('list');
+    });
+
+    it('should have "show" as a subcommand', async () => {
+      const { themeCommand } = await import('../../src/commands/theme.js');
+      const subCommands = themeCommand.commands.map((c) => c.name());
+      expect(subCommands).toContain('show');
+    });
   });
 
   describe('default set action (via themeCommand)', () => {
@@ -500,37 +512,35 @@ describe('theme/show subcommand', () => {
   it('should display current theme configuration', async () => {
     await createConfig();
 
-    const p = await import('@clack/prompts');
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
-    // Should call p.intro
-    expect(p.intro).toHaveBeenCalled();
+    // Should call output.intro
+    expect(mockOutput.intro).toHaveBeenCalled();
 
-    // Should call p.note with settings
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('awesome'),
-      'Settings'
+    // Should call output.note with settings (title first, message second)
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Settings',
+      expect.stringContaining('awesome')
     );
 
     // Should show HTML classes
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('wa-theme-awesome'),
-      'HTML Classes'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'HTML Classes',
+      expect.stringContaining('wa-theme-awesome')
     );
   });
 
   it('should show tier information', async () => {
     await createConfig();
 
-    const p = await import('@clack/prompts');
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
     // The note call for Settings should contain tier
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('free'),
-      'Settings'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Settings',
+      expect.stringContaining('free')
     );
   });
 
@@ -539,14 +549,13 @@ describe('theme/show subcommand', () => {
       theme: { selected: 'awesome', palette: 'default', brandColor: 'blue' },
     });
 
-    const p = await import('@clack/prompts');
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
     // Should show the theme import path
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('themes/awesome.css'),
-      'Theme Import'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Theme Import',
+      expect.stringContaining('themes/awesome.css')
     );
   });
 
@@ -555,14 +564,13 @@ describe('theme/show subcommand', () => {
       theme: { selected: 'none', palette: 'default', brandColor: 'blue' },
     });
 
-    const p = await import('@clack/prompts');
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
     // Should NOT have a Theme Import note
-    const noteCallArgs = vi.mocked(p.note).mock.calls;
+    const noteCallArgs = mockOutput.note.mock.calls;
     const themeImportCalls = noteCallArgs.filter(
-      (call) => call[1] === 'Theme Import'
+      (call) => call[0] === 'Theme Import'
     );
     expect(themeImportCalls).toHaveLength(0);
   });
@@ -577,11 +585,10 @@ describe('theme/show subcommand', () => {
   it('should show outro with help text', async () => {
     await createConfig();
 
-    const p = await import('@clack/prompts');
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
-    expect(p.outro).toHaveBeenCalledWith(
+    expect(mockOutput.outro).toHaveBeenCalledWith(
       expect.stringContaining('kigumi theme set')
     );
   });
@@ -640,52 +647,49 @@ describe('theme/list subcommand', () => {
   it('should display available themes for free tier', async () => {
     await createConfig();
 
-    const p = await import('@clack/prompts');
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
-    // Should show themes section
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('default'),
-      'Themes'
+    // Should show themes section (title first, message second)
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Themes',
+      expect.stringContaining('default')
     );
 
     // Should mention free themes
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('awesome'),
-      'Themes'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Themes',
+      expect.stringContaining('awesome')
     );
   });
 
   it('should display available palettes', async () => {
     await createConfig();
 
-    const p = await import('@clack/prompts');
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
     // Should show palettes section
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('default'),
-      'Color Palettes'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Color Palettes',
+      expect.stringContaining('default')
     );
   });
 
   it('should display available brand colors', async () => {
     await createConfig();
 
-    const p = await import('@clack/prompts');
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
     // Should show brand colors section
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('blue'),
-      'Brand Colors'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Brand Colors',
+      expect.stringContaining('blue')
     );
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('purple'),
-      'Brand Colors'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Brand Colors',
+      expect.stringContaining('purple')
     );
   });
 
@@ -695,25 +699,23 @@ describe('theme/list subcommand', () => {
     const tier = await import('../../src/utils/tier.js');
     vi.mocked(tier.detectTier).mockResolvedValue('pro');
 
-    const p = await import('@clack/prompts');
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
     // Themes note should contain "Pro" when on pro tier
-    expect(p.note).toHaveBeenCalledWith(
-      expect.stringContaining('Pro'),
-      'Themes'
+    expect(mockOutput.note).toHaveBeenCalledWith(
+      'Themes',
+      expect.stringContaining('Pro')
     );
   });
 
   it('should show outro with help text', async () => {
     await createConfig();
 
-    const p = await import('@clack/prompts');
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
-    expect(p.outro).toHaveBeenCalledWith(
+    expect(mockOutput.outro).toHaveBeenCalledWith(
       expect.stringContaining('kigumi theme set')
     );
   });

@@ -25,10 +25,13 @@ import {
 import { TierRestrictionError } from '../errors/tier.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
+import { detectTier } from '../utils/tier.js';
 import {
   getAvailableThemes,
   isThemeAvailable,
 } from '../utils/tier-restrictions.js';
+import { listCommand } from './theme/list.js';
+import { showCommand } from './theme/show.js';
 
 async function themeAction(themeName?: string) {
   const output = getOutput();
@@ -62,7 +65,6 @@ async function themeAction(themeName?: string) {
     }
 
     // Detect tier from .env
-    const { detectTier } = await import('../utils/tier.js');
     const tier = await detectTier(cwd);
 
     const availableThemes = getAvailableThemes(tier).filter(
@@ -133,3 +135,6 @@ themeCommand
     const { themeInstallAction } = await import('./theme/install.js');
     await themeInstallAction(name, options);
   });
+
+themeCommand.addCommand(listCommand);
+themeCommand.addCommand(showCommand);

@@ -5,7 +5,6 @@
  */
 
 import { Command } from 'commander';
-import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import { loadConfig } from '../../utils/config.js';
 import { detectTier, getWebAwesomePackage } from '../../utils/tier.js';
@@ -27,33 +26,33 @@ export const showCommand = new Command('show')
 
       const tier = await detectTier(cwd);
 
-      p.intro(pc.bgCyan(pc.black(' Current Theme Configuration ')));
+      output.intro('Current Theme Configuration');
 
-      p.note(
+      output.note(
+        'Settings',
         `Theme: ${pc.cyan(config.theme.selected)}\n` +
           `Palette: ${pc.cyan(config.theme.palette)}\n` +
           `Brand Color: ${pc.cyan(config.theme.brandColor)}\n` +
-          `Tier: ${pc.cyan(tier)}`,
-        'Settings'
+          `Tier: ${pc.cyan(tier)}`
       );
 
-      p.note(
+      output.note(
+        'HTML Classes',
         `wa-theme-${config.theme.selected}\n` +
           `wa-palette-${config.theme.palette}\n` +
-          `wa-brand-${config.theme.brandColor}`,
-        'HTML Classes'
+          `wa-brand-${config.theme.brandColor}`
       );
 
       const packageName = getWebAwesomePackage(tier);
 
       if (config.theme.selected !== 'none') {
-        p.note(
-          `${packageName}/dist/styles/themes/${config.theme.selected}.css`,
-          'Theme Import'
+        output.note(
+          'Theme Import',
+          `${packageName}/dist/styles/themes/${config.theme.selected}.css`
         );
       }
 
-      p.outro(`Run ${pc.cyan('kigumi theme set <name>')} to change theme`);
+      output.outro(`Run ${pc.cyan('kigumi theme set <name>')} to change theme`);
     } catch (error) {
       handleError(error, output);
     }

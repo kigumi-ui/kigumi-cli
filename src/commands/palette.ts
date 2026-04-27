@@ -25,6 +25,7 @@ import {
 import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
+import { detectTier } from '../utils/tier.js';
 import { getAvailablePalettes } from '../utils/tier-restrictions.js';
 
 async function paletteAction(paletteName?: string) {
@@ -59,7 +60,6 @@ async function paletteAction(paletteName?: string) {
     }
 
     // Detect tier from .env
-    const { detectTier } = await import('../utils/tier.js');
     const tier = await detectTier(cwd);
 
     const availablePalettes = getAvailablePalettes(tier).filter(
