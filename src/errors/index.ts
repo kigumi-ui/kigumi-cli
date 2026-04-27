@@ -86,6 +86,7 @@ export {
   CommunityComponentNotFoundError,
   FrameworkMismatchError,
   CircularDependencyError,
+  PathTraversalError,
 } from './community-registry.js';
 
 // Pre-flight check errors

@@ -32,6 +32,7 @@ import {
   CommunityComponentNotFoundError,
   FrameworkMismatchError,
   CircularDependencyError,
+  PathTraversalError,
 } from '../../src/errors/community-registry.js';
 import { ErrorCode } from '../../src/errors/base.js';
 
@@ -104,6 +105,91 @@ describe('communityRegistrySchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects two-segment version', () => {
+    const invalid = { ...validRegistry, version: '1.0' };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts pre-release semver versions (F-102)', () => {
+    const valid = { ...validRegistry, version: '1.0.0-beta.1' };
+    const result = communityRegistrySchema.safeParse(valid);
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts semver with build metadata (F-102)', () => {
+    const valid = { ...validRegistry, version: '1.0.0+build.1' };
+    const result = communityRegistrySchema.safeParse(valid);
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects parent-traversal path in component file (F-094)', () => {
+    const invalid = {
+      ...validRegistry,
+      components: {
+        bad: {
+          name: 'Bad',
+          files: {
+            react: { component: '../../etc/passwd', extras: [] },
+          },
+        },
+      },
+    };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects absolute path in component file (F-094)', () => {
+    const invalid = {
+      ...validRegistry,
+      components: {
+        bad: {
+          name: 'Bad',
+          files: {
+            react: { component: '/etc/passwd', extras: [] },
+          },
+        },
+      },
+    };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects backslash in component file path (F-094)', () => {
+    const invalid = {
+      ...validRegistry,
+      components: {
+        bad: {
+          name: 'Bad',
+          files: {
+            react: { component: 'foo\\bar.tsx', extras: [] },
+          },
+        },
+      },
+    };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects parent-traversal in extras (F-094)', () => {
+    const invalid = {
+      ...validRegistry,
+      components: {
+        bad: {
+          name: 'Bad',
+          files: {
+            react: {
+              component: 'src/Bad.tsx',
+              extras: ['../../etc/passwd'],
+            },
+          },
+        },
+      },
+    };
+    const result = communityRegistrySchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+  });
+
   it('rejects empty frameworks array', () => {
     const invalid = { ...validRegistry, frameworks: [] };
     const result = communityRegistrySchema.safeParse(invalid);
@@ -160,15 +246,31 @@ describe('validateCommunityRegistry', () => {
       version: '1.0.0',
       frameworks: ['react'],
     };
-    const result = validateCommunityRegistry(data);
+    const result = validateCommunityRegistry(
+      data,
+      'https://example.com/registry'
+    );
     expect(result.name).toBe('test');
     expect(result.components).toEqual({});
   });
 
-  it('throws for invalid data', () => {
-    expect(() => validateCommunityRegistry({ name: '' })).toThrow(
-      'Invalid registry.json'
-    );
+  it('throws CommunityRegistryInvalidError for invalid data (F-097)', () => {
+    expect(() =>
+      validateCommunityRegistry({ name: '' }, 'https://example.com/registry')
+    ).toThrow(CommunityRegistryInvalidError);
+  });
+
+  it('attaches the source url to the typed error (F-097)', () => {
+    try {
+      validateCommunityRegistry({ name: '' }, 'https://example.com/registry');
+      throw new Error('expected validateCommunityRegistry to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(CommunityRegistryInvalidError);
+      const typed = error as CommunityRegistryInvalidError;
+      expect(typed.context.details).toMatchObject({
+        url: 'https://example.com/registry',
+      });
+    }
   });
 });
 
@@ -389,6 +491,48 @@ describe('fetchFile (local source)', () => {
     const content = await fetchFile(source, '/a.txt');
     expect(content).toBe('A');
   });
+
+  it('throws PathTraversalError for parent-directory traversal (F-103)', async () => {
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    await expect(fetchFile(source, '../../etc/passwd')).rejects.toBeInstanceOf(
+      PathTraversalError
+    );
+  });
+
+  it('throws PathTraversalError for an absolute escape path (F-103)', async () => {
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    await expect(fetchFile(source, '/../../etc/passwd')).rejects.toBeInstanceOf(
+      PathTraversalError
+    );
+  });
+
+  it('does not match a sibling directory with a shared prefix (F-103)', async () => {
+    // Sanity check: tmpDir + 'sibling' should not be reachable even when its
+    // resolved path shares the registry root prefix as a substring.
+    const sibling = `${tmpDir}-sibling`;
+    await fs.ensureDir(sibling);
+    await fs.writeFile(path.join(sibling, 'leak.txt'), 'leak');
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    try {
+      await expect(
+        fetchFile(source, `../${path.basename(sibling)}/leak.txt`)
+      ).rejects.toBeInstanceOf(PathTraversalError);
+    } finally {
+      await fs.remove(sibling);
+    }
+  });
 });
 
 describe('fetchRegistryJson (local source)', () => {
@@ -437,6 +581,56 @@ describe('fetchRegistryJson (local source)', () => {
       absolutePath: tmpDir,
     };
     await expect(fetchRegistryJson(source)).rejects.toThrow(/registry\.json/);
+  });
+
+  it('warns when CLI version is below the registry kigumiVersion (F-116)', async () => {
+    const registry = {
+      name: 'too-new',
+      version: '1.0.0',
+      kigumiVersion: '99.0.0',
+      frameworks: ['react'],
+    };
+    await fs.writeJSON(path.join(tmpDir, 'registry.json'), registry, {
+      spaces: 2,
+    });
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    const warnings: string[] = [];
+    const output = {
+      warn: (msg: string) => warnings.push(msg),
+    } as unknown as Parameters<typeof fetchRegistryJson>[1];
+
+    const result = await fetchRegistryJson(source, output);
+    expect(result.name).toBe('too-new');
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('99.0.0');
+  });
+
+  it('does not warn when CLI version satisfies kigumiVersion (F-116)', async () => {
+    const registry = {
+      name: 'compat',
+      version: '1.0.0',
+      kigumiVersion: '0.0.1',
+      frameworks: ['react'],
+    };
+    await fs.writeJSON(path.join(tmpDir, 'registry.json'), registry, {
+      spaces: 2,
+    });
+    const source: LocalRegistrySource = {
+      kind: 'local',
+      url: tmpDir,
+      absolutePath: tmpDir,
+    };
+    const warnings: string[] = [];
+    const output = {
+      warn: (msg: string) => warnings.push(msg),
+    } as unknown as Parameters<typeof fetchRegistryJson>[1];
+
+    await fetchRegistryJson(source, output);
+    expect(warnings).toHaveLength(0);
   });
 });
 

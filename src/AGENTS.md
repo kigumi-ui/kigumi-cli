@@ -371,13 +371,14 @@ try {
 
 **Community registry errors** (`src/errors/community-registry.ts`):
 
-| Error Class                       | When Thrown                               |
-| --------------------------------- | ----------------------------------------- |
-| `CommunityRegistryNotFoundError`  | Repo or registry.json not found           |
-| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed    |
-| `CommunityComponentNotFoundError` | Component key not in registry             |
-| `FrameworkMismatchError`          | Registry doesn't support user's framework |
-| `CircularDependencyError`         | Dependency cycle detected in resolution   |
+| Error Class                       | When Thrown                                                 |
+| --------------------------------- | ----------------------------------------------------------- |
+| `CommunityRegistryNotFoundError`  | Repo or registry.json not found                             |
+| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed                      |
+| `CommunityComponentNotFoundError` | Component key not in registry                               |
+| `FrameworkMismatchError`          | Registry doesn't support user's framework                   |
+| `CircularDependencyError`         | Dependency cycle detected in resolution                     |
+| `PathTraversalError`              | Local-source file path escapes the registry root            |
 
 ---
 
@@ -422,4 +423,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-24
+**Last Updated:** 2026-04-27

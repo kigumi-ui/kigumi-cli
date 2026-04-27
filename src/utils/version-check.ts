@@ -5,6 +5,8 @@
  * Used by commands like `add` to warn or block on version mismatches.
  */
 
+import semver from 'semver';
+
 export type VersionCheckResult =
   | { status: 'match' }
   | { status: 'minor-mismatch'; configVersion: string; cliVersion: string }
@@ -69,4 +71,14 @@ export function checkVersionCompatibility(
   }
 
   return { status: 'match' };
+}
+
+/**
+ * Returns true when `version` satisfies `>=minimum` per semver, including
+ * pre-release versions in comparisons. Returns false on invalid input rather
+ * than throwing — callers use this to gate non-fatal warnings.
+ */
+export function satisfiesMinimum(version: string, minimum: string): boolean {
+  if (!semver.valid(version) || !semver.valid(minimum)) return false;
+  return semver.satisfies(version, `>=${minimum}`, { includePrerelease: true });
 }

@@ -127,6 +127,12 @@ export class RemoteComponentInstaller {
 
     // Install or stage each component
     const results: InstallResult[] = [];
+    // Aggregate peerDependencies of every successfully installed component
+    // (skipped/staged/failed components do not contribute) so we can surface
+    // a single note at the end of the install loop. First range wins on
+    // duplicates — registry authors are responsible for keeping ranges
+    // consistent across components.
+    const installedPeerDeps = new Map<string, string>();
 
     for (const componentKey of resolved) {
       const component = this.registry.components[componentKey];
@@ -181,6 +187,15 @@ export class RemoteComponentInstaller {
         } else {
           spinner.stop(`${pc.green('✓')} Added ${pc.cyan(component.name)}`);
           results.push({ name: component.name, success: true });
+          if (component.peerDependencies) {
+            for (const [pkg, range] of Object.entries(
+              component.peerDependencies
+            )) {
+              if (!installedPeerDeps.has(pkg)) {
+                installedPeerDeps.set(pkg, range);
+              }
+            }
+          }
         }
       } catch (error) {
         const errorMessage =
@@ -196,6 +211,13 @@ export class RemoteComponentInstaller {
           error: errorMessage,
         });
       }
+    }
+
+    if (installedPeerDeps.size > 0) {
+      const body = [...installedPeerDeps.entries()]
+        .map(([pkg, range]) => `${pkg}@${range}`)
+        .join('\n');
+      this.output.note('Peer dependencies', body);
     }
 
     return results;

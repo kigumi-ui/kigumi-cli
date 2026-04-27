@@ -13,7 +13,10 @@ import {
   type CommunityRegistry,
   validateCommunityRegistry,
 } from '../schemas/community-registry.js';
-import { GITHUB_RAW_BASE_URL } from '../constants.js';
+import { CLI_VERSION, GITHUB_RAW_BASE_URL } from '../constants.js';
+import { PathTraversalError } from '../errors/community-registry.js';
+import type { OutputInterface } from '../output/types.js';
+import { satisfiesMinimum } from './version-check.js';
 
 /**
  * Parsed GitHub registry source
@@ -220,7 +223,15 @@ export async function fetchFile(
 ): Promise<string> {
   if (source.kind === 'local') {
     const cleanPath = filePath.replace(/^\//, '');
-    const absoluteFilePath = path.join(source.absolutePath, cleanPath);
+    // Use path.resolve so any `..` segments are collapsed before the bounds
+    // check; path.join would not flag a path that escapes the registry root.
+    const absoluteFilePath = path.resolve(source.absolutePath, cleanPath);
+    if (
+      absoluteFilePath !== source.absolutePath &&
+      !absoluteFilePath.startsWith(source.absolutePath + path.sep)
+    ) {
+      throw new PathTraversalError(filePath, source.absolutePath);
+    }
     try {
       return await fs.readFile(absoluteFilePath, 'utf-8');
     } catch (error) {
@@ -270,11 +281,16 @@ export async function fetchFile(
 /**
  * Fetch and validate registry.json from a registry source.
  *
+ * When `output` is provided, a warning is emitted (but install proceeds) when
+ * the registry's `kigumiVersion` minimum exceeds the running CLI version.
+ *
  * @param source - Registry source (GitHub or local filesystem)
+ * @param output - Optional output sink for the kigumiVersion warning
  * @returns Validated community registry
  */
 export async function fetchRegistryJson(
-  source: RegistrySource
+  source: RegistrySource,
+  output?: OutputInterface
 ): Promise<CommunityRegistry> {
   const content = await fetchFile(source, 'registry.json');
 
@@ -287,5 +303,16 @@ export async function fetchRegistryJson(
     });
   }
 
-  return validateCommunityRegistry(data);
+  const registry = validateCommunityRegistry(data, source.url);
+
+  if (registry.kigumiVersion && output) {
+    if (!satisfiesMinimum(CLI_VERSION, registry.kigumiVersion)) {
+      output.warn(
+        `Registry "${registry.name}" requires kigumi >= ${registry.kigumiVersion}, ` +
+          `you have ${CLI_VERSION}. Some features may not work correctly.`
+      );
+    }
+  }
+
+  return registry;
 }
