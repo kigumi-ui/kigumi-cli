@@ -339,4 +339,32 @@ describe('RemoteComponentInstaller — cross-framework staging', () => {
       installer.installComponents(['login-example'], {})
     ).rejects.toThrow(/does not support vue/);
   });
+
+  it('does not surface peerDependencies for staged components (F-116 follow-up)', async () => {
+    const { registry, source } = await stageReactRegistry(registryDir);
+    // Attach a peerDependency to the staged component — it must NOT show up
+    // in the post-install note since cross-framework files are not wired
+    // into the consumer's project tree.
+    registry.components['login-example'].peerDependencies = {
+      'react-aria': '^3.0.0',
+    };
+
+    const { RemoteComponentInstaller } =
+      await import('../../src/commands/add/remote-installer.js');
+
+    const output = createMockOutput();
+    const installer = new RemoteComponentInstaller(
+      projectDir,
+      vueConfig,
+      source,
+      registry,
+      output
+    );
+
+    await installer.installComponents(['login-example'], {
+      crossFramework: true,
+    });
+
+    expect(output.note).not.toHaveBeenCalled();
+  });
 });

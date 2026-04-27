@@ -13,8 +13,11 @@ import { frameworkSchema } from './config.js';
 
 /**
  * Schema for a registry-supplied file path. Rejects absolute paths, parent
- * traversal segments, empty segments, and Windows-style backslashes so a
- * malicious registry.json cannot escape the registry root at validation time.
+ * traversal segments, single-dot segments, empty segments, and Windows-style
+ * backslashes so a malicious registry.json cannot escape the registry root
+ * at validation time. Single-dot segments would be silently collapsed by
+ * `path.resolve`, so rejecting them keeps the schema honest about the paths
+ * it accepts.
  */
 const safePathSchema = z
   .string()
@@ -25,11 +28,13 @@ const safePathSchema = z
       if (value.includes('\\')) return false;
       return value
         .split('/')
-        .every((segment) => segment !== '..' && segment !== '');
+        .every(
+          (segment) => segment !== '..' && segment !== '.' && segment !== ''
+        );
     },
     {
       message:
-        "Path may not be absolute, contain '..', empty segments, or backslashes",
+        "Path may not be absolute, contain '.', '..', empty segments, or backslashes",
     }
   );
 
@@ -117,8 +122,14 @@ export const communityRegistrySchema = z.object({
   }),
   /** Frameworks this registry provides components for */
   frameworks: z.array(frameworkSchema).min(1),
-  /** Minimum Kigumi CLI version required */
-  kigumiVersion: z.string().optional(),
+  /** Minimum Kigumi CLI version required (semver, no ranges) */
+  kigumiVersion: z
+    .string()
+    .refine((value) => semver.valid(value) !== null, {
+      message:
+        'kigumiVersion must be a valid semver string (e.g., 0.19.0 or 1.0.0-beta.1)',
+    })
+    .optional(),
   /** Component definitions keyed by slug */
   components: z
     .record(z.string(), communityComponentSchema)
