@@ -10,6 +10,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import { z } from 'zod';
 import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
 
 vi.mock('@clack/prompts', () => ({
@@ -17,8 +18,11 @@ vi.mock('@clack/prompts', () => ({
   isCancel: vi.fn(() => false),
 }));
 
+// `tierSchema` is consumed by schemas/options.ts which this test transitively
+// imports. The mock must expose it so option-schema construction doesn't fail.
 vi.mock('../../src/utils/tier.js', () => ({
   detectTier: vi.fn(() => Promise.resolve('free')),
+  tierSchema: z.enum(['free', 'pro']),
 }));
 
 function createMockOutput(): OutputInterface {

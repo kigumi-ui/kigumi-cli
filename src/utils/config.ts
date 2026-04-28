@@ -6,7 +6,7 @@
  * EXPORTS:
  * - loadConfig() - Load configuration from project
  * - saveConfig() - Save configuration to project
- * - getConfig() - Get cached configuration
+ * - getConfig() - Get resolved configuration with defaults
  *
  * @internal - Utility module for internal CLI use
  */

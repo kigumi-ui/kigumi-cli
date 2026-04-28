@@ -41,7 +41,7 @@ import {
 // =============================================================================
 
 /**
- * Directory + alias defaults for a given source layout.
+ * Directory defaults for a given source layout.
  *
  * Projects that keep code under `src/` (Vite, Next `--src-dir`) get the
  * `src/components/ui` / `src/lib` / `src/styles` layout. Projects with code
@@ -49,38 +49,24 @@ import {
  * `components/` convention) get the parallel `components/ui` / `lib` /
  * `styles` layout.
  *
- * Matching the layout here lets the user's existing `@/*` tsconfig paths
- * resolve Kigumi imports without rewriting their tsconfig.
- *
  * @internal
  */
 function getLayoutDefaults(projectInfo: ProjectInfo): {
   componentsDir: string;
   utilsDir: string;
   stylesDir: string;
-  aliases: Record<string, string>;
 } {
   if (projectInfo.sourceLayout === 'src') {
     return {
       componentsDir: 'src/components/ui',
       utilsDir: 'src/lib',
       stylesDir: 'src/styles',
-      aliases: {
-        '@/components': './src/components',
-        '@/lib': './src/lib',
-        '@/styles': './src/styles',
-      },
     };
   }
   return {
     componentsDir: 'components/ui',
     utilsDir: 'lib',
     stylesDir: 'styles',
-    aliases: {
-      '@/components': './components',
-      '@/lib': './lib',
-      '@/styles': './styles',
-    },
   };
 }
 
@@ -224,7 +210,6 @@ export async function buildConfigNonInteractive(
       palette,
       brandColor,
     },
-    aliases: layoutDefaults.aliases,
     webAwesome: {
       version: DEFAULT_CONFIG.webAwesome?.version,
     },
@@ -461,7 +446,6 @@ export async function buildConfigInteractive(
       palette,
       brandColor,
     },
-    aliases: layoutDefaults.aliases,
     webAwesome: {
       version: DEFAULT_CONFIG.webAwesome?.version,
     },

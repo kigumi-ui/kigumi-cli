@@ -26,3 +26,5 @@ audit/
 # Claude Code scratch state
 .claude/plans/
 .claude/specs/
+.claude/worktrees/
+.claude/scheduled_tasks.lock

@@ -9,11 +9,6 @@
     "palette": "default",
     "brandColor": "blue"
   },
-  "aliases": {
-    "@/components": "./src/components",
-    "@/lib": "./src/lib",
-    "@/styles": "./src/styles"
-  },
   "webAwesome": {
     "version": "^3.5.0"
   },

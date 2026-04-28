@@ -256,7 +256,7 @@ Consumers:
 - `generateNextEnvDts` — sibling of `generateViteEnvDts`; writes `web-awesome.d.ts` without the `vite/client` reference. Location follows `sourceLayout` (`src/` or root).
 - `configureTSConfig(cwd, output, sourceLayout)` — tries `tsconfig.app.json` first, falls back to `tsconfig.json`. When adding a missing `@/*` alias, picks `['./src/*']` for the `src` layout and `['./*']` for the `root` layout so the generated directory structure and the path alias agree.
 - `file-generator.ts` — skips `configureVitePathAliases` for Next; writes `providers.tsx` next to `app/` (either `app/providers.tsx` or `src/app/providers.tsx` depending on layout) **only** when `nextRouter !== 'pages'`. Pages Router projects get a post-install instruction pointing at `pages/_app.tsx` instead — their `_app.tsx` is user-owned.
-- `config-builder.ts` — `getLayoutDefaults(projectInfo)` returns `componentsDir` / `utilsDir` / `stylesDir` / `aliases` matched to `sourceLayout`, so `create-next-app` without `--src-dir` gets `components/ui` / `lib` / `styles` at the repo root and the user's default `@/*: ['./*']` alias keeps working.
+- `config-builder.ts` — `getLayoutDefaults(projectInfo)` returns `componentsDir` / `utilsDir` / `stylesDir` matched to `sourceLayout`, so `create-next-app` without `--src-dir` gets `components/ui` / `lib` / `styles` at the repo root and the user's default `@/*: ['./*']` alias keeps working.
 - `init/index.ts` — `showPostInstallInstructions` branches on `nextRouter`: App Router prints the `<KigumiProvider>` wrap snippet; Pages Router prints the `pages/_app.tsx` side-effect import; `'unknown'` falls through to App Router (modern Next default).
 - `regenerate.ts` (`generateGitIgnore`) — adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked because three-way merge depends on it. `.npmrc` is safe to commit (registry URL only, no token).
 
@@ -371,14 +371,14 @@ try {
 
 **Community registry errors** (`src/errors/community-registry.ts`):
 
-| Error Class                       | When Thrown                                                 |
-| --------------------------------- | ----------------------------------------------------------- |
-| `CommunityRegistryNotFoundError`  | Repo or registry.json not found                             |
-| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed                      |
-| `CommunityComponentNotFoundError` | Component key not in registry                               |
-| `FrameworkMismatchError`          | Registry doesn't support user's framework                   |
-| `CircularDependencyError`         | Dependency cycle detected in resolution                     |
-| `PathTraversalError`              | Local-source file path escapes the registry root            |
+| Error Class                       | When Thrown                                      |
+| --------------------------------- | ------------------------------------------------ |
+| `CommunityRegistryNotFoundError`  | Repo or registry.json not found                  |
+| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed           |
+| `CommunityComponentNotFoundError` | Component key not in registry                    |
+| `FrameworkMismatchError`          | Registry doesn't support user's framework        |
+| `CircularDependencyError`         | Dependency cycle detected in resolution          |
+| `PathTraversalError`              | Local-source file path escapes the registry root |
 
 ---
 

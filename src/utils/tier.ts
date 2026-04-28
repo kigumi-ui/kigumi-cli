@@ -19,13 +19,18 @@
 
 import fs from 'fs-extra';
 import path from 'path';
+import { z } from 'zod';
 import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
 import { detectProToken, detectProTokenSync } from './token.js';
 
-export type Tier = 'free' | 'pro';
+export const tierSchema = z.enum(['free', 'pro'], {
+  error: () => 'Must be either "free" or "pro"',
+});
+
+export type Tier = z.infer<typeof tierSchema>;
 
 /**
  * Detect tier based on installed package

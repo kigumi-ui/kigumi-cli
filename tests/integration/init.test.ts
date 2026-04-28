@@ -116,11 +116,6 @@ describe('kigumi init', () => {
       expect(config.componentsDir).toBe('components/ui');
       expect(config.utilsDir).toBe('lib');
       expect(config.stylesDir).toBe('styles');
-      expect(config.aliases).toEqual({
-        '@/components': './components',
-        '@/lib': './lib',
-        '@/styles': './styles',
-      });
 
       // Files land at the root layout, not under src/
       expect(await fileExists(testDir, 'lib/kigumi.ts')).toBe(true);
