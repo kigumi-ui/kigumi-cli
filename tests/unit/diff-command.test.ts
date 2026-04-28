@@ -537,7 +537,6 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
-        aliases: {},
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -557,7 +556,6 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
-        aliases: {},
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -581,7 +579,6 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
-        aliases: {},
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -605,7 +602,6 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
-        aliases: {},
         theme: {
           selected: 'awesome',
           palette: 'sky',

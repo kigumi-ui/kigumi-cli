@@ -6,7 +6,8 @@
 
 import { z } from 'zod';
 import type { ZodIssue } from 'zod';
-import { frameworkSchema, tierSchema } from './config.js';
+import { frameworkSchema } from './config.js';
+import { tierSchema } from '../utils/tier.js';
 
 /**
  * Init command options schema

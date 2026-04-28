@@ -22,13 +22,6 @@ export const frameworkSchema = z.enum(FRAMEWORKS, {
 });
 
 /**
- * Tier schema - free or pro
- */
-export const tierSchema = z.enum(['free', 'pro'], {
-  error: () => 'Must be either "free" or "pro"',
-});
-
-/**
  * Theme configuration schema
  */
 export const themeConfigSchema = z.object({
@@ -43,7 +36,6 @@ export const themeConfigSchema = z.object({
  */
 export const webAwesomeConfigSchema = z.object({
   version: z.string().optional(),
-  cdnUrl: z.string().url('Must be a valid URL').optional(),
 });
 
 /**
@@ -95,7 +87,6 @@ export const kigumiConfigSchema = z.object({
   utilsDir: z.string().min(1, 'Utils directory cannot be empty').optional(),
   stylesDir: z.string().min(1, 'Styles directory cannot be empty').optional(),
   theme: themeConfigSchema,
-  aliases: z.record(z.string(), z.string()).optional(),
   webAwesome: webAwesomeConfigSchema.optional(),
   /** Community registry sources */
   registries: z.array(registrySourceSchema).optional(),
@@ -114,7 +105,6 @@ export const kigumiConfigSchema = z.object({
  */
 export type KigumiConfig = z.infer<typeof kigumiConfigSchema>;
 export type Framework = z.infer<typeof frameworkSchema>;
-export type Tier = z.infer<typeof tierSchema>;
 export type ThemeConfig = z.infer<typeof themeConfigSchema>;
 export type WebAwesomeConfig = z.infer<typeof webAwesomeConfigSchema>;
 
@@ -131,11 +121,6 @@ export const DEFAULT_CONFIG: KigumiConfig = {
     selected: 'default',
     palette: 'default',
     brandColor: 'blue',
-  },
-  aliases: {
-    '@/components': './src/components',
-    '@/lib': './src/lib',
-    '@/styles': './src/styles',
   },
   webAwesome: {
     version: DEFAULT_WEBAWESOME_VERSION,
@@ -170,31 +155,6 @@ export function validateConfig(data: unknown): KigumiConfig {
 }
 
 /**
- * Validate partial configuration (for updates)
- *
- * @param data - Partial configuration data
- * @returns Validated partial configuration
- */
-export function validatePartialConfig(data: unknown): Partial<KigumiConfig> {
-  const result = kigumiConfigSchema.partial().safeParse(data);
-
-  if (!result.success) {
-    const errorList = result.error.issues || [];
-    const errors =
-      errorList.length > 0
-        ? errorList.map((err: ZodIssue) => {
-            const path = err.path.join('.');
-            return path ? `${path}: ${err.message}` : err.message;
-          })
-        : ['Unknown validation error'];
-
-    throw new ConfigInvalidError(errors);
-  }
-
-  return result.data;
-}
-
-/**
  * Merge configuration with defaults
  *
  * @param config - User configuration (may be partial)
@@ -211,10 +171,6 @@ export function mergeWithDefaults(config: Partial<KigumiConfig>): KigumiConfig {
     webAwesome: {
       ...DEFAULT_CONFIG.webAwesome,
       ...config.webAwesome,
-    },
-    aliases: {
-      ...DEFAULT_CONFIG.aliases,
-      ...config.aliases,
     },
   });
 }

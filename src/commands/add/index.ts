@@ -37,6 +37,7 @@ import {
 import { getGitHubToken } from '../../utils/github-token.js';
 import { resolveRegistrySource } from '../../utils/registry-resolver.js';
 import { detectTier } from '../../utils/tier.js';
+import { toKigumiAlias } from '../../utils/project-config.js';
 import {
   isNextProject,
   detectNextRouter,
@@ -301,33 +302,8 @@ async function addFromBuiltinRegistry(
   printSummary(results, config, output);
 }
 
-/**
- * Resolve the import base path for display.
- *
- * When an `@/components` alias is configured, replace the matching prefix
- * of `componentsDir` with the alias name so the displayed import uses the
- * alias while still including any subdirectory (e.g. `ui/`).
- *
- * Example:
- *   componentsDir  = "src/components/ui"
- *   alias value    = "./src/components"
- *   result         = "@/components/ui"
- */
 function resolveImportBase(config: KigumiConfig): string {
-  const alias = config.aliases?.['@/components'];
-  if (!alias) return config.componentsDir;
-
-  // Normalise the alias value by stripping a leading "./"
-  const normalised = alias.replace(/^\.\//, '');
-
-  // If componentsDir starts with the normalised alias target, replace it
-  if (config.componentsDir.startsWith(normalised)) {
-    const rest = config.componentsDir.slice(normalised.length); // e.g. "/ui"
-    return `@/components${rest}`;
-  }
-
-  // Alias doesn't match componentsDir — fall back to the raw dir
-  return config.componentsDir;
+  return toKigumiAlias(config.componentsDir);
 }
 
 /**

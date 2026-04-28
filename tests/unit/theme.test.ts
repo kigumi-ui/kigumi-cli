@@ -89,9 +89,6 @@ describe('theme commands', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
-        aliases: {
-          '@/components': 'src/components',
-        },
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -110,7 +107,7 @@ describe('theme commands', () => {
       );
       expect(loaded.framework).toBe('react');
       expect(loaded.typescript).toBe(true);
-      expect(loaded.aliases).toEqual({ '@/components': 'src/components' });
+      expect(loaded.componentsDir).toBe('src/components');
     });
   });
 

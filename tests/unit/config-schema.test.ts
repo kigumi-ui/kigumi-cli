@@ -7,7 +7,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   validateConfig,
-  validatePartialConfig,
   mergeWithDefaults,
   DEFAULT_CONFIG,
   kigumiConfigSchema,
@@ -37,7 +36,6 @@ describe('validateConfig', () => {
       ...validConfig,
       utilsDir: 'src/lib',
       stylesDir: 'src/styles',
-      aliases: { '@/components': './src/components' },
       webAwesome: { version: '3.2.1' },
       registries: [{ url: 'https://github.com/user/repo', name: 'my-reg' }],
       installedComponents: {
@@ -140,33 +138,6 @@ describe('validateConfig', () => {
   });
 });
 
-describe('validatePartialConfig', () => {
-  it('validates empty object', () => {
-    const result = validatePartialConfig({});
-    expect(result).toEqual({});
-  });
-
-  it('validates partial with only framework', () => {
-    const result = validatePartialConfig({ framework: 'vue' });
-    expect(result.framework).toBe('vue');
-  });
-
-  it('validates partial with registries', () => {
-    const result = validatePartialConfig({
-      registries: [{ url: 'https://github.com/user/repo' }],
-    });
-    expect(result.registries).toHaveLength(1);
-  });
-
-  it('throws on invalid framework in partial', () => {
-    expect(() => validatePartialConfig({ framework: 'invalid' })).toThrow();
-  });
-
-  it('throws on non-object input', () => {
-    expect(() => validatePartialConfig('string')).toThrow();
-  });
-});
-
 describe('mergeWithDefaults', () => {
   it('returns default config when given empty object', () => {
     const result = mergeWithDefaults({});
@@ -191,39 +162,11 @@ describe('mergeWithDefaults', () => {
     const result = mergeWithDefaults({ webAwesome: { version: '4.0.0' } });
     expect(result.webAwesome?.version).toBe('4.0.0');
   });
-
-  it('deep merges aliases, preserving un-overridden defaults', () => {
-    const result = mergeWithDefaults({
-      aliases: { '@/components': './src/ui' },
-    });
-    expect(result.aliases?.['@/components']).toBe('./src/ui');
-    expect(result.aliases?.['@/lib']).toBe(DEFAULT_CONFIG.aliases?.['@/lib']);
-    expect(result.aliases?.['@/styles']).toBe(
-      DEFAULT_CONFIG.aliases?.['@/styles']
-    );
-  });
 });
 
 describe('kigumiConfigSchema edge cases', () => {
   it('accepts config with empty registries array', () => {
     const result = kigumiConfigSchema.parse({ ...validConfig, registries: [] });
     expect(result.registries).toEqual([]);
-  });
-
-  it('accepts config with webAwesome cdnUrl', () => {
-    const result = kigumiConfigSchema.parse({
-      ...validConfig,
-      webAwesome: { cdnUrl: 'https://cdn.example.com' },
-    });
-    expect(result.webAwesome?.cdnUrl).toBe('https://cdn.example.com');
-  });
-
-  it('rejects invalid cdnUrl', () => {
-    expect(() =>
-      kigumiConfigSchema.parse({
-        ...validConfig,
-        webAwesome: { cdnUrl: 'not-url' },
-      })
-    ).toThrow();
   });
 });

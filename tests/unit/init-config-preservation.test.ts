@@ -69,7 +69,6 @@ const baseExistingConfig: KigumiConfig = {
   utilsDir: 'src/lib',
   stylesDir: 'src/styles',
   theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
-  aliases: { components: '@/components', utils: '@/lib' },
   installedComponents: {
     button: {
       source: 'community',
