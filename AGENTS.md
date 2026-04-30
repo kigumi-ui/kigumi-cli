@@ -66,6 +66,7 @@ node dist/index.js add button --force
 | `scripts/post-build.ts` | Post-build tasks (copy templates to dist) |
 | `scripts/post-changeset-version.ts` | Update version references after changeset version bump |
 | `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
+| `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
 | `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality |
 | `scripts/validate-cem-sync.ts` | Validate CEM metadata is in sync with registry |
 | `scripts/validate-changes.ts` | Validate changeset entries |
@@ -1014,4 +1015,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-25
+**Maintained by:** AI Assistants | **Last Updated:** 2026-04-30

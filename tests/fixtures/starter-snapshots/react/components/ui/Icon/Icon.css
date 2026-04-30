@@ -1,0 +1,38 @@
+/**
+ * Icon Component Styles
+ * Documentation: https://webawesome.com/docs/components/icon
+ *
+ * CSS Custom Properties:
+ * --animation-delay: Delay before the animation starts
+ * --animation-direction: Whether the animation reverses on alternating cycles
+ * --animation-duration: Duration of one animation cycle
+ * --animation-iteration-count: Number of times the animation repeats
+ * --animation-timing: Easing function describing animation progress
+ * --beat-fade-opacity: Lowest opacity for the beat-fade animation
+ * --beat-fade-scale: Maximum scale for the beat-fade animation
+ * --beat-scale: Maximum scale for the beat animation
+ * --bounce-height: Maximum jump height for the bounce animation
+ * --bounce-jump-scale-x: Horizontal squish at the top of a bounce
+ * --bounce-jump-scale-y: Vertical squish at the top of a bounce
+ * --bounce-land-scale-x: Horizontal squish on bounce landing
+ * --bounce-land-scale-y: Vertical squish on bounce landing
+ * --bounce-rebound: Rebound amount after a bounce landing
+ * --bounce-start-scale-x: Horizontal squish at bounce start
+ * --bounce-start-scale-y: Vertical squish at bounce start
+ * --fade-opacity: Lowest opacity for the fade animation
+ * --flip-angle: Rotation angle for the flip animation
+ * --flip-x: X component of the flip rotation axis
+ * --flip-y: Y component of the flip rotation axis
+ * --flip-z: Z component of the flip rotation axis
+ * --primary-color: Primary layer color for duotone icons
+ * --primary-opacity: Primary layer opacity for duotone icons
+ * --secondary-color: Secondary layer color for duotone icons
+ * --secondary-opacity: Secondary layer opacity for duotone icons
+ *
+ * CSS Parts:
+ * svg — Internal SVG element
+ * use — Use element, generated when spriteSheet mode is active
+ */
+.Icon {
+  /* Add your custom styles here */
+}

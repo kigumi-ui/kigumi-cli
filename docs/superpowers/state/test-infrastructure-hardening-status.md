@@ -1,9 +1,9 @@
 # Test Infrastructure Hardening — Live Status
 
-**Last updated:** 2026-04-30 (Q2 in flight)
+**Last updated:** 2026-04-30
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** Q2 (in PR #138)
-**Active spec:** [`docs/superpowers/specs/2026-04-30-cluster-q2-ci-completeness-design.md`](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)
+**Active cluster:** _none — choose next at session start (S/P/T/U/V are all unblocked now that Q1+Q2+R are SHIPPED)_
+**Active spec:** [`docs/superpowers/specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md`](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)
 **Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
 
@@ -19,16 +19,16 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ## Cluster Status Table
 
-| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status          | PR        | Spec                                                                | Plan                |
-| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | --------------- | --------- | ------------------------------------------------------------------- | ------------------- |
-| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | —                                | **SHIPPED**     | #137      | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md) | _accumulated in PR_ |
-| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **IN-PROGRESS** | #138      | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md) | _local_             |
-| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
-| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
-| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
-| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
-| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED**     | _pending_ | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)    | _pending_           |
+| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status      | PR               | Spec                                                                     | Plan                |
+| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | ----------- | ---------------- | ------------------------------------------------------------------------ | ------------------- |
+| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | —                                | **SHIPPED** | #137             | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)      | _accumulated in PR_ |
+| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **SHIPPED** | #138             | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)      | _accumulated in PR_ |
+| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **SHIPPED** | #139, #140, #141 | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md) | _local_             |
+| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
+| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
+| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
+| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED** | _pending_        | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)         | _pending_           |
 
 **Status legend:**
 
@@ -113,13 +113,25 @@ Final baseline: 0 (file deleted). The `pnpm check:tests` gate is now strict.
 
 **F-050 partial resolution:** the storybook project block was removed from root `vitest.config.ts` because its required deps (`@storybook/addon-vitest`, `playwright`) live in `docs/package.json` and could never load from root — so the `configDir` fix was the wrong layer. The Q1-spec acceptance criterion "all 75 stories render without crash" therefore defers to **Cluster U**, which owns standing up the per-framework vitest-storybook integration where those deps actually live.
 
-### Phase 2: Q2 — PENDING
+### Phase 2: Q2 — SHIPPED 2026-04-30
 
-CI completeness. Spec to be written.
+CI completeness shipped in PR #138. Vue and Angular added to the integration matrix, e2e and docs-typecheck jobs added, release smoke step in `release.yml`, lint-staged filled, `pnpm test:all` made sequential.
 
-### Phase 3: Parallel work — PENDING
+### Phase 3: Cluster R — SHIPPED 2026-04-30
 
-After Q1 ships, S/P/T can run in parallel sessions. R waits on Q2. U waits on Q1+Q2. Specs to be written.
+Real-world starter e2e (4-lane matrix: react/vue/angular/next) plus snapshot diff plus pack-test plus migration fixtures. Landed across three PRs:
+
+- **R Phase 1** (#139, SHIPPED): migration fixture suite (`tests/fixtures/migration/{0.18.x,0.19.x}-config.json` + `tests/integration/migration.test.ts`).
+- **R Phase 2** (#140, SHIPPED): per-PR `pack-test` job in `ci.yml`.
+- **R Phase 3** (#141, SHIPPED): `starters` 4-lane matrix in `ci.yml`, `tests/e2e/starter-snapshots.test.ts` harness, `tests/fixtures/starter-snapshots/{react,vue,angular,next}/`, `scripts/update-starter-snapshots.ts`, `pnpm test:starters` + `pnpm update:starter-snapshots`.
+
+Phase-0 prerequisites (typecheck script + Pro->Free migration on `kigumi-next-starter`) merged in the four starter repos before #141 opened. The four `STARTER_<F>_REF` variables are pinned to those merge commits. `kigumi-next-starter` started private and was flipped to public during the cluster R session, so the matrix lanes clone the four `kigumi-ui` starters without authentication.
+
+R extends initiative scope from 3 to 4 starters. Pro-tier coverage is deferred to a separate follow-up cluster.
+
+### Phase 4: Parallel work — PENDING
+
+After R ships, S/P/T/U can run in parallel sessions.
 
 ### Phase 4: Cluster V — PENDING
 

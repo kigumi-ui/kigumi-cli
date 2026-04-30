@@ -1,0 +1,16 @@
+/**
+ * Card Component Styles
+ * Documentation: https://webawesome.com/docs/components/card
+ *
+ * CSS Custom Properties:
+ * --spacing - The amount of space around and between sections of the card. Expects a single value. (default: var(--wa-space-l))
+ *
+ * CSS Parts:
+ * media - The container that wraps the card's media.
+ * header - The container that wraps the card's header.
+ * body - The container that wraps the card's main content.
+ * footer - The container that wraps the card's footer.
+ */
+:host {
+  display: contents;
+}

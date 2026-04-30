@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Cluster R: real-world starter e2e**: New `starters` CI matrix runs the post-`kigumi add` install path against the four pinned `kigumi-ui` starter repos (react, vue, angular, next) on every PR. Each lane installs the packed CLI tarball, runs `kigumi add` for the curated 9-component set, snapshot-diffs the emitted output against `tests/fixtures/starter-snapshots/`, then runs the starter's own `pnpm typecheck` and `pnpm build`.
+- **Snapshot harness**: `tests/e2e/starter-snapshots.test.ts` walks `componentsDir + utilsDir + stylesDir` of a real starter and asserts every emitted file via vitest's `toMatchFileSnapshot`. Drift fails CI without an explicit `--update` commit.
+- **Bulk-update helper**: `pnpm run update:starter-snapshots` regenerates fixtures across all four starters using tmp copies of each clone (skipping `node_modules` and `.git`); the user's local clones are never mutated.
+- **Per-PR pack-test**: `pack-test` job in `ci.yml` (shipped in #140) packs the CLI tarball, installs it into a scratch directory, and asserts `kigumi init` + `kigumi add` produce the expected wrapper file. Catches packaging regressions before release.
+- **Migration fixture suite**: `tests/fixtures/migration/{0.18.x,0.19.x}-config.json` plus `tests/integration/migration.test.ts` (shipped in #139) prove `kigumi upgrade --yes` keeps producing schema-valid configs as the schema evolves.
+
+### Changed
+
+- CI surface: `.github/workflows/ci.yml` gains a `starters` job (4-lane matrix, `fail-fast: false`) sequenced after `pack-test` and before `docs-typecheck`. The four matrix lanes resolve their starter SHA via `${{ vars[format('STARTER_{0}_REF', matrix.framework_upper)] }}` and clone the public `kigumi-ui` starter repos without authentication.
+- `tsconfig.tests.json`: excludes `tests/fixtures/starter-snapshots/**` so `pnpm check:tests` does not type-check fixture files (they are starter output, not kigumi-cli source).
+
 ## [0.19.2] - 2026-04-11
 
 ### Fixed
@@ -51,8 +66,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Templates**: Resolved pre-existing type errors across React, Vue, and Angular via starter repo testing
 - **Templates**: Angular prop sync and Markdown getMarked instance fix
 - **Templates**: NumberInput Vue JS variant uses numeric fallback (val ?? 0) instead of string
-
-## [Unreleased]
 
 ## [0.18.3] - 2026-03-29
 
