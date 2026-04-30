@@ -1,10 +1,10 @@
 # Test Infrastructure Hardening — Live Status
 
-**Last updated:** 2026-04-30 (Q1 shipped)
+**Last updated:** 2026-04-30 (Q2 in flight)
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** Q2 (next, not yet started)
-**Active spec:** _(pending Q2 session)_
-**Active plan:** _(pending Q2 session)_
+**Active cluster:** Q2 (in PR #138)
+**Active spec:** [`docs/superpowers/specs/2026-04-30-cluster-q2-ci-completeness-design.md`](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)
+**Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
 
 ---
@@ -19,16 +19,16 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ## Cluster Status Table
 
-| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status      | PR        | Spec                                                                | Plan                |
-| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | ----------- | --------- | ------------------------------------------------------------------- | ------------------- |
-| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | —                                | **SHIPPED** | #137      | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md) | _accumulated in PR_ |
-| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **PLANNED** | _pending_ | _pending_                                                           | _pending_           |
-| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **BLOCKED** | _pending_ | _pending_                                                           | _pending_           |
-| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **BLOCKED** | _pending_ | _pending_                                                           | _pending_           |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **BLOCKED** | _pending_ | _pending_                                                           | _pending_           |
-| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED** | _pending_ | _pending_                                                           | _pending_           |
-| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED** | _pending_ | _pending_                                                           | _pending_           |
-| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED** | _pending_ | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)    | _pending_           |
+| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status          | PR        | Spec                                                                | Plan                |
+| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | --------------- | --------- | ------------------------------------------------------------------- | ------------------- |
+| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | —                                | **SHIPPED**     | #137      | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md) | _accumulated in PR_ |
+| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **IN-PROGRESS** | #138      | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md) | _local_             |
+| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
+| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
+| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
+| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED**     | _pending_ | _pending_                                                           | _pending_           |
+| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED**     | _pending_ | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)    | _pending_           |
 
 **Status legend:**
 
