@@ -158,6 +158,48 @@ jobs:
       - name: E2E tests
         run: pnpm run test:e2e
 
+  pack-test:
+    name: Pack Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Pack and smoke install
+        run: |
+          set -euo pipefail
+          TARBALL=$(pnpm pack | tail -1)
+          echo "Built tarball: ${TARBALL}"
+          SMOKE_DIR="${RUNNER_TEMP}/kigumi-pack-test"
+          mkdir -p "${SMOKE_DIR}/src"
+          cd "${SMOKE_DIR}"
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund "file:${GITHUB_WORKSPACE}/${TARBALL}"
+          # Explicit --components-dir pins the assertion path independent of
+          # kigumi's sourceLayout detection (which requires more than just an
+          # empty src/ dir to default to src/components/ui).
+          npx --no-install kigumi init --framework react --typescript --yes --no-install --components-dir src/components/ui
+          npx --no-install kigumi add button --yes
+          test -f src/components/ui/Button/Button.tsx \
+            || (echo "ERROR: Button wrapper missing at src/components/ui/Button/Button.tsx"; ls -R src 2>/dev/null || true; exit 1)
+          echo "Pack-test OK"
+
   docs-typecheck:
     name: Type-check docs
     runs-on: ubuntu-latest
