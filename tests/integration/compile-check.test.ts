@@ -23,6 +23,14 @@ import { generateComponent } from '../../src/utils/template.js';
 import type { Framework } from '../../src/schemas/config.js';
 import { createTestKigumiConfig } from '../unit/_helpers/kigumi-config.js';
 
+// Lane-gating: when KIGUMI_MATRIX_FRAMEWORK is set (CI matrix lanes), only the
+// matching framework's describe block runs. Local unset = run everything.
+const MATRIX_FRAMEWORK = process.env.KIGUMI_MATRIX_FRAMEWORK;
+function describeFor(framework: Framework) {
+  if (!MATRIX_FRAMEWORK) return describe;
+  return MATRIX_FRAMEWORK === framework ? describe : describe.skip;
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const _PROJECT_ROOT = path.resolve(__dirname, '../..');
@@ -64,6 +72,16 @@ function createTsConfig(targetDir: string, framework: Framework): object {
     baseConfig.compilerOptions.jsx = 'preserve';
   }
 
+  // Angular-specific adjustments: decorators + class field semantics
+  if (framework === 'angular') {
+    Object.assign(baseConfig.compilerOptions, {
+      experimentalDecorators: true,
+      useDefineForClassFields: false,
+      jsx: undefined,
+    });
+    baseConfig.include = ['src/**/*.ts', 'src/**/*.component.ts'];
+  }
+
   return baseConfig;
 }
 
@@ -96,6 +114,24 @@ function createPackageJson(framework: Framework): object {
       devDependencies: {
         '@types/react': reactTypesRange,
         '@types/react-dom': reactTypesRange,
+        typescript: '^5.0.0',
+      },
+    };
+  }
+
+  if (framework === 'angular') {
+    return {
+      ...basePackage,
+      dependencies: {
+        ...basePackage.dependencies,
+        '@angular/common': '^21.0.0',
+        '@angular/compiler': '^21.0.0',
+        '@angular/core': '^21.0.0',
+        '@angular/forms': '^21.0.0',
+        rxjs: '^7.8.0',
+        tslib: '^2.6.0',
+      },
+      devDependencies: {
         typescript: '^5.0.0',
       },
     };
@@ -206,7 +242,7 @@ describe('TypeScript Compile-Check', () => {
     }
   });
 
-  describe('React Components', () => {
+  describeFor('react')('React Components', () => {
     it('should compile TypeScript variants without errors', async () => {
       const srcDir = path.join(testDir, 'src');
       const componentsDir = path.join(srcDir, 'components');
@@ -345,7 +381,7 @@ describe('TypeScript Compile-Check', () => {
     }, 60000);
   });
 
-  describe('Vue Components', () => {
+  describeFor('vue')('Vue Components', () => {
     it('should compile TypeScript variants without errors', async () => {
       const srcDir = path.join(testDir, 'src');
       const componentsDir = path.join(srcDir, 'components');
@@ -423,7 +459,63 @@ export {};
     }, 60000);
   });
 
-  describe('Edge Cases', () => {
+  describeFor('angular')('Angular Components', () => {
+    it('should compile angular templates without errors', async () => {
+      const srcDir = path.join(testDir, 'src');
+      const componentsDir = path.join(srcDir, 'components');
+      await fs.ensureDir(componentsDir);
+
+      await fs.writeJSON(
+        path.join(testDir, 'package.json'),
+        createPackageJson('angular')
+      );
+      await fs.writeJSON(
+        path.join(testDir, 'tsconfig.json'),
+        createTsConfig(testDir, 'angular')
+      );
+
+      await installDependencies(testDir);
+
+      const components = getAllComponents();
+      const sampleComponents = Object.entries(components).slice(0, 5);
+
+      for (const [_key, component] of sampleComponents) {
+        const componentDir = path.join(componentsDir, component.name);
+        await fs.ensureDir(componentDir);
+
+        const config = createTestKigumiConfig({
+          framework: 'angular' as Framework,
+          componentsDir: 'src/components',
+        });
+
+        const content = await generateComponent(
+          component,
+          config,
+          true,
+          testDir
+        );
+
+        const kebab = component.name
+          .replace(/([a-z])([A-Z])/g, '$1-$2')
+          .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+          .toLowerCase();
+        const filePath = path.join(componentDir, `${kebab}.component.ts`);
+        await fs.writeFile(filePath, content);
+      }
+
+      const result = await runTypeScriptCompile(testDir);
+
+      if (!result.success) {
+        console.error('Angular TypeScript compilation failed:');
+        console.error(result.errors.slice(0, 10).join('\n'));
+      }
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    }, 120000);
+  });
+
+  describeFor('react')('Edge Cases', () => {
     it('should handle components with complex props', async () => {
       const srcDir = path.join(testDir, 'src');
       const componentsDir = path.join(srcDir, 'components');

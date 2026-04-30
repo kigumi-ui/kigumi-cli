@@ -48,7 +48,7 @@ jobs:
         run: pnpm run format:check
 
       - name: TypeScript strict check
-        run: npx tsc --noEmit
+        run: pnpm run type-check
 
       - name: Type-check templates
         run: pnpm run typecheck:templates
@@ -96,11 +96,16 @@ jobs:
         run: pnpm run build
 
   integration:
-    name: Integration Tests (React ${{ matrix.react-version }})
+    name: Integration Tests (${{ matrix.framework }}@${{ matrix.version }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        react-version: ['18', '19']
+        include:
+          - { framework: react, version: '18' }
+          - { framework: react, version: '19' }
+          - { framework: vue, version: '3' }
+          - { framework: angular, version: 'latest' }
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -124,7 +129,67 @@ jobs:
       - name: Integration tests
         run: pnpm run test:integration
         env:
-          REACT_VERSION: ${{ matrix.react-version }}
+          REACT_VERSION: ${{ matrix.framework == 'react' && matrix.version || '18' }}
+          KIGUMI_MATRIX_FRAMEWORK: ${{ matrix.framework }}
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build CLI
+        run: pnpm run build
+
+      - name: E2E tests
+        run: pnpm run test:e2e
+
+  docs-typecheck:
+    name: Type-check docs
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Configure Pro registry for docs
+        run: |
+          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install docs dependencies
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check docs
+        working-directory: docs
+        run: pnpm exec tsc -p tsconfig.app.json
 
   chromatic:
     name: Visual Regression (Chromatic)

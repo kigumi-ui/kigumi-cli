@@ -45,10 +45,24 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Smoke test
+      - name: Smoke test (packed install)
         run: |
-          node dist/bin.js --version
-          node dist/bin.js list
+          set -euo pipefail
+          TARBALL=$(pnpm pack | tail -1)
+          echo "Built tarball: ${TARBALL}"
+          SMOKE_DIR="${RUNNER_TEMP}/kigumi-release-smoke"
+          mkdir -p "${SMOKE_DIR}/src"
+          cd "${SMOKE_DIR}"
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund "file:${GITHUB_WORKSPACE}/${TARBALL}"
+          # Explicit --components-dir pins the assertion path independent of
+          # kigumi's sourceLayout detection (which requires more than just an
+          # empty src/ dir to default to src/components/ui).
+          npx --no-install kigumi init --framework react --typescript --yes --no-install --components-dir src/components/ui
+          npx --no-install kigumi add button --yes
+          test -f src/components/ui/Button/Button.tsx \
+            || (echo "ERROR: Button wrapper missing at src/components/ui/Button/Button.tsx"; ls -R src 2>/dev/null || true; exit 1)
+          echo "Release smoke OK"
 
       - name: Verify package contents
         run: pnpm pack --dry-run 2>&1 | head -50

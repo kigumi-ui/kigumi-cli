@@ -100,7 +100,7 @@ pnpm test              # Unit tests (fast)
 pnpm test:integration  # Integration tests (requires build first)
 pnpm test:e2e          # E2E tests (slow, creates real projects)
 pnpm test:coverage     # Unit tests with coverage report
-pnpm test:all          # Both unit and E2E
+pnpm test:all          # Build + unit + integration + e2e (sequential, fail-fast)
 pnpm test:watch        # Watch mode
 ```
 
@@ -124,6 +124,37 @@ pnpm check:tests --update-baseline     # re-create the baseline (only if a delib
 A TypeScript minor bump can flag previously-silent issues. Fix the new errors
 in the upgrade PR. Re-introducing the baseline file is a last resort and should
 be paired with a follow-up plan to drain it.
+
+---
+
+## Local Pre-Commit Signal
+
+`.husky/pre-commit` runs `pnpm lint-staged && pnpm type-check` on every commit.
+The lint-staged config at `.lintstagedrc.json` scopes test execution narrowly:
+
+- `src/**/*.{ts,tsx}` and `tests/unit/**/*.{ts,tsx}`: eslint, prettier, and
+  `vitest related --run` (runs only the unit tests that import the staged files).
+- `tests/integration/**`, `tests/e2e/**`, `scripts/**`: eslint and prettier only.
+  Integration and e2e suites are CI-only; firing them on commit would block for
+  minutes.
+- Other globs (json/md/vue/css/etc.): prettier-only formatting.
+
+Typical commit overhead is 5 to 30 seconds depending on how many unit tests the
+staged files transitively touch. Failures block the commit; fix the failing
+test or back out the change before retrying.
+
+```bash
+HUSKY=0 git commit -m '...'    # emergency escape hatch; skips both halves
+```
+
+Use the escape hatch only for branch-state operations (rebase fixups, WIP
+snapshots) where running tests would be premature. CI re-runs lint, type-check,
+and the full unit suite on every PR, so escaped commits get caught at push.
+
+`vitest related` uses the root `vitest.config.ts`, which includes only
+`tests/unit/**`. The e2e suite has its own `vitest.e2e.config.ts` (used by
+`pnpm test:e2e`); integration uses `vitest.integration.config.ts`. Neither
+fires from the pre-commit hook.
 
 ---
 

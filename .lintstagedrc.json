@@ -1,5 +1,19 @@
 {
-  "{src,tests,scripts}/**/*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+  "src/**/*.{ts,tsx}": [
+    "eslint --fix",
+    "prettier --write",
+    "vitest related --run"
+  ],
+  "tests/unit/**/*.{ts,tsx}": [
+    "eslint --fix",
+    "prettier --write",
+    "vitest related --run"
+  ],
+  "{tests/integration,tests/e2e,scripts}/**/*.{ts,tsx}": [
+    "eslint --fix",
+    "prettier --write"
+  ],
   "docs/**/*.{ts,tsx}": ["prettier --write"],
+  "*.{vue,html,css}": ["prettier --write"],
   "*.{js,jsx,json,md}": ["prettier --write"]
 }
