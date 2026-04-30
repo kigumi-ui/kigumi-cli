@@ -200,6 +200,94 @@ jobs:
             || (echo "ERROR: Button wrapper missing at src/components/ui/Button/Button.tsx"; ls -R src 2>/dev/null || true; exit 1)
           echo "Pack-test OK"
 
+  starters:
+    name: Starter E2E (${{ matrix.framework }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - framework: react
+            framework_upper: REACT
+            repo: kigumi-ui/kigumi-react-starter
+          - framework: vue
+            framework_upper: VUE
+            repo: kigumi-ui/kigumi-vue-starter
+          - framework: angular
+            framework_upper: ANGULAR
+            repo: kigumi-ui/kigumi-angular-starter
+          - framework: next
+            framework_upper: NEXT
+            repo: kigumi-ui/kigumi-next-starter
+    steps:
+      - name: Checkout kigumi-cli
+        uses: actions/checkout@v6
+        with:
+          path: kigumi-cli
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          package_json_file: kigumi-cli/package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: kigumi-cli/pnpm-lock.yaml
+
+      - name: Install kigumi-cli deps
+        working-directory: kigumi-cli
+        run: pnpm install --frozen-lockfile
+
+      - name: Build CLI
+        working-directory: kigumi-cli
+        run: pnpm run build
+
+      - name: Pack CLI
+        id: pack
+        working-directory: kigumi-cli
+        run: |
+          set -euo pipefail
+          TARBALL=$(pnpm pack | tail -1)
+          echo "tarball=${GITHUB_WORKSPACE}/kigumi-cli/${TARBALL}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout starter
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ matrix.repo }}
+          ref: ${{ vars[format('STARTER_{0}_REF', matrix.framework_upper)] }}
+          path: starter
+          fetch-depth: 1
+
+      - name: Install starter deps
+        working-directory: starter
+        run: pnpm install --frozen-lockfile --ignore-workspace
+
+      - name: Install kigumi tarball
+        working-directory: starter
+        run: pnpm add -D "file:${{ steps.pack.outputs.tarball }}" --ignore-workspace
+
+      - name: Add components
+        working-directory: starter
+        run: pnpm exec kigumi add button input select dialog card badge switch textarea tooltip --force --yes
+
+      - name: Snapshot diff
+        working-directory: kigumi-cli
+        env:
+          KIGUMI_STARTER: ${{ matrix.framework }}
+          KIGUMI_STARTER_DIR: ${{ github.workspace }}/starter
+        run: pnpm run test:starters
+
+      - name: Starter typecheck
+        working-directory: starter
+        run: pnpm run typecheck
+
+      - name: Starter build
+        working-directory: starter
+        run: pnpm run build
+
   docs-typecheck:
     name: Type-check docs
     runs-on: ubuntu-latest

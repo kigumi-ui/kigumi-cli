@@ -11,6 +11,7 @@
     "src/lib/**",
     "tests/.tmp-*/**",
     "tests/test-*/**",
-    "tests/react*/**"
+    "tests/react*/**",
+    "tests/fixtures/starter-snapshots/**"
   ]
 }

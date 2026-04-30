@@ -40,6 +40,8 @@
     "test:watch": "vitest",
     "test:integration": "vitest run tests/integration --config vitest.integration.config.ts",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "test:starters": "vitest run tests/e2e/starter-snapshots.test.ts --config vitest.e2e.config.ts --testTimeout=600000",
+    "update:starter-snapshots": "tsx scripts/update-starter-snapshots.ts",
     "test:all": "pnpm run build && pnpm run test && pnpm run test:integration && pnpm run test:e2e",
     "validate:registry": "tsx scripts/validate-registry.ts",
     "validate:templates": "tsx scripts/validate-templates.ts",

@@ -1,0 +1,59 @@
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/badge/badge.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+}
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ *
+ * @see https://webawesome.com/docs/components/badge
+ */
+@Component({
+  selector: 'k-badge',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <wa-badge
+        #element
+        [attr.variant]="variant"
+        [attr.appearance]="appearance"
+        [attr.pill]="pill || null"
+        [attr.attention]="attention">
+      <ng-content />
+    </wa-badge>
+  `,
+  styleUrl: './badge.component.css',
+})
+export class BadgeComponent implements AfterViewInit {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** The badge's theme variant */
+  @Input() variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  /** The badge's visual appearance */
+  @Input() appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  /** Draws a pill-style badge with rounded edges */
+  @Input() pill?: boolean;
+  /** Adds an animation to draw attention to the badge */
+  @Input() attention?: 'none' | 'pulse' | 'bounce';
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+  }
+}

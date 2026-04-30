@@ -13,6 +13,7 @@ export default tseslint.config(
       'node_modules/**',
       'coverage/**',
       'tests/.tmp-*/**',
+      'tests/fixtures/starter-snapshots/**',
     ],
   },
   {

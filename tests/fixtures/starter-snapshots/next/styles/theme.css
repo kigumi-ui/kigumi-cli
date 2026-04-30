@@ -1,0 +1,20 @@
+/**
+ * Web Awesome Theme Customization
+ *
+ * This file is for your custom CSS overrides.
+ * Web Awesome base and theme imports are handled in layers.css.
+ *
+ * This file is imported into the 'theme' cascade layer,
+ * which has higher priority than Web Awesome base styles.
+ * This means your customizations will always override Web Awesome defaults.
+ *
+ * Learn more:
+ *   Customizing: https://webawesome.com/docs/customizing
+ *   Design Tokens: https://webawesome.com/docs/tokens
+ *   CSS Cascade Layers: https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
+ */
+
+:root {
+  /* Your custom CSS variable overrides here */
+  /* Example: --wa-color-brand-60: #6366f1; */
+}

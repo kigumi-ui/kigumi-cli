@@ -89,7 +89,11 @@ tests/
 ├── integration/             # Integration tests (build + run CLI)
 │   └── *.test.ts            # Tests that require built CLI
 ├── e2e/                     # Full CLI integration
-│   └── smoke.test.ts        # End-to-end workflows
+│   ├── smoke.test.ts            # End-to-end workflows
+│   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures (env-gated; see Cluster R)
+├── fixtures/                # Frozen golden output for regression tests
+│   ├── migration/               # Pre-0.20 config shapes for migration tests
+│   └── starter-snapshots/{react,vue,angular,next}/  # Per-starter `kigumi add` output (regen via `pnpm update:starter-snapshots`)
 └── .tmp-react-*/            # Temporary test projects (gitignored)
 ```
 
@@ -99,6 +103,7 @@ tests/
 pnpm test              # Unit tests (fast)
 pnpm test:integration  # Integration tests (requires build first)
 pnpm test:e2e          # E2E tests (slow, creates real projects)
+pnpm test:starters     # Snapshot diff against a real starter (env-gated; KIGUMI_STARTER + KIGUMI_STARTER_DIR required)
 pnpm test:coverage     # Unit tests with coverage report
 pnpm test:all          # Build + unit + integration + e2e (sequential, fail-fast)
 pnpm test:watch        # Watch mode
