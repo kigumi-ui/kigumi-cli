@@ -1,0 +1,35 @@
+{
+  "framework": "vue",
+  "typescript": true,
+  "componentsDir": "src/components/ui",
+  "utilsDir": "src/lib",
+  "stylesDir": "src/styles",
+  "theme": {
+    "selected": "default",
+    "palette": "default",
+    "brandColor": "indigo"
+  },
+  "webAwesome": {
+    "version": "^3.5.0"
+  },
+  "installedComponents": {
+    "Button": {
+      "source": "builtin",
+      "kigumiVersion": "0.19.0"
+    },
+    "Card": {
+      "source": "builtin",
+      "kigumiVersion": "0.19.0"
+    },
+    "Switch": {
+      "source": "builtin",
+      "kigumiVersion": "0.19.0"
+    }
+  },
+  "installedThemes": {
+    "default": {
+      "source": "builtin"
+    }
+  },
+  "kigumiVersion": "0.19.0"
+}
