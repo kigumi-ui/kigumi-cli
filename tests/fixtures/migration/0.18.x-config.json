@@ -1,0 +1,30 @@
+{
+  "framework": "react",
+  "typescript": true,
+  "componentsDir": "src/components/ui",
+  "utilsDir": "src/lib",
+  "stylesDir": "src/styles",
+  "theme": {
+    "selected": "default",
+    "palette": "default",
+    "brandColor": "blue"
+  },
+  "webAwesome": {
+    "version": "^3.4.0"
+  },
+  "installedComponents": {
+    "Button": {
+      "source": "builtin",
+      "kigumiVersion": "0.18.3"
+    },
+    "Input": {
+      "source": "builtin",
+      "kigumiVersion": "0.18.3"
+    },
+    "Dialog": {
+      "source": "builtin",
+      "kigumiVersion": "0.18.3"
+    }
+  },
+  "kigumiVersion": "0.18.3"
+}
