@@ -65,9 +65,11 @@ describe('handleExistingConfig', () => {
     mockOutput = createMockOutput();
 
     const clackModule = await import('@clack/prompts');
-    (clackModule.select as ReturnType<typeof vi.fn>).mockReset();
-    (clackModule.isCancel as ReturnType<typeof vi.fn>).mockReset();
-    (clackModule.isCancel as ReturnType<typeof vi.fn>).mockReturnValue(false);
+    (clackModule.select as unknown as ReturnType<typeof vi.fn>).mockReset();
+    (clackModule.isCancel as unknown as ReturnType<typeof vi.fn>).mockReset();
+    (
+      clackModule.isCancel as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(false);
   });
 
   afterEach(async () => {
@@ -223,10 +225,12 @@ describe('handleExistingConfig', () => {
       const clackModule = await import('@clack/prompts');
 
       const cancelSymbol = Symbol('cancel');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        cancelSymbol
-      );
-      (clackModule.isCancel as ReturnType<typeof vi.fn>).mockReturnValue(true);
+      (
+        clackModule.select as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue(cancelSymbol);
+      (
+        clackModule.isCancel as unknown as ReturnType<typeof vi.fn>
+      ).mockReturnValue(true);
 
       const result = await handleExistingConfig(
         makeConfig(),

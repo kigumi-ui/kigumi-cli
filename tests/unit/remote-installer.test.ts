@@ -13,6 +13,7 @@ import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
 import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 import type { GitHubRegistrySource } from '../../src/utils/github-fetcher.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
+import { createTestAddOptions } from './_helpers/add-options.js';
 
 // ---------------------------------------------------------------------------
 // Module-level mocks
@@ -139,7 +140,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       createMockOutput()
     );
 
-    await installer.installComponents(['my-card'], {});
+    await installer.installComponents(['my-card'], createTestAddOptions());
 
     const snapshot = await loadSnapshot(tempDir, 'MyCard');
 
@@ -180,7 +181,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       createMockOutput()
     );
 
-    await installer.installComponents(['my-card'], {});
+    await installer.installComponents(['my-card'], createTestAddOptions());
 
     const snapshot = await loadSnapshot(tempDir, 'MyCard');
 
@@ -214,7 +215,10 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
     );
 
     // Error is caught per-component and returned as { success: false }
-    const results = await installer.installComponents(['my-card'], {});
+    const results = await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions()
+    );
     expect(results[0].success).toBe(false);
     expect(results[0].error).toContain('Network error');
 
@@ -252,7 +256,10 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       output
     );
 
-    await installer.installComponents(['my-card'], { force: true });
+    await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions({ force: true })
+    );
 
     // File overwritten with fetched content
     const content = await fs.readFile(
@@ -299,7 +306,10 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       output
     );
 
-    await installer.installComponents(['my-card'], { force: true });
+    await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions({ force: true })
+    );
 
     const warnCalls = vi.mocked(output.warn).mock.calls.flat();
     const infoCalls = vi.mocked(output.info).mock.calls.flat();
@@ -340,7 +350,10 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       output
     );
 
-    const results = await installer.installComponents(['my-card'], {});
+    const results = await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions()
+    );
 
     // Should be skipped since all files are identical
     expect(results[0].skipped).toBe(true);
@@ -377,9 +390,10 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       output
     );
 
-    const results = await installer.installComponents(['my-card'], {
-      force: true,
-    });
+    const results = await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions({ force: true })
+    );
 
     // Should still skip -- force bypasses prompts, not identity checks
     expect(results[0].skipped).toBe(true);
@@ -412,7 +426,10 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       output
     );
 
-    await installer.installComponents(['my-card'], { force: true });
+    await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions({ force: true })
+    );
 
     const warnCalls = vi.mocked(output.warn).mock.calls.flat();
 
@@ -457,7 +474,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       createMockOutput()
     );
 
-    await installer.installComponents(['my-card'], {});
+    await installer.installComponents(['my-card'], createTestAddOptions());
 
     const snapshot = await loadSnapshot(tempDir, 'MyCard');
     expect(snapshot).not.toBeNull();
@@ -482,7 +499,7 @@ describe('RemoteComponentInstaller - snapshot saving', () => {
       createMockOutput()
     );
 
-    await installer.installComponents(['my-card'], {});
+    await installer.installComponents(['my-card'], createTestAddOptions());
 
     const snapshot = await loadSnapshot(tempDir, 'MyCard');
     const diskContent = await fs.readFile(
@@ -541,7 +558,10 @@ describe('RemoteComponentInstaller - peerDependencies surfacing (F-116)', () => 
       output
     );
 
-    await installer.installComponents(['my-card', 'chart'], {});
+    await installer.installComponents(
+      ['my-card', 'chart'],
+      createTestAddOptions()
+    );
 
     expect(output.note).toHaveBeenCalledTimes(1);
     const [title, body] = vi.mocked(output.note).mock.calls[0];
@@ -563,7 +583,7 @@ describe('RemoteComponentInstaller - peerDependencies surfacing (F-116)', () => 
       output
     );
 
-    await installer.installComponents(['my-card'], {});
+    await installer.installComponents(['my-card'], createTestAddOptions());
 
     expect(output.note).not.toHaveBeenCalled();
   });
@@ -606,7 +626,7 @@ describe('RemoteComponentInstaller - peerDependencies surfacing (F-116)', () => 
       output
     );
 
-    await installer.installComponents(['my-card'], {});
+    await installer.installComponents(['my-card'], createTestAddOptions());
 
     expect(output.note).not.toHaveBeenCalled();
   });

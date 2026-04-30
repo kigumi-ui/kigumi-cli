@@ -30,6 +30,7 @@ fi
 
 # Detect which areas changed
 HAS_SRC_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^(src/|templates/|scripts/|tests/)' || true)
+HAS_TEST_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^tests/' || true)
 HAS_DOCS_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^docs/(src/|\.storybook/)' || true)
 
 if [ -z "$HAS_SRC_CHANGES" ] && [ -z "$HAS_DOCS_CHANGES" ]; then
@@ -41,7 +42,7 @@ TMPDIR_HOOKS=$(mktemp -d)
 
 # Cleanup on exit: kill background jobs + remove temp dir
 cleanup() {
-  kill "${TC_PID:-}" "${LINT_PID:-}" "${VC_PID:-}" "${TC_DOCS_PID:-}" "${TEST_PID:-}" 2>/dev/null
+  kill "${TC_PID:-}" "${LINT_PID:-}" "${VC_PID:-}" "${TC_DOCS_PID:-}" "${TEST_PID:-}" "${CT_PID:-}" 2>/dev/null
   rm -rf "$TMPDIR_HOOKS"
 }
 trap cleanup EXIT
@@ -69,6 +70,14 @@ if echo "$CHANGED_FILES" | grep -qE '^(src/|tests/)'; then
   TEST_PID=$!
 fi
 
+# Dedicated tests/ type-check — only on the tests-only fast path. When src
+# also changed, TC_PID's `pnpm type-check` already chains `check:tests`, so
+# running it again here would double the work for no extra coverage.
+if [ -n "$HAS_TEST_CHANGES" ] && [ -z "$HAS_SRC_CHANGES" ]; then
+  pnpm check:tests >"$TMPDIR_HOOKS/ct.out" 2>&1 &
+  CT_PID=$!
+fi
+
 # --- Wait and collect errors ---
 
 if [ -n "${TC_PID:-}" ]; then
@@ -89,6 +98,10 @@ fi
 
 if [ -n "${TEST_PID:-}" ]; then
   wait "$TEST_PID" || ERRORS="${ERRORS}--- Unit Test Failures ---\n$(cat "$TMPDIR_HOOKS/test.out")\n\n"
+fi
+
+if [ -n "${CT_PID:-}" ]; then
+  wait "$CT_PID" || ERRORS="${ERRORS}--- Tests Type-check Errors ---\n$(cat "$TMPDIR_HOOKS/ct.out")\n\n"
 fi
 
 # --- Sequential conditional checks (fast, file-scoped) ---

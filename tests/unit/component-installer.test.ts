@@ -13,6 +13,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import { createTestAddOptions } from './_helpers/add-options.js';
+import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
 
 // Mock @clack/prompts
 vi.mock('@clack/prompts', () => ({
@@ -139,15 +141,12 @@ function createMockOutput() {
   };
 }
 
-const BASE_CONFIG = {
-  $schema: 'https://kigumi.dev/schema/config.json',
-  framework: 'react',
-  typescript: true,
+const BASE_CONFIG = createTestKigumiConfig({
   componentsDir: 'src/components',
   utilsDir: 'src/lib',
   stylesDir: 'src/styles',
   theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
-};
+});
 
 /**
  * Dynamically import `ComponentInstaller` (required because `beforeEach`
@@ -207,10 +206,13 @@ describe('ComponentInstaller', () => {
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { installer } = await createInstaller(testDir);
 
-    await installer.installComponents(['Button'], {
-      force: true,
-      yes: true,
-    });
+    await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({
+        force: true,
+        yes: true,
+      })
+    );
 
     // renderDiff must be called for the modified Button.tsx
     expect(renderDiff).toHaveBeenCalledWith(
@@ -246,10 +248,13 @@ describe('ComponentInstaller', () => {
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { installer } = await createInstaller(testDir);
 
-    const results = await installer.installComponents(['Button'], {
-      force: true,
-      yes: true,
-    });
+    const results = await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({
+        force: true,
+        yes: true,
+      })
+    );
 
     expect(renderDiff).not.toHaveBeenCalled();
     expect(results[0].skipped).toBe(true);
@@ -262,7 +267,10 @@ describe('ComponentInstaller', () => {
     const { loadSnapshot } = await import('../../src/utils/snapshot.js');
     const { installer } = await createInstaller(testDir);
 
-    await installer.installComponents(['Button'], { yes: true });
+    await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({ yes: true })
+    );
 
     const snapshot = await loadSnapshot(testDir, 'Button');
 
@@ -295,7 +303,10 @@ describe('ComponentInstaller', () => {
     const { installer } = await createInstaller(testDir);
 
     // No --force: smart-add shows diff + prompt
-    const results = await installer.installComponents(['Button'], {});
+    const results = await installer.installComponents(
+      ['Button'],
+      createTestAddOptions()
+    );
 
     // Skipped
     expect(results[0].skipped).toBe(true);
@@ -320,7 +331,10 @@ describe('ComponentInstaller', () => {
   it('warns when a component has deps that are neither requested nor installed', async () => {
     const { installer, output } = await createInstaller(testDir);
 
-    await installer.installComponents(['select'], { yes: true });
+    await installer.installComponents(
+      ['select'],
+      createTestAddOptions({ yes: true })
+    );
 
     const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
     const depWarning = warnCalls.find(
@@ -333,7 +347,10 @@ describe('ComponentInstaller', () => {
   it('does not warn when a dep is requested in the same install', async () => {
     const { installer, output } = await createInstaller(testDir);
 
-    await installer.installComponents(['select', 'option'], { yes: true });
+    await installer.installComponents(
+      ['select', 'option'],
+      createTestAddOptions({ yes: true })
+    );
 
     const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
     expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
@@ -345,7 +362,10 @@ describe('ComponentInstaller', () => {
 
     const { installer, output } = await createInstaller(testDir);
 
-    await installer.installComponents(['select'], { yes: true });
+    await installer.installComponents(
+      ['select'],
+      createTestAddOptions({ yes: true })
+    );
 
     const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
     expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
@@ -357,7 +377,10 @@ describe('ComponentInstaller', () => {
 
     const { installer, output } = await createInstaller(testDir);
 
-    await installer.installComponents(['select'], { yes: true });
+    await installer.installComponents(
+      ['select'],
+      createTestAddOptions({ yes: true })
+    );
 
     const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
     expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
@@ -366,7 +389,10 @@ describe('ComponentInstaller', () => {
   it('does not warn for a component with no dependencies', async () => {
     const { installer, output } = await createInstaller(testDir);
 
-    await installer.installComponents(['Button'], { yes: true });
+    await installer.installComponents(
+      ['Button'],
+      createTestAddOptions({ yes: true })
+    );
 
     const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
     expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();

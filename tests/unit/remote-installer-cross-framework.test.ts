@@ -20,6 +20,7 @@ import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
 import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 import type { LocalRegistrySource } from '../../src/utils/github-fetcher.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
+import { createTestAddOptions } from './_helpers/add-options.js';
 
 vi.mock('../../src/utils/registry-cache.js', async () => {
   const actual = await vi.importActual<
@@ -155,9 +156,10 @@ describe('RemoteComponentInstaller — cross-framework staging', () => {
       createMockOutput()
     );
 
-    const results = await installer.installComponents(['login-example'], {
-      crossFramework: true,
-    });
+    const results = await installer.installComponents(
+      ['login-example'],
+      createTestAddOptions({ crossFramework: true })
+    );
 
     // The result is a successful "staged" install
     expect(results).toHaveLength(1);
@@ -200,9 +202,10 @@ describe('RemoteComponentInstaller — cross-framework staging', () => {
       createMockOutput()
     );
 
-    await installer.installComponents(['login-example'], {
-      crossFramework: true,
-    });
+    await installer.installComponents(
+      ['login-example'],
+      createTestAddOptions({ crossFramework: true })
+    );
 
     const meta = await fs.readJSON(
       path.join(projectDir, '.kigumi/foreign/login-example/_meta.json')
@@ -238,9 +241,10 @@ describe('RemoteComponentInstaller — cross-framework staging', () => {
       createMockOutput()
     );
 
-    await installer.installComponents(['login-example'], {
-      crossFramework: true,
-    });
+    await installer.installComponents(
+      ['login-example'],
+      createTestAddOptions({ crossFramework: true })
+    );
 
     // Stale file is gone
     expect(
@@ -304,9 +308,10 @@ describe('RemoteComponentInstaller — cross-framework staging', () => {
       createMockOutput()
     );
 
-    const results = await installer.installComponents(['login-example'], {
-      crossFramework: true,
-    });
+    const results = await installer.installComponents(
+      ['login-example'],
+      createTestAddOptions({ crossFramework: true })
+    );
 
     expect(results[0].staged).toBeFalsy();
     // Vue file installed normally
@@ -336,7 +341,7 @@ describe('RemoteComponentInstaller — cross-framework staging', () => {
 
     // No crossFramework option — should throw at the per-component check
     await expect(
-      installer.installComponents(['login-example'], {})
+      installer.installComponents(['login-example'], createTestAddOptions())
     ).rejects.toThrow(/does not support vue/);
   });
 
@@ -361,9 +366,10 @@ describe('RemoteComponentInstaller — cross-framework staging', () => {
       output
     );
 
-    await installer.installComponents(['login-example'], {
-      crossFramework: true,
-    });
+    await installer.installComponents(
+      ['login-example'],
+      createTestAddOptions({ crossFramework: true })
+    );
 
     expect(output.note).not.toHaveBeenCalled();
   });

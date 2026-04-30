@@ -11,6 +11,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import { createTestAddOptions } from './_helpers/add-options.js';
 
 vi.mock('../../src/utils/registry-cache.js', async () => {
   const actual = await vi.importActual<
@@ -141,12 +142,15 @@ describe('addCommand --cross-framework (foreign-framework registry)', () => {
 
     const { addCommand } = await import('../../src/commands/add/index.js');
 
-    await addCommand(['login-example'], {
-      from: registryDir,
-      crossFramework: true,
-      cwd: projectDir,
-      yes: true,
-    });
+    await addCommand(
+      ['login-example'],
+      createTestAddOptions({
+        from: registryDir,
+        crossFramework: true,
+        cwd: projectDir,
+        yes: true,
+      })
+    );
 
     // Files staged
     const stagedDir = path.join(projectDir, '.kigumi/foreign/login-example');
@@ -185,11 +189,14 @@ describe('addCommand --cross-framework (foreign-framework registry)', () => {
 
     const { addCommand } = await import('../../src/commands/add/index.js');
 
-    await addCommand(['login-example'], {
-      from: registryDir,
-      cwd: projectDir,
-      yes: true,
-    });
+    await addCommand(
+      ['login-example'],
+      createTestAddOptions({
+        from: registryDir,
+        cwd: projectDir,
+        yes: true,
+      })
+    );
 
     // No staged dir
     expect(await fs.pathExists(path.join(projectDir, '.kigumi/foreign'))).toBe(
@@ -206,11 +213,14 @@ describe('addCommand --cross-framework (foreign-framework registry)', () => {
 
     const { addCommand } = await import('../../src/commands/add/index.js');
 
-    await addCommand(['login-example'], {
-      from: registryDir,
-      cwd: projectDir,
-      yes: true,
-    });
+    await addCommand(
+      ['login-example'],
+      createTestAddOptions({
+        from: registryDir,
+        cwd: projectDir,
+        yes: true,
+      })
+    );
 
     // Normal install path: file lands in componentsDir
     const installed = path.join(

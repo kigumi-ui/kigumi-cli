@@ -335,7 +335,7 @@ describe('tier restrictions', () => {
       // If someone re-adds a `.components` field, they are re-introducing
       // the drift source this spec was created to eliminate.
       expect(
-        (TIER_RESTRICTIONS as Record<string, unknown>).components
+        (TIER_RESTRICTIONS as unknown as Record<string, unknown>).components
       ).toBeUndefined();
     });
   });

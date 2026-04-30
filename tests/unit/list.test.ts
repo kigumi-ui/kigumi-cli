@@ -25,7 +25,7 @@ describe('list command', () => {
     vi.mocked(tier.detectTier).mockResolvedValue('pro');
     // Mock console output to capture output
     vi.spyOn(process.stdout, 'write').mockImplementation((str: unknown) => {
-      consoleOutput.push(str.toString());
+      consoleOutput.push(typeof str === 'string' ? str : String(str));
       return true;
     });
   });

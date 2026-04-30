@@ -17,6 +17,7 @@ import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
 import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 import type { LocalRegistrySource } from '../../src/utils/github-fetcher.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
+import { createTestAddOptions } from './_helpers/add-options.js';
 
 // Avoid touching ~/.kigumi/cache during tests by giving the registry-cache
 // a fresh temp base for the cache reset performed in beforeEach.
@@ -146,7 +147,10 @@ describe('RemoteComponentInstaller — local filesystem source', () => {
       createMockOutput()
     );
 
-    const results = await installer.installComponents(['my-card'], {});
+    const results = await installer.installComponents(
+      ['my-card'],
+      createTestAddOptions()
+    );
 
     // Installer reports success
     expect(results).toHaveLength(1);
@@ -211,7 +215,10 @@ describe('RemoteComponentInstaller — local filesystem source', () => {
       createMockOutput()
     );
 
-    const results = await installer.installComponents(['missing-card'], {});
+    const results = await installer.installComponents(
+      ['missing-card'],
+      createTestAddOptions()
+    );
 
     expect(results).toHaveLength(1);
     expect(results[0].success).toBe(false);

@@ -18,20 +18,9 @@ import {
   configureVueTypes,
   toKigumiAlias,
 } from '../../src/utils/project-config.js';
+import { createTestOutput } from './_helpers/output.js';
 
-// Mock output interface
-const mockOutput = {
-  log: () => {},
-  info: () => {},
-  warn: () => {},
-  error: () => {},
-  success: () => {},
-  spinner: () => ({ stop: () => {}, error: () => {}, message: () => {} }),
-  intro: () => {},
-  outro: () => {},
-  note: () => {},
-  warning: () => {},
-};
+const mockOutput = createTestOutput();
 
 describe('configureTSConfig', () => {
   let testDir: string;

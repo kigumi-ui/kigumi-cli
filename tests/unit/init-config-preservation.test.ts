@@ -9,6 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
+import type { ProjectInfo } from '../../src/utils/detect-framework.js';
 
 // Mock @clack/prompts
 vi.mock('@clack/prompts', () => ({
@@ -92,11 +93,13 @@ const baseExistingConfig: KigumiConfig = {
   },
 };
 
-const defaultProjectInfo = {
-  framework: 'react' as const,
+const defaultProjectInfo: ProjectInfo = {
+  framework: 'react',
   typescript: true,
-  packageManager: 'pnpm' as const,
-  monorepo: false,
+  packageManager: 'pnpm',
+  hasVite: false,
+  isNext: false,
+  sourceLayout: 'src',
 };
 
 describe('config preservation during re-init', () => {

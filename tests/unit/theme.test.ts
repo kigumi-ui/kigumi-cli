@@ -9,6 +9,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { WEB_AWESOME_FREE_PACKAGE } from '../../src/constants.js';
+import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
 
 describe('theme commands', () => {
   let testDir: string;
@@ -286,9 +287,7 @@ describe('theme commands', () => {
 
   describe('theme file generation', () => {
     it('should create kigumi.ts with theme imports', async () => {
-      const config = {
-        framework: 'react',
-        typescript: true,
+      const config = createTestKigumiConfig({
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
         theme: {
@@ -296,7 +295,7 @@ describe('theme commands', () => {
           palette: 'sky',
           brandColor: '#0ea5e9',
         },
-      };
+      });
 
       await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), config);
       await fs.writeJSON(path.join(testDir, 'package.json'), {
@@ -325,9 +324,7 @@ describe('theme commands', () => {
     });
 
     it('should handle "none" theme without imports', async () => {
-      const config = {
-        framework: 'react',
-        typescript: true,
+      const config = createTestKigumiConfig({
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
         theme: {
@@ -335,7 +332,7 @@ describe('theme commands', () => {
           palette: 'sky',
           brandColor: '#0ea5e9',
         },
-      };
+      });
 
       await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), config);
       await fs.writeJSON(path.join(testDir, 'package.json'), {
