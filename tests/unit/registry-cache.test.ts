@@ -16,6 +16,8 @@ import {
 } from '../../src/utils/registry-cache.js';
 import { REGISTRY_CACHE_TTL_MS } from '../../src/constants.js';
 import type { GitHubRegistrySource } from '../../src/utils/github-fetcher.js';
+import type { Framework } from '../../src/schemas/config.js';
+import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 
 // =============================================================================
 // Shared Fixtures
@@ -32,10 +34,10 @@ const testSource: GitHubRegistrySource = {
   branch: 'main',
 };
 
-const testRegistry = {
+const testRegistry: CommunityRegistry = {
   name: 'Test Registry',
   version: '1.0.0',
-  frameworks: ['react'] as const,
+  frameworks: ['react'] as Framework[],
   components: {},
   themes: {},
 };
@@ -120,10 +122,10 @@ describe('RegistryCache — invalidate', () => {
       branch: 'main',
     };
 
-    const otherRegistry = {
+    const otherRegistry: CommunityRegistry = {
       name: 'Other Registry',
       version: '2.0.0',
-      frameworks: ['vue'] as const,
+      frameworks: ['vue'] as Framework[],
       components: {},
       themes: {},
     };

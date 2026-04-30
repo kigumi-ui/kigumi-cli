@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (74 files, 1158 tests)
+├── unit/                    # Fast, isolated tests (75 files, 1197 tests; +1 in scripts/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -82,7 +82,10 @@ tests/
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
-│   └── angular-templates.test.ts    # Angular template generation validation
+│   ├── angular-templates.test.ts    # Angular template generation validation
+│   ├── vue-templates.test.ts        # Vue template generation validation
+│   └── scripts/
+│       └── check-tests-baseline.test.ts # Tests for the tsc baseline gate wrapper
 ├── integration/             # Integration tests (build + run CLI)
 │   └── *.test.ts            # Tests that require built CLI
 ├── e2e/                     # Full CLI integration
@@ -100,6 +103,27 @@ pnpm test:coverage     # Unit tests with coverage report
 pnpm test:all          # Both unit and E2E
 pnpm test:watch        # Watch mode
 ```
+
+---
+
+## Type-Checking Tests
+
+`tests/**` is included in `tsconfig.tests.json` and gated by `pnpm check:tests`.
+The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error.
+The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137
+once the existing 133 errors were fixed; the gate is now strict.
+
+```bash
+pnpm check:tests                       # gate; fails on any tests/ type error
+pnpm check:tests --update-baseline     # re-create the baseline (only if a deliberate
+                                       # batch of new errors needs allowlisting)
+```
+
+### When `tsc` upgrades introduce new error codes
+
+A TypeScript minor bump can flag previously-silent issues. Fix the new errors
+in the upgrade PR. Re-introducing the baseline file is a last resort and should
+be paired with a follow-up plan to drain it.
 
 ---
 
@@ -321,4 +345,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-24
+**Last Updated:** 2026-04-30

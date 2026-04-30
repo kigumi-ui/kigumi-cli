@@ -259,7 +259,7 @@ describe('diffCommand', () => {
       (call: unknown[]) => call[0]
     );
     const unchangedLines = infoCalls.filter(
-      (msg: string) => typeof msg === 'string' && msg.includes('unchanged')
+      (msg: unknown) => typeof msg === 'string' && msg.includes('unchanged')
     );
     expect(unchangedLines.length).toBeGreaterThanOrEqual(3);
 
@@ -286,7 +286,7 @@ describe('diffCommand', () => {
       (call: unknown[]) => call[0]
     );
     const changedLines = infoCalls.filter(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('template changed')
     );
     expect(changedLines.length).toBeGreaterThanOrEqual(3);
@@ -306,7 +306,7 @@ describe('diffCommand', () => {
       (call: unknown[]) => call[0]
     );
     const missingLines = infoCalls.filter(
-      (msg: string) => typeof msg === 'string' && msg.includes('not found')
+      (msg: unknown) => typeof msg === 'string' && msg.includes('not found')
     );
     expect(missingLines.length).toBeGreaterThanOrEqual(3);
   });
@@ -339,7 +339,7 @@ describe('diffCommand', () => {
 
     // Should report 2 components checked
     const componentCountLine = infoCalls.find(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('component(s) checked')
     );
     expect(componentCountLine).toBeDefined();
@@ -347,7 +347,7 @@ describe('diffCommand', () => {
 
     // Should report template updates available (3 files from Dialog)
     const templateChangedLine = infoCalls.find(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('template updates available')
     );
     expect(templateChangedLine).toBeDefined();
@@ -376,7 +376,7 @@ describe('diffCommand', () => {
       (call: unknown[]) => call[0]
     );
     const buttonNameLine = infoCalls.find(
-      (msg: string) => typeof msg === 'string' && msg.includes('Button')
+      (msg: unknown) => typeof msg === 'string' && msg.includes('Button')
     );
     expect(buttonNameLine).toBeDefined();
   });
@@ -408,7 +408,7 @@ describe('diffCommand', () => {
 
     // Should report 1 component checked (only Button)
     const componentCountLine = infoCalls.find(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('component(s) checked')
     );
     expect(componentCountLine).toBeDefined();
@@ -416,7 +416,7 @@ describe('diffCommand', () => {
 
     // Should not mention Dialog in the component header lines
     const dialogLine = infoCalls.find(
-      (msg: string) => typeof msg === 'string' && msg.includes('Dialog')
+      (msg: unknown) => typeof msg === 'string' && msg.includes('Dialog')
     );
     expect(dialogLine).toBeUndefined();
   });
@@ -448,7 +448,7 @@ describe('diffCommand', () => {
 
     // Should only check 1 component (Button), not CustomWidget
     const componentCountLine = infoCalls.find(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('component(s) checked')
     );
     expect(componentCountLine).toBeDefined();

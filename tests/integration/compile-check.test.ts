@@ -21,6 +21,7 @@ import { execa } from 'execa';
 import { getAllComponents } from '../../src/utils/registry.js';
 import { generateComponent } from '../../src/utils/template.js';
 import type { Framework } from '../../src/schemas/config.js';
+import { createTestKigumiConfig } from '../unit/_helpers/kigumi-config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -237,12 +238,10 @@ describe('TypeScript Compile-Check', () => {
         await fs.ensureDir(componentDir);
 
         // Create minimal config
-        const config = {
+        const config = createTestKigumiConfig({
           framework: 'react' as Framework,
-          typescript: true,
           componentsDir: 'src/components',
-          themeName: 'default',
-        };
+        });
 
         // Generate TypeScript variant
         const content = await generateComponent(
@@ -315,12 +314,11 @@ describe('TypeScript Compile-Check', () => {
         await fs.ensureDir(componentDir);
 
         // Create minimal config
-        const config = {
+        const config = createTestKigumiConfig({
           framework: 'react' as Framework,
           typescript: false,
           componentsDir: 'src/components',
-          themeName: 'default',
-        };
+        });
 
         // Generate JavaScript variant
         const content = await generateComponent(
@@ -395,12 +393,10 @@ export {};
         await fs.ensureDir(componentDir);
 
         // Create minimal config
-        const config = {
+        const config = createTestKigumiConfig({
           framework: 'vue' as Framework,
-          typescript: true,
           componentsDir: 'src/components',
-          themeName: 'default',
-        };
+        });
 
         // Generate TypeScript variant
         const content = await generateComponent(
@@ -461,12 +457,10 @@ export {};
         await fs.ensureDir(componentDir);
 
         // Create minimal config
-        const config = {
+        const config = createTestKigumiConfig({
           framework: 'react' as Framework,
-          typescript: true,
           componentsDir: 'src/components',
-          themeName: 'default',
-        };
+        });
 
         const content = await generateComponent(
           complexComponent,

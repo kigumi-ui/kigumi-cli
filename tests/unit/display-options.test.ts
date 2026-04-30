@@ -19,14 +19,14 @@ import { TIER_RESTRICTIONS } from '../../src/utils/tier-restrictions.js';
 
 describe('THEME_OPTIONS', () => {
   it('should include free themes', () => {
-    const freeThemes = THEME_OPTIONS.filter((t) => !t.pro);
+    const freeThemes = THEME_OPTIONS.filter((t) => !('pro' in t && t.pro));
     expect(freeThemes.length).toBeGreaterThanOrEqual(3);
     const freeValues = freeThemes.map((t) => t.value);
     expect(freeValues).toContain('default');
   });
 
   it('should include pro themes', () => {
-    const proThemes = THEME_OPTIONS.filter((t) => t.pro);
+    const proThemes = THEME_OPTIONS.filter((t) => 'pro' in t && t.pro);
     expect(proThemes.length).toBeGreaterThan(0);
   });
 
@@ -74,7 +74,7 @@ describe('getThemeLabel', () => {
   });
 
   it('should return label different from value for named themes', () => {
-    const option = THEME_OPTIONS.find((t) => t.label !== t.value);
+    const option = THEME_OPTIONS.find((t) => (t.label as string) !== t.value);
     if (option) {
       expect(getThemeLabel(option.value)).toBe(option.label);
     }

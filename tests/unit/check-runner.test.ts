@@ -15,7 +15,9 @@ import {
 
 function makeCheck(name: string, result: Partial<CheckResult>): Check {
   return {
+    id: name,
     name,
+    description: name,
     run: async () => ({
       passed: true,
       severity: CheckSeverity.ERROR,
@@ -27,7 +29,9 @@ function makeCheck(name: string, result: Partial<CheckResult>): Check {
 
 function throwingCheck(name: string): Check {
   return {
+    id: name,
     name,
+    description: name,
     run: async () => {
       throw new Error('unexpected failure');
     },
@@ -46,14 +50,18 @@ describe('CheckRunner', () => {
     const order: number[] = [];
     const runner = new CheckRunner();
     runner.add({
+      id: 'first',
       name: 'first',
+      description: 'first',
       run: async () => {
         order.push(1);
         return { passed: true, severity: CheckSeverity.ERROR, message: 'ok' };
       },
     });
     runner.add({
+      id: 'second',
       name: 'second',
+      description: 'second',
       run: async () => {
         order.push(2);
         return { passed: true, severity: CheckSeverity.ERROR, message: 'ok' };

@@ -258,7 +258,7 @@ describe('updateCommand', () => {
       (call: unknown[]) => call[0]
     );
     const upToDateLines = infoCalls.filter(
-      (msg: string) => typeof msg === 'string' && msg.includes('up to date')
+      (msg: unknown) => typeof msg === 'string' && msg.includes('up to date')
     );
     expect(upToDateLines.length).toBeGreaterThanOrEqual(1);
   });
@@ -291,7 +291,8 @@ describe('updateCommand', () => {
       (call: unknown[]) => call[0]
     );
     const overwriteLines = infoCalls.filter(
-      (msg: string) => typeof msg === 'string' && msg.includes('safe overwrite')
+      (msg: unknown) =>
+        typeof msg === 'string' && msg.includes('safe overwrite')
     );
     expect(overwriteLines.length).toBeGreaterThanOrEqual(1);
   });
@@ -363,7 +364,7 @@ describe('updateCommand', () => {
       (call: unknown[]) => call[0]
     );
     const conflictLines = infoCalls.filter(
-      (msg: string) => typeof msg === 'string' && msg.includes('conflict')
+      (msg: unknown) => typeof msg === 'string' && msg.includes('conflict')
     );
     expect(conflictLines.length).toBeGreaterThanOrEqual(1);
   });
@@ -385,7 +386,7 @@ describe('updateCommand', () => {
       (call: unknown[]) => call[0]
     );
     const matchLines = infoCalls.filter(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('matches template')
     );
     expect(matchLines.length).toBeGreaterThanOrEqual(1);
@@ -491,7 +492,7 @@ describe('updateCommand', () => {
       (call: unknown[]) => call[0]
     );
     const summaryLine = infoCalls.find(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('component(s) processed')
     );
     expect(summaryLine).toContain('1');
@@ -529,7 +530,7 @@ describe('updateCommand', () => {
       (call: unknown[]) => call[0]
     );
     const summaryLine = infoCalls.find(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('component(s) processed')
     );
     expect(summaryLine).toContain('2');
@@ -560,7 +561,7 @@ describe('updateCommand', () => {
       (call: unknown[]) => call[0]
     );
     const summaryLine = infoCalls.find(
-      (msg: string) =>
+      (msg: unknown) =>
         typeof msg === 'string' && msg.includes('component(s) processed')
     );
     expect(summaryLine).toContain('1');

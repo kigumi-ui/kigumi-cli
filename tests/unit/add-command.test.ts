@@ -9,6 +9,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
+import { createTestAddOptions } from './_helpers/add-options.js';
 
 // Mock @clack/prompts for interactive prompt tests
 vi.mock('@clack/prompts', async () => {
@@ -100,7 +101,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Should have called process.exit with non-zero code
       expect(process.exit).toHaveBeenCalled();
@@ -117,7 +118,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // With broken JSON, the CLI should fail
       expect(process.exit).toHaveBeenCalled();
@@ -140,7 +141,7 @@ import '../styles/layers.css';
       const getSpy = vi.spyOn(configModule, 'getConfig');
 
       const { addCommand } = await import('../../src/commands/add/index.js');
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       expect(loadSpy).not.toHaveBeenCalled();
       expect(getSpy).toHaveBeenCalledTimes(1);
@@ -157,7 +158,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Check that component directory was created
       const componentDir = path.join(tempDir, 'src/components/Button');
@@ -180,7 +181,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Check for JavaScript file
       const jsxFile = path.join(tempDir, 'src/components/Button/Button.jsx');
@@ -197,7 +198,10 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button', 'badge', 'dialog'], { cwd: tempDir });
+      await addCommand(
+        ['button', 'badge', 'dialog'],
+        createTestAddOptions({ cwd: tempDir })
+      );
 
       // Check all components were created
       expect(
@@ -226,7 +230,10 @@ import '../styles/layers.css';
       // confirm mock returns false (user declines)
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir, force: false });
+      await addCommand(
+        ['button'],
+        createTestAddOptions({ cwd: tempDir, force: false })
+      );
 
       // Check content was NOT overwritten
       const content = await fs.readFile(
@@ -247,11 +254,14 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], {
-        cwd: tempDir,
-        force: true,
-        yes: true,
-      });
+      await addCommand(
+        ['button'],
+        createTestAddOptions({
+          cwd: tempDir,
+          force: true,
+          yes: true,
+        })
+      );
 
       // Check content WAS overwritten
       const content = await fs.readFile(
@@ -269,7 +279,7 @@ import '../styles/layers.css';
       const { addCommand } = await import('../../src/commands/add/index.js');
 
       // tests is true by default in the CLI
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Check for component directory - test files may or may not be generated
       // depending on template availability. The key is that the component was created.
@@ -283,7 +293,10 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir, tests: false });
+      await addCommand(
+        ['button'],
+        createTestAddOptions({ cwd: tempDir, tests: false })
+      );
 
       // Test file should not exist
       const testFile = path.join(
@@ -301,7 +314,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Component should be created
       const componentDir = path.join(tempDir, 'src/components/Button');
@@ -315,7 +328,7 @@ import '../styles/layers.css';
       const { addCommand } = await import('../../src/commands/add/index.js');
 
       // Badge is a free component
-      await addCommand(['badge'], { cwd: tempDir });
+      await addCommand(['badge'], createTestAddOptions({ cwd: tempDir }));
 
       const componentDir = path.join(tempDir, 'src/components/Badge');
       expect(await fs.pathExists(componentDir)).toBe(true);
@@ -329,7 +342,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Check for Vue file
       const vueFile = path.join(tempDir, 'src/components/Button/Button.vue');
@@ -348,7 +361,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Check for CSS file
       const cssFile = path.join(tempDir, 'src/components/Button/Button.css');
@@ -363,7 +376,7 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button'], { cwd: tempDir });
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
       // Check kigumi.ts exists
       const waPath = path.join(tempDir, 'src/lib/kigumi.ts');
@@ -378,7 +391,10 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button', 'badge'], { cwd: tempDir });
+      await addCommand(
+        ['button', 'badge'],
+        createTestAddOptions({ cwd: tempDir })
+      );
 
       // Check for index file
       const indexFile = path.join(tempDir, 'src/components/index.ts');
@@ -397,7 +413,10 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['non-existent-component'], { cwd: tempDir });
+      await addCommand(
+        ['non-existent-component'],
+        createTestAddOptions({ cwd: tempDir })
+      );
 
       // Should have exited with error
       expect(process.exit).toHaveBeenCalled();
@@ -409,7 +428,10 @@ import '../styles/layers.css';
 
       const { addCommand } = await import('../../src/commands/add/index.js');
 
-      await addCommand(['button', 'fake-component'], { cwd: tempDir });
+      await addCommand(
+        ['button', 'fake-component'],
+        createTestAddOptions({ cwd: tempDir })
+      );
 
       // Should have exited due to invalid component
       expect(process.exit).toHaveBeenCalled();

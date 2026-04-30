@@ -258,7 +258,7 @@ describe('diff roundtrip', () => {
       (call: unknown[]) => call[0]
     );
     const upToDate = infoCalls.filter(
-      (msg: string) => typeof msg === 'string' && msg.includes('up to date')
+      (msg: unknown) => typeof msg === 'string' && msg.includes('up to date')
     );
     expect(upToDate.length).toBeGreaterThanOrEqual(1);
   });

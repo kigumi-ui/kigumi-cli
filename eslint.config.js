@@ -13,8 +13,6 @@ export default tseslint.config(
       'node_modules/**',
       'coverage/**',
       'tests/.tmp-*/**',
-      '*.config.js',
-      '*.config.ts',
     ],
   },
   {

@@ -53,6 +53,9 @@ jobs:
       - name: Type-check templates
         run: pnpm run typecheck:templates
 
+      - name: Type-check tests
+        run: pnpm run check:tests
+
       - name: Validate Registry
         run: pnpm run validate:registry
 
