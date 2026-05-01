@@ -1,9 +1,9 @@
 # Test Infrastructure Hardening — Live Status
 
-**Last updated:** 2026-04-30
+**Last updated:** 2026-05-01
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** _none — choose next at session start (S/P/T/U/V are all unblocked now that Q1+Q2+R are SHIPPED)_
-**Active spec:** [`docs/superpowers/specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md`](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)
+**Active cluster:** P (coverage rationalization; spec drafted, ready for implementation session)
+**Active spec:** [`docs/superpowers/specs/2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)
 **Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
 
@@ -24,8 +24,8 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 | **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | —                                | **SHIPPED** | #137             | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)      | _accumulated in PR_ |
 | **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **SHIPPED** | #138             | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)      | _accumulated in PR_ |
 | **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **SHIPPED** | #139, #140, #141 | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md) | _local_             |
-| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
+| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **PLANNED** | _pending_        | _pending_                                                                  | _pending_           |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **PLANNED** | _pending_        | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md) | _pending_           |
 | **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
 | **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
 | **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED** | _pending_        | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)         | _pending_           |
@@ -129,14 +129,19 @@ Phase-0 prerequisites (typecheck script + Pro->Free migration on `kigumi-next-st
 
 R extends initiative scope from 3 to 4 starters. Pro-tier coverage is deferred to a separate follow-up cluster.
 
-### Phase 4: Parallel work — PENDING
+### Phase 4: Parallel work — IN PROGRESS
 
-After R ships, S/P/T/U can run in parallel sessions.
+After R shipped, S/P/T/U opened up. Status by sub-cluster:
 
-### Phase 4: Cluster V — PENDING
+- **P (coverage rationalization):** PLANNED. Spec drafted at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md). Four sequential PRs (PR-P1 through PR-P4); F-122 + F-124 hard-coupled in PR-P1. Implementation session creates a worktree at `.claude/worktrees/ft/cluster-p-phase-1/`. Decisions captured during planning: F-121 uses partial extraction (test the already-exported `validateAndPrepare`, promote `showPostInstallInstructions` + `confirmInstallation` + `confirmMigration` to `export`, write unit tests for `file-generator.ts`); subprocess coverage from F-124 carries the orchestrator. Backlog drift caught: F-121 references `setup-generator.ts` (349 lines); the actual file is `file-generator.ts` (118 lines).
+- **S (mock reduction):** PLANNED. Spec to be written. Can run in parallel with P (no file overlap with the heaviest mock files).
+- **T (property-based + edge cases):** BLOCKED on cluster A (`.strict()` adoption).
+- **U (story `play()` interactions):** unblocked but spec not yet written.
 
-Evidence layer. See [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md). Runs after Q1+Q2 ship.
+### Phase 5: Cluster V — PENDING
 
-### Phase 5: v0.20.0 ship — PENDING
+Evidence layer. See [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md). Runs after the Phase 4 parallel work (P, S, T, U) lands.
+
+### Phase 6: v0.20.0 ship — PENDING
 
 After all 8 clusters SHIPPED, the architectural changes ship against the new safety net.
