@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (75 files, 1197 tests; +1 in scripts/)
+├── unit/                    # Fast, isolated tests (80 files, 1223 tests; +1 in scripts/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -14,6 +14,7 @@ tests/
 │   ├── check-runner.test.ts         # Pre-flight check runner
 │   ├── component-installer.test.ts  # Component installer logic
 │   ├── community-registry.test.ts   # Registry schema, URL parsing, deps
+│   ├── component-selector.test.ts   # buildSelectorChoices + selectComponents dispatch
 │   ├── config.test.ts               # Config loading/saving
 │   ├── config-checks.test.ts        # Config validation checks
 │   ├── config-schema.test.ts        # Zod config schema validation
@@ -46,14 +47,18 @@ tests/
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── regenerate.test.ts           # File regeneration utilities
+│   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
 │   ├── remote-installer.test.ts     # Remote (community) component installer
 │   ├── remote-installer-cross-framework.test.ts # Cross-framework staging branch
 │   ├── remote-installer-local-source.test.ts    # Local filesystem registry source
 │   ├── registry.test.ts             # Component registry lookups
+│   ├── registry-add-component.test.ts     # Registry add-component command
+│   ├── registry-add-theme.test.ts         # Registry add-theme command
 │   ├── registry-cache.test.ts       # Disk cache for registries
 │   ├── registry-connect-command.test.ts   # Registry connect command (mismatch warning)
 │   ├── registry-init-command.test.ts      # Registry init command
 │   ├── registry-list-remove-command.test.ts # Registry list/remove
+│   ├── registry-router.test.ts            # Registry router structural + wiring
 │   ├── registry-validate-command.test.ts  # Registry validate command
 │   ├── status.test.ts               # Status command
 │   ├── snapshot.test.ts             # Snapshot CRUD and community install snapshots
@@ -381,4 +386,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-30
+**Last Updated:** 2026-05-01
