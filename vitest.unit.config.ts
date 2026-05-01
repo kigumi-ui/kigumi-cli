@@ -24,6 +24,9 @@ export default defineConfig({
         '**/dist/**',
         '**/*.test.ts',
         '**/*.d.ts',
+        'src/lib/**',
+        'src/bin.ts',
+        'src/styles/**',
       ],
       thresholds: {
         lines: 68,
