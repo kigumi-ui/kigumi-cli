@@ -309,6 +309,7 @@ export async function runKigumi(
         // Isolate from host Pro tier detection
         WEBAWESOME_NPM_TOKEN: '',
         KIGUMI_SKIP_GLOBAL_NPMRC: 'true',
+        NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
       },
     });
     return {

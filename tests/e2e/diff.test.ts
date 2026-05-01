@@ -35,7 +35,11 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
   it('should initialize the project', async () => {
     await execa('node', [CLI_PATH, 'init', '--yes'], {
       cwd: TEST_DIR,
-      env: { ...process.env, CI: 'true' },
+      env: {
+        ...process.env,
+        CI: 'true',
+        NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+      },
     });
     expect(await fs.pathExists(path.join(TEST_DIR, 'kigumi.config.json'))).toBe(
       true
@@ -45,7 +49,11 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
   it('should create snapshot when adding a component', async () => {
     await execa('node', [CLI_PATH, 'add', 'button', '--yes'], {
       cwd: TEST_DIR,
-      env: { ...process.env, CI: 'true' },
+      env: {
+        ...process.env,
+        CI: 'true',
+        NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+      },
     });
 
     const snapshotDir = path.join(TEST_DIR, '.kigumi/snapshots/Button');
@@ -70,7 +78,11 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
       [CLI_PATH, 'add', 'button', '--force', '--yes'],
       {
         cwd: TEST_DIR,
-        env: { ...process.env, CI: 'true' },
+        env: {
+          ...process.env,
+          CI: 'true',
+          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+        },
         reject: false,
       }
     );
@@ -83,7 +95,11 @@ describe('E2E Diff Test - Snapshots and Diffs', () => {
   it('should show component status with diff command', async () => {
     const result = await execa('node', [CLI_PATH, 'diff', 'button'], {
       cwd: TEST_DIR,
-      env: { ...process.env, CI: 'true' },
+      env: {
+        ...process.env,
+        CI: 'true',
+        NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+      },
       reject: false,
     });
 

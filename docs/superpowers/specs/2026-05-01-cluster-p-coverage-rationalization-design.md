@@ -51,29 +51,29 @@ Backlog drift caught during planning: F-121 references `src/commands/init/setup-
 
 Files this cluster touches.
 
-| File | Change |
-| --- | --- |
-| `vitest.unit.config.ts` | extend `coverage.exclude`; raise thresholds in two steps; extend `coverage.include` in PR-P4 |
-| `tests/integration/helpers.ts` | propagate `NODE_V8_COVERAGE` in `runKigumi` env block |
-| `tests/e2e/smoke.test.ts`, `tests/e2e/diff.test.ts` | propagate `NODE_V8_COVERAGE` in their execa env (verify location during implementation) |
-| `package.json` (scripts) | add `coverage:all` |
-| `scripts/coverage-all.mts` (new) | merge harness for unit + subprocess coverage |
-| `tests/unit/registry-add-component.test.ts` (new) | F-120 |
-| `tests/unit/registry-add-theme.test.ts` (new) | F-120 |
-| `tests/unit/registry-router.test.ts` (new) | F-120 |
-| `tests/unit/component-selector.test.ts` (new) | F-123 |
-| `tests/unit/remote-component-selector.test.ts` (new) | F-123 |
-| `tests/unit/init-validate-and-prepare.test.ts` (new) | F-121 |
-| `tests/unit/init-file-generator.test.ts` (new) | F-121 |
-| `tests/unit/init-post-install-instructions.test.ts` (new) | F-121 |
-| `src/commands/init/index.ts` | promote `showPostInstallInstructions`, `confirmInstallation`, `confirmMigration` to `export` |
-| `src/commands/add/component-selector.ts` | extract `buildSelectorChoices` pure helper |
-| `src/commands/add/remote-component-selector.ts` | export the existing filter logic if needed for direct testing |
-| `tests/unit/scripts/generate-react-templates.test.ts` (new) | F-125 |
-| `tests/unit/scripts/generate-vue-templates.test.ts` (new) | F-125 |
-| `tests/unit/scripts/generate-angular-templates.test.ts` (new) | F-125 |
-| `tests/unit/scripts/post-changeset-version.test.ts` (new) | F-125 |
-| `scripts/generate-react-templates.ts`, `scripts/generate-vue-templates.ts`, `scripts/generate-angular-templates.ts` | add `export` to functions tests need to call |
+| File                                                                                                                | Change                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `vitest.unit.config.ts`                                                                                             | extend `coverage.exclude`; raise thresholds in two steps; extend `coverage.include` in PR-P4 |
+| `tests/integration/helpers.ts`                                                                                      | propagate `NODE_V8_COVERAGE` in `runKigumi` env block                                        |
+| `tests/e2e/smoke.test.ts`, `tests/e2e/diff.test.ts`                                                                 | propagate `NODE_V8_COVERAGE` in their execa env (verify location during implementation)      |
+| `package.json` (scripts)                                                                                            | add `coverage:all`                                                                           |
+| `scripts/coverage-all.mts` (new)                                                                                    | merge harness for unit + subprocess coverage                                                 |
+| `tests/unit/registry-add-component.test.ts` (new)                                                                   | F-120                                                                                        |
+| `tests/unit/registry-add-theme.test.ts` (new)                                                                       | F-120                                                                                        |
+| `tests/unit/registry-router.test.ts` (new)                                                                          | F-120                                                                                        |
+| `tests/unit/component-selector.test.ts` (new)                                                                       | F-123                                                                                        |
+| `tests/unit/remote-component-selector.test.ts` (new)                                                                | F-123                                                                                        |
+| `tests/unit/init-validate-and-prepare.test.ts` (new)                                                                | F-121                                                                                        |
+| `tests/unit/init-file-generator.test.ts` (new)                                                                      | F-121                                                                                        |
+| `tests/unit/init-post-install-instructions.test.ts` (new)                                                           | F-121                                                                                        |
+| `src/commands/init/index.ts`                                                                                        | promote `showPostInstallInstructions`, `confirmInstallation`, `confirmMigration` to `export` |
+| `src/commands/add/component-selector.ts`                                                                            | extract `buildSelectorChoices` pure helper                                                   |
+| `src/commands/add/remote-component-selector.ts`                                                                     | export the existing filter logic if needed for direct testing                                |
+| `tests/unit/scripts/generate-react-templates.test.ts` (new)                                                         | F-125                                                                                        |
+| `tests/unit/scripts/generate-vue-templates.test.ts` (new)                                                           | F-125                                                                                        |
+| `tests/unit/scripts/generate-angular-templates.test.ts` (new)                                                       | F-125                                                                                        |
+| `tests/unit/scripts/post-changeset-version.test.ts` (new)                                                           | F-125                                                                                        |
+| `scripts/generate-react-templates.ts`, `scripts/generate-vue-templates.ts`, `scripts/generate-angular-templates.ts` | add `export` to functions tests need to call                                                 |
 
 `.github/workflows/ci.yml` is intentionally NOT touched in this cluster. A new informational `coverage` job is a follow-up PR after cluster P closes.
 
@@ -172,10 +172,37 @@ const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-coverage-'));
 const env = { ...process.env, NODE_V8_COVERAGE: tempDir };
 
 try {
-  await execa('vitest', ['run', 'tests/unit', '--config', 'vitest.unit.config.ts'], { stdio: 'inherit', env });
-  await execa('vitest', ['run', 'tests/integration', '--config', 'vitest.integration.config.ts'], { stdio: 'inherit', env });
-  await execa('vitest', ['run', 'tests/e2e', '--testTimeout=300000'], { stdio: 'inherit', env });
-  await execa('c8', ['report', '--temp-directory', tempDir, '--src', 'src/', '--reporter', 'text', '--reporter', 'json-summary', '--reports-dir', 'coverage-merged'], { stdio: 'inherit' });
+  await execa(
+    'vitest',
+    ['run', 'tests/unit', '--config', 'vitest.unit.config.ts'],
+    { stdio: 'inherit', env }
+  );
+  await execa(
+    'vitest',
+    ['run', 'tests/integration', '--config', 'vitest.integration.config.ts'],
+    { stdio: 'inherit', env }
+  );
+  await execa('vitest', ['run', 'tests/e2e', '--testTimeout=300000'], {
+    stdio: 'inherit',
+    env,
+  });
+  await execa(
+    'c8',
+    [
+      'report',
+      '--temp-directory',
+      tempDir,
+      '--src',
+      'src/',
+      '--reporter',
+      'text',
+      '--reporter',
+      'json-summary',
+      '--reports-dir',
+      'coverage-merged',
+    ],
+    { stdio: 'inherit' }
+  );
 } finally {
   await fs.remove(tempDir);
 }
@@ -267,7 +294,7 @@ For contributors:
 Per-phase checklist (each PR must pass its phase's verification before merge):
 
 - [ ] PR-P1: `pnpm test:coverage` exits 0 with the new exclude list. `coverage-summary.json` no longer lists `src/bin.ts`. "All files" lines % is at least 78.5 (conservative floor; actual jump depends on whether `src/lib/kigumi.ts` exists).
-- [ ] PR-P1: `pnpm coverage:all` exits 0 on a clean checkout. `coverage-merged/coverage-summary.json` exists and is valid JSON.
+- [ ] PR-P1: `pnpm coverage:all` produces a valid `coverage-merged/coverage-summary.json` containing data from all three suites. The script exits 0 when every suite passes and exits non-zero otherwise without skipping the merge step. The acceptance signal is the merged report, not the exit code; on a clean checkout the script currently exits non-zero because of the pre-existing `tests/e2e/smoke.test.ts` "should install Web Awesome package" failure (independent of cluster P) and will exit 0 once that e2e issue is fixed.
 - [ ] PR-P1: the merged report shows `src/commands/init/index.ts` above 50% lines (vs. 16.29% unit-only baseline).
 - [ ] PR-P2: `pnpm test:coverage` shows `registry.ts`, `registry/add-component.ts`, `registry/add-theme.ts` all above 70% lines. `component-selector.ts`, `remote-component-selector.ts` both above 70%. CI passes with thresholds raised to 80/70/84/80.
 - [ ] PR-P3: `pnpm test:coverage` shows `init/index.ts` above 50% (where `validateAndPrepare` and the exported helpers reach) and `file-generator.ts` above 70%. The merged report shows `init/index.ts` above 70%. CI passes with thresholds 85/75/86/85.
@@ -276,17 +303,17 @@ Per-phase checklist (each PR must pass its phase's verification before merge):
 
 ## Risks
 
-| Risk | Mitigation |
-| --- | --- |
-| Subprocess coverage is flaky if a child process exits abnormally and loses its coverage write. | Acceptable for happy-path tests. Document the limitation. The merged report degrades gracefully (one missing process means a lower numerator, not test failure). |
-| Vitest 4.x does not expose a public `mergeReports` API and the c8 CLI changes flags. | Pin `c8` as a versioned dev dependency. Add a small unit test for the merge harness itself (input two synthetic V8 JSONs, assert merged shape). |
-| The threshold raise to 85/75/86/85 is too tight; CI fails on unrelated PRs. | Set thresholds 2 to 3 points below the measured number after each raise. If a future PR adds a new untested file, its drop is bounded; the gate triggers a rationalization conversation rather than a false failure. |
-| `src/lib/` exclusion is wrong (file does not exist or has different contents than the F-122 backlog claims). | Implementing agent verifies in PR-P1 by checking `ls src/lib/` and the actual `coverage-summary.json`. Adjust the exclude pattern accordingly. |
-| F-121 partial extraction breaks the init orchestrator's behavior. | The exported `showPostInstallInstructions`, `confirmInstallation`, `confirmMigration` are pure; lifting them to `export` is a no-behavior-change refactor. Existing integration tests (`tests/integration/init.test.ts`) catch regressions. |
-| Generator snapshots become noisy on every `component-metadata.ts` regeneration. | Tests call generator functions with inline `ComponentDefinition` fixtures, not by reading `component-metadata.ts`. Snapshot stability is decoupled from upstream WA metadata changes. |
-| Adding `c8` as a dev dep adds maintenance burden. | If vitest 4.x `mergeReports` API is available and stable, prefer it and skip the `c8` addition. |
-| The merge report shows lower numbers than expected because integration tests do not actually exercise enough orchestrator branches. | Document the gap. F-121's targeted unit tests fill the orchestrator-specific gap so the merged report is not the sole signal for `init/index.ts`. |
-| The optional CI `coverage` job slows PR runtime. | Run it only on `main` pushes, not every PR. Or run it nightly. Document the cadence. Recommend deferring this job to a follow-up PR after the cluster closes. |
+| Risk                                                                                                                                | Mitigation                                                                                                                                                                                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Subprocess coverage is flaky if a child process exits abnormally and loses its coverage write.                                      | Acceptable for happy-path tests. Document the limitation. The merged report degrades gracefully (one missing process means a lower numerator, not test failure).                                                                            |
+| Vitest 4.x does not expose a public `mergeReports` API and the c8 CLI changes flags.                                                | Pin `c8` as a versioned dev dependency. Add a small unit test for the merge harness itself (input two synthetic V8 JSONs, assert merged shape).                                                                                             |
+| The threshold raise to 85/75/86/85 is too tight; CI fails on unrelated PRs.                                                         | Set thresholds 2 to 3 points below the measured number after each raise. If a future PR adds a new untested file, its drop is bounded; the gate triggers a rationalization conversation rather than a false failure.                        |
+| `src/lib/` exclusion is wrong (file does not exist or has different contents than the F-122 backlog claims).                        | Implementing agent verifies in PR-P1 by checking `ls src/lib/` and the actual `coverage-summary.json`. Adjust the exclude pattern accordingly.                                                                                              |
+| F-121 partial extraction breaks the init orchestrator's behavior.                                                                   | The exported `showPostInstallInstructions`, `confirmInstallation`, `confirmMigration` are pure; lifting them to `export` is a no-behavior-change refactor. Existing integration tests (`tests/integration/init.test.ts`) catch regressions. |
+| Generator snapshots become noisy on every `component-metadata.ts` regeneration.                                                     | Tests call generator functions with inline `ComponentDefinition` fixtures, not by reading `component-metadata.ts`. Snapshot stability is decoupled from upstream WA metadata changes.                                                       |
+| Adding `c8` as a dev dep adds maintenance burden.                                                                                   | If vitest 4.x `mergeReports` API is available and stable, prefer it and skip the `c8` addition.                                                                                                                                             |
+| The merge report shows lower numbers than expected because integration tests do not actually exercise enough orchestrator branches. | Document the gap. F-121's targeted unit tests fill the orchestrator-specific gap so the merged report is not the sole signal for `init/index.ts`.                                                                                           |
+| The optional CI `coverage` job slows PR runtime.                                                                                    | Run it only on `main` pushes, not every PR. Or run it nightly. Document the cadence. Recommend deferring this job to a follow-up PR after the cluster closes.                                                                               |
 
 ## Implementation Phases
 

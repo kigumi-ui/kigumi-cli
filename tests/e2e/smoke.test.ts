@@ -54,7 +54,10 @@ describe('E2E Smoke Test - Free Tier', () => {
       ],
       {
         cwd: TEST_DIR,
-        env: { ...process.env },
+        env: {
+          ...process.env,
+          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+        },
       }
     );
 
@@ -139,6 +142,10 @@ describe('E2E Smoke Test - Free Tier', () => {
   it('should add a component without errors', async () => {
     const result = await execa('node', [CLI_PATH, 'add', 'button', '--yes'], {
       cwd: TEST_DIR,
+      env: {
+        ...process.env,
+        NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+      },
     });
 
     expect(result.exitCode).toBe(0);
@@ -232,7 +239,13 @@ describe('E2E Smoke Test - Idempotency', () => {
     await execa(
       'node',
       [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
-      { cwd: IDEMPOTENT_DIR }
+      {
+        cwd: IDEMPOTENT_DIR,
+        env: {
+          ...process.env,
+          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+        },
+      }
     );
 
     const viteConfig1 = await fs.readFile(
@@ -244,7 +257,13 @@ describe('E2E Smoke Test - Idempotency', () => {
     await execa(
       'node',
       [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
-      { cwd: IDEMPOTENT_DIR }
+      {
+        cwd: IDEMPOTENT_DIR,
+        env: {
+          ...process.env,
+          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+        },
+      }
     );
 
     const viteConfig2 = await fs.readFile(
@@ -274,7 +293,13 @@ describe('E2E Smoke Test - Idempotency', () => {
     await execa(
       'node',
       [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
-      { cwd: IDEMPOTENT_DIR }
+      {
+        cwd: IDEMPOTENT_DIR,
+        env: {
+          ...process.env,
+          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+        },
+      }
     );
 
     const tsconfigAfter = await fs.readJSON(
