@@ -42,7 +42,7 @@ TMPDIR_HOOKS=$(mktemp -d)
 
 # Cleanup on exit: kill background jobs + remove temp dir
 cleanup() {
-  kill "${TC_PID:-}" "${LINT_PID:-}" "${VC_PID:-}" "${TC_DOCS_PID:-}" "${TEST_PID:-}" "${CT_PID:-}" 2>/dev/null
+  kill "${TC_PID:-}" "${LINT_PID:-}" "${VC_PID:-}" "${TC_DOCS_PID:-}" "${TEST_PID:-}" "${CT_PID:-}" "${MB_PID:-}" 2>/dev/null
   rm -rf "$TMPDIR_HOOKS"
 }
 trap cleanup EXIT
@@ -76,6 +76,12 @@ fi
 if [ -n "$HAS_TEST_CHANGES" ] && [ -z "$HAS_SRC_CHANGES" ]; then
   pnpm check:tests >"$TMPDIR_HOOKS/ct.out" 2>&1 &
   CT_PID=$!
+
+  # Mock budget runs alongside the tests-only fast path. It's advisory in
+  # CI until cluster S PR-S4 sets MOCK_BUDGET_ENFORCE=1; locally we only
+  # surface the report when it fails (script exits 0 without enforcement).
+  pnpm check:mocks >"$TMPDIR_HOOKS/mb.out" 2>&1 &
+  MB_PID=$!
 fi
 
 # --- Wait and collect errors ---
@@ -102,6 +108,10 @@ fi
 
 if [ -n "${CT_PID:-}" ]; then
   wait "$CT_PID" || ERRORS="${ERRORS}--- Tests Type-check Errors ---\n$(cat "$TMPDIR_HOOKS/ct.out")\n\n"
+fi
+
+if [ -n "${MB_PID:-}" ]; then
+  wait "$MB_PID" || ERRORS="${ERRORS}--- Mock Budget ---\n$(cat "$TMPDIR_HOOKS/mb.out")\n\n"
 fi
 
 # --- Sequential conditional checks (fast, file-scoped) ---

@@ -56,6 +56,9 @@ jobs:
       - name: Type-check tests
         run: pnpm run check:tests
 
+      - name: Check mock budget
+        run: pnpm run check:mocks
+
       - name: Validate Registry
         run: pnpm run validate:registry
 
