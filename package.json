@@ -39,6 +39,7 @@
     "type-check": "tsc --noEmit && pnpm typecheck:templates && pnpm check:tests",
     "typecheck:templates": "tsc --noEmit -p templates/react/tsconfig.json && vue-tsc --noEmit -p templates/vue/tsconfig.json && tsc --noEmit -p templates/angular/tsconfig.json",
     "check:tests": "tsx scripts/check-tests-baseline.ts",
+    "check:mocks": "tsx scripts/check-mock-budget.ts",
     "test": "vitest run tests/unit --config vitest.unit.config.ts",
     "test:coverage": "vitest run tests/unit --config vitest.unit.config.ts --coverage",
     "coverage:all": "tsx scripts/coverage-all.ts",

@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (80 files, 1223 tests; +5 in scripts/)
+├── unit/                    # Fast, isolated tests (86 files, 1297 tests; +5 in scripts/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -31,8 +31,10 @@ tests/
 │   ├── file-diff.test.ts            # File modification detection
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
+│   ├── helpers.test.ts              # Cluster S helpers (createRecordingOutput, createTestPrompts, writeTierFixture)
 │   ├── init-config-preservation.test.ts # Init with config preservation scenarios
 │   ├── init-existing-config.test.ts # Init with existing project
+│   ├── init-file-generator.test.ts  # Init file generator (per-framework setup file emission)
 │   ├── init-installer.test.ts       # Init installer logic
 │   ├── init-validate-and-prepare.test.ts # Init pre-flight validation + prep
 │   ├── json.test.ts                 # JSON with comments parsing
@@ -43,9 +45,11 @@ tests/
 │   ├── next-support.test.ts         # Next.js detection + 'use client' + suppressHydrationWarning + layers.css emission (App + Pages)
 │   ├── no-handlebars-tokens.test.ts # Regression guard: no `{{...}}` tokens in any template
 │   ├── options-schema.test.ts       # Command options schemas
+│   ├── output-di.test.ts            # Output DI hook (setOutputForTesting / resetOutputForTesting)
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
 │   ├── project-config.test.ts       # Project config helpers
+│   ├── prompts-wrapper.test.ts      # Prompts wrapper (setPromptsForTesting routing)
 │   ├── regenerate.test.ts           # File regeneration utilities
 │   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
 │   ├── remote-installer.test.ts     # Remote (community) component installer
@@ -138,6 +142,86 @@ pnpm check:tests --update-baseline     # re-create the baseline (only if a delib
 A TypeScript minor bump can flag previously-silent issues. Fix the new errors
 in the upgrade PR. Re-introducing the baseline file is a last resort and should
 be paired with a follow-up plan to drain it.
+
+---
+
+## Test Helpers (`tests/unit/_helpers/`)
+
+Sibling modules shared across unit tests. Prefer these over per-file `vi.mock`
+factories (cluster S, F-126).
+
+| Helper                                                                 | Use when                                                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createTestOutput()` (from `_helpers/output.ts`)                       | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape.                                                                                                                                                                           |
+| `createRecordingOutput()` (from `_helpers/output.ts`)                  | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`.                                                                                                                                                   |
+| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`)              | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`. |
+| `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`)     | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier.                                                                                                                                                                 |
+| `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`) | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers.                                                                                                                                                                                                                                                                                                          |
+| `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`)     | You need a fully-typed `AddOptions` for command tests.                                                                                                                                                                                                                                                                                                                            |
+
+The DI hooks live on the production modules:
+
+```typescript
+// In beforeEach (after vi.resetModules()):
+const outMod = await import('../../src/output/index.js');
+outMod.setOutputForTesting(createRecordingOutput());
+
+const promptsMod = await import('../../src/prompts/index.js');
+promptsMod.setPromptsForTesting(createTestPrompts({ select: ['react'] }));
+
+// In afterEach:
+(await import('../../src/output/index.js')).resetOutputForTesting();
+(await import('../../src/prompts/index.js')).resetPromptsForTesting();
+```
+
+The dynamic imports are required because the registered instance lives in
+module-level state, and `vi.resetModules()` evicts the module so the next
+import re-evaluates with fresh state - register the test instance after
+the reset, before the production command's dynamic import.
+
+For other module-level seams (`regenerate`, `github-fetcher`, `github-token`,
+`registry-resolver`, `version-map`, `template`, `registry`), prefer
+`vi.spyOn(module, 'fn').mockResolvedValue(...)` per-test inside the
+beforeEach or test body. `vi.spyOn` does not match the `vi\.mock`
+substring used by the budget gate (see below) and preserves the rest of
+the module's real behavior.
+
+## Mock Budget (`pnpm check:mocks`)
+
+`scripts/check-mock-budget.ts` walks `tests/unit/`, counts `vi.mock`
+substring matches, and gates against:
+
+- **Total**: < 50 across `tests/unit/` (currently 206; cluster S PR-S2/S3
+  drive it down).
+- **Per-file**: `theme-commands.test.ts` < 10 (currently 1).
+
+Modes:
+
+```bash
+pnpm check:mocks                        # advisory; prints counts, exits 0
+MOCK_BUDGET_ENFORCE=1 pnpm check:mocks  # enforced; exits 1 on threshold breach
+```
+
+CI runs the gate in advisory mode through PR-S3; PR-S4 sets
+`MOCK_BUDGET_ENFORCE=1` once the substring count is < 50. Locally, the
+stop-hook runs it in advisory mode alongside `check:tests` on the
+test-only fast path.
+
+### Legitimate exceptions to `vi.mock`
+
+The cluster S target leaves room for ~30 mocks. These are the documented
+exceptions:
+
+- **`execa` / `node:child_process`**: tests that must not actually shell
+  out (subprocess boundaries are fine to mock; spawning a real binary in
+  unit tests is the smell).
+- **Third-party SDKs without a kigumi wrapper**: when no internal seam
+  exists yet. Add the seam in a follow-up if the same SDK gets mocked in
+  three or more places.
+
+`@clack/prompts` is **not** an exception once the wrapper migration is
+complete. New tests must register a `setPromptsForTesting()` adapter
+instead.
 
 ---
 
@@ -397,4 +481,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-02
+**Last Updated:** 2026-05-02 (cluster S PR-S1: test helpers + mock budget gate)

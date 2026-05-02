@@ -1,132 +1,85 @@
 /**
  * Theme Commands Tests
  *
- * Tests for:
+ * Covers:
  * - src/commands/theme.ts (parent command + default set action)
  * - src/commands/theme/set.ts (set subcommand)
  * - src/commands/theme/show.ts (show subcommand)
  * - src/commands/theme/list.ts (list subcommand)
  * - src/commands/theme/install.ts (install subcommand)
+ *
+ * Cluster S, F-126: rewritten from a 7-vi.mock-declaration setup to
+ * helpers + DI hooks + per-test vi.spyOn for residual seams. All
+ * pre-cluster-S assertions are preserved or strengthened.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import { writeTierFixture } from './_helpers/tier.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  select: vi.fn(),
-  isCancel: vi.fn().mockReturnValue(false),
-  spinner: vi.fn().mockReturnValue({
-    start: vi.fn(),
-    stop: vi.fn(),
-    message: vi.fn(),
-  }),
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
+async function registerTestSeams(
+  output: RecordingOutput,
+  prompts: PromptsAdapter
+): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.setOutputForTesting(output);
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.setPromptsForTesting(prompts);
+}
 
-// Mock output
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
-
-// Mock regenerate
-vi.mock('../../src/utils/regenerate.js', () => ({
-  regenerateKigumiSetup: vi.fn().mockResolvedValue({ layersPreserved: false }),
-}));
-
-// Mock tier detection
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-  getProToken: vi.fn().mockResolvedValue(null),
-}));
-
-// Mock GitHub fetcher for theme install tests
-vi.mock('../../src/utils/github-fetcher.js', () => ({
-  parseGitHubUrl: vi.fn().mockReturnValue({
-    url: 'https://github.com/test/registry',
-    owner: 'test',
-    repo: 'registry',
-    branch: 'main',
-  }),
-  fetchRegistryJson: vi.fn(),
-  fetchFile: vi.fn(),
-  buildRawUrl: vi.fn(),
-}));
-
-// Mock GitHub token
-vi.mock('../../src/utils/github-token.js', () => ({
-  getGitHubToken: vi.fn().mockResolvedValue(undefined),
-}));
-
-// Mock registry resolver
-vi.mock('../../src/utils/registry-resolver.js', () => ({
-  resolveRegistrySource: vi
-    .fn()
-    .mockReturnValue('https://github.com/test/registry'),
-}));
+async function clearTestSeams(): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.resetOutputForTesting();
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.resetPromptsForTesting();
+}
 
 describe('theme command (parent + default set)', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
+  let regenerateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('free');
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({ select: ['awesome'] });
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-theme-cmd-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
+
+    const regenerate = await import('../../src/utils/regenerate.js');
+    regenerateSpy = vi
+      .spyOn(regenerate, 'regenerateKigumiSetup')
+      .mockResolvedValue({ layersPreserved: false });
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -196,9 +149,6 @@ describe('theme command (parent + default set)', () => {
 
       for (const theme of freeThemes) {
         await createConfig();
-        vi.resetModules();
-        vi.clearAllMocks();
-
         const { themeCommand } = await import('../../src/commands/theme.js');
         await themeCommand.parseAsync(['node', 'theme', 'set', theme]);
 
@@ -232,9 +182,7 @@ describe('theme command (parent + default set)', () => {
 
     it('should allow pro theme on pro tier', async () => {
       await createConfig();
-
-      const tier = await import('../../src/utils/tier.js');
-      vi.mocked(tier.detectTier).mockResolvedValue('pro');
+      await writeTierFixture(testDir, 'pro');
 
       const { themeCommand } = await import('../../src/commands/theme.js');
       await themeCommand.parseAsync(['node', 'theme', 'set', 'brutalist']);
@@ -248,12 +196,10 @@ describe('theme command (parent + default set)', () => {
     it('should call regenerateKigumiSetup after updating', async () => {
       await createConfig();
 
-      const { regenerateKigumiSetup } =
-        await import('../../src/utils/regenerate.js');
       const { themeCommand } = await import('../../src/commands/theme.js');
       await themeCommand.parseAsync(['node', 'theme', 'set', 'awesome']);
 
-      expect(regenerateKigumiSetup).toHaveBeenCalledWith(
+      expect(regenerateSpy).toHaveBeenCalledWith(
         testDir,
         expect.objectContaining({
           theme: expect.objectContaining({ selected: 'awesome' }),
@@ -286,14 +232,12 @@ describe('theme command (parent + default set)', () => {
   describe('interactive mode', () => {
     it('should prompt for theme selection when no argument given', async () => {
       await createConfig();
-
-      const p = await import('@clack/prompts');
-      vi.mocked(p.select).mockResolvedValue('awesome');
+      const selectSpy = vi.spyOn(prompts, 'select');
 
       const { themeCommand } = await import('../../src/commands/theme.js');
       await themeCommand.parseAsync(['node', 'theme', 'set']);
 
-      expect(p.select).toHaveBeenCalledWith(
+      expect(selectSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Select a theme:',
         })
@@ -303,10 +247,14 @@ describe('theme command (parent + default set)', () => {
     it('should handle user cancellation', async () => {
       await createConfig();
 
-      const p = await import('@clack/prompts');
       const cancelSymbol = Symbol('cancel');
-      vi.mocked(p.select).mockResolvedValue(cancelSymbol);
-      vi.mocked(p.isCancel).mockReturnValue(true);
+      // Re-register prompts that return the cancel symbol from select() and
+      // detect it via isCancel().
+      const cancelPrompts = createTestPrompts({
+        select: [cancelSymbol],
+        cancelSymbol,
+      });
+      await registerTestSeams(output, cancelPrompts);
 
       const { themeCommand } = await import('../../src/commands/theme.js');
       await themeCommand.parseAsync(['node', 'theme', 'set']);
@@ -329,30 +277,40 @@ describe('theme/set subcommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
+  let regenerateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('free');
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-theme-set-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
+
+    const regenerate = await import('../../src/utils/regenerate.js');
+    regenerateSpy = vi
+      .spyOn(regenerate, 'regenerateKigumiSetup')
+      .mockResolvedValue({ layersPreserved: false });
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -401,9 +359,7 @@ describe('theme/set subcommand', () => {
 
   it('should accept pro theme when tier is pro', async () => {
     await createConfig();
-
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('pro');
+    await writeTierFixture(testDir, 'pro');
 
     const { setCommand } = await import('../../src/commands/theme/set.js');
     await setCommand.parseAsync(['node', 'set', 'tailspin']);
@@ -417,12 +373,10 @@ describe('theme/set subcommand', () => {
   it('should call regenerateKigumiSetup', async () => {
     await createConfig();
 
-    const { regenerateKigumiSetup } =
-      await import('../../src/utils/regenerate.js');
     const { setCommand } = await import('../../src/commands/theme/set.js');
     await setCommand.parseAsync(['node', 'set', 'shoelace']);
 
-    expect(regenerateKigumiSetup).toHaveBeenCalled();
+    expect(regenerateSpy).toHaveBeenCalled();
   });
 
   it('should use default utilsDir when not set in config', async () => {
@@ -434,12 +388,10 @@ describe('theme/set subcommand', () => {
     delete config.utilsDir;
     await fs.writeJSON(configPath, config);
 
-    const { regenerateKigumiSetup } =
-      await import('../../src/utils/regenerate.js');
     const { setCommand } = await import('../../src/commands/theme/set.js');
     await setCommand.parseAsync(['node', 'set', 'default']);
 
-    expect(regenerateKigumiSetup).toHaveBeenCalledWith(
+    expect(regenerateSpy).toHaveBeenCalledWith(
       testDir,
       expect.objectContaining({
         theme: expect.objectContaining({ selected: 'default' }),
@@ -460,30 +412,34 @@ describe('theme/show subcommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('free');
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-theme-show-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -515,20 +471,17 @@ describe('theme/show subcommand', () => {
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
-    // Should call output.intro
-    expect(mockOutput.intro).toHaveBeenCalled();
+    expect(output.calls.some((c) => c.method === 'intro')).toBe(true);
 
-    // Should call output.note with settings (title first, message second)
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Settings',
-      expect.stringContaining('awesome')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Settings', expect.stringContaining('awesome')],
+    });
 
-    // Should show HTML classes
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'HTML Classes',
-      expect.stringContaining('wa-theme-awesome')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['HTML Classes', expect.stringContaining('wa-theme-awesome')],
+    });
   });
 
   it('should show tier information', async () => {
@@ -537,11 +490,10 @@ describe('theme/show subcommand', () => {
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
-    // The note call for Settings should contain tier
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Settings',
-      expect.stringContaining('free')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Settings', expect.stringContaining('free')],
+    });
   });
 
   it('should show theme import path for non-none themes', async () => {
@@ -552,11 +504,10 @@ describe('theme/show subcommand', () => {
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
-    // Should show the theme import path
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Theme Import',
-      expect.stringContaining('themes/awesome.css')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Theme Import', expect.stringContaining('themes/awesome.css')],
+    });
   });
 
   it('should not show theme import for "none" theme', async () => {
@@ -567,10 +518,8 @@ describe('theme/show subcommand', () => {
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
-    // Should NOT have a Theme Import note
-    const noteCallArgs = mockOutput.note.mock.calls;
-    const themeImportCalls = noteCallArgs.filter(
-      (call) => call[0] === 'Theme Import'
+    const themeImportCalls = output.calls.filter(
+      (c) => c.method === 'note' && c.args[0] === 'Theme Import'
     );
     expect(themeImportCalls).toHaveLength(0);
   });
@@ -588,9 +537,10 @@ describe('theme/show subcommand', () => {
     const { showCommand } = await import('../../src/commands/theme/show.js');
     await showCommand.parseAsync(['node', 'show']);
 
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('kigumi theme set')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'outro',
+      args: [expect.stringContaining('kigumi theme set')],
+    });
   });
 });
 
@@ -598,30 +548,34 @@ describe('theme/list subcommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('free');
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-theme-list-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(): Promise<void> {
@@ -650,17 +604,14 @@ describe('theme/list subcommand', () => {
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
-    // Should show themes section (title first, message second)
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Themes',
-      expect.stringContaining('default')
-    );
-
-    // Should mention free themes
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Themes',
-      expect.stringContaining('awesome')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Themes', expect.stringContaining('default')],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Themes', expect.stringContaining('awesome')],
+    });
   });
 
   it('should display available palettes', async () => {
@@ -669,11 +620,10 @@ describe('theme/list subcommand', () => {
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
-    // Should show palettes section
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Color Palettes',
-      expect.stringContaining('default')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Color Palettes', expect.stringContaining('default')],
+    });
   });
 
   it('should display available brand colors', async () => {
@@ -682,31 +632,27 @@ describe('theme/list subcommand', () => {
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
-    // Should show brand colors section
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Brand Colors',
-      expect.stringContaining('blue')
-    );
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Brand Colors',
-      expect.stringContaining('purple')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Brand Colors', expect.stringContaining('blue')],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Brand Colors', expect.stringContaining('purple')],
+    });
   });
 
   it('should show pro themes section when tier is pro', async () => {
     await createConfig();
-
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('pro');
+    await writeTierFixture(testDir, 'pro');
 
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
-    // Themes note should contain "Pro" when on pro tier
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Themes',
-      expect.stringContaining('Pro')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'note',
+      args: ['Themes', expect.stringContaining('Pro')],
+    });
   });
 
   it('should show outro with help text', async () => {
@@ -715,9 +661,10 @@ describe('theme/list subcommand', () => {
     const { listCommand } = await import('../../src/commands/theme/list.js');
     await listCommand.parseAsync(['node', 'list']);
 
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('kigumi theme set')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'outro',
+      args: [expect.stringContaining('kigumi theme set')],
+    });
   });
 });
 
@@ -725,33 +672,69 @@ describe('theme/install subcommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
+  let fetchRegistrySpy: ReturnType<typeof vi.spyOn>;
+  let fetchFileSpy: ReturnType<typeof vi.spyOn>;
+  let regenerateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('free');
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-theme-install-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
 
-    // Ensure styles directory exists for installs
     await fs.ensureDir(path.join(testDir, 'src/styles'));
+
+    // Spies for the network/registry/regenerate seams. Tests can override
+    // the resolved/rejected value via the same fetchRegistrySpy / fetchFileSpy
+    // bindings.
+    const ghFetcher = await import('../../src/utils/github-fetcher.js');
+    vi.spyOn(ghFetcher, 'parseGitHubUrl').mockReturnValue({
+      kind: 'github',
+      url: 'https://github.com/test/registry',
+      owner: 'test',
+      repo: 'registry',
+      branch: 'main',
+    });
+    vi.spyOn(ghFetcher, 'buildRawUrl').mockReturnValue(
+      'https://raw.githubusercontent.com/test/registry/main/themes/x.css'
+    );
+    fetchRegistrySpy = vi.spyOn(ghFetcher, 'fetchRegistryJson');
+    fetchFileSpy = vi.spyOn(ghFetcher, 'fetchFile');
+
+    const ghToken = await import('../../src/utils/github-token.js');
+    vi.spyOn(ghToken, 'getGitHubToken').mockResolvedValue(undefined);
+
+    const regResolver = await import('../../src/utils/registry-resolver.js');
+    vi.spyOn(regResolver, 'resolveRegistrySource').mockReturnValue(
+      'https://github.com/test/registry'
+    );
+
+    const regenerate = await import('../../src/utils/regenerate.js');
+    regenerateSpy = vi
+      .spyOn(regenerate, 'regenerateKigumiSetup')
+      .mockResolvedValue({ layersPreserved: false });
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -782,10 +765,7 @@ describe('theme/install subcommand', () => {
   it('should install theme from registry', async () => {
     await createConfig();
 
-    const { fetchRegistryJson, fetchFile } =
-      await import('../../src/utils/github-fetcher.js');
-
-    vi.mocked(fetchRegistryJson).mockResolvedValue({
+    fetchRegistrySpy.mockResolvedValue({
       name: 'Test Registry',
       version: '1.0.0',
       frameworks: ['react'],
@@ -793,14 +773,11 @@ describe('theme/install subcommand', () => {
       themes: {
         'custom-dark': {
           name: 'Custom Dark',
-          files: {
-            css: 'themes/custom-dark.css',
-          },
+          files: { css: 'themes/custom-dark.css' },
         },
       },
     });
-
-    vi.mocked(fetchFile).mockResolvedValue(':root { --test: value; }');
+    fetchFileSpy.mockResolvedValue(':root { --test: value; }');
 
     const { themeInstallAction } =
       await import('../../src/commands/theme/install.js');
@@ -809,7 +786,6 @@ describe('theme/install subcommand', () => {
       cwd: testDir,
     });
 
-    // Should have written CSS file
     const cssPath = path.join(
       testDir,
       'src/styles/community-themes/custom-dark.css'
@@ -818,26 +794,20 @@ describe('theme/install subcommand', () => {
     const cssContent = await fs.readFile(cssPath, 'utf-8');
     expect(cssContent).toBe(':root { --test: value; }');
 
-    // Should have updated config
     const savedConfig = await fs.readJSON(
       path.join(testDir, 'kigumi.config.json')
     );
     expect(savedConfig.theme.selected).toBe('custom-dark');
     expect(savedConfig.installedThemes).toBeDefined();
     expect(savedConfig.installedThemes['custom-dark']).toEqual(
-      expect.objectContaining({
-        source: 'community',
-      })
+      expect.objectContaining({ source: 'community' })
     );
   });
 
   it('should install theme with variables file', async () => {
     await createConfig();
 
-    const { fetchRegistryJson, fetchFile } =
-      await import('../../src/utils/github-fetcher.js');
-
-    vi.mocked(fetchRegistryJson).mockResolvedValue({
+    fetchRegistrySpy.mockResolvedValue({
       name: 'Test Registry',
       version: '1.0.0',
       frameworks: ['react'],
@@ -852,8 +822,7 @@ describe('theme/install subcommand', () => {
         },
       },
     });
-
-    vi.mocked(fetchFile)
+    fetchFileSpy
       .mockResolvedValueOnce(':root { color: red; }')
       .mockResolvedValueOnce(':root { --var: val; }');
 
@@ -864,14 +833,12 @@ describe('theme/install subcommand', () => {
       cwd: testDir,
     });
 
-    // Main CSS file
     const cssPath = path.join(
       testDir,
       'src/styles/community-themes/themed.css'
     );
     expect(await fs.pathExists(cssPath)).toBe(true);
 
-    // Variables file
     const varsPath = path.join(
       testDir,
       'src/styles/community-themes/themed-variables.css'
@@ -884,10 +851,7 @@ describe('theme/install subcommand', () => {
   it('should fail when theme not found in registry', async () => {
     await createConfig();
 
-    const { fetchRegistryJson } =
-      await import('../../src/utils/github-fetcher.js');
-
-    vi.mocked(fetchRegistryJson).mockResolvedValue({
+    fetchRegistrySpy.mockResolvedValue({
       name: 'Test Registry',
       version: '1.0.0',
       frameworks: ['react'],
@@ -908,9 +872,7 @@ describe('theme/install subcommand', () => {
   it('should fail when registry fetch fails', async () => {
     await createConfig();
 
-    const { fetchRegistryJson } =
-      await import('../../src/utils/github-fetcher.js');
-    vi.mocked(fetchRegistryJson).mockRejectedValue(new Error('Network error'));
+    fetchRegistrySpy.mockRejectedValue(new Error('Network error'));
 
     const { themeInstallAction } =
       await import('../../src/commands/theme/install.js');
@@ -923,7 +885,6 @@ describe('theme/install subcommand', () => {
   });
 
   it('should fail without config file', async () => {
-    // Remove the config
     const configPath = path.join(testDir, 'kigumi.config.json');
     if (await fs.pathExists(configPath)) {
       await fs.remove(configPath);
@@ -942,10 +903,7 @@ describe('theme/install subcommand', () => {
   it('should call regenerateKigumiSetup after install', async () => {
     await createConfig();
 
-    const { fetchRegistryJson, fetchFile } =
-      await import('../../src/utils/github-fetcher.js');
-
-    vi.mocked(fetchRegistryJson).mockResolvedValue({
+    fetchRegistrySpy.mockResolvedValue({
       name: 'Test Registry',
       version: '1.0.0',
       frameworks: ['react'],
@@ -953,17 +911,12 @@ describe('theme/install subcommand', () => {
       themes: {
         'my-theme': {
           name: 'My Theme',
-          files: {
-            css: 'themes/my-theme.css',
-          },
+          files: { css: 'themes/my-theme.css' },
         },
       },
     });
+    fetchFileSpy.mockResolvedValue('body {}');
 
-    vi.mocked(fetchFile).mockResolvedValue('body {}');
-
-    const { regenerateKigumiSetup } =
-      await import('../../src/utils/regenerate.js');
     const { themeInstallAction } =
       await import('../../src/commands/theme/install.js');
     await themeInstallAction('my-theme', {
@@ -971,16 +924,13 @@ describe('theme/install subcommand', () => {
       cwd: testDir,
     });
 
-    expect(regenerateKigumiSetup).toHaveBeenCalled();
+    expect(regenerateSpy).toHaveBeenCalled();
   });
 
   it('should store registry provenance in config', async () => {
     await createConfig();
 
-    const { fetchRegistryJson, fetchFile } =
-      await import('../../src/utils/github-fetcher.js');
-
-    vi.mocked(fetchRegistryJson).mockResolvedValue({
+    fetchRegistrySpy.mockResolvedValue({
       name: 'My Cool Registry',
       version: '2.0.0',
       frameworks: ['react'],
@@ -988,14 +938,11 @@ describe('theme/install subcommand', () => {
       themes: {
         neon: {
           name: 'Neon',
-          files: {
-            css: 'themes/neon.css',
-          },
+          files: { css: 'themes/neon.css' },
         },
       },
     });
-
-    vi.mocked(fetchFile).mockResolvedValue('.neon {}');
+    fetchFileSpy.mockResolvedValue('.neon {}');
 
     const { themeInstallAction } =
       await import('../../src/commands/theme/install.js');
@@ -1018,10 +965,7 @@ describe('theme/install subcommand', () => {
     await createConfig({ stylesDir: 'assets/css' });
     await fs.ensureDir(path.join(testDir, 'assets/css'));
 
-    const { fetchRegistryJson, fetchFile } =
-      await import('../../src/utils/github-fetcher.js');
-
-    vi.mocked(fetchRegistryJson).mockResolvedValue({
+    fetchRegistrySpy.mockResolvedValue({
       name: 'Test Registry',
       version: '1.0.0',
       frameworks: ['react'],
@@ -1029,14 +973,11 @@ describe('theme/install subcommand', () => {
       themes: {
         custom: {
           name: 'Custom',
-          files: {
-            css: 'themes/custom.css',
-          },
+          files: { css: 'themes/custom.css' },
         },
       },
     });
-
-    vi.mocked(fetchFile).mockResolvedValue('body {}');
+    fetchFileSpy.mockResolvedValue('body {}');
 
     const { themeInstallAction } =
       await import('../../src/commands/theme/install.js');
@@ -1055,10 +996,7 @@ describe('theme/install subcommand', () => {
   it('should show spinner messages during install', async () => {
     await createConfig();
 
-    const { fetchRegistryJson, fetchFile } =
-      await import('../../src/utils/github-fetcher.js');
-
-    vi.mocked(fetchRegistryJson).mockResolvedValue({
+    fetchRegistrySpy.mockResolvedValue({
       name: 'Test Registry',
       version: '1.0.0',
       frameworks: ['react'],
@@ -1066,14 +1004,11 @@ describe('theme/install subcommand', () => {
       themes: {
         demo: {
           name: 'Demo',
-          files: {
-            css: 'themes/demo.css',
-          },
+          files: { css: 'themes/demo.css' },
         },
       },
     });
-
-    vi.mocked(fetchFile).mockResolvedValue('body {}');
+    fetchFileSpy.mockResolvedValue('body {}');
 
     const { themeInstallAction } =
       await import('../../src/commands/theme/install.js');
@@ -1082,8 +1017,13 @@ describe('theme/install subcommand', () => {
       cwd: testDir,
     });
 
-    // Should have called spinner for fetching and installing
-    expect(mockOutput.spinner).toHaveBeenCalledWith('Fetching registry...');
-    expect(mockOutput.spinner).toHaveBeenCalledWith('Installing theme...');
+    expect(output.calls).toContainEqual({
+      method: 'spinner',
+      args: ['Fetching registry...'],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'spinner',
+      args: ['Installing theme...'],
+    });
   });
 });

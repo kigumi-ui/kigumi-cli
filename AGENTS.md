@@ -372,14 +372,15 @@ pnpm test          # Vitest: all passing
 
 ### Module Boundaries
 
-| Layer    | Directory       | Responsibility                          |
-| -------- | --------------- | --------------------------------------- |
-| Entry    | `src/index.ts`  | CLI routing, error handling             |
-| Commands | `src/commands/` | User-facing operations                  |
-| Utils    | `src/utils/`    | Business logic (registry, tier, config) |
-| Schemas  | `src/schemas/`  | Zod validation                          |
-| Errors   | `src/errors/`   | Typed error classes                     |
-| Output   | `src/output/`   | Console formatting (@clack/prompts)     |
+| Layer    | Directory       | Responsibility                                              |
+| -------- | --------------- | ----------------------------------------------------------- |
+| Entry    | `src/index.ts`  | CLI routing, error handling                                 |
+| Commands | `src/commands/` | User-facing operations                                      |
+| Utils    | `src/utils/`    | Business logic (registry, tier, config)                     |
+| Schemas  | `src/schemas/`  | Zod validation                                              |
+| Errors   | `src/errors/`   | Typed error classes                                         |
+| Output   | `src/output/`   | Console formatting (delegates to prompts wrapper)           |
+| Prompts  | `src/prompts/`  | `@clack/prompts` wrapper + DI hook (`setPromptsForTesting`) |
 
 ### Module Dependency Graph
 
@@ -1015,4 +1016,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-04-30
+**Maintained by:** AI Assistants | **Last Updated:** 2026-05-02

@@ -76,7 +76,8 @@ src/
 │   ├── community-registry.ts  # Registry-specific errors
 │   ├── version.ts        # VersionMismatchError (exit code 7)
 │   └── ...
-├── output/               # Console formatting (@clack/prompts)
+├── output/               # Console formatting (delegates to prompts wrapper)
+├── prompts/              # @clack/prompts wrapper + setPromptsForTesting() DI hook
 └── checks/               # Pre-flight validation
 ```
 
@@ -423,4 +424,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-04-27
+**Last Updated:** 2026-05-02 (cluster S PR-S1: src/prompts/ wrapper)
