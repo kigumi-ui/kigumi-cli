@@ -4,7 +4,8 @@ import './SplitPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
 }
 
 /**
@@ -44,7 +45,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaReposition = (e: Event) => emit('wa-reposition', e as CustomEvent);
+const handleWaReposition = (e: Event) =>
+  emit('wa-reposition', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -66,11 +68,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-split-panel
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-split-panel ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-split-panel>
 </template>

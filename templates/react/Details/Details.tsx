@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaDetails from '@awesome.me/webawesome/dist/components/details/details.js';
 import './Details.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/details/details.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/details/details.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Details ref={ref} />
  * ```
  */
-export interface DetailsProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
-
+export interface DetailsProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
   /** Whether the details are expanded */
   open?: boolean;
 
@@ -60,7 +70,6 @@ export interface DetailsProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow'
 }
 
 export interface DetailsRef {
-
   /** Shows the details. */
   show: () => void;
 
@@ -71,7 +80,10 @@ export interface DetailsRef {
 }
 
 export const Details = forwardRef<DetailsRef, DetailsProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
     const detailsRef = useRef<WaDetails | null>(null);
     const setDetailsRef = useCallback((el: WaDetails | null) => {
       detailsRef.current = el;
@@ -81,12 +93,18 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
       ref,
       () => ({
         show: () => {
-          if (detailsRef.current && typeof detailsRef.current.show === 'function') {
+          if (
+            detailsRef.current &&
+            typeof detailsRef.current.show === 'function'
+          ) {
             detailsRef.current.show();
           }
         },
         hide: () => {
-          if (detailsRef.current && typeof detailsRef.current.hide === 'function') {
+          if (
+            detailsRef.current &&
+            typeof detailsRef.current.hide === 'function'
+          ) {
             detailsRef.current.hide();
           }
         },
@@ -135,7 +153,10 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
       <wa-details
         ref={setDetailsRef}
         class={clsx('Details', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-details>

@@ -4,7 +4,8 @@ import './QrCode.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/qr-code/qr-code.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/qr-code/qr-code.js'));
 }
 
 /**
@@ -50,11 +51,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-qr-code
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-qr-code ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-qr-code>
 </template>

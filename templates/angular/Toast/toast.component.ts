@@ -1,9 +1,19 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/toast/toast.js';
+import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast/toast.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/toast/toast.js'));
 }
 
 /**
@@ -16,9 +26,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-toast
-        #element
-        [attr.placement]="placement">
+    <wa-toast #element [attr.placement]="placement">
       <ng-content />
     </wa-toast>
   `,
@@ -29,7 +37,13 @@ export class ToastComponent implements AfterViewInit {
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Screen corner or edge where notifications are anchored */
-  @Input() placement?: 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
+  @Input() placement?:
+    | 'top-start'
+    | 'top-center'
+    | 'top-end'
+    | 'bottom-start'
+    | 'bottom-center'
+    | 'bottom-end';
 
   ngAfterViewInit(): void {
     ensureLoaded();
@@ -48,7 +62,11 @@ export class ToastComponent implements AfterViewInit {
     }
   }
 
-  create(message?: unknown, options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { create: (message: unknown, options: unknown) => void }).create(message, options);
+  create(message?: string, options?: ToastCreateOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        create: (message?: string, options?: ToastCreateOptions) => void;
+      }
+    ).create(message, options);
   }
 }

@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/badge/badge.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/badge/badge.js'));
 }
 
 /**
@@ -17,11 +26,12 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-badge
-        #element
-        [attr.variant]="variant"
-        [attr.appearance]="appearance"
-        [attr.pill]="pill || null"
-        [attr.attention]="attention">
+      #element
+      [attr.variant]="variant"
+      [attr.appearance]="appearance"
+      [attr.pill]="pill || null"
+      [attr.attention]="attention"
+    >
       <ng-content />
     </wa-badge>
   `,

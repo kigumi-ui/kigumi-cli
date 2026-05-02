@@ -4,7 +4,8 @@ import './ZoomableFrame.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
 }
 
 /**
@@ -38,8 +39,8 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'load': [event: CustomEvent];
-  'error': [event: CustomEvent];
+  load: [event: CustomEvent];
+  error: [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);

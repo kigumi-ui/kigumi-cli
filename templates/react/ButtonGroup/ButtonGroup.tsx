@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaButtonGroup from '@awesome.me/webawesome/dist/components/button-group/button-group.js';
 import './ButtonGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface ButtonGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface ButtonGroupProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** A label to use for the button group. This won't be displayed on the screen, but it will be announced by assistive devices */
   label?: string;
 
@@ -60,7 +70,10 @@ export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
       <wa-button-group
         ref={setButtonGroupRef}
         class={clsx('ButtonGroup', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-button-group>

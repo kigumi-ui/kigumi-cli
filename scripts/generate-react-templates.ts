@@ -16,7 +16,7 @@ import {
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
-import { extractCustomTypeImports } from './generator-utils.js';
+import { extractCustomTypeImports, writeFormatted } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,7 +86,7 @@ function convertToReactPropType(tsType: string, values?: string[]): string {
 /**
  * Generate React TypeScript component template
  */
-function generateReactTypescriptTemplate(
+export function generateReactTypescriptTemplate(
   component: ComponentDefinition
 ): string {
   const componentKey = component.tagName.replace('wa-', '');
@@ -340,7 +340,7 @@ ${component.name}.displayName = '${component.name}';
 /**
  * Generate CSS template
  */
-function generateCSSTemplate(componentName: string): string {
+export function generateCSSTemplate(componentName: string): string {
   const kebabName = componentName
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .toLowerCase();
@@ -430,7 +430,7 @@ function renderRequiredPropPlaceholder(
  * The reflection block is only emitted when there is at least one required
  * string-or-enum prop whose value can be asserted via `getAttribute`.
  */
-function generateTestTypescriptTemplate(
+export function generateTestTypescriptTemplate(
   componentName: string,
   tagName: string,
   props: ComponentDefinition['props']
@@ -502,10 +502,13 @@ async function generateComponentTemplates(
 
   // TypeScript component
   const reactTs = generateReactTypescriptTemplate(component);
-  await fs.writeFile(path.join(componentDir, `${component.name}.tsx`), reactTs);
+  await writeFormatted(
+    path.join(componentDir, `${component.name}.tsx`),
+    reactTs
+  );
 
   const css = generateCSSTemplate(component.name);
-  await fs.writeFile(path.join(componentDir, `${component.name}.css`), css);
+  await writeFormatted(path.join(componentDir, `${component.name}.css`), css);
 
   // TypeScript test
   const testTs = generateTestTypescriptTemplate(
@@ -513,7 +516,7 @@ async function generateComponentTemplates(
     component.tagName,
     component.props
   );
-  await fs.writeFile(
+  await writeFormatted(
     path.join(componentDir, `${component.name}.test.tsx`),
     testTs
   );
@@ -543,4 +546,6 @@ async function main() {
   );
 }
 
-main().catch(console.error);
+if (process.argv[1] === __filename) {
+  main().catch(console.error);
+}

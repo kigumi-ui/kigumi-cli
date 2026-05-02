@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaMutationObserver from '@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js';
 import './MutationObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface MutationObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onMutation' | 'dir'> {
-
+export interface MutationObserverProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onMutation' | 'dir'
+> {
   /** Space-separated list of attributes to observe */
   attr?: string;
 
@@ -54,49 +64,56 @@ export interface MutationObserverRef {
   element: WaMutationObserver | null;
 }
 
-export const MutationObserver = forwardRef<MutationObserverRef, MutationObserverProps>(
-  ({ children, className, onMutation, ...props }, ref) => {
-    const mutationobserverRef = useRef<WaMutationObserver | null>(null);
-    const setMutationObserverRef = useCallback((el: WaMutationObserver | null) => {
+export const MutationObserver = forwardRef<
+  MutationObserverRef,
+  MutationObserverProps
+>(({ children, className, onMutation, ...props }, ref) => {
+  const mutationobserverRef = useRef<WaMutationObserver | null>(null);
+  const setMutationObserverRef = useCallback(
+    (el: WaMutationObserver | null) => {
       mutationobserverRef.current = el;
-    }, []);
+    },
+    []
+  );
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return mutationobserverRef.current;
-        },
-      }),
-      []
-    );
+  useImperativeHandle(
+    ref,
+    () => ({
+      get element() {
+        return mutationobserverRef.current;
+      },
+    }),
+    []
+  );
 
-    useEffect(() => {
-      ensureLoaded();
-      const el = mutationobserverRef.current;
-      if (!el) return;
+  useEffect(() => {
+    ensureLoaded();
+    const el = mutationobserverRef.current;
+    if (!el) return;
 
-      const handleWaMutation = (e: Event) => {
-        if (onMutation) onMutation(e as CustomEvent);
-      };
+    const handleWaMutation = (e: Event) => {
+      if (onMutation) onMutation(e as CustomEvent);
+    };
 
-      el.addEventListener('wa-mutation', handleWaMutation);
+    el.addEventListener('wa-mutation', handleWaMutation);
 
-      return () => {
-        el.removeEventListener('wa-mutation', handleWaMutation);
-      };
-    }, [onMutation]);
+    return () => {
+      el.removeEventListener('wa-mutation', handleWaMutation);
+    };
+  }, [onMutation]);
 
-    return (
-      <wa-mutation-observer
-        ref={setMutationObserverRef}
-        class={clsx('MutationObserver', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
-      >
-        {children}
-      </wa-mutation-observer>
-    );
-  }
-);
+  return (
+    <wa-mutation-observer
+      ref={setMutationObserverRef}
+      class={clsx('MutationObserver', className)}
+      {...({ suppressHydrationWarning: true, ...props } as Record<
+        string,
+        unknown
+      >)}
+    >
+      {children}
+    </wa-mutation-observer>
+  );
+});
 
 MutationObserver.displayName = 'MutationObserver';

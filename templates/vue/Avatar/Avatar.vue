@@ -4,7 +4,8 @@ import './Avatar.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
 }
 
 /**
@@ -64,11 +65,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-avatar
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-avatar ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-avatar>
 </template>

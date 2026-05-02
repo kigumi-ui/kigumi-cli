@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/details/details.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/details/details.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/details/details.js'));
 }
 
 /**
@@ -17,13 +29,14 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-details
-        #element
-        [attr.open]="open || null"
-        [attr.summary]="summary"
-        [attr.disabled]="disabled || null"
-        [attr.appearance]="appearance"
-        [attr.icon-placement]="iconPlacement"
-        [attr.name]="name">
+      #element
+      [attr.open]="open || null"
+      [attr.summary]="summary"
+      [attr.disabled]="disabled || null"
+      [attr.appearance]="appearance"
+      [attr.icon-placement]="iconPlacement"
+      [attr.name]="name"
+    >
       <ng-content />
     </wa-details>
   `,
@@ -71,16 +84,24 @@ export class DetailsComponent implements AfterViewInit, OnDestroy {
 
     const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
     el.addEventListener('wa-show', handleShowEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-show', handleShowEvent)
+    );
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHideEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-hide', handleHideEvent)
+    );
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
   }
 
   ngOnDestroy(): void {

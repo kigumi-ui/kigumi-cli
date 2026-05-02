@@ -4,15 +4,14 @@ import './Spinner.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
 }
 
 /**
  * Spinners are used to show the progress of an indeterminate operation
  */
-export interface SpinnerProps {
-
-}
+export interface SpinnerProps {}
 
 const props = defineProps<SpinnerProps>();
 
@@ -44,11 +43,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-spinner
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-spinner ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-spinner>
 </template>

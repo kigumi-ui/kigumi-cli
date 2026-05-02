@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTab from '@awesome.me/webawesome/dist/components/tab/tab.js';
 import './Tab.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab/tab.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab/tab.js'));
 }
 
 /**
@@ -22,7 +30,6 @@ function ensureLoaded() {
  * ```
  */
 export interface TabProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** Associated panel name */
   panel?: string;
 
@@ -60,7 +67,10 @@ export const Tab = forwardRef<TabRef, TabProps>(
       <wa-tab
         ref={setTabRef}
         class={clsx('Tab', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-tab>

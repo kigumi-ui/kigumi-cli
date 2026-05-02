@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/popup/popup.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popup/popup.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/popup/popup.js'));
 }
 
 /**
@@ -17,25 +29,26 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-popup
-        #element
-        [attr.active]="active || null"
-        [attr.anchor]="anchor"
-        [attr.placement]="placement"
-        [attr.strategy]="strategy"
-        [attr.distance]="distance"
-        [attr.skidding]="skidding"
-        [attr.arrow]="arrow || null"
-        [attr.arrow-placement]="arrowPlacement"
-        [attr.arrow-padding]="arrowPadding"
-        [attr.flip]="flip || null"
-        [attr.flip-fallback-placements]="flipFallbackPlacements"
-        [attr.flip-fallback-strategy]="flipFallbackStrategy"
-        [attr.flip-padding]="flipPadding"
-        [attr.shift]="shift || null"
-        [attr.shift-padding]="shiftPadding"
-        [attr.auto-size]="autoSize"
-        [attr.sync]="sync"
-        [attr.auto-size-padding]="autoSizePadding">
+      #element
+      [attr.active]="active || null"
+      [attr.anchor]="anchor"
+      [attr.placement]="placement"
+      [attr.strategy]="strategy"
+      [attr.distance]="distance"
+      [attr.skidding]="skidding"
+      [attr.arrow]="arrow || null"
+      [attr.arrow-placement]="arrowPlacement"
+      [attr.arrow-padding]="arrowPadding"
+      [attr.flip]="flip || null"
+      [attr.flip-fallback-placements]="flipFallbackPlacements"
+      [attr.flip-fallback-strategy]="flipFallbackStrategy"
+      [attr.flip-padding]="flipPadding"
+      [attr.shift]="shift || null"
+      [attr.shift-padding]="shiftPadding"
+      [attr.auto-size]="autoSize"
+      [attr.sync]="sync"
+      [attr.auto-size-padding]="autoSizePadding"
+    >
       <ng-content />
     </wa-popup>
   `,
@@ -50,7 +63,19 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
   /** Anchor element ID or reference */
   @Input() anchor?: string;
   /** Preferred placement */
-  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  @Input() placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   /** Positioning strategy */
   @Input() strategy?: 'absolute' | 'fixed';
   /** Distance from anchor */
@@ -102,9 +127,12 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleRepositionEvent = (e: Event) => this.repositionEvent.emit(e as CustomEvent);
+    const handleRepositionEvent = (e: Event) =>
+      this.repositionEvent.emit(e as CustomEvent);
     el.addEventListener('wa-reposition', handleRepositionEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-reposition', handleRepositionEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-reposition', handleRepositionEvent)
+    );
   }
 
   ngOnDestroy(): void {
@@ -112,6 +140,8 @@ export class PopupComponent implements AfterViewInit, OnDestroy {
   }
 
   reposition(): void {
-    (this.elementRef.nativeElement as unknown as { reposition: () => void }).reposition();
+    (
+      this.elementRef.nativeElement as unknown as { reposition: () => void }
+    ).reposition();
   }
 }

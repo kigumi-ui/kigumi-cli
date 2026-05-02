@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/copy-button/copy-button.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
 }
 
 /**
@@ -17,15 +29,16 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-copy-button
-        #element
-        [attr.value]="value"
-        [attr.from]="from"
-        [attr.disabled]="disabled || null"
-        [attr.copy-label]="copyLabel"
-        [attr.success-label]="successLabel"
-        [attr.error-label]="errorLabel"
-        [attr.feedback-duration]="feedbackDuration"
-        [attr.tooltip-placement]="tooltipPlacement">
+      #element
+      [attr.value]="value"
+      [attr.from]="from"
+      [attr.disabled]="disabled || null"
+      [attr.copy-label]="copyLabel"
+      [attr.success-label]="successLabel"
+      [attr.error-label]="errorLabel"
+      [attr.feedback-duration]="feedbackDuration"
+      [attr.tooltip-placement]="tooltipPlacement"
+    >
       <ng-content />
     </wa-copy-button>
   `,

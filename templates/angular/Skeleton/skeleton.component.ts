@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/skeleton/skeleton.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
 }
 
 /**
@@ -16,9 +25,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-skeleton
-        #element
-        [attr.effect]="effect">
+    <wa-skeleton #element [attr.effect]="effect">
       <ng-content />
     </wa-skeleton>
   `,

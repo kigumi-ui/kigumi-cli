@@ -4,7 +4,8 @@ import './TreeItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tree-item/tree-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tree-item/tree-item.js'));
 }
 
 /**
@@ -47,10 +48,13 @@ onMounted(() => {
 });
 
 const handleWaExpand = (e: Event) => emit('wa-expand', e as CustomEvent);
-const handleWaAfterExpand = (e: Event) => emit('wa-after-expand', e as CustomEvent);
+const handleWaAfterExpand = (e: Event) =>
+  emit('wa-after-expand', e as CustomEvent);
 const handleWaCollapse = (e: Event) => emit('wa-collapse', e as CustomEvent);
-const handleWaAfterCollapse = (e: Event) => emit('wa-after-collapse', e as CustomEvent);
-const handleWaLazyChange = (e: Event) => emit('wa-lazy-change', e as CustomEvent);
+const handleWaAfterCollapse = (e: Event) =>
+  emit('wa-after-collapse', e as CustomEvent);
+const handleWaLazyChange = (e: Event) =>
+  emit('wa-lazy-change', e as CustomEvent);
 const handleWaLazyLoad = (e: Event) => emit('wa-lazy-load', e as CustomEvent);
 
 onMounted(() => {
@@ -78,17 +82,14 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  getChildrenItems: (options: { includeDisabled?: boolean }) => (elementRef.value as any)?.getChildrenItems?.(options),
+  getChildrenItems: (options: { includeDisabled?: boolean }) =>
+    (elementRef.value as any)?.getChildrenItems?.(options),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-tree-item
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tree-item ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tree-item>
 </template>

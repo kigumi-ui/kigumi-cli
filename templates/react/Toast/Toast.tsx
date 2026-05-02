@@ -1,4 +1,11 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
@@ -6,7 +13,8 @@ import './Toast.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast/toast.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/toast/toast.js'));
 }
 
 /**
@@ -27,13 +35,17 @@ function ensureLoaded() {
  * ```
  */
 export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** Screen corner or edge where notifications are anchored */
-  placement?: 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
+  placement?:
+    | 'top-start'
+    | 'top-center'
+    | 'top-end'
+    | 'bottom-start'
+    | 'bottom-center'
+    | 'bottom-end';
 }
 
 export interface ToastRef {
-
   /** Creates a toast notification programmatically and adds it to the stack. Returns a reference to the created toast
 item element. */
   create: (message: string, options: ToastCreateOptions) => void;
@@ -52,7 +64,10 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
       ref,
       () => ({
         create: (message: string, options: ToastCreateOptions) => {
-          if (toastRef.current && typeof toastRef.current.create === 'function') {
+          if (
+            toastRef.current &&
+            typeof toastRef.current.create === 'function'
+          ) {
             toastRef.current.create(message, options);
           }
         },
@@ -71,7 +86,10 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
       <wa-toast
         ref={setToastRef}
         class={clsx('Toast', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-toast>

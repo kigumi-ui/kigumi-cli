@@ -4,7 +4,8 @@ import './CopyButton.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
 }
 
 /**
@@ -71,11 +72,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-copy-button
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-copy-button ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-copy-button>
 </template>

@@ -4,18 +4,19 @@ import './Tag.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tag/tag.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tag/tag.js'));
 }
 
 /**
  * Tags are used as labels to organize things or indicate selections
  */
 const props = defineProps({
-    appearance: { type: String, required: false, default: 'filled-outlined' },
-    pill: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: 'medium' },
-    variant: { type: String, required: false, default: 'neutral' },
-    'with-remove': { type: Boolean, required: false, default: false }
+  appearance: { type: String, required: false, default: 'filled-outlined' },
+  pill: { type: Boolean, required: false, default: false },
+  size: { type: String, required: false, default: 'medium' },
+  variant: { type: String, required: false, default: 'neutral' },
+  'with-remove': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -60,11 +61,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tag
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tag ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tag>
 </template>

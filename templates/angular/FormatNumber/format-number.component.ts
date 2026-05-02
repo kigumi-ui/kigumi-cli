@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/format-number/format-number.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
 }
 
 /**
@@ -17,18 +26,19 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-format-number
-        #element
-        [attr.value]="value"
-        [attr.type]="type"
-        [attr.currency]="currency"
-        [attr.currency-display]="currencyDisplay"
-        [attr.minimum-integer-digits]="minimumIntegerDigits"
-        [attr.minimum-fraction-digits]="minimumFractionDigits"
-        [attr.maximum-fraction-digits]="maximumFractionDigits"
-        [attr.minimum-significant-digits]="minimumSignificantDigits"
-        [attr.maximum-significant-digits]="maximumSignificantDigits"
-        [attr.without-grouping]="withoutGrouping || null"
-        [attr.lang]="lang">
+      #element
+      [attr.value]="value"
+      [attr.type]="type"
+      [attr.currency]="currency"
+      [attr.currency-display]="currencyDisplay"
+      [attr.minimum-integer-digits]="minimumIntegerDigits"
+      [attr.minimum-fraction-digits]="minimumFractionDigits"
+      [attr.maximum-fraction-digits]="maximumFractionDigits"
+      [attr.minimum-significant-digits]="minimumSignificantDigits"
+      [attr.maximum-significant-digits]="maximumSignificantDigits"
+      [attr.without-grouping]="withoutGrouping || null"
+      [attr.lang]="lang"
+    >
       <ng-content />
     </wa-format-number>
   `,

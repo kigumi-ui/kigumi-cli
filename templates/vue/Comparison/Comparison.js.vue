@@ -4,14 +4,15 @@ import './Comparison.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/comparison/comparison.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/comparison/comparison.js'));
 }
 
 /**
  * Compare visual differences between similar content with a sliding panel
  */
 const props = defineProps({
-    position: { type: Number, required: false, default: 50 }
+  position: { type: Number, required: false, default: 50 },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -56,11 +57,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-comparison
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-comparison ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-comparison>
 </template>

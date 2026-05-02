@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/scroller/scroller.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/scroller/scroller.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/scroller/scroller.js'));
 }
 
 /**
@@ -17,11 +26,12 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-scroller
-        #element
-        [attr.orientation]="orientation"
-        [attr.with-scroll-indicator]="withScrollIndicator || null"
-        [attr.without-scrollbar]="withoutScrollbar || null"
-        [attr.without-shadow]="withoutShadow || null">
+      #element
+      [attr.orientation]="orientation"
+      [attr.with-scroll-indicator]="withScrollIndicator || null"
+      [attr.without-scrollbar]="withoutScrollbar || null"
+      [attr.without-shadow]="withoutShadow || null"
+    >
       <ng-content />
     </wa-scroller>
   `,

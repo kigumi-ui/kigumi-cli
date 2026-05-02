@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/number-input/number-input.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
 }
 
 /**
@@ -18,19 +31,20 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-number-input
-        #element
-        [attr.label]="label"
-        [attr.hint]="hint"
-        [attr.value]="value"
-        [attr.min]="min"
-        [attr.max]="max"
-        [attr.step]="step"
-        [attr.disabled]="disabled || null"
-        [attr.required]="required || null"
-        [attr.placeholder]="placeholder"
-        [attr.size]="size"
-        [attr.appearance]="appearance"
-        [attr.without-steppers]="withoutSteppers || null">
+      #element
+      [attr.label]="label"
+      [attr.hint]="hint"
+      [attr.value]="value"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.step]="step"
+      [attr.disabled]="disabled || null"
+      [attr.required]="required || null"
+      [attr.placeholder]="placeholder"
+      [attr.size]="size"
+      [attr.appearance]="appearance"
+      [attr.without-steppers]="withoutSteppers || null"
+    >
       <ng-content />
     </wa-number-input>
   `,
@@ -43,7 +57,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class NumberInputComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class NumberInputComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -75,7 +91,7 @@ export class NumberInputComponent implements AfterViewInit, OnDestroy, ControlVa
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
@@ -99,7 +115,8 @@ export class NumberInputComponent implements AfterViewInit, OnDestroy, ControlVa
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
@@ -108,16 +125,22 @@ export class NumberInputComponent implements AfterViewInit, OnDestroy, ControlVa
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -129,7 +152,8 @@ export class NumberInputComponent implements AfterViewInit, OnDestroy, ControlVa
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -143,32 +167,60 @@ export class NumberInputComponent implements AfterViewInit, OnDestroy, ControlVa
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
   select(): void {
-    (this.elementRef.nativeElement as unknown as { select: () => void }).select();
+    (
+      this.elementRef.nativeElement as unknown as { select: () => void }
+    ).select();
   }
   stepUp(): void {
-    (this.elementRef.nativeElement as unknown as { stepUp: () => void }).stepUp();
+    (
+      this.elementRef.nativeElement as unknown as { stepUp: () => void }
+    ).stepUp();
   }
   stepDown(): void {
-    (this.elementRef.nativeElement as unknown as { stepDown: () => void }).stepDown();
+    (
+      this.elementRef.nativeElement as unknown as { stepDown: () => void }
+    ).stepDown();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

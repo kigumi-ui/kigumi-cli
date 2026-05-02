@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaRating from '@awesome.me/webawesome/dist/components/rating/rating.js';
 import './Rating.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/rating/rating.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/rating/rating.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Rating ref={ref} />
  * ```
  */
-export interface RatingProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onHover' | 'onInvalid' | 'dir'> {
-
+export interface RatingProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'onHover' | 'onInvalid' | 'dir'
+> {
   /** Accessible label */
   label?: string;
 
@@ -66,7 +76,6 @@ export interface RatingProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
 }
 
 export interface RatingRef {
-
   /** Do not use this when creating a "Validator". This is intended for end users of components.
 We track manually defined custom errors so we don't clear them on accident in our validators. */
   setCustomValidity: (message: string) => void;
@@ -74,7 +83,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -93,17 +105,29 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       ref,
       () => ({
         setCustomValidity: (message: string) => {
-          if (ratingRef.current && typeof ratingRef.current.setCustomValidity === 'function') {
+          if (
+            ratingRef.current &&
+            typeof ratingRef.current.setCustomValidity === 'function'
+          ) {
             ratingRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (ratingRef.current && typeof ratingRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            ratingRef.current &&
+            typeof ratingRef.current.formStateRestoreCallback === 'function'
+          ) {
             ratingRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (ratingRef.current && typeof ratingRef.current.resetValidity === 'function') {
+          if (
+            ratingRef.current &&
+            typeof ratingRef.current.resetValidity === 'function'
+          ) {
             ratingRef.current.resetValidity();
           }
         },
@@ -146,7 +170,10 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       <wa-rating
         ref={setRatingRef}
         class={clsx('Rating', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-rating>

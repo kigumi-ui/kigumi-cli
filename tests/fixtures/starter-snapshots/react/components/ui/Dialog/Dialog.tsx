@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js';
 import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
-
+export interface DialogProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
   /** Indicates whether or not the dialog is open */
   open?: boolean;
 
@@ -55,7 +65,10 @@ export interface DialogRef {
 }
 
 export const Dialog = forwardRef<DialogRef, DialogProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
     const dialogRef = useRef<WaDialog | null>(null);
     const setDialogRef = useCallback((el: WaDialog | null) => {
       dialogRef.current = el;
@@ -109,7 +122,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       <wa-dialog
         ref={setDialogRef}
         class={clsx('Dialog', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-dialog>

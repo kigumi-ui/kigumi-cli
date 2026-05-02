@@ -4,15 +4,16 @@ import './Tab.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab/tab.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab/tab.js'));
 }
 
 /**
  * Tabs are used inside tab groups to represent selectable tabs
  */
 const props = defineProps({
-    panel: { type: String, required: false },
-    disabled: { type: Boolean, required: false, default: false }
+  panel: { type: String, required: false },
+  disabled: { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -41,11 +42,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tab
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tab ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tab>
 </template>

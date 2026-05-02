@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaCopyButton from '@awesome.me/webawesome/dist/components/copy-button/copy-button.js';
 import './CopyButton.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface CopyButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onCopy' | 'onError' | 'dir'> {
-
+export interface CopyButtonProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onCopy' | 'onError' | 'dir'
+> {
   /** The text to copy */
   value?: string;
 
@@ -103,7 +113,10 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
       <wa-copy-button
         ref={setCopyButtonRef}
         class={clsx('CopyButton', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-copy-button>

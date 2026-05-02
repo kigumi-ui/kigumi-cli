@@ -4,17 +4,18 @@ import './TreeItem.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tree-item/tree-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tree-item/tree-item.js'));
 }
 
 /**
  * Tree items are used inside trees to represent hierarchical items
  */
 const props = defineProps({
-    expanded: { type: Boolean, required: false, default: false },
-    selected: { type: Boolean, required: false, default: false },
-    disabled: { type: Boolean, required: false, default: false },
-    lazy: { type: Boolean, required: false, default: false }
+  expanded: { type: Boolean, required: false, default: false },
+  selected: { type: Boolean, required: false, default: false },
+  disabled: { type: Boolean, required: false, default: false },
+  lazy: { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -29,7 +30,14 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['wa-expand', 'wa-after-expand', 'wa-collapse', 'wa-after-collapse', 'wa-lazy-change', 'wa-lazy-load']);
+const emit = defineEmits([
+  'wa-expand',
+  'wa-after-expand',
+  'wa-collapse',
+  'wa-after-collapse',
+  'wa-lazy-change',
+  'wa-lazy-load',
+]);
 
 const elementRef = ref(null);
 
@@ -75,11 +83,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tree-item
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tree-item ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tree-item>
 </template>

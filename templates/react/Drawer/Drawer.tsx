@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaDrawer from '@awesome.me/webawesome/dist/components/drawer/drawer.js';
 import './Drawer.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/drawer/drawer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/drawer/drawer.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface DrawerProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
-
+export interface DrawerProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
   /** Indicates whether the drawer is open */
   open?: boolean;
 
@@ -58,7 +68,10 @@ export interface DrawerRef {
 }
 
 export const Drawer = forwardRef<DrawerRef, DrawerProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
     const drawerRef = useRef<WaDrawer | null>(null);
     const setDrawerRef = useCallback((el: WaDrawer | null) => {
       drawerRef.current = el;
@@ -112,7 +125,10 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       <wa-drawer
         ref={setDrawerRef}
         class={clsx('Drawer', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-drawer>

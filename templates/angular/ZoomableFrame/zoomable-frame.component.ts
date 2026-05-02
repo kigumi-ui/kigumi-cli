@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
 }
 
 /**
@@ -17,17 +29,18 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-zoomable-frame
-        #element
-        [attr.src]="src"
-        [attr.srcdoc]="srcdoc"
-        [attr.zoom]="zoom"
-        [attr.zoom-levels]="zoomLevels"
-        [attr.allowfullscreen]="allowfullscreen || null"
-        [attr.loading]="loading"
-        [attr.without-controls]="withoutControls || null"
-        [attr.without-interaction]="withoutInteraction || null"
-        [attr.sandbox]="sandbox"
-        [attr.referrerpolicy]="referrerpolicy">
+      #element
+      [attr.src]="src"
+      [attr.srcdoc]="srcdoc"
+      [attr.zoom]="zoom"
+      [attr.zoom-levels]="zoomLevels"
+      [attr.allowfullscreen]="allowfullscreen || null"
+      [attr.loading]="loading"
+      [attr.without-controls]="withoutControls || null"
+      [attr.without-interaction]="withoutInteraction || null"
+      [attr.sandbox]="sandbox"
+      [attr.referrerpolicy]="referrerpolicy"
+    >
       <ng-content />
     </wa-zoomable-frame>
   `,
@@ -92,9 +105,13 @@ export class ZoomableFrameComponent implements AfterViewInit, OnDestroy {
   }
 
   zoomIn(): void {
-    (this.elementRef.nativeElement as unknown as { zoomIn: () => void }).zoomIn();
+    (
+      this.elementRef.nativeElement as unknown as { zoomIn: () => void }
+    ).zoomIn();
   }
   zoomOut(): void {
-    (this.elementRef.nativeElement as unknown as { zoomOut: () => void }).zoomOut();
+    (
+      this.elementRef.nativeElement as unknown as { zoomOut: () => void }
+    ).zoomOut();
   }
 }

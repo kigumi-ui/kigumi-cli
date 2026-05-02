@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaQrCode from '@awesome.me/webawesome/dist/components/qr-code/qr-code.js';
 import './QrCode.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/qr-code/qr-code.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/qr-code/qr-code.js'));
 }
 
 /**
@@ -22,7 +30,6 @@ function ensureLoaded() {
  * ```
  */
 export interface QrCodeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** The data to encode */
   value?: string;
 
@@ -75,7 +82,10 @@ export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
       <wa-qr-code
         ref={setQrCodeRef}
         class={clsx('QrCode', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-qr-code>

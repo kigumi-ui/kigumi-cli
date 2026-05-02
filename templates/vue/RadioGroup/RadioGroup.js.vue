@@ -4,22 +4,23 @@ import './RadioGroup.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radio-group/radio-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radio-group/radio-group.js'));
 }
 
 /**
  * Radio groups are used to group multiple radios so only one can be selected
  */
 const props = defineProps({
-    label: { type: String, required: false, default: '' },
-    hint: { type: String, required: false, default: '' },
-    name: { type: String, required: false, default: 'option' },
-    size: { type: String, required: false, default: 'medium' },
-    required: { type: Boolean, required: false, default: false },
-    orientation: { type: String, required: false, default: 'vertical' },
-    disabled: { type: Boolean, required: false, default: false },
-    invalid: { type: Boolean, required: false, default: false },
-    'help-text': { type: String, required: false, default: '' }
+  label: { type: String, required: false, default: '' },
+  hint: { type: String, required: false, default: '' },
+  name: { type: String, required: false, default: 'option' },
+  size: { type: String, required: false, default: 'medium' },
+  required: { type: Boolean, required: false, default: false },
+  orientation: { type: String, required: false, default: 'vertical' },
+  disabled: { type: Boolean, required: false, default: false },
+  invalid: { type: Boolean, required: false, default: false },
+  'help-text': { type: String, required: false, default: '' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -49,7 +50,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => {
+  model.value = e.target.value;
+  emit('input', e);
+};
 const handleChange = (e) => emit('change', e);
 const handleWaInvalid = (e) => emit('wa-invalid', e);
 
@@ -73,8 +77,10 @@ onUnmounted(() => {
 
 defineExpose({
   focus: (options) => elementRef.value?.focus?.(options),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

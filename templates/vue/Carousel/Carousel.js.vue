@@ -4,22 +4,23 @@ import './Carousel.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
 }
 
 /**
  * Displays an arbitrary number of content slides along a horizontal or vertical axis
  */
 const props = defineProps({
-    autoplay: { type: Boolean, required: false, default: false },
-    'autoplay-interval': { type: Number, required: false, default: 3000 },
-    loop: { type: Boolean, required: false, default: false },
-    'mouse-dragging': { type: Boolean, required: false, default: false },
-    navigation: { type: Boolean, required: false, default: false },
-    orientation: { type: String, required: false, default: 'horizontal' },
-    pagination: { type: Boolean, required: false, default: false },
-    'slides-per-move': { type: Number, required: false, default: 1 },
-    'slides-per-page': { type: Number, required: false, default: 1 }
+  autoplay: { type: Boolean, required: false, default: false },
+  'autoplay-interval': { type: Number, required: false, default: 3000 },
+  loop: { type: Boolean, required: false, default: false },
+  'mouse-dragging': { type: Boolean, required: false, default: false },
+  navigation: { type: Boolean, required: false, default: false },
+  orientation: { type: String, required: false, default: 'horizontal' },
+  pagination: { type: Boolean, required: false, default: false },
+  'slides-per-move': { type: Number, required: false, default: 1 },
+  'slides-per-page': { type: Number, required: false, default: 1 },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -61,17 +62,14 @@ onUnmounted(() => {
 defineExpose({
   previous: (behavior) => elementRef.value?.previous?.(behavior),
   next: (behavior) => elementRef.value?.next?.(behavior),
-  goToSlide: (index, behavior) => elementRef.value?.goToSlide?.(index, behavior),
+  goToSlide: (index, behavior) =>
+    elementRef.value?.goToSlide?.(index, behavior),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-carousel
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-carousel ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-carousel>
 </template>

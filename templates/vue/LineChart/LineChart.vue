@@ -4,7 +4,8 @@ import './LineChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/line-chart/line-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/line-chart/line-chart.js'));
 }
 
 /**
@@ -56,11 +57,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-line-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-line-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-line-chart>
 </template>

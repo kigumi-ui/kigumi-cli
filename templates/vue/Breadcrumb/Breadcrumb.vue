@@ -4,7 +4,8 @@ import './Breadcrumb.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js'));
 }
 
 /**
@@ -44,11 +45,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-breadcrumb
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-breadcrumb ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-breadcrumb>
 </template>

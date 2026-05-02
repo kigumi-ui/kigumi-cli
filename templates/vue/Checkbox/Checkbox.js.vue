@@ -4,20 +4,21 @@ import './Checkbox.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/checkbox/checkbox.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/checkbox/checkbox.js'));
 }
 
 /**
  * Checkboxes allow the user to toggle an option on or off
  */
 const props = defineProps({
-    disabled: { type: Boolean, required: false, default: false },
-    hint: { type: String, required: false, default: '' },
-    indeterminate: { type: Boolean, required: false, default: false },
-    name: { type: String, required: false, default: '' },
-    required: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: 'medium' },
-    value: { type: String, required: false }
+  disabled: { type: Boolean, required: false, default: false },
+  hint: { type: String, required: false, default: '' },
+  indeterminate: { type: Boolean, required: false, default: false },
+  name: { type: String, required: false, default: '' },
+  required: { type: Boolean, required: false, default: false },
+  size: { type: String, required: false, default: 'medium' },
+  value: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -47,7 +48,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e) => { model.value = e.target.checked; emit('change', e); };
+const handleChange = (e) => {
+  model.value = e.target.checked;
+  emit('change', e);
+};
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);
 const handleInput = (e) => emit('input', e);
@@ -79,8 +83,10 @@ defineExpose({
   click: () => elementRef.value?.click?.(),
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

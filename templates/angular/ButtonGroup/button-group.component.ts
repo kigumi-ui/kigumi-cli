@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/button-group/button-group.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
 }
 
 /**
@@ -17,9 +26,10 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-button-group
-        #element
-        [attr.label]="label"
-        [attr.orientation]="orientation">
+      #element
+      [attr.label]="label"
+      [attr.orientation]="orientation"
+    >
       <ng-content />
     </wa-button-group>
   `,

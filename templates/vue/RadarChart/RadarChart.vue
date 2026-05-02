@@ -4,7 +4,8 @@ import './RadarChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js'));
 }
 
 /**
@@ -53,11 +54,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-radar-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-radar-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-radar-chart>
 </template>

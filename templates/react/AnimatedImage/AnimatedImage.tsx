@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaAnimatedImage from '@awesome.me/webawesome/dist/components/animated-image/animated-image.js';
 import './AnimatedImage.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface AnimatedImageProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
-
+export interface AnimatedImageProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onLoad' | 'onError' | 'dir'
+> {
   /** The path to the image to load */
   src: string;
 
@@ -88,7 +98,10 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
       <wa-animated-image
         ref={setAnimatedImageRef}
         class={clsx('AnimatedImage', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-animated-image>

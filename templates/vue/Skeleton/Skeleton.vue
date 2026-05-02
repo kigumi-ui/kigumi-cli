@@ -4,7 +4,8 @@ import './Skeleton.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
 }
 
 /**
@@ -44,11 +45,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-skeleton
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-skeleton ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-skeleton>
 </template>

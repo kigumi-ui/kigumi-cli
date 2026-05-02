@@ -21,7 +21,7 @@ import {
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
-import { extractCustomTypeImports } from './generator-utils.js';
+import { extractCustomTypeImports, writeFormatted } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -261,11 +261,33 @@ function buildListenerEntries(
   return entries;
 }
 
+// Components whose previous Vue wrappers exposed imperative methods that
+// WA 3.5.0+ has marked `private` in the CEM. The methods are filtered out
+// by `parse-custom-elements.ts`, so the wrappers no longer expose them.
+// The note below is emitted into the component's JSDoc so users copying
+// the template into their project see it without consulting AGENTS.md.
+const REMOVED_IMPERATIVE_METHODS: Record<string, string> = {
+  dialog:
+    'Open and close programmatically by binding the `open` prop (e.g. `<Dialog v-model:open="isOpen">`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.',
+  drawer:
+    'Open and close programmatically by binding the `open` prop (e.g. `<Drawer v-model:open="isOpen">`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.',
+  markdown:
+    'Re-render programmatically by updating the projected source content (slotted children). The previous `getMarked()` / `updateAll()` methods are marked private in WA 3.5.0+ and are no longer exposed; `renderMarkdown()` remains available.',
+};
+
+function buildJsdocBlock(componentKey: string, description: string): string {
+  const apiNote = REMOVED_IMPERATIVE_METHODS[componentKey];
+  if (!apiNote) return `/**\n * ${description}\n */`;
+  return `/**\n * ${description}\n *\n * @remarks ${apiNote}\n */`;
+}
+
 // =============================================================================
 // TypeScript Template
 // =============================================================================
 
-function generateVueTypescriptTemplate(component: ComponentDefinition): string {
+export function generateVueTypescriptTemplate(
+  component: ComponentDefinition
+): string {
   const componentKey = component.tagName.replace('wa-', '');
   const metadata = COMPONENT_METADATA[componentKey] || {
     events: [],
@@ -380,12 +402,17 @@ function generateVueTypescriptTemplate(component: ComponentDefinition): string {
 });`);
   }
   if (hasOpenModel) {
+    // Drive open-state via the `open` attribute, not via show()/hide() method
+    // calls. WA's wa-dialog/wa-drawer mark show()/requestClose() as
+    // privacy: 'private' in 3.5.0+; calling them through optional chaining
+    // was a no-op while the actual open/close happened via Lit's attribute
+    // reflection on `:open="open"`. For wa-tooltip/wa-popover/wa-details/
+    // wa-dropdown (where show()/hide() remain public) the attribute path is
+    // equivalent: setting the property triggers the same internal show/hide
+    // sequence. One uniform code path, no dead branches.
     modelWatchers.push(`watch(open, (newOpen) => {
   const el = elementRef.value as any;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });`);
   }
 
@@ -459,9 +486,7 @@ function ensureLoaded() {
   return (loadPromise ??= import('${component.importPath}'));
 }
 
-/**
- * ${component.description}
- */
+${buildJsdocBlock(componentKey, component.description)}
 export interface ${component.name}Props {
 ${propsInterface}
 }
@@ -505,7 +530,9 @@ ${templateAttrs.join('\n')}
 // JavaScript Template
 // =============================================================================
 
-function generateVueJavascriptTemplate(component: ComponentDefinition): string {
+export function generateVueJavascriptTemplate(
+  component: ComponentDefinition
+): string {
   const componentKey = component.tagName.replace('wa-', '');
   const metadata = COMPONENT_METADATA[componentKey] || {
     events: [],
@@ -604,12 +631,11 @@ function generateVueJavascriptTemplate(component: ComponentDefinition): string {
 });`);
   }
   if (hasOpenModel) {
+    // See the TS-template comment above for why we drive open-state via the
+    // attribute and not via show()/hide() method calls.
     modelWatchers.push(`watch(open, (newOpen) => {
   const el = elementRef.value;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });`);
   }
 
@@ -672,9 +698,7 @@ function ensureLoaded() {
   return (loadPromise ??= import('${component.importPath}'));
 }
 
-/**
- * ${component.description}
- */
+${buildJsdocBlock(componentKey, component.description)}
 const props = defineProps({
 ${propsOptions}
 });
@@ -714,7 +738,7 @@ ${templateAttrs.join('\n')}
 // CSS, Test, and File Generation (unchanged logic)
 // =============================================================================
 
-function generateCSSTemplate(componentName: string): string {
+export function generateCSSTemplate(componentName: string): string {
   const kebabName = componentName
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .toLowerCase();
@@ -752,7 +776,7 @@ function generateCSSTemplate(componentName: string): string {
   return content;
 }
 
-function generateTestTypescriptTemplate(
+export function generateTestTypescriptTemplate(
   componentName: string,
   tagName: string
 ): string {
@@ -769,7 +793,7 @@ describe('${componentName}', () => {
 `;
 }
 
-function generateTestJavascriptTemplate(
+export function generateTestJavascriptTemplate(
   componentName: string,
   tagName: string
 ): string {
@@ -793,22 +817,22 @@ async function generateComponentTemplates(
   await fs.ensureDir(componentDir);
 
   const vueTs = generateVueTypescriptTemplate(component);
-  await fs.writeFile(path.join(componentDir, `${component.name}.vue`), vueTs);
+  await writeFormatted(path.join(componentDir, `${component.name}.vue`), vueTs);
 
   const vueJs = generateVueJavascriptTemplate(component);
-  await fs.writeFile(
+  await writeFormatted(
     path.join(componentDir, `${component.name}.js.vue`),
     vueJs
   );
 
   const css = generateCSSTemplate(component.name);
-  await fs.writeFile(path.join(componentDir, `${component.name}.css`), css);
+  await writeFormatted(path.join(componentDir, `${component.name}.css`), css);
 
   const testTs = generateTestTypescriptTemplate(
     component.name,
     component.tagName
   );
-  await fs.writeFile(
+  await writeFormatted(
     path.join(componentDir, `${component.name}.test.ts`),
     testTs
   );
@@ -817,7 +841,7 @@ async function generateComponentTemplates(
     component.name,
     component.tagName
   );
-  await fs.writeFile(
+  await writeFormatted(
     path.join(componentDir, `${component.name}.test.js`),
     testJs
   );
@@ -842,4 +866,6 @@ async function main() {
   );
 }
 
-main().catch(console.error);
+if (process.argv[1] === __filename) {
+  main().catch(console.error);
+}

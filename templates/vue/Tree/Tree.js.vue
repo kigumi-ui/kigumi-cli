@@ -4,14 +4,15 @@ import './Tree.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tree/tree.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tree/tree.js'));
 }
 
 /**
  * Trees allow you to display a hierarchical list of selectable tree items
  */
 const props = defineProps({
-    selection: { type: String, required: false, default: 'single' }
+  selection: { type: String, required: false, default: 'single' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -56,11 +57,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tree
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tree ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tree>
 </template>

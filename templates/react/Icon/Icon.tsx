@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaIcon from '@awesome.me/webawesome/dist/components/icon/icon.js';
 import './Icon.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/icon/icon.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/icon/icon.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
-
+export interface IconProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onLoad' | 'onError' | 'dir'
+> {
   /** The name of the icon to draw */
   name?: string;
 
@@ -112,7 +122,10 @@ export const Icon = forwardRef<IconRef, IconProps>(
       <wa-icon
         ref={setIconRef}
         class={clsx('Icon', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-icon>

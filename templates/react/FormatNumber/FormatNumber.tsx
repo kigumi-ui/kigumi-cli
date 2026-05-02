@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaFormatNumber from '@awesome.me/webawesome/dist/components/format-number/format-number.js';
 import './FormatNumber.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface FormatNumberProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface FormatNumberProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** The number to format */
   value?: number;
 
@@ -87,7 +97,10 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
       <wa-format-number
         ref={setFormatNumberRef}
         class={clsx('FormatNumber', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-format-number>

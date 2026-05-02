@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaMarkdown from '@awesome.me/webawesome/dist/components/markdown/markdown.js';
 import './Markdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
 }
 
 /**
@@ -25,14 +33,15 @@ function ensureLoaded() {
  * <Markdown ref={ref} />
  * ```
  */
-export interface MarkdownProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface MarkdownProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Tab stop width for whitespace normalization */
   'tab-size'?: number;
 }
 
 export interface MarkdownRef {
-
   /** Reads the script content, normalizes whitespace, parses markdown, and injects the result. */
   renderMarkdown: () => void;
   /** Reference to the underlying HTML element */
@@ -50,7 +59,10 @@ export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
       ref,
       () => ({
         renderMarkdown: () => {
-          if (markdownRef.current && typeof markdownRef.current.renderMarkdown === 'function') {
+          if (
+            markdownRef.current &&
+            typeof markdownRef.current.renderMarkdown === 'function'
+          ) {
             markdownRef.current.renderMarkdown();
           }
         },
@@ -69,7 +81,10 @@ export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
       <wa-markdown
         ref={setMarkdownRef}
         class={clsx('Markdown', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-markdown>

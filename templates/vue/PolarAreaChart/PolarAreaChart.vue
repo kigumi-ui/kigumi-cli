@@ -4,7 +4,8 @@ import './PolarAreaChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
 }
 
 /**

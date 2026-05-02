@@ -4,7 +4,8 @@ import './RelativeTime.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
 }
 
 /**

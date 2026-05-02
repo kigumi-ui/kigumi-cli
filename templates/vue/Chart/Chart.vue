@@ -4,7 +4,8 @@ import './Chart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/chart/chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/chart/chart.js'));
 }
 
 /**
@@ -13,7 +14,15 @@ function ensureLoaded() {
 export interface ChartProps {
   label?: string;
   description?: string;
-  type?: 'bar' | 'line' | 'pie' | 'doughnut' | 'polarArea' | 'radar' | 'scatter' | 'bubble';
+  type?:
+    | 'bar'
+    | 'line'
+    | 'pie'
+    | 'doughnut'
+    | 'polarArea'
+    | 'radar'
+    | 'scatter'
+    | 'bubble';
   'x-label'?: string;
   'y-label'?: string;
   'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
@@ -57,11 +66,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-chart>
 </template>

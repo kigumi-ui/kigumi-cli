@@ -4,15 +4,14 @@ import './Spinner.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
 }
 
 /**
  * Spinners are used to show the progress of an indeterminate operation
  */
-const props = defineProps({
-
-});
+const props = defineProps({});
 
 // Strip undefined and false props before forwarding to the web component.
 // Vue boolean-prop coercion materializes absent optional Boolean props as
@@ -40,11 +39,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-spinner
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-spinner ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-spinner>
 </template>

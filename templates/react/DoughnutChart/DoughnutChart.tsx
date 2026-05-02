@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaDoughnutChart from '@awesome.me/webawesome/dist/components/doughnut-chart/doughnut-chart.js';
 import './DoughnutChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/doughnut-chart/doughnut-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/doughnut-chart/doughnut-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface DoughnutChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface DoughnutChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -72,7 +82,10 @@ export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
       <wa-doughnut-chart
         ref={setDoughnutChartRef}
         class={clsx('DoughnutChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-doughnut-chart>

@@ -4,15 +4,14 @@ import './CarouselItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js'));
 }
 
 /**
  * Represents an individual slide within a carousel component
  */
-export interface CarouselItemProps {
-
-}
+export interface CarouselItemProps {}
 
 const props = defineProps<CarouselItemProps>();
 

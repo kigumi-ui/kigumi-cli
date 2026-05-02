@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaScatterChart from '@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js';
 import './ScatterChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface ScatterChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface ScatterChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -87,7 +97,10 @@ export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
       <wa-scatter-chart
         ref={setScatterChartRef}
         class={clsx('ScatterChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-scatter-chart>

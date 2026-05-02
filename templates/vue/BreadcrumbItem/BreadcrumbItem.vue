@@ -4,7 +4,8 @@ import './BreadcrumbItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
 }
 
 /**

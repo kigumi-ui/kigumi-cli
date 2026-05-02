@@ -4,7 +4,8 @@ import './ProgressRing.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
 }
 
 /**

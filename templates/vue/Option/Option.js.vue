@@ -4,17 +4,18 @@ import './Option.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/option/option.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/option/option.js'));
 }
 
 /**
  * Options define the selectable items within various form controls
  */
 const props = defineProps({
-    value: { type: String, required: false, default: '' },
-    disabled: { type: Boolean, required: false, default: false },
-    selected: { type: Boolean, required: false, default: false },
-    label: { type: String, required: false }
+  value: { type: String, required: false, default: '' },
+  disabled: { type: Boolean, required: false, default: false },
+  selected: { type: Boolean, required: false, default: false },
+  label: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -43,11 +44,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-option
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-option ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-option>
 </template>

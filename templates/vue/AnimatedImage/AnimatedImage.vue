@@ -4,7 +4,8 @@ import './AnimatedImage.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
 }
 
 /**

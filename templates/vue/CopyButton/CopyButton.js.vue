@@ -4,21 +4,22 @@ import './CopyButton.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/copy-button/copy-button.js'));
 }
 
 /**
  * Copies text data to the clipboard when clicked
  */
 const props = defineProps({
-    value: { type: String, required: false, default: '' },
-    from: { type: String, required: false, default: '' },
-    disabled: { type: Boolean, required: false, default: false },
-    'copy-label': { type: String, required: false, default: '' },
-    'success-label': { type: String, required: false, default: '' },
-    'error-label': { type: String, required: false, default: '' },
-    'feedback-duration': { type: Number, required: false, default: 1000 },
-    'tooltip-placement': { type: String, required: false, default: 'top' }
+  value: { type: String, required: false, default: '' },
+  from: { type: String, required: false, default: '' },
+  disabled: { type: Boolean, required: false, default: false },
+  'copy-label': { type: String, required: false, default: '' },
+  'success-label': { type: String, required: false, default: '' },
+  'error-label': { type: String, required: false, default: '' },
+  'feedback-duration': { type: Number, required: false, default: 1000 },
+  'tooltip-placement': { type: String, required: false, default: 'top' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -66,11 +67,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-copy-button
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-copy-button ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-copy-button>
 </template>

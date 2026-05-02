@@ -4,7 +4,8 @@ import './Details.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/details/details.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/details/details.js'));
 }
 
 /**
@@ -45,19 +46,22 @@ const elementRef = ref<HTMLElement | null>(null);
 
 watch(open, (newOpen) => {
   const el = elementRef.value as any;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });
 
 onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as CustomEvent); };
+const handleWaShow = (e: Event) => {
+  open.value = true;
+  emit('wa-show', e as CustomEvent);
+};
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
-const handleWaHide = (e: Event) => { open.value = false; emit('wa-hide', e as CustomEvent); };
+const handleWaHide = (e: Event) => {
+  open.value = false;
+  emit('wa-hide', e as CustomEvent);
+};
 const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
 
 onMounted(() => {

@@ -4,7 +4,8 @@ import './Checkbox.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/checkbox/checkbox.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/checkbox/checkbox.js'));
 }
 
 /**
@@ -35,10 +36,10 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'change': [event: CustomEvent];
-  'blur': [event: CustomEvent];
-  'focus': [event: FocusEvent];
-  'input': [event: CustomEvent];
+  change: [event: CustomEvent];
+  blur: [event: CustomEvent];
+  focus: [event: FocusEvent];
+  input: [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -55,7 +56,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => { model.value = (e.target as any).checked; emit('change', e as CustomEvent); };
+const handleChange = (e: Event) => {
+  model.value = (e.target as any).checked;
+  emit('change', e as CustomEvent);
+};
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleInput = (e: Event) => emit('input', e as CustomEvent);
@@ -87,8 +91,12 @@ defineExpose({
   click: () => (elementRef.value as any)?.click?.(),
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
   blur: () => (elementRef.value as any)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });

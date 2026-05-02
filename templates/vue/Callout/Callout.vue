@@ -4,7 +4,8 @@ import './Callout.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/callout/callout.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/callout/callout.js'));
 }
 
 /**
@@ -46,11 +47,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-callout
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-callout ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-callout>
 </template>

@@ -4,7 +4,8 @@ import './Animation.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/animation/animation.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animation/animation.js'));
 }
 
 /**
@@ -80,11 +81,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-animation
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-animation ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-animation>
 </template>

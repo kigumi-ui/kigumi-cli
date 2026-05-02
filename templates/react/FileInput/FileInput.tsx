@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaFileInput from '@awesome.me/webawesome/dist/components/file-input/file-input.js';
 import './FileInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/file-input/file-input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/file-input/file-input.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <FileInput ref={ref} />
  * ```
  */
-export interface FileInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onInvalid' | 'dir'> {
-
+export interface FileInputProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onInvalid' | 'dir'
+> {
   /** Accessible label for the input */
   label?: string;
 
@@ -66,7 +76,6 @@ export interface FileInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInp
 }
 
 export interface FileInputRef {
-
   /** Sets focus on the file input. */
   focus: (options: FocusOptions) => void;
 
@@ -80,7 +89,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -89,7 +101,19 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const FileInput = forwardRef<FileInputRef, FileInputProps>(
-  ({ children, className, onInput, onChange, onFocus, onBlur, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const fileinputRef = useRef<WaFileInput | null>(null);
     const setFileInputRef = useCallback((el: WaFileInput | null) => {
       fileinputRef.current = el;
@@ -99,27 +123,45 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       ref,
       () => ({
         focus: (options: FocusOptions) => {
-          if (fileinputRef.current && typeof fileinputRef.current.focus === 'function') {
+          if (
+            fileinputRef.current &&
+            typeof fileinputRef.current.focus === 'function'
+          ) {
             fileinputRef.current.focus(options);
           }
         },
         blur: () => {
-          if (fileinputRef.current && typeof fileinputRef.current.blur === 'function') {
+          if (
+            fileinputRef.current &&
+            typeof fileinputRef.current.blur === 'function'
+          ) {
             fileinputRef.current.blur();
           }
         },
         setCustomValidity: (message: string) => {
-          if (fileinputRef.current && typeof fileinputRef.current.setCustomValidity === 'function') {
+          if (
+            fileinputRef.current &&
+            typeof fileinputRef.current.setCustomValidity === 'function'
+          ) {
             fileinputRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (fileinputRef.current && typeof fileinputRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            fileinputRef.current &&
+            typeof fileinputRef.current.formStateRestoreCallback === 'function'
+          ) {
             fileinputRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (fileinputRef.current && typeof fileinputRef.current.resetValidity === 'function') {
+          if (
+            fileinputRef.current &&
+            typeof fileinputRef.current.resetValidity === 'function'
+          ) {
             fileinputRef.current.resetValidity();
           }
         },
@@ -174,7 +216,10 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       <wa-file-input
         ref={setFileInputRef}
         class={clsx('FileInput', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-file-input>

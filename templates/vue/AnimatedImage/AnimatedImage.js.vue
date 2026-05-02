@@ -4,16 +4,17 @@ import './AnimatedImage.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
 }
 
 /**
  * A component for displaying animated GIFs and WEBPs that play and pause on interaction
  */
 const props = defineProps({
-    src: { type: String, required: true },
-    alt: { type: String, required: true },
-    play: { type: Boolean, required: false, default: false }
+  src: { type: String, required: true },
+  alt: { type: String, required: true },
+  play: { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

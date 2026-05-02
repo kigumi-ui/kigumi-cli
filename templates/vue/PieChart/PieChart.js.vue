@@ -4,19 +4,20 @@ import './PieChart.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js'));
 }
 
 /**
  * Divides a circle into wedges that represent each category's share of the whole
  */
 const props = defineProps({
-    label: { type: String, required: false },
-    description: { type: String, required: false },
-    'legend-position': { type: String, required: false, default: 'top' },
-    'without-animation': { type: Boolean, required: false, default: false },
-    'without-legend': { type: Boolean, required: false, default: false },
-    'without-tooltip': { type: Boolean, required: false, default: false }
+  label: { type: String, required: false },
+  description: { type: String, required: false },
+  'legend-position': { type: String, required: false, default: 'top' },
+  'without-animation': { type: Boolean, required: false, default: false },
+  'without-legend': { type: Boolean, required: false, default: false },
+  'without-tooltip': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -45,11 +46,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-pie-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-pie-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-pie-chart>
 </template>

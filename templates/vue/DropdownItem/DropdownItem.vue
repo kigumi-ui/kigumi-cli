@@ -4,7 +4,8 @@ import './DropdownItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
 }
 
 /**
@@ -34,8 +35,8 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'blur': [event: CustomEvent];
-  'focus': [event: FocusEvent];
+  blur: [event: CustomEvent];
+  focus: [event: FocusEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);

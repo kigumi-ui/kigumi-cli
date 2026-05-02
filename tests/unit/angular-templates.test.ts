@@ -23,18 +23,23 @@ function readTemplate(component: string): string {
 }
 
 describe('Angular template generator', () => {
-  // A1: Output/Method collision resolution - overlay components
+  // A1: Output/Method collision resolution - overlay components.
+  // Tooltip exposes public show()/hide() methods AND emits wa-show/wa-hide events,
+  // so the collision-resolution renamer is exercised. (WA 3.5.0 marks Dialog's
+  // show()/requestClose() as private, so Dialog has no public methods in the
+  // CEM-derived metadata and is no longer a collision case.)
   it('should suffix @Output with Event when method has same name', () => {
-    const dialog = readTemplate('Dialog');
+    const tooltip = readTemplate('Tooltip');
 
-    // show() method exists
-    expect(dialog).toContain('show(): void {');
-    // @Output should be showEvent, not show
-    expect(dialog).toContain('@Output() showEvent');
-    expect(dialog).not.toMatch(/@Output\(\) show\b[^E]/);
+    // Methods exist
+    expect(tooltip).toContain('show(): void {');
+    expect(tooltip).toContain('hide(): void {');
 
-    // requestClose is a method but not an event - no collision
-    expect(dialog).toContain('requestClose(): void {');
+    // @Outputs should be renamed to avoid collision with the methods above
+    expect(tooltip).toContain('@Output() showEvent');
+    expect(tooltip).toContain('@Output() hideEvent');
+    expect(tooltip).not.toMatch(/@Output\(\) show\b[^E]/);
+    expect(tooltip).not.toMatch(/@Output\(\) hide\b[^E]/);
   });
 
   // A2: focus/blur collision resolution - form components
@@ -111,15 +116,22 @@ describe('Angular template generator', () => {
     }
   });
 
-  // A7: Method signatures use commas not semicolons
+  // A7: Method signatures use commas not semicolons.
+  // The /s (dotall) flag is needed because prettier wraps long signatures
+  // across multiple lines: `(\n    state?: …,\n    reason?: …\n  ) => void`.
   it('should use commas in method type annotations', () => {
     const button = readTemplate('Button');
 
     // formStateRestoreCallback has 2 params: state, reason
-    // The type cast should use commas: (state: unknown, reason: unknown) => void
-    const castMatch = button.match(/formStateRestoreCallback:.*?=> void/);
+    const castMatch = button.match(/formStateRestoreCallback:.*?=> void/s);
     expect(castMatch).not.toBeNull();
-    expect(castMatch![0]).toContain(', ');
-    expect(castMatch![0]).not.toContain('; ');
+    expect(castMatch![0]).toContain(',');
+    // Function-parameter separators must be commas, not semicolons. A
+    // semicolon between params (e.g. inside the cast type list) would
+    // signal a regression in the structured emitter.
+    const paramSegment = castMatch![0]
+      .replace(/^[^(]*\(/, '')
+      .replace(/\)\s*=>.*$/s, '');
+    expect(paramSegment).not.toMatch(/;\s*\w/);
   });
 });

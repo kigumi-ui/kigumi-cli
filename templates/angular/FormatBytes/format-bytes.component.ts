@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
 }
 
 /**
@@ -17,11 +26,12 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-format-bytes
-        #element
-        [attr.value]="value"
-        [attr.unit]="unit"
-        [attr.display]="display"
-        [attr.lang]="lang">
+      #element
+      [attr.value]="value"
+      [attr.unit]="unit"
+      [attr.display]="display"
+      [attr.lang]="lang"
+    >
       <ng-content />
     </wa-format-bytes>
   `,

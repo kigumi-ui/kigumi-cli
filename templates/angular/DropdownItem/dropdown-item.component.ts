@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
 }
 
 /**
@@ -17,13 +29,14 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-dropdown-item
-        #element
-        [attr.type]="type"
-        [attr.checked]="checked || null"
-        [attr.value]="value"
-        [attr.disabled]="disabled || null"
-        [attr.loading]="loading || null"
-        [attr.variant]="variant">
+      #element
+      [attr.type]="type"
+      [attr.checked]="checked || null"
+      [attr.value]="value"
+      [attr.disabled]="disabled || null"
+      [attr.loading]="loading || null"
+      [attr.variant]="variant"
+    >
       <ng-content />
     </wa-dropdown-item>
   `,
@@ -47,7 +60,7 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
   @Input() variant?: 'neutral' | 'danger';
 
   @Output() blur = new EventEmitter<CustomEvent>();
-  @Output() focus = new EventEmitter<CustomEvent>();
+  @Output() focus = new EventEmitter<FocusEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -70,7 +83,7 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
     const handleBlur = (e: Event) => this.blur.emit(e as CustomEvent);
     el.addEventListener('blur', handleBlur);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlur));
-    const handleFocus = (e: Event) => this.focus.emit(e as CustomEvent);
+    const handleFocus = (e: Event) => this.focus.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocus);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocus));
   }
@@ -80,9 +93,13 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
   }
 
   openSubmenu(): void {
-    (this.elementRef.nativeElement as unknown as { openSubmenu: () => void }).openSubmenu();
+    (
+      this.elementRef.nativeElement as unknown as { openSubmenu: () => void }
+    ).openSubmenu();
   }
   closeSubmenu(): void {
-    (this.elementRef.nativeElement as unknown as { closeSubmenu: () => void }).closeSubmenu();
+    (
+      this.elementRef.nativeElement as unknown as { closeSubmenu: () => void }
+    ).closeSubmenu();
   }
 }

@@ -1,9 +1,17 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/spinner/spinner.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
 }
 
 /**
@@ -16,8 +24,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-spinner
-        #element>
+    <wa-spinner #element>
       <ng-content />
     </wa-spinner>
   `,
@@ -26,7 +33,6 @@ function ensureLoaded() {
 export class SpinnerComponent implements AfterViewInit {
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
-
 
   ngAfterViewInit(): void {
     ensureLoaded();

@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
 }
 
 /**
@@ -16,10 +25,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-progress-ring
-        #element
-        [attr.value]="value"
-        [attr.label]="label">
+    <wa-progress-ring #element [attr.value]="value" [attr.label]="label">
       <ng-content />
     </wa-progress-ring>
   `,

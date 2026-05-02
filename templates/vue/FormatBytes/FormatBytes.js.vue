@@ -4,17 +4,18 @@ import './FormatBytes.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
 }
 
 /**
  * Formats a number as a human-readable byte value
  */
 const props = defineProps({
-    value: { type: Number, required: false, default: 0 },
-    unit: { type: String, required: false, default: 'byte' },
-    display: { type: String, required: false, default: 'short' },
-    lang: { type: String, required: false }
+  value: { type: Number, required: false, default: 0 },
+  unit: { type: String, required: false, default: 'byte' },
+  display: { type: String, required: false, default: 'short' },
+  lang: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -43,11 +44,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-format-bytes
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-format-bytes ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-format-bytes>
 </template>

@@ -76,3 +76,47 @@ export function extractCustomTypeImports(
   }
   return [...found].sort();
 }
+
+import fs from 'fs-extra';
+import prettier from 'prettier';
+
+/**
+ * Format generator output with prettier before writing.
+ *
+ * The template generators emit raw concatenated strings. The lint-staged
+ * pre-commit hook reformats `.ts` / `.tsx` / `.vue` / `.css` files via
+ * `prettier --write`, but that only runs on staged files at commit time —
+ * NOT on `dist/templates/` populated by `pnpm build`. The mismatch caused
+ * a class of starter-snapshot failures: snapshot harness reads from
+ * `dist/templates/` (unformatted), commits the resulting fixtures, then
+ * CI checks out the lint-staged-formatted templates and the fixtures
+ * disagree on whitespace.
+ *
+ * Solution: format inside the generator. The output of `pnpm generate:*`
+ * is now identical to what lint-staged would produce, so build → copy →
+ * snapshot has no opportunity to drift.
+ *
+ * Resolves prettier config via `prettier.resolveConfig(filePath)` so a
+ * future `.prettierrc.json` is honored without changes here. Defaults
+ * to no config (prettier defaults) when none is found, matching the
+ * current repo state.
+ */
+export async function formatWithPrettier(
+  filePath: string,
+  content: string
+): Promise<string> {
+  const config = (await prettier.resolveConfig(filePath)) ?? {};
+  return prettier.format(content, { ...config, filepath: filePath });
+}
+
+/**
+ * Convenience wrapper combining `formatWithPrettier` with `fs.writeFile`.
+ * Use everywhere a generator currently calls `fs.writeFile(path, content)`.
+ */
+export async function writeFormatted(
+  filePath: string,
+  content: string
+): Promise<void> {
+  const formatted = await formatWithPrettier(filePath, content);
+  await fs.writeFile(filePath, formatted);
+}

@@ -4,26 +4,27 @@ import './FormatDate.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
 }
 
 /**
  * Formats a date/time using the Intl.DateTimeFormat API
  */
 const props = defineProps({
-    date: { type: String, required: false },
-    weekday: { type: String, required: false },
-    era: { type: String, required: false },
-    year: { type: String, required: false },
-    month: { type: String, required: false },
-    day: { type: String, required: false },
-    hour: { type: String, required: false },
-    minute: { type: String, required: false },
-    second: { type: String, required: false },
-    'hour-format': { type: String, required: false, default: 'auto' },
-    'time-zone-name': { type: String, required: false },
-    'time-zone': { type: String, required: false },
-    lang: { type: String, required: false }
+  date: { type: String, required: false },
+  weekday: { type: String, required: false },
+  era: { type: String, required: false },
+  year: { type: String, required: false },
+  month: { type: String, required: false },
+  day: { type: String, required: false },
+  hour: { type: String, required: false },
+  minute: { type: String, required: false },
+  second: { type: String, required: false },
+  'hour-format': { type: String, required: false, default: 'auto' },
+  'time-zone-name': { type: String, required: false },
+  'time-zone': { type: String, required: false },
+  lang: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -52,11 +53,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-format-date
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-format-date ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-format-date>
 </template>

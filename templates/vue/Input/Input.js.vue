@@ -4,40 +4,41 @@ import './Input.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/input/input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/input/input.js'));
 }
 
 /**
  * Inputs collect data from the user
  */
 const props = defineProps({
-    type: { type: String, required: false, default: 'text' },
-    label: { type: String, required: false },
-    hint: { type: String, required: false },
-    placeholder: { type: String, required: false },
-    appearance: { type: String, required: false, default: 'outlined' },
-    size: { type: String, required: false, default: 'medium' },
-    pill: { type: Boolean, required: false, default: false },
-    disabled: { type: Boolean, required: false, default: false },
-    'with-clear': { type: Boolean, required: false, default: false },
-    'password-toggle': { type: Boolean, required: false, default: false },
-    'password-visible': { type: Boolean, required: false, default: false },
-    readonly: { type: Boolean, required: false, default: false },
-    required: { type: Boolean, required: false, default: false },
-    name: { type: String, required: false },
-    pattern: { type: String, required: false },
-    minlength: { type: Number, required: false },
-    maxlength: { type: Number, required: false },
-    min: { type: String, required: false },
-    max: { type: String, required: false },
-    step: { type: String, required: false },
-    'without-spin-buttons': { type: Boolean, required: false, default: false },
-    autocomplete: { type: String, required: false },
-    autocapitalize: { type: String, required: false },
-    autocorrect: { type: Boolean, required: false, default: false },
-    autofocus: { type: Boolean, required: false, default: false },
-    inputmode: { type: String, required: false },
-    enterkeyhint: { type: String, required: false }
+  type: { type: String, required: false, default: 'text' },
+  label: { type: String, required: false },
+  hint: { type: String, required: false },
+  placeholder: { type: String, required: false },
+  appearance: { type: String, required: false, default: 'outlined' },
+  size: { type: String, required: false, default: 'medium' },
+  pill: { type: Boolean, required: false, default: false },
+  disabled: { type: Boolean, required: false, default: false },
+  'with-clear': { type: Boolean, required: false, default: false },
+  'password-toggle': { type: Boolean, required: false, default: false },
+  'password-visible': { type: Boolean, required: false, default: false },
+  readonly: { type: Boolean, required: false, default: false },
+  required: { type: Boolean, required: false, default: false },
+  name: { type: String, required: false },
+  pattern: { type: String, required: false },
+  minlength: { type: Number, required: false },
+  maxlength: { type: Number, required: false },
+  min: { type: String, required: false },
+  max: { type: String, required: false },
+  step: { type: String, required: false },
+  'without-spin-buttons': { type: Boolean, required: false, default: false },
+  autocomplete: { type: String, required: false },
+  autocapitalize: { type: String, required: false },
+  autocorrect: { type: Boolean, required: false, default: false },
+  autofocus: { type: Boolean, required: false, default: false },
+  inputmode: { type: String, required: false },
+  enterkeyhint: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -52,7 +53,14 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['input', 'change', 'blur', 'focus', 'wa-clear', 'wa-invalid']);
+const emit = defineEmits([
+  'input',
+  'change',
+  'blur',
+  'focus',
+  'wa-clear',
+  'wa-invalid',
+]);
 
 const model = defineModel();
 
@@ -67,7 +75,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => {
+  model.value = e.target.value;
+  emit('input', e);
+};
 const handleChange = (e) => emit('change', e);
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);
@@ -102,13 +113,21 @@ defineExpose({
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   select: () => elementRef.value?.select?.(),
-  setSelectionRange: (selectionStart, selectionEnd, selectionDirection) => elementRef.value?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
-  setRangeText: (replacement, start, end, selectMode) => elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
+  setSelectionRange: (selectionStart, selectionEnd, selectionDirection) =>
+    elementRef.value?.setSelectionRange?.(
+      selectionStart,
+      selectionEnd,
+      selectionDirection
+    ),
+  setRangeText: (replacement, start, end, selectMode) =>
+    elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
   showPicker: () => elementRef.value?.showPicker?.(),
   stepUp: () => elementRef.value?.stepUp?.(),
   stepDown: () => elementRef.value?.stepDown?.(),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

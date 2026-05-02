@@ -4,7 +4,8 @@ import './FileInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/file-input/file-input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/file-input/file-input.js'));
 }
 
 /**
@@ -35,10 +36,10 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'input': [event: CustomEvent];
-  'change': [event: CustomEvent];
-  'focus': [event: FocusEvent];
-  'blur': [event: CustomEvent];
+  input: [event: CustomEvent];
+  change: [event: CustomEvent];
+  focus: [event: FocusEvent];
+  blur: [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -79,19 +80,19 @@ onUnmounted(() => {
 defineExpose({
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
   blur: () => (elementRef.value as any)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-file-input
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-file-input ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-file-input>
 </template>

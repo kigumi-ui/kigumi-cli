@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTree from '@awesome.me/webawesome/dist/components/tree/tree.js';
 import './Tree.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tree/tree.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tree/tree.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface TreeProps extends Omit<HTMLAttributes<HTMLElement>, 'onSelectionChange' | 'dir'> {
-
+export interface TreeProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onSelectionChange' | 'dir'
+> {
   /** Selection behavior */
   selection?: 'single' | 'multiple' | 'leaf';
 
@@ -73,7 +83,10 @@ export const Tree = forwardRef<TreeRef, TreeProps>(
       <wa-tree
         ref={setTreeRef}
         class={clsx('Tree', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-tree>

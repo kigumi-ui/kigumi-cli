@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/color-picker/color-picker.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
 }
 
 /**
@@ -18,22 +31,23 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-color-picker
-        #element
-        [attr.value]="value"
-        [attr.format]="format"
-        [attr.opacity]="opacity || null"
-        [attr.disabled]="disabled || null"
-        [attr.required]="required || null"
-        [attr.size]="size"
-        [attr.label]="label"
-        [attr.hint]="hint"
-        [attr.name]="name"
-        [attr.open]="open || null"
-        [attr.placement]="placement"
-        [attr.swatches]="swatches"
-        [attr.uppercase]="uppercase || null"
-        [attr.without-format-toggle]="withoutFormatToggle || null"
-        [attr.inline]="inline || null">
+      #element
+      [attr.value]="value"
+      [attr.format]="format"
+      [attr.opacity]="opacity || null"
+      [attr.disabled]="disabled || null"
+      [attr.required]="required || null"
+      [attr.size]="size"
+      [attr.label]="label"
+      [attr.hint]="hint"
+      [attr.name]="name"
+      [attr.open]="open || null"
+      [attr.placement]="placement"
+      [attr.swatches]="swatches"
+      [attr.uppercase]="uppercase || null"
+      [attr.without-format-toggle]="withoutFormatToggle || null"
+      [attr.inline]="inline || null"
+    >
       <ng-content />
     </wa-color-picker>
   `,
@@ -46,7 +60,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class ColorPickerComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class ColorPickerComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -71,7 +87,19 @@ export class ColorPickerComponent implements AfterViewInit, OnDestroy, ControlVa
   /** Whether the panel is open */
   @Input() open?: boolean;
   /** Preferred placement of the color picker panel */
-  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  @Input() placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   /** Predefined color swatches */
   @Input() swatches?: string;
   /** Displays hex values in uppercase */
@@ -88,7 +116,7 @@ export class ColorPickerComponent implements AfterViewInit, OnDestroy, ControlVa
   @Output() hideEvent = new EventEmitter<CustomEvent>();
   @Output() afterHide = new EventEmitter<CustomEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
@@ -115,34 +143,49 @@ export class ColorPickerComponent implements AfterViewInit, OnDestroy, ControlVa
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
     el.addEventListener('wa-show', handleShowEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-show', handleShowEvent)
+    );
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHideEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-hide', handleHideEvent)
+    );
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -154,7 +197,8 @@ export class ColorPickerComponent implements AfterViewInit, OnDestroy, ControlVa
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -168,24 +212,62 @@ export class ColorPickerComponent implements AfterViewInit, OnDestroy, ControlVa
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
-  getHexString(hue?: unknown, saturation?: unknown, brightness?: unknown, alpha?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { getHexString: (hue: unknown, saturation: unknown, brightness: unknown, alpha: unknown) => void }).getHexString(hue, saturation, brightness, alpha);
+  getHexString(
+    hue?: number,
+    saturation?: number,
+    brightness?: number,
+    alpha?: any
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        getHexString: (
+          hue?: number,
+          saturation?: number,
+          brightness?: number,
+          alpha?: any
+        ) => void;
+      }
+    ).getHexString(hue, saturation, brightness, alpha);
   }
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
-  getFormattedValue(format?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { getFormattedValue: (format: unknown) => void }).getFormattedValue(format);
+  getFormattedValue(
+    format?: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        getFormattedValue: (
+          format?:
+            | 'hex'
+            | 'hexa'
+            | 'rgb'
+            | 'rgba'
+            | 'hsl'
+            | 'hsla'
+            | 'hsv'
+            | 'hsva'
+        ) => void;
+      }
+    ).getFormattedValue(format);
   }
   reportValidity(): void {
-    (this.elementRef.nativeElement as unknown as { reportValidity: () => void }).reportValidity();
+    (
+      this.elementRef.nativeElement as unknown as { reportValidity: () => void }
+    ).reportValidity();
   }
   show(): void {
     (this.elementRef.nativeElement as unknown as { show: () => void }).show();
@@ -193,13 +275,29 @@ export class ColorPickerComponent implements AfterViewInit, OnDestroy, ControlVa
   hide(): void {
     (this.elementRef.nativeElement as unknown as { hide: () => void }).hide();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/callout/callout.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/callout/callout.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/callout/callout.js'));
 }
 
 /**
@@ -17,10 +26,11 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-callout
-        #element
-        [attr.appearance]="appearance"
-        [attr.size]="size"
-        [attr.variant]="variant">
+      #element
+      [attr.appearance]="appearance"
+      [attr.size]="size"
+      [attr.variant]="variant"
+    >
       <ng-content />
     </wa-callout>
   `,
@@ -31,7 +41,12 @@ export class CalloutComponent implements AfterViewInit {
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The callout's visual appearance */
-  @Input() appearance?: 'accent' | 'filled' | 'outlined' | 'plain' | 'filled-outlined';
+  @Input() appearance?:
+    | 'accent'
+    | 'filled'
+    | 'outlined'
+    | 'plain'
+    | 'filled-outlined';
   /** The callout's size */
   @Input() size?: 'small' | 'medium' | 'large';
   /** The callout's theme variant */

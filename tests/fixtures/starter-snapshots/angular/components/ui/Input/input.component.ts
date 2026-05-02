@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/input/input.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/input/input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/input/input.js'));
 }
 
 /**
@@ -18,35 +31,36 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-input
-        #element
-        [attr.type]="type"
-        [attr.label]="label"
-        [attr.hint]="hint"
-        [attr.placeholder]="placeholder"
-        [attr.value]="value"
-        [attr.appearance]="appearance"
-        [attr.size]="size"
-        [attr.pill]="pill || null"
-        [attr.disabled]="disabled || null"
-        [attr.with-clear]="withClear || null"
-        [attr.password-toggle]="passwordToggle || null"
-        [attr.password-visible]="passwordVisible || null"
-        [attr.readonly]="readonly || null"
-        [attr.required]="required || null"
-        [attr.name]="name"
-        [attr.pattern]="pattern"
-        [attr.minlength]="minlength"
-        [attr.maxlength]="maxlength"
-        [attr.min]="min"
-        [attr.max]="max"
-        [attr.step]="step"
-        [attr.without-spin-buttons]="withoutSpinButtons || null"
-        [attr.autocomplete]="autocomplete"
-        [attr.autocapitalize]="autocapitalize"
-        [attr.autocorrect]="autocorrect || null"
-        [attr.autofocus]="autofocus || null"
-        [attr.inputmode]="inputmode"
-        [attr.enterkeyhint]="enterkeyhint">
+      #element
+      [attr.type]="type"
+      [attr.label]="label"
+      [attr.hint]="hint"
+      [attr.placeholder]="placeholder"
+      [attr.value]="value"
+      [attr.appearance]="appearance"
+      [attr.size]="size"
+      [attr.pill]="pill || null"
+      [attr.disabled]="disabled || null"
+      [attr.with-clear]="withClear || null"
+      [attr.password-toggle]="passwordToggle || null"
+      [attr.password-visible]="passwordVisible || null"
+      [attr.readonly]="readonly || null"
+      [attr.required]="required || null"
+      [attr.name]="name"
+      [attr.pattern]="pattern"
+      [attr.minlength]="minlength"
+      [attr.maxlength]="maxlength"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.step]="step"
+      [attr.without-spin-buttons]="withoutSpinButtons || null"
+      [attr.autocomplete]="autocomplete"
+      [attr.autocapitalize]="autocapitalize"
+      [attr.autocorrect]="autocorrect || null"
+      [attr.autofocus]="autofocus || null"
+      [attr.inputmode]="inputmode"
+      [attr.enterkeyhint]="enterkeyhint"
+    >
       <ng-content />
     </wa-input>
   `,
@@ -59,12 +73,22 @@ function ensureLoaded() {
     },
   ],
 })
-export class InputComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class InputComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Input type */
-  @Input() type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search';
+  @Input() type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'date'
+    | 'tel'
+    | 'url'
+    | 'search';
   /** Accessible label for the input */
   @Input() label?: string;
   /** Descriptive hint text */
@@ -110,20 +134,41 @@ export class InputComponent implements AfterViewInit, OnDestroy, ControlValueAcc
   /** Hint for autocomplete behavior */
   @Input() autocomplete?: string;
   /** Controls automatic capitalization */
-  @Input() autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  @Input() autocapitalize?:
+    | 'off'
+    | 'none'
+    | 'on'
+    | 'sentences'
+    | 'words'
+    | 'characters';
   /** Enable autocorrect */
   @Input() autocorrect?: boolean;
   /** Automatically focuses the input on page load */
   @Input() autofocus?: boolean;
   /** Hint for virtual keyboard type */
-  @Input() inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  @Input() inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
   /** Hint for Enter key label on virtual keyboards */
-  @Input() enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  @Input() enterkeyhint?:
+    | 'enter'
+    | 'done'
+    | 'go'
+    | 'next'
+    | 'previous'
+    | 'search'
+    | 'send';
 
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() clear = new EventEmitter<CustomEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
@@ -148,7 +193,8 @@ export class InputComponent implements AfterViewInit, OnDestroy, ControlValueAcc
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
@@ -157,7 +203,8 @@ export class InputComponent implements AfterViewInit, OnDestroy, ControlValueAcc
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleClear = (e: Event) => this.clear.emit(e as CustomEvent);
@@ -165,11 +212,16 @@ export class InputComponent implements AfterViewInit, OnDestroy, ControlValueAcc
     this.cleanups.push(() => el.removeEventListener('wa-clear', handleClear));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -181,7 +233,8 @@ export class InputComponent implements AfterViewInit, OnDestroy, ControlValueAcc
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -195,41 +248,97 @@ export class InputComponent implements AfterViewInit, OnDestroy, ControlValueAcc
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
   select(): void {
-    (this.elementRef.nativeElement as unknown as { select: () => void }).select();
+    (
+      this.elementRef.nativeElement as unknown as { select: () => void }
+    ).select();
   }
-  setSelectionRange(selectionStart?: unknown, selectionEnd?: unknown, selectionDirection?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setSelectionRange: (selectionStart: unknown, selectionEnd: unknown, selectionDirection: unknown) => void }).setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+  setSelectionRange(
+    selectionStart?: number,
+    selectionEnd?: number,
+    selectionDirection?: 'forward' | 'backward' | 'none'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setSelectionRange: (
+          selectionStart?: number,
+          selectionEnd?: number,
+          selectionDirection?: 'forward' | 'backward' | 'none'
+        ) => void;
+      }
+    ).setSelectionRange(selectionStart, selectionEnd, selectionDirection);
   }
-  setRangeText(replacement?: unknown, start?: unknown, end?: unknown, selectMode?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setRangeText: (replacement: unknown, start: unknown, end: unknown, selectMode: unknown) => void }).setRangeText(replacement, start, end, selectMode);
+  setRangeText(
+    replacement?: string,
+    start?: number,
+    end?: number,
+    selectMode?: 'select' | 'start' | 'end' | 'preserve'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setRangeText: (
+          replacement?: string,
+          start?: number,
+          end?: number,
+          selectMode?: 'select' | 'start' | 'end' | 'preserve'
+        ) => void;
+      }
+    ).setRangeText(replacement, start, end, selectMode);
   }
   showPicker(): void {
-    (this.elementRef.nativeElement as unknown as { showPicker: () => void }).showPicker();
+    (
+      this.elementRef.nativeElement as unknown as { showPicker: () => void }
+    ).showPicker();
   }
   stepUp(): void {
-    (this.elementRef.nativeElement as unknown as { stepUp: () => void }).stepUp();
+    (
+      this.elementRef.nativeElement as unknown as { stepUp: () => void }
+    ).stepUp();
   }
   stepDown(): void {
-    (this.elementRef.nativeElement as unknown as { stepDown: () => void }).stepDown();
+    (
+      this.elementRef.nativeElement as unknown as { stepDown: () => void }
+    ).stepDown();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

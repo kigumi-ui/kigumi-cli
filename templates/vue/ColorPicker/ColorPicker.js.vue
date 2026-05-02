@@ -4,27 +4,28 @@ import './ColorPicker.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
 }
 
 /**
  * Color pickers allow the user to select a color
  */
 const props = defineProps({
-    format: { type: String, required: false, default: 'hex' },
-    opacity: { type: Boolean, required: false, default: false },
-    disabled: { type: Boolean, required: false, default: false },
-    required: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: 'medium' },
-    label: { type: String, required: false, default: '' },
-    hint: { type: String, required: false, default: '' },
-    name: { type: String, required: false },
-    open: { type: Boolean, required: false, default: false },
-    placement: { type: String, required: false, default: 'bottom-start' },
-    swatches: { type: String, required: false, default: '' },
-    uppercase: { type: Boolean, required: false, default: false },
-    'without-format-toggle': { type: Boolean, required: false, default: false },
-    inline: { type: Boolean, required: false, default: false }
+  format: { type: String, required: false, default: 'hex' },
+  opacity: { type: Boolean, required: false, default: false },
+  disabled: { type: Boolean, required: false, default: false },
+  required: { type: Boolean, required: false, default: false },
+  size: { type: String, required: false, default: 'medium' },
+  label: { type: String, required: false, default: '' },
+  hint: { type: String, required: false, default: '' },
+  name: { type: String, required: false },
+  open: { type: Boolean, required: false, default: false },
+  placement: { type: String, required: false, default: 'bottom-start' },
+  swatches: { type: String, required: false, default: '' },
+  uppercase: { type: Boolean, required: false, default: false },
+  'without-format-toggle': { type: Boolean, required: false, default: false },
+  inline: { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -39,7 +40,17 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['change', 'input', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'blur', 'focus', 'wa-invalid']);
+const emit = defineEmits([
+  'change',
+  'input',
+  'wa-show',
+  'wa-after-show',
+  'wa-hide',
+  'wa-after-hide',
+  'blur',
+  'focus',
+  'wa-invalid',
+]);
 
 const model = defineModel();
 
@@ -55,7 +66,10 @@ onMounted(() => {
 });
 
 const handleChange = (e) => emit('change', e);
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => {
+  model.value = e.target.value;
+  emit('input', e);
+};
 const handleWaShow = (e) => emit('wa-show', e);
 const handleWaAfterShow = (e) => emit('wa-after-show', e);
 const handleWaHide = (e) => emit('wa-hide', e);
@@ -95,15 +109,18 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  getHexString: (hue, saturation, brightness, alpha) => elementRef.value?.getHexString?.(hue, saturation, brightness, alpha),
+  getHexString: (hue, saturation, brightness, alpha) =>
+    elementRef.value?.getHexString?.(hue, saturation, brightness, alpha),
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
   getFormattedValue: (format) => elementRef.value?.getFormattedValue?.(format),
   reportValidity: () => elementRef.value?.reportValidity?.(),
   show: () => elementRef.value?.show?.(),
   hide: () => elementRef.value?.hide?.(),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

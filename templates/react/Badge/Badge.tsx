@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaBadge from '@awesome.me/webawesome/dist/components/badge/badge.js';
 import './Badge.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/badge/badge.js'));
 }
 
 /**
@@ -22,7 +30,6 @@ function ensureLoaded() {
  * ```
  */
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** The badge's theme variant */
   variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
 
@@ -66,7 +73,10 @@ export const Badge = forwardRef<BadgeRef, BadgeProps>(
       <wa-badge
         ref={setBadgeRef}
         class={clsx('Badge', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-badge>

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaLineChart from '@awesome.me/webawesome/dist/components/line-chart/line-chart.js';
 import './LineChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/line-chart/line-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/line-chart/line-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface LineChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface LineChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -93,7 +103,10 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
       <wa-line-chart
         ref={setLineChartRef}
         class={clsx('LineChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-line-chart>

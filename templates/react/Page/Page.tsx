@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaPage from '@awesome.me/webawesome/dist/components/page/page.js';
 import './Page.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/page/page.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/page/page.js'));
 }
 
 /**
@@ -26,7 +34,6 @@ function ensureLoaded() {
  * ```
  */
 export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** Hide default hamburger button; auto-sets true if custom toggle element present */
   'disable-navigation-toggle'?: boolean;
 
@@ -44,7 +51,6 @@ export interface PageProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface PageRef {
-
   /** https://stackoverflow.com/a/26831113
 This prevents awkward gaps when scrolling the page and the aside / menu dont "fill" the gaps. */
   visiblePixelsInViewport: (element: HTMLElement | null) => void;
@@ -72,22 +78,34 @@ export const Page = forwardRef<PageRef, PageProps>(
       ref,
       () => ({
         visiblePixelsInViewport: (element: HTMLElement | null) => {
-          if (pageRef.current && typeof pageRef.current.visiblePixelsInViewport === 'function') {
+          if (
+            pageRef.current &&
+            typeof pageRef.current.visiblePixelsInViewport === 'function'
+          ) {
             pageRef.current.visiblePixelsInViewport(element);
           }
         },
         showNavigation: () => {
-          if (pageRef.current && typeof pageRef.current.showNavigation === 'function') {
+          if (
+            pageRef.current &&
+            typeof pageRef.current.showNavigation === 'function'
+          ) {
             pageRef.current.showNavigation();
           }
         },
         hideNavigation: () => {
-          if (pageRef.current && typeof pageRef.current.hideNavigation === 'function') {
+          if (
+            pageRef.current &&
+            typeof pageRef.current.hideNavigation === 'function'
+          ) {
             pageRef.current.hideNavigation();
           }
         },
         toggleNavigation: () => {
-          if (pageRef.current && typeof pageRef.current.toggleNavigation === 'function') {
+          if (
+            pageRef.current &&
+            typeof pageRef.current.toggleNavigation === 'function'
+          ) {
             pageRef.current.toggleNavigation();
           }
         },
@@ -106,7 +124,10 @@ export const Page = forwardRef<PageRef, PageProps>(
       <wa-page
         ref={setPageRef}
         class={clsx('Page', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-page>

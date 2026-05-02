@@ -4,20 +4,21 @@ import './Dropdown.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dropdown/dropdown.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dropdown/dropdown.js'));
 }
 
 /**
  * Dropdowns expose additional content that pops up when the user interacts with a trigger
  */
 const props = defineProps({
-    placement: { type: String, required: false, default: 'bottom-start' },
-    disabled: { type: Boolean, required: false, default: false },
-    'stay-open-on-select': { type: Boolean, required: false, default: false },
-    distance: { type: Number, required: false, default: 0 },
-    skidding: { type: Number, required: false, default: 0 },
-    hoist: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: 'medium' }
+  placement: { type: String, required: false, default: 'bottom-start' },
+  disabled: { type: Boolean, required: false, default: false },
+  'stay-open-on-select': { type: Boolean, required: false, default: false },
+  distance: { type: Number, required: false, default: 0 },
+  skidding: { type: Number, required: false, default: 0 },
+  hoist: { type: Boolean, required: false, default: false },
+  size: { type: String, required: false, default: 'medium' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -32,7 +33,13 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-select']);
+const emit = defineEmits([
+  'wa-show',
+  'wa-after-show',
+  'wa-hide',
+  'wa-after-hide',
+  'wa-select',
+]);
 
 const open = defineModel('open', { default: false });
 
@@ -40,19 +47,22 @@ const elementRef = ref(null);
 
 watch(open, (newOpen) => {
   const el = elementRef.value;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });
 
 onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
+const handleWaShow = (e) => {
+  open.value = true;
+  emit('wa-show', e);
+};
 const handleWaAfterShow = (e) => emit('wa-after-show', e);
-const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
+const handleWaHide = (e) => {
+  open.value = false;
+  emit('wa-hide', e);
+};
 const handleWaAfterHide = (e) => emit('wa-after-hide', e);
 const handleWaSelect = (e) => emit('wa-select', e);
 

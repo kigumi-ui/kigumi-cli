@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/animated-image/animated-image.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animated-image/animated-image.js'));
 }
 
 /**
@@ -17,10 +29,11 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-animated-image
-        #element
-        [attr.src]="src"
-        [attr.alt]="alt"
-        [attr.play]="play || null">
+      #element
+      [attr.src]="src"
+      [attr.alt]="alt"
+      [attr.play]="play || null"
+    >
       <ng-content />
     </wa-animated-image>
   `,

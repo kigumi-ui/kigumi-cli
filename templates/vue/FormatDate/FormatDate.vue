@@ -4,7 +4,8 @@ import './FormatDate.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
 }
 
 /**
@@ -56,11 +57,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-format-date
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-format-date ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-format-date>
 </template>

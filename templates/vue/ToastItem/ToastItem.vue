@@ -4,7 +4,8 @@ import './ToastItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast-item/toast-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/toast-item/toast-item.js'));
 }
 
 /**
@@ -75,11 +76,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-toast-item
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-toast-item ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-toast-item>
 </template>

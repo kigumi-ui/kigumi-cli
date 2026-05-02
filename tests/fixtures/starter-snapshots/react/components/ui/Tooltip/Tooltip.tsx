@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTooltip from '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 import './Tooltip.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tooltip/tooltip.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tooltip/tooltip.js'));
 }
 
 /**
@@ -26,10 +34,24 @@ function ensureLoaded() {
  * <Tooltip ref={ref} />
  * ```
  */
-export interface TooltipProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
-
+export interface TooltipProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
   /** Tooltip placement */
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
 
   /** Disables the tooltip */
   disabled?: boolean;
@@ -72,7 +94,6 @@ export interface TooltipProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow'
 }
 
 export interface TooltipRef {
-
   /** Shows the tooltip. */
   show: () => void;
 
@@ -83,7 +104,10 @@ export interface TooltipRef {
 }
 
 export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
     const tooltipRef = useRef<WaTooltip | null>(null);
     const setTooltipRef = useCallback((el: WaTooltip | null) => {
       tooltipRef.current = el;
@@ -93,12 +117,18 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
       ref,
       () => ({
         show: () => {
-          if (tooltipRef.current && typeof tooltipRef.current.show === 'function') {
+          if (
+            tooltipRef.current &&
+            typeof tooltipRef.current.show === 'function'
+          ) {
             tooltipRef.current.show();
           }
         },
         hide: () => {
-          if (tooltipRef.current && typeof tooltipRef.current.hide === 'function') {
+          if (
+            tooltipRef.current &&
+            typeof tooltipRef.current.hide === 'function'
+          ) {
             tooltipRef.current.hide();
           }
         },
@@ -147,7 +177,10 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
       <wa-tooltip
         ref={setTooltipRef}
         class={clsx('Tooltip', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-tooltip>

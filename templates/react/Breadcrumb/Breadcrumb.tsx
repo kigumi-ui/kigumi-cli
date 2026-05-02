@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaBreadcrumb from '@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js';
 import './Breadcrumb.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface BreadcrumbProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface BreadcrumbProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** The label to use for the breadcrumb control for assistive devices */
   label?: string;
 }
@@ -57,7 +67,10 @@ export const Breadcrumb = forwardRef<BreadcrumbRef, BreadcrumbProps>(
       <wa-breadcrumb
         ref={setBreadcrumbRef}
         class={clsx('Breadcrumb', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-breadcrumb>

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaNumberInput from '@awesome.me/webawesome/dist/components/number-input/number-input.js';
 import './NumberInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <NumberInput ref={ref} />
  * ```
  */
-export interface NumberInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
-
+export interface NumberInputProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'
+> {
   /** Accessible label */
   label?: string;
 
@@ -81,7 +91,6 @@ export interface NumberInputProps extends Omit<HTMLAttributes<HTMLElement>, 'onI
 }
 
 export interface NumberInputRef {
-
   /** Sets focus on the input. */
   focus: (options: FocusOptions) => void;
 
@@ -104,7 +113,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -113,7 +125,19 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
-  ({ children, className, onInput, onChange, onBlur, onFocus, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onInput,
+      onChange,
+      onBlur,
+      onFocus,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const numberinputRef = useRef<WaNumberInput | null>(null);
     const setNumberInputRef = useCallback((el: WaNumberInput | null) => {
       numberinputRef.current = el;
@@ -123,42 +147,70 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       ref,
       () => ({
         focus: (options: FocusOptions) => {
-          if (numberinputRef.current && typeof numberinputRef.current.focus === 'function') {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.focus === 'function'
+          ) {
             numberinputRef.current.focus(options);
           }
         },
         blur: () => {
-          if (numberinputRef.current && typeof numberinputRef.current.blur === 'function') {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.blur === 'function'
+          ) {
             numberinputRef.current.blur();
           }
         },
         select: () => {
-          if (numberinputRef.current && typeof numberinputRef.current.select === 'function') {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.select === 'function'
+          ) {
             numberinputRef.current.select();
           }
         },
         stepUp: () => {
-          if (numberinputRef.current && typeof numberinputRef.current.stepUp === 'function') {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.stepUp === 'function'
+          ) {
             numberinputRef.current.stepUp();
           }
         },
         stepDown: () => {
-          if (numberinputRef.current && typeof numberinputRef.current.stepDown === 'function') {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.stepDown === 'function'
+          ) {
             numberinputRef.current.stepDown();
           }
         },
         setCustomValidity: (message: string) => {
-          if (numberinputRef.current && typeof numberinputRef.current.setCustomValidity === 'function') {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.setCustomValidity === 'function'
+          ) {
             numberinputRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (numberinputRef.current && typeof numberinputRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.formStateRestoreCallback ===
+              'function'
+          ) {
             numberinputRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (numberinputRef.current && typeof numberinputRef.current.resetValidity === 'function') {
+          if (
+            numberinputRef.current &&
+            typeof numberinputRef.current.resetValidity === 'function'
+          ) {
             numberinputRef.current.resetValidity();
           }
         },
@@ -213,7 +265,10 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       <wa-number-input
         ref={setNumberInputRef}
         class={clsx('NumberInput', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-number-input>

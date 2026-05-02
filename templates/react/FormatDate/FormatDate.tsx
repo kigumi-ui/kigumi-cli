@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaFormatDate from '@awesome.me/webawesome/dist/components/format-date/format-date.js';
 import './FormatDate.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface FormatDateProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface FormatDateProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** The date/time to format */
   date?: string;
 
@@ -93,7 +103,10 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
       <wa-format-date
         ref={setFormatDateRef}
         class={clsx('FormatDate', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-format-date>

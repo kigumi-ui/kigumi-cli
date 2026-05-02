@@ -4,7 +4,8 @@ import './Include.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/include/include.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/include/include.js'));
 }
 
 /**
@@ -42,7 +43,8 @@ onMounted(() => {
 });
 
 const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
-const handleWaIncludeError = (e: Event) => emit('wa-include-error', e as CustomEvent);
+const handleWaIncludeError = (e: Event) =>
+  emit('wa-include-error', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -66,11 +68,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-include
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-include ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-include>
 </template>

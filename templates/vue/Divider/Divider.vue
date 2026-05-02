@@ -4,7 +4,8 @@ import './Divider.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/divider/divider.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/divider/divider.js'));
 }
 
 /**
@@ -44,11 +45,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-divider
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-divider ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-divider>
 </template>

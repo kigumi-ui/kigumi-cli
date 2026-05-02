@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaSlider from '@awesome.me/webawesome/dist/components/slider/slider.js';
 import './Slider.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/slider/slider.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/slider/slider.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Slider ref={ref} />
  * ```
  */
-export interface SliderProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onBlur' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'> {
-
+export interface SliderProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'onBlur' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'
+> {
   /** Form field name */
   name?: string;
 
@@ -90,7 +100,6 @@ export interface SliderProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
 }
 
 export interface SliderRef {
-
   /** Sets focus to the slider. */
   focus: () => void;
 
@@ -112,7 +121,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -121,7 +133,19 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const Slider = forwardRef<SliderRef, SliderProps>(
-  ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onChange,
+      onBlur,
+      onFocus,
+      onInput,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const sliderRef = useRef<WaSlider | null>(null);
     const setSliderRef = useCallback((el: WaSlider | null) => {
       sliderRef.current = el;
@@ -131,37 +155,61 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       ref,
       () => ({
         focus: () => {
-          if (sliderRef.current && typeof sliderRef.current.focus === 'function') {
+          if (
+            sliderRef.current &&
+            typeof sliderRef.current.focus === 'function'
+          ) {
             sliderRef.current.focus();
           }
         },
         blur: () => {
-          if (sliderRef.current && typeof sliderRef.current.blur === 'function') {
+          if (
+            sliderRef.current &&
+            typeof sliderRef.current.blur === 'function'
+          ) {
             sliderRef.current.blur();
           }
         },
         stepDown: () => {
-          if (sliderRef.current && typeof sliderRef.current.stepDown === 'function') {
+          if (
+            sliderRef.current &&
+            typeof sliderRef.current.stepDown === 'function'
+          ) {
             sliderRef.current.stepDown();
           }
         },
         stepUp: () => {
-          if (sliderRef.current && typeof sliderRef.current.stepUp === 'function') {
+          if (
+            sliderRef.current &&
+            typeof sliderRef.current.stepUp === 'function'
+          ) {
             sliderRef.current.stepUp();
           }
         },
         setCustomValidity: (message: string) => {
-          if (sliderRef.current && typeof sliderRef.current.setCustomValidity === 'function') {
+          if (
+            sliderRef.current &&
+            typeof sliderRef.current.setCustomValidity === 'function'
+          ) {
             sliderRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (sliderRef.current && typeof sliderRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            sliderRef.current &&
+            typeof sliderRef.current.formStateRestoreCallback === 'function'
+          ) {
             sliderRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (sliderRef.current && typeof sliderRef.current.resetValidity === 'function') {
+          if (
+            sliderRef.current &&
+            typeof sliderRef.current.resetValidity === 'function'
+          ) {
             sliderRef.current.resetValidity();
           }
         },
@@ -216,7 +264,10 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       <wa-slider
         ref={setSliderRef}
         class={clsx('Slider', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-slider>

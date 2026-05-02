@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/select/select.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/select/select.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/select/select.js'));
 }
 
 /**
@@ -18,25 +31,26 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-select
-        #element
-        [attr.name]="name"
-        [attr.value]="value"
-        [attr.appearance]="appearance"
-        [attr.size]="size"
-        [attr.placeholder]="placeholder"
-        [attr.multiple]="multiple || null"
-        [attr.max-options-visible]="maxOptionsVisible"
-        [attr.disabled]="disabled || null"
-        [attr.with-clear]="withClear || null"
-        [attr.open]="open || null"
-        [attr.hoist]="hoist || null"
-        [attr.placement]="placement"
-        [attr.pill]="pill || null"
-        [attr.label]="label"
-        [attr.hint]="hint"
-        [attr.required]="required || null"
-        [attr.invalid]="invalid || null"
-        [attr.help-text]="helpText">
+      #element
+      [attr.name]="name"
+      [attr.value]="value"
+      [attr.appearance]="appearance"
+      [attr.size]="size"
+      [attr.placeholder]="placeholder"
+      [attr.multiple]="multiple || null"
+      [attr.max-options-visible]="maxOptionsVisible"
+      [attr.disabled]="disabled || null"
+      [attr.with-clear]="withClear || null"
+      [attr.open]="open || null"
+      [attr.hoist]="hoist || null"
+      [attr.placement]="placement"
+      [attr.pill]="pill || null"
+      [attr.label]="label"
+      [attr.hint]="hint"
+      [attr.required]="required || null"
+      [attr.invalid]="invalid || null"
+      [attr.help-text]="helpText"
+    >
       <ng-content />
     </wa-select>
   `,
@@ -49,7 +63,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class SelectComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class SelectComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -92,7 +108,7 @@ export class SelectComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
   @Output() clear = new EventEmitter<CustomEvent>();
   @Output() showEvent = new EventEmitter<CustomEvent>();
@@ -122,13 +138,15 @@ export class SelectComponent implements AfterViewInit, OnDestroy, ControlValueAc
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
@@ -139,23 +157,37 @@ export class SelectComponent implements AfterViewInit, OnDestroy, ControlValueAc
     this.cleanups.push(() => el.removeEventListener('wa-clear', handleClear));
     const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
     el.addEventListener('wa-show', handleShowEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-show', handleShowEvent)
+    );
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHideEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-hide', handleHideEvent)
+    );
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
-    const handleInvalidEvent = (e: Event) => this.invalidEvent.emit(e as CustomEvent);
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
+    const handleInvalidEvent = (e: Event) =>
+      this.invalidEvent.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalidEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalidEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalidEvent)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -167,7 +199,8 @@ export class SelectComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -181,7 +214,9 @@ export class SelectComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
@@ -191,19 +226,39 @@ export class SelectComponent implements AfterViewInit, OnDestroy, ControlValueAc
   hide(): void {
     (this.elementRef.nativeElement as unknown as { hide: () => void }).hide();
   }
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

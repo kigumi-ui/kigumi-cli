@@ -1,13 +1,21 @@
 'use client';
 
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaCard from '@awesome.me/webawesome/dist/components/card/card.js';
 import './Card.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/card/card.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/card/card.js'));
 }
 
 /**
@@ -24,7 +32,6 @@ function ensureLoaded() {
  * ```
  */
 export interface CardProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** Visual appearance style */
   appearance?: 'outlined' | 'filled-outlined' | 'plain' | 'filled' | 'accent';
 
@@ -71,7 +78,10 @@ export const Card = forwardRef<CardRef, CardProps>(
       <wa-card
         ref={setCardRef}
         class={clsx('Card', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-card>

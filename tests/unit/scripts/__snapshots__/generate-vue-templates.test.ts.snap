@@ -1,0 +1,703 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateCSSTemplate > emits the Button CSS template 1`] = `
+"/**
+ * Button Component Styles
+ * Documentation: https://webawesome.com/docs/components/button
+ *
+ * CSS Custom Properties:
+ * (No custom properties defined for this component)
+ *
+ * CSS Parts:
+ * - base: The component's base wrapper.
+ * - start: The container that wraps the \`start\` slot.
+ * - label: The button's label.
+ * - end: The container that wraps the \`end\` slot.
+ * - caret: The button's caret icon, a \`<wa-icon>\` element.
+ * - spinner: The spinner that shows when the button is in the loading state.
+ */
+.Button {
+  /* Add your custom styles here */
+}
+"
+`;
+
+exports[`generateTestJavascriptTemplate > emits the Button JS test stub 1`] = `
+"import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/vue';
+import Button from './Button.vue';
+
+describe('Button', () => {
+  it('renders without crashing', () => {
+    const { container } = render(Button);
+    expect(container.querySelector('wa-button')).toBeTruthy();
+  });
+});
+"
+`;
+
+exports[`generateTestTypescriptTemplate > emits the Button TS test stub 1`] = `
+"import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/vue';
+import Button from './Button.vue';
+
+describe('Button', () => {
+  it('renders without crashing', () => {
+    const { container } = render(Button);
+    expect(container.querySelector('wa-button')).toBeTruthy();
+  });
+});
+"
+`;
+
+exports[`generateVueJavascriptTemplate > emits the Badge JS wrapper (no events, no methods branch) 1`] = `
+"<script setup>
+import { ref, computed, onMounted } from 'vue';
+import './Badge.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+}
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ */
+const props = defineProps({
+    variant: { type: String, required: false, default: 'brand' },
+    appearance: { type: String, required: false, default: 'accent' },
+    pill: { type: Boolean, required: false, default: false },
+    attention: { type: String, required: false, default: 'none' }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-badge
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-badge>
+</template>
+"
+`;
+
+exports[`generateVueJavascriptTemplate > emits the Button JS wrapper 1`] = `
+"<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import './Button.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button/button.js'));
+}
+
+/**
+ * Buttons represent actions that are available to the user
+ */
+const props = defineProps({
+    variant: { type: String, required: false, default: 'neutral' },
+    appearance: { type: String, required: false, default: 'filled' },
+    size: { type: String, required: false, default: 'medium' },
+    pill: { type: Boolean, required: false, default: false },
+    disabled: { type: Boolean, required: false, default: false },
+    loading: { type: Boolean, required: false, default: false },
+    'with-caret': { type: Boolean, required: false, default: false },
+    href: { type: String, required: false },
+    target: { type: String, required: false },
+    download: { type: String, required: false },
+    rel: { type: String, required: false },
+    type: { type: String, required: false, default: 'button' },
+    name: { type: String, required: false },
+    value: { type: String, required: false },
+    formaction: { type: String, required: false },
+    formenctype: { type: String, required: false },
+    formmethod: { type: String, required: false },
+    formnovalidate: { type: Boolean, required: false, default: false },
+    formtarget: { type: String, required: false }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['blur', 'focus', 'wa-invalid']);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleBlur = (e) => emit('blur', e);
+const handleFocus = (e) => emit('focus', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  click: () => elementRef.value?.click?.(),
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-button
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-button>
+</template>
+"
+`;
+
+exports[`generateVueJavascriptTemplate > emits the Markdown JS wrapper with the @remarks JSDoc for removed imperative methods 1`] = `
+"<script setup>
+import { ref, computed, onMounted } from 'vue';
+import './Markdown.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
+}
+
+/**
+ * Renders markdown content in plain HTML
+ *
+ * @remarks Re-render programmatically by updating the projected source content (slotted children). The previous \`getMarked()\` / \`updateAll()\` methods are marked private in WA 3.5.0+ and are no longer exposed; \`renderMarkdown()\` remains available.
+ */
+const props = defineProps({
+    'tab-size': { type: Number, required: false, default: 4 }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  renderMarkdown: () => elementRef.value?.renderMarkdown?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-markdown
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-markdown>
+</template>
+"
+`;
+
+exports[`generateVueJavascriptTemplate > emits the Switch JS wrapper (checked v-model branch) 1`] = `
+"<script setup>
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Switch.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/switch/switch.js'));
+}
+
+/**
+ * Switches allow the user to toggle an option on or off
+ */
+const props = defineProps({
+    name: { type: String, required: false },
+    value: { type: String, required: false },
+    size: { type: String, required: false, default: 'medium' },
+    disabled: { type: Boolean, required: false, default: false },
+    required: { type: Boolean, required: false, default: false },
+    hint: { type: String, required: false, default: '' }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['change', 'input', 'blur', 'focus', 'wa-invalid']);
+
+const model = defineModel({ default: false });
+
+const elementRef = ref(null);
+
+watch(model, (val) => {
+  const el = elementRef.value;
+  if (el && el.checked !== val) el.checked = val ?? false;
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleChange = (e) => { model.value = e.target.checked; emit('change', e); };
+const handleInput = (e) => emit('input', e);
+const handleBlur = (e) => emit('blur', e);
+const handleFocus = (e) => emit('focus', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('change', handleChange);
+  el.addEventListener('input', handleInput);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  click: () => elementRef.value?.click?.(),
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-switch
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :checked="model"
+  >
+    <slot />
+  </wa-switch>
+</template>
+"
+`;
+
+exports[`generateVueTypescriptTemplate > emits the Badge wrapper (no events, no methods branch) 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import './Badge.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+}
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ */
+export interface BadgeProps {
+  variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  pill?: boolean;
+  attention?: 'none' | 'pulse' | 'bounce';
+}
+
+const props = defineProps<BadgeProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-badge
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-badge>
+</template>
+"
+`;
+
+exports[`generateVueTypescriptTemplate > emits the Button wrapper 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import './Button.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button/button.js'));
+}
+
+/**
+ * Buttons represent actions that are available to the user
+ */
+export interface ButtonProps {
+  variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
+  appearance?: 'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain';
+  size?: 'small' | 'medium' | 'large';
+  pill?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  'with-caret'?: boolean;
+  href?: string;
+  target?: '_blank' | '_self' | '_parent' | '_top';
+  download?: string;
+  rel?: string;
+  type?: 'button' | 'submit' | 'reset';
+  name?: string;
+  value?: string;
+  formaction?: string;
+  formenctype?: string;
+  formmethod?: string;
+  formnovalidate?: boolean;
+  formtarget?: string;
+}
+
+const props = defineProps<ButtonProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  'blur': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  click: () => (elementRef.value as any)?.click?.(),
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-button
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-button>
+</template>
+"
+`;
+
+exports[`generateVueTypescriptTemplate > emits the Markdown wrapper with the @remarks JSDoc for removed imperative methods 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import './Markdown.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
+}
+
+/**
+ * Renders markdown content in plain HTML
+ *
+ * @remarks Re-render programmatically by updating the projected source content (slotted children). The previous \`getMarked()\` / \`updateAll()\` methods are marked private in WA 3.5.0+ and are no longer exposed; \`renderMarkdown()\` remains available.
+ */
+export interface MarkdownProps {
+  'tab-size'?: number;
+}
+
+const props = defineProps<MarkdownProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  renderMarkdown: () => (elementRef.value as any)?.renderMarkdown?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-markdown
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-markdown>
+</template>
+"
+`;
+
+exports[`generateVueTypescriptTemplate > emits the Switch wrapper (checked v-model branch) 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Switch.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/switch/switch.js'));
+}
+
+/**
+ * Switches allow the user to toggle an option on or off
+ */
+export interface SwitchProps {
+  name?: string;
+  value?: string;
+  size?: 'small' | 'medium' | 'large';
+  disabled?: boolean;
+  required?: boolean;
+  hint?: string;
+}
+
+const props = defineProps<SwitchProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  'change': [event: CustomEvent];
+  'input': [event: CustomEvent];
+  'blur': [event: CustomEvent];
+  'focus': [event: FocusEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const model = defineModel<boolean>({ default: false });
+
+const elementRef = ref<HTMLElement | null>(null);
+
+watch(model, (val) => {
+  const el = elementRef.value as any;
+  if (el && el.checked !== val) el.checked = val ?? false;
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleChange = (e: Event) => { model.value = (e.target as any).checked; emit('change', e as CustomEvent); };
+const handleInput = (e: Event) => emit('input', e as CustomEvent);
+const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('change', handleChange);
+  el.addEventListener('input', handleInput);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  click: () => (elementRef.value as any)?.click?.(),
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-switch
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :checked="model"
+  >
+    <slot />
+  </wa-switch>
+</template>
+"
+`;

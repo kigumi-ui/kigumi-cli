@@ -1,24 +1,33 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/markdown/markdown.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
 }
 
 /**
  * Renders markdown content in plain HTML
  *
  * @see https://webawesome.com/docs/components/markdown
+ *
+ * @remarks Re-render programmatically by updating the projected source content (slotted children). The previous `getMarked()` / `updateAll()` methods are marked private in WA 3.5.0+ and are no longer exposed.
  */
 @Component({
   selector: 'k-markdown',
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-markdown
-        #element
-        [attr.tab-size]="tabSize">
+    <wa-markdown #element [attr.tab-size]="tabSize">
       <ng-content />
     </wa-markdown>
   `,
@@ -48,13 +57,9 @@ export class MarkdownComponent implements AfterViewInit {
     }
   }
 
-  getMarked(): void {
-    (this.elementRef.nativeElement as unknown as { getMarked: () => void }).getMarked();
-  }
-  updateAll(): void {
-    (this.elementRef.nativeElement as unknown as { updateAll: () => void }).updateAll();
-  }
   renderMarkdown(): void {
-    (this.elementRef.nativeElement as unknown as { renderMarkdown: () => void }).renderMarkdown();
+    (
+      this.elementRef.nativeElement as unknown as { renderMarkdown: () => void }
+    ).renderMarkdown();
   }
 }

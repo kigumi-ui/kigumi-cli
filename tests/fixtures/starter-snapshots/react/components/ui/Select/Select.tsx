@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaSelect from '@awesome.me/webawesome/dist/components/select/select.js';
 import './Select.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/select/select.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/select/select.js'));
 }
 
 /**
@@ -26,8 +34,20 @@ function ensureLoaded() {
  * <Select ref={ref} />
  * ```
  */
-export interface SelectProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onClear' | 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onInvalid' | 'dir'> {
-
+export interface SelectProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  | 'onInput'
+  | 'onChange'
+  | 'onFocus'
+  | 'onBlur'
+  | 'onClear'
+  | 'onShow'
+  | 'onAfterShow'
+  | 'onHide'
+  | 'onAfterHide'
+  | 'onInvalid'
+  | 'dir'
+> {
   /** Form field name */
   name?: string;
 
@@ -114,7 +134,6 @@ export interface SelectProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput'
 }
 
 export interface SelectRef {
-
   /** Shows the listbox. */
   show: () => void;
 
@@ -134,7 +153,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -143,7 +165,24 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const Select = forwardRef<SelectRef, SelectProps>(
-  ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onClear,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const selectRef = useRef<WaSelect | null>(null);
     const setSelectRef = useCallback((el: WaSelect | null) => {
       selectRef.current = el;
@@ -153,37 +192,61 @@ export const Select = forwardRef<SelectRef, SelectProps>(
       ref,
       () => ({
         show: () => {
-          if (selectRef.current && typeof selectRef.current.show === 'function') {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.show === 'function'
+          ) {
             selectRef.current.show();
           }
         },
         hide: () => {
-          if (selectRef.current && typeof selectRef.current.hide === 'function') {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.hide === 'function'
+          ) {
             selectRef.current.hide();
           }
         },
         focus: (options: FocusOptions) => {
-          if (selectRef.current && typeof selectRef.current.focus === 'function') {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.focus === 'function'
+          ) {
             selectRef.current.focus(options);
           }
         },
         blur: () => {
-          if (selectRef.current && typeof selectRef.current.blur === 'function') {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.blur === 'function'
+          ) {
             selectRef.current.blur();
           }
         },
         setCustomValidity: (message: string) => {
-          if (selectRef.current && typeof selectRef.current.setCustomValidity === 'function') {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.setCustomValidity === 'function'
+          ) {
             selectRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (selectRef.current && typeof selectRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.formStateRestoreCallback === 'function'
+          ) {
             selectRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (selectRef.current && typeof selectRef.current.resetValidity === 'function') {
+          if (
+            selectRef.current &&
+            typeof selectRef.current.resetValidity === 'function'
+          ) {
             selectRef.current.resetValidity();
           }
         },
@@ -262,13 +325,27 @@ export const Select = forwardRef<SelectRef, SelectProps>(
         el.removeEventListener('wa-after-hide', handleWaAfterHide);
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
-    }, [onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid]);
+    }, [
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onClear,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onInvalid,
+    ]);
 
     return (
       <wa-select
         ref={setSelectRef}
         class={clsx('Select', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-select>

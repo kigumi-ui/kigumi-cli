@@ -4,7 +4,8 @@ import './Button.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button/button.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/button/button.js'));
 }
 
 /**
@@ -47,8 +48,8 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'blur': [event: CustomEvent];
-  'focus': [event: FocusEvent];
+  blur: [event: CustomEvent];
+  focus: [event: FocusEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -84,19 +85,19 @@ defineExpose({
   click: () => (elementRef.value as any)?.click?.(),
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
   blur: () => (elementRef.value as any)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-button
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-button ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-button>
 </template>

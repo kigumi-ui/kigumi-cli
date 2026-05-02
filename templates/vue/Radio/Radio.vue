@@ -4,7 +4,8 @@ import './Radio.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radio/radio.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radio/radio.js'));
 }
 
 /**
@@ -32,8 +33,8 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'blur': [event: CustomEvent];
-  'focus': [event: FocusEvent];
+  blur: [event: CustomEvent];
+  focus: [event: FocusEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -62,19 +63,19 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-radio
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-radio ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-radio>
 </template>

@@ -4,7 +4,8 @@ import './Rating.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/rating/rating.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/rating/rating.js'));
 }
 
 /**
@@ -36,7 +37,7 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'change': [event: CustomEvent];
+  change: [event: CustomEvent];
   'wa-hover': [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
@@ -54,7 +55,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => { model.value = (e.target as any).value; emit('change', e as CustomEvent); };
+const handleChange = (e: Event) => {
+  model.value = (e.target as any).value;
+  emit('change', e as CustomEvent);
+};
 const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 
@@ -77,8 +81,12 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });

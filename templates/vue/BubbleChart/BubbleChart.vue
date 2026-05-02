@@ -4,7 +4,8 @@ import './BubbleChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js'));
 }
 
 /**
@@ -56,11 +57,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-bubble-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-bubble-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-bubble-chart>
 </template>

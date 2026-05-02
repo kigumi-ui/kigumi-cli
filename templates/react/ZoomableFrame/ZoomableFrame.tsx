@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaZoomableFrame from '@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js';
 import './ZoomableFrame.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <ZoomableFrame ref={ref} />
  * ```
  */
-export interface ZoomableFrameProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
-
+export interface ZoomableFrameProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onLoad' | 'onError' | 'dir'
+> {
   /** URL of content to display */
   src?: string;
 
@@ -66,7 +76,6 @@ export interface ZoomableFrameProps extends Omit<HTMLAttributes<HTMLElement>, 'o
 }
 
 export interface ZoomableFrameRef {
-
   /** Zooms in to the next available zoom level. */
   zoomIn: () => void;
 
@@ -87,12 +96,18 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       ref,
       () => ({
         zoomIn: () => {
-          if (zoomableframeRef.current && typeof zoomableframeRef.current.zoomIn === 'function') {
+          if (
+            zoomableframeRef.current &&
+            typeof zoomableframeRef.current.zoomIn === 'function'
+          ) {
             zoomableframeRef.current.zoomIn();
           }
         },
         zoomOut: () => {
-          if (zoomableframeRef.current && typeof zoomableframeRef.current.zoomOut === 'function') {
+          if (
+            zoomableframeRef.current &&
+            typeof zoomableframeRef.current.zoomOut === 'function'
+          ) {
             zoomableframeRef.current.zoomOut();
           }
         },
@@ -129,7 +144,10 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       <wa-zoomable-frame
         ref={setZoomableFrameRef}
         class={clsx('ZoomableFrame', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-zoomable-frame>

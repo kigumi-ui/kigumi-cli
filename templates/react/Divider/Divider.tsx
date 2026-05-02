@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaDivider from '@awesome.me/webawesome/dist/components/divider/divider.js';
 import './Divider.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/divider/divider.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/divider/divider.js'));
 }
 
 /**
@@ -22,7 +30,6 @@ function ensureLoaded() {
  * ```
  */
 export interface DividerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** Divider orientation */
   orientation?: 'horizontal' | 'vertical';
 }
@@ -57,7 +64,10 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
       <wa-divider
         ref={setDividerRef}
         class={clsx('Divider', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-divider>

@@ -4,7 +4,8 @@ import './Icon.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/icon/icon.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/icon/icon.js'));
 }
 
 /**
@@ -74,11 +75,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-icon
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-icon ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-icon>
 </template>

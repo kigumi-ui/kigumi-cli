@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaInclude from '@awesome.me/webawesome/dist/components/include/include.js';
 import './Include.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/include/include.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/include/include.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface IncludeProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onIncludeError' | 'dir'> {
-
+export interface IncludeProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onLoad' | 'onIncludeError' | 'dir'
+> {
   /** The location of the HTML file to include */
   src?: string;
 
@@ -88,7 +98,10 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
       <wa-include
         ref={setIncludeRef}
         class={clsx('Include', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-include>

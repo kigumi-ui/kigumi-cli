@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaAnimation from '@awesome.me/webawesome/dist/components/animation/animation.js';
 import './Animation.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/animation/animation.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animation/animation.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Animation ref={ref} />
  * ```
  */
-export interface AnimationProps extends Omit<HTMLAttributes<HTMLElement>, 'onCancel' | 'onFinish' | 'onStart' | 'dir'> {
-
+export interface AnimationProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onCancel' | 'onFinish' | 'onStart' | 'dir'
+> {
   /** The name of the built-in animation to use */
   name?: string;
 
@@ -72,7 +82,6 @@ export interface AnimationProps extends Omit<HTMLAttributes<HTMLElement>, 'onCan
 }
 
 export interface AnimationRef {
-
   /** Clears all keyframe effects caused by this animation and aborts its playback. */
   cancel: () => void;
 
@@ -93,12 +102,18 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
       ref,
       () => ({
         cancel: () => {
-          if (animationRef.current && typeof animationRef.current.cancel === 'function') {
+          if (
+            animationRef.current &&
+            typeof animationRef.current.cancel === 'function'
+          ) {
             animationRef.current.cancel();
           }
         },
         finish: () => {
-          if (animationRef.current && typeof animationRef.current.finish === 'function') {
+          if (
+            animationRef.current &&
+            typeof animationRef.current.finish === 'function'
+          ) {
             animationRef.current.finish();
           }
         },
@@ -141,7 +156,10 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
       <wa-animation
         ref={setAnimationRef}
         class={clsx('Animation', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-animation>

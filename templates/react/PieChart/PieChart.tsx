@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaPieChart from '@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js';
 import './PieChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface PieChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface PieChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -72,7 +82,10 @@ export const PieChart = forwardRef<PieChartRef, PieChartProps>(
       <wa-pie-chart
         ref={setPieChartRef}
         class={clsx('PieChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-pie-chart>

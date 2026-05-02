@@ -4,7 +4,8 @@ import './ScatterChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
 }
 
 /**

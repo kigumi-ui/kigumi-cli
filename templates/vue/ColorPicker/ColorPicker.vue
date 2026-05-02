@@ -4,7 +4,8 @@ import './ColorPicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
 }
 
 /**
@@ -20,7 +21,19 @@ export interface ColorPickerProps {
   hint?: string;
   name?: string;
   open?: boolean;
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   swatches?: string;
   uppercase?: boolean;
   'without-format-toggle'?: boolean;
@@ -42,14 +55,14 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'change': [event: CustomEvent];
-  'input': [event: CustomEvent];
+  change: [event: CustomEvent];
+  input: [event: CustomEvent];
   'wa-show': [event: CustomEvent];
   'wa-after-show': [event: CustomEvent];
   'wa-hide': [event: CustomEvent];
   'wa-after-hide': [event: CustomEvent];
-  'blur': [event: CustomEvent];
-  'focus': [event: FocusEvent];
+  blur: [event: CustomEvent];
+  focus: [event: FocusEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -67,7 +80,10 @@ onMounted(() => {
 });
 
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
-const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
+const handleInput = (e: Event) => {
+  model.value = (e.target as any).value;
+  emit('input', e as CustomEvent);
+};
 const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
 const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
@@ -107,15 +123,32 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  getHexString: (hue: number, saturation: number, brightness: number, alpha: any) => (elementRef.value as any)?.getHexString?.(hue, saturation, brightness, alpha),
+  getHexString: (
+    hue: number,
+    saturation: number,
+    brightness: number,
+    alpha: any
+  ) =>
+    (elementRef.value as any)?.getHexString?.(
+      hue,
+      saturation,
+      brightness,
+      alpha
+    ),
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
   blur: () => (elementRef.value as any)?.blur?.(),
-  getFormattedValue: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => (elementRef.value as any)?.getFormattedValue?.(format),
+  getFormattedValue: (
+    format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
+  ) => (elementRef.value as any)?.getFormattedValue?.(format),
   reportValidity: () => (elementRef.value as any)?.reportValidity?.(),
   show: () => (elementRef.value as any)?.show?.(),
   hide: () => (elementRef.value as any)?.hide?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });

@@ -4,7 +4,8 @@ import './Card.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/card/card.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/card/card.js'));
 }
 
 /**
@@ -48,11 +49,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-card
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-card ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-card>
 </template>

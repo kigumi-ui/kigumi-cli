@@ -4,26 +4,27 @@ import './BubbleChart.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js'));
 }
 
 /**
  * Plots three-dimensional data using position and circle size to encode a third variable
  */
 const props = defineProps({
-    label: { type: String, required: false },
-    description: { type: String, required: false },
-    'x-label': { type: String, required: false },
-    'y-label': { type: String, required: false },
-    'legend-position': { type: String, required: false, default: 'top' },
-    stacked: { type: Boolean, required: false, default: false },
-    'index-axis': { type: String, required: false, default: 'x' },
-    grid: { type: String, required: false, default: 'both' },
-    min: { type: Number, required: false },
-    max: { type: Number, required: false },
-    'without-animation': { type: Boolean, required: false, default: false },
-    'without-legend': { type: Boolean, required: false, default: false },
-    'without-tooltip': { type: Boolean, required: false, default: false }
+  label: { type: String, required: false },
+  description: { type: String, required: false },
+  'x-label': { type: String, required: false },
+  'y-label': { type: String, required: false },
+  'legend-position': { type: String, required: false, default: 'top' },
+  stacked: { type: Boolean, required: false, default: false },
+  'index-axis': { type: String, required: false, default: 'x' },
+  grid: { type: String, required: false, default: 'both' },
+  min: { type: Number, required: false },
+  max: { type: Number, required: false },
+  'without-animation': { type: Boolean, required: false, default: false },
+  'without-legend': { type: Boolean, required: false, default: false },
+  'without-tooltip': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -52,11 +53,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-bubble-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-bubble-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-bubble-chart>
 </template>

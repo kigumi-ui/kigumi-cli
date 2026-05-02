@@ -1,9 +1,17 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js'));
 }
 
 /**
@@ -16,8 +24,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-carousel-item
-        #element>
+    <wa-carousel-item #element>
       <ng-content />
     </wa-carousel-item>
   `,
@@ -26,7 +33,6 @@ function ensureLoaded() {
 export class CarouselItemComponent implements AfterViewInit {
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
-
 
   ngAfterViewInit(): void {
     ensureLoaded();

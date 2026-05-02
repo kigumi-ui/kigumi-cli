@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaDropdownItem from '@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js';
 import './DropdownItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <DropdownItem ref={ref} />
  * ```
  */
-export interface DropdownItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus' | 'dir'> {
-
+export interface DropdownItemProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onBlur' | 'onFocus' | 'dir'
+> {
   /** The type of menu item */
   type?: 'normal' | 'checkbox';
 
@@ -54,7 +64,6 @@ export interface DropdownItemProps extends Omit<HTMLAttributes<HTMLElement>, 'on
 }
 
 export interface DropdownItemRef {
-
   /** Opens the submenu. */
   openSubmenu: () => void;
 
@@ -75,12 +84,18 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
       ref,
       () => ({
         openSubmenu: () => {
-          if (dropdownitemRef.current && typeof dropdownitemRef.current.openSubmenu === 'function') {
+          if (
+            dropdownitemRef.current &&
+            typeof dropdownitemRef.current.openSubmenu === 'function'
+          ) {
             dropdownitemRef.current.openSubmenu();
           }
         },
         closeSubmenu: () => {
-          if (dropdownitemRef.current && typeof dropdownitemRef.current.closeSubmenu === 'function') {
+          if (
+            dropdownitemRef.current &&
+            typeof dropdownitemRef.current.closeSubmenu === 'function'
+          ) {
             dropdownitemRef.current.closeSubmenu();
           }
         },
@@ -117,7 +132,10 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
       <wa-dropdown-item
         ref={setDropdownItemRef}
         class={clsx('DropdownItem', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-dropdown-item>

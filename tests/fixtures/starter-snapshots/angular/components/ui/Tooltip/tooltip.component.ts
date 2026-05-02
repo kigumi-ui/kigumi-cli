@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tooltip/tooltip.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tooltip/tooltip.js'));
 }
 
 /**
@@ -17,17 +29,18 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-tooltip
-        #element
-        [attr.placement]="placement"
-        [attr.disabled]="disabled || null"
-        [attr.distance]="distance"
-        [attr.open]="open || null"
-        [attr.skidding]="skidding"
-        [attr.trigger]="trigger"
-        [attr.without-arrow]="withoutArrow || null"
-        [attr.show-delay]="showDelay"
-        [attr.hide-delay]="hideDelay"
-        [attr.for]="for">
+      #element
+      [attr.placement]="placement"
+      [attr.disabled]="disabled || null"
+      [attr.distance]="distance"
+      [attr.open]="open || null"
+      [attr.skidding]="skidding"
+      [attr.trigger]="trigger"
+      [attr.without-arrow]="withoutArrow || null"
+      [attr.show-delay]="showDelay"
+      [attr.hide-delay]="hideDelay"
+      [attr.for]="for"
+    >
       <ng-content />
     </wa-tooltip>
   `,
@@ -38,7 +51,19 @@ export class TooltipComponent implements AfterViewInit, OnDestroy {
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Tooltip placement */
-  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  @Input() placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   /** Disables the tooltip */
   @Input() disabled?: boolean;
   /** Distance from target */
@@ -83,16 +108,24 @@ export class TooltipComponent implements AfterViewInit, OnDestroy {
 
     const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
     el.addEventListener('wa-show', handleShowEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-show', handleShowEvent)
+    );
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHideEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-hide', handleHideEvent)
+    );
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
   }
 
   ngOnDestroy(): void {

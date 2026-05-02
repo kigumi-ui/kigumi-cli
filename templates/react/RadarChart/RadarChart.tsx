@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaRadarChart from '@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js';
 import './RadarChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface RadarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface RadarChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -84,7 +94,10 @@ export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
       <wa-radar-chart
         ref={setRadarChartRef}
         class={clsx('RadarChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-radar-chart>

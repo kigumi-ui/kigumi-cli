@@ -4,7 +4,8 @@ import './TabPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js'));
 }
 
 /**
@@ -45,11 +46,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tab-panel
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tab-panel ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tab-panel>
 </template>

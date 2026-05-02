@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaFormatBytes from '@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js';
 import './FormatBytes.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-bytes/format-bytes.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface FormatBytesProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface FormatBytesProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** The number to format in bytes */
   value?: number;
 
@@ -66,7 +76,10 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
       <wa-format-bytes
         ref={setFormatBytesRef}
         class={clsx('FormatBytes', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-format-bytes>

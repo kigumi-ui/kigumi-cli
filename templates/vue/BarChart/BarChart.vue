@@ -4,7 +4,8 @@ import './BarChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js'));
 }
 
 /**
@@ -57,11 +58,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-bar-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-bar-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-bar-chart>
 </template>

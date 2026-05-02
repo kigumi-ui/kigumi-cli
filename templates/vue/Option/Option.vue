@@ -4,7 +4,8 @@ import './Option.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/option/option.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/option/option.js'));
 }
 
 /**
@@ -47,11 +48,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-option
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-option ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-option>
 </template>

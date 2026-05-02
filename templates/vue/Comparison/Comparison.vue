@@ -4,7 +4,8 @@ import './Comparison.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/comparison/comparison.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/comparison/comparison.js'));
 }
 
 /**
@@ -29,7 +30,7 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'change': [event: CustomEvent];
+  change: [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -60,11 +61,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-comparison
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-comparison ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-comparison>
 </template>

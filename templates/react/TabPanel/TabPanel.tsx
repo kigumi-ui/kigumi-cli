@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTabPanel from '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
 import './TabPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface TabPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface TabPanelProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** The panel name */
   name?: string;
 
@@ -60,7 +70,10 @@ export const TabPanel = forwardRef<TabPanelRef, TabPanelProps>(
       <wa-tab-panel
         ref={setTabPanelRef}
         class={clsx('TabPanel', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-tab-panel>

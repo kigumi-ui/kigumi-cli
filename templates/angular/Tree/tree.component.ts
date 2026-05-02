@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tree/tree.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tree/tree.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tree/tree.js'));
 }
 
 /**
@@ -16,9 +28,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-tree
-        #element
-        [attr.selection]="selection">
+    <wa-tree #element [attr.selection]="selection">
       <ng-content />
     </wa-tree>
   `,
@@ -51,9 +61,12 @@ export class TreeComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleSelectionChange = (e: Event) => this.selectionChange.emit(e as CustomEvent);
+    const handleSelectionChange = (e: Event) =>
+      this.selectionChange.emit(e as CustomEvent);
     el.addEventListener('wa-selection-change', handleSelectionChange);
-    this.cleanups.push(() => el.removeEventListener('wa-selection-change', handleSelectionChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-selection-change', handleSelectionChange)
+    );
   }
 
   ngOnDestroy(): void {

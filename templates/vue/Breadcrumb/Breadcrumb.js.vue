@@ -4,14 +4,15 @@ import './Breadcrumb.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb/breadcrumb.js'));
 }
 
 /**
  * Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
  */
 const props = defineProps({
-    label: { type: String, required: false, default: '' }
+  label: { type: String, required: false, default: '' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -40,11 +41,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-breadcrumb
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-breadcrumb ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-breadcrumb>
 </template>

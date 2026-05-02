@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab-panel/tab-panel.js'));
 }
 
 /**
@@ -16,10 +25,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-tab-panel
-        #element
-        [attr.name]="name"
-        [attr.active]="active || null">
+    <wa-tab-panel #element [attr.name]="name" [attr.active]="active || null">
       <ng-content />
     </wa-tab-panel>
   `,

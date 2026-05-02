@@ -4,15 +4,16 @@ import './ButtonGroup.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
 }
 
 /**
  * Groups related buttons into organized sections, supporting both horizontal and vertical layouts
  */
 const props = defineProps({
-    label: { type: String, required: false, default: '' },
-    orientation: { type: String, required: false, default: 'horizontal' }
+  label: { type: String, required: false, default: '' },
+  orientation: { type: String, required: false, default: 'horizontal' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -41,11 +42,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-button-group
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-button-group ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-button-group>
 </template>

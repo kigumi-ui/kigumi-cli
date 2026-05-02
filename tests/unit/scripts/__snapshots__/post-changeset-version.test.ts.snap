@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`rewriteChangelog > reformats a fresh changesets entry to Keep-a-Changelog 1`] = `
+"# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.20.0] - 2026-05-02
+
+### Added
+
+- New \`kigumi audit\` subcommand for theme drift detection.
+
+### Changed
+
+- Default Toast placement is now \`top-end\`.
+
+### Fixed
+
+- Tier sync race when switching from free to pro mid-run.
+- Markdown component now respects sanitize prop in SSR.
+
+### Removed
+
+- Vestigial \`legacyImports\` config field.
+
+## [0.19.2] - 2026-04-30
+
+### Fixed
+
+- Earlier release entry kept verbatim below the new one.
+"
+`;
