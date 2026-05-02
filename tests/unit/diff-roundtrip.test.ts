@@ -10,6 +10,11 @@
  * Uses real filesystem with mocked template/registry.
  * Files and snapshots are written directly (not through installer)
  * to isolate the update/merge logic from pre-flight checks.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) instead of
+ * vi.mock for @clack/prompts, output, and tier. The remaining vi.mocks for
+ * diff-renderer, template, and registry have no DI seam yet and are kept.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -17,45 +22,30 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { saveSnapshot, loadSnapshot } from '../../src/utils/snapshot.js';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import { writeTierFixture } from './_helpers/tier.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  confirm: vi.fn().mockResolvedValue(true),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-  isCancel: vi.fn().mockReturnValue(false),
-}));
+async function registerTestSeams(
+  output: RecordingOutput,
+  prompts: PromptsAdapter
+): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.setOutputForTesting(output);
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.setPromptsForTesting(prompts);
+}
 
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue({
-    start: vi.fn(),
-    stop: vi.fn(),
-    message: vi.fn(),
-    error: vi.fn(),
-  }),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
+async function clearTestSeams(): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.resetOutputForTesting();
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.resetPromptsForTesting();
+}
 
 vi.mock('../../src/utils/diff-renderer.js', () => ({
   renderDiff: vi.fn().mockReturnValue('mocked diff output'),
@@ -100,33 +90,36 @@ vi.mock('../../src/utils/registry.js', async () => {
   };
 });
 
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-  getProToken: vi.fn().mockResolvedValue(null),
-}));
-
 describe('diff roundtrip', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+
+    output = createRecordingOutput();
+    // All tests in this file write a snapshot before running update, so the
+    // no-snapshot-differ confirm path is never reached. Empty queue suffices.
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-diff-roundtrip-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
@@ -254,12 +247,11 @@ describe('diff roundtrip', () => {
     // No NEW renderDiff calls during this update
     expect(vi.mocked(renderDiff).mock.calls.length).toBe(callsBefore);
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const upToDate = infoCalls.filter(
-      (msg: unknown) => typeof msg === 'string' && msg.includes('up to date')
-    );
+    const upToDate = output.calls
+      .filter((c) => c.method === 'info')
+      .map((c) => c.args[0])
+      .filter((m): m is string => typeof m === 'string')
+      .filter((m) => m.includes('up to date'));
     expect(upToDate.length).toBeGreaterThanOrEqual(1);
   });
 });

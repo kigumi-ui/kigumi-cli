@@ -11,54 +11,42 @@
  * - Version mismatch → shows comparison
  * - --dry-run does not mutate config (version mismatch)
  * - Breaking changes are shown when present
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) instead of
+ * vi.mock for @clack/prompts, output, and tier. The remaining vi.mocks for
+ * version-map, constants, init/installer, and detect-framework have no DI
+ * seam yet and are kept.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import { writeTierFixture } from './_helpers/tier.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  confirm: vi.fn().mockResolvedValue(true),
-  isCancel: vi.fn().mockReturnValue(false),
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
+async function registerTestSeams(
+  output: RecordingOutput,
+  prompts: PromptsAdapter
+): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.setOutputForTesting(output);
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.setPromptsForTesting(prompts);
+}
 
-// Mock output
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
+async function clearTestSeams(): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.resetOutputForTesting();
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.resetPromptsForTesting();
+}
 
 // Mock version-map
 vi.mock('../../src/utils/version-map.js', () => ({
@@ -97,14 +85,6 @@ vi.mock('../../src/constants.js', async (importOriginal) => {
   return { ...actual, CLI_VERSION: '0.13.0' };
 });
 
-// Mock tier detection
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-  getProToken: vi.fn().mockResolvedValue(null),
-}));
-
 // Mock dependency installer
 vi.mock('../../src/commands/init/installer.js', () => ({
   installDependencies: vi.fn().mockResolvedValue(undefined),
@@ -132,27 +112,33 @@ describe('upgrade command', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
 
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
-    vi.mocked(p.confirm).mockResolvedValue(true);
+    output = createRecordingOutput();
+    // All current tests use yes: true so the confirm path is never hit;
+    // an empty queue with the helper's fail-loud "Unexpected prompt" error
+    // is appropriate here.
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-upgrade-cmd-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
@@ -182,9 +168,10 @@ describe('upgrade command', () => {
       path.join(testDir, 'kigumi.config.json')
     );
     expect(savedConfig.kigumiVersion).toBe('0.13.0');
-    expect(mockOutput.success).toHaveBeenCalledWith(
-      expect.stringContaining('0.13.0')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'success',
+      args: [expect.stringContaining('0.13.0')],
+    });
   });
 
   it('should show what would happen with --dry-run when no kigumiVersion', async () => {
@@ -194,12 +181,14 @@ describe('upgrade command', () => {
     await upgradeCommand({ cwd: testDir, dryRun: true });
 
     // Should inform about the dry run
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Dry run')
-    );
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('0.13.0')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Dry run')],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('0.13.0')],
+    });
 
     // Config should NOT be written with kigumiVersion
     const savedConfig = await fs.readJSON(
@@ -214,9 +203,10 @@ describe('upgrade command', () => {
     const { upgradeCommand } = await import('../../src/commands/upgrade.js');
     await upgradeCommand({ cwd: testDir });
 
-    expect(mockOutput.success).toHaveBeenCalledWith(
-      expect.stringContaining('Already up to date')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'success',
+      args: [expect.stringContaining('Already up to date')],
+    });
   });
 
   it('should show version comparison on version mismatch', async () => {
@@ -226,12 +216,14 @@ describe('upgrade command', () => {
     await upgradeCommand({ cwd: testDir, yes: true });
 
     // Should display both project and CLI versions
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('0.10.0')
-    );
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('0.13.0')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('0.10.0')],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('0.13.0')],
+    });
   });
 
   it('should not mutate config with --dry-run on version mismatch', async () => {
@@ -247,9 +239,10 @@ describe('upgrade command', () => {
     expect(savedConfig.kigumiVersion).toBe('0.10.0');
 
     // Should indicate dry run
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Dry run')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Dry run')],
+    });
   });
 
   it('should show breaking changes when present', async () => {
@@ -273,33 +266,40 @@ describe('upgrade command', () => {
     await upgradeCommand({ cwd: testDir, yes: true });
 
     // Should show breaking changes header
-    expect(mockOutput.warning).toHaveBeenCalledWith(
-      expect.stringContaining('Breaking changes')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'warning',
+      args: [expect.stringContaining('Breaking changes')],
+    });
 
     // Should show individual breaking change descriptions
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Button API changed')
-    );
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Card slot renamed')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Button API changed')],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Card slot renamed')],
+    });
 
     // Should show affected components
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Button')
-    );
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Card')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Button')],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Card')],
+    });
 
     // Should show migration guide
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Update Button props from foo to bar')
-    );
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Rename header slot to card-header')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Update Button props from foo to bar')],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'info',
+      args: [expect.stringContaining('Rename header slot to card-header')],
+    });
   });
 
   it('should install dependencies when WA version changed', async () => {

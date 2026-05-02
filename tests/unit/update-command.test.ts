@@ -18,52 +18,41 @@
  * - Specific component names filter
  * - Multiple components mixed scenarios
  * - Community component → skipped (not in registry)
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) instead of
+ * vi.mock for @clack/prompts, output, and tier. The remaining vi.mocks for
+ * diff-renderer, template, and registry have no DI seam yet and are kept.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import { writeTierFixture } from './_helpers/tier.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  confirm: vi.fn().mockResolvedValue(true),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-  isCancel: vi.fn().mockReturnValue(false),
-}));
+async function registerTestSeams(
+  output: RecordingOutput,
+  prompts: PromptsAdapter
+): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.setOutputForTesting(output);
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.setPromptsForTesting(prompts);
+}
 
-// Mock output
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue({
-    start: vi.fn(),
-    stop: vi.fn(),
-    message: vi.fn(),
-    error: vi.fn(),
-  }),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
+async function clearTestSeams(): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.resetOutputForTesting();
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.resetPromptsForTesting();
+}
 
 // Mock diff renderer
 vi.mock('../../src/utils/diff-renderer.js', () => ({
@@ -140,34 +129,40 @@ vi.mock('../../src/utils/registry.js', async () => {
   };
 });
 
-// Mock tier detection
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-  getProToken: vi.fn().mockResolvedValue(null),
-}));
-
 describe('updateCommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+
+    output = createRecordingOutput();
+    // Empty queue by default. Tests that reach the no-snapshot-differ confirm
+    // prompt re-register with their own scripted queue (Test 20 uses
+    // confirm: [false] for the decline scenario). An empty default keeps the
+    // fail-loud contract of createTestPrompts intact: any unexpected prompt
+    // call surfaces as "Unexpected prompt: confirm(...)" rather than silently
+    // consuming a leftover entry and masking a regression.
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-update-cmd-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
@@ -213,13 +208,20 @@ describe('updateCommand', () => {
     }
   }
 
+  function infoMessages(): string[] {
+    return output.calls
+      .filter((c) => c.method === 'info')
+      .map((c) => c.args[0])
+      .filter((m): m is string => typeof m === 'string');
+  }
+
   // ── Test 1: No config → error ──
 
   it('should call output.error when no config is found', async () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand([], { cwd: testDir });
 
-    expect(mockOutput.error).toHaveBeenCalled();
+    expect(output.calls.some((c) => c.method === 'error')).toBe(true);
     expect(process.exit).toHaveBeenCalled();
   });
 
@@ -232,9 +234,9 @@ describe('updateCommand', () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand([], { cwd: testDir });
 
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('No installed components')
-    );
+    expect(
+      infoMessages().some((m) => m.includes('No installed components'))
+    ).toBe(true);
   });
 
   // ── Test 3: Up to date with snapshot → skip ──
@@ -254,11 +256,8 @@ describe('updateCommand', () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand(['Button'], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const upToDateLines = infoCalls.filter(
-      (msg: unknown) => typeof msg === 'string' && msg.includes('up to date')
+    const upToDateLines = infoMessages().filter((m) =>
+      m.includes('up to date')
     );
     expect(upToDateLines.length).toBeGreaterThanOrEqual(1);
   });
@@ -287,12 +286,8 @@ describe('updateCommand', () => {
     );
     expect(content).toBe('// generated component');
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const overwriteLines = infoCalls.filter(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('safe overwrite')
+    const overwriteLines = infoMessages().filter((m) =>
+      m.includes('safe overwrite')
     );
     expect(overwriteLines.length).toBeGreaterThanOrEqual(1);
   });
@@ -360,12 +355,7 @@ describe('updateCommand', () => {
     expect(content).toContain('=======');
     expect(content).toContain('>>>>>>> theirs');
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const conflictLines = infoCalls.filter(
-      (msg: unknown) => typeof msg === 'string' && msg.includes('conflict')
-    );
+    const conflictLines = infoMessages().filter((m) => m.includes('conflict'));
     expect(conflictLines.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -379,15 +369,19 @@ describe('updateCommand', () => {
     });
     // No snapshot
 
+    // Reset generateComponent to its default mock value. Without this, leaked
+    // .mockResolvedValue() state from Test 6 makes the wrapper return a
+    // different `theirs`, which would route the merge through the
+    // no-snapshot-differ branch and reach a confirm prompt — not the
+    // no-snapshot-match path this test is meant to exercise.
+    const { generateComponent } = await import('../../src/utils/template.js');
+    vi.mocked(generateComponent).mockResolvedValue('// generated component');
+
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand(['Button'], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const matchLines = infoCalls.filter(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('matches template')
+    const matchLines = infoMessages().filter((m) =>
+      m.includes('matches template')
     );
     expect(matchLines.length).toBeGreaterThanOrEqual(1);
   });
@@ -405,9 +399,10 @@ describe('updateCommand', () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand(['Button'], { cwd: testDir, yes: true });
 
-    expect(mockOutput.warn).toHaveBeenCalledWith(
-      expect.stringContaining('no snapshot found')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'warn',
+      args: [expect.stringContaining('no snapshot found')],
+    });
   });
 
   // ── Test 9: --dry-run → no writes ──
@@ -488,12 +483,8 @@ describe('updateCommand', () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand(['Button'], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const summaryLine = infoCalls.find(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('component(s) processed')
+    const summaryLine = infoMessages().find((m) =>
+      m.includes('component(s) processed')
     );
     expect(summaryLine).toContain('1');
   });
@@ -526,12 +517,8 @@ describe('updateCommand', () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand([], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const summaryLine = infoCalls.find(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('component(s) processed')
+    const summaryLine = infoMessages().find((m) =>
+      m.includes('component(s) processed')
     );
     expect(summaryLine).toContain('2');
   });
@@ -557,12 +544,8 @@ describe('updateCommand', () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand([], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const summaryLine = infoCalls.find(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('component(s) processed')
+    const summaryLine = infoMessages().find((m) =>
+      m.includes('component(s) processed')
     );
     expect(summaryLine).toContain('1');
   });
@@ -576,8 +559,14 @@ describe('updateCommand', () => {
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand([], { cwd: testDir });
 
-    expect(mockOutput.intro).toHaveBeenCalledWith('kigumi update');
-    expect(mockOutput.outro).toHaveBeenCalledWith('Done');
+    expect(output.calls).toContainEqual({
+      method: 'intro',
+      args: ['kigumi update'],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'outro',
+      args: ['Done'],
+    });
   });
 
   // ── Test 15: safe-overwrite calls renderDiff with correct arguments ──
@@ -738,9 +727,8 @@ describe('updateCommand', () => {
     });
     // No createSnapshot call -> no snapshot on disk
 
-    // Mock confirm to return false
-    const prompts = await import('@clack/prompts');
-    vi.mocked(prompts.confirm).mockResolvedValueOnce(false);
+    // Re-register prompts so confirm() returns false in this test only.
+    await registerTestSeams(output, createTestPrompts({ confirm: [false] }));
 
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const callsBefore = vi.mocked(renderDiff).mock.calls.length;

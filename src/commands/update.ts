@@ -11,7 +11,7 @@
 import path from 'path';
 import fs from 'fs-extra';
 import pc from 'picocolors';
-import * as p from '@clack/prompts';
+import * as p from '../prompts/index.js';
 import { getOutput } from '../output/index.js';
 import { loadConfig } from '../utils/config.js';
 import { handleError, ConfigNotFoundError } from '../errors/index.js';

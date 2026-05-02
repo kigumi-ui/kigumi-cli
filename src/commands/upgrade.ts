@@ -8,7 +8,7 @@
  * @public
  */
 
-import * as p from '@clack/prompts';
+import * as p from '../prompts/index.js';
 import pc from 'picocolors';
 import { CLI_VERSION } from '../constants.js';
 import { getOutput } from '../output/index.js';
