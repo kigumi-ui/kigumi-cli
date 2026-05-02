@@ -29,6 +29,7 @@ export interface CustomElementDeclaration {
     name?: string;
     description?: string;
     privacy?: string;
+    static?: boolean;
     type?: { text?: string };
     parameters?: Array<{ name?: string; type?: { text?: string } }>;
   }>;
@@ -103,19 +104,20 @@ interface ParsedOutput {
 }
 
 /**
- * Method overrides for components where custom-elements.json marks methods
- * as private or lacks descriptions, causing them to be filtered out.
+ * CEM occasionally uses a destructuring pattern as the literal parameter
+ * `name` (e.g. `{ includeDisabled = true }` for `wa-tree-item.getChildrenItems`
+ * in WA 3.5.0+). That string is valid as a function signature but a SyntaxError
+ * as a call argument, which our generators emit at index `args = p.name`.
+ * Normalize anything that isn't a bare JS identifier to `options` (or
+ * `options{i}` for non-leading positions); the `type` field still carries the
+ * destructured shape so wrapper signatures stay accurate.
+ *
+ * Exported for unit testing.
  */
-const METHOD_OVERRIDES: Record<string, ComponentMetadata['methods']> = {
-  dialog: [
-    { name: 'show', description: 'Shows the dialog.' },
-    { name: 'requestClose', description: 'Closes the dialog.' },
-  ],
-  drawer: [
-    { name: 'show', description: 'Shows the drawer.' },
-    { name: 'requestClose', description: 'Closes the drawer.' },
-  ],
-};
+export function sanitizeParamName(rawName: string, index: number): string {
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(rawName)) return rawName;
+  return index === 0 ? 'options' : `options${index}`;
+}
 
 /**
  * Pure extractor: given a CEM class declaration, return its CSS metadata or
@@ -270,19 +272,26 @@ async function parseCustomElements(): Promise<ParsedOutput> {
         description: slot.description || '',
       }));
 
-      // Extract public methods (filter out private, fields, and non-methods)
+      // Extract public instance methods. Filters:
+      // - kind === 'method' drops fields and non-methods
+      // - privacy !== 'private' drops methods WA marks private (e.g.
+      //   wa-dialog/wa-drawer show()/requestClose() in WA 3.5.0+)
+      // - !member.static drops class-level methods that don't make sense on
+      //   an instance wrapper (e.g. wa-markdown getMarked()/updateAll())
+      // - description && name guards against malformed CEM entries
       const methods = (declaration.members || [])
         .filter(
           (member) =>
             member.kind === 'method' &&
             member.privacy !== 'private' &&
+            !member.static &&
             member.description &&
             member.name
         )
         .map((method) => {
           const params =
-            method.parameters?.map((p) => ({
-              name: p.name || '',
+            method.parameters?.map((p, i) => ({
+              name: sanitizeParamName(p.name || '', i),
               type: p.type?.text || 'any',
             })) || [];
 
@@ -300,15 +309,6 @@ async function parseCustomElements(): Promise<ParsedOutput> {
         slots,
         methods,
       };
-
-      // Apply method overrides for components where custom-elements.json
-      // marks methods as private or lacks descriptions (e.g. Dialog, Drawer)
-      if (
-        METHOD_OVERRIDES[componentKey] &&
-        metadata[componentKey].methods.length === 0
-      ) {
-        metadata[componentKey].methods = METHOD_OVERRIDES[componentKey];
-      }
 
       // Extract CSS parts and custom properties. Components where CEM
       // provides neither (utility components like wa-animation) are simply
