@@ -20,6 +20,8 @@ vi.mock('@clack/prompts', () => ({
 
 // `tierSchema` is consumed by schemas/options.ts which this test transitively
 // imports. The mock must expose it so option-schema construction doesn't fail.
+// `detectTier` is a stable `vi.fn` so individual tests can override the
+// resolved value per-call (e.g. simulate Pro detection).
 vi.mock('../../src/utils/tier.js', () => ({
   detectTier: vi.fn(() => Promise.resolve('free')),
   tierSchema: z.enum(['free', 'pro']),
@@ -52,6 +54,10 @@ describe('validateAndPrepare', () => {
   let mockOutput: OutputInterface;
 
   beforeEach(async () => {
+    // Module-level vi.fn() instances accumulate calls across tests; clear
+    // them so per-test "not.toHaveBeenCalled" assertions remain isolated.
+    vi.clearAllMocks();
+
     tempDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-validate-prepare-test-'))
     );
@@ -128,6 +134,33 @@ describe('validateAndPrepare', () => {
       expect(ctx.existingAction).toBe('update');
       expect(mockOutput.warning).not.toHaveBeenCalled();
     });
+
+    it('throws UserCancelledError when the user picks "cancel"', async () => {
+      // Catches a regression on the existingAction === 'cancel' branch.
+      await fs.writeJSON(path.join(tempDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components/ui',
+        theme: {
+          selected: 'default',
+          palette: 'default',
+          brandColor: 'blue',
+        },
+      });
+
+      const clackModule = await import('@clack/prompts');
+      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
+        'cancel'
+      );
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+      const { UserCancelledError } = await import('../../src/errors/index.js');
+
+      await expect(
+        validateAndPrepare({}, tempDir, mockOutput)
+      ).rejects.toBeInstanceOf(UserCancelledError);
+    });
   });
 
   describe('when the existing config is invalid', () => {
@@ -152,6 +185,75 @@ describe('validateAndPrepare', () => {
         'Current Configuration',
         expect.anything()
       );
+    });
+  });
+
+  describe('pre-flight checks', () => {
+    it('rejects with PreFlightCheckError when package.json is missing', async () => {
+      // beforeEach writes package.json; remove it so the check fails.
+      await fs.remove(path.join(tempDir, 'package.json'));
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+      const { PreFlightCheckError } = await import('../../src/errors/index.js');
+
+      await expect(
+        validateAndPrepare({}, tempDir, mockOutput)
+      ).rejects.toBeInstanceOf(PreFlightCheckError);
+    });
+  });
+
+  describe('non-interactive mode detection', () => {
+    it('flags the context non-interactive when --yes is set', async () => {
+      // --yes alone is enough; existing config also present so we can verify
+      // handleExistingConfig resolves without invoking the select prompt.
+      await fs.writeJSON(path.join(tempDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components/ui',
+        theme: {
+          selected: 'default',
+          palette: 'default',
+          brandColor: 'blue',
+        },
+      });
+
+      const clackModule = await import('@clack/prompts');
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+
+      const ctx = await validateAndPrepare({ yes: true }, tempDir, mockOutput);
+
+      expect(ctx.isNonInteractive).toBe(true);
+      expect(clackModule.select).not.toHaveBeenCalled();
+    });
+
+    it('flags the context non-interactive when both --framework and --theme are set', async () => {
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+
+      const ctx = await validateAndPrepare(
+        { framework: 'react', theme: 'default' },
+        tempDir,
+        mockOutput
+      );
+
+      expect(ctx.isNonInteractive).toBe(true);
+    });
+  });
+
+  describe('initial tier detection', () => {
+    it('reflects the detected tier in the returned context', async () => {
+      const tierModule = await import('../../src/utils/tier.js');
+      vi.mocked(tierModule.detectTier).mockResolvedValueOnce('pro');
+
+      const { validateAndPrepare } =
+        await import('../../src/commands/init/index.js');
+
+      const ctx = await validateAndPrepare({}, tempDir, mockOutput);
+
+      expect(ctx.initialTier).toBe('pro');
     });
   });
 

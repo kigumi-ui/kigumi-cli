@@ -278,6 +278,13 @@ helper's logic in isolation. Current cases:
   exported so `tests/unit/update-command.test.ts` and
   `tests/unit/diff-command.test.ts` can assert the scan- and names-branch
   behaviour directly (multi-word kebab↔PascalCase canonicalization).
+- `handleTierMigration`, `confirmMigration`, `confirmInstallation`, and
+  `showPostInstallInstructions` in `src/commands/init/index.ts` — exported so
+  `tests/unit/init-tier-migration.test.ts`,
+  `tests/unit/init-post-install-instructions.test.ts`, and
+  `tests/unit/init-validate-and-prepare.test.ts` can cover Free↔Pro migration
+  prompts, post-install instruction branches, and the non-interactive paths
+  without staging the entire `initCommand` orchestration.
 
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
@@ -386,4 +393,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-01
+**Last Updated:** 2026-05-02
