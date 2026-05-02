@@ -4,7 +4,8 @@ import './Page.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/page/page.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/page/page.js'));
 }
 
 /**
@@ -43,7 +44,8 @@ onMounted(() => {
 });
 
 defineExpose({
-  visiblePixelsInViewport: (element: HTMLElement | null) => (elementRef.value as any)?.visiblePixelsInViewport?.(element),
+  visiblePixelsInViewport: (element: HTMLElement | null) =>
+    (elementRef.value as any)?.visiblePixelsInViewport?.(element),
   showNavigation: () => (elementRef.value as any)?.showNavigation?.(),
   hideNavigation: () => (elementRef.value as any)?.hideNavigation?.(),
   toggleNavigation: () => (elementRef.value as any)?.toggleNavigation?.(),
@@ -52,11 +54,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-page
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-page ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-page>
 </template>

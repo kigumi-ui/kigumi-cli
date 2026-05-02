@@ -4,7 +4,8 @@ import './Popup.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popup/popup.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/popup/popup.js'));
 }
 
 /**
@@ -13,7 +14,19 @@ function ensureLoaded() {
 export interface PopupProps {
   active?: boolean;
   anchor?: string;
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   strategy?: 'absolute' | 'fixed';
   distance?: number;
   skidding?: number;
@@ -55,7 +68,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaReposition = (e: Event) => emit('wa-reposition', e as CustomEvent);
+const handleWaReposition = (e: Event) =>
+  emit('wa-reposition', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -78,11 +92,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-popup
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-popup ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-popup>
 </template>

@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/avatar/avatar.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
 }
 
 /**
@@ -17,12 +29,13 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-avatar
-        #element
-        [attr.image]="image"
-        [attr.label]="label"
-        [attr.initials]="initials"
-        [attr.loading]="loading"
-        [attr.shape]="shape">
+      #element
+      [attr.image]="image"
+      [attr.label]="label"
+      [attr.initials]="initials"
+      [attr.loading]="loading"
+      [attr.shape]="shape"
+    >
       <ng-content />
     </wa-avatar>
   `,

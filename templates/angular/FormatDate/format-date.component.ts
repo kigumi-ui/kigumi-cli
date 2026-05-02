@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/format-date/format-date.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-date/format-date.js'));
 }
 
 /**
@@ -17,20 +26,21 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-format-date
-        #element
-        [attr.date]="date"
-        [attr.weekday]="weekday"
-        [attr.era]="era"
-        [attr.year]="year"
-        [attr.month]="month"
-        [attr.day]="day"
-        [attr.hour]="hour"
-        [attr.minute]="minute"
-        [attr.second]="second"
-        [attr.hour-format]="hourFormat"
-        [attr.time-zone-name]="timeZoneName"
-        [attr.time-zone]="timeZone"
-        [attr.lang]="lang">
+      #element
+      [attr.date]="date"
+      [attr.weekday]="weekday"
+      [attr.era]="era"
+      [attr.year]="year"
+      [attr.month]="month"
+      [attr.day]="day"
+      [attr.hour]="hour"
+      [attr.minute]="minute"
+      [attr.second]="second"
+      [attr.hour-format]="hourFormat"
+      [attr.time-zone-name]="timeZoneName"
+      [attr.time-zone]="timeZone"
+      [attr.lang]="lang"
+    >
       <ng-content />
     </wa-format-date>
   `,

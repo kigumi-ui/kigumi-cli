@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/button/button.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button/button.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/button/button.js'));
 }
 
 /**
@@ -17,26 +29,27 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-button
-        #element
-        [attr.variant]="variant"
-        [attr.appearance]="appearance"
-        [attr.size]="size"
-        [attr.pill]="pill || null"
-        [attr.disabled]="disabled || null"
-        [attr.loading]="loading || null"
-        [attr.with-caret]="withCaret || null"
-        [attr.href]="href"
-        [attr.target]="target"
-        [attr.download]="download"
-        [attr.rel]="rel"
-        [attr.type]="type"
-        [attr.name]="name"
-        [attr.value]="value"
-        [attr.formaction]="formaction"
-        [attr.formenctype]="formenctype"
-        [attr.formmethod]="formmethod"
-        [attr.formnovalidate]="formnovalidate || null"
-        [attr.formtarget]="formtarget">
+      #element
+      [attr.variant]="variant"
+      [attr.appearance]="appearance"
+      [attr.size]="size"
+      [attr.pill]="pill || null"
+      [attr.disabled]="disabled || null"
+      [attr.loading]="loading || null"
+      [attr.with-caret]="withCaret || null"
+      [attr.href]="href"
+      [attr.target]="target"
+      [attr.download]="download"
+      [attr.rel]="rel"
+      [attr.type]="type"
+      [attr.name]="name"
+      [attr.value]="value"
+      [attr.formaction]="formaction"
+      [attr.formenctype]="formenctype"
+      [attr.formmethod]="formmethod"
+      [attr.formnovalidate]="formnovalidate || null"
+      [attr.formtarget]="formtarget"
+    >
       <ng-content />
     </wa-button>
   `,
@@ -49,7 +62,12 @@ export class ButtonComponent implements AfterViewInit, OnDestroy {
   /** Semantic variant of the button */
   @Input() variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
   /** Visual appearance style */
-  @Input() appearance?: 'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain';
+  @Input() appearance?:
+    | 'accent'
+    | 'filled-outlined'
+    | 'filled'
+    | 'outlined'
+    | 'plain';
   /** Button size */
   @Input() size?: 'small' | 'medium' | 'large';
   /** Gives the button rounded edges */
@@ -86,7 +104,7 @@ export class ButtonComponent implements AfterViewInit, OnDestroy {
   @Input() formtarget?: string;
 
   @Output() blurEvent = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
   private cleanups: (() => void)[] = [];
@@ -110,12 +128,15 @@ export class ButtonComponent implements AfterViewInit, OnDestroy {
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
   }
 
   ngOnDestroy(): void {
@@ -125,19 +146,39 @@ export class ButtonComponent implements AfterViewInit, OnDestroy {
   click(): void {
     (this.elementRef.nativeElement as unknown as { click: () => void }).click();
   }
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

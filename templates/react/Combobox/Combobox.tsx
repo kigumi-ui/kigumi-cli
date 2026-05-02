@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaCombobox from '@awesome.me/webawesome/dist/components/combobox/combobox.js';
 import './Combobox.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/combobox/combobox.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/combobox/combobox.js'));
 }
 
 /**
@@ -26,8 +34,21 @@ function ensureLoaded() {
  * <Combobox ref={ref} />
  * ```
  */
-export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onFocus' | 'onBlur' | 'onClear' | 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onCreate' | 'onInvalid' | 'dir'> {
-
+export interface ComboboxProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  | 'onInput'
+  | 'onChange'
+  | 'onFocus'
+  | 'onBlur'
+  | 'onClear'
+  | 'onShow'
+  | 'onAfterShow'
+  | 'onHide'
+  | 'onAfterHide'
+  | 'onCreate'
+  | 'onInvalid'
+  | 'dir'
+> {
   /** Allows entering custom values */
   'allow-custom-value'?: boolean;
 
@@ -47,13 +68,28 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInpu
   disabled?: boolean;
 
   /** Customizes the keyboard's Enter key label */
-  enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  enterkeyhint?:
+    | 'enter'
+    | 'done'
+    | 'go'
+    | 'next'
+    | 'previous'
+    | 'search'
+    | 'send';
 
   /** Hint text */
   hint?: string;
 
   /** Controls virtual keyboard type */
-  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
 
   /** Label text */
   label?: string;
@@ -129,7 +165,6 @@ export interface ComboboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onInpu
 }
 
 export interface ComboboxRef {
-
   /** Shows the listbox. */
   show: () => void;
 
@@ -149,7 +184,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -158,7 +196,25 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
-  ({ children, className, onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onCreate, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onClear,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onCreate,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const comboboxRef = useRef<WaCombobox | null>(null);
     const setComboboxRef = useCallback((el: WaCombobox | null) => {
       comboboxRef.current = el;
@@ -168,37 +224,61 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       ref,
       () => ({
         show: () => {
-          if (comboboxRef.current && typeof comboboxRef.current.show === 'function') {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.show === 'function'
+          ) {
             comboboxRef.current.show();
           }
         },
         hide: () => {
-          if (comboboxRef.current && typeof comboboxRef.current.hide === 'function') {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.hide === 'function'
+          ) {
             comboboxRef.current.hide();
           }
         },
         focus: (options: FocusOptions) => {
-          if (comboboxRef.current && typeof comboboxRef.current.focus === 'function') {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.focus === 'function'
+          ) {
             comboboxRef.current.focus(options);
           }
         },
         blur: () => {
-          if (comboboxRef.current && typeof comboboxRef.current.blur === 'function') {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.blur === 'function'
+          ) {
             comboboxRef.current.blur();
           }
         },
         setCustomValidity: (message: string) => {
-          if (comboboxRef.current && typeof comboboxRef.current.setCustomValidity === 'function') {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.setCustomValidity === 'function'
+          ) {
             comboboxRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (comboboxRef.current && typeof comboboxRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.formStateRestoreCallback === 'function'
+          ) {
             comboboxRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (comboboxRef.current && typeof comboboxRef.current.resetValidity === 'function') {
+          if (
+            comboboxRef.current &&
+            typeof comboboxRef.current.resetValidity === 'function'
+          ) {
             comboboxRef.current.resetValidity();
           }
         },
@@ -283,13 +363,28 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
         el.removeEventListener('wa-create', handleWaCreate);
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
-    }, [onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onCreate, onInvalid]);
+    }, [
+      onInput,
+      onChange,
+      onFocus,
+      onBlur,
+      onClear,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onCreate,
+      onInvalid,
+    ]);
 
     return (
       <wa-combobox
         ref={setComboboxRef}
         class={clsx('Combobox', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-combobox>

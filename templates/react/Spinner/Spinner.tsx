@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaSpinner from '@awesome.me/webawesome/dist/components/spinner/spinner.js';
 import './Spinner.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/spinner/spinner.js'));
 }
 
 /**
@@ -21,9 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface SpinnerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
-}
+export interface SpinnerProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {}
 
 export interface SpinnerRef {
   /** Reference to the underlying HTML element */
@@ -55,7 +64,10 @@ export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
       <wa-spinner
         ref={setSpinnerRef}
         class={clsx('Spinner', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-spinner>

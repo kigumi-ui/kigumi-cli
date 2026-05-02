@@ -4,7 +4,8 @@ import './Sparkline.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/sparkline/sparkline.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/sparkline/sparkline.js'));
 }
 
 /**
@@ -48,11 +49,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-sparkline
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-sparkline ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-sparkline>
 </template>

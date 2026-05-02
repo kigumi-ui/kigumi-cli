@@ -4,23 +4,28 @@ import './ZoomableFrame.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/zoomable-frame/zoomable-frame.js'));
 }
 
 /**
  * Zoomable frames display iframe content with zoom controls
  */
 const props = defineProps({
-    src: { type: String, required: false },
-    srcdoc: { type: String, required: false },
-    zoom: { type: Number, required: false, default: 1 },
-    'zoom-levels': { type: String, required: false, default: '25% 50% 75% 100% 125% 150% 175% 200%' },
-    allowfullscreen: { type: Boolean, required: false, default: false },
-    loading: { type: String, required: false, default: 'eager' },
-    'without-controls': { type: Boolean, required: false, default: false },
-    'without-interaction': { type: Boolean, required: false, default: false },
-    sandbox: { type: String, required: false },
-    referrerpolicy: { type: String, required: false }
+  src: { type: String, required: false },
+  srcdoc: { type: String, required: false },
+  zoom: { type: Number, required: false, default: 1 },
+  'zoom-levels': {
+    type: String,
+    required: false,
+    default: '25% 50% 75% 100% 125% 150% 175% 200%',
+  },
+  allowfullscreen: { type: Boolean, required: false, default: false },
+  loading: { type: String, required: false, default: 'eager' },
+  'without-controls': { type: Boolean, required: false, default: false },
+  'without-interaction': { type: Boolean, required: false, default: false },
+  sandbox: { type: String, required: false },
+  referrerpolicy: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

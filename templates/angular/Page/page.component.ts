@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/page/page.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/page/page.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/page/page.js'));
 }
 
 /**
@@ -17,12 +26,13 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-page
-        #element
-        [attr.disable-navigation-toggle]="disableNavigationToggle || null"
-        [attr.mobile-breakpoint]="mobileBreakpoint"
-        [attr.navigation-placement]="navigationPlacement"
-        [attr.nav-open]="navOpen || null"
-        [attr.view]="view">
+      #element
+      [attr.disable-navigation-toggle]="disableNavigationToggle || null"
+      [attr.mobile-breakpoint]="mobileBreakpoint"
+      [attr.navigation-placement]="navigationPlacement"
+      [attr.nav-open]="navOpen || null"
+      [attr.view]="view"
+    >
       <ng-content />
     </wa-page>
   `,
@@ -60,16 +70,28 @@ export class PageComponent implements AfterViewInit {
     }
   }
 
-  visiblePixelsInViewport(element?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { visiblePixelsInViewport: (element: unknown) => void }).visiblePixelsInViewport(element);
+  visiblePixelsInViewport(element?: HTMLElement | null): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        visiblePixelsInViewport: (element?: HTMLElement | null) => void;
+      }
+    ).visiblePixelsInViewport(element);
   }
   showNavigation(): void {
-    (this.elementRef.nativeElement as unknown as { showNavigation: () => void }).showNavigation();
+    (
+      this.elementRef.nativeElement as unknown as { showNavigation: () => void }
+    ).showNavigation();
   }
   hideNavigation(): void {
-    (this.elementRef.nativeElement as unknown as { hideNavigation: () => void }).hideNavigation();
+    (
+      this.elementRef.nativeElement as unknown as { hideNavigation: () => void }
+    ).hideNavigation();
   }
   toggleNavigation(): void {
-    (this.elementRef.nativeElement as unknown as { toggleNavigation: () => void }).toggleNavigation();
+    (
+      this.elementRef.nativeElement as unknown as {
+        toggleNavigation: () => void;
+      }
+    ).toggleNavigation();
   }
 }

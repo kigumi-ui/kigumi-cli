@@ -4,14 +4,15 @@ import './ResizeObserver.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js'));
 }
 
 /**
  * Reports changes to the dimensions of an element
  */
 const props = defineProps({
-    disabled: { type: Boolean, required: false, default: false }
+  disabled: { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaDropdown from '@awesome.me/webawesome/dist/components/dropdown/dropdown.js';
 import './Dropdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dropdown/dropdown.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dropdown/dropdown.js'));
 }
 
 /**
@@ -22,13 +30,27 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface DropdownProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onSelect' | 'dir'> {
-
+export interface DropdownProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onSelect' | 'dir'
+> {
   /** Indicates whether the dropdown is open */
   open?: boolean;
 
   /** Preferred placement of the dropdown panel */
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
 
   /** Disables the dropdown */
   disabled?: boolean;
@@ -70,7 +92,19 @@ export interface DropdownRef {
 }
 
 export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, onSelect, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onSelect,
+      ...props
+    },
+    ref
+  ) => {
     const dropdownRef = useRef<WaDropdown | null>(null);
     const setDropdownRef = useCallback((el: WaDropdown | null) => {
       dropdownRef.current = el;
@@ -130,7 +164,10 @@ export const Dropdown = forwardRef<DropdownRef, DropdownProps>(
       <wa-dropdown
         ref={setDropdownRef}
         class={clsx('Dropdown', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-dropdown>

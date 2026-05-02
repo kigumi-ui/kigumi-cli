@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaBubbleChart from '@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js';
 import './BubbleChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface BubbleChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface BubbleChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -93,7 +103,10 @@ export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
       <wa-bubble-chart
         ref={setBubbleChartRef}
         class={clsx('BubbleChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-bubble-chart>

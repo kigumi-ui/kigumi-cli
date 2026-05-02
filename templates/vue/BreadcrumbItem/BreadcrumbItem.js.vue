@@ -4,16 +4,17 @@ import './BreadcrumbItem.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
 }
 
 /**
  * Breadcrumb Items are used inside breadcrumbs to represent different links
  */
 const props = defineProps({
-    href: { type: String, required: false },
-    target: { type: String, required: false },
-    rel: { type: String, required: false, default: 'noreferrer noopener' }
+  href: { type: String, required: false },
+  target: { type: String, required: false },
+  rel: { type: String, required: false, default: 'noreferrer noopener' },
 });
 
 // Strip undefined and false props before forwarding to the web component.

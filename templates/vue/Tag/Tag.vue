@@ -4,7 +4,8 @@ import './Tag.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tag/tag.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tag/tag.js'));
 }
 
 /**
@@ -64,11 +65,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tag
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tag ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tag>
 </template>

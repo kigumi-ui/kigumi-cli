@@ -4,18 +4,23 @@ import './Page.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/page/page.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/page/page.js'));
 }
 
 /**
  * Pages offer an easy way to scaffold entire page layouts using minimal markup
  */
 const props = defineProps({
-    'disable-navigation-toggle': { type: Boolean, required: false, default: false },
-    'mobile-breakpoint': { type: String, required: false, default: '768px' },
-    'navigation-placement': { type: String, required: false, default: 'start' },
-    'nav-open': { type: Boolean, required: false, default: false },
-    view: { type: String, required: false, default: 'desktop' }
+  'disable-navigation-toggle': {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  'mobile-breakpoint': { type: String, required: false, default: '768px' },
+  'navigation-placement': { type: String, required: false, default: 'start' },
+  'nav-open': { type: Boolean, required: false, default: false },
+  view: { type: String, required: false, default: 'desktop' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -39,7 +44,8 @@ onMounted(() => {
 });
 
 defineExpose({
-  visiblePixelsInViewport: (element) => elementRef.value?.visiblePixelsInViewport?.(element),
+  visiblePixelsInViewport: (element) =>
+    elementRef.value?.visiblePixelsInViewport?.(element),
   showNavigation: () => elementRef.value?.showNavigation?.(),
   hideNavigation: () => elementRef.value?.hideNavigation?.(),
   toggleNavigation: () => elementRef.value?.toggleNavigation?.(),
@@ -48,11 +54,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-page
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-page ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-page>
 </template>

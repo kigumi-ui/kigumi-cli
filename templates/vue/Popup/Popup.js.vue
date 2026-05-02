@@ -4,31 +4,36 @@ import './Popup.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popup/popup.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/popup/popup.js'));
 }
 
 /**
  * Popup is a utility component for positioning elements relative to an anchor
  */
 const props = defineProps({
-    active: { type: Boolean, required: false, default: false },
-    anchor: { type: String, required: false },
-    placement: { type: String, required: false, default: 'top' },
-    strategy: { type: String, required: false, default: 'absolute' },
-    distance: { type: Number, required: false, default: 0 },
-    skidding: { type: Number, required: false, default: 0 },
-    arrow: { type: Boolean, required: false, default: false },
-    'arrow-placement': { type: String, required: false, default: 'anchor' },
-    'arrow-padding': { type: Number, required: false, default: 10 },
-    flip: { type: Boolean, required: false, default: false },
-    'flip-fallback-placements': { type: String, required: false },
-    'flip-fallback-strategy': { type: String, required: false, default: 'best-fit' },
-    'flip-padding': { type: Number, required: false, default: 0 },
-    shift: { type: Boolean, required: false, default: false },
-    'shift-padding': { type: Number, required: false, default: 0 },
-    'auto-size': { type: String, required: false },
-    sync: { type: String, required: false },
-    'auto-size-padding': { type: Number, required: false, default: 0 }
+  active: { type: Boolean, required: false, default: false },
+  anchor: { type: String, required: false },
+  placement: { type: String, required: false, default: 'top' },
+  strategy: { type: String, required: false, default: 'absolute' },
+  distance: { type: Number, required: false, default: 0 },
+  skidding: { type: Number, required: false, default: 0 },
+  arrow: { type: Boolean, required: false, default: false },
+  'arrow-placement': { type: String, required: false, default: 'anchor' },
+  'arrow-padding': { type: Number, required: false, default: 10 },
+  flip: { type: Boolean, required: false, default: false },
+  'flip-fallback-placements': { type: String, required: false },
+  'flip-fallback-strategy': {
+    type: String,
+    required: false,
+    default: 'best-fit',
+  },
+  'flip-padding': { type: Number, required: false, default: 0 },
+  shift: { type: Boolean, required: false, default: false },
+  'shift-padding': { type: Number, required: false, default: 0 },
+  'auto-size': { type: String, required: false },
+  sync: { type: String, required: false },
+  'auto-size-padding': { type: Number, required: false, default: 0 },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -74,11 +79,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-popup
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-popup ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-popup>
 </template>

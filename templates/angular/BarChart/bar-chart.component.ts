@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js'));
 }
 
 /**
@@ -17,21 +26,22 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-bar-chart
-        #element
-        [attr.label]="label"
-        [attr.description]="description"
-        [attr.orientation]="orientation"
-        [attr.x-label]="xLabel"
-        [attr.y-label]="yLabel"
-        [attr.legend-position]="legendPosition"
-        [attr.stacked]="stacked || null"
-        [attr.index-axis]="indexAxis"
-        [attr.grid]="grid"
-        [attr.min]="min"
-        [attr.max]="max"
-        [attr.without-animation]="withoutAnimation || null"
-        [attr.without-legend]="withoutLegend || null"
-        [attr.without-tooltip]="withoutTooltip || null">
+      #element
+      [attr.label]="label"
+      [attr.description]="description"
+      [attr.orientation]="orientation"
+      [attr.x-label]="xLabel"
+      [attr.y-label]="yLabel"
+      [attr.legend-position]="legendPosition"
+      [attr.stacked]="stacked || null"
+      [attr.index-axis]="indexAxis"
+      [attr.grid]="grid"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.without-animation]="withoutAnimation || null"
+      [attr.without-legend]="withoutLegend || null"
+      [attr.without-tooltip]="withoutTooltip || null"
+    >
       <ng-content />
     </wa-bar-chart>
   `,
@@ -52,7 +62,13 @@ export class BarChartComponent implements AfterViewInit {
   /** Caption displayed beside the vertical axis */
   @Input() yLabel?: string;
   /** Placement of the dataset legend relative to the chart */
-  @Input() legendPosition?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  @Input() legendPosition?:
+    | 'top'
+    | 'right'
+    | 'bottom'
+    | 'left'
+    | 'start'
+    | 'end';
   /** Layers multiple datasets on a single axis */
   @Input() stacked?: boolean;
   /** Base axis for category labels (swap to flip chart orientation) */

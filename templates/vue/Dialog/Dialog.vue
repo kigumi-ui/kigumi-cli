@@ -4,11 +4,14 @@ import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
 }
 
 /**
  * Dialogs display important prompts and information
+ *
+ * @remarks Open and close programmatically by binding the `open` prop (e.g. `<Dialog v-model:open="isOpen">`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.
  */
 export interface DialogProps {
   label: string;
@@ -43,19 +46,22 @@ const elementRef = ref<HTMLElement | null>(null);
 
 watch(open, (newOpen) => {
   const el = elementRef.value as any;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });
 
 onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as CustomEvent); };
+const handleWaShow = (e: Event) => {
+  open.value = true;
+  emit('wa-show', e as CustomEvent);
+};
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
-const handleWaHide = (e: Event) => { open.value = false; emit('wa-hide', e as CustomEvent); };
+const handleWaHide = (e: Event) => {
+  open.value = false;
+  emit('wa-hide', e as CustomEvent);
+};
 const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
 
 onMounted(() => {
@@ -79,8 +85,6 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  show: () => (elementRef.value as any)?.show?.(),
-  requestClose: () => (elementRef.value as any)?.requestClose?.(),
   element: elementRef,
 });
 </script>

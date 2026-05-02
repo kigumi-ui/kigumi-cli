@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaSkeleton from '@awesome.me/webawesome/dist/components/skeleton/skeleton.js';
 import './Skeleton.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface SkeletonProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface SkeletonProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Animation effect */
   effect?: 'pulse' | 'sheen' | 'none';
 }
@@ -57,7 +67,10 @@ export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
       <wa-skeleton
         ref={setSkeletonRef}
         class={clsx('Skeleton', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-skeleton>

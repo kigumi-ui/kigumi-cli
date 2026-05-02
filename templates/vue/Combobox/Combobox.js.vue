@@ -4,34 +4,35 @@ import './Combobox.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/combobox/combobox.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/combobox/combobox.js'));
 }
 
 /**
  * Combines a text input with a listbox for filtering and selecting options
  */
 const props = defineProps({
-    'allow-custom-value': { type: Boolean, required: false, default: false },
-    appearance: { type: String, required: false, default: 'outlined' },
-    'allow-create': { type: Boolean, required: false, default: false },
-    autocapitalize: { type: String, required: false },
-    autocorrect: { type: Boolean, required: false },
-    disabled: { type: Boolean, required: false, default: false },
-    enterkeyhint: { type: String, required: false },
-    hint: { type: String, required: false, default: '' },
-    inputmode: { type: String, required: false },
-    label: { type: String, required: false, default: '' },
-    'max-options-visible': { type: Number, required: false, default: 3 },
-    multiple: { type: Boolean, required: false, default: false },
-    name: { type: String, required: false, default: '' },
-    open: { type: Boolean, required: false, default: false },
-    pill: { type: Boolean, required: false, default: false },
-    placeholder: { type: String, required: false, default: '' },
-    placement: { type: String, required: false, default: 'bottom' },
-    required: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: 'medium' },
-    spellcheck: { type: Boolean, required: false },
-    'with-clear': { type: Boolean, required: false, default: false }
+  'allow-custom-value': { type: Boolean, required: false, default: false },
+  appearance: { type: String, required: false, default: 'outlined' },
+  'allow-create': { type: Boolean, required: false, default: false },
+  autocapitalize: { type: String, required: false },
+  autocorrect: { type: Boolean, required: false },
+  disabled: { type: Boolean, required: false, default: false },
+  enterkeyhint: { type: String, required: false },
+  hint: { type: String, required: false, default: '' },
+  inputmode: { type: String, required: false },
+  label: { type: String, required: false, default: '' },
+  'max-options-visible': { type: Number, required: false, default: 3 },
+  multiple: { type: Boolean, required: false, default: false },
+  name: { type: String, required: false, default: '' },
+  open: { type: Boolean, required: false, default: false },
+  pill: { type: Boolean, required: false, default: false },
+  placeholder: { type: String, required: false, default: '' },
+  placement: { type: String, required: false, default: 'bottom' },
+  required: { type: Boolean, required: false, default: false },
+  size: { type: String, required: false, default: 'medium' },
+  spellcheck: { type: Boolean, required: false },
+  'with-clear': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -46,7 +47,19 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-create', 'wa-invalid']);
+const emit = defineEmits([
+  'input',
+  'change',
+  'focus',
+  'blur',
+  'wa-clear',
+  'wa-show',
+  'wa-after-show',
+  'wa-hide',
+  'wa-after-hide',
+  'wa-create',
+  'wa-invalid',
+]);
 
 const model = defineModel();
 
@@ -61,7 +74,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => {
+  model.value = e.target.value;
+  emit('input', e);
+};
 const handleChange = (e) => emit('change', e);
 const handleFocus = (e) => emit('focus', e);
 const handleBlur = (e) => emit('blur', e);
@@ -112,8 +128,10 @@ defineExpose({
   hide: () => elementRef.value?.hide?.(),
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTreeItem from '@awesome.me/webawesome/dist/components/tree-item/tree-item.js';
 import './TreeItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tree-item/tree-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tree-item/tree-item.js'));
 }
 
 /**
@@ -26,8 +34,16 @@ function ensureLoaded() {
  * <TreeItem ref={ref} />
  * ```
  */
-export interface TreeItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onExpand' | 'onAfterExpand' | 'onCollapse' | 'onAfterCollapse' | 'onLazyChange' | 'onLazyLoad' | 'dir'> {
-
+export interface TreeItemProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  | 'onExpand'
+  | 'onAfterExpand'
+  | 'onCollapse'
+  | 'onAfterCollapse'
+  | 'onLazyChange'
+  | 'onLazyLoad'
+  | 'dir'
+> {
   /** Expands the item */
   expanded?: boolean;
 
@@ -60,7 +76,6 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onExpa
 }
 
 export interface TreeItemRef {
-
   /** Gets all the nested tree items in this node. */
   getChildrenItems: (options: { includeDisabled?: boolean }) => void;
   /** Reference to the underlying HTML element */
@@ -68,7 +83,20 @@ export interface TreeItemRef {
 }
 
 export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
-  ({ children, className, onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onExpand,
+      onAfterExpand,
+      onCollapse,
+      onAfterCollapse,
+      onLazyChange,
+      onLazyLoad,
+      ...props
+    },
+    ref
+  ) => {
     const treeitemRef = useRef<WaTreeItem | null>(null);
     const setTreeItemRef = useCallback((el: WaTreeItem | null) => {
       treeitemRef.current = el;
@@ -78,7 +106,10 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
       ref,
       () => ({
         getChildrenItems: (options: { includeDisabled?: boolean }) => {
-          if (treeitemRef.current && typeof treeitemRef.current.getChildrenItems === 'function') {
+          if (
+            treeitemRef.current &&
+            typeof treeitemRef.current.getChildrenItems === 'function'
+          ) {
             treeitemRef.current.getChildrenItems(options);
           }
         },
@@ -133,13 +164,23 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         el.removeEventListener('wa-lazy-change', handleWaLazyChange);
         el.removeEventListener('wa-lazy-load', handleWaLazyLoad);
       };
-    }, [onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad]);
+    }, [
+      onExpand,
+      onAfterExpand,
+      onCollapse,
+      onAfterCollapse,
+      onLazyChange,
+      onLazyLoad,
+    ]);
 
     return (
       <wa-tree-item
         ref={setTreeItemRef}
         class={clsx('TreeItem', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-tree-item>

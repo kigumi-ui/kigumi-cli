@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/relative-time/relative-time.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
 }
 
 /**
@@ -17,12 +26,13 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-relative-time
-        #element
-        [attr.date]="date"
-        [attr.format]="format"
-        [attr.numeric]="numeric"
-        [attr.sync]="sync || null"
-        [attr.lang]="lang">
+      #element
+      [attr.date]="date"
+      [attr.format]="format"
+      [attr.numeric]="numeric"
+      [attr.sync]="sync || null"
+      [attr.lang]="lang"
+    >
       <ng-content />
     </wa-relative-time>
   `,

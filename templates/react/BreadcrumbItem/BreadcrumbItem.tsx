@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaBreadcrumbItem from '@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js';
 import './BreadcrumbItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface BreadcrumbItemProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface BreadcrumbItemProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Optional URL to direct the user to when activated */
   href?: string;
 
@@ -38,37 +48,41 @@ export interface BreadcrumbItemRef {
   element: WaBreadcrumbItem | null;
 }
 
-export const BreadcrumbItem = forwardRef<BreadcrumbItemRef, BreadcrumbItemProps>(
-  ({ children, className, ...props }, ref) => {
-    const breadcrumbitemRef = useRef<WaBreadcrumbItem | null>(null);
-    const setBreadcrumbItemRef = useCallback((el: WaBreadcrumbItem | null) => {
-      breadcrumbitemRef.current = el;
-    }, []);
+export const BreadcrumbItem = forwardRef<
+  BreadcrumbItemRef,
+  BreadcrumbItemProps
+>(({ children, className, ...props }, ref) => {
+  const breadcrumbitemRef = useRef<WaBreadcrumbItem | null>(null);
+  const setBreadcrumbItemRef = useCallback((el: WaBreadcrumbItem | null) => {
+    breadcrumbitemRef.current = el;
+  }, []);
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return breadcrumbitemRef.current;
-        },
-      }),
-      []
-    );
+  useImperativeHandle(
+    ref,
+    () => ({
+      get element() {
+        return breadcrumbitemRef.current;
+      },
+    }),
+    []
+  );
 
-    useEffect(() => {
-      ensureLoaded();
-    }, []);
+  useEffect(() => {
+    ensureLoaded();
+  }, []);
 
-    return (
-      <wa-breadcrumb-item
-        ref={setBreadcrumbItemRef}
-        class={clsx('BreadcrumbItem', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
-      >
-        {children}
-      </wa-breadcrumb-item>
-    );
-  }
-);
+  return (
+    <wa-breadcrumb-item
+      ref={setBreadcrumbItemRef}
+      class={clsx('BreadcrumbItem', className)}
+      {...({ suppressHydrationWarning: true, ...props } as Record<
+        string,
+        unknown
+      >)}
+    >
+      {children}
+    </wa-breadcrumb-item>
+  );
+});
 
 BreadcrumbItem.displayName = 'BreadcrumbItem';

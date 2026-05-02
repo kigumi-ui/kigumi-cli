@@ -4,24 +4,25 @@ import './NumberInput.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
 }
 
 /**
  * Number inputs allow users to enter numeric values with optional step controls
  */
 const props = defineProps({
-    label: { type: String, required: false },
-    hint: { type: String, required: false },
-    min: { type: Number, required: false },
-    max: { type: Number, required: false },
-    step: { type: Number, required: false, default: 1 },
-    disabled: { type: Boolean, required: false, default: false },
-    required: { type: Boolean, required: false, default: false },
-    placeholder: { type: String, required: false },
-    size: { type: String, required: false, default: 'medium' },
-    appearance: { type: String, required: false, default: 'outlined' },
-    'without-steppers': { type: Boolean, required: false, default: false }
+  label: { type: String, required: false },
+  hint: { type: String, required: false },
+  min: { type: Number, required: false },
+  max: { type: Number, required: false },
+  step: { type: Number, required: false, default: 1 },
+  disabled: { type: Boolean, required: false, default: false },
+  required: { type: Boolean, required: false, default: false },
+  placeholder: { type: String, required: false },
+  size: { type: String, required: false, default: 'medium' },
+  appearance: { type: String, required: false, default: 'outlined' },
+  'without-steppers': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -51,7 +52,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => {
+  model.value = e.target.value;
+  emit('input', e);
+};
 const handleChange = (e) => emit('change', e);
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);
@@ -85,8 +89,10 @@ defineExpose({
   select: () => elementRef.value?.select?.(),
   stepUp: () => elementRef.value?.stepUp?.(),
   stepDown: () => elementRef.value?.stepDown?.(),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

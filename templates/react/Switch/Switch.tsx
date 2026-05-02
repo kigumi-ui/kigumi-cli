@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaSwitch from '@awesome.me/webawesome/dist/components/switch/switch.js';
 import './Switch.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/switch/switch.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/switch/switch.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Switch ref={ref} />
  * ```
  */
-export interface SwitchProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onInput' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
-
+export interface SwitchProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'onInput' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'
+> {
   /** Form field name */
   name?: string;
 
@@ -66,7 +76,6 @@ export interface SwitchProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange
 }
 
 export interface SwitchRef {
-
   /** Simulates a click on the switch. */
   click: () => void;
 
@@ -83,7 +92,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -92,7 +104,19 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const Switch = forwardRef<SwitchRef, SwitchProps>(
-  ({ children, className, onChange, onInput, onBlur, onFocus, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onChange,
+      onInput,
+      onBlur,
+      onFocus,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const switchRef = useRef<WaSwitch | null>(null);
     const setSwitchRef = useCallback((el: WaSwitch | null) => {
       switchRef.current = el;
@@ -102,32 +126,53 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       ref,
       () => ({
         click: () => {
-          if (switchRef.current && typeof switchRef.current.click === 'function') {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.click === 'function'
+          ) {
             switchRef.current.click();
           }
         },
         focus: (options: FocusOptions) => {
-          if (switchRef.current && typeof switchRef.current.focus === 'function') {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.focus === 'function'
+          ) {
             switchRef.current.focus(options);
           }
         },
         blur: () => {
-          if (switchRef.current && typeof switchRef.current.blur === 'function') {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.blur === 'function'
+          ) {
             switchRef.current.blur();
           }
         },
         setCustomValidity: (message: string) => {
-          if (switchRef.current && typeof switchRef.current.setCustomValidity === 'function') {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.setCustomValidity === 'function'
+          ) {
             switchRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (switchRef.current && typeof switchRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.formStateRestoreCallback === 'function'
+          ) {
             switchRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (switchRef.current && typeof switchRef.current.resetValidity === 'function') {
+          if (
+            switchRef.current &&
+            typeof switchRef.current.resetValidity === 'function'
+          ) {
             switchRef.current.resetValidity();
           }
         },
@@ -182,7 +227,10 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       <wa-switch
         ref={setSwitchRef}
         class={clsx('Switch', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-switch>

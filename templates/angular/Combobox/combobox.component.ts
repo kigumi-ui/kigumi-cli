@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/combobox/combobox.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/combobox/combobox.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/combobox/combobox.js'));
 }
 
 /**
@@ -18,29 +31,30 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-combobox
-        #element
-        [attr.allow-custom-value]="allowCustomValue || null"
-        [attr.appearance]="appearance"
-        [attr.allow-create]="allowCreate || null"
-        [attr.autocapitalize]="autocapitalize"
-        [attr.autocorrect]="autocorrect || null"
-        [attr.disabled]="disabled || null"
-        [attr.enterkeyhint]="enterkeyhint"
-        [attr.hint]="hint"
-        [attr.inputmode]="inputmode"
-        [attr.label]="label"
-        [attr.max-options-visible]="maxOptionsVisible"
-        [attr.multiple]="multiple || null"
-        [attr.name]="name"
-        [attr.open]="open || null"
-        [attr.pill]="pill || null"
-        [attr.placeholder]="placeholder"
-        [attr.placement]="placement"
-        [attr.required]="required || null"
-        [attr.size]="size"
-        [attr.spellcheck]="spellcheck || null"
-        [attr.with-clear]="withClear || null"
-        [attr.value]="value">
+      #element
+      [attr.allow-custom-value]="allowCustomValue || null"
+      [attr.appearance]="appearance"
+      [attr.allow-create]="allowCreate || null"
+      [attr.autocapitalize]="autocapitalize"
+      [attr.autocorrect]="autocorrect || null"
+      [attr.disabled]="disabled || null"
+      [attr.enterkeyhint]="enterkeyhint"
+      [attr.hint]="hint"
+      [attr.inputmode]="inputmode"
+      [attr.label]="label"
+      [attr.max-options-visible]="maxOptionsVisible"
+      [attr.multiple]="multiple || null"
+      [attr.name]="name"
+      [attr.open]="open || null"
+      [attr.pill]="pill || null"
+      [attr.placeholder]="placeholder"
+      [attr.placement]="placement"
+      [attr.required]="required || null"
+      [attr.size]="size"
+      [attr.spellcheck]="spellcheck || null"
+      [attr.with-clear]="withClear || null"
+      [attr.value]="value"
+    >
       <ng-content />
     </wa-combobox>
   `,
@@ -53,7 +67,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class ComboboxComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -64,17 +80,38 @@ export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValue
   /** Allows creating new options not in the list */
   @Input() allowCreate?: boolean;
   /** Controls autocapitalization on supported devices */
-  @Input() autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  @Input() autocapitalize?:
+    | 'off'
+    | 'none'
+    | 'on'
+    | 'sentences'
+    | 'words'
+    | 'characters';
   /** Enable or disable autocorrect on supported devices */
   @Input() autocorrect?: boolean;
   /** Disables the combobox */
   @Input() disabled?: boolean;
   /** Customizes the keyboard's Enter key label */
-  @Input() enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  @Input() enterkeyhint?:
+    | 'enter'
+    | 'done'
+    | 'go'
+    | 'next'
+    | 'previous'
+    | 'search'
+    | 'send';
   /** Hint text */
   @Input() hint?: string;
   /** Controls virtual keyboard type */
-  @Input() inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  @Input() inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
   /** Label text */
   @Input() label?: string;
   /** Maximum visible options before scrolling */
@@ -104,7 +141,7 @@ export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValue
 
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
   @Output() clear = new EventEmitter<CustomEvent>();
   @Output() showEvent = new EventEmitter<CustomEvent>();
@@ -135,13 +172,15 @@ export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValue
       host.style.display = 'inline';
     }
 
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
@@ -152,26 +191,39 @@ export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValue
     this.cleanups.push(() => el.removeEventListener('wa-clear', handleClear));
     const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
     el.addEventListener('wa-show', handleShowEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-show', handleShowEvent)
+    );
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHideEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-hide', handleHideEvent)
+    );
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
     const handleCreate = (e: Event) => this.create.emit(e as CustomEvent);
     el.addEventListener('wa-create', handleCreate);
     this.cleanups.push(() => el.removeEventListener('wa-create', handleCreate));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -183,7 +235,8 @@ export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValue
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -197,7 +250,9 @@ export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValue
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
@@ -207,19 +262,39 @@ export class ComboboxComponent implements AfterViewInit, OnDestroy, ControlValue
   hide(): void {
     (this.elementRef.nativeElement as unknown as { hide: () => void }).hide();
   }
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

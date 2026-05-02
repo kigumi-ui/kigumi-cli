@@ -4,14 +4,27 @@ import './Tooltip.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tooltip/tooltip.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tooltip/tooltip.js'));
 }
 
 /**
  * Tooltips display additional information based on a specific action
  */
 export interface TooltipProps {
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   disabled?: boolean;
   distance?: number;
   skidding?: number;
@@ -49,19 +62,22 @@ const elementRef = ref<HTMLElement | null>(null);
 
 watch(open, (newOpen) => {
   const el = elementRef.value as any;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });
 
 onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as CustomEvent); };
+const handleWaShow = (e: Event) => {
+  open.value = true;
+  emit('wa-show', e as CustomEvent);
+};
 const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
-const handleWaHide = (e: Event) => { open.value = false; emit('wa-hide', e as CustomEvent); };
+const handleWaHide = (e: Event) => {
+  open.value = false;
+  emit('wa-hide', e as CustomEvent);
+};
 const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
 
 onMounted(() => {

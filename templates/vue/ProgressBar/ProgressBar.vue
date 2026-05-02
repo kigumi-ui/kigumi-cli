@@ -4,7 +4,8 @@ import './ProgressBar.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js'));
 }
 
 /**
@@ -46,11 +47,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-progress-bar
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-progress-bar ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-progress-bar>
 </template>

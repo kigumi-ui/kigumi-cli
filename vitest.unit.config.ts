@@ -18,7 +18,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'json-summary', 'html'],
-      include: ['src/**/*.ts'],
+      include: [
+        'src/**/*.ts',
+        'scripts/generate-react-templates.ts',
+        'scripts/generate-vue-templates.ts',
+        'scripts/generate-angular-templates.ts',
+        'scripts/post-changeset-version.ts',
+      ],
       exclude: [
         '**/node_modules/**',
         '**/dist/**',

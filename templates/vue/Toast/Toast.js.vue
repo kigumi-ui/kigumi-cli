@@ -4,14 +4,15 @@ import './Toast.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast/toast.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/toast/toast.js'));
 }
 
 /**
  * Container that manages and stacks lightweight notification banners at a chosen screen edge
  */
 const props = defineProps({
-    placement: { type: String, required: false, default: 'top-end' }
+  placement: { type: String, required: false, default: 'top-end' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -41,11 +42,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-toast
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-toast ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-toast>
 </template>

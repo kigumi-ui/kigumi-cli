@@ -4,7 +4,8 @@ import './Carousel.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
 }
 
 /**
@@ -46,7 +47,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaSlideChange = (e: Event) => emit('wa-slide-change', e as CustomEvent);
+const handleWaSlideChange = (e: Event) =>
+  emit('wa-slide-change', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -63,19 +65,18 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  previous: (behavior: ScrollBehavior) => (elementRef.value as any)?.previous?.(behavior),
-  next: (behavior: ScrollBehavior) => (elementRef.value as any)?.next?.(behavior),
-  goToSlide: (index: number, behavior: ScrollBehavior) => (elementRef.value as any)?.goToSlide?.(index, behavior),
+  previous: (behavior: ScrollBehavior) =>
+    (elementRef.value as any)?.previous?.(behavior),
+  next: (behavior: ScrollBehavior) =>
+    (elementRef.value as any)?.next?.(behavior),
+  goToSlide: (index: number, behavior: ScrollBehavior) =>
+    (elementRef.value as any)?.goToSlide?.(index, behavior),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-carousel
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-carousel ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-carousel>
 </template>

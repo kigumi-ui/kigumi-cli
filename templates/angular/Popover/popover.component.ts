@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/popover/popover.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popover/popover.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/popover/popover.js'));
 }
 
 /**
@@ -17,16 +29,17 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-popover
-        #element
-        [attr.open]="open || null"
-        [attr.disabled]="disabled || null"
-        [attr.placement]="placement"
-        [attr.trigger]="trigger"
-        [attr.distance]="distance"
-        [attr.skidding]="skidding"
-        [attr.with-arrow]="withArrow || null"
-        [attr.without-arrow]="withoutArrow || null"
-        [attr.for]="for">
+      #element
+      [attr.open]="open || null"
+      [attr.disabled]="disabled || null"
+      [attr.placement]="placement"
+      [attr.trigger]="trigger"
+      [attr.distance]="distance"
+      [attr.skidding]="skidding"
+      [attr.with-arrow]="withArrow || null"
+      [attr.without-arrow]="withoutArrow || null"
+      [attr.for]="for"
+    >
       <ng-content />
     </wa-popover>
   `,
@@ -41,7 +54,19 @@ export class PopoverComponent implements AfterViewInit, OnDestroy {
   /** Disables the popover */
   @Input() disabled?: boolean;
   /** Preferred placement */
-  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  @Input() placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   /** Activation events (click, hover, focus) */
   @Input() trigger?: string;
   /** Distance from trigger */
@@ -80,16 +105,24 @@ export class PopoverComponent implements AfterViewInit, OnDestroy {
 
     const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
     el.addEventListener('wa-show', handleShowEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-show', handleShowEvent)
+    );
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHideEvent = (e: Event) => this.hideEvent.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHideEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-hide', handleHideEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-hide', handleHideEvent)
+    );
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
   }
 
   ngOnDestroy(): void {

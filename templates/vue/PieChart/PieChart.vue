@@ -4,7 +4,8 @@ import './PieChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/pie-chart/pie-chart.js'));
 }
 
 /**
@@ -49,11 +50,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-pie-chart
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-pie-chart ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-pie-chart>
 </template>

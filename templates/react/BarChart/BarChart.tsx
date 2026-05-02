@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaBarChart from '@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js';
 import './BarChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/bar-chart/bar-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface BarChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface BarChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -96,7 +106,10 @@ export const BarChart = forwardRef<BarChartRef, BarChartProps>(
       <wa-bar-chart
         ref={setBarChartRef}
         class={clsx('BarChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-bar-chart>

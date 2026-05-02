@@ -4,15 +4,14 @@ import './CarouselItem.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js'));
 }
 
 /**
  * Represents an individual slide within a carousel component
  */
-const props = defineProps({
-
-});
+const props = defineProps({});
 
 // Strip undefined and false props before forwarding to the web component.
 // Vue boolean-prop coercion materializes absent optional Boolean props as

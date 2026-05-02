@@ -4,17 +4,18 @@ import './Radio.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radio/radio.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radio/radio.js'));
 }
 
 /**
  * Radios allow the user to select a single option from a group
  */
 const props = defineProps({
-    value: { type: String, required: false },
-    disabled: { type: Boolean, required: false, default: false },
-    size: { type: String, required: false, default: 'medium' },
-    appearance: { type: String, required: false, default: 'default' }
+  value: { type: String, required: false },
+  disabled: { type: Boolean, required: false, default: false },
+  size: { type: String, required: false, default: 'medium' },
+  appearance: { type: String, required: false, default: 'default' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -57,19 +58,17 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-radio
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-radio ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-radio>
 </template>

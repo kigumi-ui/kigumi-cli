@@ -4,27 +4,28 @@ import './Slider.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/slider/slider.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/slider/slider.js'));
 }
 
 /**
  * Sliders allow the user to select a value within a range
  */
 const props = defineProps({
-    name: { type: String, required: false, default: '' },
-    label: { type: String, required: false, default: '' },
-    hint: { type: String, required: false, default: '' },
-    min: { type: Number, required: false, default: 0 },
-    max: { type: Number, required: false, default: 100 },
-    step: { type: Number, required: false, default: 1 },
-    orientation: { type: String, required: false, default: 'horizontal' },
-    disabled: { type: Boolean, required: false, default: false },
-    readonly: { type: Boolean, required: false, default: false },
-    range: { type: Boolean, required: false, default: false },
-    'with-markers': { type: Boolean, required: false, default: false },
-    'with-tooltip': { type: Boolean, required: false, default: true },
-    size: { type: String, required: false, default: 'medium' },
-    autofocus: { type: Boolean, required: false, default: false }
+  name: { type: String, required: false, default: '' },
+  label: { type: String, required: false, default: '' },
+  hint: { type: String, required: false, default: '' },
+  min: { type: Number, required: false, default: 0 },
+  max: { type: Number, required: false, default: 100 },
+  step: { type: Number, required: false, default: 1 },
+  orientation: { type: String, required: false, default: 'horizontal' },
+  disabled: { type: Boolean, required: false, default: false },
+  readonly: { type: Boolean, required: false, default: false },
+  range: { type: Boolean, required: false, default: false },
+  'with-markers': { type: Boolean, required: false, default: false },
+  'with-tooltip': { type: Boolean, required: false, default: true },
+  size: { type: String, required: false, default: 'medium' },
+  autofocus: { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -57,7 +58,10 @@ onMounted(() => {
 const handleChange = (e) => emit('change', e);
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => {
+  model.value = e.target.value;
+  emit('input', e);
+};
 const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {
@@ -87,8 +91,10 @@ defineExpose({
   blur: () => elementRef.value?.blur?.(),
   stepDown: () => elementRef.value?.stepDown?.(),
   stepUp: () => elementRef.value?.stepUp?.(),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

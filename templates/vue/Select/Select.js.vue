@@ -4,30 +4,31 @@ import './Select.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/select/select.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/select/select.js'));
 }
 
 /**
  * Selects allow you to choose items from a menu of predefined options
  */
 const props = defineProps({
-    name: { type: String, required: false, default: '' },
-    appearance: { type: String, required: false, default: 'outlined' },
-    size: { type: String, required: false, default: 'medium' },
-    placeholder: { type: String, required: false, default: '' },
-    multiple: { type: Boolean, required: false, default: false },
-    'max-options-visible': { type: Number, required: false, default: 3 },
-    disabled: { type: Boolean, required: false, default: false },
-    'with-clear': { type: Boolean, required: false, default: false },
-    open: { type: Boolean, required: false, default: false },
-    hoist: { type: Boolean, required: false, default: false },
-    placement: { type: String, required: false, default: 'bottom' },
-    pill: { type: Boolean, required: false, default: false },
-    label: { type: String, required: false, default: '' },
-    hint: { type: String, required: false, default: '' },
-    required: { type: Boolean, required: false, default: false },
-    invalid: { type: Boolean, required: false, default: false },
-    'help-text': { type: String, required: false, default: '' }
+  name: { type: String, required: false, default: '' },
+  appearance: { type: String, required: false, default: 'outlined' },
+  size: { type: String, required: false, default: 'medium' },
+  placeholder: { type: String, required: false, default: '' },
+  multiple: { type: Boolean, required: false, default: false },
+  'max-options-visible': { type: Number, required: false, default: 3 },
+  disabled: { type: Boolean, required: false, default: false },
+  'with-clear': { type: Boolean, required: false, default: false },
+  open: { type: Boolean, required: false, default: false },
+  hoist: { type: Boolean, required: false, default: false },
+  placement: { type: String, required: false, default: 'bottom' },
+  pill: { type: Boolean, required: false, default: false },
+  label: { type: String, required: false, default: '' },
+  hint: { type: String, required: false, default: '' },
+  required: { type: Boolean, required: false, default: false },
+  invalid: { type: Boolean, required: false, default: false },
+  'help-text': { type: String, required: false, default: '' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -42,7 +43,18 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['input', 'change', 'focus', 'blur', 'wa-clear', 'wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide', 'wa-invalid']);
+const emit = defineEmits([
+  'input',
+  'change',
+  'focus',
+  'blur',
+  'wa-clear',
+  'wa-show',
+  'wa-after-show',
+  'wa-hide',
+  'wa-after-hide',
+  'wa-invalid',
+]);
 
 const model = defineModel();
 
@@ -57,7 +69,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleInput = (e) => {
+  model.value = e.target.value;
+  emit('input', e);
+};
 const handleChange = (e) => emit('change', e);
 const handleFocus = (e) => emit('focus', e);
 const handleBlur = (e) => emit('blur', e);
@@ -105,8 +120,10 @@ defineExpose({
   hide: () => elementRef.value?.hide?.(),
   focus: (options) => elementRef.value?.focus?.(options),
   blur: () => elementRef.value?.blur?.(),
-  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message) =>
+    elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) =>
+    elementRef.value?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });

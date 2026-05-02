@@ -4,18 +4,19 @@ import './Avatar.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
 }
 
 /**
  * Avatars are used to represent a person or object
  */
 const props = defineProps({
-    image: { type: String, required: false, default: '' },
-    label: { type: String, required: true, default: '' },
-    initials: { type: String, required: false, default: '' },
-    loading: { type: String, required: false, default: 'eager' },
-    shape: { type: String, required: false, default: 'circle' }
+  image: { type: String, required: false, default: '' },
+  label: { type: String, required: true, default: '' },
+  initials: { type: String, required: false, default: '' },
+  loading: { type: String, required: false, default: 'eager' },
+  shape: { type: String, required: false, default: 'circle' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -60,11 +61,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-avatar
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-avatar ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-avatar>
 </template>

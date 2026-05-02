@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/breadcrumb-item/breadcrumb-item.js'));
 }
 
 /**
@@ -17,10 +26,11 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-breadcrumb-item
-        #element
-        [attr.href]="href"
-        [attr.target]="target"
-        [attr.rel]="rel">
+      #element
+      [attr.href]="href"
+      [attr.target]="target"
+      [attr.rel]="rel"
+    >
       <ng-content />
     </wa-breadcrumb-item>
   `,

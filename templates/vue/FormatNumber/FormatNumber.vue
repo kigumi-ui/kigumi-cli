@@ -4,7 +4,8 @@ import './FormatNumber.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/format-number/format-number.js'));
 }
 
 /**

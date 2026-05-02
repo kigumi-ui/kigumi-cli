@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaPopover from '@awesome.me/webawesome/dist/components/popover/popover.js';
 import './Popover.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popover/popover.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/popover/popover.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Popover ref={ref} />
  * ```
  */
-export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
-
+export interface PopoverProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
   /** Indicates whether the popover is open */
   open?: boolean;
 
@@ -35,7 +45,19 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow'
   disabled?: boolean;
 
   /** Preferred placement */
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
 
   /** Activation events (click, hover, focus) */
   trigger?: string;
@@ -69,7 +91,6 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow'
 }
 
 export interface PopoverRef {
-
   /** Shows the popover. */
   show: () => void;
 
@@ -80,7 +101,10 @@ export interface PopoverRef {
 }
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
     const popoverRef = useRef<WaPopover | null>(null);
     const setPopoverRef = useCallback((el: WaPopover | null) => {
       popoverRef.current = el;
@@ -90,12 +114,18 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
       ref,
       () => ({
         show: () => {
-          if (popoverRef.current && typeof popoverRef.current.show === 'function') {
+          if (
+            popoverRef.current &&
+            typeof popoverRef.current.show === 'function'
+          ) {
             popoverRef.current.show();
           }
         },
         hide: () => {
-          if (popoverRef.current && typeof popoverRef.current.hide === 'function') {
+          if (
+            popoverRef.current &&
+            typeof popoverRef.current.hide === 'function'
+          ) {
             popoverRef.current.hide();
           }
         },
@@ -144,7 +174,10 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
       <wa-popover
         ref={setPopoverRef}
         class={clsx('Popover', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-popover>

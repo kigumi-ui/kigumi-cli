@@ -1,0 +1,320 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateCSS > emits the Button CSS 1`] = `
+"/**
+ * Button Component Styles
+ * Documentation: https://webawesome.com/docs/components/button
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
+ * start - The container that wraps the \`start\` slot.
+ * label - The button's label.
+ * end - The container that wraps the \`end\` slot.
+ * caret - The button's caret icon, a \`<wa-icon>\` element.
+ * spinner - The spinner that shows when the button is in the loading state.
+ */
+:host {
+  display: contents;
+}
+"
+`;
+
+exports[`generateComponentTS > emits the Badge component (no events, no methods branch) 1`] = `
+"import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/badge/badge.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+}
+
+/**
+ * Badges are used to draw attention and display statuses or counts
+ *
+ * @see https://webawesome.com/docs/components/badge
+ */
+@Component({
+  selector: 'k-badge',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: \`
+    <wa-badge
+        #element
+        [attr.variant]="variant"
+        [attr.appearance]="appearance"
+        [attr.pill]="pill || null"
+        [attr.attention]="attention">
+      <ng-content />
+    </wa-badge>
+  \`,
+  styleUrl: './badge.component.css',
+})
+export class BadgeComponent implements AfterViewInit {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** The badge's theme variant */
+  @Input() variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
+  /** The badge's visual appearance */
+  @Input() appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
+  /** Draws a pill-style badge with rounded edges */
+  @Input() pill?: boolean;
+  /** Adds an animation to draw attention to the badge */
+  @Input() attention?: 'none' | 'pulse' | 'bounce';
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+  }
+}
+"
+`;
+
+exports[`generateComponentTS > emits the Button component 1`] = `
+"import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/button/button.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button/button.js'));
+}
+
+/**
+ * Buttons represent actions that are available to the user
+ *
+ * @see https://webawesome.com/docs/components/button
+ */
+@Component({
+  selector: 'k-button',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: \`
+    <wa-button
+        #element
+        [attr.variant]="variant"
+        [attr.appearance]="appearance"
+        [attr.size]="size"
+        [attr.pill]="pill || null"
+        [attr.disabled]="disabled || null"
+        [attr.loading]="loading || null"
+        [attr.with-caret]="withCaret || null"
+        [attr.href]="href"
+        [attr.target]="target"
+        [attr.download]="download"
+        [attr.rel]="rel"
+        [attr.type]="type"
+        [attr.name]="name"
+        [attr.value]="value"
+        [attr.formaction]="formaction"
+        [attr.formenctype]="formenctype"
+        [attr.formmethod]="formmethod"
+        [attr.formnovalidate]="formnovalidate || null"
+        [attr.formtarget]="formtarget">
+      <ng-content />
+    </wa-button>
+  \`,
+  styleUrl: './button.component.css',
+})
+export class ButtonComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** Semantic variant of the button */
+  @Input() variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
+  /** Visual appearance style */
+  @Input() appearance?: 'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain';
+  /** Button size */
+  @Input() size?: 'small' | 'medium' | 'large';
+  /** Gives the button rounded edges */
+  @Input() pill?: boolean;
+  /** Disables the button */
+  @Input() disabled?: boolean;
+  /** Shows a loading indicator */
+  @Input() loading?: boolean;
+  /** Adds a dropdown indicator caret */
+  @Input() withCaret?: boolean;
+  /** Makes the button work like a link */
+  @Input() href?: string;
+  /** Link target (when href is set) */
+  @Input() target?: '_blank' | '_self' | '_parent' | '_top';
+  /** Download filename (when href is set) */
+  @Input() download?: string;
+  /** Link relationship (when href is set) */
+  @Input() rel?: string;
+  /** The button's type for form submission */
+  @Input() type?: 'button' | 'submit' | 'reset';
+  /** The name of the button for form submission */
+  @Input() name?: string;
+  /** The value of the button for form submission */
+  @Input() value?: string;
+  /** Override the form's action attribute */
+  @Input() formaction?: string;
+  /** Override the form's enctype attribute */
+  @Input() formenctype?: string;
+  /** Override the form's method attribute */
+  @Input() formmethod?: string;
+  /** Bypass form validation when this button submits */
+  @Input() formnovalidate?: boolean;
+  /** Override the form's target attribute */
+  @Input() formtarget?: string;
+
+  @Output() blurEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
+  @Output() invalid = new EventEmitter<CustomEvent>();
+
+  private cleanups: (() => void)[] = [];
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+
+    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
+    el.addEventListener('blur', handleBlurEvent);
+    this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
+    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as FocusEvent);
+    el.addEventListener('focus', handleFocusEvent);
+    this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
+    const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
+    el.addEventListener('wa-invalid', handleInvalid);
+    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+  }
+
+  ngOnDestroy(): void {
+    this.cleanups.forEach((fn) => fn());
+  }
+
+  click(): void {
+    (this.elementRef.nativeElement as unknown as { click: () => void }).click();
+  }
+  focus(options?: FocusOptions): void {
+    (this.elementRef.nativeElement as unknown as { focus: (options?: FocusOptions) => void }).focus(options);
+  }
+  blur(): void {
+    (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
+  }
+  setCustomValidity(message?: string): void {
+    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message?: string) => void }).setCustomValidity(message);
+  }
+  formStateRestoreCallback(state?: string | File | FormData | null, reason?: 'autocomplete' | 'restore'): void {
+    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state?: string | File | FormData | null, reason?: 'autocomplete' | 'restore') => void }).formStateRestoreCallback(state, reason);
+  }
+  resetValidity(): void {
+    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+  }
+}
+"
+`;
+
+exports[`generateComponentTS > emits the Markdown component with the @remarks JSDoc for removed imperative methods 1`] = `
+"import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import type WaElement from '@awesome.me/webawesome/dist/components/markdown/markdown.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
+}
+
+/**
+ * Renders markdown content in plain HTML
+ *
+ * @see https://webawesome.com/docs/components/markdown
+ *
+ * @remarks Re-render programmatically by updating the projected source content (slotted children). The previous \`getMarked()\` / \`updateAll()\` methods are marked private in WA 3.5.0+ and are no longer exposed.
+ */
+@Component({
+  selector: 'k-markdown',
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: \`
+    <wa-markdown
+        #element
+        [attr.tab-size]="tabSize">
+      <ng-content />
+    </wa-markdown>
+  \`,
+  styleUrl: './markdown.component.css',
+})
+export class MarkdownComponent implements AfterViewInit {
+  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  private hostRef = inject(ElementRef<HTMLElement>);
+
+  /** Tab stop width for whitespace normalization */
+  @Input() tabSize?: number;
+
+  ngAfterViewInit(): void {
+    ensureLoaded();
+    const el = this.elementRef.nativeElement;
+
+    // Forward host attributes to inner wa-* element
+    const host = this.hostRef.nativeElement;
+    const hostStyle = host.getAttribute('style');
+    if (hostStyle) {
+      el.setAttribute('style', hostStyle);
+      host.removeAttribute('style');
+    }
+    // When slotted, override display:contents so ::slotted() margins apply
+    if (host.hasAttribute('slot')) {
+      host.style.display = 'inline';
+    }
+  }
+
+  renderMarkdown(): void {
+    (this.elementRef.nativeElement as unknown as { renderMarkdown: () => void }).renderMarkdown();
+  }
+}
+"
+`;
+
+exports[`generateSpec > emits the Button spec stub 1`] = `
+"import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ButtonComponent } from './button.component';
+
+describe('ButtonComponent', () => {
+  let component: ButtonComponent;
+  let fixture: ComponentFixture<ButtonComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ButtonComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ButtonComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should render the web component', () => {
+    const el = fixture.nativeElement.querySelector('wa-button');
+    expect(el).toBeTruthy();
+  });
+});
+"
+`;

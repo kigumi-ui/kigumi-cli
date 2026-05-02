@@ -4,16 +4,17 @@ import './Include.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/include/include.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/include/include.js'));
 }
 
 /**
  * Includes give you the power to embed external HTML files into the page
  */
 const props = defineProps({
-    src: { type: String, required: false },
-    mode: { type: String, required: false, default: 'cors' },
-    'allow-scripts': { type: Boolean, required: false, default: false }
+  src: { type: String, required: false },
+  mode: { type: String, required: false, default: 'cors' },
+  'allow-scripts': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -61,11 +62,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-include
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-include ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-include>
 </template>

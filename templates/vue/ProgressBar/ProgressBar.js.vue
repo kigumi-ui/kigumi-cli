@@ -4,16 +4,17 @@ import './ProgressBar.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js'));
 }
 
 /**
  * Progress bars are used to show the completion of a task or operation
  */
 const props = defineProps({
-    value: { type: Number, required: false, default: 0 },
-    indeterminate: { type: Boolean, required: false, default: false },
-    label: { type: String, required: false, default: '' }
+  value: { type: Number, required: false, default: 0 },
+  indeterminate: { type: Boolean, required: false, default: false },
+  label: { type: String, required: false, default: '' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -42,11 +43,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-progress-bar
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-progress-bar ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-progress-bar>
 </template>

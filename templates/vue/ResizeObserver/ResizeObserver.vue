@@ -4,7 +4,8 @@ import './ResizeObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js'));
 }
 
 /**

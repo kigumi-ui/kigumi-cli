@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaProgressRing from '@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js';
 import './ProgressRing.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface ProgressRingProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface ProgressRingProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Current progress (0-100) */
   value?: number;
 
@@ -60,7 +70,10 @@ export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
       <wa-progress-ring
         ref={setProgressRingRef}
         class={clsx('ProgressRing', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-progress-ring>

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaPolarAreaChart from '@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js';
 import './PolarAreaChart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface PolarAreaChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface PolarAreaChartProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Accessible name announced by assistive technology */
   label?: string;
 
@@ -47,37 +57,41 @@ export interface PolarAreaChartRef {
   element: WaPolarAreaChart | null;
 }
 
-export const PolarAreaChart = forwardRef<PolarAreaChartRef, PolarAreaChartProps>(
-  ({ children, className, ...props }, ref) => {
-    const polarareachartRef = useRef<WaPolarAreaChart | null>(null);
-    const setPolarAreaChartRef = useCallback((el: WaPolarAreaChart | null) => {
-      polarareachartRef.current = el;
-    }, []);
+export const PolarAreaChart = forwardRef<
+  PolarAreaChartRef,
+  PolarAreaChartProps
+>(({ children, className, ...props }, ref) => {
+  const polarareachartRef = useRef<WaPolarAreaChart | null>(null);
+  const setPolarAreaChartRef = useCallback((el: WaPolarAreaChart | null) => {
+    polarareachartRef.current = el;
+  }, []);
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return polarareachartRef.current;
-        },
-      }),
-      []
-    );
+  useImperativeHandle(
+    ref,
+    () => ({
+      get element() {
+        return polarareachartRef.current;
+      },
+    }),
+    []
+  );
 
-    useEffect(() => {
-      ensureLoaded();
-    }, []);
+  useEffect(() => {
+    ensureLoaded();
+  }, []);
 
-    return (
-      <wa-polar-area-chart
-        ref={setPolarAreaChartRef}
-        class={clsx('PolarAreaChart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
-      >
-        {children}
-      </wa-polar-area-chart>
-    );
-  }
-);
+  return (
+    <wa-polar-area-chart
+      ref={setPolarAreaChartRef}
+      class={clsx('PolarAreaChart', className)}
+      {...({ suppressHydrationWarning: true, ...props } as Record<
+        string,
+        unknown
+      >)}
+    >
+      {children}
+    </wa-polar-area-chart>
+  );
+});
 
 PolarAreaChart.displayName = 'PolarAreaChart';

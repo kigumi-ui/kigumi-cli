@@ -1,13 +1,21 @@
 'use client';
 
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaButton from '@awesome.me/webawesome/dist/components/button/button.js';
 import './Button.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button/button.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/button/button.js'));
 }
 
 /**
@@ -28,8 +36,10 @@ function ensureLoaded() {
  * <Button ref={ref} />
  * ```
  */
-export interface ButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
-
+export interface ButtonProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onBlur' | 'onFocus' | 'onInvalid' | 'dir'
+> {
   /** Semantic variant of the button */
   variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
 
@@ -98,7 +108,6 @@ export interface ButtonProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' 
 }
 
 export interface ButtonRef {
-
   /** Simulates a click on the button. */
   click: () => void;
 
@@ -115,7 +124,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -134,32 +146,53 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
       ref,
       () => ({
         click: () => {
-          if (buttonRef.current && typeof buttonRef.current.click === 'function') {
+          if (
+            buttonRef.current &&
+            typeof buttonRef.current.click === 'function'
+          ) {
             buttonRef.current.click();
           }
         },
         focus: (options: FocusOptions) => {
-          if (buttonRef.current && typeof buttonRef.current.focus === 'function') {
+          if (
+            buttonRef.current &&
+            typeof buttonRef.current.focus === 'function'
+          ) {
             buttonRef.current.focus(options);
           }
         },
         blur: () => {
-          if (buttonRef.current && typeof buttonRef.current.blur === 'function') {
+          if (
+            buttonRef.current &&
+            typeof buttonRef.current.blur === 'function'
+          ) {
             buttonRef.current.blur();
           }
         },
         setCustomValidity: (message: string) => {
-          if (buttonRef.current && typeof buttonRef.current.setCustomValidity === 'function') {
+          if (
+            buttonRef.current &&
+            typeof buttonRef.current.setCustomValidity === 'function'
+          ) {
             buttonRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (buttonRef.current && typeof buttonRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            buttonRef.current &&
+            typeof buttonRef.current.formStateRestoreCallback === 'function'
+          ) {
             buttonRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (buttonRef.current && typeof buttonRef.current.resetValidity === 'function') {
+          if (
+            buttonRef.current &&
+            typeof buttonRef.current.resetValidity === 'function'
+          ) {
             buttonRef.current.resetValidity();
           }
         },
@@ -202,7 +235,10 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
       <wa-button
         ref={setButtonRef}
         class={clsx('Button', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-button>

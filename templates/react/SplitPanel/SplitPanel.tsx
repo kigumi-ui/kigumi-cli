@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaSplitPanel from '@awesome.me/webawesome/dist/components/split-panel/split-panel.js';
 import './SplitPanel.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface SplitPanelProps extends Omit<HTMLAttributes<HTMLElement>, 'onReposition' | 'dir'> {
-
+export interface SplitPanelProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onReposition' | 'dir'
+> {
   /** Divider position (%) */
   position?: number;
 
@@ -91,7 +101,10 @@ export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
       <wa-split-panel
         ref={setSplitPanelRef}
         class={clsx('SplitPanel', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-split-panel>

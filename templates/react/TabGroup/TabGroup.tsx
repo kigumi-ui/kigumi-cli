@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTabGroup from '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
 import './TabGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab-group/tab-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab-group/tab-group.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface TabGroupProps extends Omit<HTMLAttributes<HTMLElement>, 'onTabShow' | 'onTabHide' | 'dir'> {
-
+export interface TabGroupProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onTabShow' | 'onTabHide' | 'dir'
+> {
   /** Tab position */
   placement?: 'top' | 'bottom' | 'start' | 'end';
 
@@ -91,7 +101,10 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
       <wa-tab-group
         ref={setTabGroupRef}
         class={clsx('TabGroup', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-tab-group>

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaColorPicker from '@awesome.me/webawesome/dist/components/color-picker/color-picker.js';
 import './ColorPicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/color-picker/color-picker.js'));
 }
 
 /**
@@ -26,8 +34,19 @@ function ensureLoaded() {
  * <ColorPicker ref={ref} />
  * ```
  */
-export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onInput' | 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'> {
-
+export interface ColorPickerProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  | 'onChange'
+  | 'onInput'
+  | 'onShow'
+  | 'onAfterShow'
+  | 'onHide'
+  | 'onAfterHide'
+  | 'onBlur'
+  | 'onFocus'
+  | 'onInvalid'
+  | 'dir'
+> {
   /** The current color value */
   value?: string;
 
@@ -59,7 +78,19 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onC
   open?: boolean;
 
   /** Preferred placement of the color picker panel */
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
 
   /** Predefined color swatches */
   swatches?: string;
@@ -98,9 +129,13 @@ export interface ColorPickerProps extends Omit<HTMLAttributes<HTMLElement>, 'onC
 }
 
 export interface ColorPickerRef {
-
   /** Generates a hex string from HSV values. Hue must be 0-360. All other arguments must be 0-100. */
-  getHexString: (hue: number, saturation: number, brightness: number, alpha: any) => void;
+  getHexString: (
+    hue: number,
+    saturation: number,
+    brightness: number,
+    alpha: any
+  ) => void;
 
   /** Sets focus on the color picker. */
   focus: (options: FocusOptions) => void;
@@ -109,7 +144,9 @@ export interface ColorPickerRef {
   blur: () => void;
 
   /** Returns the current value as a string in the specified format. */
-  getFormattedValue: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => void;
+  getFormattedValue: (
+    format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
+  ) => void;
 
   /** Checks for validity and shows the browser's validation message if the control is invalid. */
   reportValidity: () => void;
@@ -127,7 +164,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -136,7 +176,23 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
-  ({ children, className, onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onChange,
+      onInput,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onBlur,
+      onFocus,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const colorpickerRef = useRef<WaColorPicker | null>(null);
     const setColorPickerRef = useCallback((el: WaColorPicker | null) => {
       colorpickerRef.current = el;
@@ -145,53 +201,107 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
     useImperativeHandle(
       ref,
       () => ({
-        getHexString: (hue: number, saturation: number, brightness: number, alpha: any) => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.getHexString === 'function') {
-            colorpickerRef.current.getHexString(hue, saturation, brightness, alpha);
+        getHexString: (
+          hue: number,
+          saturation: number,
+          brightness: number,
+          alpha: any
+        ) => {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.getHexString === 'function'
+          ) {
+            colorpickerRef.current.getHexString(
+              hue,
+              saturation,
+              brightness,
+              alpha
+            );
           }
         },
         focus: (options: FocusOptions) => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.focus === 'function') {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.focus === 'function'
+          ) {
             colorpickerRef.current.focus(options);
           }
         },
         blur: () => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.blur === 'function') {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.blur === 'function'
+          ) {
             colorpickerRef.current.blur();
           }
         },
-        getFormattedValue: (format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.getFormattedValue === 'function') {
+        getFormattedValue: (
+          format:
+            | 'hex'
+            | 'hexa'
+            | 'rgb'
+            | 'rgba'
+            | 'hsl'
+            | 'hsla'
+            | 'hsv'
+            | 'hsva'
+        ) => {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.getFormattedValue === 'function'
+          ) {
             colorpickerRef.current.getFormattedValue(format);
           }
         },
         reportValidity: () => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.reportValidity === 'function') {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.reportValidity === 'function'
+          ) {
             colorpickerRef.current.reportValidity();
           }
         },
         show: () => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.show === 'function') {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.show === 'function'
+          ) {
             colorpickerRef.current.show();
           }
         },
         hide: () => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.hide === 'function') {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.hide === 'function'
+          ) {
             colorpickerRef.current.hide();
           }
         },
         setCustomValidity: (message: string) => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.setCustomValidity === 'function') {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.setCustomValidity === 'function'
+          ) {
             colorpickerRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.formStateRestoreCallback ===
+              'function'
+          ) {
             colorpickerRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (colorpickerRef.current && typeof colorpickerRef.current.resetValidity === 'function') {
+          if (
+            colorpickerRef.current &&
+            typeof colorpickerRef.current.resetValidity === 'function'
+          ) {
             colorpickerRef.current.resetValidity();
           }
         },
@@ -264,13 +374,26 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
         el.removeEventListener('focus', handleFocus);
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
-    }, [onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid]);
+    }, [
+      onChange,
+      onInput,
+      onShow,
+      onAfterShow,
+      onHide,
+      onAfterHide,
+      onBlur,
+      onFocus,
+      onInvalid,
+    ]);
 
     return (
       <wa-color-picker
         ref={setColorPickerRef}
         class={clsx('ColorPicker', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-color-picker>

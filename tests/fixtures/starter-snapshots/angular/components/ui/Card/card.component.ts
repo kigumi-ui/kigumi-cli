@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/card/card.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/card/card.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/card/card.js'));
 }
 
 /**
@@ -17,12 +26,13 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-card
-        #element
-        [attr.appearance]="appearance"
-        [attr.orientation]="orientation"
-        [attr.with-header]="withHeader || null"
-        [attr.with-footer]="withFooter || null"
-        [attr.with-media]="withMedia || null">
+      #element
+      [attr.appearance]="appearance"
+      [attr.orientation]="orientation"
+      [attr.with-header]="withHeader || null"
+      [attr.with-footer]="withFooter || null"
+      [attr.with-media]="withMedia || null"
+    >
       <ng-content />
     </wa-card>
   `,
@@ -33,7 +43,12 @@ export class CardComponent implements AfterViewInit {
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Visual appearance style */
-  @Input() appearance?: 'outlined' | 'filled-outlined' | 'plain' | 'filled' | 'accent';
+  @Input() appearance?:
+    | 'outlined'
+    | 'filled-outlined'
+    | 'plain'
+    | 'filled'
+    | 'accent';
   /** Card layout orientation */
   @Input() orientation?: 'vertical' | 'horizontal';
   /** Adds header section (for SSR) */

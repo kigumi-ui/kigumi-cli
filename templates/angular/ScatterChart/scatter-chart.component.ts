@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
 }
 
 /**
@@ -17,18 +26,19 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-scatter-chart
-        #element
-        [attr.label]="label"
-        [attr.description]="description"
-        [attr.x-label]="xLabel"
-        [attr.y-label]="yLabel"
-        [attr.legend-position]="legendPosition"
-        [attr.grid]="grid"
-        [attr.min]="min"
-        [attr.max]="max"
-        [attr.without-animation]="withoutAnimation || null"
-        [attr.without-legend]="withoutLegend || null"
-        [attr.without-tooltip]="withoutTooltip || null">
+      #element
+      [attr.label]="label"
+      [attr.description]="description"
+      [attr.x-label]="xLabel"
+      [attr.y-label]="yLabel"
+      [attr.legend-position]="legendPosition"
+      [attr.grid]="grid"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.without-animation]="withoutAnimation || null"
+      [attr.without-legend]="withoutLegend || null"
+      [attr.without-tooltip]="withoutTooltip || null"
+    >
       <ng-content />
     </wa-scatter-chart>
   `,
@@ -47,7 +57,13 @@ export class ScatterChartComponent implements AfterViewInit {
   /** Caption displayed beside the vertical axis */
   @Input() yLabel?: string;
   /** Placement of the dataset legend relative to the chart */
-  @Input() legendPosition?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  @Input() legendPosition?:
+    | 'top'
+    | 'right'
+    | 'bottom'
+    | 'left'
+    | 'start'
+    | 'end';
   /** Selects which background grid lines are drawn */
   @Input() grid?: 'x' | 'y' | 'both' | 'none';
   /** Floor value for the value axis scale */

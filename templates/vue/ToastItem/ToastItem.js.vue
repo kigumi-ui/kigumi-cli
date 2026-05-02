@@ -4,16 +4,17 @@ import './ToastItem.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast-item/toast-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/toast-item/toast-item.js'));
 }
 
 /**
  * A single notification banner that can be stacked inside a Toast container
  */
 const props = defineProps({
-    variant: { type: String, required: false, default: 'neutral' },
-    size: { type: String, required: false, default: 'medium' },
-    duration: { type: Number, required: false, default: 5000 }
+  variant: { type: String, required: false, default: 'neutral' },
+  size: { type: String, required: false, default: 'medium' },
+  duration: { type: Number, required: false, default: 5000 },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -28,7 +29,12 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
+const emit = defineEmits([
+  'wa-show',
+  'wa-after-show',
+  'wa-hide',
+  'wa-after-hide',
+]);
 
 const elementRef = ref(null);
 
@@ -68,11 +74,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-toast-item
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-toast-item ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-toast-item>
 </template>

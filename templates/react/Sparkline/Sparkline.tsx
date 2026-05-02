@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaSparkline from '@awesome.me/webawesome/dist/components/sparkline/sparkline.js';
 import './Sparkline.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/sparkline/sparkline.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/sparkline/sparkline.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface SparklineProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface SparklineProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Space-separated numeric data points */
   data?: string;
 
@@ -69,7 +79,10 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
       <wa-sparkline
         ref={setSparklineRef}
         class={clsx('Sparkline', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-sparkline>

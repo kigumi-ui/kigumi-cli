@@ -4,14 +4,15 @@ import './Divider.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/divider/divider.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/divider/divider.js'));
 }
 
 /**
  * Dividers are used to visually separate content
  */
 const props = defineProps({
-    orientation: { type: String, required: false, default: 'horizontal' }
+  orientation: { type: String, required: false, default: 'horizontal' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -40,11 +41,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-divider
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-divider ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-divider>
 </template>

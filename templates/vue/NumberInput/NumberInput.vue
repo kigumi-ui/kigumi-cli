@@ -4,7 +4,8 @@ import './NumberInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
 }
 
 /**
@@ -39,10 +40,10 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'input': [event: CustomEvent];
-  'change': [event: CustomEvent];
-  'blur': [event: CustomEvent];
-  'focus': [event: FocusEvent];
+  input: [event: CustomEvent];
+  change: [event: CustomEvent];
+  blur: [event: CustomEvent];
+  focus: [event: FocusEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -59,7 +60,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
+const handleInput = (e: Event) => {
+  model.value = (e.target as any).value;
+  emit('input', e as CustomEvent);
+};
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -93,8 +97,12 @@ defineExpose({
   select: () => (elementRef.value as any)?.select?.(),
   stepUp: () => (elementRef.value as any)?.stepUp?.(),
   stepDown: () => (elementRef.value as any)?.stepDown?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });

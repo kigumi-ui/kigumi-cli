@@ -4,7 +4,8 @@ import './Tree.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tree/tree.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tree/tree.js'));
 }
 
 /**
@@ -38,7 +39,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaSelectionChange = (e: Event) => emit('wa-selection-change', e as CustomEvent);
+const handleWaSelectionChange = (e: Event) =>
+  emit('wa-selection-change', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
@@ -60,11 +62,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tree
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tree ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tree>
 </template>

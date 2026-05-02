@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/textarea/textarea.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/textarea/textarea.js'));
 }
 
 /**
@@ -18,23 +31,24 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-textarea
-        #element
-        [attr.name]="name"
-        [attr.value]="value"
-        [attr.appearance]="appearance"
-        [attr.size]="size"
-        [attr.label]="label"
-        [attr.hint]="hint"
-        [attr.placeholder]="placeholder"
-        [attr.rows]="rows"
-        [attr.resize]="resize"
-        [attr.disabled]="disabled || null"
-        [attr.readonly]="readonly || null"
-        [attr.required]="required || null"
-        [attr.minlength]="minlength"
-        [attr.maxlength]="maxlength"
-        [attr.spellcheck]="spellcheck || null"
-        [attr.with-count]="withCount || null">
+      #element
+      [attr.name]="name"
+      [attr.value]="value"
+      [attr.appearance]="appearance"
+      [attr.size]="size"
+      [attr.label]="label"
+      [attr.hint]="hint"
+      [attr.placeholder]="placeholder"
+      [attr.rows]="rows"
+      [attr.resize]="resize"
+      [attr.disabled]="disabled || null"
+      [attr.readonly]="readonly || null"
+      [attr.required]="required || null"
+      [attr.minlength]="minlength"
+      [attr.maxlength]="maxlength"
+      [attr.spellcheck]="spellcheck || null"
+      [attr.with-count]="withCount || null"
+    >
       <ng-content />
     </wa-textarea>
   `,
@@ -47,7 +61,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class TextareaComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class TextareaComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -86,7 +102,7 @@ export class TextareaComponent implements AfterViewInit, OnDestroy, ControlValue
 
   @Output() blurEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
@@ -117,19 +133,26 @@ export class TextareaComponent implements AfterViewInit, OnDestroy, ControlValue
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -141,7 +164,8 @@ export class TextareaComponent implements AfterViewInit, OnDestroy, ControlValue
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -155,35 +179,89 @@ export class TextareaComponent implements AfterViewInit, OnDestroy, ControlValue
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
   select(): void {
-    (this.elementRef.nativeElement as unknown as { select: () => void }).select();
+    (
+      this.elementRef.nativeElement as unknown as { select: () => void }
+    ).select();
   }
-  scrollPosition(position?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { scrollPosition: (position: unknown) => void }).scrollPosition(position);
+  scrollPosition(position?: { top?: number; left?: number }): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        scrollPosition: (position?: { top?: number; left?: number }) => void;
+      }
+    ).scrollPosition(position);
   }
-  setSelectionRange(selectionStart?: unknown, selectionEnd?: unknown, selectionDirection?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setSelectionRange: (selectionStart: unknown, selectionEnd: unknown, selectionDirection: unknown) => void }).setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+  setSelectionRange(
+    selectionStart?: number,
+    selectionEnd?: number,
+    selectionDirection?: 'forward' | 'backward' | 'none'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setSelectionRange: (
+          selectionStart?: number,
+          selectionEnd?: number,
+          selectionDirection?: 'forward' | 'backward' | 'none'
+        ) => void;
+      }
+    ).setSelectionRange(selectionStart, selectionEnd, selectionDirection);
   }
-  setRangeText(replacement?: unknown, start?: unknown, end?: unknown, selectMode?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setRangeText: (replacement: unknown, start: unknown, end: unknown, selectMode: unknown) => void }).setRangeText(replacement, start, end, selectMode);
+  setRangeText(
+    replacement?: string,
+    start?: number,
+    end?: number,
+    selectMode?: 'select' | 'start' | 'end' | 'preserve'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setRangeText: (
+          replacement?: string,
+          start?: number,
+          end?: number,
+          selectMode?: 'select' | 'start' | 'end' | 'preserve'
+        ) => void;
+      }
+    ).setRangeText(replacement, start, end, selectMode);
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

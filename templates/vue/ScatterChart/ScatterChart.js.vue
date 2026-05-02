@@ -4,24 +4,25 @@ import './ScatterChart.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/scatter-chart/scatter-chart.js'));
 }
 
 /**
  * Positions individual data points by two numeric axes to expose correlations
  */
 const props = defineProps({
-    label: { type: String, required: false },
-    description: { type: String, required: false },
-    'x-label': { type: String, required: false },
-    'y-label': { type: String, required: false },
-    'legend-position': { type: String, required: false, default: 'top' },
-    grid: { type: String, required: false, default: 'both' },
-    min: { type: Number, required: false },
-    max: { type: Number, required: false },
-    'without-animation': { type: Boolean, required: false, default: false },
-    'without-legend': { type: Boolean, required: false, default: false },
-    'without-tooltip': { type: Boolean, required: false, default: false }
+  label: { type: String, required: false },
+  description: { type: String, required: false },
+  'x-label': { type: String, required: false },
+  'y-label': { type: String, required: false },
+  'legend-position': { type: String, required: false, default: 'top' },
+  grid: { type: String, required: false, default: 'both' },
+  min: { type: Number, required: false },
+  max: { type: Number, required: false },
+  'without-animation': { type: Boolean, required: false, default: false },
+  'without-legend': { type: Boolean, required: false, default: false },
+  'without-tooltip': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

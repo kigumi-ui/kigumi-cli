@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/include/include.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/include/include.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/include/include.js'));
 }
 
 /**
@@ -17,10 +29,11 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-include
-        #element
-        [attr.src]="src"
-        [attr.mode]="mode"
-        [attr.allow-scripts]="allowScripts || null">
+      #element
+      [attr.src]="src"
+      [attr.mode]="mode"
+      [attr.allow-scripts]="allowScripts || null"
+    >
       <ng-content />
     </wa-include>
   `,
@@ -61,9 +74,12 @@ export class IncludeComponent implements AfterViewInit, OnDestroy {
     const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
     el.addEventListener('wa-load', handleLoad);
     this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
-    const handleIncludeError = (e: Event) => this.includeError.emit(e as CustomEvent);
+    const handleIncludeError = (e: Event) =>
+      this.includeError.emit(e as CustomEvent);
     el.addEventListener('wa-include-error', handleIncludeError);
-    this.cleanups.push(() => el.removeEventListener('wa-include-error', handleIncludeError));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-include-error', handleIncludeError)
+    );
   }
 
   ngOnDestroy(): void {

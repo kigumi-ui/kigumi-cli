@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (80 files, 1223 tests; +1 in scripts/)
+├── unit/                    # Fast, isolated tests (80 files, 1223 tests; +5 in scripts/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -87,10 +87,14 @@ tests/
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
-│   ├── angular-templates.test.ts    # Angular template generation validation
+│   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
 │   ├── vue-templates.test.ts        # Vue template generation validation
 │   └── scripts/
-│       └── check-tests-baseline.test.ts # Tests for the tsc baseline gate wrapper
+│       ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
+│       ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
+│       ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
+│       ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
+│       └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 ├── integration/             # Integration tests (build + run CLI)
 │   └── *.test.ts            # Tests that require built CLI
 ├── e2e/                     # Full CLI integration

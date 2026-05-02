@@ -9,7 +9,9 @@ describe('Avatar', () => {
   });
 
   it('applies custom className to the underlying wa-avatar', () => {
-    const { container } = render(<Avatar label="Test label" className="custom-class" />);
+    const { container } = render(
+      <Avatar label="Test label" className="custom-class" />
+    );
     const element = container.querySelector('wa-avatar');
     expect(element?.getAttribute('class')).toContain('custom-class');
   });

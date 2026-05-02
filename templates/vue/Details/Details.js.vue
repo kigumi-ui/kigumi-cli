@@ -4,18 +4,19 @@ import './Details.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/details/details.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/details/details.js'));
 }
 
 /**
  * Shows a brief summary and expands to show additional content
  */
 const props = defineProps({
-    summary: { type: String, required: false },
-    disabled: { type: Boolean, required: false, default: false },
-    appearance: { type: String, required: false, default: 'outlined' },
-    'icon-placement': { type: String, required: false, default: 'end' },
-    name: { type: String, required: false }
+  summary: { type: String, required: false },
+  disabled: { type: Boolean, required: false, default: false },
+  appearance: { type: String, required: false, default: 'outlined' },
+  'icon-placement': { type: String, required: false, default: 'end' },
+  name: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -30,7 +31,12 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
+const emit = defineEmits([
+  'wa-show',
+  'wa-after-show',
+  'wa-hide',
+  'wa-after-hide',
+]);
 
 const open = defineModel('open', { default: false });
 
@@ -38,19 +44,22 @@ const elementRef = ref(null);
 
 watch(open, (newOpen) => {
   const el = elementRef.value;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });
 
 onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
+const handleWaShow = (e) => {
+  open.value = true;
+  emit('wa-show', e);
+};
 const handleWaAfterShow = (e) => emit('wa-after-show', e);
-const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
+const handleWaHide = (e) => {
+  open.value = false;
+  emit('wa-hide', e);
+};
 const handleWaAfterHide = (e) => emit('wa-after-hide', e);
 
 onMounted(() => {

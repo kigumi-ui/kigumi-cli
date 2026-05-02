@@ -4,14 +4,15 @@ import './Skeleton.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/skeleton/skeleton.js'));
 }
 
 /**
  * Skeletons are used to provide a visual representation of where content will eventually load
  */
 const props = defineProps({
-    effect: { type: String, required: false, default: 'none' }
+  effect: { type: String, required: false, default: 'none' },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -40,11 +41,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-skeleton
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-skeleton ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-skeleton>
 </template>

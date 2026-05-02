@@ -1,9 +1,9 @@
 # Test Infrastructure Hardening — Live Status
 
-**Last updated:** 2026-05-01
+**Last updated:** 2026-05-02
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** P (coverage rationalization; spec drafted, ready for implementation session)
-**Active spec:** [`docs/superpowers/specs/2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)
+**Active cluster:** S (mock reduction; spec pending) — P shipped
+**Active spec:** _pending_ (S has no spec yet; P spec preserved at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md))
 **Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
 
@@ -19,16 +19,16 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ## Cluster Status Table
 
-| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status      | PR               | Spec                                                                     | Plan                |
-| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | ----------- | ---------------- | ------------------------------------------------------------------------ | ------------------- |
-| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | —                                | **SHIPPED** | #137             | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)      | _accumulated in PR_ |
-| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **SHIPPED** | #138             | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)      | _accumulated in PR_ |
-| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **SHIPPED** | #139, #140, #141 | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md) | _local_             |
-| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **PLANNED** | _pending_        | _pending_                                                                  | _pending_           |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **PLANNED** | _pending_        | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md) | _pending_           |
-| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
-| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED** | _pending_        | _pending_                                                                | _pending_           |
-| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED** | _pending_        | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)         | _pending_           |
+| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status      | PR                     | Spec                                                                       | Plan                |
+| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | ----------- | ---------------------- | -------------------------------------------------------------------------- | ------------------- |
+| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | —                                | **SHIPPED** | #137                   | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)        | _accumulated in PR_ |
+| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **SHIPPED** | #138                   | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)        | _accumulated in PR_ |
+| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **SHIPPED** | #139, #140, #141       | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)   | _local_             |
+| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **PLANNED** | _pending_              | _pending_                                                                  | _pending_           |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **SHIPPED** | #143, #144, #145, #146 | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md) | _local_             |
+| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED** | _pending_              | _pending_                                                                  | _pending_           |
+| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED** | _pending_              | _pending_                                                                  | _pending_           |
+| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED** | _pending_              | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)           | _pending_           |
 
 **Status legend:**
 
@@ -133,10 +133,27 @@ R extends initiative scope from 3 to 4 starters. Pro-tier coverage is deferred t
 
 After R shipped, S/P/T/U opened up. Status by sub-cluster:
 
-- **P (coverage rationalization):** PLANNED. Spec drafted at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md). Four sequential PRs (PR-P1 through PR-P4); F-122 + F-124 hard-coupled in PR-P1. Implementation session creates a worktree at `.claude/worktrees/ft/cluster-p-phase-1/`. Decisions captured during planning: F-121 uses partial extraction (test the already-exported `validateAndPrepare`, promote `showPostInstallInstructions` + `confirmInstallation` + `confirmMigration` to `export`, write unit tests for `file-generator.ts`); subprocess coverage from F-124 carries the orchestrator. Backlog drift caught: F-121 references `setup-generator.ts` (349 lines); the actual file is `file-generator.ts` (118 lines).
+- **P (coverage rationalization):** SHIPPED 2026-05-02. Four PRs landed (#143, #144, #145, #146); see Phase 4-P below for the close-out summary.
 - **S (mock reduction):** PLANNED. Spec to be written. Can run in parallel with P (no file overlap with the heaviest mock files).
 - **T (property-based + edge cases):** BLOCKED on cluster A (`.strict()` adoption).
 - **U (story `play()` interactions):** unblocked but spec not yet written.
+
+### Phase 4-P: Cluster P — SHIPPED 2026-05-02
+
+Coverage rationalization shipped across four sequential PRs on `ft/cluster-p-phase-{1..4}`.
+
+- **PR-P1** (#143): F-122 + F-124a/b/c (paired). Excluded runtime artifacts (templates, test fixtures, generated metadata) from the unit-only coverage denominator. Propagated `NODE_V8_COVERAGE` through `runKigumi` and the e2e execa sites so subprocess coverage attaches. Added a merged `coverage:all` harness so unit + e2e + integration aggregate cleanly. No threshold raise yet (the gate stayed where it was).
+- **PR-P2** (#144): F-120 + F-123. New unit tests for `src/utils/registry.ts` and the `add` command's `buildSelectorChoices` (extracted for testability). Thresholds raised to 80/70/84/80.
+- **PR-P3** (#145): F-121. Extended unit coverage on `src/commands/init/index.ts` (16% to 81% lines) by promoting and testing `validateAndPrepare`, `showPostInstallInstructions`, `handleTierMigration`, and `file-generator.ts`. Thresholds raised to 85/75/86/85 (the final number).
+- **PR-P4** (#146): F-125. Snapshot-pinned the three template generators (`scripts/generate-{react,vue,angular}-templates.ts`) and the changeset post-processor (`scripts/post-changeset-version.ts`). Added `tests/unit/scripts/{react,vue,angular,post-changeset}.test.ts` (34 tests, 18 snapshots) using inline `LOCAL_REGISTRY.button` / `LOCAL_REGISTRY.badge` / `LOCAL_REGISTRY.switch` fixtures. Extended `vitest.unit.config.ts` `coverage.include` to bring the four scripts into the unit-only gate at ≥70% per file. Mutation sanity: a deliberate regression in each generator flips the corresponding Button (or Switch) snapshot — recorded in the #146 description.
+
+Acceptance gates closed:
+
+- Spec line 375: four scripts ≥ 70% line coverage in `pnpm test:coverage` (React 70.4 / Vue 73.0 / Angular 73.1 / post-changeset 82.3) ✅
+- Spec line 376: deliberate regression flips snapshot red — verified for all three generators ✅
+- Threshold trajectory: no raise (#143) → 80/70/84/80 (#144) → 85/75/86/85 (#145) → unchanged (#146) ✅
+
+Side effect: #146 surfaced two latent bugs in `scripts/generate-angular-templates.ts` (`getEvents` and `getMethods` accessed `e.type?.text` / `p.type?.text` against a flat-string metadata shape, so all Angular events were emitted as `EventEmitter<CustomEvent>` and all method parameters as `unknown`). Fixed inline; the snapshots reflect the corrected output (e.g. `EventEmitter<FocusEvent>` for the focus event, `focus(options?: FocusOptions): void` instead of `focus(options?: unknown)`).
 
 ### Phase 5: Cluster V — PENDING
 

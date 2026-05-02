@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaCheckbox from '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
 import './Checkbox.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/checkbox/checkbox.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/checkbox/checkbox.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Checkbox ref={ref} />
  * ```
  */
-export interface CheckboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'onBlur' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'> {
-
+export interface CheckboxProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'onBlur' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'
+> {
   /** Draws checkbox in checked state */
   checked?: boolean;
 
@@ -69,7 +79,6 @@ export interface CheckboxProps extends Omit<HTMLAttributes<HTMLElement>, 'onChan
 }
 
 export interface CheckboxRef {
-
   /** Simulates a click on the checkbox. */
   click: () => void;
 
@@ -86,7 +95,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -95,7 +107,19 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
-  ({ children, className, onChange, onBlur, onFocus, onInput, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onChange,
+      onBlur,
+      onFocus,
+      onInput,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const checkboxRef = useRef<WaCheckbox | null>(null);
     const setCheckboxRef = useCallback((el: WaCheckbox | null) => {
       checkboxRef.current = el;
@@ -105,32 +129,53 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       ref,
       () => ({
         click: () => {
-          if (checkboxRef.current && typeof checkboxRef.current.click === 'function') {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.click === 'function'
+          ) {
             checkboxRef.current.click();
           }
         },
         focus: (options: FocusOptions) => {
-          if (checkboxRef.current && typeof checkboxRef.current.focus === 'function') {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.focus === 'function'
+          ) {
             checkboxRef.current.focus(options);
           }
         },
         blur: () => {
-          if (checkboxRef.current && typeof checkboxRef.current.blur === 'function') {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.blur === 'function'
+          ) {
             checkboxRef.current.blur();
           }
         },
         setCustomValidity: (message: string) => {
-          if (checkboxRef.current && typeof checkboxRef.current.setCustomValidity === 'function') {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.setCustomValidity === 'function'
+          ) {
             checkboxRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (checkboxRef.current && typeof checkboxRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.formStateRestoreCallback === 'function'
+          ) {
             checkboxRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (checkboxRef.current && typeof checkboxRef.current.resetValidity === 'function') {
+          if (
+            checkboxRef.current &&
+            typeof checkboxRef.current.resetValidity === 'function'
+          ) {
             checkboxRef.current.resetValidity();
           }
         },
@@ -185,7 +230,10 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       <wa-checkbox
         ref={setCheckboxRef}
         class={clsx('Checkbox', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-checkbox>

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaComparison from '@awesome.me/webawesome/dist/components/comparison/comparison.js';
 import './Comparison.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/comparison/comparison.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/comparison/comparison.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface ComparisonProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange' | 'dir'> {
-
+export interface ComparisonProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onChange' | 'dir'
+> {
   /** Divider location as percentage (0-100) */
   position?: number;
 
@@ -73,7 +83,10 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
       <wa-comparison
         ref={setComparisonRef}
         class={clsx('Comparison', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-comparison>

@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js'));
 }
 
 /**
@@ -16,9 +28,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-resize-observer
-        #element
-        [attr.disabled]="disabled || null">
+    <wa-resize-observer #element [attr.disabled]="disabled || null">
       <ng-content />
     </wa-resize-observer>
   `,

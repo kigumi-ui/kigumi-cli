@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaAvatar from '@awesome.me/webawesome/dist/components/avatar/avatar.js';
 import './Avatar.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/avatar/avatar.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface AvatarProps extends Omit<HTMLAttributes<HTMLElement>, 'onError' | 'dir'> {
-
+export interface AvatarProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onError' | 'dir'
+> {
   /** The image source to use for the avatar */
   image?: string;
 
@@ -85,7 +95,10 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
       <wa-avatar
         ref={setAvatarRef}
         class={clsx('Avatar', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-avatar>

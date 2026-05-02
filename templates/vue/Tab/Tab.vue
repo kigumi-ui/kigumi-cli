@@ -4,7 +4,8 @@ import './Tab.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab/tab.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab/tab.js'));
 }
 
 /**
@@ -45,11 +46,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tab
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tab ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tab>
 </template>

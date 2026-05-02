@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaRadio from '@awesome.me/webawesome/dist/components/radio/radio.js';
 import './Radio.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radio/radio.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radio/radio.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Radio ref={ref} />
  * ```
  */
-export interface RadioProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onFocus' | 'dir'> {
-
+export interface RadioProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onBlur' | 'onFocus' | 'dir'
+> {
   /** The radio value */
   value?: string;
 
@@ -48,7 +58,6 @@ export interface RadioProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' |
 }
 
 export interface RadioRef {
-
   /** Do not use this when creating a "Validator". This is intended for end users of components.
 We track manually defined custom errors so we don't clear them on accident in our validators. */
   setCustomValidity: (message: string) => void;
@@ -56,7 +65,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -75,17 +87,29 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
       ref,
       () => ({
         setCustomValidity: (message: string) => {
-          if (radioRef.current && typeof radioRef.current.setCustomValidity === 'function') {
+          if (
+            radioRef.current &&
+            typeof radioRef.current.setCustomValidity === 'function'
+          ) {
             radioRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (radioRef.current && typeof radioRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            radioRef.current &&
+            typeof radioRef.current.formStateRestoreCallback === 'function'
+          ) {
             radioRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (radioRef.current && typeof radioRef.current.resetValidity === 'function') {
+          if (
+            radioRef.current &&
+            typeof radioRef.current.resetValidity === 'function'
+          ) {
             radioRef.current.resetValidity();
           }
         },
@@ -122,7 +146,10 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
       <wa-radio
         ref={setRadioRef}
         class={clsx('Radio', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-radio>

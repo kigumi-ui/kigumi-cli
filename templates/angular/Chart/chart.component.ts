@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/chart/chart.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/chart/chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/chart/chart.js'));
 }
 
 /**
@@ -17,21 +26,22 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-chart
-        #element
-        [attr.label]="label"
-        [attr.description]="description"
-        [attr.type]="type"
-        [attr.x-label]="xLabel"
-        [attr.y-label]="yLabel"
-        [attr.legend-position]="legendPosition"
-        [attr.stacked]="stacked || null"
-        [attr.index-axis]="indexAxis"
-        [attr.grid]="grid"
-        [attr.min]="min"
-        [attr.max]="max"
-        [attr.without-animation]="withoutAnimation || null"
-        [attr.without-legend]="withoutLegend || null"
-        [attr.without-tooltip]="withoutTooltip || null">
+      #element
+      [attr.label]="label"
+      [attr.description]="description"
+      [attr.type]="type"
+      [attr.x-label]="xLabel"
+      [attr.y-label]="yLabel"
+      [attr.legend-position]="legendPosition"
+      [attr.stacked]="stacked || null"
+      [attr.index-axis]="indexAxis"
+      [attr.grid]="grid"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.without-animation]="withoutAnimation || null"
+      [attr.without-legend]="withoutLegend || null"
+      [attr.without-tooltip]="withoutTooltip || null"
+    >
       <ng-content />
     </wa-chart>
   `,
@@ -46,13 +56,27 @@ export class ChartComponent implements AfterViewInit {
   /** Supplementary accessible description for the chart */
   @Input() description?: string;
   /** Visualisation style to use for the datasets */
-  @Input() type?: 'bar' | 'line' | 'pie' | 'doughnut' | 'polarArea' | 'radar' | 'scatter' | 'bubble';
+  @Input() type?:
+    | 'bar'
+    | 'line'
+    | 'pie'
+    | 'doughnut'
+    | 'polarArea'
+    | 'radar'
+    | 'scatter'
+    | 'bubble';
   /** Text label shown along the horizontal axis */
   @Input() xLabel?: string;
   /** Text label shown along the vertical axis */
   @Input() yLabel?: string;
   /** Where the dataset legend appears around the chart area */
-  @Input() legendPosition?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  @Input() legendPosition?:
+    | 'top'
+    | 'right'
+    | 'bottom'
+    | 'left'
+    | 'start'
+    | 'end';
   /** Layers multiple datasets on a single axis */
   @Input() stacked?: boolean;
   /** Primary axis for categories (swap to create horizontal charts) */

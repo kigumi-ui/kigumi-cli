@@ -4,18 +4,19 @@ import './RelativeTime.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
 }
 
 /**
  * Outputs a localized time phrase relative to the current date and time
  */
 const props = defineProps({
-    date: { type: String, required: false },
-    format: { type: String, required: false, default: 'long' },
-    numeric: { type: String, required: false, default: 'auto' },
-    sync: { type: Boolean, required: false, default: false },
-    lang: { type: String, required: false }
+  date: { type: String, required: false },
+  format: { type: String, required: false, default: 'long' },
+  numeric: { type: String, required: false, default: 'auto' },
+  sync: { type: Boolean, required: false, default: false },
+  lang: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

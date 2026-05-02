@@ -4,16 +4,19 @@ import './Dialog.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
 }
 
 /**
  * Dialogs display important prompts and information
+ *
+ * @remarks Open and close programmatically by binding the `open` prop (e.g. `<Dialog v-model:open="isOpen">`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.
  */
 const props = defineProps({
-    label: { type: String, required: true, default: '' },
-    'without-header': { type: Boolean, required: false, default: false },
-    'light-dismiss': { type: Boolean, required: false, default: false }
+  label: { type: String, required: true, default: '' },
+  'without-header': { type: Boolean, required: false, default: false },
+  'light-dismiss': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -28,7 +31,12 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
+const emit = defineEmits([
+  'wa-show',
+  'wa-after-show',
+  'wa-hide',
+  'wa-after-hide',
+]);
 
 const open = defineModel('open', { default: false });
 
@@ -36,19 +44,22 @@ const elementRef = ref(null);
 
 watch(open, (newOpen) => {
   const el = elementRef.value;
-  if (!el) return;
-  const isOpen = el.open ?? false;
-  if (newOpen && !isOpen) el.show?.();
-  else if (!newOpen && isOpen) el.hide?.();
+  if (el && el.open !== newOpen) el.open = newOpen;
 });
 
 onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
+const handleWaShow = (e) => {
+  open.value = true;
+  emit('wa-show', e);
+};
 const handleWaAfterShow = (e) => emit('wa-after-show', e);
-const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
+const handleWaHide = (e) => {
+  open.value = false;
+  emit('wa-hide', e);
+};
 const handleWaAfterHide = (e) => emit('wa-after-hide', e);
 
 onMounted(() => {
@@ -72,8 +83,6 @@ onUnmounted(() => {
 });
 
 defineExpose({
-  show: () => elementRef.value?.show?.(),
-  requestClose: () => elementRef.value?.requestClose?.(),
   element: elementRef,
 });
 </script>

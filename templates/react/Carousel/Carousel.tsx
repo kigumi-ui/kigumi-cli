@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaCarousel from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
 import './Carousel.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Carousel ref={ref} />
  * ```
  */
-export interface CarouselProps extends Omit<HTMLAttributes<HTMLElement>, 'onSlideChange' | 'dir'> {
-
+export interface CarouselProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onSlideChange' | 'dir'
+> {
   /** Automatically scrolls slides when user isn't interacting */
   autoplay?: boolean;
 
@@ -60,7 +70,6 @@ export interface CarouselProps extends Omit<HTMLAttributes<HTMLElement>, 'onSlid
 }
 
 export interface CarouselRef {
-
   /** Move the carousel backward by `slides-per-move` slides. */
   previous: (behavior: ScrollBehavior) => void;
 
@@ -84,17 +93,26 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       ref,
       () => ({
         previous: (behavior: ScrollBehavior) => {
-          if (carouselRef.current && typeof carouselRef.current.previous === 'function') {
+          if (
+            carouselRef.current &&
+            typeof carouselRef.current.previous === 'function'
+          ) {
             carouselRef.current.previous(behavior);
           }
         },
         next: (behavior: ScrollBehavior) => {
-          if (carouselRef.current && typeof carouselRef.current.next === 'function') {
+          if (
+            carouselRef.current &&
+            typeof carouselRef.current.next === 'function'
+          ) {
             carouselRef.current.next(behavior);
           }
         },
         goToSlide: (index: number, behavior: ScrollBehavior) => {
-          if (carouselRef.current && typeof carouselRef.current.goToSlide === 'function') {
+          if (
+            carouselRef.current &&
+            typeof carouselRef.current.goToSlide === 'function'
+          ) {
             carouselRef.current.goToSlide(index, behavior);
           }
         },
@@ -125,7 +143,10 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       <wa-carousel
         ref={setCarouselRef}
         class={clsx('Carousel', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-carousel>

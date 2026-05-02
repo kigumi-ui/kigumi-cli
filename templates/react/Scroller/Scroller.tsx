@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaScroller from '@awesome.me/webawesome/dist/components/scroller/scroller.js';
 import './Scroller.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/scroller/scroller.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/scroller/scroller.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface ScrollerProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface ScrollerProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Scroll direction */
   orientation?: 'horizontal' | 'vertical' | 'both';
 
@@ -66,7 +76,10 @@ export const Scroller = forwardRef<ScrollerRef, ScrollerProps>(
       <wa-scroller
         ref={setScrollerRef}
         class={clsx('Scroller', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-scroller>

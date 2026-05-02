@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTextarea from '@awesome.me/webawesome/dist/components/textarea/textarea.js';
 import './Textarea.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/textarea/textarea.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/textarea/textarea.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Textarea ref={ref} />
  * ```
  */
-export interface TextareaProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur' | 'onChange' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'> {
-
+export interface TextareaProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onBlur' | 'onChange' | 'onFocus' | 'onInput' | 'onInvalid' | 'dir'
+> {
   /** Form field name */
   name?: string;
 
@@ -93,7 +103,6 @@ export interface TextareaProps extends Omit<HTMLAttributes<HTMLElement>, 'onBlur
 }
 
 export interface TextareaRef {
-
   /** Sets focus on the textarea. */
   focus: (options: FocusOptions) => void;
 
@@ -107,10 +116,19 @@ export interface TextareaRef {
   scrollPosition: (position: { top?: number; left?: number }) => void;
 
   /** Sets the start and end positions of the text selection (0-based). */
-  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
+  setSelectionRange: (
+    selectionStart: number,
+    selectionEnd: number,
+    selectionDirection: 'forward' | 'backward' | 'none'
+  ) => void;
 
   /** Replaces a range of text with a new string. */
-  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
+  setRangeText: (
+    replacement: string,
+    start: number,
+    end: number,
+    selectMode: 'select' | 'start' | 'end' | 'preserve'
+  ) => void;
 
   /** Do not use this when creating a "Validator". This is intended for end users of components.
 We track manually defined custom errors so we don't clear them on accident in our validators. */
@@ -119,7 +137,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -128,7 +149,19 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const Textarea = forwardRef<TextareaRef, TextareaProps>(
-  ({ children, className, onBlur, onChange, onFocus, onInput, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onBlur,
+      onChange,
+      onFocus,
+      onInput,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const textareaRef = useRef<WaTextarea | null>(null);
     const setTextareaRef = useCallback((el: WaTextarea | null) => {
       textareaRef.current = el;
@@ -138,47 +171,95 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       ref,
       () => ({
         focus: (options: FocusOptions) => {
-          if (textareaRef.current && typeof textareaRef.current.focus === 'function') {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.focus === 'function'
+          ) {
             textareaRef.current.focus(options);
           }
         },
         blur: () => {
-          if (textareaRef.current && typeof textareaRef.current.blur === 'function') {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.blur === 'function'
+          ) {
             textareaRef.current.blur();
           }
         },
         select: () => {
-          if (textareaRef.current && typeof textareaRef.current.select === 'function') {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.select === 'function'
+          ) {
             textareaRef.current.select();
           }
         },
         scrollPosition: (position: { top?: number; left?: number }) => {
-          if (textareaRef.current && typeof textareaRef.current.scrollPosition === 'function') {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.scrollPosition === 'function'
+          ) {
             textareaRef.current.scrollPosition(position);
           }
         },
-        setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => {
-          if (textareaRef.current && typeof textareaRef.current.setSelectionRange === 'function') {
-            textareaRef.current.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+        setSelectionRange: (
+          selectionStart: number,
+          selectionEnd: number,
+          selectionDirection: 'forward' | 'backward' | 'none'
+        ) => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.setSelectionRange === 'function'
+          ) {
+            textareaRef.current.setSelectionRange(
+              selectionStart,
+              selectionEnd,
+              selectionDirection
+            );
           }
         },
-        setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => {
-          if (textareaRef.current && typeof textareaRef.current.setRangeText === 'function') {
-            textareaRef.current.setRangeText(replacement, start, end, selectMode);
+        setRangeText: (
+          replacement: string,
+          start: number,
+          end: number,
+          selectMode: 'select' | 'start' | 'end' | 'preserve'
+        ) => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.setRangeText === 'function'
+          ) {
+            textareaRef.current.setRangeText(
+              replacement,
+              start,
+              end,
+              selectMode
+            );
           }
         },
         setCustomValidity: (message: string) => {
-          if (textareaRef.current && typeof textareaRef.current.setCustomValidity === 'function') {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.setCustomValidity === 'function'
+          ) {
             textareaRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (textareaRef.current && typeof textareaRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.formStateRestoreCallback === 'function'
+          ) {
             textareaRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (textareaRef.current && typeof textareaRef.current.resetValidity === 'function') {
+          if (
+            textareaRef.current &&
+            typeof textareaRef.current.resetValidity === 'function'
+          ) {
             textareaRef.current.resetValidity();
           }
         },
@@ -233,7 +314,10 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       <wa-textarea
         ref={setTextareaRef}
         class={clsx('Textarea', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-textarea>

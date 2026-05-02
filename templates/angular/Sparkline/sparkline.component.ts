@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/sparkline/sparkline.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/sparkline/sparkline.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/sparkline/sparkline.js'));
 }
 
 /**
@@ -17,12 +26,13 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-sparkline
-        #element
-        [attr.data]="data"
-        [attr.label]="label"
-        [attr.appearance]="appearance"
-        [attr.trend]="trend"
-        [attr.curve]="curve">
+      #element
+      [attr.data]="data"
+      [attr.label]="label"
+      [attr.appearance]="appearance"
+      [attr.trend]="trend"
+      [attr.curve]="curve"
+    >
       <ng-content />
     </wa-sparkline>
   `,

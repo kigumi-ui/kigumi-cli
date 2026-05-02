@@ -4,7 +4,8 @@ import './Badge.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/badge/badge.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/badge/badge.js'));
 }
 
 /**
@@ -47,11 +48,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-badge
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-badge ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-badge>
 </template>

@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/dropdown/dropdown.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dropdown/dropdown.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dropdown/dropdown.js'));
 }
 
 /**
@@ -17,15 +29,16 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-dropdown
-        #element
-        [attr.open]="open || null"
-        [attr.placement]="placement"
-        [attr.disabled]="disabled || null"
-        [attr.stay-open-on-select]="stayOpenOnSelect || null"
-        [attr.distance]="distance"
-        [attr.skidding]="skidding"
-        [attr.hoist]="hoist || null"
-        [attr.size]="size">
+      #element
+      [attr.open]="open || null"
+      [attr.placement]="placement"
+      [attr.disabled]="disabled || null"
+      [attr.stay-open-on-select]="stayOpenOnSelect || null"
+      [attr.distance]="distance"
+      [attr.skidding]="skidding"
+      [attr.hoist]="hoist || null"
+      [attr.size]="size"
+    >
       <ng-content />
     </wa-dropdown>
   `,
@@ -38,7 +51,19 @@ export class DropdownComponent implements AfterViewInit, OnDestroy {
   /** Indicates whether the dropdown is open */
   @Input() open?: boolean;
   /** Preferred placement of the dropdown panel */
-  @Input() placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  @Input() placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
   /** Disables the dropdown */
   @Input() disabled?: boolean;
   /** Keeps the dropdown open when an item is selected */
@@ -81,13 +106,17 @@ export class DropdownComponent implements AfterViewInit, OnDestroy {
     this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHide);
     this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
     const handleSelect = (e: Event) => this.select.emit(e as CustomEvent);
     el.addEventListener('wa-select', handleSelect);
     this.cleanups.push(() => el.removeEventListener('wa-select', handleSelect));

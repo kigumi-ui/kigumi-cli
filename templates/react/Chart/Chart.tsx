@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaChart from '@awesome.me/webawesome/dist/components/chart/chart.js';
 import './Chart.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/chart/chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/chart/chart.js'));
 }
 
 /**
@@ -22,7 +30,6 @@ function ensureLoaded() {
  * ```
  */
 export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
   /** Accessible name read by screen readers */
   label?: string;
 
@@ -30,7 +37,15 @@ export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   description?: string;
 
   /** Visualisation style to use for the datasets */
-  type?: 'bar' | 'line' | 'pie' | 'doughnut' | 'polarArea' | 'radar' | 'scatter' | 'bubble';
+  type?:
+    | 'bar'
+    | 'line'
+    | 'pie'
+    | 'doughnut'
+    | 'polarArea'
+    | 'radar'
+    | 'scatter'
+    | 'bubble';
 
   /** Text label shown along the horizontal axis */
   'x-label'?: string;
@@ -96,7 +111,10 @@ export const Chart = forwardRef<ChartRef, ChartProps>(
       <wa-chart
         ref={setChartRef}
         class={clsx('Chart', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-chart>

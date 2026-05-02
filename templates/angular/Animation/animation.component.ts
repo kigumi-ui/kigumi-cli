@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/animation/animation.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/animation/animation.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/animation/animation.js'));
 }
 
 /**
@@ -17,18 +29,19 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-animation
-        #element
-        [attr.name]="name"
-        [attr.play]="play || null"
-        [attr.delay]="delay"
-        [attr.direction]="direction"
-        [attr.duration]="duration"
-        [attr.easing]="easing"
-        [attr.end-delay]="endDelay"
-        [attr.fill]="fill"
-        [attr.iterations]="iterations"
-        [attr.iteration-start]="iterationStart"
-        [attr.playback-rate]="playbackRate">
+      #element
+      [attr.name]="name"
+      [attr.play]="play || null"
+      [attr.delay]="delay"
+      [attr.direction]="direction"
+      [attr.duration]="duration"
+      [attr.easing]="easing"
+      [attr.end-delay]="endDelay"
+      [attr.fill]="fill"
+      [attr.iterations]="iterations"
+      [attr.iteration-start]="iterationStart"
+      [attr.playback-rate]="playbackRate"
+    >
       <ng-content />
     </wa-animation>
   `,
@@ -83,12 +96,18 @@ export class AnimationComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleCancelEvent = (e: Event) => this.cancelEvent.emit(e as CustomEvent);
+    const handleCancelEvent = (e: Event) =>
+      this.cancelEvent.emit(e as CustomEvent);
     el.addEventListener('wa-cancel', handleCancelEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-cancel', handleCancelEvent));
-    const handleFinishEvent = (e: Event) => this.finishEvent.emit(e as CustomEvent);
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-cancel', handleCancelEvent)
+    );
+    const handleFinishEvent = (e: Event) =>
+      this.finishEvent.emit(e as CustomEvent);
     el.addEventListener('wa-finish', handleFinishEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-finish', handleFinishEvent));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-finish', handleFinishEvent)
+    );
     const handleStart = (e: Event) => this.start.emit(e as CustomEvent);
     el.addEventListener('wa-start', handleStart);
     this.cleanups.push(() => el.removeEventListener('wa-start', handleStart));
@@ -99,9 +118,13 @@ export class AnimationComponent implements AfterViewInit, OnDestroy {
   }
 
   cancel(): void {
-    (this.elementRef.nativeElement as unknown as { cancel: () => void }).cancel();
+    (
+      this.elementRef.nativeElement as unknown as { cancel: () => void }
+    ).cancel();
   }
   finish(): void {
-    (this.elementRef.nativeElement as unknown as { finish: () => void }).finish();
+    (
+      this.elementRef.nativeElement as unknown as { finish: () => void }
+    ).finish();
   }
 }

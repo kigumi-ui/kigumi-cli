@@ -4,7 +4,8 @@ import './Select.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/select/select.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/select/select.js'));
 }
 
 /**
@@ -45,10 +46,10 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'input': [event: CustomEvent];
-  'change': [event: CustomEvent];
-  'focus': [event: FocusEvent];
-  'blur': [event: CustomEvent];
+  input: [event: CustomEvent];
+  change: [event: CustomEvent];
+  focus: [event: FocusEvent];
+  blur: [event: CustomEvent];
   'wa-clear': [event: CustomEvent];
   'wa-show': [event: CustomEvent];
   'wa-after-show': [event: CustomEvent];
@@ -70,7 +71,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
+const handleInput = (e: Event) => {
+  model.value = (e.target as any).value;
+  emit('input', e as CustomEvent);
+};
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
@@ -118,8 +122,12 @@ defineExpose({
   hide: () => (elementRef.value as any)?.hide?.(),
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
   blur: () => (elementRef.value as any)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });

@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/slider/slider.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/slider/slider.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/slider/slider.js'));
 }
 
 /**
@@ -18,22 +31,23 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-slider
-        #element
-        [attr.name]="name"
-        [attr.value]="value"
-        [attr.label]="label"
-        [attr.hint]="hint"
-        [attr.min]="min"
-        [attr.max]="max"
-        [attr.step]="step"
-        [attr.orientation]="orientation"
-        [attr.disabled]="disabled || null"
-        [attr.readonly]="readonly || null"
-        [attr.range]="range || null"
-        [attr.with-markers]="withMarkers || null"
-        [attr.with-tooltip]="withTooltip || null"
-        [attr.size]="size"
-        [attr.autofocus]="autofocus || null">
+      #element
+      [attr.name]="name"
+      [attr.value]="value"
+      [attr.label]="label"
+      [attr.hint]="hint"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.step]="step"
+      [attr.orientation]="orientation"
+      [attr.disabled]="disabled || null"
+      [attr.readonly]="readonly || null"
+      [attr.range]="range || null"
+      [attr.with-markers]="withMarkers || null"
+      [attr.with-tooltip]="withTooltip || null"
+      [attr.size]="size"
+      [attr.autofocus]="autofocus || null"
+    >
       <ng-content />
     </wa-slider>
   `,
@@ -46,7 +60,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class SliderComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class SliderComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -83,7 +99,7 @@ export class SliderComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   @Output() change = new EventEmitter<CustomEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
@@ -114,19 +130,26 @@ export class SliderComponent implements AfterViewInit, OnDestroy, ControlValueAc
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -138,7 +161,8 @@ export class SliderComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -152,7 +176,9 @@ export class SliderComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
@@ -163,18 +189,38 @@ export class SliderComponent implements AfterViewInit, OnDestroy, ControlValueAc
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
   stepDown(): void {
-    (this.elementRef.nativeElement as unknown as { stepDown: () => void }).stepDown();
+    (
+      this.elementRef.nativeElement as unknown as { stepDown: () => void }
+    ).stepDown();
   }
   stepUp(): void {
-    (this.elementRef.nativeElement as unknown as { stepUp: () => void }).stepUp();
+    (
+      this.elementRef.nativeElement as unknown as { stepUp: () => void }
+    ).stepUp();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

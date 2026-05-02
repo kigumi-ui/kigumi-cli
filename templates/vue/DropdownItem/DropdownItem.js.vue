@@ -4,19 +4,20 @@ import './DropdownItem.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js'));
 }
 
 /**
  * Dropdown items are used inside dropdowns to represent individual menu items
  */
 const props = defineProps({
-    type: { type: String, required: false, default: 'normal' },
-    checked: { type: Boolean, required: false, default: false },
-    value: { type: String, required: false, default: '' },
-    disabled: { type: Boolean, required: false, default: false },
-    loading: { type: Boolean, required: false, default: false },
-    variant: { type: String, required: false, default: 'neutral' }
+  type: { type: String, required: false, default: 'normal' },
+  checked: { type: Boolean, required: false, default: false },
+  value: { type: String, required: false, default: '' },
+  disabled: { type: Boolean, required: false, default: false },
+  loading: { type: Boolean, required: false, default: false },
+  variant: { type: String, required: false, default: 'neutral' },
 });
 
 // Strip undefined and false props before forwarding to the web component.

@@ -9,7 +9,9 @@ describe('Dialog', () => {
   });
 
   it('applies custom className to the underlying wa-dialog', () => {
-    const { container } = render(<Dialog label="Test label" className="custom-class" />);
+    const { container } = render(
+      <Dialog label="Test label" className="custom-class" />
+    );
     const element = container.querySelector('wa-dialog');
     expect(element?.getAttribute('class')).toContain('custom-class');
   });

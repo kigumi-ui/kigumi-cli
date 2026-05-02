@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/switch/switch.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/switch/switch.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/switch/switch.js'));
 }
 
 /**
@@ -18,14 +31,15 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-switch
-        #element
-        [attr.name]="name"
-        [attr.value]="value"
-        [attr.size]="size"
-        [attr.disabled]="disabled || null"
-        [attr.checked]="checked || null"
-        [attr.required]="required || null"
-        [attr.hint]="hint">
+      #element
+      [attr.name]="name"
+      [attr.value]="value"
+      [attr.size]="size"
+      [attr.disabled]="disabled || null"
+      [attr.checked]="checked || null"
+      [attr.required]="required || null"
+      [attr.hint]="hint"
+    >
       <ng-content />
     </wa-switch>
   `,
@@ -38,7 +52,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class SwitchComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class SwitchComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -60,7 +76,7 @@ export class SwitchComponent implements AfterViewInit, OnDestroy, ControlValueAc
   @Output() change = new EventEmitter<CustomEvent>();
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
-  @Output() focusEvent = new EventEmitter<CustomEvent>();
+  @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
@@ -87,22 +103,29 @@ export class SwitchComponent implements AfterViewInit, OnDestroy, ControlValueAc
     const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleInputEvent = (e: Event) => this.inputEvent.emit(e as CustomEvent);
+    const handleInputEvent = (e: Event) =>
+      this.inputEvent.emit(e as CustomEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleFocusEvent = (e: Event) => this.focusEvent.emit(e as CustomEvent);
+    const handleFocusEvent = (e: Event) =>
+      this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleCheckedChange = () => this.onChangeCallback((el as unknown as { checked: boolean }).checked);
+    const handleCheckedChange = () =>
+      this.onChangeCallback((el as unknown as { checked: boolean }).checked);
     el.addEventListener('change', handleCheckedChange);
-    this.cleanups.push(() => el.removeEventListener('change', handleCheckedChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('change', handleCheckedChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -114,7 +137,9 @@ export class SwitchComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { checked: boolean }).checked = !!value;
+      (
+        this.elementRef.nativeElement as unknown as { checked: boolean }
+      ).checked = !!value;
     }
   }
 
@@ -128,26 +153,48 @@ export class SwitchComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
   click(): void {
     (this.elementRef.nativeElement as unknown as { click: () => void }).click();
   }
-  focus(options?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { focus: (options: unknown) => void }).focus(options);
+  focus(options?: FocusOptions): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        focus: (options?: FocusOptions) => void;
+      }
+    ).focus(options);
   }
   blur(): void {
     (this.elementRef.nativeElement as unknown as { blur: () => void }).blur();
   }
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

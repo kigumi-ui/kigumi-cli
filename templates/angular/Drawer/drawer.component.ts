@@ -1,15 +1,29 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/drawer/drawer.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/drawer/drawer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/drawer/drawer.js'));
 }
 
 /**
  * Drawers slide in from a container edge to expose additional options
  *
  * @see https://webawesome.com/docs/components/drawer
+ *
+ * @remarks Open and close programmatically by toggling the `open` attribute (e.g. `[open]="isOpen"`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.
  */
 @Component({
   selector: 'k-drawer',
@@ -17,12 +31,13 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-drawer
-        #element
-        [attr.open]="open || null"
-        [attr.label]="label"
-        [attr.placement]="placement"
-        [attr.light-dismiss]="lightDismiss || null"
-        [attr.without-header]="withoutHeader || null">
+      #element
+      [attr.open]="open || null"
+      [attr.label]="label"
+      [attr.placement]="placement"
+      [attr.light-dismiss]="lightDismiss || null"
+      [attr.without-header]="withoutHeader || null"
+    >
       <ng-content />
     </wa-drawer>
   `,
@@ -43,7 +58,7 @@ export class DrawerComponent implements AfterViewInit, OnDestroy {
   /** Removes the header */
   @Input() withoutHeader?: boolean;
 
-  @Output() showEvent = new EventEmitter<CustomEvent>();
+  @Output() show = new EventEmitter<CustomEvent>();
   @Output() afterShow = new EventEmitter<CustomEvent>();
   @Output() hide = new EventEmitter<CustomEvent>();
   @Output() afterHide = new EventEmitter<CustomEvent>();
@@ -66,28 +81,25 @@ export class DrawerComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleShowEvent = (e: Event) => this.showEvent.emit(e as CustomEvent);
-    el.addEventListener('wa-show', handleShowEvent);
-    this.cleanups.push(() => el.removeEventListener('wa-show', handleShowEvent));
+    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
+    el.addEventListener('wa-show', handleShow);
+    this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
     const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
-    this.cleanups.push(() => el.removeEventListener('wa-after-show', handleAfterShow));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-show', handleAfterShow)
+    );
     const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
     el.addEventListener('wa-hide', handleHide);
     this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
     const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
-    this.cleanups.push(() => el.removeEventListener('wa-after-hide', handleAfterHide));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-after-hide', handleAfterHide)
+    );
   }
 
   ngOnDestroy(): void {
     this.cleanups.forEach((fn) => fn());
-  }
-
-  show(): void {
-    (this.elementRef.nativeElement as unknown as { show: () => void }).show();
-  }
-  requestClose(): void {
-    (this.elementRef.nativeElement as unknown as { requestClose: () => void }).requestClose();
   }
 }

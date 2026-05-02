@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tag/tag.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tag/tag.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tag/tag.js'));
 }
 
 /**
@@ -17,12 +29,13 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-tag
-        #element
-        [attr.appearance]="appearance"
-        [attr.pill]="pill || null"
-        [attr.size]="size"
-        [attr.variant]="variant"
-        [attr.with-remove]="withRemove || null">
+      #element
+      [attr.appearance]="appearance"
+      [attr.pill]="pill || null"
+      [attr.size]="size"
+      [attr.variant]="variant"
+      [attr.with-remove]="withRemove || null"
+    >
       <ng-content />
     </wa-tag>
   `,

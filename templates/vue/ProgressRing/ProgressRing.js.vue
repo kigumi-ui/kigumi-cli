@@ -4,15 +4,16 @@ import './ProgressRing.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/progress-ring/progress-ring.js'));
 }
 
 /**
  * Progress rings are used to show the completion of a task in a circular format
  */
 const props = defineProps({
-    value: { type: Number, required: false, default: 0 },
-    label: { type: String, required: false, default: '' }
+  value: { type: Number, required: false, default: 0 },
+  label: { type: String, required: false, default: '' },
 });
 
 // Strip undefined and false props before forwarding to the web component.

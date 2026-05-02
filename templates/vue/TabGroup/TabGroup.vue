@@ -4,7 +4,8 @@ import './TabGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab-group/tab-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab-group/tab-group.js'));
 }
 
 /**
@@ -67,11 +68,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tab-group
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tab-group ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tab-group>
 </template>

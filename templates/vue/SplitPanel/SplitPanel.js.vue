@@ -4,20 +4,21 @@ import './SplitPanel.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
 }
 
 /**
  * Split panels display two adjacent panels with a divider for resizing
  */
 const props = defineProps({
-    position: { type: Number, required: false, default: 50 },
-    'position-in-pixels': { type: Number, required: false },
-    orientation: { type: String, required: false, default: 'horizontal' },
-    primary: { type: String, required: false, default: 'start' },
-    disabled: { type: Boolean, required: false, default: false },
-    snap: { type: String, required: false },
-    'snap-threshold': { type: Number, required: false, default: 12 }
+  position: { type: Number, required: false, default: 50 },
+  'position-in-pixels': { type: Number, required: false },
+  orientation: { type: String, required: false, default: 'horizontal' },
+  primary: { type: String, required: false, default: 'start' },
+  disabled: { type: Boolean, required: false, default: false },
+  snap: { type: String, required: false },
+  'snap-threshold': { type: Number, required: false, default: 12 },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -62,11 +63,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-split-panel
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-split-panel ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-split-panel>
 </template>

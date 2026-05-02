@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/carousel/carousel.js'));
 }
 
 /**
@@ -17,16 +29,17 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-carousel
-        #element
-        [attr.autoplay]="autoplay || null"
-        [attr.autoplay-interval]="autoplayInterval"
-        [attr.loop]="loop || null"
-        [attr.mouse-dragging]="mouseDragging || null"
-        [attr.navigation]="navigation || null"
-        [attr.orientation]="orientation"
-        [attr.pagination]="pagination || null"
-        [attr.slides-per-move]="slidesPerMove"
-        [attr.slides-per-page]="slidesPerPage">
+      #element
+      [attr.autoplay]="autoplay || null"
+      [attr.autoplay-interval]="autoplayInterval"
+      [attr.loop]="loop || null"
+      [attr.mouse-dragging]="mouseDragging || null"
+      [attr.navigation]="navigation || null"
+      [attr.orientation]="orientation"
+      [attr.pagination]="pagination || null"
+      [attr.slides-per-move]="slidesPerMove"
+      [attr.slides-per-page]="slidesPerPage"
+    >
       <ng-content />
     </wa-carousel>
   `,
@@ -75,22 +88,37 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleSlideChange = (e: Event) => this.slideChange.emit(e as CustomEvent);
+    const handleSlideChange = (e: Event) =>
+      this.slideChange.emit(e as CustomEvent);
     el.addEventListener('wa-slide-change', handleSlideChange);
-    this.cleanups.push(() => el.removeEventListener('wa-slide-change', handleSlideChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-slide-change', handleSlideChange)
+    );
   }
 
   ngOnDestroy(): void {
     this.cleanups.forEach((fn) => fn());
   }
 
-  previous(behavior?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { previous: (behavior: unknown) => void }).previous(behavior);
+  previous(behavior?: ScrollBehavior): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        previous: (behavior?: ScrollBehavior) => void;
+      }
+    ).previous(behavior);
   }
-  next(behavior?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { next: (behavior: unknown) => void }).next(behavior);
+  next(behavior?: ScrollBehavior): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        next: (behavior?: ScrollBehavior) => void;
+      }
+    ).next(behavior);
   }
-  goToSlide(index?: unknown, behavior?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { goToSlide: (index: unknown, behavior: unknown) => void }).goToSlide(index, behavior);
+  goToSlide(index?: number, behavior?: ScrollBehavior): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        goToSlide: (index?: number, behavior?: ScrollBehavior) => void;
+      }
+    ).goToSlide(index, behavior);
   }
 }

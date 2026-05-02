@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
 }
 
 /**
@@ -17,13 +26,14 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-polar-area-chart
-        #element
-        [attr.label]="label"
-        [attr.description]="description"
-        [attr.legend-position]="legendPosition"
-        [attr.without-animation]="withoutAnimation || null"
-        [attr.without-legend]="withoutLegend || null"
-        [attr.without-tooltip]="withoutTooltip || null">
+      #element
+      [attr.label]="label"
+      [attr.description]="description"
+      [attr.legend-position]="legendPosition"
+      [attr.without-animation]="withoutAnimation || null"
+      [attr.without-legend]="withoutLegend || null"
+      [attr.without-tooltip]="withoutTooltip || null"
+    >
       <ng-content />
     </wa-polar-area-chart>
   `,
@@ -38,7 +48,13 @@ export class PolarAreaChartComponent implements AfterViewInit {
   /** Extended accessible description for the chart */
   @Input() description?: string;
   /** Placement of the dataset legend relative to the chart */
-  @Input() legendPosition?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  @Input() legendPosition?:
+    | 'top'
+    | 'right'
+    | 'bottom'
+    | 'left'
+    | 'start'
+    | 'end';
   /** Disables entrance and update motion effects */
   @Input() withoutAnimation?: boolean;
   /** Hides the dataset legend entirely */

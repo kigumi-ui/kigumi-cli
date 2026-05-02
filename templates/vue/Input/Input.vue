@@ -4,14 +4,23 @@ import './Input.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/input/input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/input/input.js'));
 }
 
 /**
  * Inputs collect data from the user
  */
 export interface InputProps {
-  type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search';
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'date'
+    | 'tel'
+    | 'url'
+    | 'search';
   label?: string;
   hint?: string;
   placeholder?: string;
@@ -36,8 +45,23 @@ export interface InputProps {
   autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
   autocorrect?: boolean;
   autofocus?: boolean;
-  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
-  enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+  enterkeyhint?:
+    | 'enter'
+    | 'done'
+    | 'go'
+    | 'next'
+    | 'previous'
+    | 'search'
+    | 'send';
 }
 
 const props = defineProps<InputProps>();
@@ -55,10 +79,10 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'input': [event: CustomEvent];
-  'change': [event: CustomEvent];
-  'blur': [event: CustomEvent];
-  'focus': [event: FocusEvent];
+  input: [event: CustomEvent];
+  change: [event: CustomEvent];
+  blur: [event: CustomEvent];
+  focus: [event: FocusEvent];
   'wa-clear': [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
@@ -76,7 +100,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
+const handleInput = (e: Event) => {
+  model.value = (e.target as any).value;
+  emit('input', e as CustomEvent);
+};
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -111,13 +138,37 @@ defineExpose({
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
   blur: () => (elementRef.value as any)?.blur?.(),
   select: () => (elementRef.value as any)?.select?.(),
-  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => (elementRef.value as any)?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
-  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => (elementRef.value as any)?.setRangeText?.(replacement, start, end, selectMode),
+  setSelectionRange: (
+    selectionStart: number,
+    selectionEnd: number,
+    selectionDirection: 'forward' | 'backward' | 'none'
+  ) =>
+    (elementRef.value as any)?.setSelectionRange?.(
+      selectionStart,
+      selectionEnd,
+      selectionDirection
+    ),
+  setRangeText: (
+    replacement: string,
+    start: number,
+    end: number,
+    selectMode: 'select' | 'start' | 'end' | 'preserve'
+  ) =>
+    (elementRef.value as any)?.setRangeText?.(
+      replacement,
+      start,
+      end,
+      selectMode
+    ),
   showPicker: () => (elementRef.value as any)?.showPicker?.(),
   stepUp: () => (elementRef.value as any)?.stepUp?.(),
   stepDown: () => (elementRef.value as any)?.stepDown?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });

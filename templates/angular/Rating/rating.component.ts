@@ -1,10 +1,23 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  forwardRef,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import type WaElement from '@awesome.me/webawesome/dist/components/rating/rating.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/rating/rating.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/rating/rating.js'));
 }
 
 /**
@@ -18,16 +31,17 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-rating
-        #element
-        [attr.label]="label"
-        [attr.value]="value"
-        [attr.max]="max"
-        [attr.precision]="precision"
-        [attr.readonly]="readonly || null"
-        [attr.disabled]="disabled || null"
-        [attr.name]="name"
-        [attr.required]="required || null"
-        [attr.size]="size">
+      #element
+      [attr.label]="label"
+      [attr.value]="value"
+      [attr.max]="max"
+      [attr.precision]="precision"
+      [attr.readonly]="readonly || null"
+      [attr.disabled]="disabled || null"
+      [attr.name]="name"
+      [attr.required]="required || null"
+      [attr.size]="size"
+    >
       <ng-content />
     </wa-rating>
   `,
@@ -40,7 +54,9 @@ function ensureLoaded() {
     },
   ],
 })
-export class RatingComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class RatingComponent
+  implements AfterViewInit, OnDestroy, ControlValueAccessor
+{
   @ViewChild('element') elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -96,11 +112,16 @@ export class RatingComponent implements AfterViewInit, OnDestroy, ControlValueAc
     this.cleanups.push(() => el.removeEventListener('wa-hover', handleHover));
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
-    this.cleanups.push(() => el.removeEventListener('wa-invalid', handleInvalid));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-invalid', handleInvalid)
+    );
 
-    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);
+    const handleValueChange = () =>
+      this.onChangeCallback((el as unknown as { value: unknown }).value);
     el.addEventListener('input', handleValueChange);
-    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));
+    this.cleanups.push(() =>
+      el.removeEventListener('input', handleValueChange)
+    );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurTouch));
@@ -112,7 +133,8 @@ export class RatingComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   writeValue(value: unknown): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { value: unknown }).value = value ?? '';
+      (this.elementRef.nativeElement as unknown as { value: unknown }).value =
+        value ?? '';
     }
   }
 
@@ -126,17 +148,35 @@ export class RatingComponent implements AfterViewInit, OnDestroy, ControlValueAc
 
   setDisabledState(isDisabled: boolean): void {
     if (this.elementRef?.nativeElement) {
-      (this.elementRef.nativeElement as unknown as { disabled: boolean }).disabled = isDisabled;
+      (
+        this.elementRef.nativeElement as unknown as { disabled: boolean }
+      ).disabled = isDisabled;
     }
   }
 
-  setCustomValidity(message?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { setCustomValidity: (message: unknown) => void }).setCustomValidity(message);
+  setCustomValidity(message?: string): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        setCustomValidity: (message?: string) => void;
+      }
+    ).setCustomValidity(message);
   }
-  formStateRestoreCallback(state?: unknown, reason?: unknown): void {
-    (this.elementRef.nativeElement as unknown as { formStateRestoreCallback: (state: unknown, reason: unknown) => void }).formStateRestoreCallback(state, reason);
+  formStateRestoreCallback(
+    state?: string | File | FormData | null,
+    reason?: 'autocomplete' | 'restore'
+  ): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        formStateRestoreCallback: (
+          state?: string | File | FormData | null,
+          reason?: 'autocomplete' | 'restore'
+        ) => void;
+      }
+    ).formStateRestoreCallback(state, reason);
   }
   resetValidity(): void {
-    (this.elementRef.nativeElement as unknown as { resetValidity: () => void }).resetValidity();
+    (
+      this.elementRef.nativeElement as unknown as { resetValidity: () => void }
+    ).resetValidity();
   }
 }

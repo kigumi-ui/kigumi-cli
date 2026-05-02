@@ -5,14 +5,21 @@ import './Toast.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast/toast.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/toast/toast.js'));
 }
 
 /**
  * Container that manages and stacks lightweight notification banners at a chosen screen edge
  */
 export interface ToastProps {
-  placement?: 'top-start' | 'top-center' | 'top-end' | 'bottom-start' | 'bottom-center' | 'bottom-end';
+  placement?:
+    | 'top-start'
+    | 'top-center'
+    | 'top-end'
+    | 'bottom-start'
+    | 'bottom-center'
+    | 'bottom-end';
 }
 
 const props = defineProps<ToastProps>();
@@ -40,17 +47,14 @@ onMounted(() => {
 });
 
 defineExpose({
-  create: (message: string, options: ToastCreateOptions) => (elementRef.value as any)?.create?.(message, options),
+  create: (message: string, options: ToastCreateOptions) =>
+    (elementRef.value as any)?.create?.(message, options),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-toast
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-toast ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-toast>
 </template>

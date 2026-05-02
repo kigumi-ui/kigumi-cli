@@ -26,6 +26,7 @@ import {
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { toKebabCase } from '../src/utils/naming.js';
+import { writeFormatted } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,15 +59,35 @@ const OVERLAY_COMPONENTS = new Set([
   'toast',
 ]);
 
+// Components whose previous Angular wrappers exposed imperative methods that
+// WA 3.5.0+ has marked `private` in the CEM. The methods are filtered out by
+// `parse-custom-elements.ts`, so the wrappers no longer expose them. Callers
+// should use the documented attribute-based API instead. The note below is
+// emitted into the class JSDoc so users copying the template into their
+// project see it without needing to consult templates/AGENTS.md.
+const REMOVED_IMPERATIVE_METHODS: Record<string, string> = {
+  dialog:
+    'Open and close programmatically by toggling the `open` attribute (e.g. `[open]="isOpen"`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.',
+  drawer:
+    'Open and close programmatically by toggling the `open` attribute (e.g. `[open]="isOpen"`). The previous `show()` / `requestClose()` methods are marked private in WA 3.5.0+ and are no longer exposed.',
+  markdown:
+    'Re-render programmatically by updating the projected source content (slotted children). The previous `getMarked()` / `updateAll()` methods are marked private in WA 3.5.0+ and are no longer exposed.',
+};
+
 interface EventInfo {
   name: string;
   outputName: string;
   type: string;
 }
 
+interface MethodParameter {
+  name: string;
+  type: string;
+}
+
 interface MethodInfo {
   name: string;
-  signature: string;
+  parameters: MethodParameter[];
 }
 
 /**
@@ -103,7 +124,7 @@ function getEvents(componentKey: string): EventInfo[] {
   return metadata.events.map((e) => ({
     name: e.name,
     outputName: toOutputName(e.name),
-    type: mapEventType(e.type?.text || 'CustomEvent'),
+    type: mapEventType(e.eventType),
   }));
 }
 
@@ -116,18 +137,86 @@ function getMethods(componentKey: string): MethodInfo[] {
 
   return metadata.methods.map((m) => ({
     name: m.name,
-    signature: m.parameters
-      ? m.parameters
-          .map((p) => `${p.name}?: ${p.type?.text || 'unknown'}`)
-          .join(', ')
-      : '',
+    parameters: (m.parameters ?? []).map((p) => ({
+      name: p.name,
+      type: p.type || 'unknown',
+    })),
   }));
+}
+
+// TypeScript primitives + DOM/web-platform types that don't need to be imported
+const BUILTIN_TYPE_NAMES = new Set([
+  'string',
+  'number',
+  'boolean',
+  'unknown',
+  'void',
+  'null',
+  'undefined',
+  'any',
+  'object',
+  'never',
+  'true',
+  'false',
+  'Element',
+  'HTMLElement',
+  'Node',
+  'NodeList',
+  'Event',
+  'CustomEvent',
+  'FocusEvent',
+  'MouseEvent',
+  'KeyboardEvent',
+  'PointerEvent',
+  'TouchEvent',
+  'FocusOptions',
+  'ScrollBehavior',
+  'ScrollIntoViewOptions',
+  'File',
+  'FileList',
+  'FormData',
+  'Blob',
+  'Date',
+  'RegExp',
+  'Promise',
+  'Array',
+  'Map',
+  'Set',
+  'Record',
+  // Capitalized JS wrapper types that occasionally surface as bare-identifier
+  // type annotations. Including them keeps `String[]` / `Number | undefined`
+  // out of the named-type-import set.
+  'Boolean',
+  'Number',
+  'String',
+]);
+
+function collectNamedTypeImports(methods: MethodInfo[]): string[] {
+  const names = new Set<string>();
+  for (const method of methods) {
+    for (const param of method.parameters) {
+      // Word-boundary extraction so `MyType[]` and `MyType | OtherType` both
+      // pull `MyType` (and `OtherType`) as named-type imports. Mirrors
+      // `extractCustomTypeImports` in scripts/generator-utils.ts to keep the
+      // two helpers consistent. Inline object literals like
+      // `{ includeDisabled?: boolean }` would still produce false positives
+      // here (matching `Disabled`), but the Angular CEM has no such param
+      // shape that's also a real type — and BUILTIN_TYPE_NAMES catches the
+      // commonly-seen ones (HTMLElement, FocusOptions, etc.) that DO appear
+      // inside object literals as property types.
+      const matches = param.type.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? [];
+      for (const id of matches) {
+        if (!BUILTIN_TYPE_NAMES.has(id)) names.add(id);
+      }
+    }
+  }
+  return [...names].sort();
 }
 
 /**
  * Generate the Angular component TypeScript template
  */
-function generateComponentTS(
+export function generateComponentTS(
   component: ComponentDefinition,
   componentKey: string
 ): string {
@@ -180,6 +269,14 @@ function generateComponentTS(
   }
 
   lines.push(`import type WaElement from '${component.importPath}';`);
+
+  // Collect non-builtin type names referenced in method parameters and import them
+  const namedTypeImports = collectNamedTypeImports(methods);
+  if (namedTypeImports.length > 0) {
+    lines.push(
+      `import type { ${namedTypeImports.join(', ')} } from '${component.importPath}';`
+    );
+  }
   lines.push('');
   lines.push(`let loadPromise: Promise<unknown> | null = null;`);
   lines.push(`function ensureLoaded() {`);
@@ -210,6 +307,11 @@ function generateComponentTS(
   lines.push(` * ${component.description || component.name}`);
   lines.push(' *');
   lines.push(` * @see https://webawesome.com/docs/components/${kebabName}`);
+  const apiNote = REMOVED_IMPERATIVE_METHODS[componentKey];
+  if (apiNote) {
+    lines.push(' *');
+    lines.push(` * @remarks ${apiNote}`);
+  }
   lines.push(' */');
   lines.push('@Component({');
   lines.push(`  selector: 'k-${kebabName}',`);
@@ -408,27 +510,29 @@ function generateComponentTS(
     lines.push('  }');
   }
 
-  // Public methods (for overlay components and others)
+  // Public methods (for overlay components and others).
+  //
+  // Limitation: the CEM's `parameters` array carries no optionality flag (the
+  // raw custom-elements.json has `optional: boolean` per parameter, but
+  // scripts/parse-custom-elements.ts does not currently surface it on
+  // ComponentMetadata). As a result every emitted parameter — public
+  // signature AND cast — is marked optional with `?:`, even when WA's actual
+  // API requires the argument (e.g. `Toast.create(message)` where `message`
+  // is required). This is a deliberate looseness of the wrapper's type
+  // contract relative to the underlying API. To tighten: extend
+  // ComponentMetadata.methods[].parameters with `optional: boolean` and
+  // gate the `?:` emission on it in both places below.
   if (methods.length > 0) {
     lines.push('');
     for (const method of methods) {
-      const argNames = method.signature
-        ? method.signature
-            .split(',')
-            .map((p) => p.split(':')[0].replace('?', '').trim())
-            .join(', ')
-        : '';
-      const argTypes = method.signature
-        ? method.signature
-            .split(',')
-            .map((p) => {
-              const parts = p.trim().split(':');
-              const paramName = parts[0].replace('?', '').trim();
-              return `${paramName}: ${parts[1]?.trim() || 'unknown'}`;
-            })
-            .join(', ')
-        : '';
-      lines.push(`  ${method.name}(${method.signature}): void {`);
+      const signature = method.parameters
+        .map((p) => `${p.name}?: ${p.type}`)
+        .join(', ');
+      const argNames = method.parameters.map((p) => p.name).join(', ');
+      const argTypes = method.parameters
+        .map((p) => `${p.name}?: ${p.type}`)
+        .join(', ');
+      lines.push(`  ${method.name}(${signature}): void {`);
       lines.push(
         `    (this.elementRef.nativeElement as unknown as { ${method.name}: (${argTypes}) => void }).${method.name}(${argNames});`
       );
@@ -445,7 +549,7 @@ function generateComponentTS(
 /**
  * Generate the Angular component CSS template
  */
-function generateCSS(
+export function generateCSS(
   component: ComponentDefinition,
   _componentKey: string
 ): string {
@@ -488,7 +592,7 @@ function generateCSS(
 /**
  * Generate the Angular component spec template
  */
-function generateSpec(component: ComponentDefinition): string {
+export function generateSpec(component: ComponentDefinition): string {
   const kebabName = toKebabCase(component.name);
   return `import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ${component.name}Component } from './${kebabName}.component';
@@ -536,20 +640,20 @@ async function main() {
 
     // Component TypeScript
     const tsContent = generateComponentTS(component, key);
-    await fs.writeFile(
+    await writeFormatted(
       path.join(componentDir, `${kebabName}.component.ts`),
       tsContent
     );
 
     const cssContent = generateCSS(component, key);
-    await fs.writeFile(
+    await writeFormatted(
       path.join(componentDir, `${kebabName}.component.css`),
       cssContent
     );
 
     // Component spec
     const specContent = generateSpec(component);
-    await fs.writeFile(
+    await writeFormatted(
       path.join(componentDir, `${kebabName}.component.spec.ts`),
       specContent
     );
@@ -561,4 +665,6 @@ async function main() {
   console.log(`\nGenerated ${count} Angular component templates.`);
 }
 
-main().catch(console.error);
+if (process.argv[1] === __filename) {
+  main().catch(console.error);
+}

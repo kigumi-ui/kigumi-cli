@@ -4,7 +4,8 @@ import './RadioGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radio-group/radio-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radio-group/radio-group.js'));
 }
 
 /**
@@ -37,8 +38,8 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'input': [event: CustomEvent];
-  'change': [event: CustomEvent];
+  input: [event: CustomEvent];
+  change: [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -55,7 +56,10 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as CustomEvent); };
+const handleInput = (e: Event) => {
+  model.value = (e.target as any).value;
+  emit('input', e as CustomEvent);
+};
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 
@@ -79,8 +83,12 @@ onUnmounted(() => {
 
 defineExpose({
   focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  setCustomValidity: (message: string) =>
+    (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
   resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
   element: elementRef,
 });

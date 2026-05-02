@@ -4,19 +4,20 @@ import './PolarAreaChart.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/polar-area-chart/polar-area-chart.js'));
 }
 
 /**
  * Arranges segments of equal angle but varying radius around a central point
  */
 const props = defineProps({
-    label: { type: String, required: false },
-    description: { type: String, required: false },
-    'legend-position': { type: String, required: false, default: 'top' },
-    'without-animation': { type: Boolean, required: false, default: false },
-    'without-legend': { type: Boolean, required: false, default: false },
-    'without-tooltip': { type: Boolean, required: false, default: false }
+  label: { type: String, required: false },
+  description: { type: String, required: false },
+  'legend-position': { type: String, required: false, default: 'top' },
+  'without-animation': { type: Boolean, required: false, default: false },
+  'without-legend': { type: Boolean, required: false, default: false },
+  'without-tooltip': { type: Boolean, required: false, default: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

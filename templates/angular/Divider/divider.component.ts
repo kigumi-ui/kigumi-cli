@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/divider/divider.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/divider/divider.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/divider/divider.js'));
 }
 
 /**
@@ -16,9 +25,7 @@ function ensureLoaded() {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <wa-divider
-        #element
-        [attr.orientation]="orientation">
+    <wa-divider #element [attr.orientation]="orientation">
       <ng-content />
     </wa-divider>
   `,

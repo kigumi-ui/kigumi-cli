@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaTag from '@awesome.me/webawesome/dist/components/tag/tag.js';
 import './Tag.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tag/tag.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tag/tag.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface TagProps extends Omit<HTMLAttributes<HTMLElement>, 'onRemove' | 'dir'> {
-
+export interface TagProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onRemove' | 'dir'
+> {
   /** Visual appearance */
   appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
 
@@ -85,7 +95,10 @@ export const Tag = forwardRef<TagRef, TagProps>(
       <wa-tag
         ref={setTagRef}
         class={clsx('Tag', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-tag>

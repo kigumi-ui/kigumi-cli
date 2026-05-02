@@ -4,17 +4,18 @@ import './TabGroup.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/tab-group/tab-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/tab-group/tab-group.js'));
 }
 
 /**
  * Tab groups organize content into a container that shows one section at a time
  */
 const props = defineProps({
-    placement: { type: String, required: false, default: 'top' },
-    activation: { type: String, required: false, default: 'auto' },
-    'without-scroll-controls': { type: Boolean, required: false, default: false },
-    active: { type: String, required: false }
+  placement: { type: String, required: false, default: 'top' },
+  activation: { type: String, required: false, default: 'auto' },
+  'without-scroll-controls': { type: Boolean, required: false, default: false },
+  active: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -62,11 +63,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-tab-group
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-tab-group ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-tab-group>
 </template>

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaProgressBar from '@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js';
 import './ProgressBar.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface ProgressBarProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface ProgressBarProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** Current progress (0-100) */
   value?: number;
 
@@ -63,7 +73,10 @@ export const ProgressBar = forwardRef<ProgressBarRef, ProgressBarProps>(
       <wa-progress-bar
         ref={setProgressBarRef}
         class={clsx('ProgressBar', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-progress-bar>

@@ -1,13 +1,21 @@
 'use client';
 
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import './Input.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/input/input.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/input/input.js'));
 }
 
 /**
@@ -28,10 +36,26 @@ function ensureLoaded() {
  * <Input ref={ref} />
  * ```
  */
-export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onClear' | 'onInvalid' | 'dir'> {
-
+export interface InputProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  | 'onInput'
+  | 'onChange'
+  | 'onBlur'
+  | 'onFocus'
+  | 'onClear'
+  | 'onInvalid'
+  | 'dir'
+> {
   /** Input type */
-  type?: 'text' | 'email' | 'password' | 'number' | 'date' | 'tel' | 'url' | 'search';
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'date'
+    | 'tel'
+    | 'url'
+    | 'search';
 
   /** Accessible label for the input */
   label?: string;
@@ -109,10 +133,25 @@ export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' 
   autofocus?: boolean;
 
   /** Hint for virtual keyboard type */
-  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
 
   /** Hint for Enter key label on virtual keyboards */
-  enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  enterkeyhint?:
+    | 'enter'
+    | 'done'
+    | 'go'
+    | 'next'
+    | 'previous'
+    | 'search'
+    | 'send';
 
   /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;
@@ -134,7 +173,6 @@ export interface InputProps extends Omit<HTMLAttributes<HTMLElement>, 'onInput' 
 }
 
 export interface InputRef {
-
   /** Sets focus on the input. */
   focus: (options: FocusOptions) => void;
 
@@ -145,10 +183,19 @@ export interface InputRef {
   select: () => void;
 
   /** Sets the start and end positions of the text selection (0-based). */
-  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => void;
+  setSelectionRange: (
+    selectionStart: number,
+    selectionEnd: number,
+    selectionDirection: 'forward' | 'backward' | 'none'
+  ) => void;
 
   /** Replaces a range of text with a new string. */
-  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => void;
+  setRangeText: (
+    replacement: string,
+    start: number,
+    end: number,
+    selectMode: 'select' | 'start' | 'end' | 'preserve'
+  ) => void;
 
   /** Displays the browser picker for an input element (only works if the browser supports it for the input type). */
   showPicker: () => void;
@@ -166,7 +213,10 @@ We track manually defined custom errors so we don't clear them on accident in ou
   /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
 the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
 "restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => void;
+  formStateRestoreCallback: (
+    state: string | File | FormData | null,
+    reason: 'autocomplete' | 'restore'
+  ) => void;
 
   /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
@@ -175,7 +225,20 @@ the browser is trying to fulfill autofill on behalf of user in which case reason
 }
 
 export const Input = forwardRef<InputRef, InputProps>(
-  ({ children, className, onInput, onChange, onBlur, onFocus, onClear, onInvalid, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      onInput,
+      onChange,
+      onBlur,
+      onFocus,
+      onClear,
+      onInvalid,
+      ...props
+    },
+    ref
+  ) => {
     const inputRef = useRef<WaInput | null>(null);
     const setInputRef = useCallback((el: WaInput | null) => {
       inputRef.current = el;
@@ -185,7 +248,10 @@ export const Input = forwardRef<InputRef, InputProps>(
       ref,
       () => ({
         focus: (options: FocusOptions) => {
-          if (inputRef.current && typeof inputRef.current.focus === 'function') {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.focus === 'function'
+          ) {
             inputRef.current.focus(options);
           }
         },
@@ -195,47 +261,90 @@ export const Input = forwardRef<InputRef, InputProps>(
           }
         },
         select: () => {
-          if (inputRef.current && typeof inputRef.current.select === 'function') {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.select === 'function'
+          ) {
             inputRef.current.select();
           }
         },
-        setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => {
-          if (inputRef.current && typeof inputRef.current.setSelectionRange === 'function') {
-            inputRef.current.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+        setSelectionRange: (
+          selectionStart: number,
+          selectionEnd: number,
+          selectionDirection: 'forward' | 'backward' | 'none'
+        ) => {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.setSelectionRange === 'function'
+          ) {
+            inputRef.current.setSelectionRange(
+              selectionStart,
+              selectionEnd,
+              selectionDirection
+            );
           }
         },
-        setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => {
-          if (inputRef.current && typeof inputRef.current.setRangeText === 'function') {
+        setRangeText: (
+          replacement: string,
+          start: number,
+          end: number,
+          selectMode: 'select' | 'start' | 'end' | 'preserve'
+        ) => {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.setRangeText === 'function'
+          ) {
             inputRef.current.setRangeText(replacement, start, end, selectMode);
           }
         },
         showPicker: () => {
-          if (inputRef.current && typeof inputRef.current.showPicker === 'function') {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.showPicker === 'function'
+          ) {
             inputRef.current.showPicker();
           }
         },
         stepUp: () => {
-          if (inputRef.current && typeof inputRef.current.stepUp === 'function') {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.stepUp === 'function'
+          ) {
             inputRef.current.stepUp();
           }
         },
         stepDown: () => {
-          if (inputRef.current && typeof inputRef.current.stepDown === 'function') {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.stepDown === 'function'
+          ) {
             inputRef.current.stepDown();
           }
         },
         setCustomValidity: (message: string) => {
-          if (inputRef.current && typeof inputRef.current.setCustomValidity === 'function') {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.setCustomValidity === 'function'
+          ) {
             inputRef.current.setCustomValidity(message);
           }
         },
-        formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => {
-          if (inputRef.current && typeof inputRef.current.formStateRestoreCallback === 'function') {
+        formStateRestoreCallback: (
+          state: string | File | FormData | null,
+          reason: 'autocomplete' | 'restore'
+        ) => {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.formStateRestoreCallback === 'function'
+          ) {
             inputRef.current.formStateRestoreCallback(state, reason);
           }
         },
         resetValidity: () => {
-          if (inputRef.current && typeof inputRef.current.resetValidity === 'function') {
+          if (
+            inputRef.current &&
+            typeof inputRef.current.resetValidity === 'function'
+          ) {
             inputRef.current.resetValidity();
           }
         },
@@ -296,7 +405,10 @@ export const Input = forwardRef<InputRef, InputProps>(
       <wa-input
         ref={setInputRef}
         class={clsx('Input', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-input>

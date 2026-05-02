@@ -4,7 +4,8 @@ import './ButtonGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/button-group/button-group.js'));
 }
 
 /**
@@ -45,11 +46,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-button-group
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-button-group ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-button-group>
 </template>

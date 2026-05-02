@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/radar-chart/radar-chart.js'));
 }
 
 /**
@@ -17,17 +26,18 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-radar-chart
-        #element
-        [attr.label]="label"
-        [attr.description]="description"
-        [attr.legend-position]="legendPosition"
-        [attr.stacked]="stacked || null"
-        [attr.grid]="grid"
-        [attr.min]="min"
-        [attr.max]="max"
-        [attr.without-animation]="withoutAnimation || null"
-        [attr.without-legend]="withoutLegend || null"
-        [attr.without-tooltip]="withoutTooltip || null">
+      #element
+      [attr.label]="label"
+      [attr.description]="description"
+      [attr.legend-position]="legendPosition"
+      [attr.stacked]="stacked || null"
+      [attr.grid]="grid"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.without-animation]="withoutAnimation || null"
+      [attr.without-legend]="withoutLegend || null"
+      [attr.without-tooltip]="withoutTooltip || null"
+    >
       <ng-content />
     </wa-radar-chart>
   `,
@@ -42,7 +52,13 @@ export class RadarChartComponent implements AfterViewInit {
   /** Extended accessible description for the chart */
   @Input() description?: string;
   /** Placement of the dataset legend relative to the chart */
-  @Input() legendPosition?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  @Input() legendPosition?:
+    | 'top'
+    | 'right'
+    | 'bottom'
+    | 'left'
+    | 'start'
+    | 'end';
   /** Layers multiple datasets on a single axis */
   @Input() stacked?: boolean;
   /** Selects which background grid lines are drawn */

@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js'));
 }
 
 /**
@@ -17,14 +29,15 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-mutation-observer
-        #element
-        [attr.attr]="attr"
-        [attr.attr-old-value]="attrOldValue || null"
-        [attr.char-data]="charData || null"
-        [attr.char-data-old-value]="charDataOldValue || null"
-        [attr.child-list]="childList || null"
-        [attr.disabled]="disabled || null"
-        [attr.subtree]="subtree || null">
+      #element
+      [attr.attr]="attr"
+      [attr.attr-old-value]="attrOldValue || null"
+      [attr.char-data]="charData || null"
+      [attr.char-data-old-value]="charDataOldValue || null"
+      [attr.child-list]="childList || null"
+      [attr.disabled]="disabled || null"
+      [attr.subtree]="subtree || null"
+    >
       <ng-content />
     </wa-mutation-observer>
   `,
@@ -71,7 +84,9 @@ export class MutationObserverComponent implements AfterViewInit, OnDestroy {
 
     const handleMutation = (e: Event) => this.mutation.emit(e as CustomEvent);
     el.addEventListener('wa-mutation', handleMutation);
-    this.cleanups.push(() => el.removeEventListener('wa-mutation', handleMutation));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-mutation', handleMutation)
+    );
   }
 
   ngOnDestroy(): void {

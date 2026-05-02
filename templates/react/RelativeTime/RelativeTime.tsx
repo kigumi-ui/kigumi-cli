@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaRelativeTime from '@awesome.me/webawesome/dist/components/relative-time/relative-time.js';
 import './RelativeTime.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/relative-time/relative-time.js'));
 }
 
 /**
@@ -21,8 +29,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface RelativeTimeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
-
+export interface RelativeTimeProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'dir'
+> {
   /** The date/time to calculate from */
   date?: string;
 
@@ -69,7 +79,10 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
       <wa-relative-time
         ref={setRelativeTimeRef}
         class={clsx('RelativeTime', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-relative-time>

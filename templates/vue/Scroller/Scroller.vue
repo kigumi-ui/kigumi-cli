@@ -4,7 +4,8 @@ import './Scroller.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/scroller/scroller.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/scroller/scroller.js'));
 }
 
 /**
@@ -47,11 +48,7 @@ defineExpose({
 </script>
 
 <template>
-  <wa-scroller
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-scroller ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-scroller>
 </template>

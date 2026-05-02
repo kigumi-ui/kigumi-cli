@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/icon/icon.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/icon/icon.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/icon/icon.js'));
 }
 
 /**
@@ -17,18 +29,19 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-icon
-        #element
-        [attr.name]="name"
-        [attr.library]="library"
-        [attr.src]="src"
-        [attr.label]="label"
-        [attr.family]="family"
-        [attr.variant]="variant"
-        [attr.auto-width]="autoWidth || null"
-        [attr.swap-opacity]="swapOpacity || null"
-        [attr.rotate]="rotate"
-        [attr.flip]="flip"
-        [attr.animation]="animation">
+      #element
+      [attr.name]="name"
+      [attr.library]="library"
+      [attr.src]="src"
+      [attr.label]="label"
+      [attr.family]="family"
+      [attr.variant]="variant"
+      [attr.auto-width]="autoWidth || null"
+      [attr.swap-opacity]="swapOpacity || null"
+      [attr.rotate]="rotate"
+      [attr.flip]="flip"
+      [attr.animation]="animation"
+    >
       <ng-content />
     </wa-icon>
   `,

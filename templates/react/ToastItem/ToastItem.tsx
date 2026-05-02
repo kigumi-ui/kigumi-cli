@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaToastItem from '@awesome.me/webawesome/dist/components/toast-item/toast-item.js';
 import './ToastItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast-item/toast-item.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/toast-item/toast-item.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <ToastItem ref={ref} />
  * ```
  */
-export interface ToastItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'> {
-
+export interface ToastItemProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onShow' | 'onAfterShow' | 'onHide' | 'onAfterHide' | 'dir'
+> {
   /** Colour scheme reflecting the notification intent */
   variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
 
@@ -51,7 +61,6 @@ export interface ToastItemProps extends Omit<HTMLAttributes<HTMLElement>, 'onSho
 }
 
 export interface ToastItemRef {
-
   /** Hides the toast item with animation and removes it from the DOM. */
   hide: () => void;
   /** Reference to the underlying HTML element */
@@ -59,7 +68,10 @@ export interface ToastItemRef {
 }
 
 export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
-  ({ children, className, onShow, onAfterShow, onHide, onAfterHide, ...props }, ref) => {
+  (
+    { children, className, onShow, onAfterShow, onHide, onAfterHide, ...props },
+    ref
+  ) => {
     const toastitemRef = useRef<WaToastItem | null>(null);
     const setToastItemRef = useCallback((el: WaToastItem | null) => {
       toastitemRef.current = el;
@@ -69,7 +81,10 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
       ref,
       () => ({
         hide: () => {
-          if (toastitemRef.current && typeof toastitemRef.current.hide === 'function') {
+          if (
+            toastitemRef.current &&
+            typeof toastitemRef.current.hide === 'function'
+          ) {
             toastitemRef.current.hide();
           }
         },
@@ -118,7 +133,10 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
       <wa-toast-item
         ref={setToastItemRef}
         class={clsx('ToastItem', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-toast-item>

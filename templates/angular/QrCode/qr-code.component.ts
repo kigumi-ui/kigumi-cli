@@ -1,9 +1,18 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/qr-code/qr-code.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/qr-code/qr-code.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/qr-code/qr-code.js'));
 }
 
 /**
@@ -17,14 +26,15 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-qr-code
-        #element
-        [attr.value]="value"
-        [attr.label]="label"
-        [attr.size]="size"
-        [attr.fill]="fill"
-        [attr.background]="background"
-        [attr.radius]="radius"
-        [attr.error-correction]="errorCorrection">
+      #element
+      [attr.value]="value"
+      [attr.label]="label"
+      [attr.size]="size"
+      [attr.fill]="fill"
+      [attr.background]="background"
+      [attr.radius]="radius"
+      [attr.error-correction]="errorCorrection"
+    >
       <ng-content />
     </wa-qr-code>
   `,

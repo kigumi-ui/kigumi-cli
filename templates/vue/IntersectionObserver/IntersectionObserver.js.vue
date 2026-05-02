@@ -4,18 +4,19 @@ import './IntersectionObserver.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js'));
 }
 
 /**
  * Observes changes in the intersection of a target element with an ancestor
  */
 const props = defineProps({
-    disabled: { type: Boolean, required: false, default: false },
-    once: { type: Boolean, required: false, default: false },
-    threshold: { type: String, required: false, default: '0' },
-    'root-margin': { type: String, required: false, default: '0px' },
-    'intersect-class': { type: String, required: false }
+  disabled: { type: Boolean, required: false, default: false },
+  once: { type: Boolean, required: false, default: false },
+  threshold: { type: String, required: false, default: '0' },
+  'root-margin': { type: String, required: false, default: '0px' },
+  'intersect-class': { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaIntersectionObserver from '@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js';
 import './IntersectionObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js'));
 }
 
 /**
@@ -22,8 +30,10 @@ function ensureLoaded() {
  *
  * ```
  */
-export interface IntersectionObserverProps extends Omit<HTMLAttributes<HTMLElement>, 'onIntersect' | 'dir'> {
-
+export interface IntersectionObserverProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onIntersect' | 'dir'
+> {
   /** Disables the observer */
   disabled?: boolean;
 
@@ -48,49 +58,56 @@ export interface IntersectionObserverRef {
   element: WaIntersectionObserver | null;
 }
 
-export const IntersectionObserver = forwardRef<IntersectionObserverRef, IntersectionObserverProps>(
-  ({ children, className, onIntersect, ...props }, ref) => {
-    const intersectionobserverRef = useRef<WaIntersectionObserver | null>(null);
-    const setIntersectionObserverRef = useCallback((el: WaIntersectionObserver | null) => {
+export const IntersectionObserver = forwardRef<
+  IntersectionObserverRef,
+  IntersectionObserverProps
+>(({ children, className, onIntersect, ...props }, ref) => {
+  const intersectionobserverRef = useRef<WaIntersectionObserver | null>(null);
+  const setIntersectionObserverRef = useCallback(
+    (el: WaIntersectionObserver | null) => {
       intersectionobserverRef.current = el;
-    }, []);
+    },
+    []
+  );
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        get element() {
-          return intersectionobserverRef.current;
-        },
-      }),
-      []
-    );
+  useImperativeHandle(
+    ref,
+    () => ({
+      get element() {
+        return intersectionobserverRef.current;
+      },
+    }),
+    []
+  );
 
-    useEffect(() => {
-      ensureLoaded();
-      const el = intersectionobserverRef.current;
-      if (!el) return;
+  useEffect(() => {
+    ensureLoaded();
+    const el = intersectionobserverRef.current;
+    if (!el) return;
 
-      const handleWaIntersect = (e: Event) => {
-        if (onIntersect) onIntersect(e as CustomEvent);
-      };
+    const handleWaIntersect = (e: Event) => {
+      if (onIntersect) onIntersect(e as CustomEvent);
+    };
 
-      el.addEventListener('wa-intersect', handleWaIntersect);
+    el.addEventListener('wa-intersect', handleWaIntersect);
 
-      return () => {
-        el.removeEventListener('wa-intersect', handleWaIntersect);
-      };
-    }, [onIntersect]);
+    return () => {
+      el.removeEventListener('wa-intersect', handleWaIntersect);
+    };
+  }, [onIntersect]);
 
-    return (
-      <wa-intersection-observer
-        ref={setIntersectionObserverRef}
-        class={clsx('IntersectionObserver', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
-      >
-        {children}
-      </wa-intersection-observer>
-    );
-  }
-);
+  return (
+    <wa-intersection-observer
+      ref={setIntersectionObserverRef}
+      class={clsx('IntersectionObserver', className)}
+      {...({ suppressHydrationWarning: true, ...props } as Record<
+        string,
+        unknown
+      >)}
+    >
+      {children}
+    </wa-intersection-observer>
+  );
+});
 
 IntersectionObserver.displayName = 'IntersectionObserver';

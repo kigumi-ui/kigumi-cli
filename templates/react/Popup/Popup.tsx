@@ -1,11 +1,19 @@
-import { forwardRef, useRef, useCallback, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 import type WaPopup from '@awesome.me/webawesome/dist/components/popup/popup.js';
 import './Popup.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/popup/popup.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/popup/popup.js'));
 }
 
 /**
@@ -26,8 +34,10 @@ function ensureLoaded() {
  * <Popup ref={ref} />
  * ```
  */
-export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'onReposition' | 'dir'> {
-
+export interface PopupProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onReposition' | 'dir'
+> {
   /** Activates the positioning logic */
   active?: boolean;
 
@@ -35,7 +45,19 @@ export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'onReposit
   anchor?: string;
 
   /** Preferred placement */
-  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+  placement?:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
 
   /** Positioning strategy */
   strategy?: 'absolute' | 'fixed';
@@ -87,7 +109,6 @@ export interface PopupProps extends Omit<HTMLAttributes<HTMLElement>, 'onReposit
 }
 
 export interface PopupRef {
-
   /** Forces the popup to recalculate and reposition itself. */
   reposition: () => void;
   /** Reference to the underlying HTML element */
@@ -105,7 +126,10 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       ref,
       () => ({
         reposition: () => {
-          if (popupRef.current && typeof popupRef.current.reposition === 'function') {
+          if (
+            popupRef.current &&
+            typeof popupRef.current.reposition === 'function'
+          ) {
             popupRef.current.reposition();
           }
         },
@@ -136,7 +160,10 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       <wa-popup
         ref={setPopupRef}
         class={clsx('Popup', className)}
-        {...({ suppressHydrationWarning: true, ...props } as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-popup>

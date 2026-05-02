@@ -4,14 +4,17 @@ import './Markdown.css';
 
 let loadPromise = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/markdown/markdown.js'));
 }
 
 /**
  * Renders markdown content in plain HTML
+ *
+ * @remarks Re-render programmatically by updating the projected source content (slotted children). The previous `getMarked()` / `updateAll()` methods are marked private in WA 3.5.0+ and are no longer exposed; `renderMarkdown()` remains available.
  */
 const props = defineProps({
-    'tab-size': { type: Number, required: false, default: 4 }
+  'tab-size': { type: Number, required: false, default: 4 },
 });
 
 // Strip undefined and false props before forwarding to the web component.
@@ -35,19 +38,13 @@ onMounted(() => {
 });
 
 defineExpose({
-  getMarked: () => elementRef.value?.getMarked?.(),
-  updateAll: () => elementRef.value?.updateAll?.(),
   renderMarkdown: () => elementRef.value?.renderMarkdown?.(),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-markdown
-    ref="elementRef"
-    v-bind="definedProps"
-    :class="$attrs.class"
-  >
+  <wa-markdown ref="elementRef" v-bind="definedProps" :class="$attrs.class">
     <slot />
   </wa-markdown>
 </template>

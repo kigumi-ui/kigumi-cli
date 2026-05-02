@@ -1,9 +1,21 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/split-panel/split-panel.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
-  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/split-panel/split-panel.js'));
 }
 
 /**
@@ -17,14 +29,15 @@ function ensureLoaded() {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-split-panel
-        #element
-        [attr.position]="position"
-        [attr.position-in-pixels]="positionInPixels"
-        [attr.orientation]="orientation"
-        [attr.primary]="primary"
-        [attr.disabled]="disabled || null"
-        [attr.snap]="snap"
-        [attr.snap-threshold]="snapThreshold">
+      #element
+      [attr.position]="position"
+      [attr.position-in-pixels]="positionInPixels"
+      [attr.orientation]="orientation"
+      [attr.primary]="primary"
+      [attr.disabled]="disabled || null"
+      [attr.snap]="snap"
+      [attr.snap-threshold]="snapThreshold"
+    >
       <ng-content />
     </wa-split-panel>
   `,
@@ -69,9 +82,12 @@ export class SplitPanelComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleReposition = (e: Event) => this.reposition.emit(e as CustomEvent);
+    const handleReposition = (e: Event) =>
+      this.reposition.emit(e as CustomEvent);
     el.addEventListener('wa-reposition', handleReposition);
-    this.cleanups.push(() => el.removeEventListener('wa-reposition', handleReposition));
+    this.cleanups.push(() =>
+      el.removeEventListener('wa-reposition', handleReposition)
+    );
   }
 
   ngOnDestroy(): void {
