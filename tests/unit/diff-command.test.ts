@@ -12,51 +12,42 @@
  * - Summary counts
  * - PascalCase normalization
  * - Specific component filtering
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of vi.mock for
+ * @clack/prompts and output. Also drops a dead vi.mock for utils/tier.js
+ * since src/commands/diff.ts never imports that module. The remaining
+ * vi.mock decls for template, registry, and diff-renderer have no DI
+ * seam yet and are kept.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-  isCancel: vi.fn().mockReturnValue(false),
-}));
+async function registerTestSeams(
+  output: RecordingOutput,
+  prompts: PromptsAdapter
+): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.setOutputForTesting(output);
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.setPromptsForTesting(prompts);
+}
 
-// Mock output
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue({
-    start: vi.fn(),
-    stop: vi.fn(),
-    message: vi.fn(),
-    error: vi.fn(),
-  }),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
+async function clearTestSeams(): Promise<void> {
+  const outMod = await import('../../src/output/index.js');
+  outMod.resetOutputForTesting();
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.resetPromptsForTesting();
+}
 
 // Mock template generation (pass through real utility functions)
 vi.mock('../../src/utils/template.js', async () => {
@@ -136,14 +127,6 @@ vi.mock('../../src/utils/registry.js', async () => {
   };
 });
 
-// Mock tier detection
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-  getProToken: vi.fn().mockResolvedValue(null),
-}));
-
 // Mock diff renderer
 vi.mock('../../src/utils/diff-renderer.js', () => ({
   renderDiff: vi.fn().mockReturnValue('mocked diff output'),
@@ -153,10 +136,17 @@ describe('diffCommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+
+    output = createRecordingOutput();
+    // diff.ts does not invoke any prompts; an empty queue is appropriate.
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-diff-cmd-'))
@@ -169,6 +159,7 @@ describe('diffCommand', () => {
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
@@ -203,6 +194,13 @@ describe('diffCommand', () => {
     }
   }
 
+  function infoMessages(): string[] {
+    return output.calls
+      .filter((c) => c.method === 'info')
+      .map((c) => c.args[0])
+      .filter((m): m is string => typeof m === 'string');
+  }
+
   // ── Test 1: No config → calls handleError ──
 
   it('should call output.error when no config is found', async () => {
@@ -210,7 +208,7 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    expect(mockOutput.error).toHaveBeenCalled();
+    expect(output.calls.some((c) => c.method === 'error')).toBe(true);
     expect(process.exit).toHaveBeenCalled();
   });
 
@@ -224,9 +222,9 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('No installed components')
-    );
+    expect(
+      infoMessages().some((m) => m.includes('No installed components'))
+    ).toBe(true);
   });
 
   it('should report no installed components when componentsDir does not exist', async () => {
@@ -236,9 +234,9 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('No installed components')
-    );
+    expect(
+      infoMessages().some((m) => m.includes('No installed components'))
+    ).toBe(true);
   });
 
   // ── Test 3: Unchanged files → reports unchanged ──
@@ -255,18 +253,16 @@ describe('diffCommand', () => {
     await diffCommand([], { cwd: testDir });
 
     // Should report unchanged status via info calls
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const unchangedLines = infoCalls.filter(
-      (msg: unknown) => typeof msg === 'string' && msg.includes('unchanged')
+    const unchangedLines = infoMessages().filter((m) =>
+      m.includes('unchanged')
     );
     expect(unchangedLines.length).toBeGreaterThanOrEqual(3);
 
     // Summary should say all up to date
-    expect(mockOutput.success).toHaveBeenCalledWith(
-      expect.stringContaining('up to date')
-    );
+    expect(output.calls).toContainEqual({
+      method: 'success',
+      args: [expect.stringContaining('up to date')],
+    });
   });
 
   // ── Test 4: Changed files → reports template-changed ──
@@ -282,12 +278,8 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const changedLines = infoCalls.filter(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('template changed')
+    const changedLines = infoMessages().filter((m) =>
+      m.includes('template changed')
     );
     expect(changedLines.length).toBeGreaterThanOrEqual(3);
   });
@@ -302,12 +294,7 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const missingLines = infoCalls.filter(
-      (msg: unknown) => typeof msg === 'string' && msg.includes('not found')
-    );
+    const missingLines = infoMessages().filter((m) => m.includes('not found'));
     expect(missingLines.length).toBeGreaterThanOrEqual(3);
   });
 
@@ -333,22 +320,16 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-
     // Should report 2 components checked
-    const componentCountLine = infoCalls.find(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('component(s) checked')
+    const componentCountLine = infoMessages().find((m) =>
+      m.includes('component(s) checked')
     );
     expect(componentCountLine).toBeDefined();
     expect(componentCountLine).toContain('2');
 
     // Should report template updates available (3 files from Dialog)
-    const templateChangedLine = infoCalls.find(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('template updates available')
+    const templateChangedLine = infoMessages().find((m) =>
+      m.includes('template updates available')
     );
     expect(templateChangedLine).toBeDefined();
     expect(templateChangedLine).toContain('3');
@@ -372,12 +353,7 @@ describe('diffCommand', () => {
     expect(getComponent).toHaveBeenCalledWith('button');
 
     // The result name should be PascalCase "Button" in output
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-    const buttonNameLine = infoCalls.find(
-      (msg: unknown) => typeof msg === 'string' && msg.includes('Button')
-    );
+    const buttonNameLine = infoMessages().find((m) => m.includes('Button'));
     expect(buttonNameLine).toBeDefined();
   });
 
@@ -402,22 +378,15 @@ describe('diffCommand', () => {
     // Only ask for Button
     await diffCommand(['Button'], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-
     // Should report 1 component checked (only Button)
-    const componentCountLine = infoCalls.find(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('component(s) checked')
+    const componentCountLine = infoMessages().find((m) =>
+      m.includes('component(s) checked')
     );
     expect(componentCountLine).toBeDefined();
     expect(componentCountLine).toContain('1');
 
     // Should not mention Dialog in the component header lines
-    const dialogLine = infoCalls.find(
-      (msg: unknown) => typeof msg === 'string' && msg.includes('Dialog')
-    );
+    const dialogLine = infoMessages().find((m) => m.includes('Dialog'));
     expect(dialogLine).toBeUndefined();
   });
 
@@ -442,14 +411,9 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    const infoCalls = mockOutput.info.mock.calls.map(
-      (call: unknown[]) => call[0]
-    );
-
     // Should only check 1 component (Button), not CustomWidget
-    const componentCountLine = infoCalls.find(
-      (msg: unknown) =>
-        typeof msg === 'string' && msg.includes('component(s) checked')
+    const componentCountLine = infoMessages().find((m) =>
+      m.includes('component(s) checked')
     );
     expect(componentCountLine).toBeDefined();
     expect(componentCountLine).toContain('1');
@@ -473,8 +437,14 @@ describe('diffCommand', () => {
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand([], { cwd: testDir });
 
-    expect(mockOutput.intro).toHaveBeenCalledWith('kigumi diff');
-    expect(mockOutput.outro).toHaveBeenCalledWith('Done');
+    expect(output.calls).toContainEqual({
+      method: 'intro',
+      args: ['kigumi diff'],
+    });
+    expect(output.calls).toContainEqual({
+      method: 'outro',
+      args: ['Done'],
+    });
   });
 
   // ── Test: diff always shows renderDiff for template-changed files ──
