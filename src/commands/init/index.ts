@@ -368,9 +368,9 @@ async function buildConfiguration(
 /**
  * Handle Free ↔ Pro tier migrations
  *
- * @internal
+ * Exported for unit tests; not a stable public API.
  */
-async function handleTierMigration(
+export async function handleTierMigration(
   context: InitContext,
   configResult: ConfigResult
 ): Promise<MigrationResult> {
@@ -412,9 +412,9 @@ async function handleTierMigration(
 /**
  * Ask for migration confirmation (or auto-confirm in non-interactive mode)
  *
- * @internal
+ * Exported for unit tests; not a stable public API.
  */
-async function confirmMigration(
+export async function confirmMigration(
   message: string,
   isNonInteractive: boolean
 ): Promise<boolean> {
@@ -517,9 +517,9 @@ async function handleDependencies(
 /**
  * Ask for installation confirmation (or auto-confirm in non-interactive mode)
  *
- * @internal
+ * Exported for unit tests; not a stable public API.
  */
-async function confirmInstallation(
+export async function confirmInstallation(
   isNonInteractive: boolean
 ): Promise<boolean> {
   if (isNonInteractive) {
@@ -535,8 +535,10 @@ async function confirmInstallation(
 
 /**
  * Show post-install instructions with manual steps
+ *
+ * Exported for unit tests; not a stable public API.
  */
-function showPostInstallInstructions(
+export function showPostInstallInstructions(
   output: import('../../output/types.js').OutputInterface,
   config: import('../../schemas/index.js').KigumiConfig,
   packageManager: string,
