@@ -57,6 +57,8 @@ jobs:
         run: pnpm run check:tests
 
       - name: Check mock budget
+        env:
+          MOCK_BUDGET_ENFORCE: '1'
         run: pnpm run check:mocks
 
       - name: Validate Registry

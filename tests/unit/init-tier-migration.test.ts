@@ -2,38 +2,30 @@
  * handleTierMigration Tests
  *
  * Unit-tests the Free <-> Pro tier migration orchestrator in
- * src/commands/init/index.ts. Mocks the migration helpers so we can verify
+ * src/commands/init/index.ts. Spies the migration helpers so we can verify
  * dispatch without touching the filesystem migration paths (those have their
  * own coverage in tests/integration/init.test.ts).
  *
- * Confirmation paths exercise p.confirm via vi.spyOn on the prompts wrapper;
- * non-interactive paths skip it entirely.
+ * Confirmation paths exercise p.confirm via the cluster S spy pattern on the
+ * prompts wrapper; non-interactive paths skip it entirely.
  *
- * Cluster S, F-126: rewritten to use vi.spyOn on the prompts wrapper
- * module instead of a module-level mock for @clack/prompts. The migration
- * mock stays since src/commands/init/migration.js has no DI seam.
+ * Cluster S: uses vi.spyOn on namespace imports for both the prompts
+ * wrapper (PR-S1) and the migration helpers (PR-S4); no module-level
+ * factory mocks remain in this file.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as p from '../../src/prompts/index.js';
+import * as migration from '../../src/commands/init/migration.js';
 import {
   handleTierMigration,
   confirmInstallation,
 } from '../../src/commands/init/index.js';
-import {
-  migratePackageReferences,
-  reverseMigratePackageReferences,
-} from '../../src/commands/init/migration.js';
 import { createTestOutput } from './_helpers/output.js';
 import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
 import type { OutputInterface } from '../../src/output/types.js';
 import type { KigumiConfig } from '../../src/schemas/index.js';
 import type { Tier } from '../../src/utils/tier.js';
-
-vi.mock('../../src/commands/init/migration.js', () => ({
-  migratePackageReferences: vi.fn(async () => undefined),
-  reverseMigratePackageReferences: vi.fn(async () => undefined),
-}));
 
 type Ctx = Parameters<typeof handleTierMigration>[0];
 type CfgResult = Parameters<typeof handleTierMigration>[1];
@@ -83,6 +75,8 @@ describe('handleTierMigration', () => {
   let output: OutputInterface;
   let confirmSpy: ReturnType<typeof vi.spyOn>;
   let isCancelSpy: ReturnType<typeof vi.spyOn>;
+  let migrateSpy: ReturnType<typeof vi.spyOn>;
+  let reverseMigrateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -90,12 +84,17 @@ describe('handleTierMigration', () => {
     // Reset isCancel to its happy-path default so a previous "cancel"
     // case doesn't bleed into the next test.
     isCancelSpy = vi.spyOn(p, 'isCancel').mockReturnValue(false);
+    migrateSpy = vi
+      .spyOn(migration, 'migratePackageReferences')
+      .mockResolvedValue(undefined);
+    reverseMigrateSpy = vi
+      .spyOn(migration, 'reverseMigratePackageReferences')
+      .mockResolvedValue(undefined);
     output = createTestOutput();
   });
 
   afterEach(() => {
-    confirmSpy.mockRestore();
-    isCancelSpy.mockRestore();
+    vi.restoreAllMocks();
   });
 
   it('returns didMigrate=false when there is no existing config', async () => {
@@ -110,8 +109,8 @@ describe('handleTierMigration', () => {
     const result = await handleTierMigration(ctx, makeConfigResult('pro'));
 
     expect(result.didMigrate).toBe(false);
-    expect(vi.mocked(migratePackageReferences)).not.toHaveBeenCalled();
-    expect(vi.mocked(reverseMigratePackageReferences)).not.toHaveBeenCalled();
+    expect(migrateSpy).not.toHaveBeenCalled();
+    expect(reverseMigrateSpy).not.toHaveBeenCalled();
   });
 
   it('returns didMigrate=false when the tier did not change (free -> free)', async () => {
@@ -127,8 +126,8 @@ describe('handleTierMigration', () => {
     const result = await handleTierMigration(ctx, makeConfigResult('free'));
 
     expect(result.didMigrate).toBe(false);
-    expect(vi.mocked(migratePackageReferences)).not.toHaveBeenCalled();
-    expect(vi.mocked(reverseMigratePackageReferences)).not.toHaveBeenCalled();
+    expect(migrateSpy).not.toHaveBeenCalled();
+    expect(reverseMigrateSpy).not.toHaveBeenCalled();
   });
 
   it('returns didMigrate=false when the tier did not change (pro -> pro)', async () => {
@@ -144,8 +143,8 @@ describe('handleTierMigration', () => {
     const result = await handleTierMigration(ctx, makeConfigResult('pro'));
 
     expect(result.didMigrate).toBe(false);
-    expect(vi.mocked(migratePackageReferences)).not.toHaveBeenCalled();
-    expect(vi.mocked(reverseMigratePackageReferences)).not.toHaveBeenCalled();
+    expect(migrateSpy).not.toHaveBeenCalled();
+    expect(reverseMigrateSpy).not.toHaveBeenCalled();
   });
 
   describe('Free -> Pro upgrade', () => {
@@ -162,12 +161,8 @@ describe('handleTierMigration', () => {
       const result = await handleTierMigration(ctx, makeConfigResult('pro'));
 
       expect(result.didMigrate).toBe(true);
-      expect(vi.mocked(migratePackageReferences)).toHaveBeenCalledTimes(1);
-      expect(vi.mocked(migratePackageReferences)).toHaveBeenCalledWith(
-        '/tmp/k',
-        cfg,
-        output
-      );
+      expect(migrateSpy).toHaveBeenCalledTimes(1);
+      expect(migrateSpy).toHaveBeenCalledWith('/tmp/k', cfg, output);
       expect(confirmSpy).not.toHaveBeenCalled();
     });
 
@@ -185,7 +180,7 @@ describe('handleTierMigration', () => {
       const result = await handleTierMigration(ctx, makeConfigResult('pro'));
 
       expect(result.didMigrate).toBe(true);
-      expect(vi.mocked(migratePackageReferences)).toHaveBeenCalledTimes(1);
+      expect(migrateSpy).toHaveBeenCalledTimes(1);
     });
 
     it('skips migration when the user declines in interactive mode', async () => {
@@ -202,7 +197,7 @@ describe('handleTierMigration', () => {
       const result = await handleTierMigration(ctx, makeConfigResult('pro'));
 
       expect(result.didMigrate).toBe(false);
-      expect(vi.mocked(migratePackageReferences)).not.toHaveBeenCalled();
+      expect(migrateSpy).not.toHaveBeenCalled();
     });
 
     it('skips migration when the user cancels the prompt', async () => {
@@ -221,7 +216,7 @@ describe('handleTierMigration', () => {
       const result = await handleTierMigration(ctx, makeConfigResult('pro'));
 
       expect(result.didMigrate).toBe(false);
-      expect(vi.mocked(migratePackageReferences)).not.toHaveBeenCalled();
+      expect(migrateSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -239,14 +234,8 @@ describe('handleTierMigration', () => {
       const result = await handleTierMigration(ctx, makeConfigResult('free'));
 
       expect(result.didMigrate).toBe(true);
-      expect(vi.mocked(reverseMigratePackageReferences)).toHaveBeenCalledTimes(
-        1
-      );
-      expect(vi.mocked(reverseMigratePackageReferences)).toHaveBeenCalledWith(
-        '/tmp/k',
-        cfg,
-        output
-      );
+      expect(reverseMigrateSpy).toHaveBeenCalledTimes(1);
+      expect(reverseMigrateSpy).toHaveBeenCalledWith('/tmp/k', cfg, output);
       expect(confirmSpy).not.toHaveBeenCalled();
     });
   });

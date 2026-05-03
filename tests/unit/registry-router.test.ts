@@ -4,56 +4,56 @@
  * Two surfaces:
  * 1. Structural assertion: catches accidental sub-command removal.
  * 2. Wiring assertion: each sub-command's action callback dispatches to the
- *    expected action function. Action modules are mocked so the test verifies
- *    routing, not action behavior. (Cluster S note: these mocks scope to
+ *    expected action function. Action modules are spied so the test verifies
+ *    routing, not action behavior. (Cluster S note: these spies scope to
  *    routing verification only; they don't replace integration coverage.)
+ *
+ * Cluster S / PR-S4: switched from 7 module-level factory mocks +
+ * top-level-await dynamic imports to namespace imports + per-test
+ * `vi.spyOn`. Production registry.ts wraps each action in an arrow
+ * (`.action((options) => registryInitAction(options))`), so ESM live
+ * bindings let the spy intercept at call time.
  */
 
-import { describe, it, expect, vi } from 'vitest';
-
-vi.mock('../../src/commands/registry/init.js', () => ({
-  registryInitAction: vi.fn(),
-}));
-vi.mock('../../src/commands/registry/validate.js', () => ({
-  registryValidateAction: vi.fn(),
-}));
-vi.mock('../../src/commands/registry/add-source.js', () => ({
-  registryConnectAction: vi.fn(),
-}));
-vi.mock('../../src/commands/registry/list-sources.js', () => ({
-  registryListSourcesAction: vi.fn(),
-}));
-vi.mock('../../src/commands/registry/remove-source.js', () => ({
-  registryRemoveSourceAction: vi.fn(),
-}));
-vi.mock('../../src/commands/registry/add-component.js', () => ({
-  registryAddComponentAction: vi.fn(),
-}));
-vi.mock('../../src/commands/registry/add-theme.js', () => ({
-  registryAddThemeAction: vi.fn(),
-}));
-
-// Module-scope dynamic imports: vi.mock calls above are hoisted, but the real
-// modules must be loaded AFTER the mocks register, hence the top-level await
-// instead of static imports. Keep these at module scope (not in beforeAll) so
-// the mocked bindings stay stable across both `it` blocks below.
-const { registryCommand } = await import('../../src/commands/registry.js');
-const { registryInitAction } =
-  await import('../../src/commands/registry/init.js');
-const { registryValidateAction } =
-  await import('../../src/commands/registry/validate.js');
-const { registryConnectAction } =
-  await import('../../src/commands/registry/add-source.js');
-const { registryListSourcesAction } =
-  await import('../../src/commands/registry/list-sources.js');
-const { registryRemoveSourceAction } =
-  await import('../../src/commands/registry/remove-source.js');
-const { registryAddComponentAction } =
-  await import('../../src/commands/registry/add-component.js');
-const { registryAddThemeAction } =
-  await import('../../src/commands/registry/add-theme.js');
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { registryCommand } from '../../src/commands/registry.js';
+import * as initModule from '../../src/commands/registry/init.js';
+import * as validateModule from '../../src/commands/registry/validate.js';
+import * as addSourceModule from '../../src/commands/registry/add-source.js';
+import * as listSourcesModule from '../../src/commands/registry/list-sources.js';
+import * as removeSourceModule from '../../src/commands/registry/remove-source.js';
+import * as addComponentModule from '../../src/commands/registry/add-component.js';
+import * as addThemeModule from '../../src/commands/registry/add-theme.js';
 
 describe('registryCommand', () => {
+  beforeEach(() => {
+    vi.spyOn(initModule, 'registryInitAction').mockResolvedValue(undefined);
+    vi.spyOn(validateModule, 'registryValidateAction').mockResolvedValue(
+      undefined
+    );
+    vi.spyOn(addSourceModule, 'registryConnectAction').mockResolvedValue(
+      undefined
+    );
+    vi.spyOn(listSourcesModule, 'registryListSourcesAction').mockResolvedValue(
+      undefined
+    );
+    vi.spyOn(
+      removeSourceModule,
+      'registryRemoveSourceAction'
+    ).mockResolvedValue(undefined);
+    vi.spyOn(
+      addComponentModule,
+      'registryAddComponentAction'
+    ).mockResolvedValue(undefined);
+    vi.spyOn(addThemeModule, 'registryAddThemeAction').mockResolvedValue(
+      undefined
+    );
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('exposes all expected sub-commands', () => {
     const names = registryCommand.commands.map((c) => c.name()).sort();
     expect(names).toEqual(
@@ -72,36 +72,41 @@ describe('registryCommand', () => {
   it('routes each sub-command to its expected action function', async () => {
     // commander allowExcessArguments lets us invoke without parsing real argv.
     await registryCommand.parseAsync(['init'], { from: 'user' });
-    expect(registryInitAction).toHaveBeenCalledTimes(1);
+    expect(initModule.registryInitAction).toHaveBeenCalledTimes(1);
 
     await registryCommand.parseAsync(['validate'], { from: 'user' });
-    expect(registryValidateAction).toHaveBeenCalledTimes(1);
+    expect(validateModule.registryValidateAction).toHaveBeenCalledTimes(1);
 
     await registryCommand.parseAsync(['connect', 'https://example.test'], {
       from: 'user',
     });
-    expect(registryConnectAction).toHaveBeenCalledTimes(1);
-    expect(registryConnectAction).toHaveBeenLastCalledWith(
+    expect(addSourceModule.registryConnectAction).toHaveBeenCalledTimes(1);
+    expect(addSourceModule.registryConnectAction).toHaveBeenLastCalledWith(
       'https://example.test',
       expect.anything()
     );
 
     await registryCommand.parseAsync(['list'], { from: 'user' });
-    expect(registryListSourcesAction).toHaveBeenCalledTimes(1);
+    expect(listSourcesModule.registryListSourcesAction).toHaveBeenCalledTimes(
+      1
+    );
 
     await registryCommand.parseAsync(['remove', 'some-source'], {
       from: 'user',
     });
-    expect(registryRemoveSourceAction).toHaveBeenCalledTimes(1);
-    expect(registryRemoveSourceAction).toHaveBeenLastCalledWith(
-      'some-source',
-      expect.anything()
+    expect(removeSourceModule.registryRemoveSourceAction).toHaveBeenCalledTimes(
+      1
     );
+    expect(
+      removeSourceModule.registryRemoveSourceAction
+    ).toHaveBeenLastCalledWith('some-source', expect.anything());
 
     await registryCommand.parseAsync(['add-component'], { from: 'user' });
-    expect(registryAddComponentAction).toHaveBeenCalledTimes(1);
+    expect(addComponentModule.registryAddComponentAction).toHaveBeenCalledTimes(
+      1
+    );
 
     await registryCommand.parseAsync(['add-theme'], { from: 'user' });
-    expect(registryAddThemeAction).toHaveBeenCalledTimes(1);
+    expect(addThemeModule.registryAddThemeAction).toHaveBeenCalledTimes(1);
   });
 });

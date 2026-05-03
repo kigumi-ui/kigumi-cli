@@ -43,6 +43,7 @@ describe('registryListSourcesAction', () => {
   let originalExit: typeof process.exit;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let exitMock: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -58,7 +59,8 @@ describe('registryListSourcesAction', () => {
     originalCwd = process.cwd();
     process.chdir(testDir);
     originalExit = process.exit;
-    process.exit = vi.fn() as unknown as typeof process.exit;
+    exitMock = vi.fn();
+    process.exit = exitMock as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
@@ -164,8 +166,8 @@ describe('registryListSourcesAction', () => {
     await registryListSourcesAction({ cwd: testDir });
 
     // handleError calls process.exit with a non-zero exit code
-    expect(process.exit).toHaveBeenCalledWith(expect.any(Number));
-    const exitCode = vi.mocked(process.exit).mock.calls[0][0];
+    expect(exitMock).toHaveBeenCalledWith(expect.any(Number));
+    const exitCode = exitMock.mock.calls[0][0];
     expect(exitCode).toBeGreaterThan(0);
     // Error output was generated
     expect(output.calls.some((c) => c.method === 'error')).toBe(true);
@@ -178,6 +180,7 @@ describe('registryRemoveSourceAction', () => {
   let originalExit: typeof process.exit;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let exitMock: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -193,7 +196,8 @@ describe('registryRemoveSourceAction', () => {
     originalCwd = process.cwd();
     process.chdir(testDir);
     originalExit = process.exit;
-    process.exit = vi.fn() as unknown as typeof process.exit;
+    exitMock = vi.fn();
+    process.exit = exitMock as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
@@ -318,8 +322,8 @@ describe('registryRemoveSourceAction', () => {
     });
 
     // handleError calls process.exit with a non-zero exit code
-    expect(process.exit).toHaveBeenCalledWith(expect.any(Number));
-    const exitCode = vi.mocked(process.exit).mock.calls[0][0];
+    expect(exitMock).toHaveBeenCalledWith(expect.any(Number));
+    const exitCode = exitMock.mock.calls[0][0];
     expect(exitCode).toBeGreaterThan(0);
     // Error output was generated
     expect(output.calls.some((c) => c.method === 'error')).toBe(true);

@@ -4,17 +4,18 @@
  * Tests the full lifecycle:
  * 1. Simulate install (files + snapshot on disk)
  * 2. User modifies file
- * 3. Template changes (via mock)
+ * 3. Template changes (via spy)
  * 4. Update -> three-way merge + diff displayed
  *
- * Uses real filesystem with mocked template/registry.
+ * Uses real filesystem with spied template/registry/diff-renderer modules.
  * Files and snapshots are written directly (not through installer)
  * to isolate the update/merge logic from pre-flight checks.
  *
- * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
- * (createRecordingOutput / createTestPrompts / writeTierFixture) instead of
- * vi.mock for @clack/prompts, output, and tier. The remaining vi.mocks for
- * diff-renderer, template, and registry have no DI seam yet and are kept.
+ * Cluster S: uses the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) for
+ * @clack/prompts, output, and tier. PR-S4: switched residual factory mocks
+ * for diff-renderer / template / registry to per-test `vi.spyOn` on
+ * dynamically-imported namespaces (re-imported post-`vi.resetModules()`).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -22,6 +23,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { saveSnapshot, loadSnapshot } from '../../src/utils/snapshot.js';
+import { toKebabCase } from '../../src/utils/naming.js';
 import {
   createRecordingOutput,
   type RecordingOutput,
@@ -29,51 +31,23 @@ import {
 import { createTestPrompts } from './_helpers/prompts.js';
 import { writeTierFixture } from './_helpers/tier.js';
 import type { PromptsAdapter } from '../../src/prompts/types.js';
+import type { ComponentDefinition } from '../../src/utils/registry/types.js';
 
 import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
-vi.mock('../../src/utils/diff-renderer.js', () => ({
-  renderDiff: vi.fn().mockReturnValue('mocked diff output'),
-}));
-
-vi.mock('../../src/utils/template.js', () => ({
-  generateComponent: vi.fn().mockResolvedValue('// generated component'),
-  generateComponentCSSContent: vi.fn().mockResolvedValue('/* generated css */'),
-  generateComponentTestContent: vi.fn().mockResolvedValue('// generated test'),
-  getComponentExtension: vi.fn().mockReturnValue('tsx'),
-  getTestExtension: vi.fn().mockReturnValue('test.tsx'),
-  getFileBaseName: vi
-    .fn()
-    .mockImplementation((_fw: string, name: string) => name),
-}));
-
-vi.mock('../../src/utils/registry.js', async () => {
-  const { toKebabCase } = await vi.importActual<
-    typeof import('../../src/utils/naming.js')
-  >('../../src/utils/naming.js');
-  const registry: Record<string, { name: string; [k: string]: unknown }> = {
-    button: {
-      name: 'Button',
-      tagName: 'wa-button',
-      importPath: '@awesome.me/webawesome/dist/components/button/button.js',
-      tier: 'free',
-      category: 'Actions',
-      description: 'Buttons',
-      dependencies: [],
-      files: {
-        react: { component: 'Button.tsx', css: 'Button.css' },
-      },
-      props: [],
-    },
-  };
-  return {
-    getComponent: vi.fn((name: string) => registry[name.toLowerCase()] ?? null),
-    normalizeComponentName: vi.fn((input: string) => {
-      const match = registry[toKebabCase(input)];
-      return match ? match.name : null;
-    }),
-  };
-});
+const cannedRegistry: Record<string, ComponentDefinition> = {
+  button: {
+    name: 'Button',
+    tagName: 'wa-button',
+    importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+    tier: 'free',
+    category: 'Actions',
+    description: 'Buttons',
+    dependencies: [],
+    files: {},
+    props: [],
+  },
+};
 
 describe('diff roundtrip', () => {
   let testDir: string;
@@ -81,6 +55,8 @@ describe('diff roundtrip', () => {
   let originalExit: typeof process.exit;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let generateComponentSpy: ReturnType<typeof vi.spyOn>;
+  let renderDiffSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -101,6 +77,39 @@ describe('diff roundtrip', () => {
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
+
+    // Spies for the residual seams. Modules must be dynamically imported AFTER
+    // vi.resetModules() so the spy wraps the same instance the SUT will see on
+    // its own dynamic import. The non-stubbed template helpers
+    // (getComponentExtension / getTestExtension / getFileBaseName) keep their
+    // real behavior; the React framework defaults match what the prior
+    // factory stub returned ('tsx' / 'test.tsx' / identity).
+    const template = await import('../../src/utils/template.js');
+    generateComponentSpy = vi
+      .spyOn(template, 'generateComponent')
+      .mockResolvedValue('// generated component');
+    vi.spyOn(template, 'generateComponentCSSContent').mockResolvedValue(
+      '/* generated css */'
+    );
+    vi.spyOn(template, 'generateComponentTestContent').mockResolvedValue(
+      '// generated test'
+    );
+
+    const registry = await import('../../src/utils/registry.js');
+    vi.spyOn(registry, 'getComponent').mockImplementation(
+      (name: string) => cannedRegistry[name.toLowerCase()] ?? null
+    );
+    vi.spyOn(registry, 'normalizeComponentName').mockImplementation(
+      (input: string) => {
+        const match = cannedRegistry[toKebabCase(input)];
+        return match ? match.name : null;
+      }
+    );
+
+    const diffRenderer = await import('../../src/utils/diff-renderer.js');
+    renderDiffSpy = vi
+      .spyOn(diffRenderer, 'renderDiff')
+      .mockReturnValue('mocked diff output');
   });
 
   afterEach(async () => {
@@ -108,6 +117,7 @@ describe('diff roundtrip', () => {
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(): Promise<void> {
@@ -153,8 +163,7 @@ describe('diff roundtrip', () => {
       'Button.css': '/* generated css */',
     });
 
-    const { generateComponent } = await import('../../src/utils/template.js');
-    vi.mocked(generateComponent).mockResolvedValue(theirs);
+    generateComponentSpy.mockResolvedValue(theirs);
 
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand(['Button'], { cwd: testDir });
@@ -168,8 +177,7 @@ describe('diff roundtrip', () => {
     expect(content).toContain('template updated');
 
     // renderDiff was called for the clean-merge
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
-    expect(renderDiff).toHaveBeenCalled();
+    expect(renderDiffSpy).toHaveBeenCalled();
 
     // Snapshot updated to theirs
     const snapshot = await loadSnapshot(testDir, 'Button');
@@ -191,18 +199,15 @@ describe('diff roundtrip', () => {
       'Button.css': '/* generated css */',
     });
 
-    // Ensure template mock returns default value (may have been overridden by prior tests)
-    const { generateComponent } = await import('../../src/utils/template.js');
-    vi.mocked(generateComponent).mockResolvedValue('// generated component');
+    generateComponentSpy.mockResolvedValue('// generated component');
+
+    const callsBefore = renderDiffSpy.mock.calls.length;
 
     const { updateCommand } = await import('../../src/commands/update.js');
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
-    const callsBefore = vi.mocked(renderDiff).mock.calls.length;
-
     await updateCommand(['Button'], { cwd: testDir });
 
     // No NEW renderDiff calls (template unchanged -> up-to-date)
-    expect(vi.mocked(renderDiff).mock.calls.length).toBe(callsBefore);
+    expect(renderDiffSpy.mock.calls.length).toBe(callsBefore);
   });
 
   // ── Nothing changed -> up-to-date ──
@@ -210,9 +215,7 @@ describe('diff roundtrip', () => {
   it('should be up-to-date and show no diff when nothing changed', async () => {
     await createConfig();
 
-    // Ensure template mock returns default value (may have been overridden by prior tests)
-    const { generateComponent } = await import('../../src/utils/template.js');
-    vi.mocked(generateComponent).mockResolvedValue('// generated component');
+    generateComponentSpy.mockResolvedValue('// generated component');
 
     await installComponent('Button', {
       'Button.tsx': '// generated component',
@@ -223,14 +226,13 @@ describe('diff roundtrip', () => {
       'Button.css': '/* generated css */',
     });
 
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
-    const callsBefore = vi.mocked(renderDiff).mock.calls.length;
+    const callsBefore = renderDiffSpy.mock.calls.length;
 
     const { updateCommand } = await import('../../src/commands/update.js');
     await updateCommand(['Button'], { cwd: testDir });
 
     // No NEW renderDiff calls during this update
-    expect(vi.mocked(renderDiff).mock.calls.length).toBe(callsBefore);
+    expect(renderDiffSpy.mock.calls.length).toBe(callsBefore);
 
     const upToDate = output.calls
       .filter((c) => c.method === 'info')

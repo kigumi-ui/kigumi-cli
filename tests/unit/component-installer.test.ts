@@ -8,13 +8,14 @@
  * - renderDiff NOT called for unchanged files on --force
  * - Snapshot saved after a fresh install
  *
- * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
- * (createRecordingOutput / createTestPrompts) instead of module-level
- * mocks for @clack/prompts and src/utils/tier.js. The diff-renderer,
- * template, and registry mocks stay since those modules have no DI seam
- * yet (Phase 2 candidates). Output is passed directly to the
- * ComponentInstaller constructor so it does not go through the
- * setOutputForTesting() seam.
+ * Cluster S: uses the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) for @clack/prompts and tier.
+ * Output is passed directly to the ComponentInstaller constructor so it
+ * does not go through the setOutputForTesting() seam.
+ *
+ * PR-S4: switched diff-renderer / template / registry factory mocks to
+ * per-test `vi.spyOn` on dynamically-imported namespaces (Pattern A:
+ * modules re-imported post-`vi.resetModules()`).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -29,6 +30,7 @@ import {
 } from './_helpers/output.js';
 import { createTestPrompts } from './_helpers/prompts.js';
 import type { PromptsAdapter } from '../../src/prompts/types.js';
+import type { ComponentDefinition } from '../../src/utils/registry/types.js';
 
 async function registerPromptsSeam(prompts: PromptsAdapter): Promise<void> {
   const promptsMod = await import('../../src/prompts/index.js');
@@ -40,84 +42,41 @@ async function clearPromptsSeam(): Promise<void> {
   promptsMod.resetPromptsForTesting();
 }
 
-// Mock diff renderer - spy only, real impl not needed for these tests
-vi.mock('../../src/utils/diff-renderer.js', () => ({
-  renderDiff: vi.fn().mockReturnValue('mocked diff output'),
-}));
-
-// Mock template generation with stable return values
-vi.mock('../../src/utils/template.js', () => ({
-  generateComponent: vi.fn().mockResolvedValue('// generated component'),
-  generateComponentCSSContent: vi.fn().mockResolvedValue('/* generated css */'),
-  generateComponentTestContent: vi.fn().mockResolvedValue('// generated test'),
-  getComponentCSSPath: vi
-    .fn()
-    .mockImplementation(
-      (
-        comp: { name: string },
-        config: { componentsDir: string },
-        cwd: string
-      ) => path.join(cwd, config.componentsDir, comp.name, `${comp.name}.css`)
-    ),
-  getComponentTestPath: vi
-    .fn()
-    .mockImplementation(
-      (
-        comp: { name: string },
-        config: { componentsDir: string },
-        cwd: string
-      ) =>
-        path.join(cwd, config.componentsDir, comp.name, `${comp.name}.test.tsx`)
-    ),
-  getComponentExtension: vi.fn().mockReturnValue('tsx'),
-  getTestExtension: vi.fn().mockReturnValue('test.tsx'),
-  getFileBaseName: vi
-    .fn()
-    .mockImplementation((_fw: string, name: string) => name),
-  updateComponentIndex: vi.fn().mockResolvedValue(undefined),
-}));
-
-// Mock registry - return stub definitions keyed by lowercase name
-vi.mock('../../src/utils/registry.js', () => {
-  const defs: Record<string, unknown> = {
-    button: {
-      name: 'Button',
-      tagName: 'wa-button',
-      importPath: '@awesome.me/webawesome/dist/components/button/button.js',
-      tier: 'free',
-      category: 'Actions',
-      description: 'Buttons',
-      dependencies: [],
-      files: { react: { component: 'Button.tsx', css: 'Button.css' } },
-      props: [],
-    },
-    select: {
-      name: 'Select',
-      tagName: 'wa-select',
-      importPath: '@awesome.me/webawesome/dist/components/select/select.js',
-      tier: 'free',
-      category: 'Form controls',
-      description: 'Select',
-      dependencies: ['option'],
-      files: { react: { component: 'Select.tsx', css: 'Select.css' } },
-      props: [],
-    },
-    option: {
-      name: 'Option',
-      tagName: 'wa-option',
-      importPath: '@awesome.me/webawesome/dist/components/option/option.js',
-      tier: 'free',
-      category: 'Form controls',
-      description: 'Option',
-      dependencies: [],
-      files: { react: { component: 'Option.tsx', css: 'Option.css' } },
-      props: [],
-    },
-  };
-  return {
-    getComponent: vi.fn((name: string) => defs[name.toLowerCase()] ?? null),
-  };
-});
+const cannedRegistry: Record<string, ComponentDefinition> = {
+  button: {
+    name: 'Button',
+    tagName: 'wa-button',
+    importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+    tier: 'free',
+    category: 'Actions',
+    description: 'Buttons',
+    dependencies: [],
+    files: { react: ['Button.tsx', 'Button.css'] },
+    props: [],
+  },
+  select: {
+    name: 'Select',
+    tagName: 'wa-select',
+    importPath: '@awesome.me/webawesome/dist/components/select/select.js',
+    tier: 'free',
+    category: 'Form controls',
+    description: 'Select',
+    dependencies: ['option'],
+    files: { react: ['Select.tsx', 'Select.css'] },
+    props: [],
+  },
+  option: {
+    name: 'Option',
+    tagName: 'wa-option',
+    importPath: '@awesome.me/webawesome/dist/components/option/option.js',
+    tier: 'free',
+    category: 'Form controls',
+    description: 'Option',
+    dependencies: [],
+    files: { react: ['Option.tsx', 'Option.css'] },
+    props: [],
+  },
+};
 
 const BASE_CONFIG = createTestKigumiConfig({
   componentsDir: 'src/components',
@@ -150,6 +109,7 @@ function warnMessages(output: RecordingOutput): string[] {
 
 describe('ComponentInstaller', () => {
   let testDir: string;
+  let renderDiffSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -165,11 +125,47 @@ describe('ComponentInstaller', () => {
 
     // Write minimal kigumi.config.json
     await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), BASE_CONFIG);
+
+    // Spies for the residual seams. Modules dynamically imported AFTER
+    // vi.resetModules() so the spy wraps the same instance the SUT will
+    // see on its own dynamic import. The real getComponentExtension /
+    // getTestExtension / getFileBaseName implementations match what the
+    // prior factory stub returned for the React framework.
+    const template = await import('../../src/utils/template.js');
+    vi.spyOn(template, 'generateComponent').mockResolvedValue(
+      '// generated component'
+    );
+    vi.spyOn(template, 'generateComponentCSSContent').mockResolvedValue(
+      '/* generated css */'
+    );
+    vi.spyOn(template, 'generateComponentTestContent').mockResolvedValue(
+      '// generated test'
+    );
+    vi.spyOn(template, 'getComponentCSSPath').mockImplementation(
+      (comp, config, cwd) =>
+        path.join(cwd, config.componentsDir, comp.name, `${comp.name}.css`)
+    );
+    vi.spyOn(template, 'getComponentTestPath').mockImplementation(
+      (comp, config, cwd) =>
+        path.join(cwd, config.componentsDir, comp.name, `${comp.name}.test.tsx`)
+    );
+    vi.spyOn(template, 'updateComponentIndex').mockResolvedValue(undefined);
+
+    const registry = await import('../../src/utils/registry.js');
+    vi.spyOn(registry, 'getComponent').mockImplementation(
+      (name: string) => cannedRegistry[name.toLowerCase()] ?? null
+    );
+
+    const diffRenderer = await import('../../src/utils/diff-renderer.js');
+    renderDiffSpy = vi
+      .spyOn(diffRenderer, 'renderDiff')
+      .mockReturnValue('mocked diff output');
   });
 
   afterEach(async () => {
     await clearPromptsSeam();
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   // ── Test 1: renderDiff called for modified file, not for unchanged ──
@@ -191,7 +187,6 @@ describe('ComponentInstaller', () => {
       'utf-8'
     );
 
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { installer } = await createInstaller(testDir);
 
     await installer.installComponents(
@@ -203,15 +198,16 @@ describe('ComponentInstaller', () => {
     );
 
     // renderDiff must be called for the modified Button.tsx
-    expect(renderDiff).toHaveBeenCalledWith(
+    expect(renderDiffSpy).toHaveBeenCalledWith(
       '// modified by user',
       '// generated component',
       'Button.tsx'
     );
 
     // renderDiff must NOT be called for the unchanged Button.css
-    const calls = (renderDiff as ReturnType<typeof vi.fn>).mock.calls;
-    const cssCall = calls.find((args: unknown[]) => args[2] === 'Button.css');
+    const cssCall = renderDiffSpy.mock.calls.find(
+      (args: unknown[]) => args[2] === 'Button.css'
+    );
     expect(cssCall).toBeUndefined();
   });
 
@@ -233,7 +229,6 @@ describe('ComponentInstaller', () => {
       'utf-8'
     );
 
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { installer } = await createInstaller(testDir);
 
     const results = await installer.installComponents(
@@ -244,7 +239,7 @@ describe('ComponentInstaller', () => {
       })
     );
 
-    expect(renderDiff).not.toHaveBeenCalled();
+    expect(renderDiffSpy).not.toHaveBeenCalled();
     expect(results[0].skipped).toBe(true);
   });
 
@@ -286,7 +281,6 @@ describe('ComponentInstaller', () => {
     // Re-register prompts with confirm: [false] so the user declines.
     await registerPromptsSeam(createTestPrompts({ confirm: [false] }));
 
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { installer } = await createInstaller(testDir);
 
     // No --force: smart-add shows diff + prompt
@@ -306,7 +300,7 @@ describe('ComponentInstaller', () => {
     expect(content).toBe('// user custom code');
 
     // renderDiff was called BEFORE the prompt (diff shown to help user decide)
-    expect(renderDiff).toHaveBeenCalledWith(
+    expect(renderDiffSpy).toHaveBeenCalledWith(
       '// user custom code',
       '// generated component',
       'Button.tsx'

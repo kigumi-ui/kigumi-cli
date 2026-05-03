@@ -2,10 +2,14 @@
  * generateProjectFiles Tests
  *
  * Unit-tests src/commands/init/file-generator.ts end-to-end against per-test
- * temp dirs. Real fs writes through regenerate.ts; only the dynamic
- * project-config.ts import is mocked so we don't have to scaffold full
+ * temp dirs. Real fs writes through regenerate.ts; the four config-mutator
+ * functions in project-config.ts are spied so we don't have to scaffold full
  * vite.config.ts / tsconfig.json per case (those modules have their own
- * coverage in tests/unit/project-config*).
+ * coverage in tests/unit/project-config*). The remaining project-config
+ * exports stay live.
+ *
+ * Cluster S / PR-S4: switched the project-config partial factory mock
+ * to per-test vi.spyOn on the namespace import.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -13,30 +17,11 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { generateProjectFiles } from '../../src/commands/init/file-generator.js';
+import * as projectConfig from '../../src/utils/project-config.js';
 import { createTestOutput } from './_helpers/output.js';
 import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
 import type { OutputInterface } from '../../src/output/types.js';
 import type { ProjectInfo } from '../../src/utils/detect-framework.js';
-
-vi.mock('../../src/utils/project-config.js', async () => {
-  const actual = await vi.importActual<
-    typeof import('../../src/utils/project-config.js')
-  >('../../src/utils/project-config.js');
-  return {
-    ...actual,
-    configureVitePathAliases: vi.fn(async () => true),
-    configureTSConfig: vi.fn(async () => true),
-    configureVueCustomElements: vi.fn(async () => true),
-    configureVueTypes: vi.fn(async () => true),
-  };
-});
-
-import {
-  configureVitePathAliases,
-  configureTSConfig,
-  configureVueCustomElements,
-  configureVueTypes,
-} from '../../src/utils/project-config.js';
 
 function makeProjectInfo(overrides: Partial<ProjectInfo> = {}): ProjectInfo {
   return {
@@ -56,6 +41,14 @@ describe('generateProjectFiles', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+
+    vi.spyOn(projectConfig, 'configureVitePathAliases').mockResolvedValue(true);
+    vi.spyOn(projectConfig, 'configureTSConfig').mockResolvedValue(true);
+    vi.spyOn(projectConfig, 'configureVueCustomElements').mockResolvedValue(
+      true
+    );
+    vi.spyOn(projectConfig, 'configureVueTypes').mockResolvedValue(true);
+
     tempDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-file-gen-test-'))
     );
@@ -70,6 +63,7 @@ describe('generateProjectFiles', () => {
 
   afterEach(async () => {
     await fs.remove(tempDir);
+    vi.restoreAllMocks();
   });
 
   describe('Vite + free + react + ts', () => {
@@ -111,10 +105,10 @@ describe('generateProjectFiles', () => {
         '@awesome.me:registry=https://registry.npmjs.org/'
       );
 
-      expect(vi.mocked(configureVitePathAliases)).toHaveBeenCalledTimes(1);
-      expect(vi.mocked(configureTSConfig)).toHaveBeenCalledTimes(1);
-      expect(vi.mocked(configureVueCustomElements)).not.toHaveBeenCalled();
-      expect(vi.mocked(configureVueTypes)).not.toHaveBeenCalled();
+      expect(projectConfig.configureVitePathAliases).toHaveBeenCalledTimes(1);
+      expect(projectConfig.configureTSConfig).toHaveBeenCalledTimes(1);
+      expect(projectConfig.configureVueCustomElements).not.toHaveBeenCalled();
+      expect(projectConfig.configureVueTypes).not.toHaveBeenCalled();
     });
   });
 
@@ -176,8 +170,8 @@ describe('generateProjectFiles', () => {
         false
       );
 
-      expect(vi.mocked(configureVueCustomElements)).toHaveBeenCalledTimes(1);
-      expect(vi.mocked(configureVueTypes)).toHaveBeenCalledTimes(1);
+      expect(projectConfig.configureVueCustomElements).toHaveBeenCalledTimes(1);
+      expect(projectConfig.configureVueTypes).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -223,8 +217,8 @@ describe('generateProjectFiles', () => {
       expect(providers).toContain('export function KigumiProvider');
 
       // Next projects skip the Vite path-alias step.
-      expect(vi.mocked(configureVitePathAliases)).not.toHaveBeenCalled();
-      expect(vi.mocked(configureTSConfig)).toHaveBeenCalledTimes(1);
+      expect(projectConfig.configureVitePathAliases).not.toHaveBeenCalled();
+      expect(projectConfig.configureTSConfig).toHaveBeenCalledTimes(1);
     });
   });
 

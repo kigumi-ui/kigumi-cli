@@ -77,9 +77,9 @@ if [ -n "$HAS_TEST_CHANGES" ] && [ -z "$HAS_SRC_CHANGES" ]; then
   pnpm check:tests >"$TMPDIR_HOOKS/ct.out" 2>&1 &
   CT_PID=$!
 
-  # Mock budget runs alongside the tests-only fast path. It's advisory in
-  # CI until cluster S PR-S4 sets MOCK_BUDGET_ENFORCE=1; locally we only
-  # surface the report when it fails (script exits 0 without enforcement).
+  # Mock budget runs alongside the tests-only fast path. CI sets
+  # MOCK_BUDGET_ENFORCE=1 to enforce the gate; locally we only surface
+  # the report when it fails (script exits 0 without enforcement).
   pnpm check:mocks >"$TMPDIR_HOOKS/mb.out" 2>&1 &
   MB_PID=$!
 fi

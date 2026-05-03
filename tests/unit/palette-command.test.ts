@@ -3,11 +3,11 @@
  *
  * Tests for src/commands/palette.ts - Color palette management.
  *
- * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
- * (createRecordingOutput / createTestPrompts / writeTierFixture) instead
- * of module-level mocks for @clack/prompts, src/output/index.js, and
- * src/utils/tier.js. The regenerate mock stays since regenerate has no
- * DI seam yet.
+ * Cluster S: uses the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) for
+ * @clack/prompts, output, and tier. PR-S4: switched the regenerate
+ * factory mock to per-test `vi.spyOn` on a dynamically-imported
+ * namespace (Pattern A: regenerate is re-imported post-`vi.resetModules()`).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -24,17 +24,13 @@ import type { PromptsAdapter } from '../../src/prompts/types.js';
 
 import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
-// Keep regenerate mock: regenerate has no DI seam yet (Phase 2 candidate).
-vi.mock('../../src/utils/regenerate.js', () => ({
-  regenerateKigumiSetup: vi.fn().mockResolvedValue({ layersPreserved: false }),
-}));
-
 describe('paletteCommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let regenerateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -54,6 +50,11 @@ describe('paletteCommand', () => {
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
+
+    const regenerate = await import('../../src/utils/regenerate.js');
+    regenerateSpy = vi
+      .spyOn(regenerate, 'regenerateKigumiSetup')
+      .mockResolvedValue({ layersPreserved: false });
   });
 
   afterEach(async () => {
@@ -61,6 +62,7 @@ describe('paletteCommand', () => {
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -101,12 +103,16 @@ describe('paletteCommand', () => {
         await createConfig();
         vi.resetModules();
         vi.clearAllMocks();
-        // Re-register seams + fixture after resetModules to bind to the
-        // fresh module instance the SUT will pull in below.
+        // Re-register seams + spy + fixture after resetModules to bind to
+        // the fresh module instance the SUT will pull in below.
         output = createRecordingOutput();
         prompts = createTestPrompts({});
         await registerTestSeams(output, prompts);
         await writeTierFixture(testDir, 'free');
+        const regenerate = await import('../../src/utils/regenerate.js');
+        regenerateSpy = vi
+          .spyOn(regenerate, 'regenerateKigumiSetup')
+          .mockResolvedValue({ layersPreserved: false });
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');
@@ -137,6 +143,10 @@ describe('paletteCommand', () => {
         prompts = createTestPrompts({});
         await registerTestSeams(output, prompts);
         await writeTierFixture(testDir, 'free');
+        const regenerate = await import('../../src/utils/regenerate.js');
+        regenerateSpy = vi
+          .spyOn(regenerate, 'regenerateKigumiSetup')
+          .mockResolvedValue({ layersPreserved: false });
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');
@@ -178,12 +188,10 @@ describe('paletteCommand', () => {
     it('should call regenerateKigumiSetup after updating', async () => {
       await createConfig();
 
-      const { regenerateKigumiSetup } =
-        await import('../../src/utils/regenerate.js');
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette', 'bright']);
 
-      expect(regenerateKigumiSetup).toHaveBeenCalledWith(
+      expect(regenerateSpy).toHaveBeenCalledWith(
         testDir,
         expect.objectContaining({
           theme: expect.objectContaining({ palette: 'bright' }),
@@ -195,12 +203,10 @@ describe('paletteCommand', () => {
     it('should use custom utilsDir from config', async () => {
       await createConfig({ utilsDir: 'lib/utils' });
 
-      const { regenerateKigumiSetup } =
-        await import('../../src/utils/regenerate.js');
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette', 'shoelace']);
 
-      expect(regenerateKigumiSetup).toHaveBeenCalledWith(
+      expect(regenerateSpy).toHaveBeenCalledWith(
         testDir,
         expect.objectContaining({
           theme: expect.objectContaining({ palette: 'shoelace' }),

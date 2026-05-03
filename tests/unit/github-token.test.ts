@@ -8,6 +8,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { MockedFunction } from 'vitest';
 import { getGitHubToken } from '../../src/utils/github-token.js';
 import { execa } from 'execa';
 
@@ -15,7 +16,7 @@ vi.mock('execa', () => ({
   execa: vi.fn(),
 }));
 
-const mockedExeca = vi.mocked(execa);
+const mockedExeca = execa as unknown as MockedFunction<typeof execa>;
 
 describe('getGitHubToken', () => {
   let savedEnv: Record<string, string | undefined>;

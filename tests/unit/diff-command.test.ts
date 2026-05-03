@@ -13,109 +13,75 @@
  * - PascalCase normalization
  * - Specific component filtering
  *
- * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
- * (createRecordingOutput / createTestPrompts) instead of vi.mock for
- * @clack/prompts and output. Also drops a dead vi.mock for utils/tier.js
- * since src/commands/diff.ts never imports that module. The remaining
- * vi.mock decls for template, registry, and diff-renderer have no DI
- * seam yet and are kept.
+ * Cluster S: uses the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) for @clack/prompts and
+ * output. PR-S4: switched residual factory mocks for template / registry /
+ * diff-renderer to per-test `vi.spyOn` on dynamically-imported namespaces
+ * (Pattern A: modules re-imported post-`vi.resetModules()`).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import { toKebabCase } from '../../src/utils/naming.js';
 import {
   createRecordingOutput,
   type RecordingOutput,
 } from './_helpers/output.js';
 import { createTestPrompts } from './_helpers/prompts.js';
 import type { PromptsAdapter } from '../../src/prompts/types.js';
+import type { ComponentDefinition } from '../../src/utils/registry/types.js';
 
 import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
-// Mock template generation (pass through real utility functions)
-vi.mock('../../src/utils/template.js', async () => {
-  const actual = await vi.importActual<
-    typeof import('../../src/utils/template.js')
-  >('../../src/utils/template.js');
-  return {
-    generateComponent: vi.fn().mockResolvedValue('// generated component'),
-    generateComponentCSSContent: vi
-      .fn()
-      .mockResolvedValue('/* generated css */'),
-    generateComponentTestContent: vi
-      .fn()
-      .mockResolvedValue('// generated test'),
-    getComponentExtension: actual.getComponentExtension,
-    getTestExtension: actual.getTestExtension,
-    getFileBaseName: actual.getFileBaseName,
-  };
-});
-
-// Mock registry
-vi.mock('../../src/utils/registry.js', async () => {
-  const { toKebabCase } = await vi.importActual<
-    typeof import('../../src/utils/naming.js')
-  >('../../src/utils/naming.js');
-  const registry: Record<
-    string,
-    {
-      name: string;
-      tagName: string;
-      importPath: string;
-      tier: string;
-      category: string;
-      description: string;
-    }
-  > = {
-    button: {
-      name: 'Button',
-      tagName: 'wa-button',
-      importPath: '@awesome.me/webawesome/dist/components/button/button.js',
-      tier: 'free',
-      category: 'Actions',
-      description: 'Buttons represent actions available to the user',
-    },
-    dialog: {
-      name: 'Dialog',
-      tagName: 'wa-dialog',
-      importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
-      tier: 'free',
-      category: 'Overlays',
-      description: 'Dialogs display interactive content',
-    },
-    card: {
-      name: 'Card',
-      tagName: 'wa-card',
-      importPath: '@awesome.me/webawesome/dist/components/card/card.js',
-      tier: 'free',
-      category: 'Layout',
-      description: 'Cards group related content',
-    },
-    'button-group': {
-      name: 'ButtonGroup',
-      tagName: 'wa-button-group',
-      importPath:
-        '@awesome.me/webawesome/dist/components/button-group/button-group.js',
-      tier: 'free',
-      category: 'Actions',
-      description: 'Groups related buttons together',
-    },
-  };
-  return {
-    getComponent: vi.fn((name: string) => registry[name.toLowerCase()] ?? null),
-    normalizeComponentName: vi.fn((input: string) => {
-      const match = registry[toKebabCase(input)];
-      return match ? match.name : null;
-    }),
-  };
-});
-
-// Mock diff renderer
-vi.mock('../../src/utils/diff-renderer.js', () => ({
-  renderDiff: vi.fn().mockReturnValue('mocked diff output'),
-}));
+const cannedRegistry: Record<string, ComponentDefinition> = {
+  button: {
+    name: 'Button',
+    tagName: 'wa-button',
+    importPath: '@awesome.me/webawesome/dist/components/button/button.js',
+    tier: 'free',
+    category: 'Actions',
+    description: 'Buttons represent actions available to the user',
+    dependencies: [],
+    files: {},
+    props: [],
+  },
+  dialog: {
+    name: 'Dialog',
+    tagName: 'wa-dialog',
+    importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
+    tier: 'free',
+    category: 'Overlays',
+    description: 'Dialogs display interactive content',
+    dependencies: [],
+    files: {},
+    props: [],
+  },
+  card: {
+    name: 'Card',
+    tagName: 'wa-card',
+    importPath: '@awesome.me/webawesome/dist/components/card/card.js',
+    tier: 'free',
+    category: 'Layout',
+    description: 'Cards group related content',
+    dependencies: [],
+    files: {},
+    props: [],
+  },
+  'button-group': {
+    name: 'ButtonGroup',
+    tagName: 'wa-button-group',
+    importPath:
+      '@awesome.me/webawesome/dist/components/button-group/button-group.js',
+    tier: 'free',
+    category: 'Actions',
+    description: 'Groups related buttons together',
+    dependencies: [],
+    files: {},
+    props: [],
+  },
+};
 
 describe('diffCommand', () => {
   let testDir: string;
@@ -123,6 +89,8 @@ describe('diffCommand', () => {
   let originalExit: typeof process.exit;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let getComponentSpy: ReturnType<typeof vi.spyOn>;
+  let renderDiffSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -141,6 +109,40 @@ describe('diffCommand', () => {
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
+
+    // Spies for the residual seams (template / registry / diff-renderer).
+    // Modules dynamically imported AFTER vi.resetModules() so the spy wraps
+    // the same instance the SUT will see on its own dynamic import. The
+    // non-stubbed template helpers (getComponentExtension / getTestExtension
+    // / getFileBaseName) keep their real behavior.
+    const template = await import('../../src/utils/template.js');
+    vi.spyOn(template, 'generateComponent').mockResolvedValue(
+      '// generated component'
+    );
+    vi.spyOn(template, 'generateComponentCSSContent').mockResolvedValue(
+      '/* generated css */'
+    );
+    vi.spyOn(template, 'generateComponentTestContent').mockResolvedValue(
+      '// generated test'
+    );
+
+    const registry = await import('../../src/utils/registry.js');
+    getComponentSpy = vi
+      .spyOn(registry, 'getComponent')
+      .mockImplementation(
+        (name: string) => cannedRegistry[name.toLowerCase()] ?? null
+      );
+    vi.spyOn(registry, 'normalizeComponentName').mockImplementation(
+      (input: string) => {
+        const match = cannedRegistry[toKebabCase(input)];
+        return match ? match.name : null;
+      }
+    );
+
+    const diffRenderer = await import('../../src/utils/diff-renderer.js');
+    renderDiffSpy = vi
+      .spyOn(diffRenderer, 'renderDiff')
+      .mockReturnValue('mocked diff output');
   });
 
   afterEach(async () => {
@@ -148,6 +150,7 @@ describe('diffCommand', () => {
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -330,12 +333,11 @@ describe('diffCommand', () => {
       'Button.test.tsx': '// generated test',
     });
 
-    const { getComponent } = await import('../../src/utils/registry.js');
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand(['button'], { cwd: testDir });
 
     // getComponent is called with the lowercase version
-    expect(getComponent).toHaveBeenCalledWith('button');
+    expect(getComponentSpy).toHaveBeenCalledWith('button');
 
     // The result name should be PascalCase "Button" in output
     const buttonNameLine = infoMessages().find((m) => m.includes('Button'));
@@ -447,11 +449,10 @@ describe('diffCommand', () => {
       'Button.test.tsx': '// generated test',
     });
 
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand(['Button'], { cwd: testDir });
 
-    expect(renderDiff).toHaveBeenCalledWith(
+    expect(renderDiffSpy).toHaveBeenCalledWith(
       '// my installed component',
       '// generated component',
       'Button.tsx'
@@ -468,11 +469,10 @@ describe('diffCommand', () => {
       'Button.test.tsx': '// generated test',
     });
 
-    const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { diffCommand } = await import('../../src/commands/diff.js');
     await diffCommand(['Button'], { cwd: testDir });
 
-    expect(renderDiff).not.toHaveBeenCalled();
+    expect(renderDiffSpy).not.toHaveBeenCalled();
   });
 
   describe('resolveComponents (multi-word regression)', () => {

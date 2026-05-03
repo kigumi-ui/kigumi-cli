@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-03
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** S (mock reduction; PR-S1 #147 merged, PR-S2 #148 merged, PR-S3 draft) - P shipped
+**Active cluster:** S (mock reduction; SHIPPED); P shipped
 **Active spec:** [`docs/superpowers/specs/2026-05-02-cluster-s-mock-reduction-design.md`](../specs/2026-05-02-cluster-s-mock-reduction-design.md) (P spec preserved at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md))
 **Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
@@ -19,16 +19,16 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ## Cluster Status Table
 
-| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status          | PR                                       | Spec                                                                       | Plan                |
-| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | --------------- | ---------------------------------------- | -------------------------------------------------------------------------- | ------------------- |
-| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | -                                | **SHIPPED**     | #137                                     | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)        | _accumulated in PR_ |
-| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **SHIPPED**     | #138                                     | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)        | _accumulated in PR_ |
-| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **SHIPPED**     | #139, #140, #141                         | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)   | _local_             |
-| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **IN-PROGRESS** | #147 (PR-S1), #148 (PR-S2), #150 (PR-S3) | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)           | _local_             |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **SHIPPED**     | #143, #144, #145, #146                   | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md) | _local_             |
-| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED**     | _pending_                                | _pending_                                                                  | _pending_           |
-| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED**     | _pending_                                | _pending_                                                                  | _pending_           |
-| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED**     | _pending_                                | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)           | _pending_           |
+| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status      | PR                      | Spec                                                                       | Plan                |
+| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | ----------- | ----------------------- | -------------------------------------------------------------------------- | ------------------- |
+| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | -                                | **SHIPPED** | #137                    | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)        | _accumulated in PR_ |
+| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **SHIPPED** | #138                    | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)        | _accumulated in PR_ |
+| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **SHIPPED** | #139, #140, #141        | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)   | _local_             |
+| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **SHIPPED** | #147, #148, #150, PR-S4 | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)           | _local_             |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **SHIPPED** | #143, #144, #145, #146  | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md) | _local_             |
+| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED** | _pending_               | _pending_                                                                  | _pending_           |
+| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED** | _pending_               | _pending_                                                                  | _pending_           |
+| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED** | _pending_               | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)           | _pending_           |
 
 **Status legend:**
 
@@ -134,7 +134,7 @@ R extends initiative scope from 3 to 4 starters. Pro-tier coverage is deferred t
 After R shipped, S/P/T/U opened up. Status by sub-cluster:
 
 - **P (coverage rationalization):** SHIPPED 2026-05-02. Four PRs landed (#143, #144, #145, #146); see Phase 4-P below for the close-out summary.
-- **S (mock reduction):** IN-PROGRESS. Spec at [`2026-05-02-cluster-s-mock-reduction-design.md`](../specs/2026-05-02-cluster-s-mock-reduction-design.md). Four sequential PRs. PR-S1 (#147, merged) landed the seam pattern + theme-commands proof point (37 -> 1 substring matches). PR-S2 (#148, merged) extended the pattern to update / upgrade / diff command tests (total tests/unit 203 -> 198). PR-S3 (#150, draft) extends the pattern to 21 remaining command + utility tests plus 13 prod-side import swaps (total tests/unit 198 -> 104). PR-S4 will flip the budget gate to enforce once total < 50, after addressing the three test files the cluster S spec listed in PR-S3 scope but PR-S3 deferred (`remote-installer.test.ts`, `init-file-generator.test.ts`, `registry-router.test.ts`; ~26 substring matches combined). Runs in parallel with P (no file overlap).
+- **S (mock reduction):** SHIPPED 2026-05-03. Four PRs landed (#147, #148, #150, PR-S4); see Phase 4-S below for the close-out summary.
 - **T (property-based + edge cases):** BLOCKED on cluster A (`.strict()` adoption).
 - **U (story `play()` interactions):** unblocked but spec not yet written.
 
@@ -155,7 +155,7 @@ Acceptance gates closed:
 
 Side effect: #146 surfaced two latent bugs in `scripts/generate-angular-templates.ts` (`getEvents` and `getMethods` accessed `e.type?.text` / `p.type?.text` against a flat-string metadata shape, so all Angular events were emitted as `EventEmitter<CustomEvent>` and all method parameters as `unknown`). Fixed inline; the snapshots reflect the corrected output (e.g. `EventEmitter<FocusEvent>` for the focus event, `focus(options?: FocusOptions): void` instead of `focus(options?: unknown)`).
 
-### Phase 4-S: Cluster S — IN-PROGRESS
+### Phase 4-S: Cluster S — SHIPPED 2026-05-03
 
 Mock reduction. Four sequential PRs on `ft/cluster-s-pr-s{1..4}`.
 
@@ -178,7 +178,22 @@ Mock reduction. Four sequential PRs on `ft/cluster-s-pr-s{1..4}`.
   - The `status-json` "tier mismatch warning" test case exercises a synthetic state (`tier === 'free' && package === 'pro'`) that's unreachable without mocking once `detectTier` and `getPackageInfo` both read the same `package.json`; preserved via per-test `vi.spyOn(tierMod, 'detectTier').mockResolvedValue('free')`.
   - 1297 unit tests passing; lint, type-check, registry, templates, AGENTS validation all clean; `pnpm check:mocks` shows total 104 / 50 (advisory); build smoke (`init --framework react --yes --no-install`) renders intro / outro / spinner normally.
 
-- **PR-S4** (pending): pick up the three test files the cluster S spec listed in PR-S3 scope but PR-S3 deferred (`remote-installer.test.ts` (9 substring matches; includes the undici.MockAgent HTTP migration), `init-file-generator.test.ts` (9), `registry-router.test.ts` (8)). Also consolidates any further mock reductions needed to drive total `tests/unit/` `vi.mock` substring count under 50, then flips `MOCK_BUDGET_ENFORCE=1` in CI.
+- **PR-S4** (closer): refactored 13 residual test files via `vi.spyOn` on namespace imports (no new production seams). Pattern A (dynamic-import + spyOn post-`vi.resetModules()`) handled the 8 files that already used `vi.resetModules()` (`update-command`, `diff-roundtrip`, `diff-command`, `upgrade-command`, `component-installer`, `palette-command`, `brand-command`, plus the `process.exit` accessor swap in `registry-list-remove-command`). Pattern B (static-import + spyOn) handled the 5 files without resetModules (`init-tier-migration`, `init-file-generator`, `registry-router`, `init-config-preservation`, `github-token`). Comment-only matches in 4 leftover files (`theme-commands.test.ts`, `output-di.test.ts`, `_helpers/output.ts`, `_helpers/tier.ts`) were reworded. Total `tests/unit/` `vi.mock` substring count: 101 -> 16 (-85). CI flipped to `MOCK_BUDGET_ENFORCE=1`.
+
+Substring trajectory: pre-S1 ~238 -> post-S2 198 -> post-S3 101 -> post-S4 16 (well under the 50 hard limit).
+
+Acceptance gates closed:
+
+- Spec line 343-345: `grep -rn 'vi\.mock' tests/unit | wc -l` < 50 (16) ✅
+- Spec line 346: per-file `theme-commands.test.ts` < 10 (0) ✅
+- Spec line 347-349: `MOCK_BUDGET_ENFORCE=1 pnpm check:mocks` exits 0; CI step set to enforce mode ✅
+- Spec line 350-351: 1297 unit tests passing across all four PRs ✅
+- Spec line 352: `pnpm type-check` clean ✅
+- Spec line 353: `pnpm lint` clean ✅
+- Spec line 354: `pnpm validate:agents` clean (tests/AGENTS.md mock budget section updated) ✅
+- Spec line 355: `pnpm validate:registry && pnpm validate:templates` clean ✅
+- Spec line 356-358: build smoke (`init --framework react --yes --no-install`) renders intro / outro normally with the seam-injected output ✅
+- Spec line 359-360: residual mocks (16 total) are documented exceptions: `execa`, `github-fetcher`, `registry-cache`, `constants` (CLI_VERSION re-export), the inline `createMockOutput` accessors in `remote-installer.test.ts` ✅
 
 ### Phase 5: Cluster V — PENDING
 

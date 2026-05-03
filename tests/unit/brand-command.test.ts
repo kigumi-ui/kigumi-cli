@@ -3,10 +3,11 @@
  *
  * Tests for src/commands/brand.ts - Brand color management.
  *
- * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
- * (createRecordingOutput / createTestPrompts) instead of module-level
- * mocks for @clack/prompts and src/output/index.js. The regenerate mock
- * stays since regenerate has no DI seam yet.
+ * Cluster S: uses the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) for @clack/prompts and
+ * output. PR-S4: switched the regenerate factory mock to per-test
+ * `vi.spyOn` on a dynamically-imported namespace (Pattern A: regenerate
+ * is re-imported post-`vi.resetModules()`).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -22,17 +23,13 @@ import type { PromptsAdapter } from '../../src/prompts/types.js';
 
 import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
-// Keep regenerate mock: regenerate has no DI seam yet (Phase 2 candidate).
-vi.mock('../../src/utils/regenerate.js', () => ({
-  regenerateKigumiSetup: vi.fn().mockResolvedValue({ layersPreserved: false }),
-}));
-
 describe('brandCommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let regenerateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -50,6 +47,11 @@ describe('brandCommand', () => {
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
+
+    const regenerate = await import('../../src/utils/regenerate.js');
+    regenerateSpy = vi
+      .spyOn(regenerate, 'regenerateKigumiSetup')
+      .mockResolvedValue({ layersPreserved: false });
   });
 
   afterEach(async () => {
@@ -57,6 +59,7 @@ describe('brandCommand', () => {
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -109,11 +112,15 @@ describe('brandCommand', () => {
         await createConfig();
         vi.resetModules();
         vi.clearAllMocks();
-        // Re-register seams after resetModules to bind to the fresh module
-        // instance the SUT will pull in below.
+        // Re-register seams + spy after resetModules to bind to the fresh
+        // module instance the SUT will pull in below.
         output = createRecordingOutput();
         prompts = createTestPrompts({});
         await registerTestSeams(output, prompts);
+        const regenerate = await import('../../src/utils/regenerate.js');
+        regenerateSpy = vi
+          .spyOn(regenerate, 'regenerateKigumiSetup')
+          .mockResolvedValue({ layersPreserved: false });
 
         const { brandCommand } = await import('../../src/commands/brand.js');
         await brandCommand.parseAsync(['node', 'brand', color]);
@@ -137,12 +144,10 @@ describe('brandCommand', () => {
     it('should call regenerateKigumiSetup after updating', async () => {
       await createConfig();
 
-      const { regenerateKigumiSetup } =
-        await import('../../src/utils/regenerate.js');
       const { brandCommand } = await import('../../src/commands/brand.js');
       await brandCommand.parseAsync(['node', 'brand', 'green']);
 
-      expect(regenerateKigumiSetup).toHaveBeenCalledWith(
+      expect(regenerateSpy).toHaveBeenCalledWith(
         testDir,
         expect.objectContaining({
           theme: expect.objectContaining({ brandColor: 'green' }),
@@ -154,12 +159,10 @@ describe('brandCommand', () => {
     it('should use custom utilsDir from config', async () => {
       await createConfig({ utilsDir: 'lib/utils' });
 
-      const { regenerateKigumiSetup } =
-        await import('../../src/utils/regenerate.js');
       const { brandCommand } = await import('../../src/commands/brand.js');
       await brandCommand.parseAsync(['node', 'brand', 'red']);
 
-      expect(regenerateKigumiSetup).toHaveBeenCalledWith(
+      expect(regenerateSpy).toHaveBeenCalledWith(
         testDir,
         expect.objectContaining({
           theme: expect.objectContaining({ brandColor: 'red' }),
