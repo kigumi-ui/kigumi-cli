@@ -16,7 +16,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
-import * as p from '@clack/prompts';
+import * as p from '../../prompts/index.js';
 import {
   getComponent,
   type ComponentDefinition,

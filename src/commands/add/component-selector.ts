@@ -4,7 +4,7 @@
  * Handles interactive and non-interactive component selection
  */
 
-import * as p from '@clack/prompts';
+import * as p from '../../prompts/index.js';
 import {
   getAllComponents,
   type ComponentRegistry,

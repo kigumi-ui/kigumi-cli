@@ -30,22 +30,7 @@ import { createTestPrompts } from './_helpers/prompts.js';
 import { writeTierFixture } from './_helpers/tier.js';
 import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-async function registerTestSeams(
-  output: RecordingOutput,
-  prompts: PromptsAdapter
-): Promise<void> {
-  const outMod = await import('../../src/output/index.js');
-  outMod.setOutputForTesting(output);
-  const promptsMod = await import('../../src/prompts/index.js');
-  promptsMod.setPromptsForTesting(prompts);
-}
-
-async function clearTestSeams(): Promise<void> {
-  const outMod = await import('../../src/output/index.js');
-  outMod.resetOutputForTesting();
-  const promptsMod = await import('../../src/prompts/index.js');
-  promptsMod.resetPromptsForTesting();
-}
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
 vi.mock('../../src/utils/diff-renderer.js', () => ({
   renderDiff: vi.fn().mockReturnValue('mocked diff output'),

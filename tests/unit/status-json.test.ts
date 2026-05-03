@@ -2,56 +2,27 @@
  * Status Command --json Output Tests
  *
  * Verifies JSON output structure for CI/CD consumption.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) instead
+ * of module-level mocks for @clack/prompts, src/output/index.js, and
+ * src/utils/tier.js. Tier detection now reads a real package.json fixture
+ * via writeTierFixture.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import { writeTierFixture } from './_helpers/tier.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
-
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
-
-// Mock tier detection
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-}));
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
 function createConfig(overrides: Record<string, unknown> = {}) {
   return {
@@ -73,18 +44,25 @@ describe('statusCommand --json', () => {
   let originalExit: typeof process.exit;
   let stdoutWrite: ReturnType<typeof vi.fn>;
   let originalStdoutWrite: typeof process.stdout.write;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
 
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('free');
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-status-json-'))
     );
+    // Default fixture: free tier (matches the original tier mock default).
+    // Tests that need pro overwrite the fixture or write their own
+    // package.json (test 4 / test 5 / test 6).
+    await writeTierFixture(testDir, 'free');
+
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
 
@@ -96,6 +74,7 @@ describe('statusCommand --json', () => {
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.exit = originalExit;
     process.stdout.write = originalStdoutWrite;
     await fs.remove(testDir);
@@ -111,8 +90,8 @@ describe('statusCommand --json', () => {
     await statusCommand({ cwd: testDir, json: true });
 
     expect(stdoutWrite).toHaveBeenCalledTimes(1);
-    const output = stdoutWrite.mock.calls[0][0];
-    const data = JSON.parse(output);
+    const raw = stdoutWrite.mock.calls[0][0];
+    const data = JSON.parse(raw);
 
     // Verify all required fields exist
     expect(data).toHaveProperty('version');
@@ -144,9 +123,9 @@ describe('statusCommand --json', () => {
     await statusCommand({ cwd: testDir, json: true });
 
     // intro is called before the json check, but no other styled output
-    expect(mockOutput.outro).not.toHaveBeenCalled();
-    expect(mockOutput.note).not.toHaveBeenCalled();
-    expect(mockOutput.warning).not.toHaveBeenCalled();
+    expect(output.calls.some((c) => c.method === 'outro')).toBe(false);
+    expect(output.calls.some((c) => c.method === 'note')).toBe(false);
+    expect(output.calls.some((c) => c.method === 'warning')).toBe(false);
   });
 
   it('should include installed components in JSON', async () => {
@@ -170,6 +149,7 @@ describe('statusCommand --json', () => {
       path.join(testDir, 'kigumi.config.json'),
       createConfig()
     );
+    // Overwrite the fixture's package.json with an explicit version.
     await fs.writeJSON(path.join(testDir, 'package.json'), {
       dependencies: {
         '@awesome.me/webawesome': '^3.0.0',
@@ -191,12 +171,19 @@ describe('statusCommand --json', () => {
       path.join(testDir, 'kigumi.config.json'),
       createConfig()
     );
-    // Free tier but Pro package installed
+    // Pro package in dependencies makes getPackageInfo return the pro pkg,
+    // but the warning fires only when detectTier returns 'free' alongside
+    // it - a synthetic state since both functions read the same
+    // package.json key. Spy on the production tier module to pin tier
+    // detection to 'free' for this test (same effect as the original
+    // module-level mock pinning detectTier, but scoped to one test path).
     await fs.writeJSON(path.join(testDir, 'package.json'), {
       dependencies: {
         '@awesome.me/webawesome-pro': '^3.0.0',
       },
     });
+    const tierMod = await import('../../src/utils/tier.js');
+    const tierSpy = vi.spyOn(tierMod, 'detectTier').mockResolvedValue('free');
 
     const { statusCommand } = await import('../../src/commands/status.js');
     await statusCommand({ cwd: testDir, json: true });
@@ -204,11 +191,12 @@ describe('statusCommand --json', () => {
     const data = JSON.parse(stdoutWrite.mock.calls[0][0]);
     expect(data.warnings).toHaveLength(1);
     expect(data.warnings[0]).toContain('Pro package installed');
+    tierSpy.mockRestore();
   });
 
   it('should reflect pro tier in JSON', async () => {
-    const tier = await import('../../src/utils/tier.js');
-    vi.mocked(tier.detectTier).mockResolvedValue('pro');
+    // Overwrite the fixture with a pro package.json so detectTier returns 'pro'.
+    await writeTierFixture(testDir, 'pro');
 
     await fs.writeJSON(
       path.join(testDir, 'kigumi.config.json'),

@@ -6,7 +6,7 @@
 
 import fs from 'fs-extra';
 import path from 'path';
-import * as p from '@clack/prompts';
+import * as p from '../../prompts/index.js';
 import pc from 'picocolors';
 import { getOutput } from '../../output/index.js';
 import { handleError, UserCancelledError } from '../../errors/index.js';

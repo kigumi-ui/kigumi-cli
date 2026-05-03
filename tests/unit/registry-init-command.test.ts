@@ -2,70 +2,40 @@
  * Registry Init Command Tests
  *
  * Tests for src/commands/registry/init.ts
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of module-level
+ * mocks for @clack/prompts and src/output/index.js.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  text: vi.fn(),
-  multiselect: vi.fn(),
-  isCancel: vi.fn().mockReturnValue(false),
-  spinner: vi.fn().mockReturnValue({
-    start: vi.fn(),
-    stop: vi.fn(),
-    message: vi.fn(),
-  }),
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
-
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
 describe('registryInitAction', () => {
   let testDir: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
+
+    output = createRecordingOutput();
+    // Default empty prompts queue: --yes-flag tests never reach a prompt.
+    // Tests 8 and 9 re-register a scripted adapter with the values they need.
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-reg-init-'))
@@ -75,6 +45,7 @@ describe('registryInitAction', () => {
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.exit = originalExit;
     await fs.remove(testDir);
   });
@@ -153,21 +124,44 @@ describe('registryInitAction', () => {
 
     await registryInitAction({ cwd: testDir, yes: true });
 
-    expect(mockOutput.warning).toHaveBeenCalledWith(
-      expect.stringContaining('already exists')
-    );
+    expect(
+      output.calls.some(
+        (c) =>
+          c.method === 'warning' &&
+          typeof c.args[0] === 'string' &&
+          c.args[0].includes('already exists')
+      )
+    ).toBe(true);
   });
 
   it('should show spinner during creation', async () => {
+    // Override the recording output's spinner so we can also capture stop()
+    // calls; the default noop spinner discards them.
+    const stopCalls: Array<string | undefined> = [];
+    const baseSpinner = output.spinner;
+    output.spinner = (m) => {
+      baseSpinner(m);
+      return {
+        start: () => {},
+        message: () => {},
+        stop: (msg) => {
+          stopCalls.push(msg);
+        },
+        error: () => {},
+      };
+    };
+    await registerTestSeams(output, prompts);
+
     const { registryInitAction } =
       await import('../../src/commands/registry/init.js');
 
     await registryInitAction({ cwd: testDir, yes: true });
 
-    expect(mockOutput.spinner).toHaveBeenCalledWith(
-      'Creating registry structure...'
-    );
-    expect(mockSpinner.stop).toHaveBeenCalledWith('Registry structure created');
+    expect(output.calls).toContainEqual({
+      method: 'spinner',
+      args: ['Creating registry structure...'],
+    });
+    expect(stopCalls).toContain('Registry structure created');
   });
 
   it('should show next steps after creation', async () => {
@@ -176,19 +170,23 @@ describe('registryInitAction', () => {
 
     await registryInitAction({ cwd: testDir, yes: true });
 
-    expect(mockOutput.note).toHaveBeenCalledWith(
-      'Next steps',
-      expect.stringContaining('Add components')
-    );
+    expect(
+      output.calls.some(
+        (c) =>
+          c.method === 'note' &&
+          c.args[0] === 'Next steps' &&
+          typeof c.args[1] === 'string' &&
+          c.args[1].includes('Add components')
+      )
+    ).toBe(true);
   });
 
   it('should use interactive prompts when --yes is not set', async () => {
-    const p = await import('@clack/prompts');
-    vi.mocked(p.text)
-      .mockResolvedValueOnce('my-reg') // name
-      .mockResolvedValueOnce('A description') // description
-      .mockResolvedValueOnce('Author'); // author
-    vi.mocked(p.multiselect).mockResolvedValueOnce(['react', 'vue']);
+    prompts = createTestPrompts({
+      text: ['my-reg', 'A description', 'Author'],
+      multiselect: [['react', 'vue']],
+    });
+    await registerTestSeams(output, prompts);
 
     const { registryInitAction } =
       await import('../../src/commands/registry/init.js');
@@ -211,9 +209,12 @@ describe('registryInitAction', () => {
   });
 
   it('should handle user cancellation', async () => {
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(true);
-    vi.mocked(p.text).mockResolvedValueOnce(Symbol('cancel'));
+    const cancelSym = Symbol('cancel');
+    prompts = createTestPrompts({
+      text: [cancelSym],
+      cancelSymbol: cancelSym,
+    });
+    await registerTestSeams(output, prompts);
 
     const { registryInitAction } =
       await import('../../src/commands/registry/init.js');

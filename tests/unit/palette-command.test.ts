@@ -1,98 +1,63 @@
 /**
  * Palette Command Tests
  *
- * Tests for src/commands/palette.ts - Color palette management
+ * Tests for src/commands/palette.ts - Color palette management.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) instead
+ * of module-level mocks for @clack/prompts, src/output/index.js, and
+ * src/utils/tier.js. The regenerate mock stays since regenerate has no
+ * DI seam yet.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import { writeTierFixture } from './_helpers/tier.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  select: vi.fn(),
-  isCancel: vi.fn().mockReturnValue(false),
-  spinner: vi.fn().mockReturnValue({
-    start: vi.fn(),
-    stop: vi.fn(),
-    message: vi.fn(),
-  }),
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
-// Mock output
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
-
-// Mock regenerate
+// Keep regenerate mock: regenerate has no DI seam yet (Phase 2 candidate).
 vi.mock('../../src/utils/regenerate.js', () => ({
   regenerateKigumiSetup: vi.fn().mockResolvedValue({ layersPreserved: false }),
-}));
-
-// Mock tier detection — palette command dynamically imports tier.js
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-  getProToken: vi.fn().mockResolvedValue(null),
 }));
 
 describe('paletteCommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
 
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-palette-test-'))
     );
     originalCwd = process.cwd();
     process.chdir(testDir);
+    // Default fixture: free tier (matches the original tier mock default).
+    await writeTierFixture(testDir, 'free');
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
@@ -136,6 +101,12 @@ describe('paletteCommand', () => {
         await createConfig();
         vi.resetModules();
         vi.clearAllMocks();
+        // Re-register seams + fixture after resetModules to bind to the
+        // fresh module instance the SUT will pull in below.
+        output = createRecordingOutput();
+        prompts = createTestPrompts({});
+        await registerTestSeams(output, prompts);
+        await writeTierFixture(testDir, 'free');
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');
@@ -162,6 +133,10 @@ describe('paletteCommand', () => {
         await createConfig();
         vi.resetModules();
         vi.clearAllMocks();
+        output = createRecordingOutput();
+        prompts = createTestPrompts({});
+        await registerTestSeams(output, prompts);
+        await writeTierFixture(testDir, 'free');
 
         const { paletteCommand } =
           await import('../../src/commands/palette.js');
@@ -255,11 +230,9 @@ describe('paletteCommand', () => {
     });
 
     it('should accept pro palettes on pro tier', async () => {
-      // detectTier is dynamically imported inside paletteAction, so import it
-      // first to target the same module instance for the one-shot override.
-      const { detectTier } = await import('../../src/utils/tier.js');
-      vi.mocked(detectTier).mockResolvedValueOnce('pro');
-
+      // Overwrite the default free fixture with a pro package.json so the
+      // production detectTier returns 'pro' for this test only.
+      await writeTierFixture(testDir, 'pro');
       await createConfig();
 
       const { paletteCommand } = await import('../../src/commands/palette.js');
@@ -276,26 +249,31 @@ describe('paletteCommand', () => {
     it('should prompt for palette selection when no argument given', async () => {
       await createConfig();
 
-      const p = await import('@clack/prompts');
-      vi.mocked(p.select).mockResolvedValue('bright');
+      const promptsMod = await import('../../src/prompts/index.js');
+      const selectSpy = vi
+        .spyOn(promptsMod, 'select')
+        .mockResolvedValue('bright');
 
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette']);
 
-      expect(p.select).toHaveBeenCalledWith(
+      expect(selectSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Select a color palette:',
         })
       );
+      selectSpy.mockRestore();
     });
 
     it('should handle user cancellation', async () => {
       await createConfig();
 
-      const p = await import('@clack/prompts');
       const cancelSymbol = Symbol('cancel');
-      vi.mocked(p.select).mockResolvedValue(cancelSymbol);
-      vi.mocked(p.isCancel).mockReturnValue(true);
+      const cancelPrompts = createTestPrompts({
+        select: [cancelSymbol],
+        cancelSymbol,
+      });
+      await registerTestSeams(output, cancelPrompts);
 
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette']);
@@ -342,11 +320,31 @@ describe('paletteCommand', () => {
     it('should show spinner during update', async () => {
       await createConfig();
 
+      // Override the recording output's spinner so we can also capture stop()
+      // calls; the default noop spinner discards them.
+      const stopCalls: Array<string | undefined> = [];
+      const baseSpinner = output.spinner;
+      output.spinner = (m) => {
+        baseSpinner(m);
+        return {
+          start: () => {},
+          message: () => {},
+          stop: (msg) => {
+            stopCalls.push(msg);
+          },
+          error: () => {},
+        };
+      };
+      await registerTestSeams(output, prompts);
+
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette', 'bright']);
 
-      expect(mockOutput.spinner).toHaveBeenCalledWith('Updating palette...');
-      expect(mockSpinner.stop).toHaveBeenCalledWith('Palette updated');
+      expect(output.calls).toContainEqual({
+        method: 'spinner',
+        args: ['Updating palette...'],
+      });
+      expect(stopCalls).toContain('Palette updated');
     });
 
     it('should show outro message after successful update', async () => {
@@ -355,8 +353,11 @@ describe('paletteCommand', () => {
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette', 'shoelace']);
 
-      expect(mockOutput.outro).toHaveBeenCalledWith(
-        expect.stringContaining('shoelace')
+      expect(output.calls).toContainEqual(
+        expect.objectContaining({
+          method: 'outro',
+          args: expect.arrayContaining([expect.stringContaining('shoelace')]),
+        })
       );
     });
   });
@@ -365,11 +366,16 @@ describe('paletteCommand', () => {
     it('should detect tier and filter available palettes', async () => {
       await createConfig();
 
-      const { detectTier } = await import('../../src/utils/tier.js');
+      // Spy on detectTier to assert call-shape, since the seam fixture
+      // exercises the production fn but doesn't expose call history.
+      const tierMod = await import('../../src/utils/tier.js');
+      const tierSpy = vi.spyOn(tierMod, 'detectTier');
+
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette', 'default']);
 
-      expect(detectTier).toHaveBeenCalledWith(testDir);
+      expect(tierSpy).toHaveBeenCalledWith(testDir);
+      tierSpy.mockRestore();
     });
   });
 });
