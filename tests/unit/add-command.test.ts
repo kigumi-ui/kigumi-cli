@@ -1,7 +1,10 @@
 /**
  * Add Command Tests
  *
- * Tests for src/commands/add/index.ts - Component addition functionality
+ * Tests for src/commands/add/index.ts - Component addition functionality.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createTestPrompts) instead of a module-level mock for @clack/prompts.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -10,17 +13,8 @@ import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import { createTestAddOptions } from './_helpers/add-options.js';
-
-// Mock @clack/prompts for interactive prompt tests
-vi.mock('@clack/prompts', async () => {
-  const actual =
-    await vi.importActual<typeof import('@clack/prompts')>('@clack/prompts');
-  return {
-    ...actual,
-    confirm: vi.fn().mockResolvedValue(false),
-    isCancel: actual.isCancel,
-  };
-});
+import { createRecordingOutput } from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const _PROJECT_ROOT = path.resolve(__dirname, '../..');
@@ -30,6 +24,15 @@ describe('addCommand', () => {
   let originalExit: typeof process.exit;
 
   beforeEach(async () => {
+    // Default seam: empty prompts adapter; tests that hit a prompt
+    // re-register a scripted adapter (test 4 uses confirm: [false]).
+    const output = createRecordingOutput();
+    const prompts = createTestPrompts({});
+    const outMod = await import('../../src/output/index.js');
+    outMod.setOutputForTesting(output);
+    const promptsMod = await import('../../src/prompts/index.js');
+    promptsMod.setPromptsForTesting(prompts);
+
     // Create temp directory for tests
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-add-test-'));
 
@@ -39,6 +42,11 @@ describe('addCommand', () => {
   });
 
   afterEach(async () => {
+    const outMod = await import('../../src/output/index.js');
+    outMod.resetOutputForTesting();
+    const promptsMod = await import('../../src/prompts/index.js');
+    promptsMod.resetPromptsForTesting();
+
     // Restore process.exit
     process.exit = originalExit;
 
@@ -227,7 +235,11 @@ import '../styles/layers.css';
         '// Existing content'
       );
 
-      // confirm mock returns false (user declines)
+      // Re-register prompts with confirm: [false] so the user declines.
+      const declinePrompts = createTestPrompts({ confirm: [false] });
+      const promptsMod = await import('../../src/prompts/index.js');
+      promptsMod.setPromptsForTesting(declinePrompts);
+
       const { addCommand } = await import('../../src/commands/add/index.js');
 
       await addCommand(

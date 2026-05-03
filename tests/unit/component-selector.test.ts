@@ -5,15 +5,21 @@
  * - `buildSelectorChoices` (extracted exported pure function): table-driven.
  * - `selectComponents` (existing dispatch): three branches.
  *
- * Light mock for @clack/prompts. `buildSelectorChoices` consults the live
- * tier-restrictions module which reads `getAllComponents()` for component
- * metadata; tests use the real registry for the filter, since the source
- * of truth for tier is centralized there. Hint construction reads the input
- * fixture directly, so we still get true unit-test coverage of the body.
+ * `buildSelectorChoices` consults the live tier-restrictions module which
+ * reads `getAllComponents()` for component metadata; tests use the real
+ * registry for the filter, since the source of truth for tier is centralized
+ * there. Hint construction reads the input fixture directly, so we still
+ * get true unit-test coverage of the body.
+ *
+ * Cluster S, F-126: rewritten to use vi.spyOn on the prompts wrapper
+ * module instead of a module-level mock for @clack/prompts. The wrapper
+ * exports are static namespace members so vi.spyOn can patch them in
+ * place; the production call site in `selectComponents` shares the same
+ * module instance.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as p from '@clack/prompts';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import * as p from '../../src/prompts/index.js';
 import {
   buildSelectorChoices,
   selectComponents,
@@ -22,16 +28,6 @@ import { getAllComponents } from '../../src/utils/registry.js';
 import type { ComponentRegistry } from '../../src/utils/registry.js';
 import type { OutputInterface } from '../../src/output/types.js';
 import type { AddOptions } from '../../src/schemas/index.js';
-
-vi.mock('@clack/prompts', async () => {
-  const actual =
-    await vi.importActual<typeof import('@clack/prompts')>('@clack/prompts');
-  return {
-    ...actual,
-    multiselect: vi.fn(),
-    isCancel: vi.fn().mockReturnValue(false),
-  };
-});
 
 const stubOutput: OutputInterface = {
   intro: vi.fn(),
@@ -109,9 +105,17 @@ describe('buildSelectorChoices', () => {
 });
 
 describe('selectComponents dispatch', () => {
+  let multiselectSpy: ReturnType<typeof vi.spyOn>;
+  let isCancelSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
-    vi.mocked(p.multiselect).mockReset();
-    vi.mocked(p.isCancel).mockReset().mockReturnValue(false);
+    multiselectSpy = vi.spyOn(p, 'multiselect');
+    isCancelSpy = vi.spyOn(p, 'isCancel').mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    multiselectSpy.mockRestore();
+    isCancelSpy.mockRestore();
   });
 
   it('options.all returns all available components for tier, sorted', async () => {
@@ -128,7 +132,7 @@ describe('selectComponents dispatch', () => {
       .sort((a, b) => a.localeCompare(b));
 
     expect(result).toEqual(expected);
-    expect(p.multiselect).not.toHaveBeenCalled();
+    expect(multiselectSpy).not.toHaveBeenCalled();
   });
 
   it('passes through CLI-provided component names without prompting', async () => {
@@ -142,11 +146,11 @@ describe('selectComponents dispatch', () => {
     );
 
     expect(result).toEqual([freeKey, 'badge']);
-    expect(p.multiselect).not.toHaveBeenCalled();
+    expect(multiselectSpy).not.toHaveBeenCalled();
   });
 
   it('triggers the interactive prompt when no components and not --all', async () => {
-    vi.mocked(p.multiselect).mockResolvedValueOnce(['button']);
+    multiselectSpy.mockResolvedValueOnce(['button']);
 
     const result = await selectComponents(
       [],
@@ -155,7 +159,7 @@ describe('selectComponents dispatch', () => {
       stubOutput
     );
 
-    expect(p.multiselect).toHaveBeenCalledTimes(1);
+    expect(multiselectSpy).toHaveBeenCalledTimes(1);
     expect(result).toEqual(['button']);
   });
 });

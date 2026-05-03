@@ -7,6 +7,14 @@
  * - renderDiff called for modified files on --force
  * - renderDiff NOT called for unchanged files on --force
  * - Snapshot saved after a fresh install
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of module-level
+ * mocks for @clack/prompts and src/utils/tier.js. The diff-renderer,
+ * template, and registry mocks stay since those modules have no DI seam
+ * yet (Phase 2 candidates). Output is passed directly to the
+ * ComponentInstaller constructor so it does not go through the
+ * setOutputForTesting() seam.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -15,24 +23,24 @@ import path from 'path';
 import os from 'os';
 import { createTestAddOptions } from './_helpers/add-options.js';
 import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  confirm: vi.fn().mockResolvedValue(true),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-  isCancel: vi.fn().mockReturnValue(false),
-}));
+async function registerPromptsSeam(prompts: PromptsAdapter): Promise<void> {
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.setPromptsForTesting(prompts);
+}
 
-// Mock diff renderer — spy only, real impl not needed for these tests
+async function clearPromptsSeam(): Promise<void> {
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.resetPromptsForTesting();
+}
+
+// Mock diff renderer - spy only, real impl not needed for these tests
 vi.mock('../../src/utils/diff-renderer.js', () => ({
   renderDiff: vi.fn().mockReturnValue('mocked diff output'),
 }));
@@ -69,7 +77,7 @@ vi.mock('../../src/utils/template.js', () => ({
   updateComponentIndex: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock registry — return stub definitions keyed by lowercase name
+// Mock registry - return stub definitions keyed by lowercase name
 vi.mock('../../src/utils/registry.js', () => {
   const defs: Record<string, unknown> = {
     button: {
@@ -111,36 +119,6 @@ vi.mock('../../src/utils/registry.js', () => {
   };
 });
 
-// Mock tier detection
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('free'),
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-  getProToken: vi.fn().mockResolvedValue(null),
-}));
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-function createMockOutput() {
-  return {
-    intro: vi.fn(),
-    outro: vi.fn(),
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    note: vi.fn(),
-    spinner: vi.fn().mockReturnValue({
-      start: vi.fn(),
-      stop: vi.fn(),
-      message: vi.fn(),
-      error: vi.fn(),
-    }),
-    log: vi.fn(),
-  };
-}
-
 const BASE_CONFIG = createTestKigumiConfig({
   componentsDir: 'src/components',
   utilsDir: 'src/lib',
@@ -150,20 +128,25 @@ const BASE_CONFIG = createTestKigumiConfig({
 
 /**
  * Dynamically import `ComponentInstaller` (required because `beforeEach`
- * resets the module cache) and wire it up with a fresh mock output +
+ * resets the module cache) and wire it up with a fresh recording output +
  * the default 'free' tier so each test starts from a clean baseline.
  */
 async function createInstaller(testDir: string) {
   const { ComponentInstaller } =
     await import('../../src/commands/add/installer.js');
-  const output = createMockOutput();
+  const output = createRecordingOutput();
   return {
     installer: new ComponentInstaller(testDir, BASE_CONFIG, output, 'free'),
     output,
   };
 }
 
-// ── Tests ──────────────────────────────────────────────────────────────────
+function warnMessages(output: RecordingOutput): string[] {
+  return output.calls
+    .filter((c) => c.method === 'warn')
+    .map((c) => c.args[0])
+    .filter((arg): arg is string => typeof arg === 'string');
+}
 
 describe('ComponentInstaller', () => {
   let testDir: string;
@@ -171,6 +154,10 @@ describe('ComponentInstaller', () => {
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+    // Default prompts adapter: confirm:[true] mirrors the original
+    // vi.fn().mockResolvedValue(true) so any path that reaches p.confirm
+    // auto-accepts (matches the pre-cluster-S behaviour).
+    await registerPromptsSeam(createTestPrompts({ confirm: [true] }));
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-installer-test-'))
@@ -181,6 +168,7 @@ describe('ComponentInstaller', () => {
   });
 
   afterEach(async () => {
+    await clearPromptsSeam();
     await fs.remove(testDir);
   });
 
@@ -190,13 +178,13 @@ describe('ComponentInstaller', () => {
     const componentDir = path.join(testDir, 'src/components/Button');
     await fs.ensureDir(componentDir);
 
-    // Button.tsx has user modifications — differs from '// generated component'
+    // Button.tsx has user modifications - differs from '// generated component'
     await fs.writeFile(
       path.join(componentDir, 'Button.tsx'),
       '// modified by user',
       'utf-8'
     );
-    // Button.css is unchanged — matches the mocked template output
+    // Button.css is unchanged - matches the mocked template output
     await fs.writeFile(
       path.join(componentDir, 'Button.css'),
       '/* generated css */',
@@ -263,7 +251,7 @@ describe('ComponentInstaller', () => {
   // ── Test 3: Snapshot saved after fresh install ──
 
   it('saves a snapshot containing component file content after a fresh install', async () => {
-    // No pre-existing component files — this is a fresh install
+    // No pre-existing component files - this is a fresh install
     const { loadSnapshot } = await import('../../src/utils/snapshot.js');
     const { installer } = await createInstaller(testDir);
 
@@ -295,9 +283,8 @@ describe('ComponentInstaller', () => {
       'utf-8'
     );
 
-    // Mock confirm to return false (user declines)
-    const prompts = await import('@clack/prompts');
-    vi.mocked(prompts.confirm).mockResolvedValueOnce(false);
+    // Re-register prompts with confirm: [false] so the user declines.
+    await registerPromptsSeam(createTestPrompts({ confirm: [false] }));
 
     const { renderDiff } = await import('../../src/utils/diff-renderer.js');
     const { installer } = await createInstaller(testDir);
@@ -336,8 +323,7 @@ describe('ComponentInstaller', () => {
       createTestAddOptions({ yes: true })
     );
 
-    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
-    const depWarning = warnCalls.find(
+    const depWarning = warnMessages(output).find(
       (msg) => msg.includes('depends on') && msg.includes('option')
     );
     expect(depWarning).toBeDefined();
@@ -352,8 +338,9 @@ describe('ComponentInstaller', () => {
       createTestAddOptions({ yes: true })
     );
 
-    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
-    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
+    expect(
+      warnMessages(output).find((msg) => msg.includes('depends on'))
+    ).toBeUndefined();
   });
 
   it('does not warn when the dep is already installed on disk', async () => {
@@ -367,8 +354,9 @@ describe('ComponentInstaller', () => {
       createTestAddOptions({ yes: true })
     );
 
-    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
-    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
+    expect(
+      warnMessages(output).find((msg) => msg.includes('depends on'))
+    ).toBeUndefined();
   });
 
   it('does not warn when the parent component is already installed', async () => {
@@ -382,8 +370,9 @@ describe('ComponentInstaller', () => {
       createTestAddOptions({ yes: true })
     );
 
-    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
-    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
+    expect(
+      warnMessages(output).find((msg) => msg.includes('depends on'))
+    ).toBeUndefined();
   });
 
   it('does not warn for a component with no dependencies', async () => {
@@ -394,7 +383,8 @@ describe('ComponentInstaller', () => {
       createTestAddOptions({ yes: true })
     );
 
-    const warnCalls = output.warn.mock.calls.map((args) => args[0] as string);
-    expect(warnCalls.find((msg) => msg.includes('depends on'))).toBeUndefined();
+    expect(
+      warnMessages(output).find((msg) => msg.includes('depends on'))
+    ).toBeUndefined();
   });
 });

@@ -5,6 +5,11 @@
  * opt-in flow. Uses a real local-filesystem registry source so the
  * full path (parseRegistrySource → fetchFile → stageForeignFiles) is
  * exercised without mocks.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of a module-level
+ * mock for src/output/index.js. The registry-cache mock stays since
+ * registry-cache has no DI seam yet.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -12,6 +17,14 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { createTestAddOptions } from './_helpers/add-options.js';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
+
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
 vi.mock('../../src/utils/registry-cache.js', async () => {
   const actual = await vi.importActual<
@@ -28,31 +41,6 @@ vi.mock('../../src/utils/registry-cache.js', async () => {
     }),
   };
 });
-
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -115,10 +103,16 @@ describe('addCommand --cross-framework (foreign-framework registry)', () => {
   let projectDir: string;
   let registryDir: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
+
     projectDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-add-xfw-proj-'))
     );
@@ -130,6 +124,7 @@ describe('addCommand --cross-framework (foreign-framework registry)', () => {
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.exit = originalExit;
     await fs.remove(projectDir);
     await fs.remove(registryDir);
@@ -169,16 +164,17 @@ describe('addCommand --cross-framework (foreign-framework registry)', () => {
     expect(process.exit).not.toHaveBeenCalledWith(expect.any(Number));
 
     // Hand-off message printed for the agent skill discovery surface
-    const noteCalls = mockOutput.note.mock.calls;
-    const handoffNote = noteCalls.find((args) =>
-      args.some(
-        (arg) =>
-          typeof arg === 'string' && arg.includes('kigumi-cross-framework')
-      )
+    const handoffNote = output.calls.find(
+      (c) =>
+        c.method === 'note' &&
+        c.args.some(
+          (arg) =>
+            typeof arg === 'string' && arg.includes('kigumi-cross-framework')
+        )
     );
     expect(handoffNote).toBeDefined();
     // Hand-off prompt mentions the slug and target framework
-    const handoffNoteText = handoffNote!.join(' ');
+    const handoffNoteText = handoffNote!.args.join(' ');
     expect(handoffNoteText).toContain('login-example');
     expect(handoffNoteText).toContain('vue');
   });

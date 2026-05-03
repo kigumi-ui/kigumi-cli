@@ -1,28 +1,20 @@
 /**
  * Tests for `registryAddThemeAction`.
  *
- * Same conventions as registry-add-component.test.ts: light mock pattern,
+ * Same conventions as registry-add-component.test.ts: light spy pattern,
  * real fs in temp dir, fixture factory.
+ *
+ * Cluster S, F-126: rewritten to use vi.spyOn on the prompts wrapper
+ * instead of a module-level mock for @clack/prompts.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import * as p from '@clack/prompts';
+import * as p from '../../src/prompts/index.js';
 import { registryAddThemeAction } from '../../src/commands/registry/add-theme.js';
 import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
-
-vi.mock('@clack/prompts', async () => {
-  const actual =
-    await vi.importActual<typeof import('@clack/prompts')>('@clack/prompts');
-  return {
-    ...actual,
-    text: vi.fn(),
-    multiselect: vi.fn(),
-    isCancel: vi.fn().mockReturnValue(false),
-  };
-});
 
 function makeRegistryJson(
   overrides: Partial<CommunityRegistry> = {}
@@ -41,19 +33,25 @@ function makeRegistryJson(
 describe('registryAddThemeAction', () => {
   let tempDir: string;
   let originalExit: typeof process.exit;
+  let textSpy: ReturnType<typeof vi.spyOn>;
+  let multiselectSpy: ReturnType<typeof vi.spyOn>;
+  let isCancelSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'kigumi-pr-p2-add-theme-')
     );
-    vi.mocked(p.text).mockReset();
-    vi.mocked(p.multiselect).mockReset();
-    vi.mocked(p.isCancel).mockReset().mockReturnValue(false);
+    textSpy = vi.spyOn(p, 'text');
+    multiselectSpy = vi.spyOn(p, 'multiselect');
+    isCancelSpy = vi.spyOn(p, 'isCancel').mockReturnValue(false);
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
   });
 
   afterEach(async () => {
+    textSpy.mockRestore();
+    multiselectSpy.mockRestore();
+    isCancelSpy.mockRestore();
     process.exit = originalExit;
     await fs.remove(tempDir);
   });
@@ -68,7 +66,7 @@ describe('registryAddThemeAction', () => {
 
     // Prompts triggered with all flags: description, variables file,
     // extends (3 text calls).
-    vi.mocked(p.text)
+    textSpy
       .mockResolvedValueOnce('Dark mode theme')
       .mockResolvedValueOnce('')
       .mockResolvedValueOnce('');
@@ -97,7 +95,7 @@ describe('registryAddThemeAction', () => {
     expect(await fs.pathExists(path.join(tempDir, 'registry.json'))).toBe(
       false
     );
-    expect(p.text).not.toHaveBeenCalled();
+    expect(textSpy).not.toHaveBeenCalled();
   });
 
   it('returns without writing when registry.json fails Zod parse', async () => {
@@ -107,7 +105,7 @@ describe('registryAddThemeAction', () => {
     await registryAddThemeAction({ cwd: tempDir });
     const stillBroken = await fs.readJSON(path.join(tempDir, 'registry.json'));
     expect(stillBroken).toEqual({ not: 'a registry' });
-    expect(p.text).not.toHaveBeenCalled();
+    expect(textSpy).not.toHaveBeenCalled();
   });
 
   it('rejects duplicate slug, non-kebab-case, and empty via slug prompt validate', async () => {
@@ -125,12 +123,14 @@ describe('registryAddThemeAction', () => {
 
     // Drive slug prompt then cancel out so we don't have to satisfy the
     // rest of the flow. We just want the validate fn captured.
-    vi.mocked(p.text).mockResolvedValueOnce('new-theme');
-    vi.mocked(p.isCancel).mockReturnValueOnce(true);
+    textSpy.mockResolvedValueOnce('new-theme');
+    isCancelSpy.mockReturnValueOnce(true);
 
     await registryAddThemeAction({ cwd: tempDir });
 
-    const slugPromptArgs = vi.mocked(p.text).mock.calls[0][0];
+    const slugPromptArgs = textSpy.mock.calls[0][0] as {
+      validate?: (v: string) => string | undefined;
+    };
     expect(slugPromptArgs.validate?.('existing-theme')).toMatch(
       /already exists/
     );
@@ -153,13 +153,13 @@ describe('registryAddThemeAction', () => {
     );
 
     // Drive slug + name prompts to reach the CSS prompt, then cancel.
-    vi.mocked(p.text)
+    textSpy
       .mockResolvedValueOnce('new-theme')
       .mockResolvedValueOnce('New Theme')
       .mockResolvedValueOnce('A description')
       .mockResolvedValueOnce('themes/exists/theme.css');
     // isCancel: false (slug), false (name), false (description), true (css).
-    vi.mocked(p.isCancel)
+    isCancelSpy
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(false)
@@ -168,7 +168,9 @@ describe('registryAddThemeAction', () => {
     await registryAddThemeAction({ cwd: tempDir });
 
     // CSS prompt is the 4th text call (slug, name, description, css).
-    const cssPromptArgs = vi.mocked(p.text).mock.calls[3][0];
+    const cssPromptArgs = textSpy.mock.calls[3][0] as {
+      validate?: (v: string) => string | undefined;
+    };
     expect(cssPromptArgs.validate?.('')).toMatch(/required/);
     expect(cssPromptArgs.validate?.('themes/no.txt')).toMatch(/\.css/);
     expect(cssPromptArgs.validate?.('themes/missing.css')).toMatch(/not found/);

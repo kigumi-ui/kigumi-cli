@@ -4,7 +4,7 @@
  * Implementation using @clack/prompts for beautiful CLI output
  */
 
-import * as p from '@clack/prompts';
+import * as p from '../prompts/index.js';
 import pc from 'picocolors';
 import type { OutputInterface, OutputSpinner } from './types.js';
 

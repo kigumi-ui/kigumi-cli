@@ -1,62 +1,28 @@
 /**
  * Brand Command Tests
  *
- * Tests for src/commands/brand.ts - Brand color management
+ * Tests for src/commands/brand.ts - Brand color management.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of module-level
+ * mocks for @clack/prompts and src/output/index.js. The regenerate mock
+ * stays since regenerate has no DI seam yet.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  select: vi.fn(),
-  isCancel: vi.fn().mockReturnValue(false),
-  spinner: vi.fn().mockReturnValue({
-    start: vi.fn(),
-    stop: vi.fn(),
-    message: vi.fn(),
-  }),
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
-// Mock output
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
-
-// Mock regenerate
+// Keep regenerate mock: regenerate has no DI seam yet (Phase 2 candidate).
 vi.mock('../../src/utils/regenerate.js', () => ({
   regenerateKigumiSetup: vi.fn().mockResolvedValue({ layersPreserved: false }),
 }));
@@ -65,16 +31,16 @@ describe('brandCommand', () => {
   let testDir: string;
   let originalCwd: string;
   let originalExit: typeof process.exit;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
 
-    // Re-apply mock implementations (clearAllMocks only clears history, not implementations
-    // set by mockReturnValue in previous tests like the cancellation test)
-    mockOutput.spinner.mockReturnValue(mockSpinner);
-    const p = await import('@clack/prompts');
-    vi.mocked(p.isCancel).mockReturnValue(false);
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-brand-test-'))
@@ -87,6 +53,7 @@ describe('brandCommand', () => {
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
@@ -142,6 +109,11 @@ describe('brandCommand', () => {
         await createConfig();
         vi.resetModules();
         vi.clearAllMocks();
+        // Re-register seams after resetModules to bind to the fresh module
+        // instance the SUT will pull in below.
+        output = createRecordingOutput();
+        prompts = createTestPrompts({});
+        await registerTestSeams(output, prompts);
 
         const { brandCommand } = await import('../../src/commands/brand.js');
         await brandCommand.parseAsync(['node', 'brand', color]);
@@ -221,26 +193,31 @@ describe('brandCommand', () => {
     it('should prompt for color selection when no argument given', async () => {
       await createConfig();
 
-      const p = await import('@clack/prompts');
-      vi.mocked(p.select).mockResolvedValue('cyan');
+      const promptsMod = await import('../../src/prompts/index.js');
+      const selectSpy = vi
+        .spyOn(promptsMod, 'select')
+        .mockResolvedValue('cyan');
 
       const { brandCommand } = await import('../../src/commands/brand.js');
       await brandCommand.parseAsync(['node', 'brand']);
 
-      expect(p.select).toHaveBeenCalledWith(
+      expect(selectSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Select a brand color:',
         })
       );
+      selectSpy.mockRestore();
     });
 
     it('should handle user cancellation', async () => {
       await createConfig();
 
-      const p = await import('@clack/prompts');
       const cancelSymbol = Symbol('cancel');
-      vi.mocked(p.select).mockResolvedValue(cancelSymbol);
-      vi.mocked(p.isCancel).mockReturnValue(true);
+      const cancelPrompts = createTestPrompts({
+        select: [cancelSymbol],
+        cancelSymbol,
+      });
+      await registerTestSeams(output, cancelPrompts);
 
       const { brandCommand } = await import('../../src/commands/brand.js');
       await brandCommand.parseAsync(['node', 'brand']);
@@ -264,13 +241,31 @@ describe('brandCommand', () => {
     it('should show spinner during update', async () => {
       await createConfig();
 
+      // Override the recording output's spinner so we can also capture stop()
+      // calls; the default noop spinner discards them.
+      const stopCalls: Array<string | undefined> = [];
+      const baseSpinner = output.spinner;
+      output.spinner = (m) => {
+        baseSpinner(m);
+        return {
+          start: () => {},
+          message: () => {},
+          stop: (msg) => {
+            stopCalls.push(msg);
+          },
+          error: () => {},
+        };
+      };
+      await registerTestSeams(output, prompts);
+
       const { brandCommand } = await import('../../src/commands/brand.js');
       await brandCommand.parseAsync(['node', 'brand', 'orange']);
 
-      expect(mockOutput.spinner).toHaveBeenCalledWith(
-        'Updating brand color...'
-      );
-      expect(mockSpinner.stop).toHaveBeenCalledWith('Brand color updated');
+      expect(output.calls).toContainEqual({
+        method: 'spinner',
+        args: ['Updating brand color...'],
+      });
+      expect(stopCalls).toContain('Brand color updated');
     });
 
     it('should show outro message after successful update', async () => {
@@ -279,8 +274,11 @@ describe('brandCommand', () => {
       const { brandCommand } = await import('../../src/commands/brand.js');
       await brandCommand.parseAsync(['node', 'brand', 'indigo']);
 
-      expect(mockOutput.outro).toHaveBeenCalledWith(
-        expect.stringContaining('indigo')
+      expect(output.calls).toContainEqual(
+        expect.objectContaining({
+          method: 'outro',
+          args: expect.arrayContaining([expect.stringContaining('indigo')]),
+        })
       );
     });
   });

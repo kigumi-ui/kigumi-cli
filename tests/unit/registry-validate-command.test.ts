@@ -1,60 +1,38 @@
 /**
  * Registry Validate Command Tests
  *
- * Tests for src/commands/registry/validate.ts
+ * Tests for src/commands/registry/validate.ts.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of module-level
+ * mocks for @clack/prompts and src/output/index.js.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
-
-const mockSpinner = {
-  start: vi.fn(),
-  stop: vi.fn(),
-  message: vi.fn(),
-  error: vi.fn(),
-};
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn().mockReturnValue(mockSpinner),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
 describe('registryValidateAction', () => {
   let testDir: string;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
-    mockOutput.spinner.mockReturnValue(mockSpinner);
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     testDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-reg-validate-'))
@@ -62,6 +40,7 @@ describe('registryValidateAction', () => {
   });
 
   afterEach(async () => {
+    await clearTestSeams();
     await fs.remove(testDir);
   });
 
@@ -72,11 +51,19 @@ describe('registryValidateAction', () => {
     await registryValidateAction({ cwd: testDir });
 
     // Should report failure
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('registry.json exists')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'info',
+        args: expect.arrayContaining([
+          expect.stringContaining('registry.json exists'),
+        ]),
+      })
     );
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('failed')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('failed')]),
+      })
     );
   });
 
@@ -88,11 +75,17 @@ describe('registryValidateAction', () => {
 
     await registryValidateAction({ cwd: testDir });
 
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Valid JSON')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'info',
+        args: expect.arrayContaining([expect.stringContaining('Valid JSON')]),
+      })
     );
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('failed')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('failed')]),
+      })
     );
   });
 
@@ -107,11 +100,19 @@ describe('registryValidateAction', () => {
 
     await registryValidateAction({ cwd: testDir });
 
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Schema validation')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'info',
+        args: expect.arrayContaining([
+          expect.stringContaining('Schema validation'),
+        ]),
+      })
     );
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('failed')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('failed')]),
+      })
     );
   });
 
@@ -130,8 +131,11 @@ describe('registryValidateAction', () => {
 
     await registryValidateAction({ cwd: testDir });
 
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('valid')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('valid')]),
+      })
     );
   });
 
@@ -162,8 +166,13 @@ describe('registryValidateAction', () => {
     await registryValidateAction({ cwd: testDir });
 
     // Should report file not found
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('file not found')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'info',
+        args: expect.arrayContaining([
+          expect.stringContaining('file not found'),
+        ]),
+      })
     );
   });
 
@@ -200,8 +209,11 @@ describe('registryValidateAction', () => {
 
     await registryValidateAction({ cwd: testDir });
 
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('valid')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('valid')]),
+      })
     );
   });
 
@@ -235,8 +247,13 @@ describe('registryValidateAction', () => {
 
     await registryValidateAction({ cwd: testDir });
 
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('unexpected extension')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'info',
+        args: expect.arrayContaining([
+          expect.stringContaining('unexpected extension'),
+        ]),
+      })
     );
   });
 
@@ -263,8 +280,11 @@ describe('registryValidateAction', () => {
     await registryValidateAction({ cwd: testDir });
 
     // Should report theme file not found
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('Theme "dark"')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'info',
+        args: expect.arrayContaining([expect.stringContaining('Theme "dark"')]),
+      })
     );
   });
 
@@ -297,11 +317,19 @@ describe('registryValidateAction', () => {
     await registryValidateAction({ cwd: testDir });
 
     // Should report dependency error
-    expect(mockOutput.info).toHaveBeenCalledWith(
-      expect.stringContaining('depends on "button"')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'info',
+        args: expect.arrayContaining([
+          expect.stringContaining('depends on "button"'),
+        ]),
+      })
     );
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('failed')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('failed')]),
+      })
     );
   });
 
@@ -344,8 +372,11 @@ describe('registryValidateAction', () => {
 
     await registryValidateAction({ cwd: testDir });
 
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('valid')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('valid')]),
+      })
     );
   });
 
@@ -381,12 +412,18 @@ describe('registryValidateAction', () => {
     await registryValidateAction({ cwd: testDir });
 
     // Should have multiple failures
-    const failCalls = mockOutput.info.mock.calls.filter((call: string[]) =>
-      call[0].includes('✗')
+    const failCalls = output.calls.filter(
+      (c) =>
+        c.method === 'info' &&
+        typeof c.args[0] === 'string' &&
+        c.args[0].includes('✗')
     );
     expect(failCalls.length).toBeGreaterThanOrEqual(2);
-    expect(mockOutput.outro).toHaveBeenCalledWith(
-      expect.stringContaining('failed')
+    expect(output.calls).toContainEqual(
+      expect.objectContaining({
+        method: 'outro',
+        args: expect.arrayContaining([expect.stringContaining('failed')]),
+      })
     );
   });
 });

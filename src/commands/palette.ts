@@ -9,7 +9,7 @@
 import type { KigumiConfig } from '../schemas/config.js';
 
 import { Command } from 'commander';
-import * as p from '@clack/prompts';
+import * as p from '../prompts/index.js';
 import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
 import {

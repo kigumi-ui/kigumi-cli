@@ -4,35 +4,42 @@
  * Verifies that buildConfigNonInteractive and buildConfigInteractive
  * carry over persistent fields (installedComponents, registries,
  * installedThemes) from an existing config during re-init.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of module-level
+ * mocks for @clack/prompts and src/utils/tier.js. The
+ * tier-restrictions and display-options mocks stay since those modules
+ * have no DI seam yet.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
 import type { ProjectInfo } from '../../src/utils/detect-framework.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  select: vi.fn(),
-  confirm: vi.fn(),
-  text: vi.fn(),
-  isCancel: vi.fn(() => false),
-}));
+async function registerPromptsSeam(prompts: PromptsAdapter): Promise<void> {
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.setPromptsForTesting(prompts);
+}
 
-// Mock tier utilities
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTierSync: vi.fn(() => 'free'),
-  detectTier: vi.fn(() => Promise.resolve('free')),
-}));
+async function clearPromptsSeam(): Promise<void> {
+  const promptsMod = await import('../../src/prompts/index.js');
+  promptsMod.resetPromptsForTesting();
+}
 
-// Mock tier-restrictions
+// Mock tier-restrictions: still no DI seam.
 vi.mock('../../src/utils/tier-restrictions.js', () => ({
   getAvailableThemes: vi.fn(() => ['default']),
   getAvailablePalettes: vi.fn(() => ['default']),
   isThemeAvailable: vi.fn(() => true),
 }));
 
-// Mock display-options
+// Mock display-options: still no DI seam.
 vi.mock('../../src/utils/display-options.js', () => ({
   BRAND_COLOR_OPTIONS: [{ value: 'blue', label: 'Blue' }],
   getThemeOptionsForTier: vi.fn(() => [{ value: 'default', label: 'Default' }]),
@@ -40,28 +47,6 @@ vi.mock('../../src/utils/display-options.js', () => ({
     { value: 'default', label: 'Default' },
   ]),
 }));
-
-function createMockOutput(): OutputInterface {
-  const spinnerMock: OutputSpinner = {
-    start: vi.fn(),
-    message: vi.fn(),
-    stop: vi.fn(),
-    error: vi.fn(),
-  };
-
-  return {
-    intro: vi.fn(),
-    outro: vi.fn(),
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    note: vi.fn(),
-    spinner: vi.fn(() => spinnerMock),
-    log: vi.fn(),
-  };
-}
 
 const baseExistingConfig: KigumiConfig = {
   framework: 'react',
@@ -103,11 +88,16 @@ const defaultProjectInfo: ProjectInfo = {
 };
 
 describe('config preservation during re-init', () => {
-  let mockOutput: OutputInterface;
+  let output: RecordingOutput;
 
-  beforeEach(() => {
-    mockOutput = createMockOutput();
+  beforeEach(async () => {
+    output = createRecordingOutput();
+    await registerPromptsSeam(createTestPrompts({}));
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    await clearPromptsSeam();
   });
 
   describe('buildConfigNonInteractive', () => {
@@ -119,7 +109,7 @@ describe('config preservation during re-init', () => {
         { yes: true },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free',
         baseExistingConfig
       );
@@ -137,7 +127,7 @@ describe('config preservation during re-init', () => {
         { yes: true },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free',
         baseExistingConfig
       );
@@ -153,7 +143,7 @@ describe('config preservation during re-init', () => {
         { yes: true },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free',
         baseExistingConfig
       );
@@ -171,7 +161,7 @@ describe('config preservation during re-init', () => {
         { yes: true },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free'
       );
 
@@ -195,7 +185,7 @@ describe('config preservation during re-init', () => {
         { yes: true },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free',
         emptyConfig
       );
@@ -208,15 +198,19 @@ describe('config preservation during re-init', () => {
 
   describe('buildConfigInteractive', () => {
     beforeEach(async () => {
-      const clackModule = await import('@clack/prompts');
-      // Default prompt responses for interactive mode
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'react'
-      );
-      (clackModule.confirm as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-      (clackModule.text as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'src/components/ui'
-      );
+      // Default prompt responses for interactive mode. Generous queues to
+      // cover whichever prompts buildConfigInteractive issues.
+      const interactivePrompts = createTestPrompts({
+        select: ['react', 'react', 'react', 'react'],
+        confirm: [true, true, true, true],
+        text: [
+          'src/components/ui',
+          'src/components/ui',
+          'src/components/ui',
+          'src/components/ui',
+        ],
+      });
+      await registerPromptsSeam(interactivePrompts);
     });
 
     it('should preserve installedComponents from existing config', async () => {
@@ -234,7 +228,7 @@ describe('config preservation during re-init', () => {
         },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free',
         baseExistingConfig
       );
@@ -259,7 +253,7 @@ describe('config preservation during re-init', () => {
         },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free',
         baseExistingConfig
       );
@@ -285,7 +279,7 @@ describe('config preservation during re-init', () => {
         },
         defaultProjectInfo,
         '/tmp/test',
-        mockOutput,
+        output,
         'free',
         null
       );

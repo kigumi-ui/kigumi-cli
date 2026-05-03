@@ -6,12 +6,16 @@
  * dispatch without touching the filesystem migration paths (those have their
  * own coverage in tests/integration/init.test.ts).
  *
- * Confirmation paths exercise the @clack/prompts.confirm mock; non-interactive
- * paths skip it entirely.
+ * Confirmation paths exercise p.confirm via vi.spyOn on the prompts wrapper;
+ * non-interactive paths skip it entirely.
+ *
+ * Cluster S, F-126: rewritten to use vi.spyOn on the prompts wrapper
+ * module instead of a module-level mock for @clack/prompts. The migration
+ * mock stays since src/commands/init/migration.js has no DI seam.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as p from '@clack/prompts';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import * as p from '../../src/prompts/index.js';
 import {
   handleTierMigration,
   confirmInstallation,
@@ -25,16 +29,6 @@ import { createTestKigumiConfig } from './_helpers/kigumi-config.js';
 import type { OutputInterface } from '../../src/output/types.js';
 import type { KigumiConfig } from '../../src/schemas/index.js';
 import type { Tier } from '../../src/utils/tier.js';
-
-vi.mock('@clack/prompts', async () => {
-  const actual =
-    await vi.importActual<typeof import('@clack/prompts')>('@clack/prompts');
-  return {
-    ...actual,
-    confirm: vi.fn(),
-    isCancel: vi.fn(() => false),
-  };
-});
 
 vi.mock('../../src/commands/init/migration.js', () => ({
   migratePackageReferences: vi.fn(async () => undefined),
@@ -87,14 +81,21 @@ function makeConfigResult(newTier: Tier): CfgResult {
 
 describe('handleTierMigration', () => {
   let output: OutputInterface;
+  let confirmSpy: ReturnType<typeof vi.spyOn>;
+  let isCancelSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // clearAllMocks resets call history but not implementations; reset
-    // p.isCancel to its happy-path default so a previous "cancel" case
-    // doesn't bleed into the next test.
-    vi.mocked(p.isCancel).mockReturnValue(false);
+    confirmSpy = vi.spyOn(p, 'confirm');
+    // Reset isCancel to its happy-path default so a previous "cancel"
+    // case doesn't bleed into the next test.
+    isCancelSpy = vi.spyOn(p, 'isCancel').mockReturnValue(false);
     output = createTestOutput();
+  });
+
+  afterEach(() => {
+    confirmSpy.mockRestore();
+    isCancelSpy.mockRestore();
   });
 
   it('returns didMigrate=false when there is no existing config', async () => {
@@ -167,11 +168,11 @@ describe('handleTierMigration', () => {
         cfg,
         output
       );
-      expect(vi.mocked(p.confirm)).not.toHaveBeenCalled();
+      expect(confirmSpy).not.toHaveBeenCalled();
     });
 
     it('migrates when the user confirms in interactive mode', async () => {
-      vi.mocked(p.confirm).mockResolvedValue(true);
+      confirmSpy.mockResolvedValue(true);
       const cfg = createTestKigumiConfig();
       const ctx = makeContext({
         output,
@@ -188,7 +189,7 @@ describe('handleTierMigration', () => {
     });
 
     it('skips migration when the user declines in interactive mode', async () => {
-      vi.mocked(p.confirm).mockResolvedValue(false);
+      confirmSpy.mockResolvedValue(false);
       const cfg = createTestKigumiConfig();
       const ctx = makeContext({
         output,
@@ -206,10 +207,8 @@ describe('handleTierMigration', () => {
 
     it('skips migration when the user cancels the prompt', async () => {
       // p.confirm can resolve to a Symbol(cancel); isCancel returns true for it.
-      vi.mocked(p.confirm).mockResolvedValue(
-        Symbol('cancel') as unknown as boolean
-      );
-      vi.mocked(p.isCancel).mockReturnValue(true);
+      confirmSpy.mockResolvedValue(Symbol('cancel') as unknown as boolean);
+      isCancelSpy.mockReturnValue(true);
       const cfg = createTestKigumiConfig();
       const ctx = makeContext({
         output,
@@ -248,7 +247,7 @@ describe('handleTierMigration', () => {
         cfg,
         output
       );
-      expect(vi.mocked(p.confirm)).not.toHaveBeenCalled();
+      expect(confirmSpy).not.toHaveBeenCalled();
     });
   });
 });
@@ -256,20 +255,29 @@ describe('handleTierMigration', () => {
 // Co-located so confirmInstallation lifts to the same coverage report; keeps
 // the helper assertions next to the closely-shaped confirmMigration cases.
 describe('confirmInstallation', () => {
+  let confirmSpy: ReturnType<typeof vi.spyOn>;
+  let isCancelSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(p.isCancel).mockReturnValue(false);
+    confirmSpy = vi.spyOn(p, 'confirm');
+    isCancelSpy = vi.spyOn(p, 'isCancel').mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    confirmSpy.mockRestore();
+    isCancelSpy.mockRestore();
   });
 
   it('returns true non-interactively without prompting', async () => {
     const result = await confirmInstallation(true);
 
     expect(result).toBe(true);
-    expect(vi.mocked(p.confirm)).not.toHaveBeenCalled();
+    expect(confirmSpy).not.toHaveBeenCalled();
   });
 
   it('returns true when the user confirms', async () => {
-    vi.mocked(p.confirm).mockResolvedValue(true);
+    confirmSpy.mockResolvedValue(true);
 
     const result = await confirmInstallation(false);
 
@@ -277,7 +285,7 @@ describe('confirmInstallation', () => {
   });
 
   it('returns false when the user declines', async () => {
-    vi.mocked(p.confirm).mockResolvedValue(false);
+    confirmSpy.mockResolvedValue(false);
 
     const result = await confirmInstallation(false);
 
@@ -285,10 +293,8 @@ describe('confirmInstallation', () => {
   });
 
   it('returns false when the user cancels', async () => {
-    vi.mocked(p.confirm).mockResolvedValue(
-      Symbol('cancel') as unknown as boolean
-    );
-    vi.mocked(p.isCancel).mockReturnValue(true);
+    confirmSpy.mockResolvedValue(Symbol('cancel') as unknown as boolean);
+    isCancelSpy.mockReturnValue(true);
 
     const result = await confirmInstallation(false);
 

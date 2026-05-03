@@ -7,48 +7,24 @@
  * The caller is responsible for loading the config and only invoking
  * handleExistingConfig when a valid config was found. These tests therefore
  * pass a KigumiConfig object directly and focus on the prompt/output behavior.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput) plus vi.spyOn on the prompts wrapper. The tier
+ * mock is dropped entirely - the production handleExistingConfig receives
+ * tier as a parameter, so detectTier never runs in this test path.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import type { OutputInterface, OutputSpinner } from '../../src/output/types.js';
+import * as p from '../../src/prompts/index.js';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
 import { mergeWithDefaults } from '../../src/schemas/config.js';
 import type { KigumiConfig } from '../../src/schemas/config.js';
-
-// Mock @clack/prompts before importing module under test
-vi.mock('@clack/prompts', () => ({
-  select: vi.fn(),
-  isCancel: vi.fn(() => false),
-}));
-
-// Mock the dynamic import of tier detection
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn(() => Promise.resolve('free')),
-}));
-
-function createMockOutput(): OutputInterface {
-  const spinnerMock: OutputSpinner = {
-    start: vi.fn(),
-    message: vi.fn(),
-    stop: vi.fn(),
-    error: vi.fn(),
-  };
-
-  return {
-    intro: vi.fn(),
-    outro: vi.fn(),
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    note: vi.fn(),
-    spinner: vi.fn(() => spinnerMock),
-    log: vi.fn(),
-  };
-}
 
 function makeConfig(overrides: Partial<KigumiConfig> = {}): KigumiConfig {
   return mergeWithDefaults(overrides);
@@ -56,20 +32,17 @@ function makeConfig(overrides: Partial<KigumiConfig> = {}): KigumiConfig {
 
 describe('handleExistingConfig', () => {
   let tempDir: string;
-  let mockOutput: OutputInterface;
+  let output: RecordingOutput;
+  let selectSpy: ReturnType<typeof vi.spyOn>;
+  let isCancelSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     tempDir = fs.realpathSync(
       await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-existing-config-test-'))
     );
-    mockOutput = createMockOutput();
-
-    const clackModule = await import('@clack/prompts');
-    (clackModule.select as unknown as ReturnType<typeof vi.fn>).mockReset();
-    (clackModule.isCancel as unknown as ReturnType<typeof vi.fn>).mockReset();
-    (
-      clackModule.isCancel as unknown as ReturnType<typeof vi.fn>
-    ).mockReturnValue(false);
+    output = createRecordingOutput();
+    selectSpy = vi.spyOn(p, 'select');
+    isCancelSpy = vi.spyOn(p, 'isCancel').mockReturnValue(false);
   });
 
   afterEach(async () => {
@@ -81,46 +54,47 @@ describe('handleExistingConfig', () => {
     it('should show existing config details via output.note', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
+      selectSpy.mockResolvedValue('update');
 
       await handleExistingConfig(
         makeConfig({ framework: 'vue', typescript: false }),
         'free',
-        mockOutput
+        output
       );
 
-      expect(mockOutput.note).toHaveBeenCalledWith(
-        'Current Configuration',
-        expect.stringContaining('vue')
+      expect(output.calls).toContainEqual(
+        expect.objectContaining({
+          method: 'note',
+          args: [
+            'Current Configuration',
+            expect.stringContaining('vue') as unknown as string,
+          ],
+        })
       );
     });
 
     it('should display tier info in config note', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
+      selectSpy.mockResolvedValue('update');
 
-      await handleExistingConfig(makeConfig(), 'free', mockOutput);
+      await handleExistingConfig(makeConfig(), 'free', output);
 
-      expect(mockOutput.note).toHaveBeenCalledWith(
-        'Current Configuration',
-        expect.stringContaining('free')
+      expect(output.calls).toContainEqual(
+        expect.objectContaining({
+          method: 'note',
+          args: [
+            'Current Configuration',
+            expect.stringContaining('free') as unknown as string,
+          ],
+        })
       );
     });
 
     it('should display theme info in config note', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
+      selectSpy.mockResolvedValue('update');
 
       await handleExistingConfig(
         makeConfig({
@@ -131,12 +105,17 @@ describe('handleExistingConfig', () => {
           },
         }),
         'free',
-        mockOutput
+        output
       );
 
-      expect(mockOutput.note).toHaveBeenCalledWith(
-        'Current Configuration',
-        expect.stringContaining('awesome')
+      expect(output.calls).toContainEqual(
+        expect.objectContaining({
+          method: 'note',
+          args: [
+            'Current Configuration',
+            expect.stringContaining('awesome') as unknown as string,
+          ],
+        })
       );
     });
   });
@@ -145,27 +124,31 @@ describe('handleExistingConfig', () => {
     it('should return "update" without prompting when force is true', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
 
       const result = await handleExistingConfig(
         makeConfig(),
         'free',
-        mockOutput,
+        output,
         true
       );
 
       expect(result).toBe('update');
-      expect(clackModule.select).not.toHaveBeenCalled();
+      expect(selectSpy).not.toHaveBeenCalled();
     });
 
     it('should show info message about overwriting in force mode', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
 
-      await handleExistingConfig(makeConfig(), 'free', mockOutput, true);
+      await handleExistingConfig(makeConfig(), 'free', output, true);
 
-      expect(mockOutput.info).toHaveBeenCalledWith(
-        expect.stringContaining('non-interactive mode')
+      expect(output.calls).toContainEqual(
+        expect.objectContaining({
+          method: 'info',
+          args: expect.arrayContaining([
+            expect.stringContaining('non-interactive mode'),
+          ]),
+        })
       );
     });
   });
@@ -174,83 +157,50 @@ describe('handleExistingConfig', () => {
     it('should return "update" when user selects update', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
+      selectSpy.mockResolvedValue('update');
 
-      const result = await handleExistingConfig(
-        makeConfig(),
-        'free',
-        mockOutput
-      );
+      const result = await handleExistingConfig(makeConfig(), 'free', output);
       expect(result).toBe('update');
     });
 
     it('should return "reinstall" when user selects reinstall', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'reinstall'
-      );
+      selectSpy.mockResolvedValue('reinstall');
 
-      const result = await handleExistingConfig(
-        makeConfig(),
-        'free',
-        mockOutput
-      );
+      const result = await handleExistingConfig(makeConfig(), 'free', output);
       expect(result).toBe('reinstall');
     });
 
     it('should return "cancel" when user selects cancel', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'cancel'
-      );
+      selectSpy.mockResolvedValue('cancel');
 
-      const result = await handleExistingConfig(
-        makeConfig(),
-        'free',
-        mockOutput
-      );
+      const result = await handleExistingConfig(makeConfig(), 'free', output);
       expect(result).toBe('cancel');
     });
 
     it('should return "cancel" when user presses Ctrl+C (isCancel)', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
 
       const cancelSymbol = Symbol('cancel');
-      (
-        clackModule.select as unknown as ReturnType<typeof vi.fn>
-      ).mockResolvedValue(cancelSymbol);
-      (
-        clackModule.isCancel as unknown as ReturnType<typeof vi.fn>
-      ).mockReturnValue(true);
+      selectSpy.mockResolvedValue(cancelSymbol);
+      isCancelSpy.mockReturnValue(true);
 
-      const result = await handleExistingConfig(
-        makeConfig(),
-        'free',
-        mockOutput
-      );
+      const result = await handleExistingConfig(makeConfig(), 'free', output);
       expect(result).toBe('cancel');
     });
 
     it('should prompt with correct options', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
+      selectSpy.mockResolvedValue('update');
 
-      await handleExistingConfig(makeConfig(), 'free', mockOutput);
+      await handleExistingConfig(makeConfig(), 'free', output);
 
-      expect(clackModule.select).toHaveBeenCalledWith(
+      expect(selectSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           message: expect.stringContaining('already exists'),
           options: expect.arrayContaining([
@@ -267,17 +217,10 @@ describe('handleExistingConfig', () => {
     it('should only allow valid action values', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
 
       for (const action of ['update', 'reinstall', 'cancel'] as const) {
-        (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-          action
-        );
-        const result = await handleExistingConfig(
-          makeConfig(),
-          'free',
-          mockOutput
-        );
+        selectSpy.mockResolvedValue(action);
+        const result = await handleExistingConfig(makeConfig(), 'free', output);
         expect(['update', 'reinstall', 'cancel']).toContain(result);
       }
     });
@@ -287,16 +230,18 @@ describe('handleExistingConfig', () => {
     it('should show pro tier in config details when the caller resolved pro', async () => {
       const { handleExistingConfig } =
         await import('../../src/commands/init/existing-config.js');
-      const clackModule = await import('@clack/prompts');
-      (clackModule.select as ReturnType<typeof vi.fn>).mockResolvedValue(
-        'update'
-      );
+      selectSpy.mockResolvedValue('update');
 
-      await handleExistingConfig(makeConfig(), 'pro', mockOutput);
+      await handleExistingConfig(makeConfig(), 'pro', output);
 
-      expect(mockOutput.note).toHaveBeenCalledWith(
-        'Current Configuration',
-        expect.stringContaining('pro')
+      expect(output.calls).toContainEqual(
+        expect.objectContaining({
+          method: 'note',
+          args: [
+            'Current Configuration',
+            expect.stringContaining('pro') as unknown as string,
+          ],
+        })
       );
     });
   });

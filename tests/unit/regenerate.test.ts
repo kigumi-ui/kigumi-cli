@@ -2,17 +2,22 @@
  * Regenerate Utilities Tests
  *
  * Tests for src/utils/regenerate.ts
+ *
+ * Cluster S, F-126: drops the tier module-level mock entirely. Most tests
+ * pass tierOverride to regenerateKigumiSetup so detection is bypassed;
+ * the one test that exercised detection-driven dispatch (tierOverride=pro)
+ * also passes tierOverride explicitly. getWebAwesomePackage is a pure
+ * function returning the WA constants the tests already assert against,
+ * so the previous mockImplementation was redundant. detectTierSync falls
+ * back to token detection in the empty temp dirs (no package.json, no
+ * token), returning 'free' which matches the original mock default.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTierSync: vi.fn().mockReturnValue('free'),
-  getWebAwesomePackage: vi.fn().mockReturnValue('@awesome.me/webawesome'),
-}));
+import { writeTierFixture } from './_helpers/tier.js';
 
 import {
   regenerateKigumiSetup,
@@ -22,7 +27,6 @@ import {
   generateGitIgnore,
 } from '../../src/utils/regenerate.js';
 import { WEB_AWESOME_FREE_PACKAGE } from '../../src/constants.js';
-import { getWebAwesomePackage } from '../../src/utils/tier.js';
 
 const config = {
   framework: 'react' as const,
@@ -44,8 +48,10 @@ describe('regenerate utilities', () => {
     testDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'kigumi-regenerate-test-')
     );
-    vi.clearAllMocks();
-    vi.mocked(getWebAwesomePackage).mockReturnValue('@awesome.me/webawesome');
+    // Without a package.json, detectTierSync falls back to token detection
+    // which reads the user's global ~/.npmrc / env vars and leaks state
+    // into tests. Write a free fixture so detection is deterministic.
+    await writeTierFixture(testDir, 'free');
   });
 
   afterEach(async () => {
@@ -202,10 +208,6 @@ describe('regenerate utilities', () => {
       const stylesDir = config.stylesDir;
       await fs.ensureDir(path.join(testDir, utilsDir));
       await fs.ensureDir(path.join(testDir, stylesDir));
-
-      vi.mocked(getWebAwesomePackage).mockImplementation((tier) =>
-        tier === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome'
-      );
 
       await regenerateKigumiSetup(testDir, config, utilsDir, 'pro');
 

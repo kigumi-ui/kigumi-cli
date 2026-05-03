@@ -4,7 +4,7 @@
  * Handles cases where configuration already exists
  */
 
-import * as p from '@clack/prompts';
+import * as p from '../../prompts/index.js';
 import type { OutputInterface } from '../../output/types.js';
 import type { KigumiConfig } from '../../schemas/config.js';
 import type { Tier } from '../../utils/tier.js';

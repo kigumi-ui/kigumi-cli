@@ -11,7 +11,7 @@
  * @see AGENTS.md for tier system architecture
  */
 
-import * as p from '@clack/prompts';
+import * as p from '../../prompts/index.js';
 import type { OutputInterface } from '../../output/types.js';
 import type {
   InitOptions,

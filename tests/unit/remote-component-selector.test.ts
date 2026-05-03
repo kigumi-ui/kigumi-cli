@@ -6,27 +6,20 @@
  * - `selectRemoteComponents` (interactive entry): pass-through, empty-framework
  *   error, and cancel path.
  *
- * Light mock for @clack/prompts. No fs.
+ * No fs.
+ *
+ * Cluster S, F-126: rewritten to use vi.spyOn on the prompts wrapper
+ * module instead of a module-level mock for @clack/prompts.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as p from '@clack/prompts';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import * as p from '../../src/prompts/index.js';
 import {
   getAvailableRemoteComponents,
   selectRemoteComponents,
 } from '../../src/commands/add/remote-component-selector.js';
 import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 import type { OutputInterface } from '../../src/output/types.js';
-
-vi.mock('@clack/prompts', async () => {
-  const actual =
-    await vi.importActual<typeof import('@clack/prompts')>('@clack/prompts');
-  return {
-    ...actual,
-    multiselect: vi.fn(),
-    isCancel: vi.fn().mockReturnValue(false),
-  };
-});
 
 const stubOutput: OutputInterface = {
   intro: vi.fn(),
@@ -123,9 +116,17 @@ describe('getAvailableRemoteComponents', () => {
 });
 
 describe('selectRemoteComponents', () => {
+  let multiselectSpy: ReturnType<typeof vi.spyOn>;
+  let isCancelSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
-    vi.mocked(p.multiselect).mockReset();
-    vi.mocked(p.isCancel).mockReset().mockReturnValue(false);
+    multiselectSpy = vi.spyOn(p, 'multiselect');
+    isCancelSpy = vi.spyOn(p, 'isCancel').mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    multiselectSpy.mockRestore();
+    isCancelSpy.mockRestore();
   });
 
   it('passes through directly provided component names without prompting', async () => {
@@ -145,7 +146,7 @@ describe('selectRemoteComponents', () => {
     );
 
     expect(result).toEqual(['wa-button']);
-    expect(p.multiselect).not.toHaveBeenCalled();
+    expect(multiselectSpy).not.toHaveBeenCalled();
   });
 
   it('throws when no components support the user framework', async () => {
@@ -171,8 +172,8 @@ describe('selectRemoteComponents', () => {
       },
     });
 
-    vi.mocked(p.multiselect).mockResolvedValueOnce(Symbol('cancel') as never);
-    vi.mocked(p.isCancel).mockReturnValueOnce(true);
+    multiselectSpy.mockResolvedValueOnce(Symbol('cancel') as never);
+    isCancelSpy.mockReturnValueOnce(true);
 
     await expect(
       selectRemoteComponents([], registry, 'react', stubOutput)

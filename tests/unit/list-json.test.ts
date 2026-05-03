@@ -2,49 +2,35 @@
  * List Command --json Output Tests
  *
  * Verifies JSON output structure for CI/CD consumption.
+ *
+ * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) instead of module-level
+ * mocks for @clack/prompts and src/output/index.js.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
+import { createTestPrompts } from './_helpers/prompts.js';
+import type { PromptsAdapter } from '../../src/prompts/types.js';
 
-// Mock @clack/prompts
-vi.mock('@clack/prompts', () => ({
-  intro: vi.fn(),
-  outro: vi.fn(),
-  note: vi.fn(),
-  log: {
-    info: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-    message: vi.fn(),
-  },
-}));
-
-const mockOutput = {
-  intro: vi.fn(),
-  outro: vi.fn(),
-  info: vi.fn(),
-  success: vi.fn(),
-  warning: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  note: vi.fn(),
-  spinner: vi.fn(),
-  log: vi.fn(),
-};
-
-vi.mock('../../src/output/index.js', () => ({
-  getOutput: () => mockOutput,
-  ConsoleOutput: vi.fn(),
-}));
+import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
 describe('listCommand --json', () => {
   let stdoutWrite: ReturnType<typeof vi.fn>;
   let originalStdoutWrite: typeof process.stdout.write;
+  let output: RecordingOutput;
+  let prompts: PromptsAdapter;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+
+    output = createRecordingOutput();
+    prompts = createTestPrompts({});
+    await registerTestSeams(output, prompts);
 
     stdoutWrite = vi.fn().mockReturnValue(true);
     originalStdoutWrite = process.stdout.write;
@@ -52,7 +38,8 @@ describe('listCommand --json', () => {
       stdoutWrite as unknown as typeof process.stdout.write;
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await clearTestSeams();
     process.stdout.write = originalStdoutWrite;
   });
 
@@ -95,9 +82,9 @@ describe('listCommand --json', () => {
     const { listCommand } = await import('../../src/commands/list.js');
     await listCommand({ json: true });
 
-    expect(mockOutput.intro).not.toHaveBeenCalled();
-    expect(mockOutput.outro).not.toHaveBeenCalled();
-    expect(mockOutput.note).not.toHaveBeenCalled();
+    expect(output.calls.some((c) => c.method === 'intro')).toBe(false);
+    expect(output.calls.some((c) => c.method === 'outro')).toBe(false);
+    expect(output.calls.some((c) => c.method === 'note')).toBe(false);
   });
 
   it('should output pipe-safe JSON ending with newline', async () => {

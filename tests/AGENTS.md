@@ -150,28 +150,39 @@ be paired with a follow-up plan to drain it.
 Sibling modules shared across unit tests. Prefer these over per-file `vi.mock`
 factories (cluster S, F-126).
 
-| Helper                                                                 | Use when                                                                                                                                                                                                                                                                                                                                                                          |
-| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `createTestOutput()` (from `_helpers/output.ts`)                       | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape.                                                                                                                                                                           |
-| `createRecordingOutput()` (from `_helpers/output.ts`)                  | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`.                                                                                                                                                   |
-| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`)              | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`. |
-| `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`)     | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier.                                                                                                                                                                 |
-| `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`) | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers.                                                                                                                                                                                                                                                                                                          |
-| `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`)     | You need a fully-typed `AddOptions` for command tests.                                                                                                                                                                                                                                                                                                                            |
+| Helper                                                                               | Use when                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createTestOutput()` (from `_helpers/output.ts`)                                     | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape.                                                                                                                                                                           |
+| `createRecordingOutput()` (from `_helpers/output.ts`)                                | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`.                                                                                                                                                   |
+| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`)                            | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`. |
+| `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`)                   | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier.                                                                                                                                                                 |
+| `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`)               | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers.                                                                                                                                                                                                                                                                                                          |
+| `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`)                   | You need a fully-typed `AddOptions` for command tests.                                                                                                                                                                                                                                                                                                                            |
+| `registerTestSeams(output, prompts)` / `clearTestSeams()` (from `_helpers/seams.ts`) | You're wiring both the output and prompts seams in the same test file. Call `registerTestSeams` after `vi.resetModules()` in `beforeEach`, and `clearTestSeams` in `afterEach`. Wraps the dynamic-import dance below.                                                                                                                                                             |
 
-The DI hooks live on the production modules:
+The DI hooks live on the production modules. Prefer `registerTestSeams` /
+`clearTestSeams` from `_helpers/seams.ts` so the dynamic-import boilerplate
+stays in one place:
 
 ```typescript
 // In beforeEach (after vi.resetModules()):
-const outMod = await import('../../src/output/index.js');
-outMod.setOutputForTesting(createRecordingOutput());
-
-const promptsMod = await import('../../src/prompts/index.js');
-promptsMod.setPromptsForTesting(createTestPrompts({ select: ['react'] }));
+await registerTestSeams(
+  createRecordingOutput(),
+  createTestPrompts({ select: ['react'] })
+);
 
 // In afterEach:
+await clearTestSeams();
+```
+
+Direct seam access is still available when only one of the two seams is
+needed (e.g. `setOutputForTesting` alone):
+
+```typescript
+const outMod = await import('../../src/output/index.js');
+outMod.setOutputForTesting(createRecordingOutput());
+// ...
 (await import('../../src/output/index.js')).resetOutputForTesting();
-(await import('../../src/prompts/index.js')).resetPromptsForTesting();
 ```
 
 The dynamic imports are required because the registered instance lives in
@@ -481,4 +492,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-02 (cluster S PR-S1: test helpers + mock budget gate)
+**Last Updated:** 2026-05-03 (cluster S PR-S3: `_helpers/seams.ts` extraction)

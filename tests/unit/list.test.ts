@@ -2,6 +2,12 @@
  * List Command Tests
  *
  * Tests for src/commands/list.ts
+ *
+ * Cluster S, F-126: rewritten to use vi.spyOn on the tier module
+ * instead of a module-level mock for src/utils/tier.js. The tests need
+ * both call-shape assertions (forwards cwd) and per-test return-value
+ * control (free vs pro), so vi.spyOn keeps the test shape intact while
+ * letting the rest of the tier module run real.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -9,20 +15,13 @@ import { listCommand } from '../../src/commands/list.js';
 import * as registry from '../../src/utils/registry.js';
 import * as tier from '../../src/utils/tier.js';
 
-vi.mock('../../src/utils/tier.js', () => ({
-  detectTier: vi.fn().mockResolvedValue('pro'),
-  detectTierSync: vi.fn().mockReturnValue('pro'),
-  getWebAwesomePackage: vi.fn((t: string) =>
-    t === 'pro' ? '@awesome.me/webawesome-pro' : '@awesome.me/webawesome'
-  ),
-}));
-
 describe('list command', () => {
   let consoleOutput: string[];
+  let detectTierSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     consoleOutput = [];
-    vi.mocked(tier.detectTier).mockResolvedValue('pro');
+    detectTierSpy = vi.spyOn(tier, 'detectTier').mockResolvedValue('pro');
     // Mock console output to capture output
     vi.spyOn(process.stdout, 'write').mockImplementation((str: unknown) => {
       consoleOutput.push(typeof str === 'string' ? str : String(str));
@@ -111,7 +110,7 @@ describe('list command', () => {
 
   describe('tier-aware rendering', () => {
     it('shows Pro components dimmed with (Pro) prefix on Free tier', async () => {
-      vi.mocked(tier.detectTier).mockResolvedValue('free');
+      detectTierSpy.mockResolvedValue('free');
 
       await listCommand();
 
@@ -121,7 +120,7 @@ describe('list command', () => {
     });
 
     it('shows Pro count in summary on Free tier', async () => {
-      vi.mocked(tier.detectTier).mockResolvedValue('free');
+      detectTierSpy.mockResolvedValue('free');
 
       await listCommand();
 
@@ -131,7 +130,7 @@ describe('list command', () => {
     });
 
     it('does not show (Pro) prefix on Pro tier', async () => {
-      vi.mocked(tier.detectTier).mockResolvedValue('pro');
+      detectTierSpy.mockResolvedValue('pro');
 
       await listCommand();
 
@@ -142,7 +141,7 @@ describe('list command', () => {
     it('forwards cwd option to detectTier', async () => {
       await listCommand({ cwd: '/fake/project/path' });
 
-      expect(tier.detectTier).toHaveBeenCalledWith('/fake/project/path');
+      expect(detectTierSpy).toHaveBeenCalledWith('/fake/project/path');
     });
   });
 });
