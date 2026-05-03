@@ -10,11 +10,23 @@ import fs from 'fs-extra';
 import os from 'os';
 import {
   ConfigExistsCheck,
-  ConfigValidCheck,
   PackageJsonExistsCheck,
   GitIgnoreExistsCheck,
 } from '../../src/checks/config-checks.js';
 import { CheckSeverity } from '../../src/checks/types.js';
+
+const baseConfig = {
+  framework: 'react' as const,
+  typescript: true,
+  componentsDir: 'src/components/ui',
+  utilsDir: 'src/lib',
+  stylesDir: 'src/styles',
+  theme: {
+    selected: 'default',
+    palette: 'default',
+    brandColor: 'blue',
+  },
+};
 
 async function withTmpDir(fn: (dir: string) => Promise<void>) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-test-'));
@@ -28,7 +40,7 @@ async function withTmpDir(fn: (dir: string) => Promise<void>) {
 describe('ConfigExistsCheck', () => {
   const check = new ConfigExistsCheck();
 
-  it('fails when config is missing', async () => {
+  it('fails when no config file exists at any supported path', async () => {
     await withTmpDir(async (dir) => {
       const result = await check.run({ cwd: dir });
       expect(result.passed).toBe(false);
@@ -36,26 +48,41 @@ describe('ConfigExistsCheck', () => {
     });
   });
 
-  it('passes when config exists', async () => {
+  it.each([
+    'kigumi.config.json',
+    'kigumi-components.json',
+    'kigumi.json',
+    '.kigumirc',
+    '.kigumirc.json',
+  ])('passes when config exists at %s', async (filename) => {
     await withTmpDir(async (dir) => {
-      await fs.writeJSON(path.join(dir, 'kigumi.config.json'), {});
+      await fs.writeJSON(path.join(dir, filename), baseConfig);
       const result = await check.run({ cwd: dir });
       expect(result.passed).toBe(true);
+      expect(result.message).toContain(filename);
     });
   });
-});
 
-describe('ConfigValidCheck', () => {
-  const check = new ConfigValidCheck();
-
-  it('fails when config is not loaded', async () => {
-    const result = await check.run({ cwd: '/tmp' });
-    expect(result.passed).toBe(false);
+  it('passes when config lives under package.json#kigumi', async () => {
+    await withTmpDir(async (dir) => {
+      await fs.writeJSON(path.join(dir, 'package.json'), {
+        name: 'host',
+        kigumi: baseConfig,
+      });
+      const result = await check.run({ cwd: dir });
+      expect(result.passed).toBe(true);
+      expect(result.message).toContain('package.json');
+    });
   });
 
-  it('passes when config is provided', async () => {
-    const result = await check.run({ cwd: '/tmp', config: {} as never });
-    expect(result.passed).toBe(true);
+  it('fails when only the parent directory has a config (monorepo isolation)', async () => {
+    await withTmpDir(async (parent) => {
+      await fs.writeJSON(path.join(parent, 'kigumi.config.json'), baseConfig);
+      const child = path.join(parent, 'packages', 'foo');
+      await fs.ensureDir(child);
+      const result = await check.run({ cwd: child });
+      expect(result.passed).toBe(false);
+    });
   });
 });
 

@@ -54,6 +54,8 @@ function createConfig(overrides: Partial<KigumiConfig> = {}): KigumiConfig {
     framework: 'react',
     typescript: true,
     componentsDir: 'src/components/ui',
+    utilsDir: 'src/lib',
+    stylesDir: 'src/styles',
     theme: {
       selected: 'default',
       palette: 'default',

@@ -158,6 +158,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -182,6 +183,7 @@ describe('template utilities', () => {
         typescript: false,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -206,6 +208,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -229,6 +232,7 @@ describe('template utilities', () => {
         typescript: false,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -263,6 +267,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -301,6 +306,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -325,6 +331,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -352,6 +359,7 @@ describe('template utilities', () => {
           typescript: true,
           componentsDir: 'src/components',
           utilsDir: 'src/lib',
+          stylesDir: 'src/styles',
           theme: {
             selected: 'awesome',
             palette: 'sky',
@@ -383,6 +391,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -414,6 +423,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -446,6 +456,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -467,6 +478,7 @@ describe('template utilities', () => {
         typescript: false,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -500,6 +512,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -542,6 +555,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -593,6 +607,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -620,6 +635,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -632,6 +648,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -657,6 +674,7 @@ describe('template utilities', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -678,6 +696,7 @@ describe('template utilities', () => {
       typescript: true,
       componentsDir: 'src/components',
       utilsDir: 'src/lib',
+      stylesDir: 'src/styles',
       theme: {
         selected: 'awesome',
         palette: 'sky',

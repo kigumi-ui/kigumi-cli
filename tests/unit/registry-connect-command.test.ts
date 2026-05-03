@@ -32,7 +32,6 @@ async function writeKigumiConfig(
   framework: 'react' | 'vue' | 'angular'
 ): Promise<void> {
   await fs.writeJSON(path.join(projectDir, 'kigumi.config.json'), {
-    $schema: 'https://kigumi.style/schemas/kigumi-config.json',
     framework,
     typescript: true,
     componentsDir: 'src/components',

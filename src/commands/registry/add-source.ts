@@ -6,15 +6,12 @@
 
 import pc from 'picocolors';
 import { getOutput } from '../../output/index.js';
-import {
-  CheckRunner,
-  ConfigExistsCheck,
-  ConfigValidCheck,
-} from '../../checks/index.js';
+import { CheckRunner, ConfigExistsCheck } from '../../checks/index.js';
 import {
   handleError,
   PreFlightCheckError,
   CommunityRegistryNotFoundError,
+  ConfigNotFoundError,
 } from '../../errors/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
 import {
@@ -40,19 +37,18 @@ export async function registryConnectAction(
   try {
     // 1. Load configuration (needed for checks).
     // getConfig() internally calls loadConfig() and deep-merges with defaults,
-    // so a single call is sufficient. A throw here means malformed config;
-    // the pre-flight checks below surface a readable error.
+    // so a single call is sufficient. ConfigNotFoundError is swallowed because
+    // ConfigExistsCheck below shows a friendlier "run kigumi init" message;
+    // ConfigInvalidError must surface so users see schema issues directly.
     let config: KigumiConfig | undefined;
     try {
       config = getConfig(cwd);
-    } catch (_error) {
-      // Will be caught by checks
+    } catch (err) {
+      if (!(err instanceof ConfigNotFoundError)) throw err;
     }
 
     // 2. Pre-flight checks
-    const checker = new CheckRunner()
-      .add(new ConfigExistsCheck())
-      .add(new ConfigValidCheck());
+    const checker = new CheckRunner().add(new ConfigExistsCheck());
 
     const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
@@ -114,11 +110,12 @@ export async function registryConnectAction(
     }
 
     // 7. Add to config
-    config.registries = [
+    const nextRegistries = [
       ...registries,
       { url: source.url, name: registry.name },
     ];
-    await saveConfig(config, cwd);
+    config.registries = nextRegistries;
+    await saveConfig({ registries: nextRegistries }, cwd);
 
     spinner.stop('Registry verified');
 

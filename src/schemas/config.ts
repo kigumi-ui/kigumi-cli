@@ -24,19 +24,23 @@ export const frameworkSchema = z.enum(FRAMEWORKS, {
 /**
  * Theme configuration schema
  */
-export const themeConfigSchema = z.object({
-  selected: z.string().min(1, 'Theme name cannot be empty'),
-  palette: z.string().min(1, 'Palette name cannot be empty'),
-  brandColor: z.string().min(1, 'Brand color cannot be empty'),
-});
+export const themeConfigSchema = z
+  .object({
+    selected: z.string().min(1, 'Theme name cannot be empty'),
+    palette: z.string().min(1, 'Palette name cannot be empty'),
+    brandColor: z.string().min(1, 'Brand color cannot be empty'),
+  })
+  .strict();
 
 /**
  * Web Awesome configuration schema
  * NOTE: tier is NOT stored in config - it's detected from .env
  */
-export const webAwesomeConfigSchema = z.object({
-  version: z.string().optional(),
-});
+export const webAwesomeConfigSchema = z
+  .object({
+    version: z.string().optional(),
+  })
+  .strict();
 
 /**
  * Registry source schema (community registry reference)
@@ -77,28 +81,35 @@ export type InstalledTheme = z.infer<typeof installedThemeSchema>;
 
 /**
  * Main Kigumi configuration schema
+ *
+ * Strict mode: unknown keys are rejected (e.g. `framwork` typo). Run all
+ * disk-loaded data through `mergeWithDefaults` (which spreads `DEFAULT_CONFIG`
+ * before parse) so optional-feeling fields like `utilsDir`/`stylesDir` always
+ * have values by the time strict validation runs.
  */
-export const kigumiConfigSchema = z.object({
-  framework: frameworkSchema,
-  typescript: z.boolean({
-    error: () => 'Must be a boolean (true or false)',
-  }),
-  componentsDir: z.string().min(1, 'Components directory cannot be empty'),
-  utilsDir: z.string().min(1, 'Utils directory cannot be empty').optional(),
-  stylesDir: z.string().min(1, 'Styles directory cannot be empty').optional(),
-  theme: themeConfigSchema,
-  webAwesome: webAwesomeConfigSchema.optional(),
-  /** Community registry sources */
-  registries: z.array(registrySourceSchema).optional(),
-  /** Provenance tracking for installed components */
-  installedComponents: z
-    .record(z.string(), installedComponentSchema)
-    .optional(),
-  /** Provenance tracking for installed themes */
-  installedThemes: z.record(z.string(), installedThemeSchema).optional(),
-  /** Kigumi CLI version that initialized/last upgraded this project */
-  kigumiVersion: z.string().optional(),
-});
+export const kigumiConfigSchema = z
+  .object({
+    framework: frameworkSchema,
+    typescript: z.boolean({
+      error: () => 'Must be a boolean (true or false)',
+    }),
+    componentsDir: z.string().min(1, 'Components directory cannot be empty'),
+    utilsDir: z.string().min(1, 'Utils directory cannot be empty'),
+    stylesDir: z.string().min(1, 'Styles directory cannot be empty'),
+    theme: themeConfigSchema,
+    webAwesome: webAwesomeConfigSchema.optional(),
+    /** Community registry sources */
+    registries: z.array(registrySourceSchema).optional(),
+    /** Provenance tracking for installed components */
+    installedComponents: z
+      .record(z.string(), installedComponentSchema)
+      .optional(),
+    /** Provenance tracking for installed themes */
+    installedThemes: z.record(z.string(), installedThemeSchema).optional(),
+    /** Kigumi CLI version that initialized/last upgraded this project */
+    kigumiVersion: z.string().optional(),
+  })
+  .strict();
 
 /**
  * Infer TypeScript type from schema
@@ -155,22 +166,76 @@ export function validateConfig(data: unknown): KigumiConfig {
 }
 
 /**
- * Merge configuration with defaults
+ * Top-level keys that previous Kigumi versions stored in `kigumi.config.json`
+ * but the schema no longer recognises. Strict mode would reject these as
+ * `unrecognized_keys`; instead we silently strip them so projects initialised
+ * with an older CLI keep working without a manual config edit.
+ *
+ * Add a key here only when removing a previously-supported field. New typos
+ * (e.g. `framwork`) must continue to fail loudly.
+ */
+const LEGACY_TOP_LEVEL_KEYS = ['aliases'] as const;
+
+/**
+ * Same idea as `LEGACY_TOP_LEVEL_KEYS`, but for keys nested under `webAwesome`.
+ */
+const LEGACY_WEB_AWESOME_KEYS = ['cdnUrl'] as const;
+
+function stripLegacyKeys(
+  raw: Partial<KigumiConfig> & Record<string, unknown>
+): Partial<KigumiConfig> {
+  const cleaned: Record<string, unknown> = { ...raw };
+  for (const key of LEGACY_TOP_LEVEL_KEYS) {
+    delete cleaned[key];
+  }
+  if (cleaned.webAwesome && typeof cleaned.webAwesome === 'object') {
+    const wa = { ...(cleaned.webAwesome as Record<string, unknown>) };
+    for (const key of LEGACY_WEB_AWESOME_KEYS) {
+      delete wa[key];
+    }
+    cleaned.webAwesome = wa;
+  }
+  return cleaned as Partial<KigumiConfig>;
+}
+
+/**
+ * Merge configuration with defaults and validate strictly
+ *
+ * Defaults are spread first so that on-disk configs can omit fields like
+ * `utilsDir` and `stylesDir` and still produce a complete `KigumiConfig`.
+ * Legacy keys removed in earlier clusters (see `LEGACY_TOP_LEVEL_KEYS` and
+ * `LEGACY_WEB_AWESOME_KEYS`) are silently stripped so older starters still
+ * load. After that, the strict schema rejects any remaining unknown keys
+ * (e.g. typos like `framwork`).
  *
  * @param config - User configuration (may be partial)
  * @returns Complete configuration with defaults applied
+ * @throws ConfigInvalidError if validation fails
  */
 export function mergeWithDefaults(config: Partial<KigumiConfig>): KigumiConfig {
-  return kigumiConfigSchema.parse({
+  const stripped = stripLegacyKeys(
+    config as Partial<KigumiConfig> & Record<string, unknown>
+  );
+  const merged = {
     ...DEFAULT_CONFIG,
-    ...config,
+    ...stripped,
     theme: {
       ...DEFAULT_CONFIG.theme,
-      ...config.theme,
+      ...stripped.theme,
     },
     webAwesome: {
       ...DEFAULT_CONFIG.webAwesome,
-      ...config.webAwesome,
+      ...stripped.webAwesome,
     },
-  });
+  };
+
+  const result = kigumiConfigSchema.safeParse(merged);
+  if (!result.success) {
+    const errors = result.error.issues.map((err: ZodIssue) => {
+      const issuePath = err.path.join('.');
+      return issuePath ? `${issuePath}: ${err.message}` : err.message;
+    });
+    throw new ConfigInvalidError(errors);
+  }
+  return result.data;
 }

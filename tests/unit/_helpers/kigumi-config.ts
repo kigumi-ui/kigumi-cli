@@ -7,6 +7,8 @@ export function createTestKigumiConfig(
     framework: 'react',
     typescript: true,
     componentsDir: '@/components/ui',
+    utilsDir: 'src/lib',
+    stylesDir: 'src/styles',
     theme: { selected: 'default', palette: 'default', brandColor: '#000' },
     ...overrides,
   };

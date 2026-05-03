@@ -8,27 +8,34 @@ import fs from 'fs-extra';
 import path from 'path';
 import type { Check, CheckContext, CheckResult } from './types.js';
 import { CheckSeverity } from './types.js';
+import { loadConfig, getSearchPlaces } from '../utils/config.js';
 
 /**
- * Check if configuration file exists
+ * Check if a kigumi configuration is reachable from the project's cwd.
+ *
+ * Delegates to `loadConfig` so all of cosmiconfig's recognised filenames
+ * (`kigumi.config.json`, `.kigumirc`, `package.json#kigumi`, etc.) count as
+ * "exists" - the previous version only looked for `kigumi.config.json` and
+ * spuriously failed for users on legacy or alternative formats.
  */
 export class ConfigExistsCheck implements Check {
   readonly id = 'config-exists';
   readonly name = 'Configuration File Exists';
-  readonly description = 'Check if kigumi.config.json exists';
+  readonly description =
+    'Check if a kigumi config file exists at any supported path';
 
   async run(context: CheckContext): Promise<CheckResult> {
-    const configPath = path.join(context.cwd, 'kigumi.config.json');
-    const exists = await fs.pathExists(configPath);
+    const loaded = loadConfig(context.cwd);
 
-    if (!exists) {
+    if (!loaded) {
       return {
         passed: false,
         severity: CheckSeverity.ERROR,
         message: 'Configuration file not found',
         suggestion: ['Run: kigumi init', 'This will create kigumi.config.json'],
         details: {
-          path: configPath,
+          searched: [...getSearchPlaces()],
+          cwd: context.cwd,
         },
       };
     }
@@ -36,35 +43,8 @@ export class ConfigExistsCheck implements Check {
     return {
       passed: true,
       severity: CheckSeverity.INFO,
-      message: 'Configuration file exists',
-    };
-  }
-}
-
-/**
- * Check if configuration is valid
- */
-export class ConfigValidCheck implements Check {
-  readonly id = 'config-valid';
-  readonly name = 'Configuration Valid';
-  readonly description = 'Check if configuration is valid according to schema';
-
-  async run(context: CheckContext): Promise<CheckResult> {
-    if (!context.config) {
-      return {
-        passed: false,
-        severity: CheckSeverity.ERROR,
-        message: 'Configuration not loaded',
-        suggestion: ['Ensure configuration file is valid JSON'],
-      };
-    }
-
-    // Configuration validation will be done when loading
-    // This check just verifies it was loaded successfully
-    return {
-      passed: true,
-      severity: CheckSeverity.INFO,
-      message: 'Configuration is valid',
+      message: `Configuration loaded from ${path.basename(loaded.filepath)}`,
+      details: { filepath: loaded.filepath },
     };
   }
 }

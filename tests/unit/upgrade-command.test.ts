@@ -69,6 +69,7 @@ const baseConfig = {
   typescript: true,
   componentsDir: 'src/components/ui',
   utilsDir: 'src/lib',
+  stylesDir: 'src/styles',
   theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
 };
 
@@ -361,5 +362,27 @@ describe('upgrade command', () => {
 
     // Same WA version, no install needed
     expect(installDependencies).not.toHaveBeenCalled();
+  });
+
+  it('prepends a friendly hint and exits non-zero on typo configs', async () => {
+    // Simulate a user who fat-fingered a key. Strict mode rejects the config;
+    // upgrade adds a "remove the listed keys and re-run" warning before
+    // re-throwing so the standard error formatter still surfaces the offending
+    // key. The user-visible result: clear remediation, no version bump.
+    await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), {
+      ...baseConfig,
+      framwork: 'react',
+    });
+
+    const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+    await upgradeCommand({ cwd: testDir, yes: true });
+
+    expect(process.exit).toHaveBeenCalled();
+    const warningCalls = output.calls.filter((c) => c.method === 'warning');
+    expect(
+      warningCalls.some((c) =>
+        String(c.args[0] ?? '').includes('does not auto-fix')
+      )
+    ).toBe(true);
   });
 });

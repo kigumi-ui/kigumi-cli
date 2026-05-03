@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-03
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** S (mock reduction; SHIPPED); P shipped
+**Active cluster:** A (config lifecycle; SHIPPED); S, P, R, Q1, Q2 shipped
 **Active spec:** [`docs/superpowers/specs/2026-05-02-cluster-s-mock-reduction-design.md`](../specs/2026-05-02-cluster-s-mock-reduction-design.md) (P spec preserved at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md))
 **Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
@@ -19,16 +19,17 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ## Cluster Status Table
 
-| Cluster | Codename                                                | Primary F-IDs                                   | Depends on                       | Status      | PR                      | Spec                                                                       | Plan                |
-| ------- | ------------------------------------------------------- | ----------------------------------------------- | -------------------------------- | ----------- | ----------------------- | -------------------------------------------------------------------------- | ------------------- |
-| **Q1**  | Test foundation                                         | F-132, F-050, F-052                             | -                                | **SHIPPED** | #137                    | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)        | _accumulated in PR_ |
-| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045 | Q1                               | **SHIPPED** | #138                    | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)        | _accumulated in PR_ |
-| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)              | Q2                               | **SHIPPED** | #139, #140, #141        | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)   | _local_             |
-| **S**   | Mock reduction                                          | F-126 (full)                                    | Q1                               | **SHIPPED** | #147, #148, #150, PR-S4 | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)           | _local_             |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125  | Q1                               | **SHIPPED** | #143, #144, #145, #146  | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md) | _local_             |
-| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                    | Q1 (+ Cluster A for `.strict()`) | **BLOCKED** | _pending_               | _pending_                                                                  | _pending_           |
-| **U**   | Story `play()` interactions                             | F-129                                           | Q1, Q2                           | **BLOCKED** | _pending_               | _pending_                                                                  | _pending_           |
-| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                       | Q1, Q2                           | **BLOCKED** | _pending_               | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)           | _pending_           |
+| Cluster | Codename                                                | Primary F-IDs                                          | Depends on                       | Status      | PR                      | Spec                                                                         | Plan                |
+| ------- | ------------------------------------------------------- | ------------------------------------------------------ | -------------------------------- | ----------- | ----------------------- | ---------------------------------------------------------------------------- | ------------------- |
+| **Q1**  | Test foundation                                         | F-132, F-050, F-052                                    | -                                | **SHIPPED** | #137                    | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)          | _accumulated in PR_ |
+| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045        | Q1                               | **SHIPPED** | #138                    | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)          | _accumulated in PR_ |
+| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)                     | Q2                               | **SHIPPED** | #139, #140, #141        | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)     | _local_             |
+| **S**   | Mock reduction                                          | F-126 (full)                                           | Q1                               | **SHIPPED** | #147, #148, #150, PR-S4 | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)             | _local_             |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125         | Q1                               | **SHIPPED** | #143, #144, #145, #146  | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)   | _local_             |
+| **A**   | Config lifecycle hardening                              | F-054, F-055, F-056, F-057, F-058, F-059, F-065, F-067 | -                                | **SHIPPED** | _pending_               | [A spec](../specs/2026-04-28-cluster-a-config-lifecycle-hardening-design.md) | _local_             |
+| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                           | Q1 (+ Cluster A for `.strict()`) | **PLANNED** | _pending_               | _pending_                                                                    | _pending_           |
+| **U**   | Story `play()` interactions                             | F-129                                                  | Q1, Q2                           | **BLOCKED** | _pending_               | _pending_                                                                    | _pending_           |
+| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                              | Q1, Q2                           | **BLOCKED** | _pending_               | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)             | _pending_           |
 
 **Status legend:**
 
@@ -135,7 +136,8 @@ After R shipped, S/P/T/U opened up. Status by sub-cluster:
 
 - **P (coverage rationalization):** SHIPPED 2026-05-02. Four PRs landed (#143, #144, #145, #146); see Phase 4-P below for the close-out summary.
 - **S (mock reduction):** SHIPPED 2026-05-03. Four PRs landed (#147, #148, #150, PR-S4); see Phase 4-S below for the close-out summary.
-- **T (property-based + edge cases):** BLOCKED on cluster A (`.strict()` adoption).
+- **A (config lifecycle hardening):** SHIPPED 2026-05-03. PR pending; see Phase 4-A below for the close-out summary.
+- **T (property-based + edge cases):** PLANNED. Cluster A unblocked it (`.strict()` is now in `kigumiConfigSchema` + `themeConfigSchema` + `webAwesomeConfigSchema`); spec not yet written.
 - **U (story `play()` interactions):** unblocked but spec not yet written.
 
 ### Phase 4-P: Cluster P — SHIPPED 2026-05-02
@@ -194,6 +196,46 @@ Acceptance gates closed:
 - Spec line 355: `pnpm validate:registry && pnpm validate:templates` clean ✅
 - Spec line 356-358: build smoke (`init --framework react --yes --no-install`) renders intro / outro normally with the seam-injected output ✅
 - Spec line 359-360: residual mocks (16 total) are documented exceptions: `execa`, `github-fetcher`, `registry-cache`, `constants` (CLI_VERSION re-export), the inline `createMockOutput` accessors in `remote-installer.test.ts` ✅
+
+### Phase 4-A: Cluster A — SHIPPED 2026-05-03
+
+Config lifecycle hardening shipped as one atomic PR on `ft/cluster-a-config-lifecycle`. Eight findings (F-054, F-055, F-056, F-057, F-058, F-059, F-065, F-067) all sat in `src/utils/config.ts`, `src/schemas/config.ts`, and `src/checks/config-checks.ts`; splitting them would have touched the same files four to five times, so they ship together.
+
+Behavioural surface (user-visible):
+
+- **`loadConfig` returns `{ config: unknown, filepath } | null`.** Previously the cosmiconfig payload was cast to `KigumiConfig` even though it was unvalidated, so six commands (`upgrade`, `status`, `doctor`, `update`, `diff`, `theme show`) crashed with `TypeError` on malformed configs. The new shape forces callers to validate via `getConfig` or unwrap explicitly. `loadConfig` also passes `stopDir: cwd` so monorepo sub-packages without their own config no longer silently inherit a parent's.
+- **`getConfig` throws `ConfigInvalidError` (with formatted Zod issues) on bad data and `ConfigNotFoundError` on missing files.** No more `TypeError` stacks. `kigumi upgrade` adds a one-line "kigumi upgrade does not auto-fix unrecognised config keys. Remove the keys listed below and re-run." warning before the formatted error so the remediation is visible without scanning the schema.
+- **`saveConfig(patch, cwd)` is now a patch primitive.** The previous "load full config, mutate, save full config" flow re-injected every default field on every write — a user who deleted `webAwesome` from their config saw it grow back on the next `kigumi add`. The patch primitive merges only the keys the caller passes (one-level spread for `theme` and `webAwesome`) and writes back to whichever filepath cosmiconfig discovered. So `.kigumirc`, `kigumi-components.json`, `package.json#kigumi`, etc. round-trip without a parallel `kigumi.config.json` ever being created.
+- **Schema is `.strict()`** (also `themeConfigSchema` and `webAwesomeConfigSchema`). Typos like `framwork: 'react'` raise `ConfigInvalidError` instead of being silently dropped while the default takes effect. `installedComponentSchema` and `installedThemeSchema` stay non-strict because their provenance grew fields recently and may grow again.
+- **`utilsDir` and `stylesDir` are now required schema fields.** Defaults still injected by `mergeWithDefaults`, so existing configs that omit them keep working — but the 18 inline `|| 'src/lib'` / `|| 'src/styles'` fallbacks across 11 files (which papered over the old type lie) are gone.
+- **`ConfigValidCheck` deleted, `ConfigExistsCheck` refactored.** The valid-check always returned `passed: true` whenever a config object was attached — pure decoration. With `getConfig` now throwing `ConfigInvalidError` directly, the check class plus its registration in nine commands plus its describe block in `tests/unit/config-checks.test.ts` all go. `ConfigExistsCheck` now delegates to `loadConfig`, so all six search formats (`kigumi.config.json`, `kigumi-components.json`, `kigumi.json`, `.kigumirc`, `.kigumirc.json`, `package.json#kigumi`) count as "exists" — previously the check only looked for `kigumi.config.json` and spuriously failed for users on legacy formats.
+
+Implementation notes:
+
+- 7 load-side callers migrated to `getConfig`. `doctor.ts` keeps its "warn and return" semantics on `ConfigNotFoundError` via a try/catch (only `doctor` wants the warn-and-continue path; everywhere else, missing config legitimately fails the command).
+- 11 save-side callers (12 sites) updated to pass only the fields they touch. `init/index.ts` bypasses `saveConfig` and writes a fresh `kigumi.config.json` directly via `fs.writeJson` — its invariant ("create new file at known location") doesn't fit the patch primitive's mental model.
+- Init's pre-existing `safeParse` (F-037 / PR #117) was extended to merge defaults first so existing configs without `utilsDir`/`stylesDir` don't get the "invalid → overwrite" branch on re-init. Any other validation failure still falls through the existing warning/overwrite path.
+
+Verification:
+
+- 1316 unit tests passing (4 new) across 91 files; 30 integration tests passing across 4 files (1 new file `tests/integration/config-lifecycle.test.ts` covers the 6-format round-trip + monorepo isolation + typo defense end-to-end). Lint, type-check, registry validation, template validation, all clean.
+- The previously-existing assertions `should not call loadConfig directly from {addCommand,paletteCommand}` were relaxed to `loadSpy.mock.calls.length <= 1` because `ConfigExistsCheck` now legitimately calls `loadConfig` once during the pre-flight pipeline. cosmiconfig caches both reads, so the user-visible "one config read per command" invariant from F-033 still holds.
+
+Acceptance gates closed (per spec, line 428-441):
+
+- `loadConfig` returns `LoadedConfig | null` (raw + filepath); 0 callers access `.config.X` directly without validating first ✅
+- `getConfig` throws `ConfigInvalidError` on `{ framework: 'invalid' }`, not `TypeError` ✅
+- After `kigumi init && kigumi add button`, `kigumi.config.json` has at most 8 top-level fields, not 12+ (asserted in `tests/integration/init.test.ts`) ✅
+- User deletes `webAwesome.version` from config, runs unrelated `kigumi add` → field stays deleted (`tests/unit/config.test.ts` round-trip) ✅
+- `cwd = packages/foo/` with root-only config → `loadConfig` returns `null` (`tests/unit/config.test.ts` monorepo test) ✅
+- Save-back to `kigumi-components.json`, `.kigumirc`, `.kigumirc.json`, `kigumi.json`, `package.json#kigumi` works without creating a parallel `kigumi.config.json` (`tests/unit/config.test.ts` + `tests/integration/config-lifecycle.test.ts`) ✅
+- `kigumi add` succeeds with valid config at any of the 6 search paths (`tests/unit/config-checks.test.ts` it.each over all formats) ✅
+- Config with `framwork: 'react'` typo → `ConfigInvalidError` mentioning `framwork` (`tests/unit/config-schema.test.ts`, `tests/unit/config.test.ts`, `tests/integration/config-lifecycle.test.ts`) ✅
+- `rg "\|\| 'src/(lib|styles|components/ui)'" src/` returns 0 results ✅
+- `rg "ConfigValidCheck" src/ tests/unit/` returns 0 results ✅
+- Full validation loop (type-check, lint, test, validate:registry, validate:templates) green ✅
+
+What this unblocks: **Cluster T**. T's spec needs `.strict()` to write fast-check generators that exercise the rejection path. Status above flips T from BLOCKED to PLANNED.
 
 ### Phase 5: Cluster V — PENDING
 

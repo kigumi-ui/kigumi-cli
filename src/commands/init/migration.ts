@@ -45,8 +45,8 @@ const COMPONENT_EXTENSIONS = ['.tsx', '.jsx', '.ts', '.js', '.vue'];
  * @internal
  */
 function getStaticMigrationFiles(cwd: string, config: KigumiConfig): string[] {
-  const utilsDir = config.utilsDir || 'src/lib';
-  const stylesDir = config.stylesDir || 'src/styles';
+  const utilsDir = config.utilsDir;
+  const stylesDir = config.stylesDir;
 
   return [
     path.join(cwd, utilsDir, 'kigumi.ts'),
@@ -100,10 +100,7 @@ async function getMigrationFiles(
   config: KigumiConfig
 ): Promise<string[]> {
   // Find all component files under the configured components directory
-  const componentsDir = path.join(
-    cwd,
-    config.componentsDir || 'src/components/ui'
-  );
+  const componentsDir = path.join(cwd, config.componentsDir);
   const componentFiles = await findFiles(componentsDir, COMPONENT_EXTENSIONS);
 
   // Combine static files with component files

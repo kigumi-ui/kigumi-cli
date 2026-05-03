@@ -12,15 +12,12 @@ import { Command } from 'commander';
 import * as p from '../prompts/index.js';
 import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
-import {
-  CheckRunner,
-  ConfigExistsCheck,
-  ConfigValidCheck,
-} from '../checks/index.js';
+import { CheckRunner, ConfigExistsCheck } from '../checks/index.js';
 import {
   handleError,
   UserCancelledError,
   PreFlightCheckError,
+  ConfigNotFoundError,
 } from '../errors/index.js';
 import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
@@ -47,19 +44,18 @@ async function brandAction(colorName?: string) {
   try {
     // 1. Load configuration (needed for checks).
     // getConfig() internally calls loadConfig() and deep-merges with defaults,
-    // so a single call is sufficient. A throw here means malformed config;
-    // the pre-flight checks below surface a readable error.
+    // so a single call is sufficient. ConfigNotFoundError is swallowed because
+    // ConfigExistsCheck below shows a friendlier "run kigumi init" message;
+    // ConfigInvalidError must surface so users see schema issues directly.
     let config: KigumiConfig | undefined;
     try {
       config = getConfig(cwd);
-    } catch (_error) {
-      // Config loading failed - will be caught by checks
+    } catch (err) {
+      if (!(err instanceof ConfigNotFoundError)) throw err;
     }
 
     // 2. Pre-flight checks
-    const checker = new CheckRunner()
-      .add(new ConfigExistsCheck())
-      .add(new ConfigValidCheck());
+    const checker = new CheckRunner().add(new ConfigExistsCheck());
 
     const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
@@ -98,9 +94,9 @@ async function brandAction(colorName?: string) {
     const spinner = output.spinner('Updating brand color...');
 
     config.theme.brandColor = selectedColor;
-    await saveConfig(config, cwd);
+    await saveConfig({ theme: { brandColor: selectedColor } }, cwd);
 
-    const utilsDir = config.utilsDir || 'src/lib';
+    const utilsDir = config.utilsDir;
     await regenerateKigumiSetup(cwd, config, utilsDir);
 
     spinner.stop('Brand color updated');

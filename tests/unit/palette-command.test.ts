@@ -73,6 +73,7 @@ describe('paletteCommand', () => {
       typescript: true,
       componentsDir: 'src/components/ui',
       utilsDir: 'src/lib',
+      stylesDir: 'src/styles',
       theme: {
         selected: 'default',
         palette: 'default',
@@ -304,7 +305,7 @@ describe('paletteCommand', () => {
     // imports). It does NOT see getConfig()'s same-file lexical call to
     // loadConfig(). That's exactly what we want: the spy is scoped to
     // external callers.
-    it('should not call loadConfig directly from paletteCommand', async () => {
+    it('reads config once via getConfig and at most once via the pre-flight check', async () => {
       await createConfig();
 
       const configModule = await import('../../src/utils/config.js');
@@ -314,8 +315,8 @@ describe('paletteCommand', () => {
       const { paletteCommand } = await import('../../src/commands/palette.js');
       await paletteCommand.parseAsync(['node', 'palette', 'bright']);
 
-      expect(loadSpy).not.toHaveBeenCalled();
       expect(getSpy).toHaveBeenCalledTimes(1);
+      expect(loadSpy.mock.calls.length).toBeLessThanOrEqual(1);
 
       loadSpy.mockRestore();
       getSpy.mockRestore();

@@ -67,7 +67,7 @@ export async function regenerateKigumiSetup(
   // Detect tier from .env, or use override
   const tier = tierOverride || detectTierSync(cwd);
   const packageName = getWebAwesomePackage(tier);
-  const stylesDir = config.stylesDir || 'src/styles';
+  const stylesDir = config.stylesDir;
   const stylesAlias = toKigumiAlias(stylesDir);
 
   // Pages Router rejects side-effect global CSS imports from any file other

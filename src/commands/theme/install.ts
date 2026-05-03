@@ -8,15 +8,12 @@ import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
 import { getOutput } from '../../output/index.js';
-import {
-  CheckRunner,
-  ConfigExistsCheck,
-  ConfigValidCheck,
-} from '../../checks/index.js';
+import { CheckRunner, ConfigExistsCheck } from '../../checks/index.js';
 import {
   handleError,
   PreFlightCheckError,
   CommunityRegistryNotFoundError,
+  ConfigNotFoundError,
 } from '../../errors/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
 import {
@@ -46,19 +43,18 @@ export async function themeInstallAction(
   try {
     // 1. Load configuration (needed for checks).
     // getConfig() internally calls loadConfig() and deep-merges with defaults,
-    // so a single call is sufficient. A throw here means malformed config;
-    // the pre-flight checks below surface a readable error.
+    // so a single call is sufficient. ConfigNotFoundError is swallowed because
+    // ConfigExistsCheck below shows a friendlier "run kigumi init" message;
+    // ConfigInvalidError must surface so users see schema issues directly.
     let config: KigumiConfig | undefined;
     try {
       config = getConfig(cwd);
-    } catch (_error) {
-      // Will be caught by checks
+    } catch (err) {
+      if (!(err instanceof ConfigNotFoundError)) throw err;
     }
 
     // 2. Pre-flight checks
-    const checker = new CheckRunner()
-      .add(new ConfigExistsCheck())
-      .add(new ConfigValidCheck());
+    const checker = new CheckRunner().add(new ConfigExistsCheck());
 
     const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
@@ -107,7 +103,7 @@ export async function themeInstallAction(
 
     // 5. Download CSS files
     const installSpinner = output.spinner('Installing theme...');
-    const stylesDir = config.stylesDir || 'src/styles';
+    const stylesDir = config.stylesDir;
     const themeDir = path.join(cwd, stylesDir, 'community-themes');
     await fs.ensureDir(themeDir);
 
@@ -123,16 +119,19 @@ export async function themeInstallAction(
 
     // 6. Update config
     config.theme.selected = themeName;
-    config.installedThemes = config.installedThemes || {};
-    config.installedThemes[themeName] = {
-      source: 'community',
-      registryUrl: source.url,
-      registryVersion: registry.version,
+    const installedThemes = {
+      ...config.installedThemes,
+      [themeName]: {
+        source: 'community' as const,
+        registryUrl: source.url,
+        registryVersion: registry.version,
+      },
     };
-    await saveConfig(config, cwd);
+    config.installedThemes = installedThemes;
+    await saveConfig({ theme: { selected: themeName }, installedThemes }, cwd);
 
     // 7. Regenerate setup files
-    const utilsDir = config.utilsDir || 'src/lib';
+    const utilsDir = config.utilsDir;
     await regenerateKigumiSetup(cwd, config, utilsDir);
 
     installSpinner.stop('Theme installed');

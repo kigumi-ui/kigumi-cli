@@ -29,10 +29,14 @@ import {
 } from '../constants.js';
 import { detectTier, getWebAwesomePackage } from '../utils/tier.js';
 import { surgicalRewriteLayersCss } from '../utils/regenerate.js';
-import { loadConfig } from '../utils/config.js';
+import { getConfig } from '../utils/config.js';
 import { getOutput } from '../output/index.js';
 import type { OutputInterface } from '../output/types.js';
-import { handleError, LayersCssRewriteError } from '../errors/index.js';
+import {
+  handleError,
+  LayersCssRewriteError,
+  ConfigNotFoundError,
+} from '../errors/index.js';
 import type { KigumiConfig } from '../schemas/config.js';
 
 interface DoctorOptions {
@@ -217,10 +221,7 @@ async function diagnoseAndFixLayersCss(
   const wrongPackageName =
     tier === 'pro' ? WEB_AWESOME_FREE_PACKAGE : WEB_AWESOME_PRO_PACKAGE;
 
-  const stylesFiles = await findStylesFiles(
-    cwd,
-    config.stylesDir || 'src/styles'
-  );
+  const stylesFiles = await findStylesFiles(cwd, config.stylesDir);
   if (stylesFiles.length === 0) {
     return results;
   }
@@ -351,12 +352,19 @@ async function diagnoseAndFix(
     `Detected tier: ${tier.toUpperCase()} (expected package: ${expectedPackage})`
   );
 
-  // Load config to get components directory
-  const config = loadConfig(cwd);
-
-  if (!config) {
-    output.warning('No kigumi.config.json found. Run `kigumi init` first.');
-    return results;
+  // Load config to get components directory.
+  // Doctor preserves "warn and return" semantics on ConfigNotFoundError so a
+  // user with no kigumi.config.json still gets a friendly message instead of
+  // a thrown error. ConfigInvalidError still propagates so typo defenses work.
+  let config: KigumiConfig;
+  try {
+    config = getConfig(cwd);
+  } catch (error) {
+    if (error instanceof ConfigNotFoundError) {
+      output.warning('No kigumi.config.json found. Run `kigumi init` first.');
+      return results;
+    }
+    throw error;
   }
 
   // Check version alignment
