@@ -159,6 +159,7 @@ describe('updateCommand', () => {
       typescript: true,
       componentsDir: 'src/components',
       utilsDir: 'src/lib',
+      stylesDir: 'src/styles',
       theme: {
         selected: 'default',
         palette: 'default',
@@ -733,6 +734,7 @@ describe('updateCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -753,6 +755,7 @@ describe('updateCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -777,6 +780,7 @@ describe('updateCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -801,6 +805,7 @@ describe('updateCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',

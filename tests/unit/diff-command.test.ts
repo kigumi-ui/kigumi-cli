@@ -161,6 +161,7 @@ describe('diffCommand', () => {
       typescript: true,
       componentsDir: 'src/components',
       utilsDir: 'src/lib',
+      stylesDir: 'src/styles',
       theme: {
         selected: 'default',
         palette: 'default',
@@ -492,6 +493,7 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -511,6 +513,7 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -534,6 +537,7 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',
@@ -557,6 +561,7 @@ describe('diffCommand', () => {
         typescript: true,
         componentsDir: 'src/components',
         utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
         theme: {
           selected: 'awesome',
           palette: 'sky',

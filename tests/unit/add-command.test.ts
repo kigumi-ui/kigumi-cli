@@ -63,16 +63,22 @@ describe('addCommand', () => {
   async function createConfig(
     overrides: Record<string, unknown> = {}
   ): Promise<void> {
+    // Drop legacy off-spec keys that older tests still pass through here:
+    // `tier` is detected from .env (CLAUDE.md rule 6), never stored in
+    // config; with strict mode it would now be rejected.
+    const { tier: _tier, ...cleanOverrides } = overrides;
     const config = {
-      $schema: 'https://kigumi.dev/schema/config.json',
       framework: 'react',
       typescript: true,
       componentsDir: 'src/components',
-      libDir: 'src/lib',
+      utilsDir: 'src/lib',
       stylesDir: 'src/styles',
-      theme: 'awesome',
-      tier: 'free',
-      ...overrides,
+      theme: {
+        selected: 'awesome',
+        palette: 'default',
+        brandColor: 'blue',
+      },
+      ...cleanOverrides,
     };
     await fs.writeJSON(path.join(tempDir, 'kigumi.config.json'), config);
   }
@@ -132,15 +138,73 @@ import '../styles/layers.css';
       expect(process.exit).toHaveBeenCalled();
     });
 
-    // addCommand must call getConfig only; calling loadConfig directly is
-    // redundant because getConfig() calls loadConfig() internally.
-    //
-    // Note on spy scope: vi.spyOn on a module namespace only intercepts
-    // calls made through the namespace (from other modules via their named
-    // imports). It does NOT see getConfig()'s same-file lexical call to
-    // loadConfig(). That's exactly what we want: the spy is scoped to
-    // external callers.
-    it('should not call loadConfig directly from addCommand', async () => {
+    it('surfaces ConfigInvalidError instead of the generic post-check fallback', async () => {
+      // Regression: pre-flight handlers used to swallow every getConfig error
+      // and rely on ConfigExistsCheck to report it. ConfigExistsCheck only
+      // covers the missing-file case, so a typo'd config produced the cryptic
+      // "Configuration not loaded despite passing checks" message instead of
+      // the actual schema error. Now ConfigNotFoundError is the only swallowed
+      // case; ConfigInvalidError must propagate.
+      const recording = createRecordingOutput();
+      const outMod = await import('../../src/output/index.js');
+      outMod.setOutputForTesting(recording);
+
+      await fs.writeJSON(path.join(tempDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
+        theme: { selected: 'awesome', palette: 'default', brandColor: 'blue' },
+        framwork: 'vue',
+      });
+      await setupProject();
+
+      const { addCommand } = await import('../../src/commands/add/index.js');
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
+
+      expect(process.exit).toHaveBeenCalled();
+      const allText = recording.calls
+        .map((c) => c.args.map((a) => String(a ?? '')).join(' '))
+        .join('\n');
+      expect(allText).not.toContain(
+        'Configuration not loaded despite passing checks'
+      );
+      expect(allText).toMatch(/framwork|Unrecognized key/);
+    });
+
+    it('accepts pre-cluster-B configs that still carry legacy `aliases`', async () => {
+      // Real-world starter projects ship with `aliases` at the top level
+      // (cluster B removed it from the schema; pre-strict-mode it was
+      // silently stripped). mergeWithDefaults strips the known legacy keys
+      // so existing projects keep working without a manual config edit.
+      await fs.writeJSON(path.join(tempDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
+        theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
+        aliases: {
+          '@/components': './src/components',
+          '@/lib': './src/lib',
+          '@/styles': './src/styles',
+        },
+      });
+      await setupProject();
+
+      const { addCommand } = await import('../../src/commands/add/index.js');
+      await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
+
+      const componentDir = path.join(tempDir, 'src/components/Button');
+      expect(await fs.pathExists(componentDir)).toBe(true);
+    });
+
+    // addCommand reads config exactly once via getConfig. loadConfig is also
+    // called once by ConfigExistsCheck during the pre-flight pipeline (the
+    // multi-format detection refactor); cosmiconfig caches both reads so the
+    // user-visible "one config read per command" invariant holds.
+    it('reads config once via getConfig and at most once via the pre-flight check', async () => {
       await createConfig();
       await setupProject();
 
@@ -151,8 +215,8 @@ import '../styles/layers.css';
       const { addCommand } = await import('../../src/commands/add/index.js');
       await addCommand(['button'], createTestAddOptions({ cwd: tempDir }));
 
-      expect(loadSpy).not.toHaveBeenCalled();
       expect(getSpy).toHaveBeenCalledTimes(1);
+      expect(loadSpy.mock.calls.length).toBeLessThanOrEqual(1);
 
       loadSpy.mockRestore();
       getSpy.mockRestore();

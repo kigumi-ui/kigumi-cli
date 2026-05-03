@@ -14,8 +14,8 @@ import path from 'path';
 import fs from 'fs-extra';
 import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
-import { loadConfig } from '../utils/config.js';
-import { handleError, ConfigNotFoundError } from '../errors/index.js';
+import { getConfig } from '../utils/config.js';
+import { handleError } from '../errors/index.js';
 import { getComponent, normalizeComponentName } from '../utils/registry.js';
 import { toKebabCase } from '../utils/naming.js';
 import {
@@ -66,11 +66,8 @@ export async function diffCommand(
   const cwd = options.cwd || process.cwd();
 
   try {
-    // 1. Load config
-    const config = loadConfig(cwd);
-    if (!config) {
-      throw new ConfigNotFoundError(cwd);
-    }
+    // 1. Load config (throws ConfigNotFoundError / ConfigInvalidError)
+    const config = getConfig(cwd);
 
     // 2. Determine which components to check
     const componentsToCheck = await resolveComponents(components, config, cwd);

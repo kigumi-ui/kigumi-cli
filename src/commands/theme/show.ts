@@ -6,9 +6,9 @@
 
 import { Command } from 'commander';
 import pc from 'picocolors';
-import { loadConfig } from '../../utils/config.js';
+import { getConfig } from '../../utils/config.js';
 import { detectTier, getWebAwesomePackage } from '../../utils/tier.js';
-import { ConfigNotFoundError, handleError } from '../../errors/index.js';
+import { handleError } from '../../errors/index.js';
 import { getOutput } from '../../output/index.js';
 
 export const showCommand = new Command('show')
@@ -18,12 +18,7 @@ export const showCommand = new Command('show')
     const output = getOutput();
 
     try {
-      const config = loadConfig(cwd);
-
-      if (!config) {
-        throw new ConfigNotFoundError(cwd);
-      }
-
+      const config = getConfig(cwd);
       const tier = await detectTier(cwd);
 
       output.intro('Current Theme Configuration');

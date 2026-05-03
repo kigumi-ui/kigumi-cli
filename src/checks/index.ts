@@ -32,7 +32,6 @@ export { CheckRunner, type CheckRunnerOptions } from './runner.js';
 // Configuration checks
 export {
   ConfigExistsCheck,
-  ConfigValidCheck,
   PackageJsonExistsCheck,
   GitIgnoreExistsCheck,
 } from './config-checks.js';

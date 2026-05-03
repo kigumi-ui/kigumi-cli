@@ -12,8 +12,8 @@ import * as p from '../prompts/index.js';
 import pc from 'picocolors';
 import { CLI_VERSION } from '../constants.js';
 import { getOutput } from '../output/index.js';
-import { loadConfig, saveConfig } from '../utils/config.js';
-import { handleError, ConfigNotFoundError } from '../errors/index.js';
+import { getConfig, saveConfig, type ConfigPatch } from '../utils/config.js';
+import { handleError, ConfigInvalidError } from '../errors/index.js';
 import {
   getVersionEntry,
   getBreakingChangesBetween,
@@ -40,10 +40,20 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
   const cwd = options.cwd || process.cwd();
 
   try {
-    // 1. Load config
-    const config = loadConfig(cwd);
-    if (!config) {
-      throw new ConfigNotFoundError(cwd);
+    // 1. Load config (throws ConfigNotFoundError / ConfigInvalidError).
+    //    For typo'd configs (`framwork: 'react'`), prepend a friendly hint
+    //    that upgrade does not auto-fix unrecognised keys before re-throwing
+    //    so the standard error formatter still runs.
+    let config;
+    try {
+      config = getConfig(cwd);
+    } catch (err) {
+      if (err instanceof ConfigInvalidError && hasUnrecognizedKeyError(err)) {
+        output.warning(
+          'kigumi upgrade does not auto-fix unrecognised config keys. Remove the keys listed below and re-run.'
+        );
+      }
+      throw err;
     }
 
     const projectVersion = config.kigumiVersion;
@@ -64,8 +74,8 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
         : await promptConfirm(`Pin your project to kigumi@${CLI_VERSION}?`);
 
       if (shouldPin) {
+        await saveConfig({ kigumiVersion: CLI_VERSION }, cwd);
         config.kigumiVersion = CLI_VERSION;
-        await saveConfig(config, cwd);
         output.success(`Pinned kigumiVersion to ${CLI_VERSION}`);
       }
 
@@ -156,13 +166,19 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
       return;
     }
 
-    // 9a. Update config
+    // 9a. Update config. The patch primitive deep-merges `webAwesome`, so
+    // sibling keys on disk are preserved without spreading `config.webAwesome`
+    // here (which would be `undefined` for projects that never set it).
+    const upgradePatch: ConfigPatch = { kigumiVersion: CLI_VERSION };
+    if (toEntry) {
+      upgradePatch.webAwesome = { version: toEntry.webAwesomeVersion };
+    }
+    await saveConfig(upgradePatch, cwd);
     config.kigumiVersion = CLI_VERSION;
     if (toEntry) {
       config.webAwesome = config.webAwesome || {};
       config.webAwesome.version = toEntry.webAwesomeVersion;
     }
-    await saveConfig(config, cwd);
     output.success(`Updated kigumiVersion to ${CLI_VERSION}`);
 
     // 9b. Install updated Web Awesome package
@@ -196,4 +212,9 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
 async function promptConfirm(message: string): Promise<boolean> {
   const result = await p.confirm({ message, initialValue: true });
   return p.isCancel(result) ? false : Boolean(result);
+}
+
+function hasUnrecognizedKeyError(err: ConfigInvalidError): boolean {
+  const errors = (err.context.details?.errors ?? []) as string[];
+  return errors.some((line) => /unrecognized key/i.test(line));
 }

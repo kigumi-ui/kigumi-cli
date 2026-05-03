@@ -32,6 +32,7 @@ import {
   type InitOptions,
   type KigumiConfig,
 } from '../../schemas/index.js';
+import { DEFAULT_CONFIG } from '../../schemas/config.js';
 import { handleExistingConfig } from './existing-config.js';
 import {
   buildConfigInteractive,
@@ -40,7 +41,7 @@ import {
 import { installDependencies, cleanupOldPackage } from './installer.js';
 import { generateProjectFiles } from './file-generator.js';
 import { getProjectInfo } from '../../utils/detect-framework.js';
-import { saveConfig, loadConfig } from '../../utils/config.js';
+import { loadConfig } from '../../utils/config.js';
 import { detectTier, type Tier } from '../../utils/tier.js';
 import {
   migratePackageReferences,
@@ -271,11 +272,23 @@ export async function validateAndPrepare(
   //    helpers must not re-detect.
   const initialTier = await detectTier(cwd);
 
-  // 6. Check for existing config
-  const rawExistingConfig = loadConfig(cwd);
+  // 6. Check for existing config. Init reads the raw on-disk payload and runs
+  //    safeParse with defaults pre-applied so that pre-cluster-A configs (no
+  //    utilsDir / stylesDir keys) keep working. If validation still fails,
+  //    init warns and overwrites instead of bubbling ConfigInvalidError, since
+  //    "fix or overwrite my broken config" is exactly the user intent for
+  //    `kigumi init`.
+  const loadedExisting = loadConfig(cwd);
   let existingConfig: KigumiConfig | null = null;
-  if (rawExistingConfig !== null) {
-    const parsed = kigumiConfigSchema.safeParse(rawExistingConfig);
+  if (loadedExisting !== null) {
+    const onDisk = (loadedExisting.config ?? {}) as Partial<KigumiConfig>;
+    const merged = {
+      ...DEFAULT_CONFIG,
+      ...onDisk,
+      theme: { ...DEFAULT_CONFIG.theme, ...onDisk.theme },
+      webAwesome: { ...DEFAULT_CONFIG.webAwesome, ...onDisk.webAwesome },
+    };
+    const parsed = kigumiConfigSchema.safeParse(merged);
     if (parsed.success) {
       existingConfig = parsed.data;
     } else {
@@ -445,7 +458,12 @@ async function saveAndGenerate(
   // Pin the current CLI version
   config.kigumiVersion = CLI_VERSION;
 
-  await saveConfig(config, cwd);
+  // Init bypasses the saveConfig patch primitive: this command's invariant is
+  // "create a fresh kigumi.config.json from scratch", which is exactly the
+  // shape the patch primitive cannot satisfy (no on-disk file to patch).
+  await fs.writeJson(path.join(cwd, 'kigumi.config.json'), config, {
+    spaces: 2,
+  });
   output.success('Configuration saved');
 
   await generateProjectFiles({
@@ -582,8 +600,8 @@ export function showPostInstallInstructions(
     // Derive `@/` aliases from the user's configured directories so the
     // emitted import specifiers match whatever kigumi.config.json says,
     // not a hardcoded assumption about default `src/styles` / `src/lib`.
-    const stylesAlias = toKigumiAlias(config.stylesDir || 'src/styles');
-    const utilsAlias = toKigumiAlias(config.utilsDir || 'src/lib');
+    const stylesAlias = toKigumiAlias(config.stylesDir);
+    const utilsAlias = toKigumiAlias(config.utilsDir);
 
     output.info(
       pc.bold(
@@ -678,10 +696,8 @@ export function showPostInstallInstructions(
   // Info box with project structure
   output.log(pc.bold(pc.cyan('ℹ️  Generated Files:\n')));
   output.log(pc.dim(`\tComponents:\t${config.componentsDir}/`));
-  output.log(
-    pc.dim(`\tStyles:\t\t${config.stylesDir || 'src/styles'}/theme.css`)
-  );
-  output.log(pc.dim(`\tSetup:\t\t${config.utilsDir || 'src/lib'}/kigumi.ts\n`));
+  output.log(pc.dim(`\tStyles:\t\t${config.stylesDir}/theme.css`));
+  output.log(pc.dim(`\tSetup:\t\t${config.utilsDir}/kigumi.ts\n`));
 
   // Info box with theme details (using display labels for proper capitalization)
   output.log(pc.bold(pc.cyan('🎨 Theme Configuration:\n')));

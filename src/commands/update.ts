@@ -13,8 +13,8 @@ import fs from 'fs-extra';
 import pc from 'picocolors';
 import * as p from '../prompts/index.js';
 import { getOutput } from '../output/index.js';
-import { loadConfig } from '../utils/config.js';
-import { handleError, ConfigNotFoundError } from '../errors/index.js';
+import { getConfig } from '../utils/config.js';
+import { handleError } from '../errors/index.js';
 import { getComponent, normalizeComponentName } from '../utils/registry.js';
 import { toKebabCase } from '../utils/naming.js';
 import {
@@ -66,11 +66,8 @@ export async function updateCommand(
   const cwd = options.cwd || process.cwd();
 
   try {
-    // 1. Load config
-    const config = loadConfig(cwd);
-    if (!config) {
-      throw new ConfigNotFoundError(cwd);
-    }
+    // 1. Load config (throws ConfigNotFoundError / ConfigInvalidError)
+    const config = getConfig(cwd);
 
     // Detect tier and Next-project context once here so generateComponent
     // does not repeat the package.json / .env / next.config probes for every

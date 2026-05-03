@@ -17,6 +17,8 @@ const validConfig = {
   framework: 'react',
   typescript: true,
   componentsDir: 'src/components/ui',
+  utilsDir: 'src/lib',
+  stylesDir: 'src/styles',
   theme: {
     selected: 'awesome',
     palette: 'default',
@@ -145,6 +147,48 @@ describe('mergeWithDefaults', () => {
     expect(result.theme.selected).toBe(DEFAULT_CONFIG.theme.selected);
   });
 
+  it('silently strips legacy top-level keys removed in earlier clusters', () => {
+    // Pre-cluster-B configs (kigumi <= 0.19.x) carried `aliases` at the top
+    // level. Cluster B removed it from the schema; before strict mode landed
+    // those configs went through Zod's default strip behaviour. With strict
+    // mode the schema would reject them, breaking every existing starter
+    // project — so mergeWithDefaults strips known-legacy keys first.
+    const result = mergeWithDefaults({
+      ...validConfig,
+      // @ts-expect-error - exercising the legacy-key strip path
+      aliases: {
+        '@/components': './src/components',
+        '@/lib': './src/lib',
+        '@/styles': './src/styles',
+      },
+    });
+    expect(result.framework).toBe('react');
+    expect(result).not.toHaveProperty('aliases');
+  });
+
+  it('silently strips legacy webAwesome.cdnUrl key', () => {
+    const result = mergeWithDefaults({
+      ...validConfig,
+      webAwesome: {
+        version: '^3.4.0',
+        // @ts-expect-error - exercising the legacy-key strip path
+        cdnUrl: 'https://cdn.example.com',
+      },
+    });
+    expect(result.webAwesome?.version).toBe('^3.4.0');
+    expect(result.webAwesome).not.toHaveProperty('cdnUrl');
+  });
+
+  it('still rejects unknown keys that are not on the legacy list', () => {
+    expect(() =>
+      mergeWithDefaults({
+        ...validConfig,
+        // @ts-expect-error - typo, should still fail
+        framwork: 'vue',
+      })
+    ).toThrow();
+  });
+
   it('overrides framework', () => {
     const result = mergeWithDefaults({ framework: 'vue' });
     expect(result.framework).toBe('vue');
@@ -168,5 +212,35 @@ describe('kigumiConfigSchema edge cases', () => {
   it('accepts config with empty registries array', () => {
     const result = kigumiConfigSchema.parse({ ...validConfig, registries: [] });
     expect(result.registries).toEqual([]);
+  });
+
+  it('rejects unknown top-level keys (typo defense)', () => {
+    const result = kigumiConfigSchema.safeParse({
+      ...validConfig,
+      framwork: 'vue',
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const message = result.error.issues
+        .map((iss) => iss.message + ' ' + iss.path.join('.'))
+        .join('\n');
+      expect(message.toLowerCase()).toContain('framwork');
+    }
+  });
+
+  it('rejects unknown nested theme keys', () => {
+    const result = kigumiConfigSchema.safeParse({
+      ...validConfig,
+      theme: { ...validConfig.theme, secondaryColor: 'red' },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects unknown nested webAwesome keys', () => {
+    const result = kigumiConfigSchema.safeParse({
+      ...validConfig,
+      webAwesome: { version: '^3.0.0', cdnUrl: 'https://cdn.example.com' },
+    });
+    expect(result.success).toBe(false);
   });
 });

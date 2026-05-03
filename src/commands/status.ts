@@ -24,10 +24,10 @@ import {
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
 import { getOutput } from '../output/index.js';
-import { loadConfig } from '../utils/config.js';
+import { getConfig } from '../utils/config.js';
 import { detectTier } from '../utils/tier.js';
 import type { Tier } from '../utils/tier.js';
-import { handleError, ConfigNotFoundError } from '../errors/index.js';
+import { handleError } from '../errors/index.js';
 
 interface StatusOptions {
   cwd?: string;
@@ -132,11 +132,8 @@ export async function statusCommand(
   const output = getOutput();
 
   try {
-    // 1. Load config
-    const config = loadConfig(cwd);
-    if (!config) {
-      throw new ConfigNotFoundError(cwd);
-    }
+    // 1. Load config (throws ConfigNotFoundError / ConfigInvalidError)
+    const config = getConfig(cwd);
 
     // 2. Detect tier
     const tier: Tier = await detectTier(cwd);

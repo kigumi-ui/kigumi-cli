@@ -526,7 +526,7 @@ sequenceDiagram
 
     Note over User,FS: === kigumi add button ===
     User->>CLI: kigumi add button [--force]
-    CLI->>Checks: ConfigExistsCheck + ConfigValidCheck
+    CLI->>Checks: ConfigExistsCheck
     Checks-->>CLI: pass/fail
     CLI->>Config: loadConfig(cwd) → KigumiConfig
     CLI->>Tier: detectTier(cwd)
@@ -543,7 +543,7 @@ sequenceDiagram
 
     Note over User,FS: === kigumi add --from <name> ===
     User->>CLI: kigumi add comp --from mischa-dev
-    CLI->>Checks: ConfigExistsCheck + ConfigValidCheck
+    CLI->>Checks: ConfigExistsCheck
     Checks-->>CLI: pass/fail
     CLI->>Config: loadConfig(cwd) → KigumiConfig
     CLI->>CLI: resolveRegistrySource(name, config) → URL
@@ -1016,4 +1016,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-05-02
+**Maintained by:** AI Assistants | **Last Updated:** 2026-05-03

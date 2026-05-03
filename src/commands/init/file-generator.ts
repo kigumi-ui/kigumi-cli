@@ -56,9 +56,9 @@ export async function generateProjectFiles(
   try {
     // 1. Create necessary directories
     output.log(`[DEBUG] Creating directories in ${cwd}`);
-    const componentsDir = config.componentsDir || 'src/components/ui';
-    const utilsDir = config.utilsDir || 'src/lib';
-    const stylesDir = config.stylesDir || 'src/styles';
+    const componentsDir = config.componentsDir;
+    const utilsDir = config.utilsDir;
+    const stylesDir = config.stylesDir;
 
     output.log(`[DEBUG] Components dir: ${componentsDir}`);
     output.log(`[DEBUG] Utils dir: ${utilsDir}`);
@@ -226,7 +226,7 @@ async function generateNextProviders(
   config: KigumiConfig,
   output: OutputInterface
 ): Promise<void> {
-  const utilsDir = config.utilsDir || 'src/lib';
+  const utilsDir = config.utilsDir;
   // Convert the on-disk path to the `@/` alias that works in both layouts:
   // - src layout: `src/lib` -> `@/lib/kigumi`
   // - root layout: `lib` -> `@/lib/kigumi`

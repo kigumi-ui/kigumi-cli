@@ -68,6 +68,32 @@ describe('kigumi init', () => {
       expect(config.theme).toHaveProperty('brandColor');
     });
 
+    it('does not bloat config with redundant defaults after a save', async () => {
+      // Pre-cluster-A: every saveConfig call routed through getConfig, which
+      // re-injected every default. The post-init config carried 12+ keys even
+      // when the user had only set a handful. After the cluster-A patch
+      // primitive landed, only the keys init actually wrote should be present.
+      testDir = await createTempProject('react-vite');
+
+      await runKigumi(testDir, ['init', '--no-install', '-y']);
+      await runKigumi(testDir, ['add', 'button', '--no-install']);
+
+      const config = JSON.parse(
+        await readFile(testDir, 'kigumi.config.json')
+      ) as Record<string, unknown>;
+
+      // Budget: at most 9 top-level keys after init + add. The full set is:
+      // framework, typescript, componentsDir, utilsDir, stylesDir, theme,
+      // webAwesome, kigumiVersion, installedComponents. The exact count
+      // depends on whether `add` ran the saveConfig that writes
+      // installedComponents (depends on --no-install + tier resolution paths
+      // that vary by environment), so we assert the upper bound. Pre-cluster-A
+      // this was 12+ because saveConfig re-injected every default on every
+      // write — that's the regression this test guards against.
+      expect(Object.keys(config).length).toBeLessThanOrEqual(9);
+      expect(Object.keys(config).length).toBeGreaterThanOrEqual(7);
+    });
+
     it('generates required files for Next.js project', async () => {
       testDir = await createTempProject('next-app');
 

@@ -157,6 +157,14 @@ Loads/saves `kigumi.config.json`. **Never stores tier** - always detected.
 
 **Important:** Import `KigumiConfig` type from `src/schemas/config.ts` (Zod-inferred, complete), NOT from `src/utils/config.ts` (old interface, missing `installedThemes` etc.).
 
+**Lifecycle invariant:** load, validate, save are three honest operations:
+
+- `loadConfig(cwd)` returns `{ config: unknown, filepath } | null` — the raw on-disk payload plus the discovered filepath. Pinned to `cwd` (no ancestor walk) so monorepo sub-packages cannot inherit a parent's config silently. Use only when you need access to the user's literal data (e.g. init's pre-flight safeParse).
+- `getConfig(cwd)` calls `loadConfig`, then `mergeWithDefaults`. Throws `ConfigNotFoundError` when nothing is on disk and `ConfigInvalidError` (with formatted Zod issues) when the data fails strict validation. Use this almost everywhere.
+- `saveConfig(patch, cwd)` is a patch primitive. It reads the on-disk file, merges only the keys in `patch` (one-level spread for `theme` and `webAwesome`), and writes back to the same filepath cosmiconfig discovered (so `.kigumirc`, `package.json#kigumi`, etc. round-trip correctly without creating a parallel `kigumi.config.json`). It throws `ConfigNotFoundError` when there is no on-disk file to patch.
+
+The schema is `.strict()`, so unknown keys (e.g. `framwork: 'react'`) raise `ConfigInvalidError` with `unrecognized_keys`. `kigumi upgrade` adds a one-line "remove the listed keys and re-run" hint before re-throwing so users see the remediation immediately.
+
 ```typescript
 interface KigumiConfig {
   framework: 'react' | 'vue' | 'angular';
@@ -424,4 +432,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-02 (cluster S PR-S1: src/prompts/ wrapper)
+**Last Updated:** 2026-05-03 (cluster A: config load/validate/save lifecycle)

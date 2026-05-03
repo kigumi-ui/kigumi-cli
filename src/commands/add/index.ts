@@ -9,17 +9,14 @@ import type { KigumiConfig } from '../../schemas/config.js';
  */
 
 import { getOutput } from '../../output/index.js';
-import {
-  CheckRunner,
-  ConfigExistsCheck,
-  ConfigValidCheck,
-} from '../../checks/index.js';
+import { CheckRunner, ConfigExistsCheck } from '../../checks/index.js';
 import {
   handleError,
   PreFlightCheckError,
   FrameworkMismatchError,
   CommunityRegistryNotFoundError,
   VersionMismatchError,
+  ConfigNotFoundError,
 } from '../../errors/index.js';
 import { validators, type AddOptions } from '../../schemas/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
@@ -70,19 +67,20 @@ export async function addCommand(components: string[], options?: AddOptions) {
 
     // 2. Load configuration (needed for checks).
     // getConfig() internally calls loadConfig() and deep-merges with defaults,
-    // so a single call is sufficient. A throw here means malformed config;
-    // the pre-flight checks below surface a readable error.
+    // so a single call is sufficient. ConfigNotFoundError is swallowed here
+    // because ConfigExistsCheck below shows a friendlier "run kigumi init"
+    // message; ConfigInvalidError must surface so users see the schema issue
+    // (otherwise the only error they get is the cryptic "Configuration not
+    // loaded despite passing checks" fallback below).
     let config: KigumiConfig | undefined;
     try {
       config = getConfig(cwd);
-    } catch (_error) {
-      // Config loading failed - will be caught by checks
+    } catch (err) {
+      if (!(err instanceof ConfigNotFoundError)) throw err;
     }
 
     // 3. Pre-flight checks
-    const checker = new CheckRunner()
-      .add(new ConfigExistsCheck())
-      .add(new ConfigValidCheck());
+    const checker = new CheckRunner().add(new ConfigExistsCheck());
 
     const checkResults = await checker.run({ cwd, config });
     if (checker.hasErrors(checkResults)) {
@@ -224,16 +222,17 @@ async function addFromRemoteRegistry(
   // 6. Update provenance tracking
   const added = results.filter((r) => r.success && !r.skipped);
   if (added.length > 0) {
-    config.installedComponents = config.installedComponents || {};
+    const installedComponents = { ...config.installedComponents };
     for (const result of added) {
-      config.installedComponents[result.name] = {
+      installedComponents[result.name] = {
         source: 'community',
         registryUrl: source.url,
         registryVersion: registry.version,
         installedAt: new Date().toISOString(),
       };
     }
-    await saveConfig(config, cwd);
+    config.installedComponents = installedComponents;
+    await saveConfig({ installedComponents }, cwd);
   }
 
   // 7. Summary
@@ -287,15 +286,16 @@ async function addFromBuiltinRegistry(
   // 5. Update provenance tracking for builtin components
   const added = results.filter((r) => r.success && !r.skipped);
   if (added.length > 0) {
-    config.installedComponents = config.installedComponents || {};
+    const installedComponents = { ...config.installedComponents };
     for (const result of added) {
-      config.installedComponents[result.name] = {
+      installedComponents[result.name] = {
         source: 'builtin',
         installedAt: new Date().toISOString(),
         kigumiVersion: CLI_VERSION,
       };
     }
-    await saveConfig(config, cwd);
+    config.installedComponents = installedComponents;
+    await saveConfig({ installedComponents }, cwd);
   }
 
   // 6. Summary
