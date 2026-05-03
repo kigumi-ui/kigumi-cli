@@ -11,8 +11,8 @@ import type { Tier } from '../../../src/utils/tier.js';
  * and returns the requested tier. Production code in src/utils/tier.ts
  * checks the dependencies map first; if `@awesome.me/webawesome-pro` is
  * present it returns 'pro', otherwise it falls through to 'free'. Writing
- * a real fixture exercises that path unmocked, replacing the
- * vi.mock('../../src/utils/tier.js') pattern (cluster S, F-126).
+ * a real fixture exercises that path unmocked, replacing the prior
+ * factory mock for `src/utils/tier.js`.
  */
 export async function writeTierFixture(dir: string, tier: Tier): Promise<void> {
   const pkg = {

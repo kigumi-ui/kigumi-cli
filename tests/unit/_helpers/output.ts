@@ -39,11 +39,12 @@ export interface RecordingOutput extends OutputInterface {
 /**
  * Captures every output method call into a typed array. Tests assert with
  *   expect(output.calls).toContainEqual({ method: 'success', args: ['...'] })
- * instead of vi.mocked(output.success).toHaveBeenCalledWith(...). This lets
- * tests register the instance via setOutputForTesting() without touching
- * the production module via vi.mock(). The spinner() factory returns a
- * no-op spinner; spinner method calls themselves are not recorded (only
- * the factory invocation is).
+ * or
+ *   expect(output.calls.find((c) => c.method === 'success')?.args).toEqual([...]).
+ * This lets tests register the instance via setOutputForTesting() without
+ * touching the production module via a factory mock. The spinner() factory
+ * returns a no-op spinner; spinner method calls themselves are not recorded
+ * (only the factory invocation is).
  */
 export function createRecordingOutput(): RecordingOutput {
   const calls: OutputCall[] = [];

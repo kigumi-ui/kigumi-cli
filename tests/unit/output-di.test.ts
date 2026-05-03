@@ -7,8 +7,8 @@
  * - getOutput() returns the registered instance when set, else a fresh
  *   ConsoleOutput.
  *
- * The hooks are part of cluster S (F-126) and replace the per-test
- * vi.mock('../../src/output/index.js') pattern that previously dominated
+ * The hooks are part of cluster S and replace the prior
+ * factory-mock pattern for src/output/index.js that previously dominated
  * tests/unit/.
  */
 

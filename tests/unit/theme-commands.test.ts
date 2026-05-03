@@ -8,7 +8,7 @@
  * - src/commands/theme/list.ts (list subcommand)
  * - src/commands/theme/install.ts (install subcommand)
  *
- * Cluster S, F-126: rewritten from a 7-vi.mock-declaration setup to
+ * Cluster S: rewritten from a 7-factory-mock setup to
  * helpers + DI hooks + per-test vi.spyOn for residual seams. All
  * pre-cluster-S assertions are preserved or strengthened.
  */

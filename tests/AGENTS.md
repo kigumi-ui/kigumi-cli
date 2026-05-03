@@ -148,7 +148,7 @@ be paired with a follow-up plan to drain it.
 ## Test Helpers (`tests/unit/_helpers/`)
 
 Sibling modules shared across unit tests. Prefer these over per-file `vi.mock`
-factories (cluster S, F-126).
+factories (cluster S).
 
 | Helper                                                                               | Use when                                                                                                                                                                                                                                                                                                                                                                          |
 | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -202,9 +202,9 @@ the module's real behavior.
 `scripts/check-mock-budget.ts` walks `tests/unit/`, counts `vi.mock`
 substring matches, and gates against:
 
-- **Total**: < 50 across `tests/unit/` (currently 206; cluster S PR-S2/S3
-  drive it down).
-- **Per-file**: `theme-commands.test.ts` < 10 (currently 1).
+- **Total**: < 50 across `tests/unit/` (currently 16; cluster S PR-S4
+  closed out the initiative).
+- **Per-file**: `theme-commands.test.ts` < 10 (currently 0).
 
 Modes:
 
@@ -213,9 +213,9 @@ pnpm check:mocks                        # advisory; prints counts, exits 0
 MOCK_BUDGET_ENFORCE=1 pnpm check:mocks  # enforced; exits 1 on threshold breach
 ```
 
-CI runs the gate in advisory mode through PR-S3; PR-S4 sets
-`MOCK_BUDGET_ENFORCE=1` once the substring count is < 50. Locally, the
-stop-hook runs it in advisory mode alongside `check:tests` on the
+CI runs the gate in enforce mode (`MOCK_BUDGET_ENFORCE=1` set in the
+`Check mock budget` step in `.github/workflows/ci.yml`); the local
+stop-hook stays advisory and runs alongside `check:tests` on the
 test-only fast path.
 
 ### Legitimate exceptions to `vi.mock`
@@ -492,4 +492,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-03 (cluster S PR-S3: `_helpers/seams.ts` extraction)
+**Last Updated:** 2026-05-03 (cluster S PR-S4: mock budget enforced in CI, total = 16)

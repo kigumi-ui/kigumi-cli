@@ -5,14 +5,18 @@
  * carry over persistent fields (installedComponents, registries,
  * installedThemes) from an existing config during re-init.
  *
- * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
- * (createRecordingOutput / createTestPrompts) instead of module-level
- * mocks for @clack/prompts and src/utils/tier.js. The
- * tier-restrictions and display-options mocks stay since those modules
- * have no DI seam yet.
+ * Cluster S: uses the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts) for @clack/prompts and tier.
+ * PR-S4: switched tier-restrictions / display-options factory mocks to
+ * `vi.spyOn` on namespace imports. BRAND_COLOR_OPTIONS is a `const` array
+ * that `vi.spyOn` cannot replace, so the real export is used directly
+ * (the test scenarios only assert on `brandColor: 'blue'`, which is in
+ * the real list).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import * as tierRestrictions from '../../src/utils/tier-restrictions.js';
+import * as displayOptions from '../../src/utils/display-options.js';
 import {
   createRecordingOutput,
   type RecordingOutput,
@@ -31,22 +35,6 @@ async function clearPromptsSeam(): Promise<void> {
   const promptsMod = await import('../../src/prompts/index.js');
   promptsMod.resetPromptsForTesting();
 }
-
-// Mock tier-restrictions: still no DI seam.
-vi.mock('../../src/utils/tier-restrictions.js', () => ({
-  getAvailableThemes: vi.fn(() => ['default']),
-  getAvailablePalettes: vi.fn(() => ['default']),
-  isThemeAvailable: vi.fn(() => true),
-}));
-
-// Mock display-options: still no DI seam.
-vi.mock('../../src/utils/display-options.js', () => ({
-  BRAND_COLOR_OPTIONS: [{ value: 'blue', label: 'Blue' }],
-  getThemeOptionsForTier: vi.fn(() => [{ value: 'default', label: 'Default' }]),
-  getPaletteOptionsForTier: vi.fn(() => [
-    { value: 'default', label: 'Default' },
-  ]),
-}));
 
 const baseExistingConfig: KigumiConfig = {
   framework: 'react',
@@ -94,10 +82,26 @@ describe('config preservation during re-init', () => {
     output = createRecordingOutput();
     await registerPromptsSeam(createTestPrompts({}));
     vi.clearAllMocks();
+
+    vi.spyOn(tierRestrictions, 'getAvailableThemes').mockReturnValue([
+      'default',
+    ]);
+    vi.spyOn(tierRestrictions, 'getAvailablePalettes').mockReturnValue([
+      'default',
+    ]);
+    vi.spyOn(tierRestrictions, 'isThemeAvailable').mockReturnValue(true);
+
+    vi.spyOn(displayOptions, 'getThemeOptionsForTier').mockReturnValue([
+      { value: 'default', label: 'Default' },
+    ]);
+    vi.spyOn(displayOptions, 'getPaletteOptionsForTier').mockReturnValue([
+      { value: 'default', label: 'Default' },
+    ]);
   });
 
   afterEach(async () => {
     await clearPromptsSeam();
+    vi.restoreAllMocks();
   });
 
   describe('buildConfigNonInteractive', () => {

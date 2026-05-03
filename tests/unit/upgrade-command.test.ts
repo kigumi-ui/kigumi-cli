@@ -12,11 +12,12 @@
  * - --dry-run does not mutate config (version mismatch)
  * - Breaking changes are shown when present
  *
- * Cluster S, F-126: rewritten to use the PR-S1 seam helpers
- * (createRecordingOutput / createTestPrompts / writeTierFixture) instead of
- * vi.mock for @clack/prompts, output, and tier. The remaining vi.mocks for
- * version-map, constants, init/installer, and detect-framework have no DI
- * seam yet and are kept.
+ * Cluster S: uses the PR-S1 seam helpers
+ * (createRecordingOutput / createTestPrompts / writeTierFixture) for
+ * @clack/prompts, output, and tier. PR-S4: switched version-map / installer
+ * / detect-framework to per-test `vi.spyOn` on dynamically-imported
+ * namespaces; constants retains its module-level mock because `CLI_VERSION`
+ * is a `const` re-export and `vi.spyOn` cannot replace a `const` value.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -30,60 +31,38 @@ import {
 import { createTestPrompts } from './_helpers/prompts.js';
 import { writeTierFixture } from './_helpers/tier.js';
 import type { PromptsAdapter } from '../../src/prompts/types.js';
+import type { VersionEntry } from '../../src/utils/version-map.js';
 
 import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
 
-// Mock version-map
-vi.mock('../../src/utils/version-map.js', () => ({
-  getVersionEntry: vi.fn((v: string) => {
-    if (v === '0.12.0')
-      return {
-        kigumiVersion: '0.12.0',
-        webAwesomeVersion: '^3.3.1',
-        releasedAt: '2026-03-01',
-        breakingChanges: [],
-      };
-    if (v === '0.10.0')
-      return {
-        kigumiVersion: '0.10.0',
-        webAwesomeVersion: '^3.2.1',
-        releasedAt: '2026-02-01',
-        breakingChanges: [],
-      };
-    if (v === '0.13.0')
-      return {
-        kigumiVersion: '0.13.0',
-        webAwesomeVersion: '^3.4.0',
-        releasedAt: '2026-03-15',
-        breakingChanges: [],
-      };
-    return undefined;
-  }),
-  getBreakingChangesBetween: vi.fn().mockReturnValue([]),
-  getVersionsBetween: vi.fn().mockReturnValue([]),
-}));
-
-// Mock CLI_VERSION constant
+// CLI_VERSION is a `const` re-export; `vi.spyOn` cannot replace a `const`
+// value, so this module-level factory mock stays.
 vi.mock('../../src/constants.js', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('../../src/constants.js')>();
   return { ...actual, CLI_VERSION: '0.13.0' };
 });
 
-// Mock dependency installer
-vi.mock('../../src/commands/init/installer.js', () => ({
-  installDependencies: vi.fn().mockResolvedValue(undefined),
-}));
-
-// Mock framework detection
-vi.mock('../../src/utils/detect-framework.js', () => ({
-  getProjectInfo: vi.fn().mockResolvedValue({
-    framework: 'react',
-    typescript: true,
-    packageManager: 'pnpm',
-    monorepo: false,
-  }),
-}));
+const cannedVersions: Record<string, VersionEntry> = {
+  '0.12.0': {
+    kigumiVersion: '0.12.0',
+    webAwesomeVersion: '^3.3.1',
+    releasedAt: '2026-03-01',
+    breakingChanges: [],
+  },
+  '0.10.0': {
+    kigumiVersion: '0.10.0',
+    webAwesomeVersion: '^3.2.1',
+    releasedAt: '2026-02-01',
+    breakingChanges: [],
+  },
+  '0.13.0': {
+    kigumiVersion: '0.13.0',
+    webAwesomeVersion: '^3.4.0',
+    releasedAt: '2026-03-15',
+    breakingChanges: [],
+  },
+};
 
 const baseConfig = {
   framework: 'react',
@@ -99,6 +78,8 @@ describe('upgrade command', () => {
   let originalExit: typeof process.exit;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let getVersionEntrySpy: ReturnType<typeof vi.spyOn>;
+  let getBreakingChangesSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -120,6 +101,31 @@ describe('upgrade command', () => {
 
     originalExit = process.exit;
     process.exit = vi.fn() as unknown as typeof process.exit;
+
+    // Spies for the residual seams. Modules dynamically imported AFTER
+    // vi.resetModules() so the spy wraps the same instance the SUT will
+    // see on its own dynamic import.
+    const versionMap = await import('../../src/utils/version-map.js');
+    getVersionEntrySpy = vi
+      .spyOn(versionMap, 'getVersionEntry')
+      .mockImplementation((v: string) => cannedVersions[v]);
+    getBreakingChangesSpy = vi
+      .spyOn(versionMap, 'getBreakingChangesBetween')
+      .mockReturnValue([]);
+    vi.spyOn(versionMap, 'getVersionsBetween').mockReturnValue([]);
+
+    const installer = await import('../../src/commands/init/installer.js');
+    vi.spyOn(installer, 'installDependencies').mockResolvedValue(undefined);
+
+    const detectFramework = await import('../../src/utils/detect-framework.js');
+    vi.spyOn(detectFramework, 'getProjectInfo').mockResolvedValue({
+      framework: 'react',
+      typescript: true,
+      packageManager: 'pnpm',
+      isNext: false,
+      hasVite: true,
+      sourceLayout: 'src',
+    });
   });
 
   afterEach(async () => {
@@ -127,6 +133,7 @@ describe('upgrade command', () => {
     process.chdir(originalCwd);
     process.exit = originalExit;
     await fs.remove(testDir);
+    vi.restoreAllMocks();
   });
 
   async function createConfig(
@@ -233,8 +240,7 @@ describe('upgrade command', () => {
   it('should show breaking changes when present', async () => {
     await createConfig({ kigumiVersion: '0.10.0' });
 
-    const versionMap = await import('../../src/utils/version-map.js');
-    vi.mocked(versionMap.getBreakingChangesBetween).mockReturnValue([
+    getBreakingChangesSpy.mockReturnValue([
       {
         description: 'Button API changed',
         affectedComponents: ['Button', 'IconButton'],
@@ -327,9 +333,9 @@ describe('upgrade command', () => {
   it('should not install when WA version unchanged', async () => {
     await createConfig({ kigumiVersion: '0.12.0' });
 
-    // 0.12.0 and 0.13.0 both use same mock return, but let's set them to same WA version
-    const versionMap = await import('../../src/utils/version-map.js');
-    vi.mocked(versionMap.getVersionEntry).mockImplementation((v: string) => {
+    // Override default lookup so 0.12.0 and 0.13.0 both report the same
+    // WA version (no install required).
+    getVersionEntrySpy.mockImplementation((v: string) => {
       if (v === '0.12.0')
         return {
           kigumiVersion: '0.12.0',
