@@ -78,6 +78,10 @@ node dist/index.js add button --force
 | `scripts/storybook/patch-stories.ts` | Patch generated Storybook stories |
 | `scripts/storybook/story-data.ts` | Storybook story data helpers |
 | `scripts/storybook/validate-stories.ts` | Validate Storybook story structure |
+| `scripts/state-files.ts` | Internal markdown-table parser for `docs/superpowers/state/*.md` (consumed by the three Phase-2 scripts) |
+| `scripts/state-staleness.ts` | List initiatives whose state-file is older than N days; powers the `/weekly-review` skill |
+| `scripts/triage-finding.ts` | Evaluate the 3-criteria new-finding rule and render a draft (Issue / PR-note / wontfix); powers `/triage-finding` |
+| `scripts/release-readiness.ts` | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness` |
 
 ---
 
@@ -1002,6 +1006,17 @@ pnpm build && pnpm test && pnpm lint && pnpm type-check
 
 # View CI status
 gh pr checks
+
+# Pre-release: aggregate gates + state-file meta-checks into a Go/No-Go report
+# (writes docs/superpowers/state/release-readiness-YYYY-MM-DD.md)
+pnpm release-readiness               # full run
+pnpm release-readiness:quick         # skip e2e
+
+# Triage a finding against the 3-criteria new-finding rule (Phase 1)
+pnpm triage-finding evaluate --json '{"finding":{...},"criteria":{"K1":...,"K2":...,"K3":...}}'
+
+# List initiatives whose state-file is older than 14 days
+pnpm state-staleness list
 ```
 
 ---
@@ -1016,4 +1031,4 @@ gh pr checks
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-05-03
+**Maintained by:** AI Assistants | **Last Updated:** 2026-05-04
