@@ -1,0 +1,54 @@
+F-ID,type,severity,session,status,category,rationale
+F-042,quality,medium,"Session 5",OPEN,A,build-release-pipeline-blocks-v0.20.0
+F-043,quality,low,"Session 5",OPEN,,
+F-044,bug,medium,"Session 5",OPEN,A,build-release-pipeline-blocks-v0.20.0
+F-047,quality,low,"Session 5",OPEN,,
+F-049,quality,low,"Session 5",OPEN,,
+F-077,bug,medium,"Session 7",OPEN,B,theme-studio-export-feature
+F-078,bug,low,"Session 7",OPEN,,
+F-079,dead-code,medium,"Session 7",OPEN,B,robust-wrappers-feature
+F-080,rule-violation,medium,"Session 7",OPEN,B,robust-wrappers-feature
+F-081,dead-code,low,"Session 7",OPEN,,
+F-082,redundancy,low,"Session 7",OPEN,,
+F-083,quality,low,"Session 7",OPEN,,
+F-084,quality,low,"Session 7",OPEN,,
+F-085,rule-violation,low,"Session 7",OPEN,,
+F-086,quality,low,"Session 7",OPEN,,
+F-087,quality,low,"Session 7",OPEN,,
+F-088,dead-code,low,"Session 7",OPEN,,
+F-089,quality,low,"Session 7",OPEN,,
+F-090,dead-code,low,"Session 7",OPEN,,
+F-091,quality,low,"Session 7",OPEN,,
+F-092,question,low,"Session 7",OPEN,,
+F-093,quality,low,"Session 7",OPEN,,
+F-094,bug,medium,"Session 8",OPEN,C,polish
+F-095,bug,medium,"Session 8",OPEN,C,polish
+F-096,dead-code,medium,"Session 8",OPEN,C,polish
+F-097,rule-violation,medium,"Session 8",OPEN,C,polish
+F-098,quality,low,"Session 8",OPEN,,
+F-099,redundancy,low,"Session 8",OPEN,,
+F-100,bug,low,"Session 8",OPEN,,
+F-101,bug,low,"Session 8",OPEN,,
+F-102,bug,low,"Session 8",OPEN,,
+F-103,bug,medium,"Session 8",OPEN,C,polish
+F-104,dead-code,low,"Session 8",OPEN,,
+F-105,bug,medium,"Session 8",OPEN,C,polish
+F-106,bug,medium,"Session 8",OPEN,C,polish
+F-107,bug,medium,"Session 8",OPEN,C,polish
+F-108,bug,medium,"Session 8",OPEN,C,polish
+F-109,bug,low,"Session 8",OPEN,,
+F-110,quality,low,"Session 8",OPEN,,
+F-111,rule-violation,medium,"Session 8",OPEN,C,polish
+F-112,dead-code,low,"Session 8",OPEN,,
+F-113,quality,low,"Session 8",OPEN,,
+F-114,quality,low,"Session 8",OPEN,,
+F-115,quality,low,"Session 8",OPEN,,
+F-116,dead-code,medium,"Session 8",OPEN,C,polish
+F-117,quality,low,"Session 8",OPEN,,
+F-118,quality,low,"Session 8",OPEN,,
+F-126,quality,low,"Session 9",OPEN,,
+F-129,quality,low,"Session 9",OPEN,,
+F-130,dead-code,low,"Session 10 (Cluster D follow-up)",OPEN,,
+F-131,quality,low,"Session 10 (Cluster D follow-up)",OPEN,,
+F-141,quality,low,"PR #146 follow-up (Cluster P Phase 4)",OPEN,,
+F-144,quality,medium,"PR #146 follow-up (Cluster P Phase 4)",OPEN,C,polish
