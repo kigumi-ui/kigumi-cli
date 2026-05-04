@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (87 files, 1325 tests; +5 in scripts/, +5 in schemas/)
+├── unit/                    # Fast, isolated tests (87 files, 1325 tests; +5 in scripts/, +15 in schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -101,6 +101,7 @@ tests/
 │   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
 │   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 │   ├── schemas/
+│   │   ├── config-corrupt.test.ts              # Cluster T: corrupt-config edge cases (BOM, trailing comma, truncated, null byte, wrong-type per required field)
 │   │   └── config-property.test.ts             # Cluster T: fast-check property tests (round-trip, strict rejection, mergeWithDefaults invariance)
 │   └── _setup/
 │       └── fast-check.ts                        # Cluster T: fast-check global config (pinned seed=1; FC_SEED env override)
@@ -497,4 +498,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-04 (cluster T PR-T1: fast-check setup + property tests over the three strict schemas; AGENTS.md sync for cluster A's `config-error-surface.test.ts`)
+**Last Updated:** 2026-05-04 (cluster T PR-T2: corrupt-config edge cases: BOM, trailing comma, truncated, null byte, wrong-type per required field)

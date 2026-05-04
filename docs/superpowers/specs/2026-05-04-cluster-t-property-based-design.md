@@ -136,7 +136,7 @@ Documents that `mergeWithDefaults` is idempotent. Catches accidental cumulative 
 
 Each scenario writes to a `mkdtemp` directory with `fs-extra`, then invokes `loadConfig(testDir)` or `getConfig(testDir)`:
 
-1. **BOM:** prefix valid JSON with `﻿`; assert cosmiconfig tolerates BOM (`loadConfig` returns the parsed payload).
+1. **BOM:** prefix valid JSON with `﻿`; assert `loadConfig` throws (Node's `JSON.parse` rejects a leading BOM via cosmiconfig's parse-json loader). Pinned as a regression guard so a future loader swap to a BOM-tolerant parser surfaces as a deliberate change rather than a silent accept of corrupted UTF-8.
 2. **Trailing comma:** write `{"framework":"react",}`; assert `loadConfig` throws.
 3. **Truncated mid-write:** write the first 50% of a valid config; assert `loadConfig` throws with a parseable error message.
 4. **Null byte in string:** write `{"framework":"react "}`; assert `getConfig` throws `ConfigInvalidError` (the embedded null fails `z.enum(FRAMEWORKS)`).
