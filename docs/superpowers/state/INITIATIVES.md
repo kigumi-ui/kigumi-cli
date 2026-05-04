@@ -1,6 +1,6 @@
 # Active Initiatives Dashboard
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-05-04
 **Convention:** each active initiative has a state-file in this directory. This dashboard
 tracks which initiatives are active, blocked, or shipped, and where cross-initiative
 priority decisions live.
@@ -11,7 +11,7 @@ priority decisions live.
 | ----------------------------- | ----------- | ------------------- | ------------------ | ------------ | ----------------------------------------------- |
 | test-infrastructure-hardening | IN-PROGRESS | T (starting)        | U, V               | v0.20.0      | [link](test-infrastructure-hardening-status.md) |
 | open-fix-clusters-latin       | IN-PROGRESS | none (A, B shipped) | G (blocks v0.20.0) | v0.20.0      | [link](open-fix-clusters-latin-status.md)       |
-| backlog-bankruptcy            | IN-PROGRESS | Phase 1 SHIPPED     | Phase 2 PENDING    | none         | [link](backlog-bankruptcy-status.md)            |
+| backlog-bankruptcy            | IN-PROGRESS | Phase 2 (in flight) | Phase 4 (30 min)   | none         | [link](backlog-bankruptcy-status.md)            |
 | foundations-restructure       | IN-PROGRESS | see status-file     | see status-file    | none         | [link](foundations-restructure-status.md)       |
 | studio-export-fix             | PENDING     | -                   | -                  | post-v0.20.0 | [link](studio-export-fix-status.md)             |
 | robust-wrappers               | PENDING     | -                   | -                  | post-v0.20.0 | [link](robust-wrappers-status.md)               |
@@ -20,6 +20,15 @@ priority decisions live.
 
 Decisions about which cluster across all initiatives takes priority, with date and
 rationale.
+
+### 2026-05-04: Backlog-Bankruptcy Phase 2 in flight
+
+Phase 2 ships release-readiness, triage-finding, and weekly-review skills
+plus a stop-hook freshness reminder, four executable scripts, and Vitest
+unit tests. After merge, v0.20.0 release-blocker meta-checks become
+runnable as `pnpm release-readiness`. First live run on this branch
+returned NO-GO with 5 reasons (cluster U/V still BLOCKED, two initiatives
+IN-PROGRESS, version bump pending), matching expectations.
 
 ### 2026-05-03: Latin Cluster A before test-infra Cluster T (RESOLVED)
 

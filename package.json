@@ -36,6 +36,8 @@
     "prebuild": "test -f src/utils/component-metadata.ts || pnpm generate:metadata",
     "build": "tsup && tsx scripts/post-build.ts",
     "start": "node dist/index.js",
+    "state-staleness": "tsx scripts/state-staleness.ts",
+    "triage-finding": "tsx scripts/triage-finding.ts",
     "type-check": "tsc --noEmit && pnpm typecheck:templates && pnpm check:tests",
     "typecheck:templates": "tsc --noEmit -p templates/react/tsconfig.json && vue-tsc --noEmit -p templates/vue/tsconfig.json && tsc --noEmit -p templates/angular/tsconfig.json",
     "check:tests": "tsx scripts/check-tests-baseline.ts",
@@ -65,6 +67,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\" \"tests/**/*.{ts,tsx,js,jsx,json}\" \"templates/**/*.{ts,tsx,js,jsx,vue,css}\" \"scripts/**/*.ts\" \"*.{js,ts,json,md}\"",
     "lint-staged": "lint-staged",
     "prepare": "husky",
+    "release-readiness": "tsx scripts/release-readiness.ts run",
+    "release-readiness:quick": "tsx scripts/release-readiness.ts run --quick",
+    "release-readiness:dry-run": "tsx scripts/release-readiness.ts dry-run",
     "changeset": "changeset",
     "version": "changeset version && tsx scripts/post-changeset-version.ts",
     "release": "pnpm build && changeset publish"
