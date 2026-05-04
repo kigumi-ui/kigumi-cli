@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (87 files, 1325 tests; +5 in scripts/, +15 in schemas/)
+├── unit/                    # Fast, isolated tests (89 files, 1325 tests; +5 in scripts/, +15 in schemas/, +11 in concurrency/failure-modes)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -14,6 +14,8 @@ tests/
 │   ├── check-runner.test.ts         # Pre-flight check runner
 │   ├── component-installer.test.ts  # Component installer logic
 │   ├── community-registry.test.ts   # Registry schema, URL parsing, deps
+│   ├── concurrency.test.ts          # Cluster T: saveConfig load-modify-write race + write-failure propagation
+│   ├── failure-modes.test.ts        # Cluster T: disk (ENOSPC/EACCES) + GitHub fetcher (401/403/429/404) + network (ECONNREFUSED)
 │   ├── component-selector.test.ts   # buildSelectorChoices + selectComponents dispatch
 │   ├── config.test.ts               # Config loading/saving
 │   ├── config-checks.test.ts        # Config validation checks
@@ -239,6 +241,100 @@ exceptions:
 `@clack/prompts` is **not** an exception once the wrapper migration is
 complete. New tests must register a `setPromptsForTesting()` adapter
 instead.
+
+---
+
+## Negative-Path Inventory
+
+Every user-facing command must have at least three negative-path tests
+(invalid input, missing dependency, failed pre-flight, surfaced error).
+The table below tracks current coverage; reviewers extending a command
+must add or update a row when introducing a new failure mode.
+
+Cluster T (PR-T3) ships this section. New tests added in cluster T
+are noted as `[T1]` (property tests), `[T2]` (corrupt-config), and
+`[T3]` (concurrency / failure-modes).
+
+| Command                  | Scenario                                       | Expected Surface                | Test File                                         | Test Name (substring)                                                        |
+| ------------------------ | ---------------------------------------------- | ------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `init`                   | unsupported framework                          | `ConfigInvalidError`            | `tests/unit/options-schema.test.ts`               | `rejects invalid framework`                                                  |
+| `init`                   | unknown top-level config key (e.g. `framwork`) | `ConfigInvalidError`            | `tests/unit/schemas/config-property.test.ts` [T1] | `rejects an arbitrary unknown top-level key on kigumiConfigSchema`           |
+| `init`                   | `--yes` mode with missing required arg         | `ValidationError`               | `tests/unit/options-schema.test.ts`               | `throws formatted error on invalid input`                                    |
+| `init`                   | user cancels prompt mid-flow                   | `UserCancelledError`            | `tests/unit/init-validate-and-prepare.test.ts`    | `throws UserCancelledError when the user picks "cancel"`                     |
+| `init`                   | missing `package.json`                         | `PreFlightCheckError`           | `tests/unit/init-validate-and-prepare.test.ts`    | `rejects with PreFlightCheckError when package.json is missing`              |
+| `add`                    | no config present                              | error output (no throw)         | `tests/unit/add-command.test.ts`                  | `should fail without config file`                                            |
+| `add`                    | malformed config JSON                          | `ConfigInvalidError`            | `tests/unit/add-command.test.ts`                  | `should fail with invalid config (completely broken JSON)`                   |
+| `add`                    | typo'd config key                              | `ConfigInvalidError`            | `tests/unit/add-command.test.ts`                  | `surfaces ConfigInvalidError instead of the generic post-check fallback`     |
+| `add`                    | invalid component name                         | error output                    | `tests/unit/add-command.test.ts`                  | `should handle invalid component names`                                      |
+| `add`                    | GitHub fetcher 401 / 403                       | `Error` "Authentication failed" | `tests/unit/failure-modes.test.ts` [T3]           | `fetchFile throws on 403 with "Authentication failed"`                       |
+| `add`                    | GitHub fetcher 429                             | `Error` with status code        | `tests/unit/failure-modes.test.ts` [T3]           | `fetchFile throws on 429 with the status code in the message`                |
+| `add`                    | network unreachable (ECONNREFUSED)             | `TypeError`                     | `tests/unit/failure-modes.test.ts` [T3]           | `fetchFile rethrows a TypeError when fetch rejects with ECONNREFUSED`        |
+| `update`                 | no config present                              | `output.error` call             | `tests/unit/update-command.test.ts`               | `should call output.error when no config is found`                           |
+| `update`                 | empty `componentsDir`                          | "no installed components"       | `tests/unit/update-command.test.ts`               | `should report no installed components when componentsDir is empty`          |
+| `update`                 | snapshot/template merge conflict               | conflict markers written        | `tests/unit/update-command.test.ts`               | `should write conflict markers when changes overlap`                         |
+| `upgrade`                | no config file                                 | `output.error` + exit           | `tests/unit/upgrade-command.test.ts`              | `should error when no config file exists`                                    |
+| `upgrade`                | typo'd config key                              | hint + non-zero exit            | `tests/unit/upgrade-command.test.ts`              | `prepends a friendly hint and exits non-zero on typo configs`                |
+| `diff`                   | no config present                              | `output.error` call             | `tests/unit/diff-command.test.ts`                 | `should call output.error when no config is found`                           |
+| `diff`                   | empty `componentsDir`                          | "no installed components"       | `tests/unit/diff-command.test.ts`                 | `should report no installed components when componentsDir is empty`          |
+| `diff`                   | non-existent `componentsDir`                   | "no installed components"       | `tests/unit/diff-command.test.ts`                 | `should report no installed components when componentsDir does not exist`    |
+| `theme set`              | no config file                                 | error                           | `tests/unit/theme-commands.test.ts`               | `should fail without config file`                                            |
+| `theme set`              | pro theme on free tier                         | `ProThemeRequiredError`         | `tests/unit/theme-commands.test.ts`               | `should reject pro theme on free tier with ProThemeRequiredError`            |
+| `theme set`              | typo'd config key                              | `ConfigInvalidError`            | `tests/unit/config-error-surface.test.ts`         | `theme command surfaces ConfigInvalidError on typo config`                   |
+| `theme set`              | user cancellation                              | `UserCancelledError`            | `tests/unit/theme-commands.test.ts`               | `should handle user cancellation`                                            |
+| `theme show`             | no config file                                 | error                           | `tests/unit/theme-commands.test.ts`               | `should fail without config file` (in `show` describe)                       |
+| `theme show`             | pro theme on free tier                         | `ProThemeRequiredError`         | `tests/unit/theme-commands.test.ts`               | `should reject pro theme on free tier`                                       |
+| `theme show`             | malformed config                               | `ConfigInvalidError`            | `tests/unit/config-error-surface.test.ts`         | `theme command surfaces ConfigInvalidError on typo config`                   |
+| `theme install`          | no config file                                 | error                           | `tests/unit/theme-commands.test.ts`               | `should fail without config file` (in `install` describe)                    |
+| `theme install`          | invalid theme name                             | error output                    | `tests/unit/theme-commands.test.ts`               | `should fail when theme not found in registry`                               |
+| `theme install`          | typo'd config key                              | `ConfigInvalidError`            | `tests/unit/config-error-surface.test.ts`         | `theme command surfaces ConfigInvalidError on typo config`                   |
+| `palette`                | no config file                                 | error                           | `tests/unit/palette-command.test.ts`              | `should fail without config file`                                            |
+| `palette`                | invalid palette name                           | exits non-zero                  | `tests/unit/palette-command.test.ts`              | `should reject invalid palette name and call process.exit`                   |
+| `palette`                | pro palette on free tier                       | `ProThemeRequiredError`         | `tests/unit/palette-command.test.ts`              | `should reject pro palettes on free tier`                                    |
+| `palette`                | typo'd config key                              | `ConfigInvalidError`            | `tests/unit/config-error-surface.test.ts`         | `palette command surfaces ConfigInvalidError on typo config`                 |
+| `brand`                  | no config file                                 | error                           | `tests/unit/brand-command.test.ts`                | `should fail without config file`                                            |
+| `brand`                  | invalid brand color                            | exits non-zero                  | `tests/unit/brand-command.test.ts`                | `should reject invalid brand color and call process.exit`                    |
+| `brand`                  | typo'd config key                              | `ConfigInvalidError`            | `tests/unit/config-error-surface.test.ts`         | `brand command surfaces ConfigInvalidError on typo config`                   |
+| `brand`                  | user cancellation                              | `UserCancelledError`            | `tests/unit/brand-command.test.ts`                | `should handle user cancellation`                                            |
+| `status`                 | no config file                                 | thrown error                    | `tests/unit/status.test.ts`                       | `should throw error when config not found`                                   |
+| `status`                 | tier mismatch (pro package without token)      | warning                         | `tests/unit/status.test.ts`                       | `should warn about tier mismatch (pro package without token)`                |
+| `status`                 | duplicate WA packages installed                | warning                         | `tests/unit/status.test.ts`                       | `should warn about duplicate packages`                                       |
+| `status`                 | missing components directory                   | graceful handling               | `tests/unit/status.test.ts`                       | `should handle missing components directory gracefully`                      |
+| `registry init`          | existing `registry.json`                       | warn (do not overwrite)         | `tests/unit/registry-init-command.test.ts`        | `should warn if registry.json already exists`                                |
+| `registry init`          | user provides bad arg                          | exits with error                | `tests/unit/registry-init-command.test.ts`        | (see scaffold negative-path describes)                                       |
+| `registry init`          | user cancellation                              | `UserCancelledError`            | `tests/unit/registry-init-command.test.ts`        | (interactive-prompts describe)                                               |
+| `registry validate`      | missing `registry.json`                        | failure                         | `tests/unit/registry-validate-command.test.ts`    | `should fail when registry.json does not exist`                              |
+| `registry validate`      | invalid JSON                                   | failure                         | `tests/unit/registry-validate-command.test.ts`    | `should fail on invalid JSON`                                                |
+| `registry validate`      | invalid Zod schema                             | failure                         | `tests/unit/registry-validate-command.test.ts`    | `should fail on invalid schema`                                              |
+| `registry validate`      | missing referenced files                       | failure                         | `tests/unit/registry-validate-command.test.ts`    | `should detect missing referenced files`                                     |
+| `registry validate`      | wrong file extension for framework             | failure                         | `tests/unit/registry-validate-command.test.ts`    | `should detect wrong file extensions for framework`                          |
+| `registry connect`       | foreign-framework registry                     | warn (proceed)                  | `tests/unit/registry-connect-command.test.ts`     | `warns (does not throw) when connecting a foreign-framework registry`        |
+| `registry connect`       | duplicate connection                           | no-op                           | `tests/unit/registry-connect-command.test.ts`     | `does not duplicate when the same local registry is connected twice`         |
+| `registry connect`       | typo'd config key                              | `ConfigInvalidError`            | `tests/unit/config-error-surface.test.ts`         | `registry list-sources action surfaces ConfigInvalidError on typo config`    |
+| `registry list`          | no registries configured                       | message + zero exit             | `tests/unit/registry-list-remove-command.test.ts` | `should show message when no registries configured`                          |
+| `registry list`          | missing config file                            | non-zero exit                   | `tests/unit/registry-list-remove-command.test.ts` | `should exit with error code when config is missing`                         |
+| `registry list`          | typo'd config key                              | `ConfigInvalidError`            | `tests/unit/config-error-surface.test.ts`         | `registry list-sources action surfaces ConfigInvalidError on typo config`    |
+| `registry remove`        | unknown registry URL/name                      | warn                            | `tests/unit/registry-list-remove-command.test.ts` | `should warn when registry not found`                                        |
+| `registry remove`        | components depend on it                        | warn about affected components  | `tests/unit/registry-list-remove-command.test.ts` | `should warn about affected components when removing registry`               |
+| `registry remove`        | missing config file                            | non-zero exit                   | `tests/unit/registry-list-remove-command.test.ts` | `should exit with error code when config is missing`                         |
+| `registry add-component` | missing `registry.json`                        | no-op                           | `tests/unit/registry-add-component.test.ts`       | `returns without writing when registry.json is missing`                      |
+| `registry add-component` | invalid `registry.json`                        | no-op                           | `tests/unit/registry-add-component.test.ts`       | `returns without writing when registry.json fails Zod parse`                 |
+| `registry add-component` | duplicate slug                                 | rejection                       | `tests/unit/registry-add-component.test.ts`       | `rejects duplicate slug via the slug prompt validate function`               |
+| `registry add-component` | user cancellation                              | `UserCancelledError`            | `tests/unit/registry-add-component.test.ts`       | `aborts via UserCancelledError when the user cancels mid-flow`               |
+| `registry add-theme`     | missing `registry.json`                        | no-op                           | `tests/unit/registry-add-theme.test.ts`           | `returns without writing when registry.json is missing`                      |
+| `registry add-theme`     | invalid `registry.json`                        | no-op                           | `tests/unit/registry-add-theme.test.ts`           | `returns without writing when registry.json fails Zod parse`                 |
+| `registry add-theme`     | duplicate / non-kebab / empty slug             | rejection                       | `tests/unit/registry-add-theme.test.ts`           | `rejects duplicate slug, non-kebab-case, and empty via slug prompt validate` |
+
+### Cross-cutting infrastructure (covers many commands)
+
+| Surface                    | Scenario                                 | Expected Behavior          | Test File                                        | Test Name (substring)                                              |
+| -------------------------- | ---------------------------------------- | -------------------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
+| `loadConfig` / `getConfig` | BOM-prefixed JSON                        | throws via cosmiconfig     | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when kigumi.config.json starts with a UTF-8 BOM`           |
+| `loadConfig` / `getConfig` | trailing-comma JSON                      | throws                     | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when JSON has a trailing comma`                            |
+| `loadConfig` / `getConfig` | truncated mid-write                      | throws                     | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `throws when the config file was truncated`                        |
+| `loadConfig` / `getConfig` | wrong type per required field            | `ConfigInvalidError`       | `tests/unit/schemas/config-corrupt.test.ts` [T2] | `rejects $field set to a wrong-type value via ConfigInvalidError`  |
+| `saveConfig`               | concurrent disjoint patches (race)       | at-least-one-fulfils       | `tests/unit/concurrency.test.ts` [T3]            | `leaves disk in a valid JSON state and at least one patch fulfils` |
+| `saveConfig`               | mid-write `loadConfig` race              | `ConfigNotFoundError` on B | `tests/unit/concurrency.test.ts` [T3]            | `exposes the load-modify-write race`                               |
+| `saveConfig`               | `fs.writeJson` rejects (ENOSPC / EACCES) | propagates with code       | `tests/unit/failure-modes.test.ts` [T3]          | `saveConfig propagates ENOSPC ... with code preserved`             |
 
 ---
 
@@ -498,4 +594,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-04 (cluster T PR-T2: corrupt-config edge cases: BOM, trailing comma, truncated, null byte, wrong-type per required field)
+**Last Updated:** 2026-05-04 (cluster T PR-T3: concurrency + failure-modes + Negative-Path Inventory section)
