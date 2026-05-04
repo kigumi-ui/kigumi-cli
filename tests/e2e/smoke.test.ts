@@ -16,6 +16,14 @@ import path from 'path';
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-smoke');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
 
+// `init --yes` runs two sequential package-manager installs (deps then
+// devDeps) via execa. On a cold CI runner with an empty pnpm/npm store the
+// network + resolution can take 90-180s; the historical 120s budget left no
+// headroom and intermittently flaked (#156 CI run 25323209394). Bump to 4
+// minutes per init; the idempotency block runs init twice and gets 6 minutes.
+const INIT_TIMEOUT_MS = 240_000;
+const DOUBLE_INIT_TIMEOUT_MS = 360_000;
+
 describe('E2E Smoke Test - Free Tier', () => {
   beforeAll(async () => {
     // Cleanup any previous test
@@ -41,32 +49,36 @@ describe('E2E Smoke Test - Free Tier', () => {
     expect(packageJson.name).toBeDefined();
   });
 
-  it('should run init with --yes flag', async () => {
-    const result = await execa(
-      'node',
-      [
-        CLI_PATH,
-        'init',
-        '--framework=react',
-        '--theme=awesome',
-        '--typescript',
-        '--yes',
-      ],
-      {
-        cwd: TEST_DIR,
-        env: {
-          ...process.env,
-          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
-        },
-      }
-    );
+  it(
+    'should run init with --yes flag',
+    async () => {
+      const result = await execa(
+        'node',
+        [
+          CLI_PATH,
+          'init',
+          '--framework=react',
+          '--theme=awesome',
+          '--typescript',
+          '--yes',
+        ],
+        {
+          cwd: TEST_DIR,
+          env: {
+            ...process.env,
+            NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+          },
+        }
+      );
 
-    expect(result.exitCode).toBe(0);
-    // Stdout shape check removed: clack-prompts emits 'Kigumi initialized successfully!'
-    // now, not 'Initialization complete'. Assertion was written against an older CLI
-    // before the prompt migration. Downstream tests assert post-init filesystem state
-    // (kigumi.config.json, src/lib/kigumi.ts) which is the more robust signal.
-  }, 120000);
+      expect(result.exitCode).toBe(0);
+      // Stdout shape check removed: clack-prompts emits 'Kigumi initialized successfully!'
+      // now, not 'Initialization complete'. Assertion was written against an older CLI
+      // before the prompt migration. Downstream tests assert post-init filesystem state
+      // (kigumi.config.json, src/lib/kigumi.ts) which is the more robust signal.
+    },
+    INIT_TIMEOUT_MS
+  );
 
   it('should configure vite.config.ts with path aliases', async () => {
     const viteConfig = await fs.readFile(
@@ -234,79 +246,87 @@ describe('E2E Smoke Test - Idempotency', () => {
     await fs.remove(IDEMPOTENT_DIR);
   });
 
-  it('should not duplicate path imports on second init', async () => {
-    // First init
-    await execa(
-      'node',
-      [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
-      {
-        cwd: IDEMPOTENT_DIR,
-        env: {
-          ...process.env,
-          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
-        },
-      }
-    );
+  it(
+    'should not duplicate path imports on second init',
+    async () => {
+      // First init
+      await execa(
+        'node',
+        [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
+        {
+          cwd: IDEMPOTENT_DIR,
+          env: {
+            ...process.env,
+            NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+          },
+        }
+      );
 
-    const viteConfig1 = await fs.readFile(
-      path.join(IDEMPOTENT_DIR, 'vite.config.ts'),
-      'utf-8'
-    );
+      const viteConfig1 = await fs.readFile(
+        path.join(IDEMPOTENT_DIR, 'vite.config.ts'),
+        'utf-8'
+      );
 
-    // Second init
-    await execa(
-      'node',
-      [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
-      {
-        cwd: IDEMPOTENT_DIR,
-        env: {
-          ...process.env,
-          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
-        },
-      }
-    );
+      // Second init
+      await execa(
+        'node',
+        [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
+        {
+          cwd: IDEMPOTENT_DIR,
+          env: {
+            ...process.env,
+            NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+          },
+        }
+      );
 
-    const viteConfig2 = await fs.readFile(
-      path.join(IDEMPOTENT_DIR, 'vite.config.ts'),
-      'utf-8'
-    );
+      const viteConfig2 = await fs.readFile(
+        path.join(IDEMPOTENT_DIR, 'vite.config.ts'),
+        'utf-8'
+      );
 
-    // Count path imports - should be exactly 1
-    const pathImportCount1 = (
-      viteConfig1.match(/import path from ['"]path['"]/g) || []
-    ).length;
-    const pathImportCount2 = (
-      viteConfig2.match(/import path from ['"]path['"]/g) || []
-    ).length;
+      // Count path imports - should be exactly 1
+      const pathImportCount1 = (
+        viteConfig1.match(/import path from ['"]path['"]/g) || []
+      ).length;
+      const pathImportCount2 = (
+        viteConfig2.match(/import path from ['"]path['"]/g) || []
+      ).length;
 
-    expect(pathImportCount1).toBe(1);
-    expect(pathImportCount2).toBe(1);
-    expect(viteConfig2).toBe(viteConfig1);
-  }, 240000);
+      expect(pathImportCount1).toBe(1);
+      expect(pathImportCount2).toBe(1);
+      expect(viteConfig2).toBe(viteConfig1);
+    },
+    DOUBLE_INIT_TIMEOUT_MS
+  );
 
-  it('should preserve existing tsconfig settings', async () => {
-    const tsconfig = await fs.readJSON(
-      path.join(IDEMPOTENT_DIR, 'tsconfig.app.json')
-    );
+  it(
+    'should preserve existing tsconfig settings',
+    async () => {
+      const tsconfig = await fs.readJSON(
+        path.join(IDEMPOTENT_DIR, 'tsconfig.app.json')
+      );
 
-    // Run init again
-    await execa(
-      'node',
-      [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
-      {
-        cwd: IDEMPOTENT_DIR,
-        env: {
-          ...process.env,
-          NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
-        },
-      }
-    );
+      // Run init again
+      await execa(
+        'node',
+        [CLI_PATH, 'init', '--framework=react', '--theme=awesome', '--yes'],
+        {
+          cwd: IDEMPOTENT_DIR,
+          env: {
+            ...process.env,
+            NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE || '',
+          },
+        }
+      );
 
-    const tsconfigAfter = await fs.readJSON(
-      path.join(IDEMPOTENT_DIR, 'tsconfig.app.json')
-    );
+      const tsconfigAfter = await fs.readJSON(
+        path.join(IDEMPOTENT_DIR, 'tsconfig.app.json')
+      );
 
-    // Should be identical
-    expect(tsconfigAfter).toEqual(tsconfig);
-  }, 120000);
+      // Should be identical
+      expect(tsconfigAfter).toEqual(tsconfig);
+    },
+    INIT_TIMEOUT_MS
+  );
 });

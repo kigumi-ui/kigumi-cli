@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (86 files, 1297 tests; +5 in scripts/)
+├── unit/                    # Fast, isolated tests (87 files, 1325 tests; +5 in scripts/, +5 in schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -17,6 +17,7 @@ tests/
 │   ├── component-selector.test.ts   # buildSelectorChoices + selectComponents dispatch
 │   ├── config.test.ts               # Config loading/saving
 │   ├── config-checks.test.ts        # Config validation checks
+│   ├── config-error-surface.test.ts # Config error surface (cluster A: ConfigInvalidError vs TypeError)
 │   ├── config-schema.test.ts        # Zod config schema validation
 │   ├── dependency-checks.test.ts    # Dependency validation
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
@@ -93,12 +94,16 @@ tests/
 │   ├── version-map.test.ts          # Version history data
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
 │   ├── vue-templates.test.ts        # Vue template generation validation
-│   └── scripts/
-│       ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
-│       ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
-│       ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
-│       ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
-│       └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
+│   ├── scripts/
+│   │   ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
+│   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
+│   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
+│   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
+│   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
+│   ├── schemas/
+│   │   └── config-property.test.ts             # Cluster T: fast-check property tests (round-trip, strict rejection, mergeWithDefaults invariance)
+│   └── _setup/
+│       └── fast-check.ts                        # Cluster T: fast-check global config (pinned seed=1; FC_SEED env override)
 ├── integration/             # Integration tests (build + run CLI)
 │   └── *.test.ts            # Tests that require built CLI
 ├── e2e/                     # Full CLI integration
@@ -492,4 +497,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-03 (cluster S PR-S4: mock budget enforced in CI, total = 16)
+**Last Updated:** 2026-05-04 (cluster T PR-T1: fast-check setup + property tests over the three strict schemas; AGENTS.md sync for cluster A's `config-error-surface.test.ts`)

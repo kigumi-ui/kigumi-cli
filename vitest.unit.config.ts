@@ -5,6 +5,7 @@ export default defineConfig({
     testTimeout: 30000,
     hookTimeout: 30000,
     globals: true,
+    setupFiles: ['tests/unit/_setup/fast-check.ts'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
