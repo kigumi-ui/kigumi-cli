@@ -1,9 +1,9 @@
 # Test Infrastructure Hardening — Live Status
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-05-04
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** A (config lifecycle; SHIPPED); S, P, R, Q1, Q2 shipped
-**Active spec:** [`docs/superpowers/specs/2026-05-02-cluster-s-mock-reduction-design.md`](../specs/2026-05-02-cluster-s-mock-reduction-design.md) (P spec preserved at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md))
+**Active cluster:** T (property-based + edge cases; PR-T1 in flight). A, S, P, R, Q1, Q2 shipped.
+**Active spec:** [`docs/superpowers/specs/2026-05-04-cluster-t-property-based-design.md`](../specs/2026-05-04-cluster-t-property-based-design.md) (S spec preserved at [`2026-05-02-cluster-s-mock-reduction-design.md`](../specs/2026-05-02-cluster-s-mock-reduction-design.md), P spec at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md))
 **Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
 
@@ -19,17 +19,17 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ## Cluster Status Table
 
-| Cluster | Codename                                                | Primary F-IDs                                          | Depends on                       | Status      | PR                      | Spec                                                                         | Plan                |
-| ------- | ------------------------------------------------------- | ------------------------------------------------------ | -------------------------------- | ----------- | ----------------------- | ---------------------------------------------------------------------------- | ------------------- |
-| **Q1**  | Test foundation                                         | F-132, F-050, F-052                                    | -                                | **SHIPPED** | #137                    | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)          | _accumulated in PR_ |
-| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045        | Q1                               | **SHIPPED** | #138                    | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)          | _accumulated in PR_ |
-| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)                     | Q2                               | **SHIPPED** | #139, #140, #141        | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)     | _local_             |
-| **S**   | Mock reduction                                          | F-126 (full)                                           | Q1                               | **SHIPPED** | #147, #148, #150, PR-S4 | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)             | _local_             |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125         | Q1                               | **SHIPPED** | #143, #144, #145, #146  | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)   | _local_             |
-| **A**   | Config lifecycle hardening                              | F-054, F-055, F-056, F-057, F-058, F-059, F-065, F-067 | -                                | **SHIPPED** | _pending_               | [A spec](../specs/2026-04-28-cluster-a-config-lifecycle-hardening-design.md) | _local_             |
-| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                           | Q1 (+ Cluster A for `.strict()`) | **PLANNED** | _pending_               | _pending_                                                                    | _pending_           |
-| **U**   | Story `play()` interactions                             | F-129                                                  | Q1, Q2                           | **BLOCKED** | _pending_               | _pending_                                                                    | _pending_           |
-| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                              | Q1, Q2                           | **BLOCKED** | _pending_               | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)             | _pending_           |
+| Cluster | Codename                                                | Primary F-IDs                                          | Depends on                       | Status          | PR                      | Spec                                                                         | Plan                |
+| ------- | ------------------------------------------------------- | ------------------------------------------------------ | -------------------------------- | --------------- | ----------------------- | ---------------------------------------------------------------------------- | ------------------- |
+| **Q1**  | Test foundation                                         | F-132, F-050, F-052                                    | -                                | **SHIPPED**     | #137                    | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)          | _accumulated in PR_ |
+| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045        | Q1                               | **SHIPPED**     | #138                    | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)          | _accumulated in PR_ |
+| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)                     | Q2                               | **SHIPPED**     | #139, #140, #141        | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)     | _local_             |
+| **S**   | Mock reduction                                          | F-126 (full)                                           | Q1                               | **SHIPPED**     | #147, #148, #150, PR-S4 | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)             | _local_             |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125         | Q1                               | **SHIPPED**     | #143, #144, #145, #146  | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)   | _local_             |
+| **A**   | Config lifecycle hardening                              | F-054, F-055, F-056, F-057, F-058, F-059, F-065, F-067 | -                                | **SHIPPED**     | _pending_               | [A spec](../specs/2026-04-28-cluster-a-config-lifecycle-hardening-design.md) | _local_             |
+| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                           | Q1 (+ Cluster A for `.strict()`) | **IN-PROGRESS** | #156 PR-T1 (draft)      | [T spec](../specs/2026-05-04-cluster-t-property-based-design.md)             | _local_             |
+| **U**   | Story `play()` interactions                             | F-129                                                  | Q1, Q2                           | **BLOCKED**     | _pending_               | _pending_                                                                    | _pending_           |
+| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                              | Q1, Q2                           | **BLOCKED**     | _pending_               | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)             | _pending_           |
 
 **Status legend:**
 
@@ -71,7 +71,7 @@ These are tracked here so future cluster sessions know which ones need the user'
 
 - ❓ **For Cluster R**, should `pnpm typecheck` PRs to the 3 starter repos go through the kigumi-cli initiative session or be 3 separate one-off PRs? Default: 3 small PRs from the kigumi-cli session (mechanical 1-line `package.json` change per starter).
 - ❓ **For Cluster R**, pinned starter commits — bump cadence: quarterly, on every kigumi-cli minor release, or never (frozen forever)? Default: bump on every kigumi-cli minor release as part of the release checklist.
-- ❓ **For Cluster T**, fast-check seed strategy in CI: pin to a fixed seed for reproducibility, or randomize and accept occasional discovery failures? Default: pin in CI (`fc.configureGlobal({ seed: 1 })`), randomize locally for discovery.
+- ✅ **For Cluster T**, fast-check seed strategy in CI: **RESOLVED** — pinned `seed = 1` in CI, env override via `FC_SEED=<n>` locally. Wired in `tests/unit/_setup/fast-check.ts` via `fc.configureGlobal({ seed, numRuns: 100 })`; PR-T1.
 - ❓ **For this dashboard**, should it remain public (here, in the repo) or also have a private mirror in 2nd brain? Default: dual — repo state file is the source of truth for status; 2nd brain dashboard accumulates richer context (decisions log + learnings + per-cluster session notes).
 
 ---
@@ -137,7 +137,7 @@ After R shipped, S/P/T/U opened up. Status by sub-cluster:
 - **P (coverage rationalization):** SHIPPED 2026-05-02. Four PRs landed (#143, #144, #145, #146); see Phase 4-P below for the close-out summary.
 - **S (mock reduction):** SHIPPED 2026-05-03. Four PRs landed (#147, #148, #150, PR-S4); see Phase 4-S below for the close-out summary.
 - **A (config lifecycle hardening):** SHIPPED 2026-05-03. PR pending; see Phase 4-A below for the close-out summary.
-- **T (property-based + edge cases):** PLANNED. Cluster A unblocked it (`.strict()` is now in `kigumiConfigSchema` + `themeConfigSchema` + `webAwesomeConfigSchema`); spec not yet written.
+- **T (property-based + edge cases):** IN-PROGRESS. Spec landed 2026-05-04 (`docs/superpowers/specs/2026-05-04-cluster-t-property-based-design.md`). PR-T1 in flight: fast-check setup + property tests over the three strict schemas. PR-T2 follows with corrupt-config edge cases; PR-T3 closes with concurrency + failure-modes + negative-path inventory.
 - **U (story `play()` interactions):** unblocked but spec not yet written.
 
 ### Phase 4-P: Cluster P — SHIPPED 2026-05-02
