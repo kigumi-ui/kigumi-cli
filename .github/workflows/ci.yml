@@ -330,15 +330,6 @@ jobs:
     name: Story Interactions (Storybook Vitest)
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
-    # The lane is marked continue-on-error while we settle a residual
-    # storybook-addon-vitest 10.3.4 + vitest 4.0.18 + chromium browser-mode
-    # setup-file ordering flake: 20-21 of the 22 stories pass per run, but
-    # whichever file the orchestrator loads first sometimes fails with
-    # "Failed to import .../addon-vitest/dist/vitest-plugin/setup-file.js -
-    # Vitest failed to find the runner". Tracked as F-145; CI keeps
-    # reporting the result but does not block merges while we untangle the
-    # upstream interaction.
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6

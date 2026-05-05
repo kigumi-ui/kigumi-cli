@@ -16,6 +16,44 @@ export default defineConfig({
       '@': path.resolve(dirname, './src'),
     },
   },
+  // Pre-transform every story file the lane runs plus the storybook
+  // plugin's internal setup-file.js. Without this, cold-cache CI runs
+  // race the deps optimizer: the orchestrator requests setup-file.js
+  // and story files before Vite has finished discovering and bundling
+  // their deps, the optimizer rebundles mid-fetch, and the cached
+  // "?v=<hash>" URLs 404 with "Vitest failed to find the runner".
+  // server.warmup forces the dev server to fetch and pre-transform
+  // these files before the iframe orchestrator boots.
+  server: {
+    warmup: {
+      clientFiles: [
+        './node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.js',
+        './src/components/ui/index.ts',
+        './src/stories/Button.stories.tsx',
+        './src/stories/Carousel.stories.tsx',
+        './src/stories/Checkbox.stories.tsx',
+        './src/stories/Combobox.stories.tsx',
+        './src/stories/CopyButton.stories.tsx',
+        './src/stories/Details.stories.tsx',
+        './src/stories/Dialog.stories.tsx',
+        './src/stories/Drawer.stories.tsx',
+        './src/stories/Dropdown.stories.tsx',
+        './src/stories/Input.stories.tsx',
+        './src/stories/NumberInput.stories.tsx',
+        './src/stories/Popover.stories.tsx',
+        './src/stories/Radio.stories.tsx',
+        './src/stories/RadioGroup.stories.tsx',
+        './src/stories/Rating.stories.tsx',
+        './src/stories/Select.stories.tsx',
+        './src/stories/Slider.stories.tsx',
+        './src/stories/Switch.stories.tsx',
+        './src/stories/TabGroup.stories.tsx',
+        './src/stories/Textarea.stories.tsx',
+        './src/stories/Tooltip.stories.tsx',
+        './src/stories/Tree.stories.tsx',
+      ],
+    },
+  },
   test: {
     projects: [
       {
