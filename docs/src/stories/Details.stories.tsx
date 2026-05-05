@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Details, Icon } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Shows a brief summary and expands to show additional content */
 const meta = {
@@ -70,10 +71,24 @@ type Story = StoryObj<typeof meta>;
 
 /** A collapsed details panel with a summary trigger. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: {
     summary: 'What is Kigumi?',
     children:
       'Kigumi is a CLI to build framework-agnostic UIs. It provides ready-made web components for your design system. Same components, any stack.',
+  },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<
+      HTMLElement & { show?: () => void; updateComplete?: Promise<unknown> }
+    >('wa-details');
+    if (!host) throw new Error('wa-details not found');
+    await host.updateComplete;
+    const cleanup = installEventProbe(host, 'wa-show', args.onShow);
+    // wa-details renders its summary inside the shadow root, so call show()
+    // rather than synthesizing a click on the slotted summary text.
+    host.show?.();
+    await waitForCalled(args, 'onShow');
+    cleanup();
   },
 };
 

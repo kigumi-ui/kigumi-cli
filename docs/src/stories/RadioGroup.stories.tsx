@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent, within } from 'storybook/test';
 import { RadioGroup, Radio } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Radio groups are used to group multiple radios so only one can be selected */
 const meta = {
@@ -73,6 +74,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A horizontal group of three radio options. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Preferred contact method' },
   render: (args) => (
     <RadioGroup {...args}>
@@ -81,6 +83,15 @@ export const Default: Story = {
       <Radio value="mail">Mail</Radio>
     </RadioGroup>
   ),
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-radio-group');
+    if (!host) throw new Error('wa-radio-group not found');
+    const cleanup = installEventProbe(host, 'change', args.onChange);
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText('Phone'));
+    await waitForCalled(args, 'onChange');
+    cleanup();
+  },
 };
 
 /** Stacks radio options vertically. */

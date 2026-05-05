@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Carousel, CarouselItem } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Displays an arbitrary number of content slides along a horizontal or vertical axis */
 const meta = {
@@ -77,6 +78,7 @@ const SLIDES = [
 
 /** A carousel with three slides and default navigation controls. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { navigation: true, pagination: true },
   render: (args) => (
     <Carousel {...args} style={{ maxWidth: '500px' }}>
@@ -100,6 +102,22 @@ export const Default: Story = {
       ))}
     </Carousel>
   ),
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-carousel');
+    if (!host) throw new Error('wa-carousel not found');
+    await (host as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    const cleanup = installEventProbe(
+      host,
+      'wa-slide-change',
+      args.onSlideChange
+    );
+    // wa-carousel keeps its navigation buttons in shadow root; call the public
+    // next() method instead of synthesizing a click on a moving target.
+    (host as HTMLElement & { next?: () => void }).next?.();
+    await waitForCalled(args, 'onSlideChange');
+    cleanup();
+  },
 };
 
 /** Shows image slides with cover-fit photos. */

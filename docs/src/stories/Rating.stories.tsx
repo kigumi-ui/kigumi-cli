@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Rating } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Ratings give users a way to quickly view and provide feedback */
 const meta = {
@@ -74,7 +75,28 @@ type Story = StoryObj<typeof meta>;
 
 /** A five-star rating input at zero stars. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { value: 3, label: 'Product rating' },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-rating');
+    if (!host) throw new Error('wa-rating not found');
+    await (host as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    const cleanup = installEventProbe(host, 'change', args.onChange);
+    // wa-rating handles ArrowRight via its host keydown listener; dispatch a
+    // synthetic keydown rather than relying on focus to land on the host.
+    // composed: true so the event still crosses shadow boundaries if WA ever
+    // moves the keydown listener off the host into shadow internals.
+    host.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+        bubbles: true,
+        composed: true,
+      })
+    );
+    await waitForCalled(args, 'onChange');
+    cleanup();
+  },
 };
 
 /** Allows selecting half-star increments. */

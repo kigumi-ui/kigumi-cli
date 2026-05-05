@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, within } from 'storybook/test';
 import { Dropdown, DropdownItem, Button, Icon } from '@/components/ui';
+import {
+  clickTrigger,
+  installEventProbe,
+  waitForCalled,
+} from '@/test-utils/play-helpers';
 
 /** Dropdowns expose additional content that pops up when the user interacts with a trigger */
 const meta = {
@@ -103,6 +108,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A basic dropdown with three text action items. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <Dropdown {...args}>
       <Button slot="trigger" with-caret>
@@ -119,6 +125,17 @@ export const Default: Story = {
       </DropdownItem>
     </Dropdown>
   ),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const cleanup = installEventProbe(
+      canvasElement.querySelector('wa-dropdown'),
+      'wa-show',
+      args.onShow
+    );
+    await clickTrigger(canvas, 'Actions');
+    await waitForCalled(args, 'onShow');
+    cleanup();
+  },
 };
 
 /** Uses checkbox-type items to build a multi-select menu. */

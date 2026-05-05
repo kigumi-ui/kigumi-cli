@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, within } from 'storybook/test';
 import { useState } from 'react';
 import { Popover, Button, Icon } from '@/components/ui';
+import {
+  clickTrigger,
+  installEventProbe,
+  waitForCalled,
+} from '@/test-utils/play-helpers';
 
 /** Popovers display additional content when users interact with a trigger element */
 const meta = {
@@ -106,6 +111,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A popover with a text paragraph opened by a button trigger. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => {
     const [open, setOpen] = useState(false);
     return (
@@ -125,6 +131,18 @@ export const Default: Story = {
         </Popover>
       </div>
     );
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    // wa-popover floats into document.body via its anchored positioning, outside canvasElement.
+    const cleanup = installEventProbe(
+      document.querySelector('wa-popover'),
+      'wa-show',
+      args.onShow
+    );
+    await clickTrigger(canvas, 'Toggle Popover');
+    await waitForCalled(args, 'onShow');
+    cleanup();
   },
 };
 

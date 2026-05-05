@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent, within } from 'storybook/test';
 import { Tooltip, Button, Icon } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Tooltips display additional information based on a specific action */
 const meta = {
@@ -107,6 +108,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A tooltip that appears on hover over a button. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <div style={{ padding: '3rem', display: 'flex', justifyContent: 'center' }}>
       <Tooltip {...args} for="default-btn">
@@ -115,6 +117,18 @@ export const Default: Story = {
       <Button id="default-btn">Hover me</Button>
     </div>
   ),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    // wa-tooltip floats into document.body via its anchored positioning, outside canvasElement.
+    const cleanup = installEventProbe(
+      document.querySelector('wa-tooltip'),
+      'wa-show',
+      args.onShow
+    );
+    await userEvent.hover(canvas.getByText('Hover me'));
+    await waitForCalled(args, 'onShow');
+    cleanup();
+  },
 };
 
 /** Shows tooltips at top, bottom, left, and right positions. */

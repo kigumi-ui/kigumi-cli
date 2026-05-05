@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent } from 'storybook/test';
 import { NumberInput } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Number inputs allow users to enter numeric values with optional step controls */
 const meta = {
@@ -88,7 +89,22 @@ type Story = StoryObj<typeof meta>;
 
 /** A basic number input with a label and default value. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Quantity', value: 1 },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-number-input');
+    if (!host) throw new Error('wa-number-input not found');
+    const cleanup = installEventProbe(host, 'input', args.onInput);
+    // wa-number-input wraps a native <input> in shadow DOM; user-event needs
+    // the focusable inner element to dispatch composed events upward.
+    const innerInput =
+      host.shadowRoot?.querySelector<HTMLInputElement>('input');
+    if (!innerInput) throw new Error('wa-number-input shadow input not found');
+    innerInput.focus();
+    await userEvent.keyboard('42');
+    await waitForCalled(args, 'onInput');
+    cleanup();
+  },
 };
 
 /** Constrains input to a specific numeric range. */

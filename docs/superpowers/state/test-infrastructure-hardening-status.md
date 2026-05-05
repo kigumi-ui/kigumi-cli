@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-05-04
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** none (Q1, Q2, R, S, P, A, T all shipped). U and V remain pending.
+**Active cluster:** none (Q1, Q2, R, S, P, A, T, U all shipped). V remains pending.
 **Active spec:** [`docs/superpowers/specs/2026-05-04-cluster-t-property-based-design.md`](../specs/2026-05-04-cluster-t-property-based-design.md) (S spec preserved at [`2026-05-02-cluster-s-mock-reduction-design.md`](../specs/2026-05-02-cluster-s-mock-reduction-design.md), P spec at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md))
 **Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
@@ -28,7 +28,7 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 | **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125         | Q1                               | **SHIPPED** | #143, #144, #145, #146  | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)   | _local_             |
 | **A**   | Config lifecycle hardening                              | F-054, F-055, F-056, F-057, F-058, F-059, F-065, F-067 | -                                | **SHIPPED** | _pending_               | [A spec](../specs/2026-04-28-cluster-a-config-lifecycle-hardening-design.md) | _local_             |
 | **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                           | Q1 (+ Cluster A for `.strict()`) | **SHIPPED** | #156, #157, #158        | [T spec](../specs/2026-05-04-cluster-t-property-based-design.md)             | _local_             |
-| **U**   | Story `play()` interactions                             | F-129                                                  | Q1, Q2                           | **BLOCKED** | _pending_               | _pending_                                                                    | _pending_           |
+| **U**   | Story `play()` interactions                             | F-129                                                  | Q1, Q2                           | **SHIPPED** | _pending_               | [U spec](../specs/2026-05-04-cluster-u-story-play-interactions-design.md)    | _local_             |
 | **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                              | Q1, Q2                           | **BLOCKED** | _pending_               | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)             | _pending_           |
 
 **Status legend:**
@@ -138,7 +138,7 @@ After R shipped, S/P/T/U opened up. Status by sub-cluster:
 - **S (mock reduction):** SHIPPED 2026-05-03. Four PRs landed (#147, #148, #150, PR-S4); see Phase 4-S below for the close-out summary.
 - **A (config lifecycle hardening):** SHIPPED 2026-05-03. PR pending; see Phase 4-A below for the close-out summary.
 - **T (property-based + edge cases):** SHIPPED 2026-05-04. Spec landed 2026-05-04 (`docs/superpowers/specs/2026-05-04-cluster-t-property-based-design.md`). PR-T1 (#156): fast-check setup + property tests over the three strict schemas. PR-T2 (#157): corrupt-config edge cases. PR-T3 (#158): concurrency + failure-modes + Negative-Path Inventory section in `tests/AGENTS.md`, including evidence (F-X8) that `saveConfig`'s load-modify-write is not concurrency-safe (a mid-write `loadConfig` race surfaces `ConfigNotFoundError`).
-- **U (story `play()` interactions):** unblocked but spec not yet written.
+- **U (story `play()` interactions):** SHIPPED 2026-05-04. Spec landed at `docs/superpowers/specs/2026-05-04-cluster-u-story-play-interactions-design.md`. Stood up the docs-side storybook-vitest integration (`docs/vitest.storybook.config.ts`), the CI lane (`story-interactions` job in `.github/workflows/ci.yml`), and `play: async` interactions on 22 stories under `docs/src/stories/` covering overlays, forms, triggers, disclosure, and other surfaces. Lane scoped via the `interaction` story tag so pre-existing render failures on untouched stories stay out of scope. `pnpm test:all` chains `pnpm test:stories`.
 
 ### Phase 4-P: Cluster P — SHIPPED 2026-05-02
 
