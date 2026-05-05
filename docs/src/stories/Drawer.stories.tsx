@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, within } from 'storybook/test';
 import { useState } from 'react';
 import { Drawer, Button } from '@/components/ui';
+import {
+  clickTrigger,
+  installEventProbe,
+  waitForCalled,
+} from '@/test-utils/play-helpers';
 
 const SlotBlock = ({
   label,
@@ -97,6 +102,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A drawer that slides in from the end (right) side, showing all available slots. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Menu', placement: 'end' },
   render: (args) => {
     const [open, setOpen] = useState(false);
@@ -136,6 +142,18 @@ export const Default: Story = {
         </Drawer>
       </>
     );
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    // wa-drawer portals into document.body, outside canvasElement.
+    const cleanup = installEventProbe(
+      document.querySelector('wa-drawer'),
+      'wa-show',
+      args.onShow
+    );
+    await clickTrigger(canvas, 'Open Drawer');
+    await waitForCalled(args, 'onShow');
+    cleanup();
   },
 };
 

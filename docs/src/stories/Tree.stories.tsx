@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent } from 'storybook/test';
 import { Tree, TreeItem, Icon } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Trees allow you to display a hierarchical list of selectable tree items */
 const meta = {
@@ -30,6 +31,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A file-system-style tree with nested folders and files. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <Tree {...args}>
       <TreeItem>
@@ -58,6 +60,22 @@ export const Default: Story = {
       </TreeItem>
     </Tree>
   ),
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-tree');
+    if (!host) throw new Error('wa-tree not found');
+    await (host as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    const cleanup = installEventProbe(
+      host,
+      'wa-selection-change',
+      args.onSelectionChange
+    );
+    const item = host.querySelector<HTMLElement>('wa-tree-item');
+    if (!item) throw new Error('wa-tree-item not found');
+    await userEvent.click(item);
+    await waitForCalled(args, 'onSelectionChange');
+    cleanup();
+  },
 };
 
 /** Enables multi-select with checkboxes on all items. */

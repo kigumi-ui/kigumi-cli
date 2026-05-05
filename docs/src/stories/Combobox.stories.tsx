@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent } from 'storybook/test';
 import { Combobox, Option } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 const fruits = [
   'Apple',
@@ -206,6 +207,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A basic single-select combobox with filterable options. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <div style={{ maxWidth: '300px' }}>
       <Combobox {...args}>
@@ -217,6 +219,19 @@ export const Default: Story = {
       </Combobox>
     </div>
   ),
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-combobox');
+    if (!host) throw new Error('wa-combobox not found');
+    const cleanup = installEventProbe(host, 'change', args.onChange);
+    // wa-combobox keeps its trigger input in shadow root; show() opens the
+    // listbox programmatically without driving the popup-positioning logic.
+    (host as HTMLElement & { show?: () => void }).show?.();
+    const option = host.querySelector<HTMLElement>('wa-option[value="apple"]');
+    if (!option) throw new Error('wa-option for Apple not found');
+    await userEvent.click(option);
+    await waitForCalled(args, 'onChange');
+    cleanup();
+  },
 };
 
 /** Adds a clear button to reset the selection. */

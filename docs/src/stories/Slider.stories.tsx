@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent } from 'storybook/test';
 import { Slider } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Sliders allow the user to select a value within a range */
 const meta = {
@@ -110,7 +111,21 @@ type Story = StoryObj<typeof meta>;
 
 /** A horizontal slider with default range (0 to 100) at 50. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Volume', value: 50 },
+  // Drive the slider via keyboard rather than drag geometry to avoid layout
+  // flake; ArrowRight increments the committed value and fires `change`.
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-slider');
+    if (!host) throw new Error('wa-slider not found');
+    await (host as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    const cleanup = installEventProbe(host, 'change', args.onChange);
+    host.focus();
+    await userEvent.keyboard('{ArrowRight}');
+    await waitForCalled(args, 'onChange');
+    cleanup();
+  },
 };
 
 /** Shows the current value in a tooltip above the thumb. */

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Switch } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Switches allow the user to toggle an option on or off */
 const meta = {
@@ -75,7 +76,18 @@ type Story = StoryObj<typeof meta>;
 
 /** An unchecked switch with a label. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { children: 'Dark mode' },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-switch');
+    if (!host) throw new Error('wa-switch not found');
+    await (host as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    const cleanup = installEventProbe(host, 'change', args.onChange);
+    host.click();
+    await waitForCalled(args, 'onChange');
+    cleanup();
+  },
 };
 
 /** Shows the switch in the checked (on) state. */

@@ -326,6 +326,60 @@ jobs:
         working-directory: docs
         run: pnpm exec tsc -p tsconfig.app.json
 
+  story-interactions:
+    name: Story Interactions (Storybook Vitest)
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    # The lane is marked continue-on-error while we settle a residual
+    # storybook-addon-vitest 10.3.4 + vitest 4.0.18 + chromium browser-mode
+    # setup-file ordering flake: 20-21 of the 22 stories pass per run, but
+    # whichever file the orchestrator loads first sometimes fails with
+    # "Failed to import .../addon-vitest/dist/vitest-plugin/setup-file.js -
+    # Vitest failed to find the runner". Tracked as F-145; CI keeps
+    # reporting the result but does not block merges while we untangle the
+    # upstream interaction.
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Configure Pro registry for docs
+        run: |
+          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install docs dependencies
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('docs/pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-chromium-
+
+      - name: Install Playwright Chromium
+        working-directory: docs
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run story interactions
+        working-directory: docs
+        run: pnpm storybook:test
+
   chromatic:
     name: Visual Regression (Chromatic)
     runs-on: ubuntu-latest

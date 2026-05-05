@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Radio, RadioGroup } from '@/components/ui';
-import { fn } from 'storybook/test';
+import { fn, userEvent, within } from 'storybook/test';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Radios allow the user to select a single option from a group */
 const meta = {
@@ -48,6 +49,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A standalone radio button with a label. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <RadioGroup label="Choose an option">
       <Radio {...args}>Radio Button</Radio>
@@ -55,6 +57,17 @@ export const Default: Story = {
       <Radio value="c">Option C</Radio>
     </RadioGroup>
   ),
+  // Radio's wrapper only exposes onBlur/onFocus (selection lives on the
+  // RadioGroup), so this asserts focus on click rather than a change event.
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-radio');
+    if (!host) throw new Error('wa-radio not found');
+    const cleanup = installEventProbe(host, 'focus', args.onFocus);
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText('Radio Button'));
+    await waitForCalled(args, 'onFocus');
+    cleanup();
+  },
 };
 
 /** Renders the radio as a filled button for segmented-control usage. */

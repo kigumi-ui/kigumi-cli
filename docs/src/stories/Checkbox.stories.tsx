@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Checkbox } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Checkboxes allow the user to toggle an option on or off */
 const meta = {
@@ -80,7 +81,18 @@ type Story = StoryObj<typeof meta>;
 
 /** An unchecked checkbox with a label. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { children: 'Remember me' },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-checkbox');
+    if (!host) throw new Error('wa-checkbox not found');
+    await (host as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    const cleanup = installEventProbe(host, 'change', args.onChange);
+    host.click();
+    await waitForCalled(args, 'onChange');
+    cleanup();
+  },
 };
 
 /** Shows the checkbox in the checked state. */

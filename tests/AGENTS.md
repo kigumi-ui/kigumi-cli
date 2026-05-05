@@ -125,10 +125,13 @@ pnpm test              # Unit tests (fast)
 pnpm test:integration  # Integration tests (requires build first)
 pnpm test:e2e          # E2E tests (slow, creates real projects)
 pnpm test:starters     # Snapshot diff against a real starter (env-gated; KIGUMI_STARTER + KIGUMI_STARTER_DIR required)
+pnpm test:stories      # Storybook play() interactions (browser-mode vitest in docs/)
 pnpm test:coverage     # Unit tests with coverage report
-pnpm test:all          # Build + unit + integration + e2e (sequential, fail-fast)
+pnpm test:all          # Build + unit + integration + e2e + stories (sequential, fail-fast)
 pnpm test:watch        # Watch mode
 ```
+
+`pnpm test:all` (and `pnpm test:stories`) require Chromium for the storybook lane; install once with `cd docs && pnpm exec playwright install chromium`.
 
 ---
 
@@ -594,4 +597,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-04 (cluster T PR-T3: concurrency + failure-modes + Negative-Path Inventory section)
+**Last Updated:** 2026-05-04 (cluster U: story `play()` interactions + storybook-vitest lane in docs/)

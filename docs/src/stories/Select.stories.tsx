@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent } from 'storybook/test';
 import { Select, Option, Icon } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Selects allow you to choose items from a menu of predefined options */
 const meta = {
@@ -153,6 +154,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A basic single-select dropdown with three options. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Country', placeholder: 'Choose a country' },
   render: (args) => (
     <Select {...args}>
@@ -163,6 +165,19 @@ export const Default: Story = {
       <Option value="gb">United Kingdom</Option>
     </Select>
   ),
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-select');
+    if (!host) throw new Error('wa-select not found');
+    const cleanup = installEventProbe(host, 'change', args.onChange);
+    // wa-select keeps its trigger button in the shadow root; clicking the host
+    // doesn't open the listbox in tests, so call show() and pick an option.
+    (host as HTMLElement & { show?: () => void }).show?.();
+    const option = host.querySelector<HTMLElement>('wa-option[value="fr"]');
+    if (!option) throw new Error('wa-option for France not found');
+    await userEvent.click(option);
+    await waitForCalled(args, 'onChange');
+    cleanup();
+  },
 };
 
 /** Compares filled, outlined, and filled-outlined visual styles. */

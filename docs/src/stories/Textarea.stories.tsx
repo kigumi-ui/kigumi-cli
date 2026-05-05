@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent } from 'storybook/test';
 import { Textarea } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Textareas collect multi-line text data from the user */
 const meta = {
@@ -104,7 +105,22 @@ type Story = StoryObj<typeof meta>;
 
 /** A multi-line textarea with a label and placeholder. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Bio', placeholder: 'Tell us about yourself...' },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-textarea');
+    if (!host) throw new Error('wa-textarea not found');
+    const cleanup = installEventProbe(host, 'input', args.onInput);
+    // wa-textarea wraps a native <textarea> in shadow DOM; user-event needs
+    // the focusable inner element to dispatch composed events upward.
+    const inner =
+      host.shadowRoot?.querySelector<HTMLTextAreaElement>('textarea');
+    if (!inner) throw new Error('wa-textarea shadow textarea not found');
+    inner.focus();
+    await userEvent.keyboard('hello');
+    await waitForCalled(args, 'onInput');
+    cleanup();
+  },
 };
 
 /** Compares filled, outlined, and filled-outlined styles. */

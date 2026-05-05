@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { Button } from '@/components/ui';
 
 /** Buttons represent actions that are available to the user */
@@ -118,6 +118,7 @@ const meta = {
     onBlur: fn(),
     onFocus: fn(),
     onInvalid: fn(),
+    onClick: fn(),
   },
 } satisfies Meta<typeof Button>;
 
@@ -126,10 +127,19 @@ type Story = StoryObj<typeof meta>;
 
 /** Shows the button in its default neutral/accent state. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: {
     variant: 'brand',
     appearance: 'filled',
     children: 'Click me',
+  },
+  // Button.tsx forwards props (including onClick) to <wa-button> via JSX, so
+  // React wires the click listener directly on the host. No probe needed; the
+  // spy that play() asserts on is the same one passed in args.
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText('Click me'));
+    await waitFor(() => expect(args.onClick).toHaveBeenCalled());
   },
 };
 

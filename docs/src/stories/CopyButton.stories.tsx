@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { CopyButton } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Copies text data to the clipboard when clicked */
 const meta = {
@@ -63,7 +64,44 @@ type Story = StoryObj<typeof meta>;
 
 /** A basic copy button with a simple text value. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { value: 'Hello, World!' },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-copy-button');
+    if (!host) throw new Error('wa-copy-button not found');
+    await (host as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    // Headless chromium's navigator.clipboard requires permissions the test
+    // runner doesn't grant, so the wrapper sees wa-error instead of wa-copy.
+    // Override writeText for the duration of the play so the success path
+    // through the component fires `onCopy` deterministically.
+    const original = navigator.clipboard?.writeText;
+    if (navigator.clipboard) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (navigator.clipboard as any).writeText = () => Promise.resolve();
+    } else {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: () => Promise.resolve() },
+      });
+    }
+    const cleanup = installEventProbe(host, 'wa-copy', args.onCopy);
+    try {
+      // wa-copy-button's click handler lives on its shadow trigger div, so
+      // host.click() doesn't reach handleCopy. Click the shadow button to
+      // exercise the same path the user would.
+      const innerButton = host.shadowRoot?.querySelector<HTMLElement>('button');
+      if (!innerButton) throw new Error('wa-copy-button inner button missing');
+      innerButton.click();
+      await waitForCalled(args, 'onCopy');
+    } finally {
+      cleanup();
+      if (original && navigator.clipboard) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (navigator.clipboard as any).writeText = original;
+      }
+    }
+  },
 };
 
 /** Presents a copy button alongside a styled code block. */

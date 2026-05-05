@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, within } from 'storybook/test';
 import { TabGroup, Tab, TabPanel, Icon } from '@/components/ui';
+import {
+  clickTrigger,
+  installEventProbe,
+  waitForCalled,
+} from '@/test-utils/play-helpers';
 
 /** Tab groups organize content into a container that shows one section at a time */
 const meta = {
@@ -48,6 +53,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A standard tab group with four tabs and matching panels. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <TabGroup {...args}>
       <Tab slot="nav" panel="general">
@@ -76,6 +82,15 @@ export const Default: Story = {
       </TabPanel>
     </TabGroup>
   ),
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-tab-group');
+    if (!host) throw new Error('wa-tab-group not found');
+    const cleanup = installEventProbe(host, 'wa-tab-show', args.onTabShow);
+    const canvas = within(canvasElement);
+    await clickTrigger(canvas, 'Custom');
+    await waitForCalled(args, 'onTabShow');
+    cleanup();
+  },
 };
 
 /** Shows all four tab-strip placement positions. */

@@ -2,6 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { useState } from 'react';
 import { Dialog, Button } from '@/components/ui';
+import {
+  clickTrigger,
+  installEventProbe,
+  waitForCalled,
+} from '@/test-utils/play-helpers';
+import { within } from 'storybook/test';
 
 /** Dialogs display important prompts and information */
 const meta = {
@@ -66,6 +72,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A basic dialog with a title and body text. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Confirm Action' },
   render: (args) => {
     const [open, setOpen] = useState(false);
@@ -97,6 +104,18 @@ export const Default: Story = {
         </Dialog>
       </>
     );
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    // wa-dialog portals into document.body, outside canvasElement.
+    const cleanup = installEventProbe(
+      document.querySelector('wa-dialog'),
+      'wa-show',
+      args.onShow
+    );
+    await clickTrigger(canvas, 'Open Dialog');
+    await waitForCalled(args, 'onShow');
+    cleanup();
   },
 };
 

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { fn, userEvent } from 'storybook/test';
 import { Input, Icon } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Inputs collect data from the user */
 const meta = {
@@ -178,7 +179,22 @@ type Story = StoryObj<typeof meta>;
 
 /** A basic text input with a label. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Full name', placeholder: 'Jane Doe' },
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<HTMLElement>('wa-input');
+    if (!host) throw new Error('wa-input not found');
+    const cleanup = installEventProbe(host, 'input', args.onInput);
+    // wa-input renders the native <input> in its shadow root; user-event needs
+    // the actual focusable inner element to dispatch composed events upward.
+    const innerInput =
+      host.shadowRoot?.querySelector<HTMLInputElement>('input');
+    if (!innerInput) throw new Error('wa-input shadow input not found');
+    innerInput.focus();
+    await userEvent.keyboard('kigumi');
+    await waitForCalled(args, 'onInput');
+    cleanup();
+  },
 };
 
 /** Shows email, tel, URL, and date input types. */
