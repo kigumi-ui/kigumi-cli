@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { expect, fn, waitFor, within } from 'storybook/test';
 import { useState } from 'react';
 import { Tag } from '@/components/ui';
 
@@ -55,7 +55,20 @@ type Story = StoryObj<typeof meta>;
 
 /** A single tag in the default neutral/filled-outlined style. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { children: 'Design System' },
+  // Default Tag has no remove button, so assert the host renders with the
+  // slotted label landing inside it. The remove-flow is exercised by the
+  // Removable story below for visual coverage.
+  play: async ({ canvasElement }) => {
+    const host = canvasElement.querySelector('wa-tag') as HTMLElement | null;
+    await expect(host).not.toBeNull();
+    await waitFor(() =>
+      expect(
+        within(host as HTMLElement).getByText('Design System')
+      ).toBeInTheDocument()
+    );
+  },
 };
 
 /** Shows all five semantic color variants. */

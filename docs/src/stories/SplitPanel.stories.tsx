@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { expect, fn, waitFor } from 'storybook/test';
 import { SplitPanel } from '@/components/ui';
 
 /** Split panels display two adjacent panels with a divider for resizing */
@@ -56,6 +56,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A horizontal split panel starting at 50 %. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <SplitPanel {...args} style={{ height: '200px' }}>
       <div
@@ -72,6 +73,18 @@ export const Default: Story = {
       </div>
     </SplitPanel>
   ),
+  // The divider lives in shadow DOM and the runner cannot drive ArrowRight
+  // through it reliably, so assert the wrapper renders the host with the
+  // documented default position (50) and the two slotted panels mount.
+  play: async ({ canvasElement }) => {
+    const host = canvasElement.querySelector('wa-split-panel') as
+      | (HTMLElement & { position?: number })
+      | null;
+    await expect(host).not.toBeNull();
+    await waitFor(() => expect(host!.position).toBe(50));
+    await expect(host!.querySelector('[slot="start"]')).not.toBeNull();
+    await expect(host!.querySelector('[slot="end"]')).not.toBeNull();
+  },
 };
 
 /** Splits the container vertically into top and bottom panes. */

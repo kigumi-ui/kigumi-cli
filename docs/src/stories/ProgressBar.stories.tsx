@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, waitFor } from 'storybook/test';
 import { ProgressBar } from '@/components/ui';
 
 /** Progress bars are used to show the completion of a task or operation */
@@ -26,7 +27,18 @@ type Story = StoryObj<typeof meta>;
 
 /** A progress bar at 50 % completion. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { value: 50 },
+  // ProgressBar is display-only. WA does not reflect props as host
+  // attributes, so verify the wrapper passes value through via the JS
+  // property rather than toHaveAttribute.
+  play: async ({ canvasElement }) => {
+    const host = canvasElement.querySelector(
+      'wa-progress-bar'
+    ) as HTMLElement | null;
+    await expect(host).not.toBeNull();
+    await waitFor(() => expect(host).toHaveProperty('value', 50));
+  },
 };
 
 /** Shows the percentage value overlaid on the bar. */

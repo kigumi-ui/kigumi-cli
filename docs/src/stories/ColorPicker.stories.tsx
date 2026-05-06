@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { expect, fn, waitFor } from 'storybook/test';
 import { ColorPicker } from '@/components/ui';
 
 /** Color pickers allow the user to select a color */
@@ -127,7 +127,21 @@ type Story = StoryObj<typeof meta>;
 
 /** The color picker in dropdown mode with default hex format. */
 export const Default: Story = {
+  tags: ['interaction'],
   args: { label: 'Brand color', value: '#0066cc' },
+  // The dropdown trigger and picker UI live in shadow DOM and are not
+  // reachable from the runner, so assert the wrapper passes value + label
+  // through onto the host. Opening the panel is covered by Chromatic.
+  play: async ({ canvasElement }) => {
+    const host = canvasElement.querySelector('wa-color-picker') as
+      | (HTMLElement & { value?: string; label?: string })
+      | null;
+    await expect(host).not.toBeNull();
+    await waitFor(() => {
+      expect(host!.value).toBe('#0066cc');
+      expect(host!.label).toBe('Brand color');
+    });
+  },
 };
 
 /** Enables the opacity channel for RGBA/HSLA color selection. */

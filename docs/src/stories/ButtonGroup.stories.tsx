@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, waitFor } from 'storybook/test';
 import { ButtonGroup, Button, Icon } from '@/components/ui';
 
 /**
@@ -30,6 +31,7 @@ type Story = StoryObj<typeof meta>;
 
 /** Three buttons joined in a horizontal group. */
 export const Default: Story = {
+  tags: ['interaction'],
   render: (args) => (
     <ButtonGroup {...args} label="Actions">
       <Button>Left</Button>
@@ -37,6 +39,17 @@ export const Default: Story = {
       <Button>Right</Button>
     </ButtonGroup>
   ),
+  // ButtonGroup is composition-only with no shadow-DOM-bound interaction;
+  // assert the host renders and its three slotted children land inside it.
+  play: async ({ canvasElement }) => {
+    const group = canvasElement.querySelector(
+      'wa-button-group'
+    ) as HTMLElement | null;
+    await expect(group).not.toBeNull();
+    await waitFor(() =>
+      expect(group!.querySelectorAll('wa-button')).toHaveLength(3)
+    );
+  },
 };
 
 /** Stacks buttons vertically inside the group. */
