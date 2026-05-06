@@ -106,7 +106,7 @@ Changes to the build pipeline, validation scripts, development tooling, CI, or p
 - Build config: `tsup.config.ts`, `package.json` scripts
 - Validation scripts: `scripts/`
 - Quality hooks: `.claude/hooks/`
-- Post-build: `scripts/post-build.ts`
+- Metadata freshness: `scripts/check-metadata-freshness.ts`
 
 ## Hybrid Features
 

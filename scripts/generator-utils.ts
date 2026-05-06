@@ -85,16 +85,11 @@ import prettier from 'prettier';
  *
  * The template generators emit raw concatenated strings. The lint-staged
  * pre-commit hook reformats `.ts` / `.tsx` / `.vue` / `.css` files via
- * `prettier --write`, but that only runs on staged files at commit time —
- * NOT on `dist/templates/` populated by `pnpm build`. The mismatch caused
- * a class of starter-snapshot failures: snapshot harness reads from
- * `dist/templates/` (unformatted), commits the resulting fixtures, then
- * CI checks out the lint-staged-formatted templates and the fixtures
- * disagree on whitespace.
- *
- * Solution: format inside the generator. The output of `pnpm generate:*`
- * is now identical to what lint-staged would produce, so build → copy →
- * snapshot has no opportunity to drift.
+ * `prettier --write`, but only on staged files at commit time. To keep
+ * `pnpm generate:*` output identical to what lint-staged would produce —
+ * so generators can be re-run without showing whitespace-only diffs and
+ * downstream snapshot fixtures stay stable — formatting happens inside
+ * the generator.
  *
  * Resolves prettier config via `prettier.resolveConfig(filePath)` so a
  * future `.prettierrc.json` is honored without changes here. Defaults

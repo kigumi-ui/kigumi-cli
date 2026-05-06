@@ -56,6 +56,8 @@ node dist/index.js add button --force
 | `src/utils/foreign-files-staging.ts` | Stages source-framework files into `.kigumi/foreign/<slug>/` for `--cross-framework` |
 | `src/schemas/community-registry.ts` | Community registry schema validation |
 | `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json ��� `component-metadata.ts` (events, slots, methods) |
+| `scripts/find-cem.ts` | Locate Web Awesome Pro custom-elements.json on disk (shared by parser + freshness check) |
+| `scripts/check-metadata-freshness.ts` | Prebuild gate — exit 1 when `component-metadata.ts` is missing or older than the CEM, triggering regen |
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
 | `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
 | `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
@@ -63,7 +65,6 @@ node dist/index.js add button --force
 | `scripts/generate-skill-references.ts` | Generate React/Vue/Angular API surface files for skills |
 | `scripts/publish-skills.mjs` | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here) |
 | `scripts/generate-skills-index.mjs` | Generate `.well-known/skills/index.json` from published skills |
-| `scripts/post-build.ts` | Post-build tasks (copy templates to dist) |
 | `scripts/post-changeset-version.ts` | Update version references after changeset version bump |
 | `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
 | `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
@@ -736,8 +737,7 @@ START: Change affects tier detection or packages
   - All variants: TypeScript AND JavaScript (Angular is TS-only)
 
 - [ ] **Rebuilt CLI**
-  - `pnpm build` (compiles + copies templates)
-  - Check: `dist/templates/` updated
+  - `pnpm build`
 
 - [ ] **Generated & tested component**
   - `node dist/index.js add {component} --force`
@@ -1031,4 +1031,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-05-04
+**Maintained by:** AI Assistants | **Last Updated:** 2026-05-06

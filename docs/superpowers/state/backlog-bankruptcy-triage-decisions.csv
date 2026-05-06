@@ -1,9 +1,9 @@
 F-ID,type,severity,session,status,category,rationale
-F-042,quality,medium,"Session 5",OPEN,A,build-release-pipeline-blocks-v0.20.0
-F-043,quality,low,"Session 5",OPEN,,
-F-044,bug,medium,"Session 5",OPEN,A,build-release-pipeline-blocks-v0.20.0
+F-042,quality,medium,"Session 5",DONE,A,build-release-pipeline-blocks-v0.20.0
+F-043,quality,low,"Session 5",DONE,A,build-release-pipeline-blocks-v0.20.0
+F-044,bug,medium,"Session 5",DONE,A,build-release-pipeline-blocks-v0.20.0
 F-047,quality,low,"Session 5",OPEN,,
-F-049,quality,low,"Session 5",OPEN,,
+F-049,quality,low,"Session 5",DONE,A,build-release-pipeline-blocks-v0.20.0
 F-077,bug,medium,"Session 7",OPEN,B,theme-studio-export-feature
 F-078,bug,low,"Session 7",OPEN,,
 F-079,dead-code,medium,"Session 7",OPEN,B,robust-wrappers-feature

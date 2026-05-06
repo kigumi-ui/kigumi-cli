@@ -15,6 +15,7 @@ import { spawn } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { findCustomElementsJson } from './find-cem.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -174,45 +175,6 @@ function formatWithPrettier(files: string[]): Promise<void> {
       else reject(new Error(`prettier exited with code ${code}`));
     });
   });
-}
-
-/**
- * Find custom-elements.json in node_modules
- */
-async function findCustomElementsJson(): Promise<string | null> {
-  // Try pnpm path first
-  const pnpmPath = path.join(PROJECT_ROOT, 'docs/node_modules/.pnpm');
-
-  if (await fs.pathExists(pnpmPath)) {
-    const pnpmDirs = await fs.readdir(pnpmPath);
-    const webAwesomeDirs = pnpmDirs
-      .filter((dir) => dir.startsWith('@awesome.me+webawesome-pro@'))
-      .sort()
-      .reverse(); // Sort descending to prefer newest version
-
-    for (const dir of webAwesomeDirs) {
-      const jsonPath = path.join(
-        pnpmPath,
-        dir,
-        'node_modules/@awesome.me/webawesome-pro/dist/custom-elements.json'
-      );
-      if (await fs.pathExists(jsonPath)) {
-        return jsonPath;
-      }
-    }
-  }
-
-  // Try regular node_modules
-  const regularPath = path.join(
-    PROJECT_ROOT,
-    'docs/node_modules/@awesome.me/webawesome-pro/dist/custom-elements.json'
-  );
-
-  if (await fs.pathExists(regularPath)) {
-    return regularPath;
-  }
-
-  return null;
 }
 
 /**
