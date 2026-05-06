@@ -1,6 +1,6 @@
 # Open Fix Clusters (Latin): Live Status
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-05-06
 **Convention:** this initiative groups remaining open F-IDs from the 10-session
 audit into Latin clusters A through J. Each cluster ships as its own PR.
 
@@ -8,18 +8,18 @@ audit into Latin clusters A through J. Each cluster ships as its own PR.
 
 ## Cluster Status Table
 
-| Cluster | Codename                      | F-IDs                                                                | Status                   | PR   |
-| ------- | ----------------------------- | -------------------------------------------------------------------- | ------------------------ | ---- |
-| **A**   | config-lifecycle-hardening    | F-033, F-054, F-055, F-056, F-057, F-058, F-059, F-062, F-065, F-067 | **SHIPPED**              | #152 |
-| **B**   | schema-cleanup                | F-060, F-061, F-063, F-064, F-066                                    | **SHIPPED**              | #134 |
-| **C**   | errors-adoption-and-prune     | F-062, F-079, F-080                                                  | PENDING                  | -    |
-| **D**   | theme-subcommands             | F-077, F-078, F-085, F-086                                           | PENDING                  | -    |
-| **E**   | read-only-command-uniformity  | F-082, F-083, F-084, F-087                                           | PENDING                  | -    |
-| **F**   | checks-output-layer-trim      | F-088, F-089, F-091                                                  | PENDING                  | -    |
-| **G**   | build-and-release-pipeline    | F-042, F-043, F-044, F-048, F-049                                    | PENDING (blocks v0.20.0) | -    |
-| **H**   | ci-and-test-config            | F-045, F-046, F-050, F-051                                           | PENDING                  | -    |
-| **I**   | validation-tooling-tightening | F-047, F-052                                                         | PENDING                  | -    |
-| **J**   | source-architecture-cleanup   | F-081, F-090, F-092, F-093                                           | PENDING                  | -    |
+| Cluster | Codename                      | F-IDs                                                                | Status      | PR   |
+| ------- | ----------------------------- | -------------------------------------------------------------------- | ----------- | ---- |
+| **A**   | config-lifecycle-hardening    | F-033, F-054, F-055, F-056, F-057, F-058, F-059, F-062, F-065, F-067 | **SHIPPED** | #152 |
+| **B**   | schema-cleanup                | F-060, F-061, F-063, F-064, F-066                                    | **SHIPPED** | #134 |
+| **C**   | errors-adoption-and-prune     | F-062, F-079, F-080                                                  | PENDING     | -    |
+| **D**   | theme-subcommands             | F-077, F-078, F-085, F-086                                           | PENDING     | -    |
+| **E**   | read-only-command-uniformity  | F-082, F-083, F-084, F-087                                           | PENDING     | -    |
+| **F**   | checks-output-layer-trim      | F-088, F-089, F-091                                                  | PENDING     | -    |
+| **G**   | build-and-release-pipeline    | F-042, F-043, F-044, F-048, F-049                                    | **SHIPPED** | TBD  |
+| **H**   | ci-and-test-config            | F-045, F-046, F-050, F-051                                           | PENDING     | -    |
+| **I**   | validation-tooling-tightening | F-047, F-052                                                         | PENDING     | -    |
+| **J**   | source-architecture-cleanup   | F-081, F-090, F-092, F-093                                           | PENDING     | -    |
 
 **Status legend:** SHIPPED, IN-PROGRESS, PENDING, BLOCKED.
 
@@ -64,6 +64,26 @@ full text remains in `~/.claude/projects/kigumi-cli-overview.md` under the
 F-042, F-044 routed here from Backlog-Bankruptcy as v0.20.0-blocking. Cluster G
 should ship before v0.20.0 final. Other clusters (C, D, E, F, H, I, J) remain
 pending without explicit priority.
+
+### 2026-05-06: Cluster G SHIPPED
+
+Effective scope was F-042, F-043, F-044, F-049. F-048 was already shipped in
+PR #138 (test-infra cluster Q2; see
+`docs/superpowers/state/test-infrastructure-hardening-status.md`), so it was a
+no-op here. Changes:
+
+- F-042: removed `scripts/post-build.ts`; `pnpm build` no longer duplicates
+  `templates/` and `llms.txt` into `dist/` (~5 MB tarball reduction).
+- F-043: collapsed two-config tsup array into a single config with an entry
+  map (`{ index, bin }`) and DTS scoped to `index`.
+- F-044: replaced the `test -f` prebuild gate with `scripts/check-metadata-freshness.ts`,
+  which also regenerates when the CEM mtime is newer than the generated metadata.
+  `findCustomElementsJson` was extracted to `scripts/find-cem.ts` so the parser
+  and the freshness check share one implementation.
+- F-049: removed `continue-on-error: true` from the maintenance-workflow audit
+  step, so `pnpm audit --audit-level=critical` now fails the job.
+
+PR: TBD (will be linked when filed).
 
 ---
 
