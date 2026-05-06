@@ -3,6 +3,8 @@
 **Status:** Design approved 2026-04-24 — implementation in progress.
 **Branch:** `feat/remove-handlebars` (worktree at `.claude/worktrees/feat-remove-handlebars`).
 
+> **Update 2026-05-06 (PR #170):** F-042 removed `dist/templates/` entirely; templates now ship only at the package root via `files: ["templates", ...]`. The "Acceptance Criteria" check that references `dist/templates/**` no longer applies. Verify against the root `templates/` directory instead.
+
 ## Problem
 
 Kigumi CLI ships 740 Handlebars templates across React, Vue, and Angular. The templating surface is tiny:

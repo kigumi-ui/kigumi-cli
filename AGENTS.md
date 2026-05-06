@@ -57,7 +57,7 @@ node dist/index.js add button --force
 | `src/schemas/community-registry.ts` | Community registry schema validation |
 | `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json ��� `component-metadata.ts` (events, slots, methods) |
 | `scripts/find-cem.ts` | Locate Web Awesome Pro custom-elements.json on disk (shared by parser + freshness check) |
-| `scripts/check-metadata-freshness.ts` | Prebuild gate — exit 1 when `component-metadata.ts` is missing or older than the CEM, triggering regen |
+| `scripts/check-metadata-freshness.ts` | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM, triggering regen |
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
 | `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
 | `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |

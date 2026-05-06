@@ -85,11 +85,10 @@ import prettier from 'prettier';
  *
  * The template generators emit raw concatenated strings. The lint-staged
  * pre-commit hook reformats `.ts` / `.tsx` / `.vue` / `.css` files via
- * `prettier --write`, but only on staged files at commit time. To keep
- * `pnpm generate:*` output identical to what lint-staged would produce —
- * so generators can be re-run without showing whitespace-only diffs and
- * downstream snapshot fixtures stay stable — formatting happens inside
- * the generator.
+ * `prettier --write`, but only on staged files at commit time. Formatting
+ * inside the generator keeps `pnpm generate:*` output identical to what
+ * lint-staged would produce, so generators can be re-run without showing
+ * whitespace-only diffs and downstream snapshot fixtures stay stable.
  *
  * Resolves prettier config via `prettier.resolveConfig(filePath)` so a
  * future `.prettierrc.json` is honored without changes here. Defaults
