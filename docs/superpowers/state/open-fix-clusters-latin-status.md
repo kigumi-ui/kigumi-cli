@@ -16,7 +16,7 @@ audit into Latin clusters A through J. Each cluster ships as its own PR.
 | **D**   | theme-subcommands             | F-077, F-078, F-085, F-086                                           | PENDING     | -    |
 | **E**   | read-only-command-uniformity  | F-082, F-083, F-084, F-087                                           | PENDING     | -    |
 | **F**   | checks-output-layer-trim      | F-088, F-089, F-091                                                  | PENDING     | -    |
-| **G**   | build-and-release-pipeline    | F-042, F-043, F-044, F-048, F-049                                    | **SHIPPED** | TBD  |
+| **G**   | build-and-release-pipeline    | F-042, F-043, F-044, F-048, F-049                                    | **SHIPPED** | #170 |
 | **H**   | ci-and-test-config            | F-045, F-046, F-050, F-051                                           | PENDING     | -    |
 | **I**   | validation-tooling-tightening | F-047, F-052                                                         | PENDING     | -    |
 | **J**   | source-architecture-cleanup   | F-081, F-090, F-092, F-093                                           | PENDING     | -    |
@@ -83,7 +83,7 @@ no-op here. Changes:
 - F-049: removed `continue-on-error: true` from the maintenance-workflow audit
   step, so `pnpm audit --audit-level=critical` now fails the job.
 
-PR: TBD (will be linked when filed).
+PR: #170.
 
 ---
 
