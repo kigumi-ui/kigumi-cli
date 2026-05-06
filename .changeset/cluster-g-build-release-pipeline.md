@@ -5,7 +5,7 @@
 ### Changed
 
 - **`pnpm build` no longer duplicates `templates/` into `dist/` (F-042).** The runtime always read templates from package root via `findPackageRoot`; the `dist/templates/` and `dist/llms.txt` copies emitted by `scripts/post-build.ts` were dead weight that bloated every install by ~5 MB. `scripts/post-build.ts` is removed and the `build` script is now plain `tsup`.
-- **`tsup.config.ts` is now a single config with an entry map (F-043).** Replaces the previous two-config array whose order was load-bearing — only the first config had `clean: true`, so swapping the entries silently wiped the prior build. The new config emits `dist/index.js`, `dist/index.d.ts`, and `dist/bin.js` with the shebang preserved (same primary outputs as before; tsup additionally emits shared chunk files because both entries share imports).
+- **`tsup.config.ts` is now a single config with an entry map (F-043).** Replaces the previous two-config array whose order was load-bearing: only the first config had `clean: true`, so swapping the entries silently wiped the prior build. The new config emits `dist/index.js`, `dist/index.d.ts`, and `dist/bin.js` with the shebang preserved. tsup additionally emits content-hashed `chunk-*.js` / `install-*.js` helpers alongside the entries because both share imports; they ship together in the tarball (which still drops by ~5 MB net thanks to F-042).
 
 ### Fixed
 
