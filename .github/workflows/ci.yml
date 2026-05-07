@@ -3,13 +3,7 @@ name: CI
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-  workflow_call:
-    inputs:
-      chromatic-skip:
-        description: 'Skip Chromatic snapshots (baseline only)'
-        type: boolean
-        default: true
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
 
 permissions:
   contents: read
@@ -21,6 +15,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+      src: ${{ steps.filter.outputs.src }}
+      templates: ${{ steps.filter.outputs.templates }}
+      integration: ${{ steps.filter.outputs.integration }}
+      e2e: ${{ steps.filter.outputs.e2e }}
+      starters: ${{ steps.filter.outputs.starters }}
+      story: ${{ steps.filter.outputs.story }}
+      deps: ${{ steps.filter.outputs.deps }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            deps:
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+            docs:
+              - 'docs/**'
+            src:
+              - 'src/**'
+            templates:
+              - 'templates/**'
+            integration:
+              - 'tests/integration/**'
+            e2e:
+              - 'tests/e2e/**'
+            starters:
+              - 'tests/fixtures/starter-snapshots/**'
+              - 'tests/e2e/starter-snapshots.test.ts'
+            story:
+              - 'docs/src/stories/**'
+              - 'docs/src/components/**'
+              - 'docs/.storybook/**'
+
   quality:
     name: Quality Checks
     runs-on: ubuntu-latest
@@ -49,12 +85,6 @@ jobs:
 
       - name: TypeScript strict check
         run: pnpm run type-check
-
-      - name: Type-check templates
-        run: pnpm run typecheck:templates
-
-      - name: Type-check tests
-        run: pnpm run check:tests
 
       - name: Check mock budget
         env:
@@ -103,6 +133,14 @@ jobs:
   integration:
     name: Integration Tests (${{ matrix.framework }}@${{ matrix.version }})
     runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      needs.changes.outputs.src == 'true'
+      || needs.changes.outputs.templates == 'true'
+      || needs.changes.outputs.integration == 'true'
+      || needs.changes.outputs.deps == 'true'
+      || contains(github.event.pull_request.labels.*.name, 'full-ci')
+      || github.head_ref == 'changeset-release/main'
     strategy:
       fail-fast: false
       matrix:
@@ -140,6 +178,14 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      needs.changes.outputs.src == 'true'
+      || needs.changes.outputs.templates == 'true'
+      || needs.changes.outputs.e2e == 'true'
+      || needs.changes.outputs.deps == 'true'
+      || contains(github.event.pull_request.labels.*.name, 'full-ci')
+      || github.head_ref == 'changeset-release/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -208,6 +254,14 @@ jobs:
   starters:
     name: Starter E2E (${{ matrix.framework }})
     runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      needs.changes.outputs.templates == 'true'
+      || needs.changes.outputs.src == 'true'
+      || needs.changes.outputs.starters == 'true'
+      || needs.changes.outputs.deps == 'true'
+      || contains(github.event.pull_request.labels.*.name, 'full-ci')
+      || github.head_ref == 'changeset-release/main'
     strategy:
       fail-fast: false
       matrix:
@@ -296,7 +350,17 @@ jobs:
   docs-typecheck:
     name: Type-check docs
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
+    needs: changes
+    if: |
+      github.actor != 'dependabot[bot]'
+      && (
+        needs.changes.outputs.docs == 'true'
+        || needs.changes.outputs.src == 'true'
+        || needs.changes.outputs.templates == 'true'
+        || needs.changes.outputs.deps == 'true'
+        || contains(github.event.pull_request.labels.*.name, 'full-ci')
+        || github.head_ref == 'changeset-release/main'
+      )
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -329,7 +393,15 @@ jobs:
   story-interactions:
     name: Story Interactions (Storybook Vitest)
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
+    needs: changes
+    if: |
+      github.actor != 'dependabot[bot]'
+      && (
+        needs.changes.outputs.story == 'true'
+        || needs.changes.outputs.deps == 'true'
+        || contains(github.event.pull_request.labels.*.name, 'full-ci')
+        || github.head_ref == 'changeset-release/main'
+      )
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -392,11 +464,11 @@ jobs:
               - 'docs/.storybook/**'
 
       - name: Setup pnpm
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
         uses: actions/setup-node@v6
         with:
           node-version: 20
@@ -404,26 +476,26 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Configure Pro registry for docs
-        if: (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')) && inputs.chromatic-skip != true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
         run: |
           printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
         run: pnpm install --frozen-lockfile
 
       - name: Install docs dependencies
-        if: (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')) && inputs.chromatic-skip != true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
         working-directory: docs
         run: pnpm install --frozen-lockfile
 
       - name: Build Storybook
-        if: (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')) && inputs.chromatic-skip != true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
         working-directory: docs
         run: pnpm build-storybook --stats-json
 
       - name: Run Chromatic
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test') || inputs.chromatic-skip == true
+        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
         uses: chromaui/action@latest
         with:
           workingDir: docs
@@ -433,4 +505,3 @@ jobs:
           exitZeroOnChanges: true
           exitOnceUploaded: true
           onlyChanged: true
-          skip: ${{ inputs.chromatic-skip == true }}

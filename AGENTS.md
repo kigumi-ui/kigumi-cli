@@ -977,10 +977,27 @@ pnpm release
 **main** branch is protected:
 
 - Require PR before merging
-- Require CI status checks (all jobs must pass)
+- Require CI status checks (`quality`, `test`, `pack-test` are the always-on baseline)
 - Require conversation resolution
 - No force push allowed
 - No direct commits
+
+### CI Optimization (Path-Aware Gating)
+
+To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when relevant paths change. The `changes` job (top of `ci.yml`) uses `dorny/paths-filter@v4` to compute outputs (`docs`, `src`, `templates`, `integration`, `e2e`, `starters`, `story`, `deps`), and each gated job's `if:` predicate references those outputs.
+
+**Always-on jobs:** `quality`, `test`, `pack-test`. These are the required status checks for branch protection.
+
+**Path-gated jobs:** `integration`, `e2e`, `starters`, `docs-typecheck`, `story-interactions`. Skipped if paths don't match.
+
+**Override mechanisms (force every heavy job to run):**
+
+1. Add the `full-ci` label to the PR. The `labeled` PR trigger re-fires CI, and every gated job's `if:` falls through to the override branch.
+2. Push to a branch named `changeset-release/main`. The changesets-bot Version Packages PR uses this head ref, so pre-release CI is always exhaustive.
+
+**When to add a new path filter:** any time a new top-level directory or file pattern lands that should drive a heavy job. Update the `changes` job's `filters:` block in `ci.yml` and adjust the relevant gate. If you add a top-level directory that doesn't fit any existing filter, the safest default is to add it under `deps` (which is in every heavy gate) until you know which job it should drive.
+
+**`visual-test` label** is a separate, narrower override that forces the Chromatic job to run when no visual paths changed. It is unrelated to `full-ci`.
 
 ### Troubleshooting
 
@@ -1031,4 +1048,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-05-06
+**Maintained by:** AI Assistants | **Last Updated:** 2026-05-07
