@@ -127,11 +127,15 @@ pnpm test:e2e          # E2E tests (slow, creates real projects)
 pnpm test:starters     # Snapshot diff against a real starter (env-gated; KIGUMI_STARTER + KIGUMI_STARTER_DIR required)
 pnpm test:stories      # Storybook play() interactions (browser-mode vitest in docs/)
 pnpm test:coverage     # Unit tests with coverage report
+pnpm test:mutation     # Mutation testing via Stryker (cluster V; weekly cron + manual)
+pnpm test:mutation:incremental  # Stryker incremental mode (skip already-tested mutants)
 pnpm test:all          # Build + unit + integration + e2e + stories (sequential, fail-fast)
 pnpm test:watch        # Watch mode
 ```
 
 `pnpm test:all` (and `pnpm test:stories`) require Chromium for the storybook lane; install once with `cd docs && pnpm exec playwright install chromium`.
+
+`pnpm test:mutation` reads `stryker.conf.mjs` at the repo root; the V1 mutate scope is `src/utils/tier.ts` only (89.13 % baseline). Output: `reports/mutation/mutation.html` (gitignored). The weekly `mutation.yml` workflow runs the same command on Sundays 02:00 UTC and uploads the report as a 30-day artifact. Widening the mutate scope is staged to subsequent V cluster PRs (see `stryker.conf.mjs` for the upstream-tooling constraints that ruled out wider scopes for V1).
 
 ---
 
@@ -597,4 +601,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-04 (cluster U: story `play()` interactions + storybook-vitest lane in docs/)
+**Last Updated:** 2026-05-07 (cluster V PR-V1: `pnpm test:mutation` Stryker scaffold + weekly `mutation.yml` workflow)

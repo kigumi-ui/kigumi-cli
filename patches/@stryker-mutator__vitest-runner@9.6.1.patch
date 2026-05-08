@@ -1,0 +1,29 @@
+diff --git a/dist/src/vitest-test-runner.js b/dist/src/vitest-test-runner.js
+index 29b77daf30e604887406485c70d930ebbe2db229..34d16aee3a356d1089ba03d1ca4f0b14b7030688 100644
+--- a/dist/src/vitest-test-runner.js
++++ b/dist/src/vitest-test-runner.js
+@@ -33,15 +33,18 @@ export class VitestTestRunner {
+         await fs.promises.copyFile(STRYKER_SETUP, this.localSetupFile);
+         this.ctx = await vitestWrapper.createVitest('test', {
+             config: this.options.vitest?.configFile,
++            // PATCHED for kigumi-cli: vitest 4.x's threads pool forbids
++            // process.chdir(), which several legacy unit tests rely on.
++            // Use the forks pool (child processes) so all tests run.
+             // @ts-expect-error threads got renamed to "pool: threads" in vitest 1.0.0
+-            threads: true,
+-            pool: 'threads',
++            threads: false,
++            pool: 'forks',
+             coverage: { enabled: false },
+             poolOptions: {
+-                // Since vitest 1.0.0
+-                threads: {
+-                    maxThreads: 1,
+-                    minThreads: 1,
++                forks: {
++                    maxForks: 1,
++                    minForks: 1,
++                    singleFork: true,
+                 },
+             },
+             maxWorkers: 1,

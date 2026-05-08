@@ -6,6 +6,7 @@ export default defineConfig({
     hookTimeout: 30000,
     globals: true,
     setupFiles: ['tests/unit/_setup/fast-check.ts'],
+    include: ['tests/unit/**/*.test.ts'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -15,6 +16,7 @@ export default defineConfig({
       '**/tests/e2e/**',
       '**/tests/.tmp-*/**',
       '**/.claude/worktrees/**',
+      '**/.stryker-tmp/**',
     ],
     coverage: {
       provider: 'v8',
