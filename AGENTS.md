@@ -999,6 +999,16 @@ To stay inside the GitHub Actions allowance, `ci.yml` runs heavy jobs only when 
 
 **`visual-test` label** is a separate, narrower override that forces the Chromatic job to run when no visual paths changed. It is unrelated to `full-ci`.
 
+**Dynamic matrix sizes (Integration + Starter):** beyond skipping jobs entirely, the `changes` job also computes the matrix size for the two matrix jobs and emits it as JSON outputs (`integration_matrix`, `starter_matrix`).
+
+| Trigger                                            | Integration matrix                             | Starter matrix                        |
+| -------------------------------------------------- | ---------------------------------------------- | ------------------------------------- |
+| `full-ci` label or `changeset-release/main`        | 4 entries (react@18, react@19, vue@3, angular) | 4 entries (react, vue, angular, next) |
+| `templates` or `deps` changed                      | 3 entries (drop react@18)                      | 4 entries                             |
+| `src` (or `integration` / `starters` / `e2e`) only | 3 entries                                      | 1 entry (react)                       |
+
+The reduction is safe because: (1) react@18-vs-19 differences are JSX-typing only and bounded; (2) starter coverage for non-react frameworks is high-value only when templates or deps change; (3) any regression missed on a regular PR is caught at the next release PR (full matrix auto-fires on `changeset-release/main`) before publish. To force the full matrix on a regular PR, add the `full-ci` label.
+
 ### Troubleshooting
 
 | Problem                | Solution                                          |
@@ -1048,4 +1058,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-05-07
+**Maintained by:** AI Assistants | **Last Updated:** 2026-05-08

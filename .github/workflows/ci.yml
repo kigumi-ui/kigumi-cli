@@ -30,6 +30,8 @@ jobs:
       starters: ${{ steps.filter.outputs.starters }}
       story: ${{ steps.filter.outputs.story }}
       deps: ${{ steps.filter.outputs.deps }}
+      integration_matrix: ${{ steps.matrix.outputs.integration }}
+      starter_matrix: ${{ steps.matrix.outputs.starter }}
     steps:
       - uses: actions/checkout@v6
       - id: filter
@@ -56,6 +58,52 @@ jobs:
               - 'docs/src/stories/**'
               - 'docs/src/components/**'
               - 'docs/.storybook/**'
+
+      # Compute matrix sizes for Integration and Starter jobs.
+      # Full coverage (all 4 frameworks) only when:
+      #   * `full-ci` label is on the PR, OR
+      #   * branch is the changesets bot's `changeset-release/main` (pre-release gate), OR
+      #   * (starter only) templates or deps changed.
+      # Otherwise: drop react@18 from Integration; reduce Starter matrix to react only.
+      # Rationale: react@18-vs-19 differences are JSX-typing only and well-bounded;
+      # starter coverage for non-react frameworks is high-value only when templates
+      # or deps change. Bugs missed on a regular PR get caught at the next release PR
+      # (full-ci auto-fires on changeset-release/main) before publish.
+      - id: matrix
+        env:
+          FULL_CI_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}
+          HEAD_REF: ${{ github.head_ref }}
+          TEMPLATES: ${{ steps.filter.outputs.templates }}
+          DEPS: ${{ steps.filter.outputs.deps }}
+        run: |
+          set -euo pipefail
+          if [ "$FULL_CI_LABEL" = "true" ] || [ "$HEAD_REF" = "changeset-release/main" ]; then
+            FULL=true
+          else
+            FULL=false
+          fi
+          if [ "$TEMPLATES" = "true" ] || [ "$DEPS" = "true" ]; then
+            HEAVY=true
+          else
+            HEAVY=false
+          fi
+
+          if [ "$FULL" = "true" ]; then
+            INTEGRATION='[{"framework":"react","version":"18"},{"framework":"react","version":"19"},{"framework":"vue","version":"3"},{"framework":"angular","version":"latest"}]'
+          else
+            INTEGRATION='[{"framework":"react","version":"19"},{"framework":"vue","version":"3"},{"framework":"angular","version":"latest"}]'
+          fi
+
+          if [ "$FULL" = "true" ] || [ "$HEAVY" = "true" ]; then
+            STARTERS='[{"framework":"react","framework_upper":"REACT","repo":"kigumi-ui/kigumi-react-starter"},{"framework":"vue","framework_upper":"VUE","repo":"kigumi-ui/kigumi-vue-starter"},{"framework":"angular","framework_upper":"ANGULAR","repo":"kigumi-ui/kigumi-angular-starter"},{"framework":"next","framework_upper":"NEXT","repo":"kigumi-ui/kigumi-next-starter"}]'
+          else
+            STARTERS='[{"framework":"react","framework_upper":"REACT","repo":"kigumi-ui/kigumi-react-starter"}]'
+          fi
+
+          echo "integration=$INTEGRATION" >> "$GITHUB_OUTPUT"
+          echo "starter=$STARTERS" >> "$GITHUB_OUTPUT"
+          echo "Integration matrix ($([ "$FULL" = "true" ] && echo full || echo reduced)): $INTEGRATION"
+          echo "Starter matrix ($([ "$FULL" = "true" ] || [ "$HEAVY" = "true" ] && echo full || echo reduced)): $STARTERS"
 
   quality:
     name: Quality Checks
@@ -144,11 +192,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { framework: react, version: '18' }
-          - { framework: react, version: '19' }
-          - { framework: vue, version: '3' }
-          - { framework: angular, version: 'latest' }
+        include: ${{ fromJSON(needs.changes.outputs.integration_matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -265,19 +309,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - framework: react
-            framework_upper: REACT
-            repo: kigumi-ui/kigumi-react-starter
-          - framework: vue
-            framework_upper: VUE
-            repo: kigumi-ui/kigumi-vue-starter
-          - framework: angular
-            framework_upper: ANGULAR
-            repo: kigumi-ui/kigumi-angular-starter
-          - framework: next
-            framework_upper: NEXT
-            repo: kigumi-ui/kigumi-next-starter
+        include: ${{ fromJSON(needs.changes.outputs.starter_matrix) }}
     steps:
       - name: Checkout kigumi-cli
         uses: actions/checkout@v6
