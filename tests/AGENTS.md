@@ -105,6 +105,18 @@ tests/
 │   ├── schemas/
 │   │   ├── config-corrupt.test.ts              # Cluster T: corrupt-config edge cases (BOM, trailing comma, truncated, null byte, wrong-type per required field)
 │   │   └── config-property.test.ts             # Cluster T: fast-check property tests (round-trip, strict rejection, mergeWithDefaults invariance)
+│   ├── regression/                             # Cluster V: bug-bash regression suite (≥ 10 entries, each protecting a historical PR/F-ID)
+│   │   ├── README.md                           # Directory contract + how to add a new entry
+│   │   ├── pr-117-config-safe-parse.test.ts    # F-037 — init safeParse on malformed config
+│   │   ├── pr-130-community-registry-hardening.test.ts  # F-094/097/102/103/116 — safe paths, semver, typed error
+│   │   ├── pr-130-registry-schema-strict.test.ts        # Cluster A — kigumiConfigSchema.strict()
+│   │   ├── pr-134-aliases-removal.test.ts      # F-064 — aliases dropped, toKigumiAlias substitute
+│   │   ├── pr-95-init-preservation-length.test.ts       # Record vs array .length on installedComponents
+│   │   ├── pr-126-react-ref-typing.test.ts     # F-072 — useRef<Wa* | null> + useCallback setter
+│   │   ├── f-068-vue-boolean-prop-filter.test.ts        # Vue definedProps strips false (else attrs stick)
+│   │   ├── f-013-palette-tier-gating.test.ts   # Free tier rejects Pro palettes (B3 bug-injection mirror)
+│   │   ├── resolve-components-tolowercase.test.ts       # Multi-word components survive kebab/Pascal
+│   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   └── _setup/
 │       └── fast-check.ts                        # Cluster T: fast-check global config (pinned seed=1; FC_SEED env override)
 ├── integration/             # Integration tests (build + run CLI)
@@ -135,7 +147,7 @@ pnpm test:watch        # Watch mode
 
 `pnpm test:all` (and `pnpm test:stories`) require Chromium for the storybook lane; install once with `cd docs && pnpm exec playwright install chromium`.
 
-`pnpm test:mutation` reads `stryker.conf.mjs` at the repo root; the V1 mutate scope is `src/utils/tier.ts` only (89.13 % baseline). Output: `reports/mutation/mutation.html` (gitignored). The weekly `mutation.yml` workflow runs the same command on Sundays 02:00 UTC and uploads the report as a 30-day artifact. Widening the mutate scope is staged to subsequent V cluster PRs (see `stryker.conf.mjs` for the upstream-tooling constraints that ruled out wider scopes for V1).
+`pnpm test:mutation` is documented in detail in the [Mutation testing](#mutation-testing-pnpm-testmutation) section below.
 
 ---
 
@@ -342,6 +354,86 @@ are noted as `[T1]` (property tests), `[T2]` (corrupt-config), and
 | `saveConfig`               | concurrent disjoint patches (race)       | at-least-one-fulfils       | `tests/unit/concurrency.test.ts` [T3]            | `leaves disk in a valid JSON state and at least one patch fulfils` |
 | `saveConfig`               | mid-write `loadConfig` race              | `ConfigNotFoundError` on B | `tests/unit/concurrency.test.ts` [T3]            | `exposes the load-modify-write race`                               |
 | `saveConfig`               | `fs.writeJson` rejects (ENOSPC / EACCES) | propagates with code       | `tests/unit/failure-modes.test.ts` [T3]          | `saveConfig propagates ENOSPC ... with code preserved`             |
+
+---
+
+## Regression suite (`tests/unit/regression/`)
+
+Cluster V (F-X11) bug-bash arm. Each test in this directory protects against
+a specific historical bug that real users hit and the project later fixed.
+Mutation testing (next section) measures _whether_ tests catch generic
+breakage; this directory provides documented evidence that the suite catches
+the specific breakage on file.
+
+**Where it lives.** The cluster-V spec writes the path as `tests/regression/`.
+Execution placed it under `tests/unit/regression/` so the existing positional
+`pnpm test tests/unit` glob, the `tests/unit/`-scoped `pnpm check:mocks`
+budget, the `tsconfig.tests.json` baseline, and `.lintstagedrc.json`'s
+`vitest related` gate all cover these tests automatically. `tests/regression/`
+remains an option for a future move; the rename is mechanical.
+
+**File-header contract.** Every test opens with:
+
+```ts
+/**
+ * Protects: PR #117 (F-037)
+ * Bug: <one-line user-visible symptom>
+ * Fix: <commit-SHA-of-original-fix> — <one-line summary>
+ */
+```
+
+The `describe()` block name should match the protected PR/F-ID.
+
+**Adding a new entry.** Pick a bug from `~/.claude/projects/kigumi-cli-overview.md`
+or recent merged PRs that (a) was user-visible, (b) had a non-trivial fix,
+(c) covers a structural area the rest of the suite touches. Write a test that
+asserts the invariant the fix established. Verify on a scratch branch:
+
+```bash
+git checkout -b scratch/regression-verify-<id> main
+git revert <fix-merge-sha> --mainline 1
+pnpm test tests/unit/regression/<your-file>
+# must fail
+git checkout main && git branch -D scratch/regression-verify-<id>
+```
+
+If `git revert` is impossible (later refactors renamed files), assert the
+logical invariant instead and note "revert verification by manual code
+rollback" in the file header.
+
+See `tests/unit/regression/README.md` for the full contract.
+
+## Mutation testing (`pnpm test:mutation`)
+
+Cluster V (F-X10). [StrykerJS](https://stryker-mutator.io/) mutates a
+declared subset of `src/**` and runs the unit suite per mutant. The
+percentage of mutants killed by _any_ test = the mutation score. The break
+threshold is **80 %**; below that the run fails.
+
+Run locally with `pnpm test:mutation`. Output:
+`reports/mutation/mutation.html` (gitignored). The CI workflow at
+`.github/workflows/mutation.yml` runs weekly (Sun 02:00 UTC) plus on manual
+`workflow_dispatch`, with a 30-day artifact retention.
+
+V1 baseline scope: `src/utils/tier.ts` only (89.13 % kill rate). Wider
+scopes hit two upstream blockers and are tracked as follow-up: see
+`stryker.conf.mjs` for the full investigation. The mutate list is
+intentionally a literal array of paths so future PRs widen it explicitly.
+
+**Why `coverageAnalysis: 'all'`** instead of the spec's `'perTest'`
+preference: the patched `@stryker-mutator/vitest-runner@9.6.1` plus vitest
+4.x hangs the `perTest` dry run on this codebase regardless of mutate
+scope. `'all'` is functionally equivalent for the score (it runs all tests
+per mutant; the kill criterion is the same).
+
+**Why `disableTypeChecks: 'src/**/\*.ts'`** is on: Stryker's mutators
+intentionally introduce type errors; treating them as failures would
+pollute the score. Type safety is enforced separately by `pnpm type-check`and`pnpm check:tests` (Cluster Q1's tests baseline).
+
+**Why the upstream `@stryker-mutator/vitest-runner` is patched** (see
+`patches/`): vitest 4.x's threads pool forbids `process.chdir()`, which 5
+legacy unit tests rely on. The runner hardcodes `pool: 'threads'`. The
+patch switches it to `pool: 'forks'` (singleFork) so all tests run.
 
 ---
 
@@ -601,4 +693,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-07 (cluster V PR-V1: `pnpm test:mutation` Stryker scaffold + weekly `mutation.yml` workflow)
+**Last Updated:** 2026-05-08 (cluster V PR-V2: regression suite under `tests/unit/regression/`, mutation testing section, bug-injection runbook reference)
