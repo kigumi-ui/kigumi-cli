@@ -1,10 +1,10 @@
 # Test Infrastructure Hardening — Live Status
 
-**Last updated:** 2026-05-06
+**Last updated:** 2026-05-28
 **Initiative spec:** [`docs/superpowers/initiatives/2026-04-28-test-infrastructure-hardening.md`](../initiatives/2026-04-28-test-infrastructure-hardening.md)
-**Active cluster:** V — Evidence layer
-**Active spec:** [`docs/superpowers/specs/2026-05-04-cluster-t-property-based-design.md`](../specs/2026-05-04-cluster-t-property-based-design.md) (S spec preserved at [`2026-05-02-cluster-s-mock-reduction-design.md`](../specs/2026-05-02-cluster-s-mock-reduction-design.md), P spec at [`2026-05-01-cluster-p-coverage-rationalization-design.md`](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md))
-**Active plan:** _(local working plan only; gitignored at `.claude/plans/`)_
+**Status:** **SHIPPED** (all 9 clusters SHIPPED; bug-injection acceptance gate cleared 5/5 on 2026-05-28)
+**Active spec:** _none — initiative complete_
+**Active plan:** _none_
 **Local 2nd brain dashboard (private):** `~/.claude/projects/-Users-giregar-Documents-dev-git-kigumi-cli/memory/project-test-infrastructure-hardening.md` _(seeded by user after this PR merges)_
 
 ---
@@ -19,17 +19,17 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ## Cluster Status Table
 
-| Cluster | Codename                                                | Primary F-IDs                                          | Depends on                       | Status          | PR                     | Spec                                                                         | Plan                |
-| ------- | ------------------------------------------------------- | ------------------------------------------------------ | -------------------------------- | --------------- | ---------------------- | ---------------------------------------------------------------------------- | ------------------- |
-| **Q1**  | Test foundation                                         | F-132, F-050, F-052                                    | -                                | **SHIPPED**     | #137                   | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)          | _accumulated in PR_ |
-| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045        | Q1                               | **SHIPPED**     | #138                   | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)          | _accumulated in PR_ |
-| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)                     | Q2                               | **SHIPPED**     | #139, #140, #141       | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)     | _local_             |
-| **S**   | Mock reduction                                          | F-126 (full)                                           | Q1                               | **SHIPPED**     | #147, #148, #150, #151 | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)             | _local_             |
-| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125         | Q1                               | **SHIPPED**     | #143, #144, #145, #146 | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)   | _local_             |
-| **A**   | Config lifecycle hardening                              | F-054, F-055, F-056, F-057, F-058, F-059, F-065, F-067 | -                                | **SHIPPED**     | _pending_              | [A spec](../specs/2026-04-28-cluster-a-config-lifecycle-hardening-design.md) | _local_             |
-| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                           | Q1 (+ Cluster A for `.strict()`) | **SHIPPED**     | #156, #157, #158       | [T spec](../specs/2026-05-04-cluster-t-property-based-design.md)             | _local_             |
-| **U**   | Story `play()` interactions                             | F-129                                                  | Q1, Q2                           | **SHIPPED**     | #161, #162, #167       | [U spec](../specs/2026-05-04-cluster-u-story-play-interactions-design.md)    | _local_             |
-| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                              | Q1, Q2                           | **IN-PROGRESS** | _pending_              | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)             | _local_             |
+| Cluster | Codename                                                | Primary F-IDs                                          | Depends on                       | Status      | PR                        | Spec                                                                         | Plan                |
+| ------- | ------------------------------------------------------- | ------------------------------------------------------ | -------------------------------- | ----------- | ------------------------- | ---------------------------------------------------------------------------- | ------------------- |
+| **Q1**  | Test foundation                                         | F-132, F-050, F-052                                    | -                                | **SHIPPED** | #137                      | [Q1 spec](../specs/2026-04-29-cluster-q1-test-foundation-design.md)          | _accumulated in PR_ |
+| **Q2**  | CI completeness                                         | F-046, F-119, F-127, F-051, F-048, F-128, F-045        | Q1                               | **SHIPPED** | #138                      | [Q2 spec](../specs/2026-04-30-cluster-q2-ci-completeness-design.md)          | _accumulated in PR_ |
+| **R**   | Real-world starter e2e (+ snapshot diff)                | F-X1, F-X2, F-X3, F-X4, F-X5 (NEW)                     | Q2                               | **SHIPPED** | #139, #140, #141          | [R spec](../specs/2026-04-30-cluster-r-real-world-starter-e2e-design.md)     | _local_             |
+| **S**   | Mock reduction                                          | F-126 (full)                                           | Q1                               | **SHIPPED** | #147, #148, #150, #151    | [S spec](../specs/2026-05-02-cluster-s-mock-reduction-design.md)             | _local_             |
+| **P**   | Coverage rationalization                                | F-122+F-124 (pair), F-120, F-123, F-121, F-125         | Q1                               | **SHIPPED** | #143, #144, #145, #146    | [P spec](../specs/2026-05-01-cluster-p-coverage-rationalization-design.md)   | _local_             |
+| **A**   | Config lifecycle hardening                              | F-054, F-055, F-056, F-057, F-058, F-059, F-065, F-067 | -                                | **SHIPPED** | _pending_                 | [A spec](../specs/2026-04-28-cluster-a-config-lifecycle-hardening-design.md) | _local_             |
+| **T**   | Property-based + edge cases (+ negative-path inventory) | F-X6, F-X7, F-X8, F-X9 (NEW)                           | Q1 (+ Cluster A for `.strict()`) | **SHIPPED** | #156, #157, #158          | [T spec](../specs/2026-05-04-cluster-t-property-based-design.md)             | _local_             |
+| **U**   | Story `play()` interactions                             | F-129                                                  | Q1, Q2                           | **SHIPPED** | #161, #162, #167          | [U spec](../specs/2026-05-04-cluster-u-story-play-interactions-design.md)    | _local_             |
+| **V**   | Evidence layer (mutation, bug-bash, bug-injection)      | F-X10, F-X11, F-X12 (NEW)                              | Q1, Q2                           | **SHIPPED** | #171, #172, #182, _PR-V3_ | [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md)             | _local_             |
 
 **Status legend:**
 
@@ -40,13 +40,14 @@ Per-cluster PRs: tracked in the status table below as each cluster ships.
 
 ---
 
-## Current Cluster: V — Evidence layer
+## Cluster V — Evidence layer (SHIPPED)
 
-Three PRs land the evidence layer that closes initiative criteria 7, 8, and 9 (mutation testing, bug-bash regression suite, bug-injection acceptance gate). See [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md).
+Four PRs landed the evidence layer that closes initiative criteria 7, 8, and 9 (mutation testing, bug-bash regression suite, bug-injection acceptance gate). See [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md).
 
-- **PR-V1** (this PR): Stryker scaffold (`stryker.conf.mjs`, `mutation.yml` weekly cron, `pnpm test:mutation`) + baseline on `src/utils/tier.ts` (89.13% kill rate) + status-doc reconciliation. Wider scopes hit two upstream blockers (`perTest` dry-run hang on vitest 4.x + `coverageAnalysis: 'all'` incompatible with `ignoreStatic`); the narrow scope is V spec line 246's per-file split.
-- **PR-V2**: ≥10 bug-bash regression tests under `tests/unit/regression/` + `scripts/bug-injection-gate.md` runbook + `tests/AGENTS.md` updates.
-- **PR-V3** (doc-only): bug-injection gate result (5/5 kill rate); flips V to SHIPPED.
+- **PR-V1** (#171, SHIPPED 2026-05-08): Stryker scaffold (`stryker.conf.mjs`, `mutation.yml` weekly cron, `pnpm test:mutation`) + baseline on `src/utils/tier.ts` (89.13% kill rate) + status-doc reconciliation. Wider scopes hit two upstream blockers (`perTest` dry-run hang on vitest 4.x + `coverageAnalysis: 'all'` incompatible with `ignoreStatic`); the narrow scope is V spec line 246's per-file split.
+- **PR-V2** (#172, SHIPPED 2026-05-23): 10 bug-bash regression tests under `tests/unit/regression/` (65 tests) + `scripts/bug-injection-gate.md` runbook + `tests/AGENTS.md` updates.
+- **PR-V2 follow-up** (#182, SHIPPED 2026-05-28): `tests/unit/scripts/generate-react-templates-output.test.ts` closes a coverage gap surfaced by the gate's first run — the React generator's file-writing path had no test, so filename mutations silently produced orphan files. Catcher exports `generateComponentTemplates` and asserts filenames are derived verbatim from `component.name`.
+- **PR-V3** (this PR, doc-only): bug-injection acceptance gate result (5/5 kill rate, 2026-05-28); flips V and the initiative to SHIPPED.
 
 Low-baseline policy (user-confirmed): if Stryker's measured baseline on the chosen scope is below 80%, write covering tests in the same PR to reach 80; do not lower the threshold. The shipped V1 scope is `tier.ts` only and clears 80 (89.13%); widening past that requires either an upstream fix to the `@stryker-mutator/vitest-runner` `perTest` dry-run hang or a different coverage strategy.
 
@@ -237,14 +238,31 @@ Acceptance gates closed (per spec, line 428-441):
 
 What this unblocks: **Cluster T**. T's spec needs `.strict()` to write fast-check generators that exercise the rejection path. Status above flips T from BLOCKED to PLANNED.
 
-### Phase 5: Cluster V — IN-PROGRESS
+### Phase 5: Cluster V — SHIPPED 2026-05-28
 
-Evidence layer. See [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md). Three PRs:
+Evidence layer. See [V spec](../specs/2026-04-29-cluster-v-evidence-layer-design.md). Four PRs total:
 
-- **PR-V1** (#171, ready for review): StrykerJS scaffold (`stryker.conf.mjs` + `mutation.yml` weekly cron + `pnpm test:mutation` scripts) + baseline on `src/utils/tier.ts` only at **89.13 % kill rate**. The wider scopes attempted during V1 (full `src/utils/**`, 6-file, 4-file) each hit a structural upstream blocker: `@stryker-mutator/vitest-runner@9.6.1` + vitest 4.x hangs the `perTest` dry run regardless of mutate scope, and the workable fallback `coverageAnalysis: 'all'` is incompatible with `ignoreStatic` so static mutants on kigumi util modules with module-level data dominate the runtime. V spec line 246 explicitly permits per-file/subdir splits when CI budget is the constraint. Widening past `tier.ts` requires an upstream fix to the runner's dry-run hang or a different coverage strategy. `src/utils/registry.ts` (4,600-line data literal, 92 % static-mutant ratio) is excluded indefinitely; its behaviour is covered by PR-V2's `tests/unit/regression/resolve-components-tolowercase.test.ts`.
-- **PR-V2** (pending): ≥10 bug-bash regression tests under `tests/unit/regression/` (placed inside the unit glob so `pnpm test`, `pnpm check:mocks`, and `tsconfig.tests.json` cover them automatically; the spec wrote `tests/regression/` literally but the spec-design intent at line 62 — "they live in `tests/unit/` glob — fast" — is the controlling reading) plus `scripts/bug-injection-gate.md` runbook plus `tests/AGENTS.md` updates.
-- **PR-V3** (pending, doc-only): bug-injection acceptance gate result. 5 bugs planted on a discardable `gate/v-evidence-layer-YYYY-MM-DD` branch; the full suite must catch all 5. On 5/5 kill, V flips to SHIPPED.
+- **PR-V1** (#171, SHIPPED 2026-05-08): StrykerJS scaffold (`stryker.conf.mjs` + `mutation.yml` weekly cron + `pnpm test:mutation` scripts) + baseline on `src/utils/tier.ts` only at **89.13 % kill rate**. The wider scopes attempted during V1 (full `src/utils/**`, 6-file, 4-file) each hit a structural upstream blocker: `@stryker-mutator/vitest-runner@9.6.1` + vitest 4.x hangs the `perTest` dry run regardless of mutate scope, and the workable fallback `coverageAnalysis: 'all'` is incompatible with `ignoreStatic` so static mutants on kigumi util modules with module-level data dominate the runtime. V spec line 246 explicitly permits per-file/subdir splits when CI budget is the constraint. Widening past `tier.ts` requires an upstream fix to the runner's dry-run hang or a different coverage strategy. `src/utils/registry.ts` (4,600-line data literal, 92 % static-mutant ratio) is excluded indefinitely; its behaviour is covered by PR-V2's `tests/unit/regression/resolve-components-tolowercase.test.ts`.
+- **PR-V2** (#172, SHIPPED 2026-05-23): 10 bug-bash regression tests under `tests/unit/regression/` (65 tests) placed inside the unit glob so `pnpm test`, `pnpm check:mocks`, and `tsconfig.tests.json` cover them automatically; the spec wrote `tests/regression/` literally but the spec-design intent at line 62 — "they live in `tests/unit/` glob — fast" — is the controlling reading. Plus `scripts/bug-injection-gate.md` runbook plus `tests/AGENTS.md` updates.
+- **PR-V2 follow-up** (#182, SHIPPED 2026-05-28): React generator filename catcher (`tests/unit/scripts/generate-react-templates-output.test.ts`). Identified during the gate's first run when B5 (filename typo at the `path.join` site) produced orphan files alongside stale committed templates without any unit test turning red. Exports `generateComponentTemplates` and asserts filenames are derived verbatim from `component.name`. PR-V3 (below) records the gap, the catcher PR, and the re-run that confirmed 5/5.
+- **PR-V3** (this PR, SHIPPED 2026-05-28, doc-only): bug-injection acceptance gate result (5/5 kill rate); flips V and the initiative to SHIPPED.
 
-### Phase 6: v0.20.0 ship — PENDING
+#### Bug-injection acceptance gate result — 2026-05-28
 
-After all 8 clusters SHIPPED, the architectural changes ship against the new safety net.
+**Kill rate: 5/5.** Initiative criterion 9 closed.
+
+| Bug    | Description                                                                                                                        | Plant SHA                                  | Catcher(s)                                                                                                                                                                                    |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **B1** | `DEFAULT_CONFIG.componentsDir = 'src/UI'` in `src/schemas/config.ts`                                                               | `61bb6898d640be91b28bd1c8eef0eb4f31335663` | `tests/unit/config.test.ts > getConfig > should preserve all DEFAULT_CONFIG properties` (+ 6 cascading `tests/unit/migration.test.ts` cases that resolve component paths against the default) |
+| **B2** | `for (const componentName of componentsToCheck.slice(0, -1))` in `src/commands/update.ts`                                          | `244920f36e1aefc71bfd792d0e7d2b19898a90c2` | 14 cases in `tests/unit/update-command.test.ts` + 2 cases in `tests/unit/diff-roundtrip.test.ts`                                                                                              |
+| **B3** | `isPaletteAvailable` always reads `palettes['pro']` (`src/utils/tier-restrictions.ts`)                                             | `b9753eefaed5cf07f49c777cb2eec07f5aa8614d` | 6 cases in `tests/unit/regression/f-013-palette-tier-gating.test.ts` + 1 case in `tests/unit/tier-restrictions.test.ts`                                                                       |
+| **B4** | Unconditional early `return results` inside `ComponentInstaller.installComponents`'s for-of loop (`src/commands/add/installer.ts`) | `89102cb1ce752e2b278379f4994933545c03df19` | 11 cases in `tests/unit/add-command.test.ts` + 4 cases in `tests/unit/component-installer.test.ts`                                                                                            |
+| **B5** | `path.join(componentDir, \`${component.name.replace('o', '')}.tsx\`)`filename typo in`scripts/generate-react-templates.ts`         | `8ea5cbdee9ce7aca8689bb9394f19265c2c08b0f` | 2 cases in `tests/unit/scripts/generate-react-templates-output.test.ts` (the catcher added by PR #182, which fixed the gap surfaced by the gate's first run on 2026-05-23)                    |
+
+**Gate-branch tip SHA** (captured before discard): `8ea5cbdee9ce7aca8689bb9394f19265c2c08b0f` on `gate/v-evidence-layer-2026-05-28`, branched off `main@4ff9a6ba`. Reproduction: recreate each B1..B5 diff on a fresh `gate/v-evidence-layer-<date>` branch from `main` at SHA `4ff9a6ba` or later; the bugs are documented patches in `scripts/bug-injection-gate.md`. Per the runbook (line 187), future re-runs should use fresh bugs in the same five mutation classes (default value, off-by-one, tier-guard flip, early-return, generator filename) so the suite doesn't train on these specific cases.
+
+**First-run gap and resolution.** B5 in its canonical form initially escaped: the React generator's `path.join` call site has no unit-test coverage, the mutation produces an orphan `Buttn.tsx` next to the unchanged `Button.tsx`, and `pnpm validate:templates` only verifies that _expected_ files exist (not that extras don't). The gap was closed by #182 before flipping V to SHIPPED, and the re-run confirms 5/5. The Vue and Angular generators have the same file-writing layer with the same gap; equivalent catchers are tracked as a fast-follow outside this initiative.
+
+### Phase 6: v0.20.0 ship — UNBLOCKED
+
+With Cluster V SHIPPED, the test-infrastructure-hardening initiative is complete. v0.20.0 unblocked from the test-infra side. See [`open-fix-clusters-latin-status.md`](open-fix-clusters-latin-status.md) for the parallel initiative whose v0.20.0-blocking Cluster G shipped in #170; remaining latin clusters are post-v0.20.0 scope.
