@@ -1,25 +1,43 @@
 # Active Initiatives Dashboard
 
-**Last updated:** 2026-05-04
+**Last updated:** 2026-05-28
 **Convention:** each active initiative has a state-file in this directory. This dashboard
 tracks which initiatives are active, blocked, or shipped, and where cross-initiative
 priority decisions live.
 
 ## Active Initiatives
 
-| Initiative                    | Status      | Active cluster      | Next cluster       | Blocks       | State-file                                      |
-| ----------------------------- | ----------- | ------------------- | ------------------ | ------------ | ----------------------------------------------- |
-| test-infrastructure-hardening | IN-PROGRESS | T (starting)        | U, V               | v0.20.0      | [link](test-infrastructure-hardening-status.md) |
-| open-fix-clusters-latin       | IN-PROGRESS | none (A, B shipped) | G (blocks v0.20.0) | v0.20.0      | [link](open-fix-clusters-latin-status.md)       |
-| backlog-bankruptcy            | IN-PROGRESS | Phase 2 (in flight) | Phase 4 (30 min)   | none         | [link](backlog-bankruptcy-status.md)            |
-| foundations-restructure       | IN-PROGRESS | see status-file     | see status-file    | none         | [link](foundations-restructure-status.md)       |
-| studio-export-fix             | PENDING     | -                   | -                  | post-v0.20.0 | [link](studio-export-fix-status.md)             |
-| robust-wrappers               | PENDING     | -                   | -                  | post-v0.20.0 | [link](robust-wrappers-status.md)               |
+| Initiative                    | Status          | Active cluster      | Next cluster                       | Blocks       | State-file                                      |
+| ----------------------------- | --------------- | ------------------- | ---------------------------------- | ------------ | ----------------------------------------------- |
+| test-infrastructure-hardening | **SHIPPED**     | -                   | -                                  | -            | [link](test-infrastructure-hardening-status.md) |
+| open-fix-clusters-latin       | v0.20.0-SHIPPED | -                   | C, D, E, F, H, I, J (post-v0.20.0) | -            | [link](open-fix-clusters-latin-status.md)       |
+| backlog-bankruptcy            | IN-PROGRESS     | Phase 2 (in flight) | Phase 4 (30 min)                   | none         | [link](backlog-bankruptcy-status.md)            |
+| foundations-restructure       | IN-PROGRESS     | see status-file     | see status-file                    | none         | [link](foundations-restructure-status.md)       |
+| studio-export-fix             | PENDING         | -                   | -                                  | post-v0.20.0 | [link](studio-export-fix-status.md)             |
+| robust-wrappers               | PENDING         | -                   | -                                  | post-v0.20.0 | [link](robust-wrappers-status.md)               |
 
 ## Cross-Initiative Priority Log
 
 Decisions about which cluster across all initiatives takes priority, with date and
 rationale.
+
+### 2026-05-28: v0.20.0 unblocked from both v0.20.0-blocking initiatives
+
+Cluster V (test-infra evidence layer) SHIPPED — see PR-V3 + the
+bug-injection acceptance gate result (5/5) in
+[`test-infrastructure-hardening-status.md`](test-infrastructure-hardening-status.md).
+The first gate run on 2026-05-23 caught 4/5; the React-generator
+filename-mutation gap was closed by #182 (`generate-react-templates-output.test.ts`),
+and the 2026-05-28 re-run confirmed 5/5.
+
+`open-fix-clusters-latin` flipped to **v0.20.0-SHIPPED** scope: only Cluster G
+blocked v0.20.0 per the original triage, and Cluster G shipped in PR #170
+on 2026-05-06 (F-042, F-043, F-044, F-049). Clusters C, D, E, F, H, I, J
+are non-blocking and tracked for post-v0.20.0.
+
+With both v0.20.0-blocking initiatives now SHIPPED in their v0.20.0 scope,
+the next step is `pnpm release-readiness` → GO → batch-merge Dependabot
+PRs → refresh changeset-release PR #89 → publish 0.20.0.
 
 ### 2026-05-04: Backlog-Bankruptcy Phase 2 in flight
 
