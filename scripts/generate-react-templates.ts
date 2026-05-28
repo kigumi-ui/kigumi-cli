@@ -494,7 +494,7 @@ describe('${componentName}', () => {
  * pre-Handlebars-removal version also only emitted `.tsx.hbs`). If you need
  * to update JS variants, edit the `.jsx` / `.test.jsx` files directly.
  */
-async function generateComponentTemplates(
+export async function generateComponentTemplates(
   component: ComponentDefinition
 ): Promise<void> {
   const componentDir = path.join(TEMPLATES_DIR, component.name);
