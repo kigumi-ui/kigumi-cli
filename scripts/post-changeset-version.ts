@@ -1,7 +1,9 @@
 /**
  * Post-processor for `changeset version` output.
  * Transforms the latest CHANGELOG.md entry from changesets format
- * into Keep a Changelog format.
+ * into Keep a Changelog format, and bumps the `**Version**:` marker in
+ * AGENTS.md to match the freshly-bumped package.json version (kept in sync
+ * so `validate-agents` stays green without a manual edit).
  *
  * Run via: pnpm version (package.json: "changeset version && tsx scripts/post-changeset-version.ts")
  */
@@ -12,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const CHANGELOG_PATH = resolve(import.meta.dirname, '..', 'CHANGELOG.md');
+const AGENTS_PATH = resolve(import.meta.dirname, '..', 'AGENTS.md');
 
 const CATEGORY_ORDER = [
   'Breaking Changes',
@@ -151,13 +154,49 @@ export function rewriteChangelog(content: string, today: string): string {
   return `${PREAMBLE}${newEntry}\n${after}`;
 }
 
+/**
+ * Extract the freshly-bumped version from the latest changesets header
+ * (`## X.Y.Z`, before {@link rewriteChangelog} rewrites it to `## [X.Y.Z] - date`).
+ */
+export function parseLatestVersion(content: string): string {
+  const header = content.split('\n').find((l) => /^## \d/.test(l));
+  if (header === undefined) {
+    throw new Error('No version header found in CHANGELOG.md');
+  }
+  const match = header.match(/^## (\d+\.\d+\.\d+)/);
+  if (!match) {
+    throw new Error(`Could not parse version from: ${header}`);
+  }
+  return match[1];
+}
+
+/**
+ * Rewrite the `**Version**: X.Y.Z` marker in AGENTS.md to `version`,
+ * preserving the rest of the line. No-op when the marker is absent or already
+ * matches. Mirrors the regex `validate-agents.ts` uses to read the marker.
+ */
+export function bumpAgentsVersion(agentsText: string, version: string): string {
+  return agentsText.replace(
+    /(\*\*Version\*\*:\s*)[\d.]+(?:-[a-zA-Z0-9.]+)?(\s*\|)/,
+    `$1${version}$2`
+  );
+}
+
 function run(): void {
   try {
     const changelog = readFileSync(CHANGELOG_PATH, 'utf-8');
     const today = todayISO();
+    const version = parseLatestVersion(changelog);
     const result = rewriteChangelog(changelog, today);
     writeFileSync(CHANGELOG_PATH, result);
     console.error(`CHANGELOG.md: reformatted ${today}`);
+
+    const agents = readFileSync(AGENTS_PATH, 'utf-8');
+    const bumpedAgents = bumpAgentsVersion(agents, version);
+    if (bumpedAgents !== agents) {
+      writeFileSync(AGENTS_PATH, bumpedAgents);
+      console.error(`AGENTS.md: bumped version to ${version}`);
+    }
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err));
     process.exit(1);

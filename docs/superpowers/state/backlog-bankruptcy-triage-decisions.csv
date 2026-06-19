@@ -52,3 +52,4 @@ F-130,dead-code,low,"Session 10 (Cluster D follow-up)",OPEN,,
 F-131,quality,low,"Session 10 (Cluster D follow-up)",OPEN,,
 F-141,quality,low,"PR #146 follow-up (Cluster P Phase 4)",OPEN,,
 F-144,quality,medium,"PR #146 follow-up (Cluster P Phase 4)",OPEN,C,polish
+F-145,bug,medium,"Release v0.20.0 prep",DONE,,post-changeset-version-bumps-agents-md
