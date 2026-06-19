@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { rewriteChangelog } from '../../../scripts/post-changeset-version.js';
+import {
+  bumpAgentsVersion,
+  parseLatestVersion,
+  rewriteChangelog,
+} from '../../../scripts/post-changeset-version.js';
 
 const TODAY = '2026-05-02';
 
@@ -69,5 +73,37 @@ describe('rewriteChangelog', () => {
     expect(() => rewriteChangelog(BAD_VERSION_FIXTURE, TODAY)).toThrow(
       /Could not parse version/
     );
+  });
+});
+
+describe('parseLatestVersion', () => {
+  it('extracts the first changesets version header', () => {
+    expect(parseLatestVersion(CHANGELOG_FIXTURE)).toBe('0.20.0');
+  });
+
+  it('throws when no version header is present', () => {
+    expect(() => parseLatestVersion(NO_HEADER_FIXTURE)).toThrow(
+      /No version header/
+    );
+  });
+});
+
+describe('bumpAgentsVersion', () => {
+  const AGENTS_LINE =
+    '**Version**: 0.19.2 | **Stack**: TypeScript, Commander, Zod';
+
+  it('rewrites the version while preserving the rest of the line', () => {
+    expect(bumpAgentsVersion(AGENTS_LINE, '0.20.0')).toBe(
+      '**Version**: 0.20.0 | **Stack**: TypeScript, Commander, Zod'
+    );
+  });
+
+  it('is a no-op when the version already matches', () => {
+    expect(bumpAgentsVersion(AGENTS_LINE, '0.19.2')).toBe(AGENTS_LINE);
+  });
+
+  it('leaves text without a Version line unchanged', () => {
+    const text = '# AGENTS\n\nNo version marker here.\n';
+    expect(bumpAgentsVersion(text, '0.20.0')).toBe(text);
   });
 });
