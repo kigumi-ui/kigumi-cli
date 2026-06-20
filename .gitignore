@@ -7,6 +7,10 @@ dist/
 coverage/
 coverage-merged/
 *.tsbuildinfo
+
+# npm/pnpm pack tarballs (e.g. release smoke test) - must never be committed,
+# the changesets action stages the working tree with `git add .`
+*.tgz
 .pnpm-store/
 tests/.tmp-*
 

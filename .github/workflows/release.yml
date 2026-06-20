@@ -17,6 +17,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          # Persist the PAT as the git credential so the branch push and the
+          # changesets PR creation use the SAME token. Otherwise the push
+          # silently uses the default GITHUB_TOKEN and masks an expired or
+          # under-scoped PAT until PR creation fails late with the opaque
+          # "not all refs are readable".
+          token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+
+      - name: Verify release token can read + write the repo
+        # Fail fast with an actionable message instead of dying deep inside
+        # changesets/action with "not all refs are readable" when the PAT is
+        # expired, rotated, or missing the pull-requests scope.
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if ! gh api "repos/${{ github.repository }}" --jq '.permissions' > /tmp/perms.json 2> /tmp/err; then
+            echo "::error::PERSONAL_GITHUB_TOKEN cannot read ${{ github.repository }}. Renew the PAT (classic: repo scope; fine-grained: Contents R/W + Pull requests R/W + this repo in scope)."
+            cat /tmp/err || true
+            exit 1
+          fi
+          if [ "$(gh api "repos/${{ github.repository }}" --jq '.permissions.push')" != "true" ]; then
+            echo "::error::PERSONAL_GITHUB_TOKEN lacks write access to ${{ github.repository }} (needed to push changeset-release/main and open the version PR)."
+            exit 1
+          fi
+          echo "Release token OK (read + write confirmed)."
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -36,13 +62,16 @@ jobs:
       - name: Smoke test (packed install)
         run: |
           set -euo pipefail
-          TARBALL=$(pnpm pack | tail -1)
+          # Pack into RUNNER_TEMP, never the workspace: a stray *.tgz in the
+          # repo root gets swept into the release commit by changesets/action's
+          # `git add .`. --pack-destination prints the absolute tarball path.
+          TARBALL=$(pnpm pack --pack-destination "${RUNNER_TEMP}" | tail -1)
           echo "Built tarball: ${TARBALL}"
           SMOKE_DIR="${RUNNER_TEMP}/kigumi-release-smoke"
           mkdir -p "${SMOKE_DIR}/src"
           cd "${SMOKE_DIR}"
           npm init -y > /dev/null
-          npm install --no-audit --no-fund "file:${GITHUB_WORKSPACE}/${TARBALL}"
+          npm install --no-audit --no-fund "file:${TARBALL}"
           # Explicit --components-dir pins the assertion path independent of
           # kigumi's sourceLayout detection (which requires more than just an
           # empty src/ dir to default to src/components/ui).
