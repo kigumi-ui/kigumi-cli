@@ -53,3 +53,7 @@ F-131,quality,low,"Session 10 (Cluster D follow-up)",OPEN,,
 F-141,quality,low,"PR #146 follow-up (Cluster P Phase 4)",OPEN,,
 F-144,quality,medium,"PR #146 follow-up (Cluster P Phase 4)",OPEN,C,polish
 F-145,bug,medium,"Release v0.20.0 prep",DONE,,post-changeset-version-bumps-agents-md
+F-146,bug,medium,"Dogfood 0.20.0",DONE,,wa-floats-off-3.5-fix-is-exact-pin-not-bump-PR191
+F-147,bug,low,"Dogfood 0.20.0",DONE,,status-tier-pro-but-token-not-found-PR191
+F-148,quality,low,"Dogfood 0.20.0",DONE,,brand-palette-reject-yes-flag-PR191
+F-149,quality,low,"Dogfood 0.20.0",DONE,,list-no-free-pro-tier-distinction-PR191
