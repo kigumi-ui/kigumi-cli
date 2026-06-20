@@ -57,3 +57,5 @@ F-146,bug,medium,"Dogfood 0.20.0",DONE,,wa-floats-off-3.5-fix-is-exact-pin-not-b
 F-147,bug,low,"Dogfood 0.20.0",DONE,,status-tier-pro-but-token-not-found-PR191
 F-148,quality,low,"Dogfood 0.20.0",DONE,,brand-palette-reject-yes-flag-PR191
 F-149,quality,low,"Dogfood 0.20.0",DONE,,list-no-free-pro-tier-distinction-PR191
+F-150,bug,high,"Release 0.20.1",DONE,,release-pr-creation-fails-pat-masked-by-checkout-default-token-PR192
+F-151,bug,medium,"Release 0.20.1",DONE,,release-smoke-tgz-swept-into-version-commit-PR192
