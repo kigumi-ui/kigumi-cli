@@ -46,10 +46,20 @@ describe('statusCommand --json', () => {
   let originalStdoutWrite: typeof process.stdout.write;
   let output: RecordingOutput;
   let prompts: PromptsAdapter;
+  let originalToken: string | undefined;
+  let originalSkipNpmrc: string | undefined;
 
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+
+    // Token detection now walks the full env -> ~/.npmrc -> .env chain.
+    // Pin it to a deterministic state so the real developer ~/.npmrc / env
+    // never leaks into these assertions.
+    originalToken = process.env.WEBAWESOME_NPM_TOKEN;
+    originalSkipNpmrc = process.env.KIGUMI_SKIP_GLOBAL_NPMRC;
+    delete process.env.WEBAWESOME_NPM_TOKEN;
+    process.env.KIGUMI_SKIP_GLOBAL_NPMRC = '1';
 
     output = createRecordingOutput();
     prompts = createTestPrompts({});
@@ -78,6 +88,16 @@ describe('statusCommand --json', () => {
     process.exit = originalExit;
     process.stdout.write = originalStdoutWrite;
     await fs.remove(testDir);
+    if (originalToken !== undefined) {
+      process.env.WEBAWESOME_NPM_TOKEN = originalToken;
+    } else {
+      delete process.env.WEBAWESOME_NPM_TOKEN;
+    }
+    if (originalSkipNpmrc !== undefined) {
+      process.env.KIGUMI_SKIP_GLOBAL_NPMRC = originalSkipNpmrc;
+    } else {
+      delete process.env.KIGUMI_SKIP_GLOBAL_NPMRC;
+    }
   });
 
   it('should output valid JSON with all required fields', async () => {
@@ -192,6 +212,36 @@ describe('statusCommand --json', () => {
     expect(data.warnings).toHaveLength(1);
     expect(data.warnings[0]).toContain('Pro package installed');
     tierSpy.mockRestore();
+  });
+
+  it('should report token present when only the env var is set, no .env (F-147)', async () => {
+    await fs.writeJSON(
+      path.join(testDir, 'kigumi.config.json'),
+      createConfig()
+    );
+
+    const prevToken = process.env.WEBAWESOME_NPM_TOKEN;
+    const prevSkip = process.env.KIGUMI_SKIP_GLOBAL_NPMRC;
+    process.env.WEBAWESOME_NPM_TOKEN = 'abcdefghij1234567890';
+    process.env.KIGUMI_SKIP_GLOBAL_NPMRC = '1';
+    try {
+      const { statusCommand } = await import('../../src/commands/status.js');
+      await statusCommand({ cwd: testDir, json: true });
+
+      const data = JSON.parse(stdoutWrite.mock.calls[0][0]);
+      expect(data.token).toBe(true);
+    } finally {
+      if (prevToken !== undefined) {
+        process.env.WEBAWESOME_NPM_TOKEN = prevToken;
+      } else {
+        delete process.env.WEBAWESOME_NPM_TOKEN;
+      }
+      if (prevSkip !== undefined) {
+        process.env.KIGUMI_SKIP_GLOBAL_NPMRC = prevSkip;
+      } else {
+        delete process.env.KIGUMI_SKIP_GLOBAL_NPMRC;
+      }
+    }
   });
 
   it('should reflect pro tier in JSON', async () => {

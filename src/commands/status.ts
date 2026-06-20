@@ -17,9 +17,6 @@
 import fs from 'fs-extra';
 import path from 'path';
 import {
-  ENV_FILE_NAME,
-  ENV_TOKEN_REGEX,
-  MIN_TOKEN_LENGTH,
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
@@ -27,6 +24,7 @@ import { getOutput } from '../output/index.js';
 import { getConfig } from '../utils/config.js';
 import { detectTier } from '../utils/tier.js';
 import type { Tier } from '../utils/tier.js';
+import { getTokenSource, describeTokenSource } from '../utils/token.js';
 import { handleError } from '../errors/index.js';
 
 interface StatusOptions {
@@ -98,31 +96,6 @@ async function getPackageInfo(
 }
 
 /**
- * Check if token exists in .env
- * @internal
- */
-async function checkTokenStatus(cwd: string): Promise<boolean> {
-  try {
-    const envPath = path.join(cwd, ENV_FILE_NAME);
-    if (!(await fs.pathExists(envPath))) {
-      return false;
-    }
-
-    const content = await fs.readFile(envPath, 'utf-8');
-    const tokenMatch = content.match(ENV_TOKEN_REGEX);
-
-    return !!(
-      tokenMatch &&
-      tokenMatch[1] &&
-      tokenMatch[1].length >= MIN_TOKEN_LENGTH
-    );
-  } catch (_error) {
-    // Non-critical: .env may not exist or be unreadable
-    return false;
-  }
-}
-
-/**
  * Status command - displays current project status
  */
 export async function statusCommand(
@@ -138,8 +111,11 @@ export async function statusCommand(
     // 2. Detect tier
     const tier: Tier = await detectTier(cwd);
 
-    // 3. Check token status
-    const hasToken = await checkTokenStatus(cwd);
+    // 3. Check token status across the full fallback chain
+    // (env var -> ~/.npmrc -> project .env), matching how installs and
+    // tier detection resolve the Pro token (F-147).
+    const tokenSource = await getTokenSource(cwd);
+    const hasToken = tokenSource !== null;
 
     // 4. Get package info
     const packageInfo = await getPackageInfo(cwd);
@@ -216,7 +192,7 @@ export async function statusCommand(
 
     // 7. Token status
     if (hasToken) {
-      output.info('Token: Present ✓');
+      output.info(`Token: Present ✓ (${describeTokenSource(tokenSource)})`);
     } else {
       output.info('Token: Not found');
       if (tier === 'free') {

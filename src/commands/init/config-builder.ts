@@ -30,11 +30,19 @@ import {
   getThemeOptionsForTier,
   getPaletteOptionsForTier,
 } from '../../utils/display-options.js';
-import { DEFAULT_CONFIG } from '../../schemas/config.js';
+import { CLI_VERSION, DEFAULT_WEBAWESOME_VERSION } from '../../constants.js';
+import { getVersionEntry } from '../../utils/version-map.js';
 import {
   ProThemeRequiredError,
   UserCancelledError,
 } from '../../errors/index.js';
+
+function resolveWebAwesomeVersion(): string {
+  return (
+    getVersionEntry(CLI_VERSION)?.webAwesomeVersion ??
+    DEFAULT_WEBAWESOME_VERSION
+  );
+}
 
 // =============================================================================
 // Layout-Adaptive Defaults
@@ -211,7 +219,7 @@ export async function buildConfigNonInteractive(
       brandColor,
     },
     webAwesome: {
-      version: DEFAULT_CONFIG.webAwesome?.version,
+      version: resolveWebAwesomeVersion(),
     },
   };
 
@@ -447,7 +455,7 @@ export async function buildConfigInteractive(
       brandColor,
     },
     webAwesome: {
-      version: DEFAULT_CONFIG.webAwesome?.version,
+      version: resolveWebAwesomeVersion(),
     },
   };
 

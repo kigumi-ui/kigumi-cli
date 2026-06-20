@@ -7,6 +7,7 @@
  */
 
 import type { KigumiConfig } from '../schemas/config.js';
+import type { PaletteOptions } from '../schemas/options.js';
 
 import { Command } from 'commander';
 import * as p from '../prompts/index.js';
@@ -25,7 +26,10 @@ import { regenerateKigumiSetup } from '../utils/regenerate.js';
 import { detectTier } from '../utils/tier.js';
 import { getAvailablePalettes } from '../utils/tier-restrictions.js';
 
-async function paletteAction(paletteName?: string) {
+async function paletteAction(
+  paletteName?: string,
+  options: PaletteOptions = {}
+) {
   const output = getOutput();
   const cwd = process.cwd();
 
@@ -62,19 +66,25 @@ async function paletteAction(paletteName?: string) {
       (pal) => pal !== 'custom'
     );
 
-    // 3. Interactive selection if no palette provided
+    // 3. Resolve the palette. An explicit argument always wins. With --yes
+    // (and no argument) keep the current palette non-interactively, matching
+    // init/add/update/upgrade. Otherwise prompt.
+    const currentPalette = availablePalettes.includes(config.theme.palette)
+      ? config.theme.palette
+      : availablePalettes[0];
+
     const selectedPalette =
-      paletteName ||
-      (await p.select({
-        message: 'Select a color palette:',
-        options: availablePalettes.map((palette) => ({
-          value: palette,
-          label: palette.charAt(0).toUpperCase() + palette.slice(1),
-        })),
-        initialValue: availablePalettes.includes(config.theme.palette)
-          ? config.theme.palette
-          : availablePalettes[0],
-      }));
+      paletteName ??
+      (options.yes
+        ? currentPalette
+        : await p.select({
+            message: 'Select a color palette:',
+            options: availablePalettes.map((palette) => ({
+              value: palette,
+              label: palette.charAt(0).toUpperCase() + palette.slice(1),
+            })),
+            initialValue: currentPalette,
+          }));
 
     if (p.isCancel(selectedPalette)) {
       throw new UserCancelledError();
@@ -108,4 +118,5 @@ async function paletteAction(paletteName?: string) {
 export const paletteCommand = new Command('palette')
   .description('Change the color palette')
   .argument('[name]', 'Palette name (omit to see options)')
+  .option('-y, --yes', 'Keep the current palette without prompting')
   .action(paletteAction);

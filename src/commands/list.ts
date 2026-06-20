@@ -4,7 +4,8 @@
  * Lists all available Web Awesome components, grouped by category,
  * with tier-aware rendering: on Free tier, Pro components are shown
  * dimmed and prefixed with "(Pro)" so users can discover what Pro
- * unlocks. On Pro tier, all components render normally.
+ * unlocks. On Pro tier, Pro components carry a "[Pro]" badge so they
+ * stay distinguishable from Free ones.
  */
 
 import pc from 'picocolors';
@@ -77,7 +78,9 @@ export async function listCommand(options: ListOptions = {}) {
             pc.dim(`  ○ ${item.padEnd(15)} (Pro) ${component.description}`) +
             '\n';
         } else {
-          content += `  ${pc.green('○')} ${pc.white(item.padEnd(15))} ${pc.dim(component.description)}\n`;
+          const proBadge =
+            component.tier === 'pro' ? `${pc.magenta('[Pro]')} ` : '';
+          content += `  ${pc.green('○')} ${pc.white(item.padEnd(15))} ${proBadge}${pc.dim(component.description)}\n`;
         }
       }
     }
