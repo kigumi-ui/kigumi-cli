@@ -33,7 +33,7 @@ jobs:
       integration_matrix: ${{ steps.matrix.outputs.integration }}
       starter_matrix: ${{ steps.matrix.outputs.starter }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - id: filter
         uses: dorny/paths-filter@v4
         with:
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -195,7 +195,7 @@ jobs:
         include: ${{ fromJSON(needs.changes.outputs.integration_matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -232,7 +232,7 @@ jobs:
       || github.head_ref == 'changeset-release/main'
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -258,7 +258,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -312,7 +312,7 @@ jobs:
         include: ${{ fromJSON(needs.changes.outputs.starter_matrix) }}
     steps:
       - name: Checkout kigumi-cli
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: kigumi-cli
 
@@ -345,7 +345,7 @@ jobs:
           echo "tarball=${GITHUB_WORKSPACE}/kigumi-cli/${TARBALL}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout starter
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repo }}
           ref: ${{ vars[format('STARTER_{0}_REF', matrix.framework_upper)] }}
@@ -395,7 +395,7 @@ jobs:
       )
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -436,7 +436,7 @@ jobs:
       )
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
@@ -481,7 +481,7 @@ jobs:
     if: github.actor != 'dependabot[bot]' && github.event.pull_request.draft != true
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

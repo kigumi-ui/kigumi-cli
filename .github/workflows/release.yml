@@ -21,7 +21,7 @@ jobs:
         # point, and the changesets push uses these persisted credentials. The
         # PAT is needed only for PR creation; the pre-flight step below
         # validates it early with an actionable message.
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Verify release token can read + write the repo
         # Fail fast with an actionable message instead of dying deep inside
