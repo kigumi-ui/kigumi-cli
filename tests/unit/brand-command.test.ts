@@ -230,6 +230,42 @@ describe('brandCommand', () => {
     });
   });
 
+  describe('--yes flag', () => {
+    it('should accept --yes and keep the current brand color without prompting', async () => {
+      await createConfig({
+        theme: { selected: 'default', palette: 'default', brandColor: 'green' },
+      });
+
+      const promptsMod = await import('../../src/prompts/index.js');
+      const selectSpy = vi.spyOn(promptsMod, 'select');
+
+      const { brandCommand } = await import('../../src/commands/brand.js');
+      await brandCommand.parseAsync(['node', 'brand', '--yes']);
+
+      // No unknown-option error, no interactive prompt.
+      expect(process.exit).not.toHaveBeenCalled();
+      expect(selectSpy).not.toHaveBeenCalled();
+
+      const savedConfig = await fs.readJSON(
+        path.join(testDir, 'kigumi.config.json')
+      );
+      expect(savedConfig.theme.brandColor).toBe('green');
+      selectSpy.mockRestore();
+    });
+
+    it('should let an explicit color win over --yes', async () => {
+      await createConfig();
+
+      const { brandCommand } = await import('../../src/commands/brand.js');
+      await brandCommand.parseAsync(['node', 'brand', 'pink', '--yes']);
+
+      const savedConfig = await fs.readJSON(
+        path.join(testDir, 'kigumi.config.json')
+      );
+      expect(savedConfig.theme.brandColor).toBe('pink');
+    });
+  });
+
   describe('pre-flight checks', () => {
     it('should fail without config file', async () => {
       // No config created

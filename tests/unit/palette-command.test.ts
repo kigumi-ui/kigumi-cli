@@ -289,6 +289,39 @@ describe('paletteCommand', () => {
     });
   });
 
+  describe('--yes flag (F-148)', () => {
+    it('should accept --yes and keep the current palette without prompting', async () => {
+      await createConfig();
+
+      const promptsMod = await import('../../src/prompts/index.js');
+      const selectSpy = vi.spyOn(promptsMod, 'select');
+
+      const { paletteCommand } = await import('../../src/commands/palette.js');
+      await paletteCommand.parseAsync(['node', 'palette', '--yes']);
+
+      expect(process.exit).not.toHaveBeenCalled();
+      expect(selectSpy).not.toHaveBeenCalled();
+
+      const savedConfig = await fs.readJSON(
+        path.join(testDir, 'kigumi.config.json')
+      );
+      expect(savedConfig.theme.palette).toBe('default');
+      selectSpy.mockRestore();
+    });
+
+    it('should let an explicit palette win over --yes', async () => {
+      await createConfig();
+
+      const { paletteCommand } = await import('../../src/commands/palette.js');
+      await paletteCommand.parseAsync(['node', 'palette', 'bright', '--yes']);
+
+      const savedConfig = await fs.readJSON(
+        path.join(testDir, 'kigumi.config.json')
+      );
+      expect(savedConfig.theme.palette).toBe('bright');
+    });
+  });
+
   describe('pre-flight checks', () => {
     it('should fail without config file', async () => {
       const { paletteCommand } = await import('../../src/commands/palette.js');

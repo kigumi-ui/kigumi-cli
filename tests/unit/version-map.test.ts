@@ -40,19 +40,33 @@ describe('VERSION_MAP', () => {
       expect(Array.isArray(entry.breakingChanges)).toBe(true);
     }
   });
+
+  it('pins every Web Awesome version exactly (no ^ or ~ ranges)', () => {
+    // F-146: kigumi releases are conformant to a specific WA version and must
+    // never auto-float. Every map entry stores an exact version.
+    for (const entry of VERSION_MAP) {
+      expect(entry.webAwesomeVersion).toMatch(/^\d+\.\d+\.\d+$/);
+    }
+  });
+
+  it('has a 0.20.0 entry pinned exactly to Web Awesome 3.5.0', () => {
+    const entry = VERSION_MAP.find((e) => e.kigumiVersion === '0.20.0');
+    expect(entry).toBeDefined();
+    expect(entry!.webAwesomeVersion).toBe('3.5.0');
+  });
 });
 
 describe('getVersionEntry', () => {
   it('returns entry for known version', () => {
     const entry = getVersionEntry('0.12.0');
     expect(entry).toBeDefined();
-    expect(entry!.webAwesomeVersion).toBe('^3.3.1');
+    expect(entry!.webAwesomeVersion).toBe('3.3.1');
   });
 
   it('returns entry for 0.18.0 with WA 3.4.0', () => {
     const entry = getVersionEntry('0.18.0');
     expect(entry).toBeDefined();
-    expect(entry!.webAwesomeVersion).toBe('^3.4.0');
+    expect(entry!.webAwesomeVersion).toBe('3.4.0');
     expect(entry!.breakingChanges).toHaveLength(2);
   });
 
@@ -60,7 +74,7 @@ describe('getVersionEntry', () => {
     const entry = getVersionEntry('0.18.1');
     expect(entry).toBeDefined();
     expect(entry!.kigumiVersion).toBe('0.18.0');
-    expect(entry!.webAwesomeVersion).toBe('^3.4.0');
+    expect(entry!.webAwesomeVersion).toBe('3.4.0');
   });
 
   it('falls back to latest entry for future versions', () => {

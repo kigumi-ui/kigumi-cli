@@ -138,6 +138,43 @@ describe('list command', () => {
       expect(output).not.toContain('(Pro)');
     });
 
+    it('marks Pro components with a [Pro] badge on Pro tier (F-149)', async () => {
+      detectTierSpy.mockResolvedValue('pro');
+      const components = registry.getAllComponents();
+      const proComponents = Object.entries(components)
+        .filter(([, comp]) => comp.tier === 'pro')
+        .map(([key]) => key);
+      // Guard: this assertion only means something if the registry has Pro
+      // components to badge.
+      expect(proComponents.length).toBeGreaterThan(0);
+
+      await listCommand();
+
+      const output = consoleOutput.join('');
+      // A Pro user should be able to tell which components are Pro.
+      expect(output).toContain('[Pro]');
+    });
+
+    it('does not badge Free components on Pro tier (F-149)', async () => {
+      detectTierSpy.mockResolvedValue('pro');
+      const components = registry.getAllComponents();
+      const freeComponent = Object.entries(components).find(
+        ([, comp]) => comp.tier !== 'pro'
+      )?.[0];
+      expect(freeComponent).toBeDefined();
+
+      await listCommand();
+
+      const output = consoleOutput.join('');
+      // The Free component's row must not carry the [Pro] badge. Find the
+      // line for that component and assert it has no badge.
+      const line = output
+        .split('\n')
+        .find((l) => l.includes(freeComponent as string));
+      expect(line).toBeDefined();
+      expect(line).not.toContain('[Pro]');
+    });
+
     it('forwards cwd option to detectTier', async () => {
       await listCommand({ cwd: '/fake/project/path' });
 

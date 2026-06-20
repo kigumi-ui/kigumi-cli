@@ -10,7 +10,7 @@
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   describeTokenSource,
   detectProToken,
@@ -114,6 +114,61 @@ describe('token detection', () => {
 
       const source = await getTokenSource(testDir);
       expect(source).toBeNull();
+    });
+  });
+
+  describe('global ~/.npmrc fallback', () => {
+    let homeDir: string;
+
+    beforeEach(async () => {
+      // Point os.homedir at a temp dir and re-enable the npmrc lookup so the
+      // cloudsmith authToken extraction (extractTokenFromNpmrc) is exercised.
+      homeDir = path.join(os.tmpdir(), `kigumi-npmrc-home-${Date.now()}`);
+      await fs.ensureDir(homeDir);
+      vi.spyOn(os, 'homedir').mockReturnValue(homeDir);
+      delete process.env.KIGUMI_SKIP_GLOBAL_NPMRC;
+    });
+
+    afterEach(async () => {
+      vi.restoreAllMocks();
+      await fs.remove(homeDir);
+    });
+
+    it('should detect token from ~/.npmrc cloudsmith authToken', async () => {
+      await fs.writeFile(
+        path.join(homeDir, '.npmrc'),
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=npmrc-token-abcdef\n'
+      );
+
+      const token = await detectProToken(testDir);
+      expect(token).toBe('npmrc-token-abcdef');
+
+      const source = await getTokenSource(testDir);
+      expect(source).toBe('npmrc');
+    });
+
+    it('should prefer ~/.npmrc over the project .env', async () => {
+      await fs.writeFile(
+        path.join(homeDir, '.npmrc'),
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=npmrc-token-abcdef\n'
+      );
+      await fs.writeFile(
+        path.join(testDir, '.env'),
+        'WEBAWESOME_NPM_TOKEN=dotenv-token-67890\n'
+      );
+
+      const source = await getTokenSource(testDir);
+      expect(source).toBe('npmrc');
+    });
+
+    it('should return null for a too-short ~/.npmrc token', async () => {
+      await fs.writeFile(
+        path.join(homeDir, '.npmrc'),
+        '//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=short\n'
+      );
+
+      const token = await detectProToken(testDir);
+      expect(token).toBeNull();
     });
   });
 

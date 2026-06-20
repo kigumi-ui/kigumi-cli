@@ -191,6 +191,52 @@ describe('installDependencies', () => {
     expect(installCalls.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('should pin Web Awesome exactly via --save-exact (npm)', async () => {
+    const { installDependencies } =
+      await import('../../src/commands/init/installer.js');
+
+    await installDependencies({
+      cwd: tempDir,
+      config: createConfig({ webAwesome: { version: '3.5.0' } }),
+      tier: 'free',
+      packageManager: 'npm',
+      output: mockOutput,
+    });
+
+    const installCalls = mockExeca.mock.calls.filter(
+      (call: unknown[]) =>
+        call[0] === 'npm' &&
+        Array.isArray(call[1]) &&
+        (call[1] as string[])[0] === 'install' &&
+        !(call[1] as string[]).includes('--frozen-lockfile')
+    );
+    expect(installCalls.length).toBeGreaterThanOrEqual(1);
+    expect(installCalls[0][1] as string[]).toContain('--save-exact');
+  });
+
+  it('should pin Web Awesome exactly via --save-exact (pnpm)', async () => {
+    const { installDependencies } =
+      await import('../../src/commands/init/installer.js');
+
+    await installDependencies({
+      cwd: tempDir,
+      config: createConfig({ webAwesome: { version: '3.5.0' } }),
+      tier: 'free',
+      packageManager: 'pnpm',
+      output: mockOutput,
+    });
+
+    const installCalls = mockExeca.mock.calls.filter(
+      (call: unknown[]) =>
+        call[0] === 'pnpm' &&
+        Array.isArray(call[1]) &&
+        (call[1] as string[])[0] === 'add' &&
+        !(call[1] as string[]).includes('-D')
+    );
+    expect(installCalls.length).toBeGreaterThanOrEqual(1);
+    expect(installCalls[0][1] as string[]).toContain('--save-exact');
+  });
+
   it('should include clsx for React framework', async () => {
     const { installDependencies } =
       await import('../../src/commands/init/installer.js');

@@ -174,6 +174,28 @@ describe('config preservation during re-init', () => {
       expect(config.installedThemes).toBeUndefined();
     });
 
+    it('should pin webAwesome.version exactly from the version map', async () => {
+      const { buildConfigNonInteractive } =
+        await import('../../src/commands/init/config-builder.js');
+      const { CLI_VERSION } = await import('../../src/constants.js');
+      const { getVersionEntry } =
+        await import('../../src/utils/version-map.js');
+
+      const { config } = await buildConfigNonInteractive(
+        { yes: true },
+        defaultProjectInfo,
+        '/tmp/test',
+        output,
+        'free'
+      );
+
+      const expected = getVersionEntry(CLI_VERSION)?.webAwesomeVersion;
+      expect(expected).toBeDefined();
+      // Exact pin: no caret/tilde range carried into the project config.
+      expect(config.webAwesome?.version).toBe(expected);
+      expect(config.webAwesome?.version).toMatch(/^\d+\.\d+\.\d+$/);
+    });
+
     it('should not add empty arrays from existing config', async () => {
       const { buildConfigNonInteractive } =
         await import('../../src/commands/init/config-builder.js');

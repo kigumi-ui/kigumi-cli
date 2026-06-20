@@ -53,8 +53,14 @@ function compareSemver(a: string, b: string): number {
  */
 export const VERSION_MAP: VersionEntry[] = [
   {
+    kigumiVersion: '0.20.0',
+    webAwesomeVersion: '3.5.0',
+    releasedAt: '2026-06-19',
+    breakingChanges: [],
+  },
+  {
     kigumiVersion: '0.19.0',
-    webAwesomeVersion: '^3.5.0',
+    webAwesomeVersion: '3.5.0',
     releasedAt: '2026-04-03',
     breakingChanges: [
       {
@@ -68,7 +74,7 @@ export const VERSION_MAP: VersionEntry[] = [
   },
   {
     kigumiVersion: '0.18.0',
-    webAwesomeVersion: '^3.4.0',
+    webAwesomeVersion: '3.4.0',
     releasedAt: '2026-03-25',
     breakingChanges: [
       {
@@ -89,25 +95,25 @@ export const VERSION_MAP: VersionEntry[] = [
   },
   {
     kigumiVersion: '0.12.0',
-    webAwesomeVersion: '^3.3.1',
+    webAwesomeVersion: '3.3.1',
     releasedAt: '2026-03-01',
     breakingChanges: [],
   },
   {
     kigumiVersion: '0.11.0',
-    webAwesomeVersion: '^3.2.1',
+    webAwesomeVersion: '3.2.1',
     releasedAt: '2026-02-15',
     breakingChanges: [],
   },
   {
     kigumiVersion: '0.10.0',
-    webAwesomeVersion: '^3.2.1',
+    webAwesomeVersion: '3.2.1',
     releasedAt: '2026-02-01',
     breakingChanges: [],
   },
   {
     kigumiVersion: '0.8.0',
-    webAwesomeVersion: '^3.1.0',
+    webAwesomeVersion: '3.1.0',
     releasedAt: '2026-01-15',
     breakingChanges: [
       {

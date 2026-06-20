@@ -7,6 +7,7 @@
  */
 
 import type { KigumiConfig } from '../schemas/config.js';
+import type { BrandOptions } from '../schemas/options.js';
 
 import { Command } from 'commander';
 import * as p from '../prompts/index.js';
@@ -36,7 +37,7 @@ const BRAND_COLORS = [
   'gray',
 ];
 
-async function brandAction(colorName?: string) {
+async function brandAction(colorName?: string, options: BrandOptions = {}) {
   const output = getOutput();
 
   const cwd = process.cwd();
@@ -67,19 +68,25 @@ async function brandAction(colorName?: string) {
       throw new Error('Configuration not loaded despite passing checks');
     }
 
-    // 3. Interactive selection if no color provided
+    // 3. Resolve the brand color. An explicit argument always wins. With
+    // --yes (and no argument) keep the current color non-interactively,
+    // matching init/add/update/upgrade. Otherwise prompt.
+    const currentColor = BRAND_COLORS.includes(config.theme.brandColor)
+      ? config.theme.brandColor
+      : BRAND_COLORS[0];
+
     const selectedColor =
-      colorName ||
-      (await p.select({
-        message: 'Select a brand color:',
-        options: BRAND_COLORS.map((color) => ({
-          value: color,
-          label: color.charAt(0).toUpperCase() + color.slice(1),
-        })),
-        initialValue: BRAND_COLORS.includes(config.theme.brandColor)
-          ? config.theme.brandColor
-          : BRAND_COLORS[0],
-      }));
+      colorName ??
+      (options.yes
+        ? currentColor
+        : await p.select({
+            message: 'Select a brand color:',
+            options: BRAND_COLORS.map((color) => ({
+              value: color,
+              label: color.charAt(0).toUpperCase() + color.slice(1),
+            })),
+            initialValue: currentColor,
+          }));
 
     if (p.isCancel(selectedColor)) {
       throw new UserCancelledError();
@@ -113,4 +120,5 @@ async function brandAction(colorName?: string) {
 export const brandCommand = new Command('brand')
   .description('Change the brand color')
   .argument('[color]', 'Brand color (omit to see options)')
+  .option('-y, --yes', 'Keep the current brand color without prompting')
   .action(brandAction);

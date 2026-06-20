@@ -67,6 +67,7 @@ export type ThemeSetOptions = z.infer<typeof themeSetOptionsSchema>;
  * Palette command options schema
  */
 export const paletteOptionsSchema = z.object({
+  yes: z.boolean().optional(), // Keep current palette non-interactively
   cwd: z.string().optional(),
 });
 
@@ -76,6 +77,7 @@ export type PaletteOptions = z.infer<typeof paletteOptionsSchema>;
  * Brand command options schema
  */
 export const brandOptionsSchema = z.object({
+  yes: z.boolean().optional(), // Keep current brand color non-interactively
   cwd: z.string().optional(),
 });
 

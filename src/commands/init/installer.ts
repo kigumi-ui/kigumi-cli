@@ -208,9 +208,9 @@ export async function installDependencies(
       }
     }
 
-    // Install dependencies
     const installCmd = packageManager === 'npm' ? 'install' : 'add';
-    const args = [installCmd, ...dependencies];
+    const exactFlag = packageManager === 'yarn' ? '--exact' : '--save-exact';
+    const args = [installCmd, ...dependencies, exactFlag];
 
     try {
       await execa(packageManager, args, {
