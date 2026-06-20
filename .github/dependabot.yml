@@ -17,6 +17,11 @@ updates:
     commit-message:
       prefix: 'chore(deps)'
       include: 'scope'
+    # Web Awesome is held to the version kigumi is conformant to (see
+    # src/utils/version-map.ts). It must never auto-float; bumps are a
+    # deliberate, coordinated effort, not a Dependabot update.
+    ignore:
+      - dependency-name: '@awesome.me/webawesome'
     # Group minor and patch updates together
     groups:
       development-dependencies:
