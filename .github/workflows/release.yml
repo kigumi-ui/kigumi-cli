@@ -16,14 +16,12 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
+        # Check out with the default GITHUB_TOKEN (not the PAT): it always has
+        # access to its own private repo, so checkout is never the failure
+        # point, and the changesets push uses these persisted credentials. The
+        # PAT is needed only for PR creation; the pre-flight step below
+        # validates it early with an actionable message.
         uses: actions/checkout@v6
-        with:
-          # Persist the PAT as the git credential so the branch push and the
-          # changesets PR creation use the SAME token. Otherwise the push
-          # silently uses the default GITHUB_TOKEN and masks an expired or
-          # under-scoped PAT until PR creation fails late with the opaque
-          # "not all refs are readable".
-          token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
 
       - name: Verify release token can read + write the repo
         # Fail fast with an actionable message instead of dying deep inside
