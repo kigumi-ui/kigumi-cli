@@ -807,7 +807,7 @@ START: Change affects tier detection or packages
 
 - [ ] **CI pipeline green**
   - Lint & Format job
-  - Test job (Node 18, 20, 22)
+  - Test job (Node 22)
   - Integration Tests job
   - Coverage job (>=63%)
   - TypeScript Check job
@@ -940,7 +940,7 @@ gh pr create --title "feat: my feature" --body "Description..."
 All checks must pass before merge:
 
 - Lint & Format
-- Test (Node 18, 20, 22)
+- Test (Node 22)
 - Integration Tests
 - Coverage (>=63%)
 - TypeScript Check
@@ -1058,4 +1058,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-05-08
+**Maintained by:** AI Assistants | **Last Updated:** 2026-06-21
