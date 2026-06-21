@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-06-21
+
+### Added
+
+- **`kigumi brand` and `kigumi palette` accept `--yes` (F-148).** They were the only mutating commands without the flag, so a scripted `kigumi brand red --yes` failed with "unknown option '--yes'" while `init` / `add` / `update` / `upgrade` accepted it. With no positional argument, `--yes` keeps the current value without prompting; an explicit argument still wins.
+- **`kigumi list` badges Pro components on Pro tier (F-149).** Every component previously rendered identically on Pro tier, so a Pro user could not tell which ones require Pro. Pro components now carry a `[Pro]` badge. Free tier is unchanged (dimmed `(Pro)` prefix), and Free components are never badged.
+
 ## [0.20.0] - 2026-06-19
 
 ### Added
