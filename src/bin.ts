@@ -4,9 +4,9 @@ export {};
 
 const major = parseInt(process.version.slice(1), 10);
 
-if (major < 20) {
+if (major < 22) {
   console.error(
-    `kigumi requires Node.js 20 or later (detected ${process.version}).` +
+    `kigumi requires Node.js 22.12 or later (detected ${process.version}).` +
       '\nPlease upgrade: https://nodejs.org'
   );
   process.exit(1);

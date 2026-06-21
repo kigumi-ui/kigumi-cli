@@ -2,7 +2,7 @@
  * CLI Update Check
  *
  * Lightweight, non-blocking check for newer CLI versions on npm.
- * Uses native fetch (Node 20+) with a short timeout and 24h local cache
+ * Uses native fetch (Node 22+) with a short timeout and 24h local cache
  * to avoid hammering the registry. Silently skips in CI or non-TTY.
  *
  * @public
