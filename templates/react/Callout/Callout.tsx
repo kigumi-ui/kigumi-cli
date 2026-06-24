@@ -34,7 +34,7 @@ export interface CalloutProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   appearance?: 'accent' | 'filled' | 'outlined' | 'plain' | 'filled-outlined';
 
   /** The callout's size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** The callout's theme variant */
   variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';

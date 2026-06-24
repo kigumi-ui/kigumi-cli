@@ -63,7 +63,7 @@ export interface RatingProps extends Omit<
   required?: boolean;
 
   /** Rating size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Emitted when the rating's value changes. */
   onChange?: (event: CustomEvent) => void;

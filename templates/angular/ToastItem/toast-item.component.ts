@@ -46,7 +46,7 @@ export class ToastItemComponent implements AfterViewInit, OnDestroy {
   /** Colour scheme reflecting the notification intent */
   @Input() variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
   /** Controls the overall dimensions of the notification */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Milliseconds before auto-dismiss. Use 0 to keep the notification visible until closed. */
   @Input() duration?: number;
 

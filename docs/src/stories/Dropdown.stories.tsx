@@ -64,7 +64,7 @@ const meta = {
     },
     size: {
       control: 'select',
-      options: ['small', 'medium', 'large'],
+      options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Dropdown size',
       table: { defaultValue: { summary: 'medium' } },
     },

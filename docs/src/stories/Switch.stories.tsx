@@ -13,7 +13,7 @@ const meta = {
     value: { control: 'text', description: 'Form value when checked' },
     size: {
       control: 'select',
-      options: ['small', 'medium', 'large'],
+      options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Switch size',
       table: { defaultValue: { summary: 'medium' } },
     },

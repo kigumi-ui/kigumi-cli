@@ -14,7 +14,7 @@ function ensureLoaded() {
 export interface ButtonProps {
   variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
   appearance?: 'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   pill?: boolean;
   disabled?: boolean;
   loading?: boolean;

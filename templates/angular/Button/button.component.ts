@@ -69,7 +69,7 @@ export class ButtonComponent implements AfterViewInit, OnDestroy {
     | 'outlined'
     | 'plain';
   /** Button size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Gives the button rounded edges */
   @Input() pill?: boolean;
   /** Disables the button */

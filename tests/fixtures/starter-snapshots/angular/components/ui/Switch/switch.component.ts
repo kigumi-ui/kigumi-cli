@@ -63,7 +63,7 @@ export class SwitchComponent
   /** Form value when checked */
   @Input() value?: string;
   /** Switch size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Disables the switch */
   @Input() disabled?: boolean;
   /** Whether the switch is on */

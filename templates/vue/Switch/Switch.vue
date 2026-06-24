@@ -14,7 +14,7 @@ function ensureLoaded() {
 export interface SwitchProps {
   name?: string;
   value?: string;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   disabled?: boolean;
   required?: boolean;
   hint?: string;

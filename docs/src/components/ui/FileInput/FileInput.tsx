@@ -50,7 +50,7 @@ export interface FileInputProps extends Omit<
   required?: boolean;
 
   /** Input size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Emitted when file selection changes. */
   onInput?: (event: CustomEvent) => void;

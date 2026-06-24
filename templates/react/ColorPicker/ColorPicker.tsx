@@ -63,7 +63,7 @@ export interface ColorPickerProps extends Omit<
   required?: boolean;
 
   /** Color picker size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Label text */
   label?: string;

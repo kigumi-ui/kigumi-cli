@@ -60,7 +60,7 @@ export interface SelectProps extends Omit<
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
 
   /** Select size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Placeholder text */
   placeholder?: string;

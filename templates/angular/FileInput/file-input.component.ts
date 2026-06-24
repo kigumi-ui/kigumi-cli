@@ -71,7 +71,7 @@ export class FileInputComponent
   /** Makes field mandatory */
   @Input() required?: boolean;
   /** Input size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();

@@ -9,7 +9,10 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { validateCemSync } from '../../scripts/validate-cem-sync.js';
+import {
+  validateCemSync,
+  parseStringEnum,
+} from '../../scripts/validate-cem-sync.js';
 
 describe('validate:cem-sync', () => {
   it('should return a valid result structure', () => {
@@ -41,9 +44,11 @@ describe('validate:cem-sync', () => {
       expect(['error', 'warning']).toContain(finding.severity);
       expect(finding.component).toBeTruthy();
       expect(finding.message).toBeTruthy();
-      expect(['missing-from-registry', 'missing-from-cem']).toContain(
-        finding.category
-      );
+      expect([
+        'missing-from-registry',
+        'missing-from-cem',
+        'prop-value-drift',
+      ]).toContain(finding.category);
     }
   });
 
@@ -70,5 +75,48 @@ describe('validate:cem-sync', () => {
       (f) => f.category === 'missing-from-cem'
     ).length;
     expect(result.stats.onlyInRegistry).toBe(missing);
+  });
+
+  it('propValueDrift stat matches count of prop-value-drift findings', () => {
+    const result = validateCemSync();
+
+    const drift = result.findings.filter(
+      (f) => f.category === 'prop-value-drift'
+    ).length;
+    expect(result.stats.propValueDrift).toBe(drift);
+  });
+});
+
+describe('parseStringEnum (prop-value drift discriminator)', () => {
+  it('parses a pure string-literal union into its members', () => {
+    expect(parseStringEnum("'small' | 'medium' | 'large'")).toEqual([
+      'small',
+      'medium',
+      'large',
+    ]);
+  });
+
+  it('recognises the widened WA 3.6.0 size union', () => {
+    expect(
+      parseStringEnum(
+        "'xs' | 's' | 'm' | 'l' | 'xl' | 'small' | 'medium' | 'large'"
+      )
+    ).toEqual(['xs', 's', 'm', 'l', 'xl', 'small', 'medium', 'large']);
+  });
+
+  it('returns null for open-ended (non-enum) types', () => {
+    expect(parseStringEnum('string')).toBeNull();
+    expect(parseStringEnum('number')).toBeNull();
+    expect(parseStringEnum(undefined)).toBeNull();
+  });
+
+  it('returns null for mixed unions that are not all string literals', () => {
+    // A union mixing a literal with an open type is not a closed enum.
+    expect(parseStringEnum("'small' | string")).toBeNull();
+    expect(parseStringEnum("boolean | 'auto'")).toBeNull();
+  });
+
+  it('handles double-quoted literals', () => {
+    expect(parseStringEnum('"a" | "b"')).toEqual(['a', 'b']);
   });
 });

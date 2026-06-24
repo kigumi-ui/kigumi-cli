@@ -72,7 +72,7 @@ export class CheckboxComponent
   /** Makes field mandatory */
   @Input() required?: boolean;
   /** Adjusts checkbox dimensions */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Form submission value */
   @Input() value?: string;
 

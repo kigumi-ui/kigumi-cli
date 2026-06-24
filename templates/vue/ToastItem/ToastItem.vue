@@ -13,7 +13,7 @@ function ensureLoaded() {
  */
 export interface ToastItemProps {
   variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   duration?: number;
 }
 

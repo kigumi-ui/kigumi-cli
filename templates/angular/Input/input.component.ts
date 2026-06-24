@@ -100,7 +100,7 @@ export class InputComponent
   /** Visual appearance style */
   @Input() appearance?: 'filled' | 'filled-outlined' | 'outlined';
   /** Input size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Gives the input rounded edges */
   @Input() pill?: boolean;
   /** Disables the input */

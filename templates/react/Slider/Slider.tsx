@@ -78,7 +78,7 @@ export interface SliderProps extends Omit<
   'with-tooltip'?: boolean;
 
   /** Slider size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Automatically focuses the slider on page load */
   autofocus?: boolean;

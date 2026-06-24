@@ -14,7 +14,7 @@ function ensureLoaded() {
 export interface SelectProps {
   name?: string;
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   placeholder?: string;
   multiple?: boolean;
   'max-options-visible'?: number;

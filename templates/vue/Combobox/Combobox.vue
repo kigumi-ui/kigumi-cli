@@ -45,7 +45,7 @@ export interface ComboboxProps {
   placeholder?: string;
   placement?: 'top' | 'bottom';
   required?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   spellcheck?: boolean;
   'with-clear'?: boolean;
 }

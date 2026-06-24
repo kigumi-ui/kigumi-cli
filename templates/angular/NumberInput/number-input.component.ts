@@ -82,7 +82,7 @@ export class NumberInputComponent
   /** Placeholder text */
   @Input() placeholder?: string;
   /** Input size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Visual appearance */
   @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
   /** Hides the stepper buttons */
@@ -92,6 +92,7 @@ export class NumberInputComponent
   @Output() change = new EventEmitter<CustomEvent>();
   @Output() blurEvent = new EventEmitter<CustomEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
+  @Output() beforeinput = new EventEmitter<CustomEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
@@ -129,6 +130,12 @@ export class NumberInputComponent
       this.focusEvent.emit(e as FocusEvent);
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
+    const handleBeforeinput = (e: Event) =>
+      this.beforeinput.emit(e as CustomEvent);
+    el.addEventListener('beforeinput', handleBeforeinput);
+    this.cleanups.push(() =>
+      el.removeEventListener('beforeinput', handleBeforeinput)
+    );
     const handleInvalid = (e: Event) => this.invalid.emit(e as CustomEvent);
     el.addEventListener('wa-invalid', handleInvalid);
     this.cleanups.push(() =>

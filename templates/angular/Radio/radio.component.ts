@@ -49,7 +49,7 @@ export class RadioComponent implements AfterViewInit, OnDestroy {
   /** Disables the radio */
   @Input() disabled?: boolean;
   /** Radio size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Radio appearance style */
   @Input() appearance?: 'default' | 'button';
 

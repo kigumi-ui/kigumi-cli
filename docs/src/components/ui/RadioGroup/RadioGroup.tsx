@@ -44,7 +44,7 @@ export interface RadioGroupProps extends Omit<
   value?: string;
 
   /** Radio size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Layout direction */
   orientation?: 'horizontal' | 'vertical';

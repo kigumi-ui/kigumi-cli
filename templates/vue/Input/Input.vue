@@ -25,7 +25,7 @@ export interface InputProps {
   hint?: string;
   placeholder?: string;
   appearance?: 'filled' | 'filled-outlined' | 'outlined';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   pill?: boolean;
   disabled?: boolean;
   'with-clear'?: boolean;

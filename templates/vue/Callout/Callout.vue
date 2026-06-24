@@ -13,7 +13,7 @@ function ensureLoaded() {
  */
 export interface CalloutProps {
   appearance?: 'accent' | 'filled' | 'outlined' | 'plain' | 'filled-outlined';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
 }
 

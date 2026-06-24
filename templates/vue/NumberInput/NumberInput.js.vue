@@ -37,7 +37,14 @@ const definedProps = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['input', 'change', 'blur', 'focus', 'wa-invalid']);
+const emit = defineEmits([
+  'input',
+  'change',
+  'blur',
+  'focus',
+  'beforeinput',
+  'wa-invalid',
+]);
 
 const model = defineModel();
 
@@ -59,6 +66,7 @@ const handleInput = (e) => {
 const handleChange = (e) => emit('change', e);
 const handleBlur = (e) => emit('blur', e);
 const handleFocus = (e) => emit('focus', e);
+const handleBeforeinput = (e) => emit('beforeinput', e);
 const handleWaInvalid = (e) => emit('wa-invalid', e);
 
 onMounted(() => {
@@ -69,6 +77,7 @@ onMounted(() => {
   el.addEventListener('change', handleChange);
   el.addEventListener('blur', handleBlur);
   el.addEventListener('focus', handleFocus);
+  el.addEventListener('beforeinput', handleBeforeinput);
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
@@ -80,6 +89,7 @@ onUnmounted(() => {
   el.removeEventListener('change', handleChange);
   el.removeEventListener('blur', handleBlur);
   el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('beforeinput', handleBeforeinput);
   el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 

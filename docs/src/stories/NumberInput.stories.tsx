@@ -32,7 +32,7 @@ const meta = {
     placeholder: { control: 'text', description: 'Placeholder text' },
     size: {
       control: 'select',
-      options: ['small', 'medium', 'large'],
+      options: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
       description: 'Input size',
       table: { defaultValue: { summary: 'medium' } },
     },
@@ -50,6 +50,12 @@ const meta = {
     onInput: {
       action: 'input',
       description: 'Emitted when the control receives input.',
+      table: { category: 'Events' },
+    },
+    onBeforeinput: {
+      action: 'beforeinput',
+      description:
+        'Emitted before the value changes. Can be cancelled with event.preventDefault() to prevent the value from changing.',
       table: { category: 'Events' },
     },
     onChange: {
@@ -77,6 +83,7 @@ const meta = {
   },
   args: {
     onInput: fn(),
+    onBeforeinput: fn(),
     onChange: fn(),
     onBlur: fn(),
     onFocus: fn(),

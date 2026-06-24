@@ -74,7 +74,7 @@ export class TextareaComponent
   /** Visual appearance */
   @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
   /** Textarea size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Label text */
   @Input() label?: string;
   /** Hint text */

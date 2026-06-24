@@ -14,7 +14,7 @@ function ensureLoaded() {
 export interface TagProps {
   appearance?: 'accent' | 'filled' | 'outlined' | 'filled-outlined';
   pill?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
   'with-remove'?: boolean;
 }

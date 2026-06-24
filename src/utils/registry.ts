@@ -64,7 +64,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Button size',
       },
@@ -264,7 +264,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Input size',
       },
@@ -993,7 +993,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Adjusts checkbox dimensions',
       },
@@ -1050,7 +1050,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Color picker size',
       },
@@ -1258,7 +1258,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Combobox size',
       },
@@ -1611,7 +1611,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Dropdown size',
       },
@@ -2449,7 +2449,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Radio size',
       },
@@ -2513,7 +2513,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Radio size',
       },
@@ -2591,7 +2591,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Rating size',
       },
@@ -2718,7 +2718,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Select size',
       },
@@ -2968,7 +2968,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Slider size',
       },
@@ -3079,7 +3079,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Switch size',
       },
@@ -3234,7 +3234,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Tag size',
       },
@@ -3287,7 +3287,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Textarea size',
       },
@@ -3611,7 +3611,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: "The callout's size",
       },
@@ -3678,7 +3678,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Input size',
       },
@@ -3756,7 +3756,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Input size',
       },
@@ -4586,7 +4586,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'size',
         type: 'string',
-        values: ['small', 'medium', 'large'],
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Controls the overall dimensions of the notification',
       },

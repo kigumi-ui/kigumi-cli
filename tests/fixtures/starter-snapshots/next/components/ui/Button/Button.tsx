@@ -47,7 +47,7 @@ export interface ButtonProps extends Omit<
   appearance?: 'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain';
 
   /** Button size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Gives the button rounded edges */
   pill?: boolean;

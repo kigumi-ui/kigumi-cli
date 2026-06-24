@@ -36,7 +36,13 @@ function ensureLoaded() {
  */
 export interface NumberInputProps extends Omit<
   HTMLAttributes<HTMLElement>,
-  'onInput' | 'onChange' | 'onBlur' | 'onFocus' | 'onInvalid' | 'dir'
+  | 'onInput'
+  | 'onChange'
+  | 'onBlur'
+  | 'onFocus'
+  | 'onBeforeinput'
+  | 'onInvalid'
+  | 'dir'
 > {
   /** Accessible label */
   label?: string;
@@ -66,7 +72,7 @@ export interface NumberInputProps extends Omit<
   placeholder?: string;
 
   /** Input size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Visual appearance */
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
@@ -85,6 +91,9 @@ export interface NumberInputProps extends Omit<
 
   /** Emitted when the control gains focus. */
   onFocus?: (event: FocusEvent) => void;
+
+  /** Emitted before the value changes. Can be cancelled with `event.preventDefault()` to prevent the value from changing. */
+  onBeforeinput?: (event: CustomEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
@@ -133,6 +142,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       onChange,
       onBlur,
       onFocus,
+      onBeforeinput,
       onInvalid,
       ...props
     },
@@ -242,6 +252,10 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
         if (onFocus) onFocus(e as FocusEvent);
       };
 
+      const handleBeforeinput = (e: Event) => {
+        if (onBeforeinput) onBeforeinput(e as CustomEvent);
+      };
+
       const handleWaInvalid = (e: Event) => {
         if (onInvalid) onInvalid(e as CustomEvent);
       };
@@ -250,6 +264,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       el.addEventListener('change', handleChange);
       el.addEventListener('blur', handleBlur);
       el.addEventListener('focus', handleFocus);
+      el.addEventListener('beforeinput', handleBeforeinput);
       el.addEventListener('wa-invalid', handleWaInvalid);
 
       return () => {
@@ -257,9 +272,10 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
         el.removeEventListener('change', handleChange);
         el.removeEventListener('blur', handleBlur);
         el.removeEventListener('focus', handleFocus);
+        el.removeEventListener('beforeinput', handleBeforeinput);
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
-    }, [onInput, onChange, onBlur, onFocus, onInvalid]);
+    }, [onInput, onChange, onBlur, onFocus, onBeforeinput, onInvalid]);
 
     return (
       <wa-number-input

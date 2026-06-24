@@ -50,7 +50,7 @@ export interface CheckboxProps extends Omit<
   required?: boolean;
 
   /** Adjusts checkbox dimensions */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Form submission value */
   value?: string;

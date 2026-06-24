@@ -14,7 +14,7 @@ function ensureLoaded() {
 export interface TextareaProps {
   name?: string;
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   label?: string;
   hint?: string;
   placeholder?: string;
