@@ -16,7 +16,7 @@ export interface ColorPickerProps {
   opacity?: boolean;
   disabled?: boolean;
   required?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   label?: string;
   hint?: string;
   name?: string;

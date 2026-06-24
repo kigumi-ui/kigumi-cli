@@ -77,7 +77,7 @@ export class ColorPickerComponent
   /** Makes field mandatory */
   @Input() required?: boolean;
   /** Color picker size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Label text */
   @Input() label?: string;
   /** Hint text */

@@ -5,6 +5,7 @@
  * CSS Custom Properties:
  * - --spacing: The amount of space around and between the dialog's content.
  * - --width: The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.
+ * - --backdrop-filter: A filter to apply to the backdrop behind the dialog. (default: none)
  * - --show-duration: The animation duration when showing the dialog. (default: 200ms)
  * - --hide-duration: The animation duration when hiding the dialog. (default: 200ms)
  *

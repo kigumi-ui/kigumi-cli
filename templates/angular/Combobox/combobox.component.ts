@@ -131,7 +131,7 @@ export class ComboboxComponent
   /** Makes field mandatory */
   @Input() required?: boolean;
   /** Combobox size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Enable or disable spellchecking */
   @Input() spellcheck?: boolean;
   /** Shows clear button */

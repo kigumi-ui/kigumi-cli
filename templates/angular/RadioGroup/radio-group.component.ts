@@ -70,7 +70,7 @@ export class RadioGroupComponent
   /** Selected value */
   @Input() value?: string;
   /** Radio size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Makes selection required */
   @Input() required?: boolean;
   /** Layout direction */

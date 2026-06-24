@@ -50,7 +50,7 @@ export class TagComponent implements AfterViewInit, OnDestroy {
   /** Rounded edges */
   @Input() pill?: boolean;
   /** Tag size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Theme variant */
   @Input() variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';
   /** Shows remove button */

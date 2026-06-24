@@ -17,7 +17,7 @@ export interface CheckboxProps {
   indeterminate?: boolean;
   name?: string;
   required?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   value?: string;
 }
 

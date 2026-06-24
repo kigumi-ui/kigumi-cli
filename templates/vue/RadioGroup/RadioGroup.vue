@@ -15,7 +15,7 @@ export interface RadioGroupProps {
   label?: string;
   hint?: string;
   name?: string;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   required?: boolean;
   orientation?: 'horizontal' | 'vertical';
   disabled?: boolean;

@@ -115,7 +115,7 @@ export interface ComboboxProps extends Omit<
   required?: boolean;
 
   /** Combobox size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Enable or disable spellchecking */
   spellcheck?: boolean;

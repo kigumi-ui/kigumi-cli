@@ -77,7 +77,7 @@ export class RatingComponent
   /** Makes the rating required for form submission */
   @Input() required?: boolean;
   /** Rating size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   @Output() change = new EventEmitter<CustomEvent>();
   @Output() hover = new EventEmitter<CustomEvent>();

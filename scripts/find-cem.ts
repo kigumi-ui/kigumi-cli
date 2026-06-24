@@ -50,3 +50,42 @@ export async function findCustomElementsJson(): Promise<string | null> {
 
   return null;
 }
+
+/**
+ * Synchronous counterpart to {@link findCustomElementsJson}, for callers that
+ * run inside synchronous validation pipelines (e.g. validate:cem-sync). Probes
+ * the same two locations in the same order.
+ */
+export function findCustomElementsJsonSync(): string | null {
+  const pnpmPath = path.join(PROJECT_ROOT, 'docs/node_modules/.pnpm');
+
+  if (fs.pathExistsSync(pnpmPath)) {
+    const webAwesomeDirs = fs
+      .readdirSync(pnpmPath)
+      .filter((dir) => dir.startsWith('@awesome.me+webawesome-pro@'))
+      .sort()
+      .reverse();
+
+    for (const dir of webAwesomeDirs) {
+      const jsonPath = path.join(
+        pnpmPath,
+        dir,
+        'node_modules/@awesome.me/webawesome-pro/dist/custom-elements.json'
+      );
+      if (fs.pathExistsSync(jsonPath)) {
+        return jsonPath;
+      }
+    }
+  }
+
+  const regularPath = path.join(
+    PROJECT_ROOT,
+    'docs/node_modules/@awesome.me/webawesome-pro/dist/custom-elements.json'
+  );
+
+  if (fs.pathExistsSync(regularPath)) {
+    return regularPath;
+  }
+
+  return null;
+}

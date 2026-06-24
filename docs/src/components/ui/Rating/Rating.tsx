@@ -47,7 +47,7 @@ export interface RatingProps extends Omit<
   precision?: number;
 
   /** Rating size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Makes the rating readonly */
   readonly?: boolean;

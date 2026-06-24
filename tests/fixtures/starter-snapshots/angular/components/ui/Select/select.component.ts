@@ -76,7 +76,7 @@ export class SelectComponent
   /** Visual appearance */
   @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
   /** Select size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Placeholder text */
   @Input() placeholder?: string;
   /** Allows multiple selections */

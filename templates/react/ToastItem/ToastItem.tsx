@@ -42,7 +42,7 @@ export interface ToastItemProps extends Omit<
   variant?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
 
   /** Controls the overall dimensions of the notification */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Milliseconds before auto-dismiss. Use 0 to keep the notification visible until closed. */
   duration?: number;

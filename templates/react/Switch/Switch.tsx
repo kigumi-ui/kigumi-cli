@@ -45,7 +45,7 @@ export interface SwitchProps extends Omit<
   value?: string;
 
   /** Switch size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Disables the switch */
   disabled?: boolean;

@@ -1008,6 +1008,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
           'The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.',
       },
       {
+        name: '--backdrop-filter',
+        description: 'A filter to apply to the backdrop behind the dialog.',
+        default: 'none',
+      },
+      {
         name: '--show-duration',
         description: 'The animation duration when showing the dialog.',
         default: '200ms',
@@ -1185,6 +1190,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         name: '--size',
         description:
           "The preferred size of the drawer. This will be applied to the drawer's width or height depending on its `placement`. Note that the drawer will shrink to accommodate smaller screens.",
+      },
+      {
+        name: '--backdrop-filter',
+        description: 'A filter to apply to the backdrop behind the drawer.',
+        default: 'none',
       },
       {
         name: '--show-duration',

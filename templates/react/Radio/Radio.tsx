@@ -45,7 +45,7 @@ export interface RadioProps extends Omit<
   disabled?: boolean;
 
   /** Radio size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Radio appearance style */
   appearance?: 'default' | 'button';

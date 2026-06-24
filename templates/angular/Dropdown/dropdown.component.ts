@@ -75,7 +75,7 @@ export class DropdownComponent implements AfterViewInit, OnDestroy {
   /** Hoists the dropdown panel to the body */
   @Input() hoist?: boolean;
   /** Dropdown size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   @Output() show = new EventEmitter<CustomEvent>();
   @Output() afterShow = new EventEmitter<CustomEvent>();

@@ -31,7 +31,7 @@ export interface DropdownProps extends Omit<
   open?: boolean;
 
   /** Dropdown size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Preferred placement of the dropdown panel */
   placement?:

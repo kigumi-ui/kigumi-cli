@@ -65,7 +65,7 @@ export interface InputProps extends Omit<
   appearance?: 'filled' | 'filled-outlined' | 'outlined';
 
   /** Input size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Gives the input rounded edges */
   pill?: boolean;

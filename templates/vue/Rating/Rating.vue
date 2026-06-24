@@ -19,7 +19,7 @@ export interface RatingProps {
   disabled?: boolean;
   name?: string;
   required?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 }
 
 const props = defineProps<RatingProps>();

@@ -68,7 +68,7 @@ export interface DropdownProps extends Omit<
   hoist?: boolean;
 
   /** Dropdown size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Emitted when the dropdown is about to show. */
   onShow?: (event: CustomEvent) => void;

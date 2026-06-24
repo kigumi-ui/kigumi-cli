@@ -24,7 +24,7 @@ export interface SliderProps {
   range?: boolean;
   'with-markers'?: boolean;
   'with-tooltip'?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   autofocus?: boolean;
 }
 

@@ -30,7 +30,7 @@ export interface DropdownProps {
   distance?: number;
   skidding?: number;
   hoist?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 }
 
 const props = defineProps<DropdownProps>();

@@ -1511,6 +1511,13 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         eventType: 'FocusEvent',
       },
       {
+        name: 'beforeinput',
+        description:
+          'Emitted before the value changes. Can be cancelled with `event.preventDefault()` to prevent the value from changing.',
+        reactName: 'onBeforeinput',
+        eventType: 'BeforeinputEvent',
+      },
+      {
         name: 'wa-invalid',
         description:
           "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
@@ -1623,6 +1630,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: '',
         description: "The tag's content.",
+      },
+    ],
+    methods: [],
+  },
+  option: {
+    tagName: 'wa-option',
+    className: 'WaOption',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The option's label.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed before the label.',
+      },
+      {
+        name: 'end',
+        description: 'An element, such as `<wa-icon>`, placed after the label.',
       },
     ],
     methods: [],
@@ -1786,27 +1814,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
-  },
-  option: {
-    tagName: 'wa-option',
-    className: 'WaOption',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The option's label.",
-      },
-      {
-        name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed before the label.',
-      },
-      {
-        name: 'end',
-        description: 'An element, such as `<wa-icon>`, placed after the label.',
-      },
-    ],
-    methods: [],
   },
   popover: {
     tagName: 'wa-popover',
@@ -3030,10 +3037,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       {
         name: 'dropzone',
         description: 'Custom content to show in the dropzone.',
-      },
-      {
-        name: 'file-icon',
-        description: 'Custom icon for non-image files.',
       },
     ],
     methods: [

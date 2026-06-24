@@ -93,7 +93,7 @@ export class SliderComponent
   /** Draws a tooltip above the thumb */
   @Input() withTooltip?: boolean;
   /** Slider size */
-  @Input() size?: 'small' | 'medium' | 'large';
+  @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Automatically focuses the slider on page load */
   @Input() autofocus?: boolean;
 

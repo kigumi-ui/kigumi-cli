@@ -34,7 +34,7 @@ export interface TagProps extends Omit<
   pill?: boolean;
 
   /** Tag size */
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Theme variant */
   variant?: 'brand' | 'neutral' | 'success' | 'warning' | 'danger';

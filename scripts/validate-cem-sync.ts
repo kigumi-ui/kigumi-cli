@@ -3,23 +3,32 @@
 /**
  * CEM-to-Registry Sync Checker
  *
- * PURPOSE: Verifies that every Web Awesome component known to CEM
- * (`custom-elements.json` via `component-metadata.ts`) has a corresponding
- * entry in the local registry, and vice versa.
+ * PURPOSE: Verifies that the local registry stays in sync with Web Awesome's
+ * `custom-elements.json` (CEM) on two axes:
+ *   1. Component presence (via `component-metadata.ts`).
+ *   2. Enumerated prop values (via the raw CEM attribute types).
  *
  * NOTE: Events, slots, and methods live exclusively in `component-metadata.ts`
  * (auto-generated from CEM). The registry does not duplicate them, so there is
  * no drift to check on those fields.
  *
  * CHECKS:
- * - Components in CEM metadata but not in registry
- * - Components in registry but not in CEM metadata
+ * - Components in CEM metadata but not in registry (warning)
+ * - Components in registry but not in CEM metadata (error)
+ * - Registry enum prop values that CEM no longer accepts (error) — a value the
+ *   registry advertises but Web Awesome rejects is a user-facing defect.
+ * - CEM enum values the registry has not surfaced yet (warning) — additive,
+ *   e.g. the XS/XL/short-form `size` tokens added in WA 3.6.0.
+ *
+ * Prop-value drift is what silently slipped through before: `component-metadata.ts`
+ * does not carry attribute value enums, so this check reads the CEM directly.
  *
  * USAGE:
  *   pnpm validate:cem-sync
  *   node scripts/validate-cem-sync.ts
  */
 
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
@@ -27,15 +36,28 @@ import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
+import { findCustomElementsJsonSync } from './find-cem.js';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
 interface SyncFinding {
   component: string;
-  category: 'missing-from-registry' | 'missing-from-cem';
+  category: 'missing-from-registry' | 'missing-from-cem' | 'prop-value-drift';
   severity: 'error' | 'warning';
   message: string;
 }
+
+/**
+ * Known, pre-existing registry enum values that intentionally (or as tracked
+ * tech debt) diverge from the CEM. Keyed by `<component>.<prop>`. Entries here
+ * are downgraded from error to warning so new drift still fails the build while
+ * existing divergences stay visible without blocking. Tracked for reconciliation
+ * in the findings backlog.
+ */
+const REGISTRY_VALUE_ALLOWLIST: Record<string, readonly string[]> = {
+  'dropdown-item.variant': ['neutral'],
+  'scroller.orientation': ['both'],
+};
 
 interface SyncResult {
   passed: boolean;
@@ -46,6 +68,7 @@ interface SyncResult {
     onlyInCem: number;
     onlyInRegistry: number;
     synced: number;
+    propValueDrift: number;
   };
 }
 
@@ -66,6 +89,61 @@ function getRegistryMap(): Map<string, ComponentDefinition> {
     map.set(registryKeyToCemKey(key), def);
   }
   return map;
+}
+
+/**
+ * Parse a CEM attribute `type.text` into its set of string-literal members, but
+ * only when the entire union is made of string literals (e.g.
+ * `'small' | 'medium' | 'large'`). Returns null for non-enum types
+ * (`string`, `number`, `boolean | undefined`, …) so we never compare against
+ * open-ended types.
+ */
+export function parseStringEnum(text: string | undefined): string[] | null {
+  if (!text) return null;
+  const parts = text.split('|').map((s) => s.trim());
+  const literals = parts
+    .filter((p) => /^'[^']*'$/.test(p) || /^"[^"]*"$/.test(p))
+    .map((p) => p.slice(1, -1));
+  return literals.length === parts.length && literals.length > 0
+    ? literals
+    : null;
+}
+
+/**
+ * Build a `wa-<tag>` → { attrName → type.text } map from the raw CEM. Returns
+ * an empty map when the CEM is unreachable (docs/ deps not installed), so the
+ * prop-value check degrades to a no-op rather than failing.
+ */
+function getCemAttributeTypes(): Map<
+  string,
+  Record<string, string | undefined>
+> {
+  const out = new Map<string, Record<string, string | undefined>>();
+  const cemPath = findCustomElementsJsonSync();
+  if (!cemPath) return out;
+
+  const cem = JSON.parse(fs.readFileSync(cemPath, 'utf8')) as {
+    modules?: Array<{
+      declarations?: Array<{
+        customElement?: boolean;
+        tagName?: string;
+        attributes?: Array<{ name: string; type?: { text?: string } }>;
+      }>;
+    }>;
+  };
+
+  for (const mod of cem.modules ?? []) {
+    for (const dec of mod.declarations ?? []) {
+      if (!dec.customElement || !dec.tagName) continue;
+      out.set(
+        dec.tagName,
+        Object.fromEntries(
+          (dec.attributes ?? []).map((a) => [a.name, a.type?.text])
+        )
+      );
+    }
+  }
+  return out;
 }
 
 // ── Comparison ──────────────────────────────────────────────────────────────
@@ -101,18 +179,79 @@ function checkComponentPresence(
   return findings;
 }
 
+/**
+ * Compare each registry enum prop's `values` against the corresponding CEM
+ * attribute enum, in both directions. This is the check that would have caught
+ * the WA 3.6.0 `size` widening (xs/s/m/l/xl) instead of letting it pass silently.
+ */
+function checkPropValueDrift(
+  registryMap: Map<string, ComponentDefinition>,
+  cemAttrTypes: Map<string, Record<string, string | undefined>>
+): SyncFinding[] {
+  const findings: SyncFinding[] = [];
+  if (cemAttrTypes.size === 0) return findings; // CEM unreachable → skip
+
+  for (const [regKey, def] of registryMap) {
+    const attrs = cemAttrTypes.get(`wa-${regKey}`);
+    if (!attrs) continue;
+
+    for (const prop of def.props) {
+      if (!prop.values || prop.values.length === 0) continue;
+      const cemEnum = parseStringEnum(attrs[prop.name]);
+      if (!cemEnum) continue; // attribute is not an enum upstream
+
+      const cemSet = new Set(cemEnum);
+      const regSet = new Set(prop.values);
+      const allowed = new Set(
+        REGISTRY_VALUE_ALLOWLIST[`${regKey}.${prop.name}`] ?? []
+      );
+
+      const extraInRegistry = prop.values.filter(
+        (v) => !cemSet.has(v) && !allowed.has(v)
+      );
+      if (extraInRegistry.length > 0) {
+        findings.push({
+          component: regKey,
+          category: 'prop-value-drift',
+          severity: 'error',
+          message: `${regKey}.${prop.name} advertises value(s) [${extraInRegistry.join(', ')}] that Web Awesome no longer accepts (CEM: [${cemEnum.join(', ')}])`,
+        });
+      }
+
+      const missingFromRegistry = cemEnum.filter((v) => !regSet.has(v));
+      if (missingFromRegistry.length > 0) {
+        findings.push({
+          component: regKey,
+          category: 'prop-value-drift',
+          severity: 'warning',
+          message: `${regKey}.${prop.name} is missing newly-available value(s) [${missingFromRegistry.join(', ')}] (CEM: [${cemEnum.join(', ')}])`,
+        });
+      }
+    }
+  }
+
+  return findings;
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 export function validateCemSync(): SyncResult {
   const cemKeys = getCemKeys();
   const registryMap = getRegistryMap();
+  const cemAttrTypes = getCemAttributeTypes();
 
-  const findings = checkComponentPresence(cemKeys, registryMap);
+  const findings = [
+    ...checkComponentPresence(cemKeys, registryMap),
+    ...checkPropValueDrift(registryMap, cemAttrTypes),
+  ];
   const onlyInCem = findings.filter(
     (f) => f.category === 'missing-from-registry'
   ).length;
   const onlyInRegistry = findings.filter(
     (f) => f.category === 'missing-from-cem'
+  ).length;
+  const propValueDrift = findings.filter(
+    (f) => f.category === 'prop-value-drift'
   ).length;
   const synced = [...registryMap.keys()].filter((k) => cemKeys.has(k)).length;
 
@@ -125,6 +264,7 @@ export function validateCemSync(): SyncResult {
       onlyInCem,
       onlyInRegistry,
       synced,
+      propValueDrift,
     },
   };
 }
@@ -140,6 +280,7 @@ function printResults(result: SyncResult): void {
   console.log(`  Synced:              ${result.stats.synced}`);
   console.log(`  Only in CEM:         ${result.stats.onlyInCem}`);
   console.log(`  Only in Registry:    ${result.stats.onlyInRegistry}`);
+  console.log(`  Prop-value drift:    ${result.stats.propValueDrift}`);
   console.log('');
 
   const errors = result.findings.filter((f) => f.severity === 'error');

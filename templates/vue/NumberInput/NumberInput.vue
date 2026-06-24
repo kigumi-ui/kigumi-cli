@@ -20,7 +20,7 @@ export interface NumberInputProps {
   disabled?: boolean;
   required?: boolean;
   placeholder?: string;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
   'without-steppers'?: boolean;
 }
@@ -44,6 +44,7 @@ const emit = defineEmits<{
   change: [event: CustomEvent];
   blur: [event: CustomEvent];
   focus: [event: FocusEvent];
+  beforeinput: [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -67,6 +68,7 @@ const handleInput = (e: Event) => {
 const handleChange = (e: Event) => emit('change', e as CustomEvent);
 const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleBeforeinput = (e: Event) => emit('beforeinput', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 
 onMounted(() => {
@@ -77,6 +79,7 @@ onMounted(() => {
   el.addEventListener('change', handleChange);
   el.addEventListener('blur', handleBlur);
   el.addEventListener('focus', handleFocus);
+  el.addEventListener('beforeinput', handleBeforeinput);
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
@@ -88,6 +91,7 @@ onUnmounted(() => {
   el.removeEventListener('change', handleChange);
   el.removeEventListener('blur', handleBlur);
   el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('beforeinput', handleBeforeinput);
   el.removeEventListener('wa-invalid', handleWaInvalid);
 });
 
