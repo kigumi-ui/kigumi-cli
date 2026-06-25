@@ -53,6 +53,27 @@ function compareSemver(a: string, b: string): number {
  */
 export const VERSION_MAP: VersionEntry[] = [
   {
+    kigumiVersion: '0.22.0',
+    webAwesomeVersion: '3.6.0',
+    releasedAt: '2026-06-25',
+    breakingChanges: [
+      {
+        description:
+          'DropdownItem: `variant` value `neutral` removed (Web Awesome accepts `default | danger`); the default is now `default`',
+        affectedComponents: ['dropdown-item'],
+        migrationGuide:
+          'Replace `variant="neutral"` with `variant="default"` on DropdownItem.',
+      },
+      {
+        description:
+          'Scroller: `orientation` value `both` removed (Web Awesome accepts `horizontal | vertical`); the default is now `horizontal`',
+        affectedComponents: ['scroller'],
+        migrationGuide:
+          'Replace `orientation="both"` with either `horizontal` or `vertical` on Scroller.',
+      },
+    ],
+  },
+  {
     kigumiVersion: '0.20.0',
     webAwesomeVersion: '3.5.0',
     releasedAt: '2026-06-19',

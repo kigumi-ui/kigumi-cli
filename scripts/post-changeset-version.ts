@@ -45,17 +45,22 @@ function parseCategories(content: string): Map<string, string[]> {
     ''
   );
 
+  // Strip commit hash prefixes added by the default changelog plugin, at both
+  // the top-level (`- 91101c4: ...`) and changeset-indented (`  - 91101c4: ...`)
+  // positions. MUST run BEFORE the `- ###` unwrap below: changesets emits a
+  // changeset whose summary leads with a category header as
+  // `- <hash>: ### Changed`, and only once the hash is stripped to
+  // `- ### Changed` can the next step unwrap it into a real `### Changed`
+  // heading. Stripping last instead left `- ### Changed` intact, which dropped
+  // every changeset's leading category section.
+  cleaned = cleaned.replace(/^(\s*)- [a-f0-9]{7,}: /gm, '$1- ');
+
   // Unwrap indented content from changeset bullet wrapping:
   // "- ### Added\n  - item" becomes "### Added\n- item"
   cleaned = cleaned.replace(/^- ###/gm, '###');
   cleaned = cleaned.replace(/^ {2}- /gm, '- ');
   cleaned = cleaned.replace(/^ {2}###/gm, '###');
   cleaned = cleaned.replace(/^ {2}(\S)/gm, '$1');
-
-  // Strip commit hash prefixes added by the default changelog plugin.
-  // Runs AFTER unwrapping so that originally-indented bullets (`  - abc1234: ...`)
-  // also get stripped once they're flattened to top-level (`- abc1234: ...`).
-  cleaned = cleaned.replace(/^- [a-f0-9]{7}: /gm, '- ');
 
   // Parse into categories
   let currentCategory: string | null = null;
