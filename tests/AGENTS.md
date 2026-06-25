@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (89 files, 1325 tests; +5 in scripts/, +15 in schemas/, +11 in concurrency/failure-modes)
+├── unit/                    # Fast, isolated tests (90 files, 1325 tests; +5 in scripts/, +15 in schemas/, +11 in concurrency/failure-modes)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -32,6 +32,7 @@ tests/
 │   ├── error-classes.test.ts        # Error class hierarchy
 │   ├── errors.test.ts               # Error formatting
 │   ├── file-diff.test.ts            # File modification detection
+│   ├── find-cem.test.ts             # find-cem pinned-version CEM resolution (F-152)
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
 │   ├── helpers.test.ts              # Cluster S helpers (createRecordingOutput, createTestPrompts, writeTierFixture)
@@ -693,4 +694,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-08 (cluster V PR-V2: regression suite under `tests/unit/regression/`, mutation testing section, bug-injection runbook reference)
+**Last Updated:** 2026-06-24 (added `find-cem.test.ts` for F-152 pinned-version CEM resolution)

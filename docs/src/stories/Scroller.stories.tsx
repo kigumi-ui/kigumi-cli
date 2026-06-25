@@ -9,9 +9,9 @@ const meta = {
   argTypes: {
     orientation: {
       control: 'select',
-      options: ['horizontal', 'vertical', 'both'],
+      options: ['horizontal', 'vertical'],
       description: 'Scroll direction',
-      table: { defaultValue: { summary: 'both' } },
+      table: { defaultValue: { summary: 'horizontal' } },
     },
     'with-scroll-indicator': {
       control: 'boolean',

@@ -55,8 +55,8 @@ interface SyncFinding {
  * in the findings backlog.
  */
 const REGISTRY_VALUE_ALLOWLIST: Record<string, readonly string[]> = {
-  'dropdown-item.variant': ['neutral'],
-  'scroller.orientation': ['both'],
+  // Empty: dropdown-item.variant and scroller.orientation were reconciled to
+  // the CEM in F-153. The mechanism is kept for future tracked divergences.
 };
 
 interface SyncResult {

@@ -12,7 +12,7 @@ function ensureLoaded() {
  * Adds a scrollable container with optional shadow indicators
  */
 export interface ScrollerProps {
-  orientation?: 'horizontal' | 'vertical' | 'both';
+  orientation?: 'horizontal' | 'vertical';
   'with-scroll-indicator'?: boolean;
   'without-scrollbar'?: boolean;
   'without-shadow'?: boolean;

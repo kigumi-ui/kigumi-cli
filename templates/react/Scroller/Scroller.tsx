@@ -34,7 +34,7 @@ export interface ScrollerProps extends Omit<
   'dir'
 > {
   /** Scroll direction */
-  orientation?: 'horizontal' | 'vertical' | 'both';
+  orientation?: 'horizontal' | 'vertical';
 
   /** Shows shadow indicators */
   'with-scroll-indicator'?: boolean;

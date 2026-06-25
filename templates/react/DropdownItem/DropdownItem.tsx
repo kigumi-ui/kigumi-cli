@@ -54,7 +54,7 @@ export interface DropdownItemProps extends Omit<
   loading?: boolean;
 
   /** The dropdown item variant */
-  variant?: 'neutral' | 'danger';
+  variant?: 'default' | 'danger';
 
   /** Emitted when the dropdown item loses focus. */
   onBlur?: (event: FocusEvent) => void;

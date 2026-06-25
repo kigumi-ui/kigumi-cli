@@ -32,9 +32,9 @@ const meta = {
     },
     variant: {
       control: 'select',
-      options: ['neutral', 'danger'],
+      options: ['default', 'danger'],
       description: 'The dropdown item variant',
-      table: { defaultValue: { summary: 'neutral' } },
+      table: { defaultValue: { summary: 'default' } },
     },
     onBlur: {
       action: 'blur',

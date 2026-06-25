@@ -42,7 +42,7 @@ export class ScrollerComponent implements AfterViewInit {
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Scroll direction */
-  @Input() orientation?: 'horizontal' | 'vertical' | 'both';
+  @Input() orientation?: 'horizontal' | 'vertical';
   /** Shows shadow indicators */
   @Input() withScrollIndicator?: boolean;
   /** Hides the scrollbar */

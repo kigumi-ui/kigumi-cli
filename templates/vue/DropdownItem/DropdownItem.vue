@@ -17,7 +17,7 @@ export interface DropdownItemProps {
   value?: string;
   disabled?: boolean;
   loading?: boolean;
-  variant?: 'neutral' | 'danger';
+  variant?: 'default' | 'danger';
 }
 
 const props = defineProps<DropdownItemProps>();

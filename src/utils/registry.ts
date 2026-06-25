@@ -1665,8 +1665,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'variant',
         type: 'string',
-        values: ['neutral', 'danger'],
-        default: 'neutral',
+        values: ['default', 'danger'],
+        default: 'default',
         description: 'The dropdown item variant',
       },
     ],
@@ -2659,8 +2659,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'orientation',
         type: 'string',
-        values: ['horizontal', 'vertical', 'both'],
-        default: 'both',
+        values: ['horizontal', 'vertical'],
+        default: 'horizontal',
         description: 'Scroll direction',
       },
       {

@@ -17,7 +17,7 @@ const props = defineProps({
   value: { type: String, required: false, default: '' },
   disabled: { type: Boolean, required: false, default: false },
   loading: { type: Boolean, required: false, default: false },
-  variant: { type: String, required: false, default: 'neutral' },
+  variant: { type: String, required: false, default: 'default' },
 });
 
 // Strip undefined and false props before forwarding to the web component.

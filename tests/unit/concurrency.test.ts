@@ -85,14 +85,24 @@ describe('saveConfig: concurrent disjoint patches', () => {
 
   it('exposes the load-modify-write race: a mid-write loadConfig can return null', async () => {
     // Force the race deterministically: spy on the writeJson used by
-    // saveConfig A so it holds the file truncated for one tick. saveConfig
-    // B's loadConfig then runs while the file is empty, observes "no
-    // config found", and throws ConfigNotFoundError. This pins the
-    // current load-modify-write contract; a future atomic-rename change
-    // would flip this to "both fulfil" and update the assertion.
+    // saveConfig A so it holds the file truncated. saveConfig B's loadConfig
+    // then runs while the file is empty, observes "no config found", and
+    // throws ConfigNotFoundError. This pins the current load-modify-write
+    // contract; a future atomic-rename change would flip this to "both
+    // fulfil" and update the assertion.
+    //
+    // The `truncated` gate makes the ordering deterministic: B is only
+    // started once A has actually emptied the file on disk. Without it, B's
+    // loadConfig and A's truncating writeFile are two independent async I/O
+    // operations whose completion order is not guaranteed under load, which
+    // made this test flaky in CI.
     let releaseA!: () => void;
     const gateA = new Promise<void>((r) => {
       releaseA = r;
+    });
+    let signalTruncated!: () => void;
+    const truncated = new Promise<void>((r) => {
+      signalTruncated = r;
     });
     const file = path.join(testDir, 'kigumi.config.json');
     const spy = vi
@@ -100,6 +110,7 @@ describe('saveConfig: concurrent disjoint patches', () => {
       .mockImplementationOnce(async (...args: unknown[]): Promise<void> => {
         // Truncate the file to simulate the open(O_TRUNC) -> write window.
         await fsExtra.writeFile(file, '');
+        signalTruncated();
         await gateA;
         // Then write the intended payload.
         const [target, value, opts] = args as [
@@ -114,6 +125,9 @@ describe('saveConfig: concurrent disjoint patches', () => {
       });
 
     const aPromise = saveConfig({ theme: { selected: 'brutalist' } }, testDir);
+
+    // Wait until A has emptied the file before B reads it.
+    await truncated;
 
     let bError: unknown;
     try {
