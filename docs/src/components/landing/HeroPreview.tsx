@@ -1,7 +1,6 @@
 import React from 'react';
 import { useFrameworkSync } from '@/hooks/useFrameworkSync';
 import {
-  Badge,
   Button,
   Card,
   Checkbox,
@@ -18,7 +17,7 @@ import {
 import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';
 import angularLogo from '@/assets/angular-logo.svg';
-import svelteLogo from '@/assets/svelte-logo.svg';
+import nextjsLogo from '@/assets/nextjs-logo.svg';
 
 function ExampleCard() {
   return (
@@ -34,7 +33,7 @@ function ExampleCard() {
             <Option value="react">React</Option>
             <Option value="vue">Vue</Option>
             <Option value="angular">Angular</Option>
-            <Option value="svelte">Svelte</Option>
+            <Option value="nextjs">Next.js</Option>
           </Select>
           <RadioGroup
             label="Visibility"
@@ -84,7 +83,43 @@ export function NewProjectCard() {
           <Option value="react">React</Option>
           <Option value="vue">Vue</Option>
           <Option value="angular">Angular</Option>
-          <Option value="svelte">Svelte</Option>
+          <Option value="nextjs">Next.js</Option>
+        </Select>
+        <RadioGroup label="Visibility" value="public" orientation="horizontal">
+          <Radio value="public" appearance="button">Public</Radio>
+          <Radio value="private" appearance="button">Private</Radio>
+        </RadioGroup>
+        <Checkbox checked>Initialize with README</Checkbox>
+      </div>
+      <div slot="footer" className="wa-cluster wa-justify-content-end wa-gap-s">
+        <Button variant="default" size="medium">Cancel</Button>
+        <Button variant="brand" size="medium">Create</Button>
+      </div>
+    </Card>
+  )
+}`;
+
+const nextCode = `'use client';
+
+import {
+  Button, Card, Checkbox, Input, Option,
+  Radio, RadioGroup, Select,
+} from '@/components/ui'
+
+export function NewProjectCard() {
+  return (
+    <Card with-header with-footer>
+      <div slot="header">
+        <h3 className="wa-heading-m">New project</h3>
+      </div>
+      <div className="wa-stack wa-gap-l">
+        <Input label="Project name" placeholder="my-kigumi-project" />
+        <Select label="Framework" value="react">
+          <Option value="none">None</Option>
+          <Option value="react">React</Option>
+          <Option value="vue">Vue</Option>
+          <Option value="angular">Angular</Option>
+          <Option value="nextjs">Next.js</Option>
         </Select>
         <RadioGroup label="Visibility" value="public" orientation="horizontal">
           <Radio value="public" appearance="button">Public</Radio>
@@ -119,7 +154,7 @@ import {
         <Option value="react">React</Option>
         <Option value="vue">Vue</Option>
         <Option value="angular">Angular</Option>
-        <Option value="svelte">Svelte</Option>
+        <Option value="nextjs">Next.js</Option>
       </Select>
       <RadioGroup label="Visibility" value="public" orientation="horizontal">
         <Radio value="public" appearance="button">Public</Radio>
@@ -161,7 +196,7 @@ import {
           <k-option value="react">React</k-option>
           <k-option value="vue">Vue</k-option>
           <k-option value="angular">Angular</k-option>
-          <k-option value="svelte">Svelte</k-option>
+          <k-option value="nextjs">Next.js</k-option>
         </k-select>
         <k-radio-group label="Visibility" value="public" orientation="horizontal">
           <k-radio value="public" appearance="button">Public</k-radio>
@@ -276,7 +311,12 @@ export function HeroPreview() {
         active={framework}
         onTabShow={(e: CustomEvent) => {
           const name = e.detail.name;
-          if (name === 'react' || name === 'vue' || name === 'angular') {
+          if (
+            name === 'react' ||
+            name === 'vue' ||
+            name === 'angular' ||
+            name === 'nextjs'
+          ) {
             setFramework(name);
           }
         }}
@@ -311,17 +351,14 @@ export function HeroPreview() {
             Angular
           </span>
         </Tab>
-        <Tab panel="svelte" disabled>
+        <Tab panel="nextjs">
           <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
-              src={svelteLogo}
-              alt="Svelte"
+              src={nextjsLogo}
+              alt="Next.js"
               style={{ width: '16px', height: '16px' }}
             />
-            Svelte
-            <Badge appearance="outlined" variant="neutral" pill>
-              Coming soon
-            </Badge>
+            Next.js
           </span>
         </Tab>
 
@@ -342,6 +379,12 @@ export function HeroPreview() {
           style={{ '--padding': '0' } as React.CSSProperties}
         >
           <PreviewPanel code={angularCode} />
+        </TabPanel>
+        <TabPanel
+          name="nextjs"
+          style={{ '--padding': '0' } as React.CSSProperties}
+        >
+          <PreviewPanel code={nextCode} />
         </TabPanel>
       </TabGroup>
     </div>

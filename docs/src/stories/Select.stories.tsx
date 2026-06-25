@@ -245,8 +245,8 @@ export const WithClear: Story = {
     <Select {...args} style={{ maxWidth: '400px' }}>
       <Option value="react">React</Option>
       <Option value="vue">Vue</Option>
-      <Option value="svelte">Svelte</Option>
       <Option value="angular">Angular</Option>
+      <Option value="nextjs">Next.js</Option>
     </Select>
   ),
 };
@@ -262,8 +262,8 @@ export const Multiple: Story = {
     <Select {...args} style={{ maxWidth: '400px' }}>
       <Option value="react">React</Option>
       <Option value="vue">Vue</Option>
-      <Option value="svelte">Svelte</Option>
       <Option value="angular">Angular</Option>
+      <Option value="nextjs">Next.js</Option>
       <Option value="solid">SolidJS</Option>
     </Select>
   ),

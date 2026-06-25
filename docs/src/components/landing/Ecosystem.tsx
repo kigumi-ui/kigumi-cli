@@ -1,17 +1,17 @@
-import { Card, Icon, Tooltip } from '@/components/ui';
+import { Card, Icon } from '@/components/ui';
 import { HeroPreview } from '@/components/landing/HeroPreview';
 import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';
 import angularLogo from '@/assets/angular-logo.svg';
-import svelteLogo from '@/assets/svelte-logo.svg';
+import nextjsLogo from '@/assets/nextjs-logo.svg';
 import vitejsLogo from '@/assets/vitejs-logo.svg';
 
 const frameworks = [
-  { id: 'vitejs', src: vitejsLogo, alt: 'Vite', available: true },
-  { id: 'react', src: reactLogo, alt: 'React', available: true },
-  { id: 'vue', src: vueLogo, alt: 'Vue', available: true },
-  { id: 'angular', src: angularLogo, alt: 'Angular', available: true },
-  { id: 'svelte', src: svelteLogo, alt: 'Svelte', available: false },
+  { id: 'vitejs', src: vitejsLogo, alt: 'Vite' },
+  { id: 'react', src: reactLogo, alt: 'React' },
+  { id: 'vue', src: vueLogo, alt: 'Vue' },
+  { id: 'angular', src: angularLogo, alt: 'Angular' },
+  { id: 'nextjs', src: nextjsLogo, alt: 'Next.js' },
 ] as const;
 
 const starters = [
@@ -36,6 +36,13 @@ const starters = [
     icon: 'angular',
     iconFamily: 'brands',
   },
+  {
+    title: 'Next.js Starter',
+    description: 'Next.js + Kigumi',
+    href: 'https://github.com/kigumi-ui/kigumi-next-starter',
+    icon: 'code',
+    iconFamily: 'solid',
+  },
 ] as const;
 
 export function Ecosystem() {
@@ -50,19 +57,11 @@ export function Ecosystem() {
           <div className="ecosystem__logos wa-cluster wa-gap-m wa-align-items-center">
             {frameworks.map((fw) => (
               <span key={fw.id}>
-                {!fw.available && (
-                  <Tooltip for={`${fw.id}-logo`}>Coming soon</Tooltip>
-                )}
                 <img
                   id={`${fw.id}-logo`}
                   src={fw.src}
                   alt={fw.alt}
                   className="ecosystem__logo"
-                  style={
-                    !fw.available
-                      ? { filter: 'grayscale(1)', opacity: 0.5 }
-                      : undefined
-                  }
                 />
               </span>
             ))}

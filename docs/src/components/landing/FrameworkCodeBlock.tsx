@@ -7,8 +7,7 @@ import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
 import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';
 import angularLogo from '@/assets/angular-logo.svg';
-import svelteLogo from '@/assets/svelte-logo.svg';
-import { Badge } from '../ui/Badge/Badge';
+import nextjsLogo from '@/assets/nextjs-logo.svg';
 
 interface FrameworkSnippet {
   code: string;
@@ -20,6 +19,7 @@ interface FrameworkCodeBlockProps {
     react: FrameworkSnippet;
     vue: FrameworkSnippet;
     angular: FrameworkSnippet;
+    nextjs: FrameworkSnippet;
   };
 }
 
@@ -33,7 +33,12 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
         active={framework}
         onTabShow={(e: CustomEvent) => {
           const name = e.detail.name;
-          if (name === 'react' || name === 'vue' || name === 'angular') {
+          if (
+            name === 'react' ||
+            name === 'vue' ||
+            name === 'angular' ||
+            name === 'nextjs'
+          ) {
             setFramework(name);
           }
         }}
@@ -68,20 +73,14 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
             Angular
           </span>
         </Tab>
-        <Tab panel="svelte" disabled>
+        <Tab panel="nextjs">
           <span className="wa-span-grid wa-justify-content-center wa-align-items-center wa-gap-xs">
             <img
-              src={svelteLogo}
-              alt="Svelte logo"
-              style={{
-                width: '16px',
-                height: '16px',
-              }}
+              src={nextjsLogo}
+              alt="Next.js logo"
+              style={{ width: '16px', height: '16px' }}
             />
-            Svelte
-            <Badge appearance="outlined" variant="neutral" pill>
-              Coming soon
-            </Badge>
+            Next.js
           </span>
         </Tab>
 
@@ -93,6 +92,9 @@ export function FrameworkCodeBlock({ snippets }: FrameworkCodeBlockProps) {
         </TabPanel>
         <TabPanel name="angular" style={{ '--padding': '0' }}>
           <CodePane snippet={snippets.angular} />
+        </TabPanel>
+        <TabPanel name="nextjs" style={{ '--padding': '0' }}>
+          <CodePane snippet={snippets.nextjs} />
         </TabPanel>
       </TabGroup>
     </Card>

@@ -1,6 +1,6 @@
 # Kigumi CLI - AI Agent Guide
 
-> **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Angular wrappers around Web Awesome components.
+> **shadcn/ui for Web Awesome** - Template-based CLI for React/Vue/Angular/Next.js wrappers around Web Awesome components.
 
 **Version**: 0.22.0 | **Stack**: TypeScript, Commander, Zod
 

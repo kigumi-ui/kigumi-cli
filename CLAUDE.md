@@ -1,6 +1,6 @@
 # Kigumi CLI
 
-> **shadcn/ui for Web Awesome** — Template-based CLI that generates React/Vue/Svelte/Angular wrappers around Web Awesome web components.
+> **shadcn/ui for Web Awesome** — Template-based CLI that generates React/Vue/Angular/Next.js wrappers around Web Awesome web components.
 
 ## Agent Instructions
 

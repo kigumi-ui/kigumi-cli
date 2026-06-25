@@ -24,10 +24,10 @@ export function GettingStarted() {
               </h3>
             </div>
             <p className="wa-caption-m">
-              Set up Kigumi in your React, Vue, or Angular project. Choose your
-              framework and optionally add your Web Awesome Pro token. If you
-              have a Pro token, add it to <code>.env</code> before init or use{' '}
-              <code>npx kigumi init --token YOUR_TOKEN</code>. See{' '}
+              Set up Kigumi in your React, Vue, Angular, or Next.js project.
+              Choose your framework and optionally add your Web Awesome Pro
+              token. If you have a Pro token, add it to <code>.env</code> before
+              init or use <code>npx kigumi init --token YOUR_TOKEN</code>. See{' '}
               <a href="/#faq">FAQ</a> for 401 errors.
             </p>
             <Card appearance="outlined" style={{ '--spacing': '0' }}>
@@ -85,7 +85,8 @@ export function GettingStarted() {
             </h4>
             <p className="wa-caption-m">
               Install Kigumi skills for AI assistants to convert Web Awesome
-              HTML to React, Vue, or Angular components and customize themes.
+              HTML to React, Vue, Angular, or Next.js components and customize
+              themes.
             </p>
             <pre>
               <code>npx skills add https://kigumi.style/skills/kigumi</code>
@@ -182,6 +183,16 @@ export function GettingStarted() {
                   code: "import '@/lib/kigumi';",
                   filename: 'src/main.ts',
                 },
+                nextjs: {
+                  code: `'use client';
+
+import '@/lib/kigumi';
+
+export function KigumiProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}`,
+                  filename: 'src/app/providers.tsx',
+                },
               }}
             />
           </div>
@@ -196,7 +207,8 @@ export function GettingStarted() {
             </div>
 
             <p className="wa-caption-m">
-              Import and use components in your React, Vue, or Angular code:
+              Import and use components in your React, Vue, Angular, or Next.js
+              code:
             </p>
 
             <FrameworkCodeBlock
@@ -275,6 +287,35 @@ export class LoginFormComponent {
   }
 }`,
                   filename: 'src/app/login-form.component.ts',
+                },
+                nextjs: {
+                  code: `'use client';
+
+import { useState } from 'react';
+import { Button, Input } from '@/components/ui';
+
+export default function LoginForm() {
+  const [email, setEmail] = useState('');
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      console.log('Email:', email);
+    }}>
+      <Input
+        type="email"
+        label="Email"
+        value={email}
+        onInput={(e) => setEmail(e.target.value)}
+        required
+      />
+      <Button type="submit" variant="brand">
+        Sign In
+      </Button>
+    </form>
+  );
+}`,
+                  filename: 'app/components/LoginForm.tsx',
                 },
               }}
             />

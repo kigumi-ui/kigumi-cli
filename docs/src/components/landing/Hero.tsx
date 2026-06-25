@@ -26,7 +26,7 @@ export function Hero() {
               Components that outlive your framework choice
             </h1>
             <h2 className="wa-caption-xl hero__subheading">
-              Generate ready-to-use React, Vue, and Angular components.
+              Generate ready-to-use React, Vue, Angular, and Next.js components.
               Accessible, themeable, and fully yours.
             </h2>
             <div className="wa-cluster">
@@ -57,7 +57,7 @@ export function Hero() {
         <div className="hero__visual">
           <img
             src={stacksImg}
-            alt="React, Vue, Angular, Svelte framework logos stacked"
+            alt="React, Vue, Angular, Next.js framework logos stacked"
             className="hero__stacks-img"
           />
         </div>

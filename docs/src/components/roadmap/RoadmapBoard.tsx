@@ -34,11 +34,6 @@ const columns: { status: Status; label: string; icon: string }[] = [
 const items: Record<Status, RoadmapItem[]> = {
   exploring: [
     {
-      title: 'Svelte framework support',
-      description: 'Generate Svelte wrapper components with proper bindings.',
-      category: 'frameworks',
-    },
-    {
       title: 'Component playground',
       description:
         'Interactive playground for trying components in the browser.',
@@ -73,7 +68,7 @@ const items: Record<Status, RoadmapItem[]> = {
     {
       title: 'Framework migration',
       description:
-        'Move a project between React, Vue, Angular (or future Svelte) preserving all config and customizations.',
+        'Move a project between React, Vue, Angular, and Next.js preserving all config and customizations.',
       category: 'frameworks',
     },
     {

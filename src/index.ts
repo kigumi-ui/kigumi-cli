@@ -64,7 +64,10 @@ program
 program
   .command('init')
   .description('Initialize kigumi in your project')
-  .option('--framework <framework>', 'Framework (react, vue)')
+  .option(
+    '--framework <framework>',
+    'Framework (react, vue, or angular; Next.js is auto-detected and uses react)'
+  )
   .option('--typescript', 'Use TypeScript')
   .option('--no-typescript', 'Use JavaScript')
   .option('--theme <theme>', 'Theme name')

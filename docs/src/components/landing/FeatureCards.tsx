@@ -5,7 +5,7 @@ const features = [
     icon: 'globe',
     title: 'Framework-Agnostic',
     description:
-      'Build your design system once. Use it in React, Vue, and Angular without maintaining separate libraries.',
+      'Build your design system once. Use it in React, Vue, Angular, and Next.js without maintaining separate libraries.',
     url: 'https://docs.kigumi.style/?path=/docs/general-getting-started--docs',
   },
   {

@@ -1,12 +1,17 @@
 import { useSyncExternalStore } from 'react';
 
-type Framework = 'react' | 'vue' | 'angular';
+type Framework = 'react' | 'vue' | 'angular' | 'nextjs';
 
 let current: Framework = 'react';
 
 try {
   const stored = localStorage.getItem('kigumi-docs-fw');
-  if (stored === 'react' || stored === 'vue' || stored === 'angular') {
+  if (
+    stored === 'react' ||
+    stored === 'vue' ||
+    stored === 'angular' ||
+    stored === 'nextjs'
+  ) {
     current = stored;
   }
 } catch {
