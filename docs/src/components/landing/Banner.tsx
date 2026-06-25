@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, Icon } from '@/components/ui';
 
-const BANNER_STORAGE_KEY = 'banner-20260320-dismissed';
+const BANNER_STORAGE_KEY = 'banner-20260626-dismissed';
 
 export const Banner = () => {
   const [isDismissed, setIsDismissed] = useState(() => {
