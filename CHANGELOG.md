@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2026-06-25
+
+### Added
+
+- **XS/XL and short-form sizes for form controls.** The 18 form controls that expose a `size` prop (Button, Callout, Checkbox, ColorPicker, Combobox, Dropdown, FileInput, Input, NumberInput, Radio, RadioGroup, Rating, Select, Slider, Switch, Tag, Textarea, ToastItem) now accept `xs`, `s`, `m`, `l`, and `xl` in addition to `small`, `medium`, and `large`, mirroring Web Awesome 3.6.0. `medium` remains the default.
+- **`onBeforeinput` event on NumberInput.** Forwards Web Awesome 3.6.0's new `beforeinput` event; it can be cancelled with `event.preventDefault()` to block the value change.
+- **Enum prop-value drift detection in `validate:cem-sync`.** The gate now diffs each registry enum `prop.values` against the live `custom-elements.json` attribute type (which the generated metadata does not carry). Registry values Web Awesome no longer accepts fail the build; newly-added Web Awesome values not yet surfaced are reported as warnings — closing the gap that let the 3.6.0 size widening pass silently.
+
+### Changed
+
+- **`wa-dropdown-item` `variant` corrected to match Web Awesome.** The accepted values are now `default` and `danger` (default `default`); the previously advertised `neutral` was never accepted by Web Awesome and has been removed.
+- **`wa-scroller` `orientation` corrected to match Web Awesome.** The accepted values are now `horizontal` and `vertical` (default `horizontal`); the previously advertised `both` was never accepted by Web Awesome and has been removed.
+- **Web Awesome upgraded from 3.5.0 to 3.6.0.** A non-breaking minor: no components were added or removed. The dependency is exact-pinned (free `@awesome.me/webawesome` and Pro `@awesome.me/webawesome-pro`), and `kigumi doctor` now flags `3.5.0` projects as upgradable.
+
+### Fixed
+
+- **CEM resolution now honours the pinned Web Awesome version.** `scripts/find-cem.ts` (and the duplicate resolver in `scripts/generate-skill-references.ts`) selected the highest `@awesome.me/webawesome-pro` version present in the pnpm store rather than the version pinned in `docs/package.json`. A stale higher version left in the store could silently contaminate generated metadata. Resolution now matches the pinned version exactly and only falls back to highest-wins when no pin is resolvable.
+- **The `validate:cem-sync` drift guard now enforces the two reconciled enums.** With `dropdown-item.variant` and `scroller.orientation` corrected, their entries were removed from `REGISTRY_VALUE_ALLOWLIST`, so any future regression on these values fails the build instead of being downgraded to a warning.
+
 ## [0.21.0] - 2026-06-21
 
 ### Added
