@@ -162,7 +162,7 @@ If the feature needs to be reverted:
 
 After implementation is complete:
 
-- [ ] {Follow-up tasks, e.g., "Add Svelte support in a future iteration"}
+- [ ] {Follow-up tasks, e.g., "Add Solid.js support in a future iteration"}
 - [ ] {Related features that are now unblocked}
 - [ ] Mark SPEC.md status as "Implemented"
 ```

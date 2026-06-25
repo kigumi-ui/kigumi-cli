@@ -69,7 +69,7 @@ A new command, subcommand, or significant flag addition.
 
 Adding or significantly improving support for a framework target.
 
-**Examples:** Angular support, Svelte support, Solid support, improving Vue template generation
+**Examples:** Solid support, Qwik support, improving Vue template generation
 
 **Discovery questions to ask:**
 

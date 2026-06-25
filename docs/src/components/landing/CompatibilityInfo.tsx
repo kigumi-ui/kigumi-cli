@@ -1,8 +1,7 @@
-import { Tooltip } from '@/components/ui';
 import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';
 import angularLogo from '@/assets/angular-logo.svg';
-import svelteLogo from '@/assets/svelte-logo.svg';
+import nextjsLogo from '@/assets/nextjs-logo.svg';
 import vitejsLogo from '@/assets/vitejs-logo.svg';
 
 export const CompatibilityInfo = () => {
@@ -34,17 +33,11 @@ export const CompatibilityInfo = () => {
           alt="Angular"
           style={{ width: '24px', height: '24px' }}
         />
-        <Tooltip for="svelte-logo">Coming soon</Tooltip>
         <img
-          id="svelte-logo"
-          src={svelteLogo}
-          alt="Svelte"
-          style={{
-            width: '24px',
-            height: '24px',
-            filter: 'grayscale(1)',
-            opacity: 0.5,
-          }}
+          id="nextjs-logo"
+          src={nextjsLogo}
+          alt="Next.js"
+          style={{ width: '24px', height: '24px' }}
         />
       </span>
     </div>

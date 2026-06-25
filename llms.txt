@@ -1,17 +1,17 @@
 # Kigumi
 
-> shadcn/ui for Web Awesome. Framework-specific component wrappers for React and Vue. Version 0.13.0.
+> shadcn/ui for Web Awesome. Framework-specific component wrappers for React, Vue, Angular, and Next.js. Version 0.13.0.
 
-Kigumi generates React and Vue wrapper components around Web Awesome web components. Components are copied into your project (not imported from a package), giving you full ownership and customization control.
+Kigumi generates React, Vue, Angular, and Next.js wrapper components around Web Awesome web components. Components are copied into your project (not imported from a package), giving you full ownership and customization control.
 
-Web Awesome's own llms.txt (at node_modules/@awesome.me/webawesome-pro/dist/llms.txt) documents the raw web component API. This file documents the Kigumi application layer: React/Vue wrapper APIs, composition patterns, layout utilities, state management, and accessibility guidance.
+Web Awesome's own llms.txt (at node_modules/@awesome.me/webawesome-pro/dist/llms.txt) documents the raw web component API. This file documents the Kigumi application layer: React/Vue/Angular/Next.js wrapper APIs, composition patterns, layout utilities, state management, and accessibility guidance.
 
 ## Project Detection
 
 A Kigumi project has a `kigumi.config.json` in the project root.
 
 Read it to determine:
-- `framework`: "react" or "vue"
+- `framework`: "react", "vue", or "angular" (Next.js projects use "react")
 - `typescript`: true or false
 - `componentsDir`: where components live (default: "src/components/ui")
 - `theme.selected`: active theme name
@@ -74,8 +74,9 @@ Pro-only components: Page, Chart, BarChart, LineChart, BubbleChart, DoughnutChar
 
 For deeper AI-assisted workflows, install Kigumi agent skills:
 
-- **kigumi-react**: Convert Web Awesome HTML to Kigumi React components
+- **kigumi-react**: Convert Web Awesome HTML to Kigumi React components (also used for Next.js projects)
 - **kigumi-vue**: Convert Web Awesome HTML to Kigumi Vue components
+- **kigumi-angular**: Convert Web Awesome HTML to Kigumi Angular components
 - **kigumi-theme**: Customize themes, CSS variables, design tokens, dark mode
 - **kigumi-compose-form**: Build complete forms with validation and error handling
 - **kigumi-compose-layout**: Build page layouts, dashboards, app shells
@@ -2012,7 +2013,7 @@ npx kigumi init [options]
 
 | Flag | Description |
 |------|-------------|
-| `--framework <name>` | Framework (react, vue) |
+| `--framework <name>` | Framework (react, vue, or angular; Next.js is auto-detected and uses react) |
 | `--theme <name>` | Theme preset |
 | `--palette <name>` | Color palette |
 | `--brand <color>` | Brand color |

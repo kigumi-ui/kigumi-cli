@@ -301,7 +301,8 @@ import { IconComponent } from '@/components/ui/Icon/icon.component';
             Build faster with Kigumi
           </h1>
           <p class="wa-body-l" style="color: var(--wa-color-text-quiet)">
-            Ready-made Web Awesome components for React, Vue, and Angular.
+            Ready-made Web Awesome components for React, Vue, Angular, and
+            Next.js.
           </p>
           <div class="wa-cluster wa-gap-s">
             <k-button variant="brand" size="large">Get Started</k-button>

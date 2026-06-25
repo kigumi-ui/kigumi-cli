@@ -3,7 +3,7 @@ name: kigumi-cross-framework
 description: >
   Convert Kigumi components from one framework to another (React <-> Vue
   <-> Angular). Use whenever files appear in `.kigumi/foreign/<slug>/`,
-  whenever the user asks to convert a React/Vue/Angular component to a
+  whenever the user asks to convert a React/Vue/Angular/Next.js component to a
   different framework, whenever the kigumi CLI prints a "convert with
   kigumi-cross-framework skill" hand-off message, or whenever a project
   needs to consume a community registry component built for a different
@@ -29,7 +29,7 @@ Activate this skill when any of the following are true:
 
 - Files exist at `.kigumi/foreign/<slug>/` (placed there by `kigumi add --cross-framework`)
 - The user pastes the canonical hand-off prompt: `Convert .kigumi/foreign/<slug>/ to <target> using the kigumi-cross-framework skill`
-- The user asks to convert a React/Vue/Angular component to a different framework
+- The user asks to convert a React/Vue/Angular/Next.js component to a different framework
 - The user wants to consume a community registry component whose source framework does not match their project
 
 ## Architecture (do not duplicate target conventions)

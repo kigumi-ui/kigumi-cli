@@ -2,7 +2,7 @@
 
 > Build framework-agnostic UIs with ready-made web components. Same components, any stack.
 
-ℹ️ Available for React and Vue. Angular and Svelte are coming soon.
+ℹ️ Available for React, Vue, Angular, and Next.js.
 
 ## Quick Start
 

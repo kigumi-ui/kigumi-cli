@@ -33,7 +33,7 @@ Before writing anything, understand the feature. This phase is interactive — a
 
 Read `references/feature-types.md` to determine which category applies. The four types are:
 
-- **Component** — A new Web Awesome wrapper (React, Vue, eventually Angular/Svelte)
+- **Component** — A new Web Awesome wrapper (React, Vue, Angular, Next.js)
 - **CLI** — A new command, subcommand, or flag
 - **Build/Infra** — Changes to the build pipeline, validation scripts, or dev tooling
 - **Framework** — Adding or improving support for a framework target
