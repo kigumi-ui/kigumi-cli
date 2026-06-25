@@ -15,7 +15,7 @@
  */
 
 import { mkdir, writeFile, readFile, readdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 import { toKebabCase } from '../src/utils/naming.js';
@@ -198,6 +198,49 @@ function formatMethodParams(
 // ---------------------------------------------------------------------------
 
 /**
+ * Resolve the Web Awesome Pro version pinned in `<root>/docs/package.json`.
+ * Returns null when unreadable, in which case the caller falls back to
+ * "highest installed version wins". Mirrors find-cem.ts (finding F-152).
+ */
+function resolvePinnedProVersion(root: string): string | null {
+  try {
+    const pkg = JSON.parse(
+      readFileSync(join(root, 'docs', 'package.json'), 'utf-8')
+    );
+    const spec: unknown =
+      pkg?.dependencies?.['@awesome.me/webawesome-pro'] ??
+      pkg?.devDependencies?.['@awesome.me/webawesome-pro'];
+    if (typeof spec !== 'string') return null;
+    const version = spec.replace(/^[\s^~>=<]+/, '').trim();
+    return version || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Order pnpm-store dirs to probe for the Pro CEM, preferring the pinned version
+ * over a stale higher one left in the store (finding F-152).
+ */
+function selectProStoreDirs(
+  storeDirs: string[],
+  pinnedVersion: string | null
+): string[] {
+  const prefix = '@awesome.me+webawesome-pro@';
+  const proDirs = storeDirs.filter((d) => d.startsWith(prefix));
+
+  if (pinnedVersion) {
+    const exact = `${prefix}${pinnedVersion}`;
+    const pinned = proDirs.filter(
+      (d) => d === exact || d.startsWith(`${exact}_`)
+    );
+    if (pinned.length > 0) return pinned;
+  }
+
+  return proDirs.sort().reverse();
+}
+
+/**
  * Find custom-elements.json in node_modules (supports pnpm hoisting).
  * Searches: docs/node_modules, root node_modules. When running inside a
  * git worktree, also searches the main worktree's node_modules.
@@ -221,6 +264,7 @@ async function findCustomElementsJson(): Promise<string | null> {
   }
 
   for (const root of roots) {
+    const pinnedVersion = resolvePinnedProVersion(root);
     const searchPaths = [
       join(root, 'docs', 'node_modules', '.pnpm'),
       join(root, 'node_modules', '.pnpm'),
@@ -229,10 +273,7 @@ async function findCustomElementsJson(): Promise<string | null> {
     for (const pnpmPath of searchPaths) {
       if (!existsSync(pnpmPath)) continue;
       const dirs = await readdir(pnpmPath);
-      const webAwesomeDirs = dirs
-        .filter((d) => d.startsWith('@awesome.me+webawesome-pro@'))
-        .sort()
-        .reverse();
+      const webAwesomeDirs = selectProStoreDirs(dirs, pinnedVersion);
 
       for (const dir of webAwesomeDirs) {
         const jsonPath = join(

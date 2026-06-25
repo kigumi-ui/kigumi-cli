@@ -57,7 +57,7 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
   /** Draws the item in a loading state */
   @Input() loading?: boolean;
   /** The dropdown item variant */
-  @Input() variant?: 'neutral' | 'danger';
+  @Input() variant?: 'default' | 'danger';
 
   @Output() blur = new EventEmitter<CustomEvent>();
   @Output() focus = new EventEmitter<FocusEvent>();
