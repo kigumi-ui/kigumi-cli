@@ -58,6 +58,41 @@ const BAD_VERSION_FIXTURE = `# Changelog
 - broken header
 `;
 
+// Real-world shape produced by @changesets/cli/changelog when several
+// changesets are released together and each summary LEADS with a category
+// header: the short commit hash sits on the SAME line as the header,
+// e.g. "- 91101c4: ### Changed". Regression fixture for the bug where every
+// changeset's leading category section was dropped/mislabelled.
+const MULTI_CHANGESET_HASH_FIXTURE = `# Changelog
+
+## 0.22.0
+
+### Minor Changes
+
+- 91101c4: ### Changed
+
+  - **Enum A corrected.**
+  - **Enum B corrected.**
+
+  ### Fixed
+
+  - **CEM resolution fix.**
+
+- 5a3a665: ### Changed
+
+  - **Web Awesome upgraded to 3.6.0.**
+
+  ### Added
+
+  - **New form-control sizes.**
+
+## [0.21.0] - 2026-06-21
+
+### Added
+
+- Prior entry kept verbatim.
+`;
+
 describe('rewriteChangelog', () => {
   it('reformats a fresh changesets entry to Keep-a-Changelog', () => {
     expect(rewriteChangelog(CHANGELOG_FIXTURE, TODAY)).toMatchSnapshot();
@@ -73,6 +108,31 @@ describe('rewriteChangelog', () => {
     expect(() => rewriteChangelog(BAD_VERSION_FIXTURE, TODAY)).toThrow(
       /Could not parse version/
     );
+  });
+
+  it('preserves leading category sections when the commit hash shares the header line', () => {
+    const result = rewriteChangelog(MULTI_CHANGESET_HASH_FIXTURE, '2026-06-25');
+
+    // No malformed category-header-as-bullet survives.
+    expect(result).not.toMatch(/^- ###/m);
+    // Every changeset's leading "### Changed" section is kept and merged.
+    expect(result).toContain('Enum A corrected.');
+    expect(result).toContain('Enum B corrected.');
+    expect(result).toContain('Web Awesome upgraded to 3.6.0.');
+    // Sections from non-leading positions are still grouped correctly.
+    expect(result).toContain('New form-control sizes.');
+    expect(result).toContain('CEM resolution fix.');
+    // Keep-a-Changelog category order: Added before Changed before Fixed.
+    const added = result.indexOf('### Added');
+    const changed = result.indexOf('### Changed');
+    const fixed = result.indexOf('### Fixed');
+    expect(added).toBeGreaterThan(-1);
+    expect(changed).toBeGreaterThan(added);
+    expect(fixed).toBeGreaterThan(changed);
+    // The Changed bucket holds all three changed entries, not the Fixed bucket.
+    const changedBlock = result.slice(changed, fixed);
+    expect(changedBlock).toContain('Enum A corrected.');
+    expect(changedBlock).toContain('Web Awesome upgraded to 3.6.0.');
   });
 });
 
