@@ -28,16 +28,16 @@ export const Banner = () => {
           New framework
         </Badge>
         <span>
-          <strong>Angular</strong> <Icon name="angular" family="brands" /> is
-          now supported. Use <code>npx kigumi upgrade</code> to install the
-          latest version or try the{' '}
+          <strong>Next.js</strong> is now supported. Use{' '}
+          <code>npx kigumi upgrade</code> to install the latest version or try
+          the{' '}
           <a
-            href="https://github.com/kigumi-ui/kigumi-angular-starter"
+            href="https://github.com/kigumi-ui/kigumi-next-starter"
             target="_blank"
             className="wa-text-link"
             rel="noopener noreferrer"
           >
-            Angular starter
+            Next.js starter
           </a>{' '}
           template.
         </span>
