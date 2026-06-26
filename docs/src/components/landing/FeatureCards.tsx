@@ -73,7 +73,7 @@ export function FeatureCards() {
         <div className="feature-cards__grid">
           {features.map((feature) => (
             <a href={feature.url} target="_blank" rel="noopener noreferrer">
-              <Card key={feature.title} appearance="outlined">
+              <Card key={feature.title} appearance="filled-outlined">
                 <div
                   className="wa-cluster wa-gap-s wa-align-items-center"
                   slot="header"

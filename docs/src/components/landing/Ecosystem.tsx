@@ -87,7 +87,7 @@ export function Ecosystem() {
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >
                     <Card
-                      appearance="outlined"
+                      appearance="filled-outlined"
                       className="ecosystem__starter-card"
                     >
                       <div className="wa-cluster wa-gap-s wa-align-items-center">
@@ -123,7 +123,7 @@ export function Ecosystem() {
                   rel="noopener noreferrer"
                 >
                   <Card
-                    appearance="outlined"
+                    appearance="filled-outlined"
                     className="ecosystem__starter-card"
                   >
                     <div className="wa-cluster wa-gap-s wa-align-items-center">
@@ -153,7 +153,7 @@ export function Ecosystem() {
                 </p>
               </div>
               <p className="wa-color-text-quiet">
-                <Card appearance="outlined" style={{ '--spacing': '0' }}>
+                <Card appearance="filled-outlined" style={{ '--spacing': '0' }}>
                   <div
                     className="wa-flank:end wa-align-items-center wa-gap-xs"
                     style={{ position: 'relative', overflow: 'auto' }}
