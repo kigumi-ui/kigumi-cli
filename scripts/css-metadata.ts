@@ -894,20 +894,8 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         description: 'The container that holds the error icon.',
       },
       {
-        name: 'tooltip__base',
-        description: "The tooltip's exported `base` part.",
-      },
-      {
-        name: 'tooltip__base__popup',
-        description: "The tooltip's exported `popup` part.",
-      },
-      {
-        name: 'tooltip__base__arrow',
-        description: "The tooltip's exported `arrow` part.",
-      },
-      {
-        name: 'tooltip__body',
-        description: "The tooltip's exported `body` part.",
+        name: 'feedback',
+        description: 'The internal `<wa-tooltip>` element.',
       },
     ],
     customProperties: [],
@@ -3225,6 +3213,121 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/tree-item',
+  },
+  video: {
+    parts: [
+      {
+        name: 'base',
+        description: "The component's base wrapper.",
+      },
+      {
+        name: 'video',
+        description: 'The video element.',
+      },
+      {
+        name: 'controls',
+        description: 'The controls container.',
+      },
+      {
+        name: 'controls-overlay',
+        description: 'The overlay wrapping timeline and controls bar.',
+      },
+      {
+        name: 'timeline',
+        description: 'The timeline/scrubber container.',
+      },
+      {
+        name: 'progress',
+        description: 'The progress bar.',
+      },
+      {
+        name: 'thumbnail',
+        description: 'The thumbnail preview.',
+      },
+      {
+        name: 'poster-overlay',
+        description: 'The poster image overlay.',
+      },
+      {
+        name: 'poster-play-button',
+        description: 'The play button on the poster overlay.',
+      },
+      {
+        name: 'video-title-overlay',
+        description: 'The title text overlay.',
+      },
+      {
+        name: 'caption-overlay',
+        description: 'The custom caption overlay container.',
+      },
+      {
+        name: 'caption',
+        description: 'The caption text element.',
+      },
+      {
+        name: 'timeline-track',
+        description: "The timeline slider's track (forwarded from wa-slider).",
+      },
+      {
+        name: 'timeline-indicator',
+        description:
+          "The timeline slider's filled indicator (forwarded from wa-slider).",
+      },
+      {
+        name: 'timeline-thumb',
+        description: "The timeline slider's thumb (forwarded from wa-slider).",
+      },
+    ],
+    customProperties: [
+      {
+        name: '--controls-color',
+        description:
+          'The text and icon color used throughout the controls overlay, title overlay, and mobile controls.',
+        default: 'white',
+      },
+      {
+        name: '--controls-background',
+        description: 'The background of the controls bar and mobile controls.',
+        default: 'var(--wa-color-surface-default)',
+      },
+      {
+        name: '--poster-play-button-background',
+        description:
+          'The background of the play button shown over the poster image. Also used to derive the hover state via color-mix().',
+        default: 'var(--wa-color-surface-default)',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/video',
+  },
+  'video-playlist': {
+    parts: [
+      {
+        name: 'base',
+        description: "The component's base wrapper.",
+      },
+      {
+        name: 'playlist',
+        description: 'The playlist sidebar container.',
+      },
+      {
+        name: 'playlist-item',
+        description: 'An individual playlist item button.',
+      },
+      {
+        name: 'playlist-thumbnail',
+        description: 'The thumbnail image within a playlist item.',
+      },
+      {
+        name: 'playlist-title',
+        description: 'The title text within a playlist item.',
+      },
+      {
+        name: 'playlist-duration',
+        description: 'The duration text within a playlist item.',
+      },
+    ],
+    customProperties: [],
+    docsUrl: 'https://webawesome.com/docs/components/video-playlist',
   },
   'zoomable-frame': {
     parts: [

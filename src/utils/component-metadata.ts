@@ -1634,27 +1634,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     ],
     methods: [],
   },
-  option: {
-    tagName: 'wa-option',
-    className: 'WaOption',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The option's label.",
-      },
-      {
-        name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed before the label.',
-      },
-      {
-        name: 'end',
-        description: 'An element, such as `<wa-icon>`, placed after the label.',
-      },
-    ],
-    methods: [],
-  },
   select: {
     tagName: 'wa-select',
     className: 'WaSelect',
@@ -1814,6 +1793,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
+  },
+  option: {
+    tagName: 'wa-option',
+    className: 'WaOption',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The option's label.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed before the label.',
+      },
+      {
+        name: 'end',
+        description: 'An element, such as `<wa-icon>`, placed after the label.',
+      },
+    ],
+    methods: [],
   },
   popover: {
     tagName: 'wa-popover',
@@ -3230,6 +3230,206 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'options',
             type: 'ToastCreateOptions',
+          },
+        ],
+      },
+    ],
+  },
+  video: {
+    tagName: 'wa-video',
+    className: 'WaVideo',
+    events: [
+      {
+        name: 'play',
+        description: 'Emitted when playback begins.',
+        reactName: 'onPlay',
+        eventType: 'PlayEvent',
+      },
+      {
+        name: 'pause',
+        description: 'Emitted when playback stops.',
+        reactName: 'onPause',
+        eventType: 'PauseEvent',
+      },
+      {
+        name: 'timeupdate',
+        description: 'Emitted when the time changes.',
+        reactName: 'onTimeupdate',
+        eventType: 'TimeupdateEvent',
+      },
+      {
+        name: 'volumechange',
+        description: 'Emitted when the volume changes.',
+        reactName: 'onVolumechange',
+        eventType: 'VolumechangeEvent',
+      },
+      {
+        name: 'error',
+        description: 'Emitted when an error occurs while loading/playing.',
+        reactName: 'onError',
+        eventType: 'ErrorEvent',
+      },
+      {
+        name: 'ended',
+        description: 'Emitted when playback ends.',
+        reactName: 'onEnded',
+        eventType: 'EndedEvent',
+      },
+      {
+        name: 'loadedmetadata',
+        description: 'Emitted when metadata has been loaded.',
+        reactName: 'onLoadedmetadata',
+        eventType: 'LoadedmetadataEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description:
+          'The default slot. Place `<source>` and `<track>` elements for a single video. Alternatively, use the `src` attribute for a single source.',
+      },
+      {
+        name: 'controls-start',
+        description:
+          'Content inserted at the start of the controls bar (before play/pause). Used by `<wa-video-playlist>` to inject the prev button.',
+      },
+      {
+        name: 'controls-after-play',
+        description:
+          'Content inserted immediately after the play/pause button. Used by `<wa-video-playlist>` to inject the next button.',
+      },
+      {
+        name: 'poster-icon',
+        description:
+          'Icon shown on the poster play button. Defaults to a play-circle icon.',
+      },
+      {
+        name: 'play-icon',
+        description: 'Icon shown on the play/pause button when paused.',
+      },
+      {
+        name: 'pause-icon',
+        description: 'Icon shown on the play/pause button when playing.',
+      },
+      {
+        name: 'volume-icon',
+        description:
+          'Icon shown on the volume/mute button when audio is active.',
+      },
+      {
+        name: 'mute-icon',
+        description:
+          'Icon shown on the volume/mute button when muted or volume is 0.',
+      },
+      {
+        name: 'fullscreen-icon',
+        description:
+          'Icon shown on the fullscreen button when not in fullscreen.',
+      },
+      {
+        name: 'exit-fullscreen-icon',
+        description: 'Icon shown on the fullscreen button when in fullscreen.',
+      },
+    ],
+    methods: [
+      {
+        name: 'play',
+        description: 'Starts playback.',
+      },
+      {
+        name: 'pause',
+        description: 'Pauses playback.',
+      },
+      {
+        name: 'togglePlay',
+        description: 'Toggles between play and pause.',
+      },
+      {
+        name: 'toggleMute',
+        description: 'Toggles the muted state.',
+      },
+      {
+        name: 'seek',
+        description: 'Seeks to a specific time in the video.',
+        parameters: [
+          {
+            name: 'time',
+            type: 'number',
+          },
+        ],
+      },
+      {
+        name: 'setVolume',
+        description: 'Sets the volume level.',
+        parameters: [
+          {
+            name: 'volume',
+            type: 'number',
+          },
+        ],
+      },
+      {
+        name: 'setPlaybackRate',
+        description: 'Sets the playback rate (speed).',
+        parameters: [
+          {
+            name: 'rate',
+            type: 'number',
+          },
+        ],
+      },
+      {
+        name: 'requestFullscreen',
+        description: 'Enters fullscreen mode.',
+      },
+      {
+        name: 'exitFullscreen',
+        description: 'Exits fullscreen mode.',
+      },
+      {
+        name: 'getVideoElement',
+        description: 'Gets the native video element.',
+      },
+      {
+        name: 'getState',
+        description: 'Gets the current playback state.',
+      },
+    ],
+  },
+  'video-playlist': {
+    tagName: 'wa-video-playlist',
+    className: 'WaVideoPlaylist',
+    events: [
+      {
+        name: 'wa-video-change',
+        description: 'Emitted when the active video changes.',
+        reactName: 'onVideoChange',
+        eventType: 'WaVideoChangeEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description:
+          'The default slot. Place `<wa-video>` elements to create a playlist.',
+      },
+    ],
+    methods: [
+      {
+        name: 'next',
+        description: 'Plays the next video in the playlist.',
+      },
+      {
+        name: 'previous',
+        description: 'Plays the previous video in the playlist.',
+      },
+      {
+        name: 'goTo',
+        description: 'Jumps to the video at the given index.',
+        parameters: [
+          {
+            name: 'index',
+            type: 'number',
           },
         ],
       },

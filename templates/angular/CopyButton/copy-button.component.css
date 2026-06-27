@@ -7,10 +7,7 @@
  * copy-icon - The container that holds the copy icon.
  * success-icon - The container that holds the success icon.
  * error-icon - The container that holds the error icon.
- * tooltip__base - The tooltip's exported `base` part.
- * tooltip__base__popup - The tooltip's exported `popup` part.
- * tooltip__base__arrow - The tooltip's exported `arrow` part.
- * tooltip__body - The tooltip's exported `body` part.
+ * feedback - The internal `<wa-tooltip>` element.
  */
 :host {
   display: contents;
