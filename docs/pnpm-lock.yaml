@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@awesome.me/webawesome-pro':
-        specifier: 3.6.0
-        version: 3.6.0(@floating-ui/utils@0.2.10)(@types/react@19.2.14)
+        specifier: 3.7.0
+        version: 3.7.0(@floating-ui/utils@0.2.10)(@types/react@19.2.14)
       '@storybook/addon-themes':
         specifier: ^10.3.4
         version: 10.3.4(storybook@10.3.4(@testing-library/dom@10.4.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
@@ -141,8 +141,8 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@awesome.me/webawesome-pro@3.6.0':
-    resolution: {integrity: sha512-kz8liE7pv2HdncRFFtNNlPuECrmrSFN7e2t6avK6n0W4nezKmAJxAOgP7flWlCukFHYIoIYlzy3UlRceao4EzA==}
+  '@awesome.me/webawesome-pro@3.7.0':
+    resolution: {integrity: sha512-wMAiyBCrYODJHb9KOb+XUaQuoCpdVB+wIW52N3NMCCM3LTdKDT26sp63m6LZHf5I+bEL8nvLlGHfnEEy5cHJ8g==}
     engines: {node: '>=14.17.0'}
 
   '@babel/code-frame@7.29.0':
@@ -2520,7 +2520,7 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@awesome.me/webawesome-pro@3.6.0(@floating-ui/utils@0.2.10)(@types/react@19.2.14)':
+  '@awesome.me/webawesome-pro@3.7.0(@floating-ui/utils@0.2.10)(@types/react@19.2.14)':
     dependencies:
       '@ctrl/tinycolor': 4.1.0
       '@floating-ui/dom': 1.7.5
