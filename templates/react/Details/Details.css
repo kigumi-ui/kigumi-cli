@@ -4,8 +4,8 @@
  *
  * CSS Custom Properties:
  * - --spacing: The amount of space around and between the details' content. Expects a single value.
- * - --show-duration: The show duration to use when applying built-in animation classes. (default: 200ms)
- * - --hide-duration: The hide duration to use when applying built-in animation classes. (default: 200ms)
+ * - --show-duration: The show duration to use when applying built-in animation classes. (default: var(--wa-transition-normal))
+ * - --hide-duration: The hide duration to use when applying built-in animation classes. (default: var(--wa-transition-normal))
  *
  * CSS Parts:
  * - base: The inner `<details>` element used to render the component. Styles you apply to the component are automatically applied to this part, so you usually don't need to deal with it unless you need to set the `display` property.

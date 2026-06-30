@@ -4601,6 +4601,321 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/toast-item/toast-item.js`,
     tier: 'pro',
   },
+  accordion: {
+    name: 'Accordion',
+    tagName: 'wa-accordion',
+    category: 'Organization',
+    description:
+      'Accordions group related disclosure panels and control how many can be open at once',
+    dependencies: ['accordion-item'],
+    files: {
+      react: ['components/Accordion.tsx', 'types/accordion.d.ts'],
+      vue: ['components/Accordion.vue'],
+      angular: ['components/Accordion/accordion.component.ts'],
+    },
+    props: [
+      {
+        name: 'mode',
+        type: 'string',
+        values: ['single', 'single-collapsible', 'multiple'],
+        default: 'multiple',
+        description:
+          'Controls how many items can be expanded at once. `single` keeps one open, `single-collapsible` allows all to be closed, `multiple` allows any number open.',
+      },
+      {
+        name: 'icon-placement',
+        type: 'string',
+        values: ['start', 'end'],
+        default: 'end',
+        description: 'Where the expand/collapse icon is placed on each item',
+      },
+      {
+        name: 'heading-level',
+        type: 'string',
+        default: '3',
+        description:
+          'The heading level applied to each item header for assistive technology',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['filled', 'outlined', 'filled-outlined', 'plain'],
+        default: 'outlined',
+        description: 'The visual style of the accordion',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/accordion/accordion.js`,
+    tier: 'free',
+  },
+  'accordion-item': {
+    name: 'AccordionItem',
+    tagName: 'wa-accordion-item',
+    category: 'Organization',
+    description:
+      'Accordion items are the individual disclosure panels placed inside an accordion',
+    dependencies: [],
+    files: {
+      react: ['components/AccordionItem.tsx', 'types/accordion-item.d.ts'],
+      vue: ['components/AccordionItem.vue'],
+      angular: ['components/AccordionItem/accordion-item.component.ts'],
+    },
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description:
+          'The header text. Use the `label` slot for markup-rich headers.',
+      },
+      {
+        name: 'expanded',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether the item is expanded',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether the item is disabled and cannot be toggled',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/accordion-item/accordion-item.js`,
+    tier: 'free',
+  },
+  'time-input': {
+    name: 'TimeInput',
+    tagName: 'wa-time-input',
+    category: 'Form Controls',
+    description: 'Time inputs collect a time of day from the user',
+    dependencies: [],
+    files: {
+      react: ['components/TimeInput.tsx', 'types/time-input.d.ts'],
+      vue: ['components/TimeInput.vue'],
+      angular: ['components/TimeInput/time-input.component.ts'],
+    },
+    props: [
+      {
+        name: 'name',
+        type: 'string',
+        default: "''",
+        description: 'The name of the control, submitted with form data',
+      },
+      {
+        name: 'value',
+        type: 'string',
+        description: 'The current value as a 24-hour `HH:mm:ss` string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether the control is disabled',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether a value is required before form submission',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether the control is read-only',
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
+        default: 'medium',
+        description: 'Controls the overall dimensions of the control',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['filled', 'outlined', 'filled-outlined'],
+        default: 'outlined',
+        description: 'The visual style of the control',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+        default: 'false',
+        description: 'Draws the control with rounded edges',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: 'The control label. Use the `label` slot for rich labels.',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+        default: "''",
+        description:
+          'Help text shown below the control. Use the `hint` slot for rich hints.',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+        default: 'false',
+        description: 'Shows a clear button when the control has a value',
+      },
+      {
+        name: 'with-now',
+        type: 'boolean',
+        default: 'false',
+        description: 'Shows a button that sets the value to the current time',
+      },
+      {
+        name: 'min',
+        type: 'string',
+        default: "''",
+        description: 'The earliest acceptable time',
+      },
+      {
+        name: 'max',
+        type: 'string',
+        default: "''",
+        description: 'The latest acceptable time',
+      },
+      {
+        name: 'step',
+        type: 'number',
+        default: '60',
+        description: 'The granularity of the value in seconds',
+      },
+      {
+        name: 'hour-format',
+        type: 'string',
+        values: ['auto', '12', '24'],
+        default: 'auto',
+        description:
+          'Whether to display a 12- or 24-hour clock. `auto` follows the locale.',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether the time picker dropdown is open',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+        values: [
+          'top',
+          'top-start',
+          'top-end',
+          'bottom',
+          'bottom-start',
+          'bottom-end',
+        ],
+        default: 'bottom-start',
+        description: 'The preferred placement of the dropdown',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/time-input/time-input.js`,
+    tier: 'free',
+  },
+  'known-date': {
+    name: 'KnownDate',
+    tagName: 'wa-known-date',
+    category: 'Form Controls',
+    description:
+      'Known dates collect a calendar date the user already knows, such as a birthday',
+    dependencies: [],
+    files: {
+      react: ['components/KnownDate.tsx', 'types/known-date.d.ts'],
+      vue: ['components/KnownDate.vue'],
+      angular: ['components/KnownDate/known-date.component.ts'],
+    },
+    props: [
+      {
+        name: 'name',
+        type: 'string',
+        default: "''",
+        description: 'The name of the control, submitted with form data',
+      },
+      {
+        name: 'value',
+        type: 'string',
+        description: 'The current value as a `YYYY-MM-DD` string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether the control is disabled',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether a value is required before form submission',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+        default: 'false',
+        description: 'Whether the control is read-only',
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
+        default: 'medium',
+        description: 'Controls the overall dimensions of the control',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['filled', 'outlined', 'filled-outlined'],
+        default: 'outlined',
+        description: 'The visual style of the control',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+        default: 'false',
+        description: 'Draws the control with rounded edges',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: 'The control label. Use the `label` slot for rich labels.',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+        default: "''",
+        description:
+          'Help text shown below the control. Use the `hint` slot for rich hints.',
+      },
+      {
+        name: 'min',
+        type: 'string',
+        default: "''",
+        description: 'The earliest acceptable date',
+      },
+      {
+        name: 'max',
+        type: 'string',
+        default: "''",
+        description: 'The latest acceptable date',
+      },
+      {
+        name: 'locale',
+        type: 'string',
+        default: "''",
+        description: 'The locale used to format and parse the date',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/known-date/known-date.js`,
+    tier: 'free',
+  },
 };
 
 /**

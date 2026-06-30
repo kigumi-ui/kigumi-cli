@@ -3,8 +3,8 @@
  * Documentation: https://webawesome.com/docs/components/tree-item
  *
  * CSS Custom Properties:
- * --show-duration - The animation duration when expanding tree items. (default: 200ms)
- * --hide-duration - The animation duration when collapsing tree items. (default: 200ms)
+ * --show-duration - The animation duration when expanding tree items. (default: var(--wa-transition-normal))
+ * --hide-duration - The animation duration when collapsing tree items. (default: var(--wa-transition-normal))
  *
  * CSS Parts:
  * base - The component's base wrapper.

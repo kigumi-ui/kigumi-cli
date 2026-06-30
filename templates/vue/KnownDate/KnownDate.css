@@ -1,0 +1,28 @@
+/**
+ * KnownDate Component Styles
+ * Documentation: https://webawesome.com/docs/components/known-date
+ *
+ * CSS Custom Properties:
+ * (No custom properties defined for this component)
+ *
+ * CSS Parts:
+ * - form-control: The form control's outer wrapper.
+ * - form-control-label: The wrapper inside the legend that styles the visible label text.
+ * - form-control-input: Alias on the fields row matching other form controls.
+ * - hint: The hint's wrapper.
+ * - label: Alias on the legend's inner label wrapper.
+ * - base: The component's outer wrapper (alias of the fields row).
+ * - fieldset: The `<fieldset>` element grouping the three fields (or a `role="group"` div).
+ * - legend: The `<legend>` element (when a label is present).
+ * - fields: The flex row holding the three field blocks.
+ * - field: Each field block (label + input).
+ * - field-day: Added to the day field block.
+ * - field-month: Added to the month field block.
+ * - field-year: Added to the year field block.
+ * - field-label: The text label above each field's input.
+ * - field-input: The native `<input>` inside a field.
+ * - error: The inline error message region. This is an intentional difference from `<wa-date-input>` and `<wa-time-input>`, which rely on the browser's native validation popup. Because this control is composed of three separate fields, an inline `role="alert"` region gives a single, predictable place to surface the validation message rather than anchoring a native popup on one of the three fields.
+ */
+.KnownDate {
+  /* Add your custom styles here */
+}
