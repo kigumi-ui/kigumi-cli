@@ -6,8 +6,8 @@
  * --spacing - The amount of space around and between the drawer's content.
  * --size - The preferred size of the drawer. This will be applied to the drawer's width or height depending on its `placement`. Note that the drawer will shrink to accommodate smaller screens.
  * --backdrop-filter - A filter to apply to the backdrop behind the drawer. (default: none)
- * --show-duration - The animation duration when showing the drawer. (default: 200ms)
- * --hide-duration - The animation duration when hiding the drawer. (default: 200ms)
+ * --show-duration - The animation duration when showing the drawer. (default: var(--wa-transition-normal))
+ * --hide-duration - The animation duration when hiding the drawer. (default: var(--wa-transition-normal))
  *
  * CSS Parts:
  * dialog - The drawer's internal `<dialog>` element.

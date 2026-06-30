@@ -217,10 +217,18 @@ describe('CSS_METADATA regressions — WA 3.x names, not Shoelace-era names', ()
 
   it('does NOT include --wa-* global tokens as per-component custom properties', () => {
     // The old hand-maintained CSS_METADATA leaked global tokens (--wa-spacing-*)
-    // into per-component scaffolds. Component-scoped props in CEM never start
-    // with `--wa-` — they're always short names like `--spacing`, `--width`.
+    // into per-component scaffolds. Component-scoped props in CEM are almost
+    // always short names like `--spacing`, `--width`.
+    //
+    // Known exception (WA 3.8.0): wa-accordion-item declares a genuinely
+    // component-scoped property using the `--wa-` prefix
+    // (`--wa-accordion-divider-color`, default var(--wa-color-surface-border)).
+    // It is a real themeable property in the CEM, not a leaked global token, so
+    // it is allowlisted here rather than stripped by the parser.
+    const ALLOWED_WA_PREFIXED_PROPS = new Set(['--wa-accordion-divider-color']);
     for (const [key, meta] of Object.entries(CSS_METADATA)) {
       for (const prop of meta.customProperties) {
+        if (ALLOWED_WA_PREFIXED_PROPS.has(prop.name)) continue;
         expect(
           prop.name.startsWith('--wa-'),
           `CSS_METADATA['${key}'] leaks a --wa-* global token as a component property: ${prop.name}`
@@ -266,6 +274,8 @@ describe('CSS_METADATA shape + content sanity', () => {
   it('dialog carries both parts and properties with defaults preserved', () => {
     // Dialog is the canonical "rich" component — parts for structural hooks,
     // custom properties for animation tuning with explicit defaults.
+    // WA 3.8.0 synced transition defaults onto the shared transition tokens,
+    // so --show-duration now defaults to var(--wa-transition-normal) (was 200ms).
     const dialog = CSS_METADATA['dialog'];
     expect(dialog.parts.map((p) => p.name)).toEqual(
       expect.arrayContaining(['dialog', 'header', 'title', 'body', 'footer'])
@@ -274,7 +284,7 @@ describe('CSS_METADATA shape + content sanity', () => {
       (p) => p.name === '--show-duration'
     );
     expect(showDuration).toBeDefined();
-    expect(showDuration?.default).toBe('200ms');
+    expect(showDuration?.default).toBe('var(--wa-transition-normal)');
   });
 });
 
@@ -291,6 +301,10 @@ const KNOWN_CSS_LESS_COMPONENTS = new Set([
   // Invisible utility components. Confirmed against custom-elements.json 3.5.0:
   // each declares zero cssParts and zero cssProperties.
   'animation',
+  // Container component (WA 3.8.0): wa-accordion declares zero cssParts and
+  // zero cssProperties of its own — the themeable CSS surface lives on
+  // wa-accordion-item (e.g. --wa-accordion-divider-color).
+  'accordion',
   'format-bytes',
   'format-date',
   'format-number',
@@ -418,8 +432,8 @@ describe('Generated CSS templates use CSS_METADATA consistently', () => {
       ).toMatch(/CSS Custom Properties:/);
       expect(
         content,
-        `${framework} Dialog.css is missing the "default: 200ms" annotation for --show-duration`
-      ).toMatch(/--show-duration.*default: 200ms/);
+        `${framework} Dialog.css is missing the "--show-duration" default annotation`
+      ).toMatch(/--show-duration.*default: var\(--wa-transition-normal\)/);
     }
   });
 

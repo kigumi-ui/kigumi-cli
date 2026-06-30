@@ -4,8 +4,8 @@
  *
  * CSS Custom Properties:
  * - --accent-width: The width of the accent line. Defaults to 4px.
- * - --show-duration: The animation duration when showing. Defaults to 200ms.
- * - --hide-duration: The animation duration when hiding. Defaults to 200ms.
+ * - --show-duration: The animation duration when showing. (default: var(--wa-transition-normal))
+ * - --hide-duration: The animation duration when hiding. (default: var(--wa-transition-normal))
  *
  * CSS Parts:
  * - toast-item: The toast item's main container.

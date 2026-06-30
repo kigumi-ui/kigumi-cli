@@ -257,7 +257,7 @@ What this enables:
 - **Pages Router CSS policy**: Next forbids global CSS imports anywhere other than `pages/_app.tsx`. Kigumi handles this at generation time by (a) omitting the `layers.css` import from the generated `lib/kigumi.ts` and (b) stripping the per-component `import './<Name>.css';` line from each generated wrapper. Both are unconditional when `detectNextRouter(cwd) === 'pages'`, and unchanged for App Router. Per-component stub CSS files are still emitted so users can add imports to `_app.tsx` if they want custom styles.
 - `generateGitIgnore` adds `.kigumi/cache/` in addition to `.kigumi/foreign/`. `.kigumi/snapshots/` stays tracked (three-way merge depends on it); `.npmrc` stays committable (registry URL only, no token).
 
-Do not add a `'next'` entry to the `framework` enum — duplicating templates under `templates/nextjs/` would force parallel maintenance of 75 components for no gain.
+Do not add a `'next'` entry to the `framework` enum — duplicating templates under `templates/nextjs/` would force parallel maintenance of 78 components for no gain.
 
 ---
 
@@ -411,7 +411,7 @@ flowchart TD
     end
 
     subgraph Utils["utils/"]
-        registry["registry.ts\n74 ComponentDefinitions\nprops, deps, files, importPath"]
+        registry["registry.ts\n78 ComponentDefinitions\nprops, deps, files, importPath"]
         template["template.ts\nmaterializeTemplate (read + tier swap)"]
         tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
@@ -450,9 +450,9 @@ flowchart TD
     end
 
     subgraph Templates["templates/"]
-        tpl_react["react/ — 74 components\n.tsx, .jsx\n.test.tsx, .test.jsx, .css"]
-        tpl_vue["vue/ — 74 components\n.vue, .js.vue\n.test.ts, .test.js, .css"]
-        tpl_angular["angular/ — 74 components\n.component.ts, .component.spec.ts, .component.css"]
+        tpl_react["react/ — 78 components\n.tsx, .jsx\n.test.tsx, .test.jsx, .css"]
+        tpl_vue["vue/ — 78 components\n.vue, .js.vue\n.test.ts, .test.js, .css"]
+        tpl_angular["angular/ — 78 components\n.component.ts, .component.spec.ts, .component.css"]
     end
 
     CLI --> Commands
@@ -1058,4 +1058,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-06-21
+**Maintained by:** AI Assistants | **Last Updated:** 2026-06-28 (Web Awesome 3.8.0; added accordion, accordion-item, time-input, known-date — 78 components)

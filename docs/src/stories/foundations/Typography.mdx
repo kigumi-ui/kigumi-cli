@@ -347,6 +347,63 @@ export const LinkSample = ({ token }) => (
               </div>
             ),
           },
+          {
+            cls: (
+              <code>.wa-text-uppercase / -lowercase / -capitalize</code>
+            ),
+            description:
+              'Transforms text case without changing the underlying content.',
+            preview: (
+              <div className="wa-cluster wa-gap-s">
+                <span className="wa-text-uppercase">uppercase</span>
+                <span className="wa-text-lowercase">LOWERCASE</span>
+                <span className="wa-text-capitalize">capitalize each word</span>
+              </div>
+            ),
+          },
+          {
+            cls: (
+              <code>.wa-text-start / -center / -end / -justify</code>
+            ),
+            description: 'Sets the text alignment of a block.',
+            preview: (
+              <div className="wa-stack wa-gap-3xs" style={{ width: '12rem' }}>
+                <div className="wa-text-start">Start</div>
+                <div className="wa-text-center">Center</div>
+                <div className="wa-text-end">End</div>
+              </div>
+            ),
+          },
+          {
+            cls: (
+              <code>
+                .wa-text-wrap / -nowrap / -balance / -pretty
+              </code>
+            ),
+            description:
+              'Controls how lines wrap. Use balance for headings and pretty for body copy.',
+            preview: (
+              <div
+                className="wa-text-balance"
+                style={{ maxWidth: '14rem' }}
+              >
+                A balanced heading wraps onto evenly distributed lines
+              </div>
+            ),
+          },
+          {
+            cls: <code>.wa-prose</code>,
+            description:
+              'Applies readable vertical rhythm and typography to a block of long-form content.',
+            preview: (
+              <div className="wa-prose" style={{ maxWidth: '16rem' }}>
+                <p style={{ margin: 0 }}>
+                  Prose styling tunes spacing and measure for readable
+                  long-form text.
+                </p>
+              </div>
+            ),
+          },
         ]}
       />
     </div>

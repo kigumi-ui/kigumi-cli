@@ -3,8 +3,8 @@
  * Documentation: https://webawesome.com/docs/components/select
  *
  * CSS Custom Properties:
- * - --show-duration: The duration of the show animation. (default: 100ms)
- * - --hide-duration: The duration of the hide animation. (default: 100ms)
+ * - --show-duration: The duration of the show animation. (default: var(--wa-transition-fast))
+ * - --hide-duration: The duration of the hide animation. (default: var(--wa-transition-fast))
  * - --tag-max-size: When using `multiple`, the max size of tags before their content is truncated. (default: 10ch)
  *
  * CSS Parts:

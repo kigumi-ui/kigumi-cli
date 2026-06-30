@@ -95,7 +95,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: '@awesome.me/webawesome/dist/components/button/button.js',
     tier: 'free',
   },
-  // ... 74 components
+  // ... 78 components
 };
 ```
 
@@ -432,4 +432,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-06-22 (validate:cem-sync gains enum prop-value drift detection)
+**Last Updated:** 2026-06-28 (Web Awesome 3.8.0; 78 components after adding accordion, accordion-item, time-input, known-date)

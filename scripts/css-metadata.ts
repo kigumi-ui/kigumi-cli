@@ -24,6 +24,68 @@ export interface ComponentCSSMetadata {
 }
 
 export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
+  'accordion-item': {
+    parts: [
+      {
+        name: 'base',
+        description: "The component's base wrapper.",
+      },
+      {
+        name: 'heading',
+        description:
+          'The heading element wrapping the trigger button. Omitted when `heading-level="none"`.',
+      },
+      {
+        name: 'button',
+        description: 'The trigger button that toggles the panel.',
+      },
+      {
+        name: 'label',
+        description: 'The container that wraps the label.',
+      },
+      {
+        name: 'icon',
+        description: 'The container that wraps the expand/collapse icon.',
+      },
+      {
+        name: 'panel',
+        description: "The panel that contains the item's content.",
+      },
+      {
+        name: 'content',
+        description: 'The content slot inside the panel.',
+      },
+    ],
+    customProperties: [
+      {
+        name: '--spacing',
+        description:
+          "The amount of space around and between the item's header and content.",
+        default: 'var(--wa-space-m)',
+      },
+      {
+        name: '--show-duration',
+        description: 'The duration of the expand animation.',
+        default: '200ms',
+      },
+      {
+        name: '--hide-duration',
+        description: 'The duration of the collapse animation.',
+        default: '200ms',
+      },
+      {
+        name: '--easing',
+        description: 'The easing of the expand/collapse animation.',
+        default: 'ease',
+      },
+      {
+        name: '--wa-accordion-divider-color',
+        description: 'The color of the divider between accordion items.',
+        default: 'var(--wa-color-surface-border)',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/accordion-item',
+  },
   'animated-image': {
     parts: [
       {
@@ -823,12 +885,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The duration of the show animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--hide-duration',
         description: 'The duration of the hide animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--tag-max-size',
@@ -901,6 +963,250 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     customProperties: [],
     docsUrl: 'https://webawesome.com/docs/components/copy-button',
   },
+  'date-input': {
+    parts: [
+      {
+        name: 'form-control',
+        description: 'The form control that wraps the label, input, and hint.',
+      },
+      {
+        name: 'form-control-label',
+        description: "The label's wrapper.",
+      },
+      {
+        name: 'form-control-input',
+        description: "The input's wrapper.",
+      },
+      {
+        name: 'hint',
+        description: "The hint's wrapper.",
+      },
+      {
+        name: 'base',
+        description: "The component's base wrapper.",
+      },
+      {
+        name: 'input-wrapper',
+        description:
+          'The container that wraps the start slot, segmented input, clear button, and expand button.',
+      },
+      {
+        name: 'start',
+        description: 'The container that wraps the `start` slot.',
+      },
+      {
+        name: 'end',
+        description: 'The container that wraps the `end` slot.',
+      },
+      {
+        name: 'input',
+        description: 'The segmented input group.',
+      },
+      {
+        name: 'segment',
+        description:
+          'Each editable segment (month/day/year spinbutton). Use `[part~="segment"]` to style all.',
+      },
+      {
+        name: 'segment-literal',
+        description: 'Inert literal text between segments (separators).',
+      },
+      {
+        name: 'range-separator',
+        description: 'The literal between the two groups in range mode.',
+      },
+      {
+        name: 'clear-button',
+        description: 'The clear button.',
+      },
+      {
+        name: 'expand-button',
+        description: 'The date picker toggle button.',
+      },
+      {
+        name: 'expand-icon',
+        description: 'The expand icon wrapper.',
+      },
+      {
+        name: 'popup',
+        description: 'The popup container.',
+      },
+      {
+        name: 'date-picker',
+        description: "The popup's `<wa-date-picker>` element.",
+      },
+    ],
+    customProperties: [
+      {
+        name: '--show-duration',
+        description: 'The duration of the show animation.',
+        default: '100ms',
+      },
+      {
+        name: '--hide-duration',
+        description: 'The duration of the hide animation.',
+        default: '100ms',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/date-input',
+  },
+  'date-picker': {
+    parts: [
+      {
+        name: 'base',
+        description: "The component's outer wrapper.",
+      },
+      {
+        name: 'header',
+        description:
+          'The header row containing the title and navigation buttons.',
+      },
+      {
+        name: 'title',
+        description:
+          'The clickable month/year title button that steps the view up (days → months → years).',
+      },
+      {
+        name: 'nav',
+        description: 'The container around the previous and next buttons.',
+      },
+      {
+        name: 'previous',
+        description: 'The previous-page button.',
+      },
+      {
+        name: 'next',
+        description: 'The next-page button.',
+      },
+      {
+        name: 'months',
+        description: 'The container that holds the rendered month(s).',
+      },
+      {
+        name: 'month',
+        description: 'A single rendered month.',
+      },
+      {
+        name: 'month-label',
+        description:
+          'The label rendered above each month when `months` is greater than 1.',
+      },
+      {
+        name: 'weekdays',
+        description: 'The row of weekday labels above each month grid.',
+      },
+      {
+        name: 'weekday',
+        description: 'A single weekday label cell.',
+      },
+      {
+        name: 'weeknumbers',
+        description: 'The week-number column header cell.',
+      },
+      {
+        name: 'weeknumber',
+        description: 'A single week-number cell.',
+      },
+      {
+        name: 'grid',
+        description: 'The day grid `<table>` for a month.',
+      },
+      {
+        name: 'day',
+        description:
+          'A day cell button. State-specific parts are added in addition to `day` so you can target them with `::part(day-...)`.',
+      },
+      {
+        name: 'day-today',
+        description: 'Added to the day cell that represents today.',
+      },
+      {
+        name: 'day-outside',
+        description:
+          'Added when the day belongs to an adjacent month (requires `with-outside-days`).',
+      },
+      {
+        name: 'day-weekend',
+        description:
+          "Added when the day falls on a weekend per the locale's week info.",
+      },
+      {
+        name: 'day-disabled',
+        description: 'Added when the day is disabled.',
+      },
+      {
+        name: 'day-selected',
+        description:
+          'Added when the day is selected (single mode or a range endpoint).',
+      },
+      {
+        name: 'day-range-start',
+        description: 'Added to the first endpoint of a range.',
+      },
+      {
+        name: 'day-range-end',
+        description: 'Added to the second endpoint of a range.',
+      },
+      {
+        name: 'day-range-inner',
+        description:
+          'Added to days that fall between the two endpoints of a committed range.',
+      },
+      {
+        name: 'day-range-preview',
+        description:
+          'Added to days inside the hover preview span during an in-progress range.',
+      },
+      {
+        name: 'day-label',
+        description: 'The label text inside a day button.',
+      },
+      {
+        name: 'day-placeholder',
+        description:
+          "An empty cell rendered in trailing rows when `with-outside-days` is off, so the grid is always 6 rows tall and the calendar's height doesn't shift between months.",
+      },
+      {
+        name: 'view-grid',
+        description:
+          'The grid used when the picker is in month-select or year-select view.',
+      },
+      {
+        name: 'view-row',
+        description:
+          'A row of three items inside the view grid. Transparent to layout (`display: contents`).',
+      },
+      {
+        name: 'view-cell',
+        description:
+          'The gridcell wrapper around a single view item. Transparent to layout (`display: contents`).',
+      },
+      {
+        name: 'view-item',
+        description:
+          'A single month or year button inside the view grid. State-specific parts are added as siblings.',
+      },
+      {
+        name: 'view-item-today',
+        description: 'Added to the month/year representing today.',
+      },
+      {
+        name: 'view-item-selected',
+        description:
+          'Added to the month/year that matches the current selection.',
+      },
+      {
+        name: 'view-item-disabled',
+        description: 'Added when every day in the month/year is disabled.',
+      },
+      {
+        name: 'footer',
+        description: 'The container wrapping the `footer` slot.',
+      },
+    ],
+    customProperties: [],
+    docsUrl: 'https://webawesome.com/docs/components/date-picker',
+  },
   details: {
     parts: [
       {
@@ -936,13 +1242,13 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         name: '--show-duration',
         description:
           'The show duration to use when applying built-in animation classes.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
       {
         name: '--hide-duration',
         description:
           'The hide duration to use when applying built-in animation classes.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/details',
@@ -1003,12 +1309,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The animation duration when showing the dialog.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
       {
         name: '--hide-duration',
         description: 'The animation duration when hiding the dialog.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/dialog',
@@ -1187,12 +1493,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The animation duration when showing the drawer.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
       {
         name: '--hide-duration',
         description: 'The animation duration when hiding the drawer.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/drawer',
@@ -1498,6 +1804,79 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     ],
     customProperties: [],
     docsUrl: 'https://webawesome.com/docs/components/input',
+  },
+  'known-date': {
+    parts: [
+      {
+        name: 'form-control',
+        description: "The form control's outer wrapper.",
+      },
+      {
+        name: 'form-control-label',
+        description:
+          'The wrapper inside the legend that styles the visible label text.',
+      },
+      {
+        name: 'form-control-input',
+        description: 'Alias on the fields row matching other form controls.',
+      },
+      {
+        name: 'hint',
+        description: "The hint's wrapper.",
+      },
+      {
+        name: 'label',
+        description: "Alias on the legend's inner label wrapper.",
+      },
+      {
+        name: 'base',
+        description: "The component's outer wrapper (alias of the fields row).",
+      },
+      {
+        name: 'fieldset',
+        description:
+          'The `<fieldset>` element grouping the three fields (or a `role="group"` div).',
+      },
+      {
+        name: 'legend',
+        description: 'The `<legend>` element (when a label is present).',
+      },
+      {
+        name: 'fields',
+        description: 'The flex row holding the three field blocks.',
+      },
+      {
+        name: 'field',
+        description: 'Each field block (label + input).',
+      },
+      {
+        name: 'field-day',
+        description: 'Added to the day field block.',
+      },
+      {
+        name: 'field-month',
+        description: 'Added to the month field block.',
+      },
+      {
+        name: 'field-year',
+        description: 'Added to the year field block.',
+      },
+      {
+        name: 'field-label',
+        description: "The text label above each field's input.",
+      },
+      {
+        name: 'field-input',
+        description: 'The native `<input>` inside a field.',
+      },
+      {
+        name: 'error',
+        description:
+          'The inline error message region. This is an intentional difference from `<wa-date-input>` and `<wa-time-input>`, which rely on the browser\'s native validation popup. Because this control is composed of three separate fields, an inline `role="alert"` region gives a single, predictable place to surface the validation message rather than anchoring a native popup on one of the three fields.',
+      },
+    ],
+    customProperties: [],
+    docsUrl: 'https://webawesome.com/docs/components/known-date',
   },
   'line-chart': {
     parts: [],
@@ -2035,12 +2414,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The speed of the show animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--hide-duration',
         description: 'The speed of the hide animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/popover',
@@ -2094,13 +2473,13 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         name: '--show-duration',
         description:
           'The show duration to use when applying built-in animation classes.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--hide-duration',
         description:
           'The hide duration to use when applying built-in animation classes.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/popup',
@@ -2572,12 +2951,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The duration of the show animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--hide-duration',
         description: 'The duration of the hide animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--tag-max-size',
@@ -2981,6 +3360,116 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     customProperties: [],
     docsUrl: 'https://webawesome.com/docs/components/textarea',
   },
+  'time-input': {
+    parts: [
+      {
+        name: 'form-control',
+        description: 'The form control that wraps the label, input, and hint.',
+      },
+      {
+        name: 'form-control-label',
+        description: "The label's wrapper.",
+      },
+      {
+        name: 'form-control-input',
+        description: "The input's wrapper.",
+      },
+      {
+        name: 'hint',
+        description: "The hint's wrapper.",
+      },
+      {
+        name: 'base',
+        description: "The component's base wrapper.",
+      },
+      {
+        name: 'input-wrapper',
+        description:
+          'The container around the start slot, segmented input, clear button, and expand button.',
+      },
+      {
+        name: 'start',
+        description: 'The container that wraps the `start` slot.',
+      },
+      {
+        name: 'end',
+        description: 'The container that wraps the `end` slot.',
+      },
+      {
+        name: 'input',
+        description: 'The segmented input group.',
+      },
+      {
+        name: 'segment',
+        description:
+          'Each editable segment (hour/minute/second/AM-PM spinbutton). Use `[part~="segment"]` to style all.',
+      },
+      {
+        name: 'segment-literal',
+        description: 'Inert literal text between segments (separators).',
+      },
+      {
+        name: 'clear-button',
+        description: 'The clear button.',
+      },
+      {
+        name: 'expand-button',
+        description: 'The popup toggle button.',
+      },
+      {
+        name: 'expand-icon',
+        description: 'The expand icon wrapper.',
+      },
+      {
+        name: 'popup',
+        description: 'The popup container.',
+      },
+      {
+        name: 'columns',
+        description: 'The row of column listboxes inside the popup.',
+      },
+      {
+        name: 'column',
+        description: 'Each column listbox.',
+      },
+      {
+        name: 'column-item',
+        description: 'Each option inside a column.',
+      },
+      {
+        name: 'column-item-selected',
+        description: 'The currently selected option inside a column.',
+      },
+      {
+        name: 'now-button',
+        description:
+          'The default "Now" button rendered in the popup footer when `with-now` is set.',
+      },
+    ],
+    customProperties: [
+      {
+        name: '--show-duration',
+        description: 'The duration of the show animation.',
+        default: '100ms',
+      },
+      {
+        name: '--hide-duration',
+        description: 'The duration of the hide animation.',
+        default: '100ms',
+      },
+      {
+        name: '--column-item-height',
+        description: 'Height of each option inside a popup column.',
+        default: '2.25em',
+      },
+      {
+        name: '--column-width',
+        description: 'Width of each popup column.',
+        default: '3em',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/time-input',
+  },
   toast: {
     parts: [
       {
@@ -3060,11 +3549,13 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: '--show-duration',
-        description: 'The animation duration when showing. Defaults to 200ms.',
+        description: 'The animation duration when showing.',
+        default: 'var(--wa-transition-normal)',
       },
       {
         name: '--hide-duration',
-        description: 'The animation duration when hiding. Defaults to 200ms.',
+        description: 'The animation duration when hiding.',
+        default: 'var(--wa-transition-normal)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/toast-item',
@@ -3204,12 +3695,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The animation duration when expanding tree items.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
       {
         name: '--hide-duration',
         description: 'The animation duration when collapsing tree items.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/tree-item',

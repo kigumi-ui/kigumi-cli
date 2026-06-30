@@ -58,7 +58,7 @@ const meta = {
     'light-dismiss': {
       control: 'boolean',
       description: 'Closes the drawer when the user clicks outside of it',
-      table: { defaultValue: { summary: 'true' } },
+      table: { defaultValue: { summary: 'false' } },
     },
     'without-header': {
       control: 'boolean',

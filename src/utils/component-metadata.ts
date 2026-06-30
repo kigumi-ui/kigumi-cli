@@ -47,6 +47,51 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [],
     methods: [],
   },
+  'accordion-item': {
+    tagName: 'wa-accordion-item',
+    className: 'WaAccordionItem',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The accordion item's body content.",
+      },
+      {
+        name: 'label',
+        description:
+          "The accordion item's label. Alternatively, use the `label` attribute.",
+      },
+      {
+        name: 'icon',
+        description:
+          'Optional expand/collapse icon. Works best with `<wa-icon>`.',
+      },
+    ],
+    methods: [
+      {
+        name: 'expand',
+        description: 'Expands the accordion item with animation.',
+      },
+      {
+        name: 'collapse',
+        description: 'Collapses the accordion item with animation.',
+      },
+      {
+        name: 'toggle',
+        description: "Toggles the accordion item's expanded state.",
+      },
+      {
+        name: 'focus',
+        description: "Focuses the accordion item's trigger button.",
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+    ],
+  },
   checkbox: {
     tagName: 'wa-checkbox',
     className: 'WaCheckbox',
@@ -1634,6 +1679,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     ],
     methods: [],
   },
+  option: {
+    tagName: 'wa-option',
+    className: 'WaOption',
+    events: [],
+    slots: [
+      {
+        name: '',
+        description: "The option's label.",
+      },
+      {
+        name: 'start',
+        description:
+          'An element, such as `<wa-icon>`, placed before the label.',
+      },
+      {
+        name: 'end',
+        description: 'An element, such as `<wa-icon>`, placed after the label.',
+      },
+    ],
+    methods: [],
+  },
   select: {
     tagName: 'wa-select',
     className: 'WaSelect',
@@ -1793,27 +1859,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
-  },
-  option: {
-    tagName: 'wa-option',
-    className: 'WaOption',
-    events: [],
-    slots: [
-      {
-        name: '',
-        description: "The option's label.",
-      },
-      {
-        name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed before the label.',
-      },
-      {
-        name: 'end',
-        description: 'An element, such as `<wa-icon>`, placed after the label.',
-      },
-    ],
-    methods: [],
   },
   popover: {
     tagName: 'wa-popover',
@@ -2768,6 +2813,300 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
     ],
   },
+  accordion: {
+    tagName: 'wa-accordion',
+    className: 'WaAccordion',
+    events: [
+      {
+        name: 'wa-expand',
+        description: 'Emitted before an item expands. Cancelable.',
+        reactName: 'onExpand',
+        eventType: 'WaExpandEvent',
+      },
+      {
+        name: 'wa-after-expand',
+        description: 'Emitted after an item finishes expanding.',
+        reactName: 'onAfterExpand',
+        eventType: 'WaAfterExpandEvent',
+      },
+      {
+        name: 'wa-collapse',
+        description: 'Emitted before an item collapses. Cancelable.',
+        reactName: 'onCollapse',
+        eventType: 'WaCollapseEvent',
+      },
+      {
+        name: 'wa-after-collapse',
+        description: 'Emitted after an item finishes collapsing.',
+        reactName: 'onAfterCollapse',
+        eventType: 'WaAfterCollapseEvent',
+      },
+    ],
+    slots: [
+      {
+        name: '',
+        description: 'One or more `<wa-accordion-item>` elements.',
+      },
+    ],
+    methods: [
+      {
+        name: 'expandAll',
+        description:
+          'Expands all accordion items. No-op when `mode` is `single` or `single-collapsible`.',
+      },
+      {
+        name: 'collapseAll',
+        description: 'Collapses all accordion items.',
+      },
+    ],
+  },
+  'known-date': {
+    tagName: 'wa-known-date',
+    className: 'WaKnownDate',
+    events: [
+      {
+        name: 'input',
+        description: 'Emitted as the user types in any field.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'change',
+        description:
+          'Emitted when the committed value transitions to a new ISO date.',
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'blur',
+        description: 'Emitted when the control loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the control gains focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: 'label',
+        description:
+          "The known date's group label. Alternatively, use the `label` attribute.",
+      },
+      {
+        name: 'hint',
+        description:
+          'Text that describes how to use the known date. Alternatively, use the `hint` attribute.',
+      },
+    ],
+    methods: [
+      {
+        name: 'focus',
+        description:
+          'Focuses the first empty field, or the first field when all are filled.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the known date.',
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+        ],
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
+  'time-input': {
+    tagName: 'wa-time-input',
+    className: 'WaTimeInput',
+    events: [
+      {
+        name: 'input',
+        description:
+          'Emitted as the user types into a segment or interacts with the popup columns.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'change',
+        description: 'Emitted when the committed value changes.',
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the control receives focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'blur',
+        description: 'Emitted when the control loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'wa-clear',
+        description: 'Emitted when the clear button is activated.',
+        reactName: 'onClear',
+        eventType: 'WaClearEvent',
+      },
+      {
+        name: 'wa-show',
+        description: 'Emitted when the popup is about to open. Cancelable.',
+        reactName: 'onShow',
+        eventType: 'WaShowEvent',
+      },
+      {
+        name: 'wa-after-show',
+        description: 'Emitted after the popup opens and animations complete.',
+        reactName: 'onAfterShow',
+        eventType: 'WaAfterShowEvent',
+      },
+      {
+        name: 'wa-hide',
+        description: 'Emitted when the popup is about to close. Cancelable.',
+        reactName: 'onHide',
+        eventType: 'WaHideEvent',
+      },
+      {
+        name: 'wa-after-hide',
+        description: 'Emitted after the popup closes and animations complete.',
+        reactName: 'onAfterHide',
+        eventType: 'WaAfterHideEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: 'label',
+        description:
+          "The time picker's label. Alternatively, use the `label` attribute.",
+      },
+      {
+        name: 'hint',
+        description:
+          'Text that describes how to use the time picker. Alternatively, use the `hint` attribute.',
+      },
+      {
+        name: 'start',
+        description: 'An element placed at the start of the input.',
+      },
+      {
+        name: 'end',
+        description: 'An element placed at the end of the input.',
+      },
+      {
+        name: 'clear-icon',
+        description: 'An icon to use in lieu of the default clear icon.',
+      },
+      {
+        name: 'expand-icon',
+        description:
+          'The icon to show on the popup toggle button. Defaults to a clock icon.',
+      },
+      {
+        name: 'footer',
+        description:
+          'Content shown below the column picker in the popup. Replaces the default Now button when present.',
+      },
+    ],
+    methods: [
+      {
+        name: 'focus',
+        description: 'Sets focus on the first empty (else first) segment.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the time picker.',
+      },
+      {
+        name: 'show',
+        description: 'Opens the popup.',
+      },
+      {
+        name: 'hide',
+        description: 'Closes the popup.',
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+        ],
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
   chart: {
     tagName: 'wa-chart',
     className: 'WaChart',
@@ -2964,6 +3303,267 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
           {
             name: 'reason',
             type: "'autocomplete' | 'restore'",
+          },
+        ],
+      },
+      {
+        name: 'resetValidity',
+        description:
+          'Reset validity is a way of removing manual custom errors and native validation.',
+      },
+    ],
+  },
+  'date-picker': {
+    tagName: 'wa-date-picker',
+    className: 'WaDatePicker',
+    events: [
+      {
+        name: 'input',
+        description:
+          'Emitted when the value changes during interaction. In range mode, this fires after the first click of a new range.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'change',
+        description:
+          'Emitted when the user commits a new value. Read the current value from `event.target.value`.',
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'wa-focus-day',
+        description:
+          'Emitted when the focused day changes via keyboard navigation, paging, or pointer hover. `event.detail` is `{ date: Date }`.',
+        reactName: 'onFocusDay',
+        eventType: 'WaFocusDayEvent',
+      },
+      {
+        name: 'wa-view-change',
+        description:
+          'Emitted when the date picker switches between day, month, and year views. `event.detail` is `{ view, date }`.',
+        reactName: 'onViewChange',
+        eventType: 'WaViewChangeEvent',
+      },
+    ],
+    slots: [
+      {
+        name: 'previous-icon',
+        description:
+          'Icon shown inside the previous-page button. Defaults to a left chevron.',
+      },
+      {
+        name: 'next-icon',
+        description:
+          'Icon shown inside the next-page button. Defaults to a right chevron.',
+      },
+      {
+        name: 'header',
+        description:
+          'Replaces the entire header row including title and navigation buttons. Advanced use only.',
+      },
+      {
+        name: 'footer',
+        description:
+          'Optional content rendered below the calendar grid. Empty by default.',
+      },
+    ],
+    methods: [
+      {
+        name: 'focus',
+        description: 'Focuses the calendar at the currently focused day.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'goToDate',
+        description:
+          'Scrolls the view to show the given date and sets the focused day.',
+        parameters: [
+          {
+            name: 'date',
+            type: 'string | Date',
+          },
+        ],
+      },
+      {
+        name: 'goToToday',
+        description: 'Equivalent to `goToDate(today)`.',
+      },
+      {
+        name: 'clear',
+        description:
+          'Clears the current selection and emits `input` then `change`.',
+      },
+    ],
+  },
+  'date-input': {
+    tagName: 'wa-date-input',
+    className: 'WaDateInput',
+    events: [
+      {
+        name: 'input',
+        description:
+          'Emitted on every segment edit, step, calendar interaction, and clear, even while the value is incomplete.',
+        reactName: 'onInput',
+        eventType: 'InputEvent',
+      },
+      {
+        name: 'change',
+        description:
+          'Emitted on every committed value transition (each completed date edit, calendar selection, or clear), mirroring native `<input type="date">` rather than the commit-on-blur behavior of `<wa-input>`/`<wa-select>`. This matches the sibling `<wa-time-input>`. It does NOT fire while a value is still incomplete.',
+        reactName: 'onChange',
+        eventType: 'ChangeEvent',
+      },
+      {
+        name: 'focus',
+        description: 'Emitted when the control receives focus.',
+        reactName: 'onFocus',
+        eventType: 'FocusEvent',
+      },
+      {
+        name: 'blur',
+        description: 'Emitted when the control loses focus.',
+        reactName: 'onBlur',
+        eventType: 'BlurEvent',
+      },
+      {
+        name: 'wa-clear',
+        description: 'Emitted when the clear button is activated.',
+        reactName: 'onClear',
+        eventType: 'WaClearEvent',
+      },
+      {
+        name: 'wa-show',
+        description: 'Emitted when the popup is about to open. Cancelable.',
+        reactName: 'onShow',
+        eventType: 'WaShowEvent',
+      },
+      {
+        name: 'wa-after-show',
+        description: 'Emitted after the popup opens and animations complete.',
+        reactName: 'onAfterShow',
+        eventType: 'WaAfterShowEvent',
+      },
+      {
+        name: 'wa-hide',
+        description: 'Emitted when the popup is about to close. Cancelable.',
+        reactName: 'onHide',
+        eventType: 'WaHideEvent',
+      },
+      {
+        name: 'wa-after-hide',
+        description: 'Emitted after the popup closes and animations complete.',
+        reactName: 'onAfterHide',
+        eventType: 'WaAfterHideEvent',
+      },
+      {
+        name: 'wa-invalid',
+        description:
+          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
+        reactName: 'onInvalid',
+        eventType: 'WaInvalidEvent',
+      },
+    ],
+    slots: [
+      {
+        name: 'label',
+        description:
+          "The date input's label. Alternatively, use the `label` attribute.",
+      },
+      {
+        name: 'hint',
+        description:
+          'Text that describes how to use the date input. Alternatively, use the `hint` attribute.',
+      },
+      {
+        name: 'start',
+        description: 'An element placed at the start of the input.',
+      },
+      {
+        name: 'end',
+        description: 'An element placed at the end of the input.',
+      },
+      {
+        name: 'clear-icon',
+        description: 'An icon to use in lieu of the default clear icon.',
+      },
+      {
+        name: 'expand-icon',
+        description:
+          'The icon to show on the date picker toggle button. Defaults to a calendar icon.',
+      },
+      {
+        name: 'footer',
+        description: 'Content shown below the date picker inside the popup.',
+      },
+      {
+        name: 'previous-icon',
+        description:
+          "Icon for the date picker's previous-page button. Forwarded to `<wa-date-picker>`.",
+      },
+      {
+        name: 'next-icon',
+        description:
+          "Icon for the date picker's next-page button. Forwarded to `<wa-date-picker>`.",
+      },
+      {
+        name: 'day-YYYY-MM-DD',
+        description:
+          'Custom content for a specific day in the popup date picker. Slot name is dynamic (e.g., `day-2026-05-25`). Forwarded to `<wa-date-picker>`.',
+      },
+    ],
+    methods: [
+      {
+        name: 'focus',
+        description: 'Sets focus on the first empty (else first) segment.',
+        parameters: [
+          {
+            name: 'options',
+            type: 'FocusOptions',
+          },
+        ],
+      },
+      {
+        name: 'blur',
+        description: 'Removes focus from the date input.',
+      },
+      {
+        name: 'show',
+        description: 'Opens the popup calendar.',
+      },
+      {
+        name: 'hide',
+        description: 'Closes the popup calendar.',
+      },
+      {
+        name: 'clear',
+        description:
+          'Clears the current value and emits `wa-clear`, `input`, and `change`. Mirrors activating the clear button. No-op\nwhen already empty or when disabled/readonly.',
+      },
+      {
+        name: 'formStateRestoreCallback',
+        description:
+          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
+        parameters: [
+          {
+            name: 'state',
+            type: 'string | File | FormData | null',
+          },
+        ],
+      },
+      {
+        name: 'setCustomValidity',
+        description:
+          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
+        parameters: [
+          {
+            name: 'message',
+            type: 'string',
           },
         ],
       },
@@ -3240,6 +3840,12 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     className: 'WaVideo',
     events: [
       {
+        name: 'timeupdate',
+        description: 'Emitted when the time changes.',
+        reactName: 'onTimeupdate',
+        eventType: 'TimeupdateEvent',
+      },
+      {
         name: 'play',
         description: 'Emitted when playback begins.',
         reactName: 'onPlay',
@@ -3250,12 +3856,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
         description: 'Emitted when playback stops.',
         reactName: 'onPause',
         eventType: 'PauseEvent',
-      },
-      {
-        name: 'timeupdate',
-        description: 'Emitted when the time changes.',
-        reactName: 'onTimeupdate',
-        eventType: 'TimeupdateEvent',
       },
       {
         name: 'volumechange',

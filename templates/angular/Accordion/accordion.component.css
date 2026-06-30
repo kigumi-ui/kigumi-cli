@@ -1,0 +1,7 @@
+/**
+ * Accordion Component Styles
+ * Documentation: https://webawesome.com/docs/components/accordion
+ */
+:host {
+  display: contents;
+}

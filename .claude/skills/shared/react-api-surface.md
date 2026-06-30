@@ -69,7 +69,7 @@ wa-dialog -> <Dialog>
 **Slots:** default, label, header-actions, footer
 **Methods:** show(), requestClose()
 **Parts:** dialog, header, header-actions, title, close-button, close-button\_\_base, body, footer
-**CSS:** --spacing, --width, --backdrop-filter(none), --show-duration(200ms), --hide-duration(200ms)
+**CSS:** --spacing, --width, --backdrop-filter(none), --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 
 ## AnimatedImage
 
@@ -202,7 +202,7 @@ wa-combobox -> <Combobox>
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
 **Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag**content, tag**remove-button, tag**remove-button**base, clear-button, expand-icon
-**CSS:** --show-duration(100ms), --hide-duration(100ms), --tag-max-size(10ch)
+**CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --tag-max-size(10ch)
 **Requires:** Button, Icon, Option, Popup, Tag
 
 ## Comparison
@@ -249,7 +249,7 @@ wa-details -> <Details>
 **Slots:** default, summary, expand-icon, collapse-icon
 **Methods:** show(), hide()
 **Parts:** base, header, summary, icon, content
-**CSS:** --spacing, --show-duration(200ms), --hide-duration(200ms)
+**CSS:** --spacing, --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 **Requires:** Icon
 
 ## Divider
@@ -270,7 +270,7 @@ wa-drawer -> <Drawer>
 **Slots:** default, label, header-actions, footer
 **Methods:** show(), requestClose()
 **Parts:** dialog, header, header-actions, title, close-button, close-button\_\_base, body, footer
-**CSS:** --spacing, --size, --backdrop-filter(none), --show-duration(200ms), --hide-duration(200ms)
+**CSS:** --spacing, --size, --backdrop-filter(none), --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 **Requires:** Icon
 
 ## Dropdown
@@ -371,7 +371,7 @@ wa-popover -> <Popover>
 **Slots:** default
 **Methods:** show(), hide()
 **Parts:** dialog, body, popup, popup**popup, popup**arrow
-**CSS:** --arrow-size(0.375rem), --max-width(25rem), --show-duration(100ms), --hide-duration(100ms)
+**CSS:** --arrow-size(0.375rem), --max-width(25rem), --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast))
 **Requires:** Popup
 
 ## Popup
@@ -384,7 +384,7 @@ wa-popup -> <Popup>
 **Slots:** default, anchor
 **Methods:** reposition()
 **Parts:** arrow, popup, hover-bridge
-**CSS:** --arrow-size(6px), --popup-border-width, --arrow-color(black), --auto-size-available-width, --auto-size-available-height, --show-duration(100ms), --hide-duration(100ms)
+**CSS:** --arrow-size(6px), --popup-border-width, --arrow-color(black), --auto-size-available-width, --auto-size-available-height, --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast))
 
 ## ProgressBar
 
@@ -476,7 +476,7 @@ wa-select -> <Select>
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
 **Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, tag**content, tag**remove-button, tag**remove-button**base, clear-button, expand-icon
-**CSS:** --show-duration(100ms), --hide-duration(100ms), --tag-max-size(10ch)
+**CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --tag-max-size(10ch)
 **Requires:** Icon, Option, Popup, Tag
 
 ## Option
@@ -631,7 +631,7 @@ wa-tree-item -> <TreeItem>
 **Slots:** default, expand-icon, collapse-icon
 **Methods:** getChildrenItems()
 **Parts:** base, item, indentation, expand-button, spinner, spinner**base, label, children, checkbox, checkbox**base, checkbox**control, checkbox**checked-icon, checkbox**indeterminate-icon, checkbox**label
-**CSS:** --show-duration(200ms), --hide-duration(200ms)
+**CSS:** --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 **Requires:** Icon, Checkbox, Spinner
 
 ## ZoomableFrame
@@ -789,4 +789,49 @@ wa-toast-item -> <ToastItem>
 **Slots:** default, icon
 **Methods:** hide()
 **Parts:** toast-item, accent, icon, content, close-button, progress-ring, progress-ring**base, progress-ring**label, progress-ring**track, progress-ring**indicator, close-icon, close-icon\_\_svg
-**CSS:** --accent-width, --show-duration, --hide-duration
+**CSS:** --accent-width, --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
+
+## Accordion
+
+Organization | free | Accordions group related disclosure panels and control how many can be open at once
+wa-accordion -> <Accordion>
+
+**Props:** mode(single|single-collapsible|multiple=multiple), icon-placement(start|end=end), heading-level(string=3), appearance(filled|outlined|filled-outlined|plain=outlined)
+**Events:** onExpand, onAfterExpand, onCollapse, onAfterCollapse
+**Slots:** default
+**Methods:** expandAll(), collapseAll()
+**Requires:** AccordionItem
+
+## AccordionItem
+
+Organization | free | Accordion items are the individual disclosure panels placed inside an accordion
+wa-accordion-item -> <AccordionItem>
+
+**Props:** label(string=''), expanded(boolean=false), disabled(boolean=false)
+**Slots:** default, label, icon
+**Methods:** expand(), collapse(), toggle(), focus()
+**Parts:** base, heading, button, label, icon, panel, content
+**CSS:** --spacing(var(--wa-space-m)), --show-duration(200ms), --hide-duration(200ms), --easing(ease), --wa-accordion-divider-color(var(--wa-color-surface-border))
+
+## TimeInput
+
+Form Controls | free | Time inputs collect a time of day from the user
+wa-time-input -> <TimeInput>
+
+**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), with-clear(boolean=false), with-now(boolean=false), min(string=''), max(string=''), step(number=60), hour-format(auto|12|24=auto), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start)
+**Events:** onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid
+**Slots:** label, hint, start, end, clear-icon, expand-icon, footer
+**Methods:** focus(), blur(), show(), hide()
+**Parts:** form-control, form-control-label, form-control-input, hint, base, input-wrapper, start, end, input, segment, segment-literal, clear-button, expand-button, expand-icon, popup, columns, column, column-item, column-item-selected, now-button
+**CSS:** --show-duration(100ms), --hide-duration(100ms), --column-item-height(2.25em), --column-width(3em)
+
+## KnownDate
+
+Form Controls | free | Known dates collect a calendar date the user already knows, such as a birthday
+wa-known-date -> <KnownDate>
+
+**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), min(string=''), max(string=''), locale(string='')
+**Events:** onInput, onChange, onBlur, onFocus, onInvalid
+**Slots:** label, hint
+**Methods:** focus(), blur()
+**Parts:** form-control, form-control-label, form-control-input, hint, label, base, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input, error

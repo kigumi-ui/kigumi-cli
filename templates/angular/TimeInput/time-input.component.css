@@ -1,0 +1,35 @@
+/**
+ * TimeInput Component Styles
+ * Documentation: https://webawesome.com/docs/components/time-input
+ *
+ * CSS Custom Properties:
+ * --show-duration - The duration of the show animation. (default: 100ms)
+ * --hide-duration - The duration of the hide animation. (default: 100ms)
+ * --column-item-height - Height of each option inside a popup column. (default: 2.25em)
+ * --column-width - Width of each popup column. (default: 3em)
+ *
+ * CSS Parts:
+ * form-control - The form control that wraps the label, input, and hint.
+ * form-control-label - The label's wrapper.
+ * form-control-input - The input's wrapper.
+ * hint - The hint's wrapper.
+ * base - The component's base wrapper.
+ * input-wrapper - The container around the start slot, segmented input, clear button, and expand button.
+ * start - The container that wraps the `start` slot.
+ * end - The container that wraps the `end` slot.
+ * input - The segmented input group.
+ * segment - Each editable segment (hour/minute/second/AM-PM spinbutton). Use `[part~="segment"]` to style all.
+ * segment-literal - Inert literal text between segments (separators).
+ * clear-button - The clear button.
+ * expand-button - The popup toggle button.
+ * expand-icon - The expand icon wrapper.
+ * popup - The popup container.
+ * columns - The row of column listboxes inside the popup.
+ * column - Each column listbox.
+ * column-item - Each option inside a column.
+ * column-item-selected - The currently selected option inside a column.
+ * now-button - The default "Now" button rendered in the popup footer when `with-now` is set.
+ */
+:host {
+  display: contents;
+}
