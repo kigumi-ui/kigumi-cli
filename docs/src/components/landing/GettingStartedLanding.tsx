@@ -1,4 +1,8 @@
-import { Badge, Button, Card, CopyButton, Icon } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge/Badge';
+import { Button } from '@/components/ui/Button/Button';
+import { Card } from '@/components/ui/Card/Card';
+import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
+import { Icon } from '@/components/ui/Icon/Icon';
 
 export function GettingStartedLanding() {
   return (

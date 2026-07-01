@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Icon } from '@/components/ui';
+import { Button } from '@/components/ui/Button/Button';
+import { Icon } from '@/components/ui/Icon/Icon';
 import { ActionPanelExample } from './examples/ActionPanelExample';
 import { ActivityLogExample } from './examples/ActivityLogExample';
 import { CommentsExample } from './examples/CommentsExample';

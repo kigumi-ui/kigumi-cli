@@ -1,6 +1,9 @@
 import { InstallCommandExample } from '@/components/landing/examples/InstallCommandExample';
 import stacksImg from '@/assets/stacks.png';
-import { Badge, Button, ButtonGroup, Icon } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge/Badge';
+import { Button } from '@/components/ui/Button/Button';
+import { ButtonGroup } from '@/components/ui/ButtonGroup/ButtonGroup';
+import { Icon } from '@/components/ui/Icon/Icon';
 
 export function Hero() {
   return (

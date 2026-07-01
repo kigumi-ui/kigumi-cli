@@ -1,12 +1,10 @@
-import {
-  Avatar,
-  Badge,
-  Button,
-  Callout,
-  Card,
-  Divider,
-  RelativeTime,
-} from '@/components/ui';
+import { Avatar } from '@/components/ui/Avatar/Avatar';
+import { Badge } from '@/components/ui/Badge/Badge';
+import { Button } from '@/components/ui/Button/Button';
+import { Callout } from '@/components/ui/Callout/Callout';
+import { Card } from '@/components/ui/Card/Card';
+import { Divider } from '@/components/ui/Divider/Divider';
+import { RelativeTime } from '@/components/ui/RelativeTime/RelativeTime';
 
 export function ActivityLogExample() {
   return (

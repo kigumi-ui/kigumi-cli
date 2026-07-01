@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Badge, Button, Icon } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge/Badge';
+import { Button } from '@/components/ui/Button/Button';
+import { Icon } from '@/components/ui/Icon/Icon';
 
 const BANNER_STORAGE_KEY = 'banner-20260626-dismissed';
 

@@ -1,5 +1,9 @@
 import React from 'react';
-import { Badge, Card, Divider, Icon, ProgressRing } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge/Badge';
+import { Card } from '@/components/ui/Card/Card';
+import { Divider } from '@/components/ui/Divider/Divider';
+import { Icon } from '@/components/ui/Icon/Icon';
+import { ProgressRing } from '@/components/ui/ProgressRing/ProgressRing';
 
 export function DataDisplayExample() {
   return (

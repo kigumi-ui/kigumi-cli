@@ -1,4 +1,7 @@
-import { Button, Card, Icon, Input } from '@/components/ui';
+import { Button } from '@/components/ui/Button/Button';
+import { Card } from '@/components/ui/Card/Card';
+import { Icon } from '@/components/ui/Icon/Icon';
+import { Input } from '@/components/ui/Input/Input';
 
 export function ContactExample() {
   return (

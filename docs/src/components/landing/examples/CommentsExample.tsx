@@ -1,4 +1,7 @@
-import { Button, Card, Divider, Icon } from '@/components/ui';
+import { Button } from '@/components/ui/Button/Button';
+import { Card } from '@/components/ui/Card/Card';
+import { Divider } from '@/components/ui/Divider/Divider';
+import { Icon } from '@/components/ui/Icon/Icon';
 
 export function CommentsExample() {
   return (

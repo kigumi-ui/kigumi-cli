@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect, type ReactNode } from 'react';
 import Fuse, { type FuseResult } from 'fuse.js';
-import { Details, Icon, Input } from '@/components/ui';
+import { Details } from '@/components/ui/Details/Details';
+import { Icon } from '@/components/ui/Icon/Icon';
+import { Input } from '@/components/ui/Input/Input';
 import { CodeBlock } from '@/components/CodeBlock';
 
 interface FaqItem {

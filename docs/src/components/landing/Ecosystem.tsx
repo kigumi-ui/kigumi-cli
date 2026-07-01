@@ -1,4 +1,5 @@
-import { Card, Icon } from '@/components/ui';
+import { Card } from '@/components/ui/Card/Card';
+import { Icon } from '@/components/ui/Icon/Icon';
 import { HeroPreview } from '@/components/landing/HeroPreview';
 import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';

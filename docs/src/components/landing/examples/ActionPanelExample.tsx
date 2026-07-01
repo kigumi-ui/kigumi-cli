@@ -1,4 +1,8 @@
-import { Avatar, Button, Card, Icon, ProgressBar } from '@/components/ui';
+import { Avatar } from '@/components/ui/Avatar/Avatar';
+import { Button } from '@/components/ui/Button/Button';
+import { Card } from '@/components/ui/Card/Card';
+import { Icon } from '@/components/ui/Icon/Icon';
+import { ProgressBar } from '@/components/ui/ProgressBar/ProgressBar';
 
 export function ActionPanelExample() {
   return (

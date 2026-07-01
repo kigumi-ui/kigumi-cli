@@ -1,19 +1,17 @@
 import React from 'react';
 import { useFrameworkSync } from '@/hooks/useFrameworkSync';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Comparison,
-  Input,
-  Option,
-  Radio,
-  RadioGroup,
-  Select,
-  Tab,
-  TabGroup,
-  TabPanel,
-} from '@/components/ui';
+import { Button } from '@/components/ui/Button/Button';
+import { Card } from '@/components/ui/Card/Card';
+import { Checkbox } from '@/components/ui/Checkbox/Checkbox';
+import { Comparison } from '@/components/ui/Comparison/Comparison';
+import { Input } from '@/components/ui/Input/Input';
+import { Option } from '@/components/ui/Option/Option';
+import { Radio } from '@/components/ui/Radio/Radio';
+import { RadioGroup } from '@/components/ui/RadioGroup/RadioGroup';
+import { Select } from '@/components/ui/Select/Select';
+import { Tab } from '@/components/ui/Tab/Tab';
+import { TabGroup } from '@/components/ui/TabGroup/TabGroup';
+import { TabPanel } from '@/components/ui/TabPanel/TabPanel';
 import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';
 import angularLogo from '@/assets/angular-logo.svg';

@@ -1,4 +1,7 @@
-import { Badge, Button, Card, Icon } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge/Badge';
+import { Button } from '@/components/ui/Button/Button';
+import { Card } from '@/components/ui/Card/Card';
+import { Icon } from '@/components/ui/Icon/Icon';
 
 export function PaginationButtonGroupExample() {
   const tasks = [
