@@ -4,10 +4,9 @@
  *
  * CSS Custom Properties:
  * - --spacing: The amount of space around and between the item's header and content. (default: var(--wa-space-m))
- * - --show-duration: The duration of the expand animation. (default: 200ms)
- * - --hide-duration: The duration of the collapse animation. (default: 200ms)
- * - --easing: The easing of the expand/collapse animation. (default: ease)
- * - --wa-accordion-divider-color: The color of the divider between accordion items. (default: var(--wa-color-surface-border))
+ * - --show-duration: The duration of the expand animation. (default: var(--wa-transition-normal))
+ * - --hide-duration: The duration of the collapse animation. (default: var(--wa-transition-normal))
+ * - --easing: The easing of the expand/collapse animation. (default: var(--wa-transition-easing))
  *
  * CSS Parts:
  * - base: The component's base wrapper.

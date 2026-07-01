@@ -11,7 +11,7 @@ const meta = {
   argTypes: {
     selection: {
       control: 'select',
-      options: ['single', 'multiple', 'leaf'],
+      options: ['single', 'multiple', 'leaf', 'leaf-multiple'],
       description: 'Selection behavior',
       table: { defaultValue: { summary: 'single' } },
     },

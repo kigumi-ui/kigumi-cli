@@ -220,12 +220,12 @@ describe('CSS_METADATA regressions — WA 3.x names, not Shoelace-era names', ()
     // into per-component scaffolds. Component-scoped props in CEM are almost
     // always short names like `--spacing`, `--width`.
     //
-    // Known exception (WA 3.8.0): wa-accordion-item declares a genuinely
-    // component-scoped property using the `--wa-` prefix
-    // (`--wa-accordion-divider-color`, default var(--wa-color-surface-border)).
-    // It is a real themeable property in the CEM, not a leaked global token, so
-    // it is allowlisted here rather than stripped by the parser.
-    const ALLOWED_WA_PREFIXED_PROPS = new Set(['--wa-accordion-divider-color']);
+    // No component currently declares a genuinely component-scoped property that
+    // uses the `--wa-` prefix. (wa-accordion-item's `--wa-accordion-divider-color`
+    // was the sole such exception through WA 3.8.0; WA 3.9.0 removed it.) If a
+    // future WA release reintroduces a real themeable `--wa-`-prefixed component
+    // property, allowlist it here rather than stripping it in the parser.
+    const ALLOWED_WA_PREFIXED_PROPS = new Set<string>([]);
     for (const [key, meta] of Object.entries(CSS_METADATA)) {
       for (const prop of meta.customProperties) {
         if (ALLOWED_WA_PREFIXED_PROPS.has(prop.name)) continue;

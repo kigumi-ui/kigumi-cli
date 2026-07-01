@@ -3,8 +3,8 @@
  * Documentation: https://webawesome.com/docs/components/time-input
  *
  * CSS Custom Properties:
- * --show-duration - The duration of the show animation. (default: 100ms)
- * --hide-duration - The duration of the hide animation. (default: 100ms)
+ * --show-duration - The duration of the show animation. (default: var(--wa-transition-fast))
+ * --hide-duration - The duration of the hide animation. (default: var(--wa-transition-fast))
  * --column-item-height - Height of each option inside a popup column. (default: 2.25em)
  * --column-width - Width of each popup column. (default: 3em)
  *

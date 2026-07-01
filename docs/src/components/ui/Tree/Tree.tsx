@@ -28,7 +28,7 @@ export interface TreeProps extends Omit<
   'onSelectionChange' | 'dir'
 > {
   /** Selection behavior */
-  selection?: 'single' | 'multiple' | 'leaf';
+  selection?: 'single' | 'multiple' | 'leaf' | 'leaf-multiple';
 
   /** Emitted when a tree item is selected or deselected. */
   onSelectionChange?: (event: CustomEvent) => void;

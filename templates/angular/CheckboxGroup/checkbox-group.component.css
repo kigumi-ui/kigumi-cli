@@ -1,0 +1,16 @@
+/**
+ * CheckboxGroup Component Styles
+ * Documentation: https://webawesome.com/docs/components/checkbox-group
+ *
+ * CSS Custom Properties:
+ * --gap - The gap between grouped checkboxes. (default: 0.5em)
+ *
+ * CSS Parts:
+ * form-control - The form control that wraps the label, group, and hint.
+ * form-control-label - The label's wrapper.
+ * form-control-input - The element that wraps the grouped checkboxes, exposed as a `role="group"`.
+ * hint - The hint's wrapper.
+ */
+:host {
+  display: contents;
+}

@@ -39,7 +39,7 @@ export class TreeComponent implements AfterViewInit, OnDestroy {
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Selection behavior */
-  @Input() selection?: 'single' | 'multiple' | 'leaf';
+  @Input() selection?: 'single' | 'multiple' | 'leaf' | 'leaf-multiple';
 
   @Output() selectionChange = new EventEmitter<CustomEvent>();
 

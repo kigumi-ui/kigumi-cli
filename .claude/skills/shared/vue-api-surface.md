@@ -180,6 +180,16 @@ wa-checkbox -> <Checkbox>
 **CSS:** --checked-icon-color, --checked-icon-scale
 **Requires:** Icon
 
+## CheckboxGroup
+
+Form Controls | free | Checkbox groups label and group a set of checkboxes so they share hint text and validation
+wa-checkbox-group -> <CheckboxGroup>
+
+**Props:** label(string=''), hint(string=''), orientation(horizontal|vertical=vertical), size(small|medium|large|xs|s|m|l|xl=medium), required(boolean=false), with-label(boolean=false), with-hint(boolean=false)
+**Slots:** default, label, hint
+**Parts:** form-control, form-control-label, form-control-input, hint
+**CSS:** --gap(0.5em)
+
 ## ColorPicker
 
 Form Controls | free | Color pickers allow the user to select a color
@@ -616,7 +626,7 @@ wa-tooltip -> <Tooltip>
 Navigation | free | Trees allow you to display a hierarchical list of selectable tree items
 wa-tree -> <Tree>
 
-**Props:** selection(single|multiple|leaf=single)
+**Props:** selection(single|multiple|leaf|leaf-multiple=single)
 **Events:** @wa-selection-change
 **Slots:** default, expand-icon, collapse-icon
 **Parts:** base
@@ -812,7 +822,7 @@ wa-accordion-item -> <AccordionItem>
 **Slots:** default, label, icon
 **Methods:** expand(), collapse(), toggle(), focus()
 **Parts:** base, heading, button, label, icon, panel, content
-**CSS:** --spacing(var(--wa-space-m)), --show-duration(200ms), --hide-duration(200ms), --easing(ease), --wa-accordion-divider-color(var(--wa-color-surface-border))
+**CSS:** --spacing(var(--wa-space-m)), --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal)), --easing(var(--wa-transition-easing))
 
 ## TimeInput
 
@@ -824,7 +834,7 @@ wa-time-input -> <TimeInput>
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer
 **Methods:** focus(), blur(), show(), hide()
 **Parts:** form-control, form-control-label, form-control-input, hint, base, input-wrapper, start, end, input, segment, segment-literal, clear-button, expand-button, expand-icon, popup, columns, column, column-item, column-item-selected, now-button
-**CSS:** --show-duration(100ms), --hide-duration(100ms), --column-item-height(2.25em), --column-width(3em)
+**CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --column-item-height(2.25em), --column-width(3em)
 
 ## KnownDate
 
