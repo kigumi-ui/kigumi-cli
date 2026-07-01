@@ -1006,6 +1006,68 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/checkbox/checkbox.js`,
     tier: 'free',
   },
+  'checkbox-group': {
+    name: 'CheckboxGroup',
+    tagName: 'wa-checkbox-group',
+    category: 'Form Controls',
+    description:
+      'Checkbox groups label and group a set of checkboxes so they share hint text and validation',
+    dependencies: [],
+    files: {
+      react: ['components/CheckboxGroup.tsx', 'types/checkbox-group.d.ts'],
+      angular: ['components/CheckboxGroup/checkbox-group.component.ts'],
+    },
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: 'Group label',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+        default: "''",
+        description: 'Hint text shown below the label',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+        values: ['horizontal', 'vertical'],
+        default: 'vertical',
+        description: 'Layout direction of the grouped checkboxes',
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
+        default: 'medium',
+        description: 'Size applied to all checkboxes in the group',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        default: 'false',
+        description: 'Requires at least one option to be selected',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Only required for SSR. Renders the label slot on the server',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Only required for SSR. Renders the hint slot on the server',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/checkbox-group/checkbox-group.js`,
+    tier: 'free',
+  },
   'color-picker': {
     name: 'ColorPicker',
     tagName: 'wa-color-picker',
@@ -3470,7 +3532,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'selection',
         type: 'string',
-        values: ['single', 'multiple', 'leaf'],
+        values: ['single', 'multiple', 'leaf', 'leaf-multiple'],
         default: 'single',
         description: 'Selection behavior',
       },

@@ -11,6 +11,7 @@ export * from './Card/Card';
 export * from './Carousel/Carousel';
 export * from './CarouselItem/CarouselItem';
 export * from './Checkbox/Checkbox';
+export * from './CheckboxGroup/CheckboxGroup';
 export * from './ColorPicker/ColorPicker';
 export * from './Combobox/Combobox';
 export * from './Comparison/Comparison';

@@ -66,22 +66,17 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The duration of the expand animation.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
       {
         name: '--hide-duration',
         description: 'The duration of the collapse animation.',
-        default: '200ms',
+        default: 'var(--wa-transition-normal)',
       },
       {
         name: '--easing',
         description: 'The easing of the expand/collapse animation.',
-        default: 'ease',
-      },
-      {
-        name: '--wa-accordion-divider-color',
-        description: 'The color of the divider between accordion items.',
-        default: 'var(--wa-color-surface-border)',
+        default: 'var(--wa-transition-easing)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/accordion-item',
@@ -680,6 +675,35 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     ],
     docsUrl: 'https://webawesome.com/docs/components/checkbox',
   },
+  'checkbox-group': {
+    parts: [
+      {
+        name: 'form-control',
+        description: 'The form control that wraps the label, group, and hint.',
+      },
+      {
+        name: 'form-control-label',
+        description: "The label's wrapper.",
+      },
+      {
+        name: 'form-control-input',
+        description:
+          'The element that wraps the grouped checkboxes, exposed as a `role="group"`.',
+      },
+      {
+        name: 'hint',
+        description: "The hint's wrapper.",
+      },
+    ],
+    customProperties: [
+      {
+        name: '--gap',
+        description: 'The gap between grouped checkboxes.',
+        default: '0.5em',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/checkbox-group',
+  },
   'color-picker': {
     parts: [
       {
@@ -1040,12 +1064,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The duration of the show animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--hide-duration',
         description: 'The duration of the hide animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/date-input',
@@ -3450,12 +3474,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--show-duration',
         description: 'The duration of the show animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--hide-duration',
         description: 'The duration of the hide animation.',
-        default: '100ms',
+        default: 'var(--wa-transition-fast)',
       },
       {
         name: '--column-item-height',
