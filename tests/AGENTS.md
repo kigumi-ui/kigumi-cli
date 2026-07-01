@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (90 files, 1325 tests; +5 in scripts/, +15 in schemas/, +11 in concurrency/failure-modes)
+├── unit/                    # Fast, isolated tests (90 files at top level, ~1500 tests; more under scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -98,6 +98,7 @@ tests/
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
 │   ├── vue-templates.test.ts        # Vue template generation validation
 │   ├── scripts/
+│   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset)
 │   │   ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
 │   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
 │   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
@@ -694,4 +695,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-06-24 (added `find-cem.test.ts` for F-152 pinned-version CEM resolution)
+**Last Updated:** 2026-06-30 (added `check-generated-fresh.test.ts` for the validate:generated-fresh drift guard)
