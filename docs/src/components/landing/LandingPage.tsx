@@ -6,7 +6,7 @@ import { GettingStartedLanding } from '@/components/landing/GettingStartedLandin
 import { Page } from '@/components/ui/Page/Page';
 import { Footer } from '@/components/landing/Footer';
 import { Header } from '@/components/landing/Header';
-import { Divider } from '@/components/ui';
+import { Divider } from '@/components/ui/Divider/Divider';
 import { Banner } from '@/components/landing/Banner';
 
 export function LandingPage() {

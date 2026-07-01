@@ -1,4 +1,6 @@
-import { Badge, Card, CopyButton } from '@/components/ui';
+import { Badge } from '@/components/ui/Badge/Badge';
+import { Card } from '@/components/ui/Card/Card';
+import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
 import { FrameworkCodeBlock } from '@/components/landing/FrameworkCodeBlock';
 import { Link } from 'react-router-dom';
 

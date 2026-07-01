@@ -1,5 +1,9 @@
 import { useTheme } from '@/contexts/ThemeContext';
-import { Button, Icon, Dropdown, DropdownItem, Tooltip } from '@/components/ui';
+import { Button } from '@/components/ui/Button/Button';
+import { Icon } from '@/components/ui/Icon/Icon';
+import { Dropdown } from '@/components/ui/Dropdown/Dropdown';
+import { DropdownItem } from '@/components/ui/DropdownItem/DropdownItem';
+import { Tooltip } from '@/components/ui/Tooltip/Tooltip';
 
 export const ThemeFab = () => {
   const { theme, setTheme, isDark } = useTheme();

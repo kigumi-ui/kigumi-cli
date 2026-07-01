@@ -1,7 +1,28 @@
 <!doctype html>
-<html lang="en" class="wa-cloak wa-dark">
+<html lang="en" class="wa-cloak">
   <head>
     <meta charset="UTF-8" />
+
+    <!--
+      Set the color scheme before first paint to avoid a light/dark flash.
+      Reads the same key as ThemeContext ('theme-preference'); defaults to the
+      system setting. Must stay inline and blocking so it runs before the CSS.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme-preference') || 'system';
+          var isDark =
+            stored === 'dark' ||
+            (stored === 'system' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('wa-dark', isDark);
+        } catch (e) {
+          // localStorage/matchMedia unavailable: fall back to WA's default (light).
+        }
+      })();
+    </script>
+
     <link rel="icon" type="image/svg+xml" href="/src/assets/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#6366f1" />

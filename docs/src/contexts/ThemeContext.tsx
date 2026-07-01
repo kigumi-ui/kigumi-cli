@@ -30,7 +30,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return stored || 'system';
   });
 
-  const [isDark, setIsDark] = useState(false);
+  // Initialize from the class the inline anti-flash script (see index.html)
+  // already set on <html>, so the first React render matches what's painted
+  // and the effect below is a no-op on load instead of a correcting flash.
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof document === 'undefined') return false;
+    return document.documentElement.classList.contains('wa-dark');
+  });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

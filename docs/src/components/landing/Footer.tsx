@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Icon, Dialog } from '@/components/ui';
+import { Icon } from '@/components/ui/Icon/Icon';
+import { Dialog } from '@/components/ui/Dialog/Dialog';
 
 export const Footer = () => {
   const [imprintOpen, setImprintOpen] = useState(false);
