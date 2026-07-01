@@ -145,6 +145,13 @@ jobs:
       - name: Validate Templates
         run: pnpm run validate:templates
 
+      - name: Validate generated-artifact freshness
+        # Checks B/C/D (docs-wrapper CSS, .jsx subset, starter fixtures) run here.
+        # Check A (generator regen) self-skips: no Web Awesome CEM / Pro token in
+        # this job, so metadata/template freshness stays covered by prebuild,
+        # check-metadata-freshness, and validate:cem-sync instead.
+        run: pnpm run validate:generated-fresh
+
   test:
     name: Test
     runs-on: ubuntu-latest

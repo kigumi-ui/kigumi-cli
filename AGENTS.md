@@ -58,6 +58,7 @@ node dist/index.js add button --force
 | `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json ��� `component-metadata.ts` (events, slots, methods) |
 | `scripts/find-cem.ts` | Locate Web Awesome Pro custom-elements.json on disk (shared by parser + freshness check) |
 | `scripts/check-metadata-freshness.ts` | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM, triggering regen |
+| `scripts/check-generated-fresh.ts` | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx` event surface is a subset of `.tsx`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs in a tmp copy + diff) self-skips when the CEM is absent |
 | `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
 | `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
 | `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
@@ -1058,4 +1059,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-06-28 (Web Awesome 3.8.0; added accordion, accordion-item, time-input, known-date — 78 components)
+**Maintained by:** AI Assistants | **Last Updated:** 2026-06-30 (added `check-generated-fresh.ts` / `validate:generated-fresh` drift guard)
