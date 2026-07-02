@@ -857,3 +857,53 @@ wa-known-date -> <KnownDate>
 **Slots:** label, hint
 **Methods:** focus(), blur()
 **Parts:** form-control, form-control-label, form-control-input, hint, label, base, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input
+
+## Video
+
+Media | pro | Displays a video player with customizable controls, captions, and thumbnails
+wa-video -> <Video>
+
+**Props:** controls(none|standard|full=standard), src(string), poster(string), title(string), thumbnails(string), playing(boolean=false), muted(boolean=false), volume(number=1), autoplay(boolean=false), loop(boolean=false), autoplay-muted(boolean=false), autoplay-on-visible(boolean=false), preload(auto|metadata|none=metadata), icon-library(string=system)
+**Events:** onTimeupdate, onPlay, onPause, onVolumechange, onError, onEnded, onLoadedmetadata
+**Slots:** default, controls-start, controls-after-play, poster-icon, play-icon, pause-icon, volume-icon, mute-icon, fullscreen-icon, exit-fullscreen-icon
+**Methods:** play(), pause(), togglePlay(), toggleMute(), seek(), setVolume(), setPlaybackRate(), requestFullscreen(), exitFullscreen(), getVideoElement(), getState()
+**Parts:** base, video, controls, controls-overlay, timeline, progress, thumbnail, poster-overlay, poster-play-button, video-title-overlay, caption-overlay, caption, timeline-track, timeline-indicator, timeline-thumb
+**CSS:** --controls-color(white), --controls-background(var(--wa-color-surface-default)), --poster-play-button-background(var(--wa-color-surface-default))
+**Requires:** Dropdown, DropdownItem, Popover, Slider, Button, Icon
+
+## VideoPlaylist
+
+Media | pro | Groups multiple videos into a playlist with next/previous navigation
+wa-video-playlist -> <VideoPlaylist>
+
+**Props:** controls(none|standard|full=full), icon-library(string=system)
+**Events:** onVideoChange
+**Slots:** default
+**Methods:** next(), previous(), goTo()
+**Parts:** base, playlist, playlist-item, playlist-thumbnail, playlist-title, playlist-duration
+**Requires:** Video, Icon
+
+## DatePicker
+
+Form Controls | pro | An inline calendar for selecting a single date or a date range
+wa-date-picker -> <DatePicker>
+
+**Props:** mode(single|range=single), value(string), min(string), max(string), today(string), focused-date(string), view(months|days|years=days), months(1|2=1), page-by(single|months=months), first-day-of-week(auto|sun|mon|tue|wed|thu|fri|sat=auto), with-outside-days(boolean=false), with-week-numbers(boolean=false), weekday-format(narrow|short|long=short), disabled(boolean=false), readonly(boolean=false), disabled-dates(string), disabled-days-of-week(string), disable-past(boolean=false), disable-future(boolean=false), min-range(number=0), max-range(number=0), size(xs|s|m|l|xl=m), locale(string)
+**Events:** onInput, onChange, onFocusDay, onViewChange
+**Slots:** previous-icon, next-icon, header, footer
+**Methods:** focus(), goToDate(), goToToday(), clear()
+**Parts:** base, header, title, nav, previous, next, months, month, month-label, weekdays, weekday, weeknumbers, weeknumber, grid, day, day-today, day-outside, day-weekend, day-disabled, day-selected, day-range-start, day-range-end, day-range-inner, day-range-preview, day-label, day-placeholder, view-grid, view-row, view-cell, view-item, view-item-today, view-item-selected, view-item-disabled, footer
+**Requires:** Icon
+
+## DateInput
+
+Form Controls | pro | A segmented date field with an optional popup calendar, for use in forms
+wa-date-input -> <DateInput>
+
+**Props:** name(string), value(string), mode(single|range=single), label(string), hint(string), size(xs|s|m|l|xl=m), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), autocomplete(string), with-clear(boolean=false), min(string), max(string), today(string), first-day-of-week(auto|sun|mon|tue|wed|thu|fri|sat=auto), disabled-dates(string), disabled-days-of-week(string), disable-past(boolean=false), disable-future(boolean=false), min-range(number=0), max-range(number=0), months(1|2=1), page-by(months|single=months), with-outside-days(boolean=false), with-week-numbers(boolean=false), weekday-format(narrow|short|long=short), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), distance(number=0)
+**Events:** onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid
+**Slots:** label, hint, start, end, clear-icon, expand-icon, footer, previous-icon, next-icon, day-YYYY-MM-DD
+**Methods:** focus(), blur(), show(), hide(), clear()
+**Parts:** form-control, form-control-label, form-control-input, hint, base, input-wrapper, start, end, input, segment, segment-literal, range-separator, clear-button, expand-button, expand-icon, popup, date-picker
+**CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast))
+**Requires:** DatePicker, Icon, Popup

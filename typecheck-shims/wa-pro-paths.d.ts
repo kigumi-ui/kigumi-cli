@@ -35,6 +35,29 @@ declare module '@awesome.me/webawesome/dist/components/combobox/combobox.js' {
   }
 }
 
+declare module '@awesome.me/webawesome/dist/components/date-input/date-input.js' {
+  export default class WaDateInput extends HTMLElement {
+    focus?(options: FocusOptions): void;
+    blur?(): void;
+    show?(): void;
+    hide?(): void;
+    clear?(): void;
+    formStateRestoreCallback?(state: string | File | FormData | null): void;
+    setCustomValidity?(message: string): void;
+    resetValidity?(): void;
+  }
+}
+
+declare module '@awesome.me/webawesome/dist/components/date-picker/date-picker.js' {
+  export type Date = unknown;
+  export default class WaDatePicker extends HTMLElement {
+    focus?(options: FocusOptions): void;
+    goToDate?(date: string | Date): void;
+    goToToday?(): void;
+    clear?(): void;
+  }
+}
+
 declare module '@awesome.me/webawesome/dist/components/doughnut-chart/doughnut-chart.js' {
   export default class WaDoughnutChart extends HTMLElement {}
 }
@@ -96,5 +119,29 @@ declare module '@awesome.me/webawesome/dist/components/toast/toast.js' {
 declare module '@awesome.me/webawesome/dist/components/toast-item/toast-item.js' {
   export default class WaToastItem extends HTMLElement {
     hide?(): void;
+  }
+}
+
+declare module '@awesome.me/webawesome/dist/components/video/video.js' {
+  export default class WaVideo extends HTMLElement {
+    play?(): void;
+    pause?(): void;
+    togglePlay?(): void;
+    toggleMute?(): void;
+    seek?(time: number): void;
+    setVolume?(volume: number): void;
+    setPlaybackRate?(rate: number): void;
+    requestFullscreen?(): void;
+    exitFullscreen?(): void;
+    getVideoElement?(): void;
+    getState?(): void;
+  }
+}
+
+declare module '@awesome.me/webawesome/dist/components/video-playlist/video-playlist.js' {
+  export default class WaVideoPlaylist extends HTMLElement {
+    next?(): void;
+    previous?(): void;
+    goTo?(index: number): void;
   }
 }

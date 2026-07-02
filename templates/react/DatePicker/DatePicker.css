@@ -1,0 +1,46 @@
+/**
+ * DatePicker Component Styles
+ * Documentation: https://webawesome.com/docs/components/date-picker
+ *
+ * CSS Custom Properties:
+ * (No custom properties defined for this component)
+ *
+ * CSS Parts:
+ * - base: The component's outer wrapper.
+ * - header: The header row containing the title and navigation buttons.
+ * - title: The clickable month/year title button that steps the view up (days → months → years).
+ * - nav: The container around the previous and next buttons.
+ * - previous: The previous-page button.
+ * - next: The next-page button.
+ * - months: The container that holds the rendered month(s).
+ * - month: A single rendered month.
+ * - month-label: The label rendered above each month when `months` is greater than 1.
+ * - weekdays: The row of weekday labels above each month grid.
+ * - weekday: A single weekday label cell.
+ * - weeknumbers: The week-number column header cell.
+ * - weeknumber: A single week-number cell.
+ * - grid: The day grid `<table>` for a month.
+ * - day: A day cell button. State-specific parts are added in addition to `day` so you can target them with `::part(day-...)`.
+ * - day-today: Added to the day cell that represents today.
+ * - day-outside: Added when the day belongs to an adjacent month (requires `with-outside-days`).
+ * - day-weekend: Added when the day falls on a weekend per the locale's week info.
+ * - day-disabled: Added when the day is disabled.
+ * - day-selected: Added when the day is selected (single mode or a range endpoint).
+ * - day-range-start: Added to the first endpoint of a range.
+ * - day-range-end: Added to the second endpoint of a range.
+ * - day-range-inner: Added to days that fall between the two endpoints of a committed range.
+ * - day-range-preview: Added to days inside the hover preview span during an in-progress range.
+ * - day-label: The label text inside a day button.
+ * - day-placeholder: An empty cell rendered in trailing rows when `with-outside-days` is off, so the grid is always 6 rows tall and the calendar's height doesn't shift between months.
+ * - view-grid: The grid used when the picker is in month-select or year-select view.
+ * - view-row: A row of three items inside the view grid. Transparent to layout (`display: contents`).
+ * - view-cell: The gridcell wrapper around a single view item. Transparent to layout (`display: contents`).
+ * - view-item: A single month or year button inside the view grid. State-specific parts are added as siblings.
+ * - view-item-today: Added to the month/year representing today.
+ * - view-item-selected: Added to the month/year that matches the current selection.
+ * - view-item-disabled: Added when every day in the month/year is disabled.
+ * - footer: The container wrapping the `footer` slot.
+ */
+.DatePicker {
+  /* Add your custom styles here */
+}
