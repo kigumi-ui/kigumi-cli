@@ -41,6 +41,8 @@ const PRO_COMPONENTS = [
   'bubble-chart',
   'chart',
   'combobox',
+  'date-input',
+  'date-picker',
   'doughnut-chart',
   'file-input',
   'line-chart',
@@ -52,6 +54,8 @@ const PRO_COMPONENTS = [
   'sparkline',
   'toast',
   'toast-item',
+  'video',
+  'video-playlist',
 ] as const;
 
 function kebabToPascal(kebab: string): string {

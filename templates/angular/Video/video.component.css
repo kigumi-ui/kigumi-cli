@@ -1,0 +1,29 @@
+/**
+ * Video Component Styles
+ * Documentation: https://webawesome.com/docs/components/video
+ *
+ * CSS Custom Properties:
+ * --controls-color - The text and icon color used throughout the controls overlay, title overlay, and mobile controls. (default: white)
+ * --controls-background - The background of the controls bar and mobile controls. (default: var(--wa-color-surface-default))
+ * --poster-play-button-background - The background of the play button shown over the poster image. Also used to derive the hover state via color-mix(). (default: var(--wa-color-surface-default))
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
+ * video - The video element.
+ * controls - The controls container.
+ * controls-overlay - The overlay wrapping timeline and controls bar.
+ * timeline - The timeline/scrubber container.
+ * progress - The progress bar.
+ * thumbnail - The thumbnail preview.
+ * poster-overlay - The poster image overlay.
+ * poster-play-button - The play button on the poster overlay.
+ * video-title-overlay - The title text overlay.
+ * caption-overlay - The custom caption overlay container.
+ * caption - The caption text element.
+ * timeline-track - The timeline slider's track (forwarded from wa-slider).
+ * timeline-indicator - The timeline slider's filled indicator (forwarded from wa-slider).
+ * timeline-thumb - The timeline slider's thumb (forwarded from wa-slider).
+ */
+:host {
+  display: contents;
+}

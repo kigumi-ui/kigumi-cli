@@ -16,6 +16,8 @@ import type WaBarChart from '@awesome.me/webawesome/dist/components/bar-chart/ba
 import type WaBubbleChart from '@awesome.me/webawesome/dist/components/bubble-chart/bubble-chart.js';
 import type WaChart from '@awesome.me/webawesome/dist/components/chart/chart.js';
 import type WaCombobox from '@awesome.me/webawesome/dist/components/combobox/combobox.js';
+import type WaDateInput from '@awesome.me/webawesome/dist/components/date-input/date-input.js';
+import type WaDatePicker from '@awesome.me/webawesome/dist/components/date-picker/date-picker.js';
 import type WaDoughnutChart from '@awesome.me/webawesome/dist/components/doughnut-chart/doughnut-chart.js';
 import type WaFileInput from '@awesome.me/webawesome/dist/components/file-input/file-input.js';
 import type WaLineChart from '@awesome.me/webawesome/dist/components/line-chart/line-chart.js';
@@ -27,6 +29,8 @@ import type WaScatterChart from '@awesome.me/webawesome/dist/components/scatter-
 import type WaSparkline from '@awesome.me/webawesome/dist/components/sparkline/sparkline.js';
 import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import type WaToastItem from '@awesome.me/webawesome/dist/components/toast-item/toast-item.js';
+import type WaVideo from '@awesome.me/webawesome/dist/components/video/video.js';
+import type WaVideoPlaylist from '@awesome.me/webawesome/dist/components/video-playlist/video-playlist.js';
 
 // Inlined Pro props interfaces
 export type WaBarChartProps = {
@@ -381,6 +385,281 @@ the same document or shadow root for this to work. */
   "onwa-invalid"?: (e: CustomEvent<never>) => void;
 }
 
+export type WaDateInputProps = {
+  /** The date input's name, submitted as a name/value pair with form data. */
+  "name"?: WaDateInput['name'];
+  /** The default value of the form control. Used for form reset. */
+  "value"?: WaDateInput['defaultValue'];
+  /** The default value of the form control. Used for form reset. */
+  "defaultValue"?: WaDateInput['defaultValue'];
+  /** Disables the date input. */
+  "disabled"?: WaDateInput['disabled'];
+  /** Makes the date input required for form submission. */
+  "required"?: WaDateInput['required'];
+  /** Makes the input non-editable. The popup still opens for browsing. */
+  "readonly"?: WaDateInput['readonly'];
+  /** The date input's size. */
+  "size"?: WaDateInput['size'];
+  /** The date input's visual appearance. */
+  "appearance"?: WaDateInput['appearance'];
+  /** Draws a pill-style date input with rounded edges. */
+  "pill"?: WaDateInput['pill'];
+  /** The date input's label. If you need to display HTML, use the `label` slot instead. */
+  "label"?: WaDateInput['label'];
+  /** The date input's hint. If you need to display HTML, use the `hint` slot instead. */
+  "hint"?: WaDateInput['hint'];
+  /** Forwarded to the hidden form input (e.g., `'bday'`, `'cc-exp'`) to enable browser autofill. */
+  "autocomplete"?: WaDateInput['autocomplete'];
+  /** Shows a clear button when the date input has a value. */
+  "with-clear"?: WaDateInput['withClear'];
+  /** Shows a clear button when the date input has a value. */
+  "withClear"?: WaDateInput['withClear'];
+  /** Only required for SSR. Set to `true` if you're slotting in a `label` element. */
+  "with-label"?: WaDateInput['withLabel'];
+  /** Only required for SSR. Set to `true` if you're slotting in a `label` element. */
+  "withLabel"?: WaDateInput['withLabel'];
+  /** Only required for SSR. Set to `true` if you're slotting in a `hint` element. */
+  "with-hint"?: WaDateInput['withHint'];
+  /** Only required for SSR. Set to `true` if you're slotting in a `hint` element. */
+  "withHint"?: WaDateInput['withHint'];
+  /** Selection mode. */
+  "mode"?: WaDateInput['mode'];
+  /** Earliest selectable date as `YYYY-MM-DD`. Out-of-range dates are disabled in the popup calendar and a
+committed value before `min` fails constraint validation with `rangeUnderflow`. */
+  "min"?: WaDateInput['min'];
+  /** Latest selectable date as `YYYY-MM-DD`. Out-of-range dates are disabled in the popup calendar and a
+committed value after `max` fails constraint validation with `rangeOverflow`. */
+  "max"?: WaDateInput['max'];
+  /** Override "today" as `YYYY-MM-DD` (defaults to the runtime date). */
+  "today"?: WaDateInput['today'];
+  /** The first day of the week in the popup calendar. */
+  "first-day-of-week"?: WaDateInput['firstDayOfWeek'];
+  /** The first day of the week in the popup calendar. */
+  "firstDayOfWeek"?: WaDateInput['firstDayOfWeek'];
+  /** Dates that cannot be selected. */
+  "disabled-dates"?: WaDateInput['disabledDates'];
+  /** Dates that cannot be selected. */
+  "disabledDates"?: WaDateInput['disabledDates'];
+  /** Days of the week that cannot be selected. Accepts a space-separated list of three-letter weekday names. */
+  "disabled-days-of-week"?: WaDateInput['disabledDaysOfWeek'];
+  /** Days of the week that cannot be selected. Accepts a space-separated list of three-letter weekday names. */
+  "disabledDaysOfWeek"?: WaDateInput['disabledDaysOfWeek'];
+  /** Disable all dates strictly before today. */
+  "disable-past"?: WaDateInput['disablePast'];
+  /** Disable all dates strictly before today. */
+  "disablePast"?: WaDateInput['disablePast'];
+  /** Disable all dates strictly after today. */
+  "disable-future"?: WaDateInput['disableFuture'];
+  /** Disable all dates strictly after today. */
+  "disableFuture"?: WaDateInput['disableFuture'];
+  /** Minimum range length in days (range mode only). `0` disables. */
+  "min-range"?: WaDateInput['minRange'];
+  /** Minimum range length in days (range mode only). `0` disables. */
+  "minRange"?: WaDateInput['minRange'];
+  /** Maximum range length in days (range mode only). `0` disables. */
+  "max-range"?: WaDateInput['maxRange'];
+  /** Maximum range length in days (range mode only). `0` disables. */
+  "maxRange"?: WaDateInput['maxRange'];
+  /** Number of months rendered in the popup calendar. */
+  "months"?: WaDateInput['months'];
+  /** Whether prev/next pages by the visible range or one month at a time. */
+  "page-by"?: WaDateInput['pageBy'];
+  /** Whether prev/next pages by the visible range or one month at a time. */
+  "pageBy"?: WaDateInput['pageBy'];
+  /** Show leading/trailing days from adjacent months in the popup calendar. */
+  "with-outside-days"?: WaDateInput['withOutsideDays'];
+  /** Show leading/trailing days from adjacent months in the popup calendar. */
+  "withOutsideDays"?: WaDateInput['withOutsideDays'];
+  /** Show ISO 8601 week numbers in the popup calendar. */
+  "with-week-numbers"?: WaDateInput['withWeekNumbers'];
+  /** Show ISO 8601 week numbers in the popup calendar. */
+  "withWeekNumbers"?: WaDateInput['withWeekNumbers'];
+  /** Weekday header format in the popup calendar. */
+  "weekday-format"?: WaDateInput['weekdayFormat'];
+  /** Weekday header format in the popup calendar. */
+  "weekdayFormat"?: WaDateInput['weekdayFormat'];
+  /** Whether the popup calendar is open. */
+  "open"?: WaDateInput['open'];
+  /** Preferred popup placement. */
+  "placement"?: WaDateInput['placement'];
+  /** Distance in pixels between the popup and the input. */
+  "distance"?: WaDateInput['distance'];
+  /**  */
+  "custom-error"?: WaDateInput['customError'];
+  /**  */
+  "customError"?: WaDateInput['customError'];
+  /**  */
+  "dir"?: WaDateInput['dir'];
+  /**  */
+  "lang"?: WaDateInput['lang'];
+  /**  */
+  "did-ssr"?: WaDateInput['didSSR'];
+  /**  */
+  "didSSR"?: WaDateInput['didSSR'];
+  /** Native `input` events do not fire on `role=spinbutton` elements (they aren't real `<input>`s). The component
+dispatches a composed host `input` event on every segment edit, every step, and on calendar selection, so a
+single `input` is enough to mark the field as interacted with. */
+  "assumeInteractionOn"?: WaDateInput['assumeInteractionOn'];
+  /**  */
+  "popup"?: WaDateInput['popup'];
+  /**  */
+  "valueInput"?: WaDateInput['valueInput'];
+  /**  */
+  "inputGroup"?: WaDateInput['inputGroup'];
+  /**  */
+  "calendar"?: WaDateInput['calendar'];
+  /** JS-only callback for custom date disabling. Forwarded to the popup calendar. */
+  "isDateDisabled"?: WaDateInput['isDateDisabled'];
+  /** JS-only callback for custom day-cell content. Forwarded to the popup calendar. */
+  "dayContent"?: WaDateInput['dayContent'];
+  /**  */
+  "input"?: WaDateInput['input'];
+  /**  */
+  "valueHasChanged"?: WaDateInput['valueHasChanged'];
+  /**  */
+  "hasInteracted"?: WaDateInput['hasInteracted'];
+  /**  */
+  "states"?: WaDateInput['states'];
+  /**  */
+  "emitInvalid"?: WaDateInput['emitInvalid'];
+  /** By default, form controls are associated with the nearest containing `<form>` element. This attribute allows you
+to place the form control outside of a form and associate it with the form that has this `id`. The form must be in
+the same document or shadow root for this to work. */
+  "form"?: WaDateInput['form'];
+  /**  */
+  "initialReflectedProperties"?: WaDateInput['initialReflectedProperties'];
+  /**  */
+  "internals"?: WaDateInput['internals'];
+
+  /** Emitted on every segment edit, step, calendar interaction, and clear, even while the value is incomplete. */
+  "oninput"?: (e: CustomEvent<InputEvent>) => void;
+  /** Emitted on every committed value transition (each completed date edit, calendar selection, or clear), mirroring native `<input type="date">` rather than the commit-on-blur behavior of `<wa-input>`/`<wa-select>`. This matches the sibling `<wa-time-input>`. It does NOT fire while a value is still incomplete. */
+  "onchange"?: (e: CustomEvent<Event>) => void;
+  /** Emitted when the control receives focus. */
+  "onfocus"?: (e: CustomEvent<never>) => void;
+  /** Emitted when the control loses focus. */
+  "onblur"?: (e: CustomEvent<never>) => void;
+  /** Emitted when the clear button is activated. */
+  "onwa-clear"?: (e: CustomEvent<never>) => void;
+  /** Emitted when the popup is about to open. Cancelable. */
+  "onwa-show"?: (e: CustomEvent<never>) => void;
+  /** Emitted after the popup opens and animations complete. */
+  "onwa-after-show"?: (e: CustomEvent<never>) => void;
+  /** Emitted when the popup is about to close. Cancelable. */
+  "onwa-hide"?: (e: CustomEvent<never>) => void;
+  /** Emitted after the popup closes and animations complete. */
+  "onwa-after-hide"?: (e: CustomEvent<never>) => void;
+  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
+  "onwa-invalid"?: (e: CustomEvent<never>) => void;
+}
+
+export type WaDatePickerProps = {
+  /** The selection mode. */
+  "mode"?: WaDatePicker['mode'];
+  /** The selected date(s). For `mode="single"`, an ISO date string (`YYYY-MM-DD`) or empty. For `mode="range"`, two ISO
+dates separated by `/` (`YYYY-MM-DD/YYYY-MM-DD`). The property setter also accepts `Date` objects and
+`{ from, to }` objects for ranges. */
+  "value"?: WaDatePicker['value'];
+  /** The earliest selectable date as `YYYY-MM-DD`. */
+  "min"?: WaDatePicker['min'];
+  /** The latest selectable date as `YYYY-MM-DD`. */
+  "max"?: WaDatePicker['max'];
+  /** Overrides the date considered "today". */
+  "today"?: WaDatePicker['today'];
+  /** The currently focused date as `YYYY-MM-DD`. Drives roving tabindex and the visible month. */
+  "focused-date"?: WaDatePicker['focusedDate'];
+  /** The currently focused date as `YYYY-MM-DD`. Drives roving tabindex and the visible month. */
+  "focusedDate"?: WaDatePicker['focusedDate'];
+  /** The current view. */
+  "view"?: WaDatePicker['view'];
+  /** Number of months rendered side-by-side. Either `1` or `2`. Set to `2` to see both ends of a range at once. */
+  "months"?: WaDatePicker['months'];
+  /** Whether prev/next advances by the visible range (`months`) or one month at a time (`single`). */
+  "page-by"?: WaDatePicker['pageBy'];
+  /** Whether prev/next advances by the visible range (`months`) or one month at a time (`single`). */
+  "pageBy"?: WaDatePicker['pageBy'];
+  /** The first day of the week. The default `auto` uses the current locale's week info. To set a specific day, pass a
+three-letter weekday name: `sun`, `mon`, `tue`, `wed`, `thu`, `fri`, or `sat`. */
+  "first-day-of-week"?: WaDatePicker['firstDayOfWeek'];
+  /** The first day of the week. The default `auto` uses the current locale's week info. To set a specific day, pass a
+three-letter weekday name: `sun`, `mon`, `tue`, `wed`, `thu`, `fri`, or `sat`. */
+  "firstDayOfWeek"?: WaDatePicker['firstDayOfWeek'];
+  /** Shows leading and trailing days from adjacent months. */
+  "with-outside-days"?: WaDatePicker['withOutsideDays'];
+  /** Shows leading and trailing days from adjacent months. */
+  "withOutsideDays"?: WaDatePicker['withOutsideDays'];
+  /** Shows an ISO week-number column. */
+  "with-week-numbers"?: WaDatePicker['withWeekNumbers'];
+  /** Shows an ISO week-number column. */
+  "withWeekNumbers"?: WaDatePicker['withWeekNumbers'];
+  /** The weekday header format. */
+  "weekday-format"?: WaDatePicker['weekdayFormat'];
+  /** The weekday header format. */
+  "weekdayFormat"?: WaDatePicker['weekdayFormat'];
+  /** Disables the entire picker. */
+  "disabled"?: WaDatePicker['disabled'];
+  /** Displays the current value without allowing changes. Cells remain focusable. */
+  "readonly"?: WaDatePicker['readonly'];
+  /** A list of whitespace-separated ISO dates that should be disabled. The property accepts an array. */
+  "disabled-dates"?: WaDatePicker['disabledDates'];
+  /** A list of whitespace-separated ISO dates that should be disabled. The property accepts an array. */
+  "disabledDates"?: WaDatePicker['disabledDates'];
+  /** Weekdays to disable. Accepts a space-separated list of three-letter weekday names: `sun`, `mon`, `tue`, `wed`,
+`thu`, `fri`, `sat` */
+  "disabled-days-of-week"?: WaDatePicker['disabledDaysOfWeek'];
+  /** Weekdays to disable. Accepts a space-separated list of three-letter weekday names: `sun`, `mon`, `tue`, `wed`,
+`thu`, `fri`, `sat` */
+  "disabledDaysOfWeek"?: WaDatePicker['disabledDaysOfWeek'];
+  /** Disable all dates strictly before `today`. */
+  "disable-past"?: WaDatePicker['disablePast'];
+  /** Disable all dates strictly before `today`. */
+  "disablePast"?: WaDatePicker['disablePast'];
+  /** Disable all dates strictly after `today`. */
+  "disable-future"?: WaDatePicker['disableFuture'];
+  /** Disable all dates strictly after `today`. */
+  "disableFuture"?: WaDatePicker['disableFuture'];
+  /** Minimum range length in days (`mode="range"` only). `0` disables the check. */
+  "min-range"?: WaDatePicker['minRange'];
+  /** Minimum range length in days (`mode="range"` only). `0` disables the check. */
+  "minRange"?: WaDatePicker['minRange'];
+  /** Maximum range length in days (`mode="range"` only). `0` disables the check. */
+  "max-range"?: WaDatePicker['maxRange'];
+  /** Maximum range length in days (`mode="range"` only). `0` disables the check. */
+  "maxRange"?: WaDatePicker['maxRange'];
+  /** Visual size. */
+  "size"?: WaDatePicker['size'];
+  /** BCP-47 locale override. When empty, the inherited `lang` attribute is used. */
+  "locale"?: WaDatePicker['locale'];
+  /**  */
+  "dir"?: WaDatePicker['dir'];
+  /**  */
+  "lang"?: WaDatePicker['lang'];
+  /**  */
+  "did-ssr"?: WaDatePicker['didSSR'];
+  /**  */
+  "didSSR"?: WaDatePicker['didSSR'];
+  /** Author-supplied predicate that returns `true` when a date should be disabled. Runs in addition to declarative
+`min` / `max` / `disabled-*` rules. JavaScript-only — set via property, not attribute. */
+  "isDateDisabled"?: WaDatePicker['isDateDisabled'];
+  /** Author-supplied function that returns custom content for a day cell. Receives a `Date` and returns a string of
+HTML, a Lit `TemplateResult`, or `null` to use the default day number. Runs for every rendered day cell (including
+outside days). A `day-YYYY-MM-DD` slot, when provided for the same date, wins over this function. Property only. */
+  "dayContent"?: WaDatePicker['dayContent'];
+  /**  */
+  "initialReflectedProperties"?: WaDatePicker['initialReflectedProperties'];
+  /**  */
+  "internals"?: WaDatePicker['internals'];
+
+  /** Emitted when the value changes during interaction. In range mode, this fires after the first click of a new range. */
+  "oninput"?: (e: CustomEvent<InputEvent>) => void;
+  /** Emitted when the user commits a new value. Read the current value from `event.target.value`. */
+  "onchange"?: (e: CustomEvent<Event>) => void;
+  /** Emitted when the focused day changes via keyboard navigation, paging, or pointer hover. `event.detail` is `{ date: Date }`. */
+  "onwa-focus-day"?: (e: CustomEvent<never>) => void;
+  /** Emitted when the date picker switches between day, month, and year views. `event.detail` is `{ view, date }`. */
+  "onwa-view-change"?: (e: CustomEvent<never>) => void;
+}
+
 export type WaDoughnutChartProps = {
   /** The type of chart to render. Valid types include `bar`, `line`, `pie`, `doughnut`, `polarArea`, `radar`, `scatter`,
 and `bubble`. */
@@ -457,6 +736,10 @@ export type WaFileInputProps = {
   "accept"?: WaFileInput['accept'];
   /** Makes the file input a required field. */
   "required"?: WaFileInput['required'];
+  /** On mobile devices, specifies which camera or microphone to use for capturing media. Use `user` for the front-facing
+camera/microphone or `environment` for the rear-facing one. This attribute is only used when `accept` includes an
+image, video, or audio type and may be ignored on devices that lack the corresponding hardware. */
+  "capture"?: WaFileInput['capture'];
   /** Only required for SSR. Set to `true` if you're slotting in a `label` element so the server-rendered markup
 includes the label before the component hydrates on the client. */
   "with-label"?: WaFileInput['withLabel'];
@@ -687,6 +970,8 @@ the same document or shadow root for this to work. */
   "onblur"?: (e: CustomEvent<never>) => void;
   /** Emitted when the control gains focus. */
   "onfocus"?: (e: CustomEvent<never>) => void;
+  /** Emitted before the value changes. Can be cancelled with `event.preventDefault()` to prevent the value from changing. */
+  "onbeforeinput"?: (e: CustomEvent<never>) => void;
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   "onwa-invalid"?: (e: CustomEvent<never>) => void;
 }
@@ -1026,6 +1311,101 @@ export type WaToastProps = {
 
 }
 
+export type WaVideoPlaylistProps = {
+  /** The controls preset forwarded to each child `<wa-video>`. */
+  "controls"?: WaVideoPlaylist['controls'];
+  /** Icon library used for placeholder icons. */
+  "icon-library"?: WaVideoPlaylist['iconLibrary'];
+  /** Icon library used for placeholder icons. */
+  "iconLibrary"?: WaVideoPlaylist['iconLibrary'];
+  /**  */
+  "dir"?: WaVideoPlaylist['dir'];
+  /**  */
+  "lang"?: WaVideoPlaylist['lang'];
+  /**  */
+  "did-ssr"?: WaVideoPlaylist['didSSR'];
+  /**  */
+  "didSSR"?: WaVideoPlaylist['didSSR'];
+  /**  */
+  "initialReflectedProperties"?: WaVideoPlaylist['initialReflectedProperties'];
+  /**  */
+  "internals"?: WaVideoPlaylist['internals'];
+
+  /** Emitted when the active video changes. */
+  "onwa-video-change"?: (e: CustomEvent<never>) => void;
+}
+
+export type WaVideoProps = {
+  /** The video's controls preset.
+- `none` — no controls are shown.
+- `standard` — shows the timeline, play/pause, volume, captions, and fullscreen.
+- `full` — all of the above plus playback speed and picture-in-picture. */
+  "controls"?: WaVideo['controls'];
+  /** A URL pointing to a WebVTT file for timeline thumbnail previews. */
+  "thumbnails"?: WaVideo['thumbnails'];
+  /** The URL of the video source. For multiple formats, use `<source>` elements instead. */
+  "src"?: WaVideo['src'];
+  /** Poster image URL */
+  "poster"?: WaVideo['poster'];
+  /** The video's title. */
+  "title"?: WaVideo['title'];
+  /** Indicates whether the video is currently playing. */
+  "playing"?: WaVideo['playing'];
+  /** When set, the video will be muted. */
+  "muted"?: WaVideo['muted'];
+  /** The video's volume. */
+  "volume"?: WaVideo['volume'];
+  /** The total duration of the video in seconds. */
+  "duration"?: WaVideo['duration'];
+  /** The current playback position in seconds. */
+  "currentTime"?: WaVideo['currentTime'];
+  /** Enables autoplay when the component connects. */
+  "autoplay"?: WaVideo['autoplay'];
+  /** Loops the video when playback ends. */
+  "loop"?: WaVideo['loop'];
+  /** Enables autoplay in a muted state. */
+  "autoplay-muted"?: WaVideo['autoplayMuted'];
+  /** Enables autoplay in a muted state. */
+  "autoplayMuted"?: WaVideo['autoplayMuted'];
+  /** Automatically resumes playback when the player scrolls back into view after being paused by scrolling out. */
+  "autoplay-on-visible"?: WaVideo['autoplayOnVisible'];
+  /** Automatically resumes playback when the player scrolls back into view after being paused by scrolling out. */
+  "autoplayOnVisible"?: WaVideo['autoplayOnVisible'];
+  /** Controls how the browser preloads the video. Defaults to 'metadata' to minimize data usage. */
+  "preload"?: WaVideo['preload'];
+  /** Icon library used for all built-in control icons. Defaults to 'system'. */
+  "icon-library"?: WaVideo['iconLibrary'];
+  /** Icon library used for all built-in control icons. Defaults to 'system'. */
+  "iconLibrary"?: WaVideo['iconLibrary'];
+  /**  */
+  "dir"?: WaVideo['dir'];
+  /**  */
+  "lang"?: WaVideo['lang'];
+  /**  */
+  "did-ssr"?: WaVideo['didSSR'];
+  /**  */
+  "didSSR"?: WaVideo['didSSR'];
+  /**  */
+  "initialReflectedProperties"?: WaVideo['initialReflectedProperties'];
+  /**  */
+  "internals"?: WaVideo['internals'];
+
+  /** Emitted when the time changes. */
+  "ontimeupdate"?: (e: CustomEvent<Event>) => void;
+  /** Emitted when playback begins. */
+  "onplay"?: (e: CustomEvent<never>) => void;
+  /** Emitted when playback stops. */
+  "onpause"?: (e: CustomEvent<never>) => void;
+  /** Emitted when the volume changes. */
+  "onvolumechange"?: (e: CustomEvent<never>) => void;
+  /** Emitted when an error occurs while loading/playing. */
+  "onerror"?: (e: CustomEvent<never>) => void;
+  /** Emitted when playback ends. */
+  "onended"?: (e: CustomEvent<never>) => void;
+  /** Emitted when metadata has been loaded. */
+  "onloadedmetadata"?: (e: CustomEvent<never>) => void;
+}
+
 type BaseProps<T extends HTMLElement> = {
   children?: any;
   class?: string;
@@ -1043,6 +1423,8 @@ interface WaProIntrinsicElements {
   'wa-bubble-chart': Partial<WaBubbleChartProps & BaseProps<WaBubbleChart> & BaseEvents>;
   'wa-chart': Partial<WaChartProps & BaseProps<WaChart> & BaseEvents>;
   'wa-combobox': Partial<WaComboboxProps & BaseProps<WaCombobox> & BaseEvents>;
+  'wa-date-input': Partial<WaDateInputProps & BaseProps<WaDateInput> & BaseEvents>;
+  'wa-date-picker': Partial<WaDatePickerProps & BaseProps<WaDatePicker> & BaseEvents>;
   'wa-doughnut-chart': Partial<WaDoughnutChartProps & BaseProps<WaDoughnutChart> & BaseEvents>;
   'wa-file-input': Partial<WaFileInputProps & BaseProps<WaFileInput> & BaseEvents>;
   'wa-line-chart': Partial<WaLineChartProps & BaseProps<WaLineChart> & BaseEvents>;
@@ -1054,6 +1436,8 @@ interface WaProIntrinsicElements {
   'wa-sparkline': Partial<WaSparklineProps & BaseProps<WaSparkline> & BaseEvents>;
   'wa-toast': Partial<WaToastProps & BaseProps<WaToast> & BaseEvents>;
   'wa-toast-item': Partial<WaToastItemProps & BaseProps<WaToastItem> & BaseEvents>;
+  'wa-video': Partial<WaVideoProps & BaseProps<WaVideo> & BaseEvents>;
+  'wa-video-playlist': Partial<WaVideoPlaylistProps & BaseProps<WaVideoPlaylist> & BaseEvents>;
 }
 
 declare module 'react' {

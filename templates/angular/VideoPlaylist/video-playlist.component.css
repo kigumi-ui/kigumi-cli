@@ -1,0 +1,15 @@
+/**
+ * VideoPlaylist Component Styles
+ * Documentation: https://webawesome.com/docs/components/video-playlist
+ *
+ * CSS Parts:
+ * base - The component's base wrapper.
+ * playlist - The playlist sidebar container.
+ * playlist-item - An individual playlist item button.
+ * playlist-thumbnail - The thumbnail image within a playlist item.
+ * playlist-title - The title text within a playlist item.
+ * playlist-duration - The duration text within a playlist item.
+ */
+:host {
+  display: contents;
+}
