@@ -95,7 +95,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: '@awesome.me/webawesome/dist/components/button/button.js',
     tier: 'free',
   },
-  // ... 80 components
+  // ... 84 components
 };
 ```
 
@@ -432,4 +432,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-07-02 (Web Awesome 3.10.0; 80 components after adding random-content)
+**Last Updated:** 2026-07-02 (Web Awesome 3.10.0; 84 components after adding video, video-playlist, date-picker, date-input)
