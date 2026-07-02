@@ -59,6 +59,22 @@ const REGISTRY_VALUE_ALLOWLIST: Record<string, readonly string[]> = {
   // the CEM in F-153. The mechanism is kept for future tracked divergences.
 };
 
+/**
+ * CEM components Kigumi deliberately does not wrap. Listed entries are skipped
+ * by the missing-from-registry check so every validator run stays at zero
+ * warnings; any NEW unwrapped CEM component still warns. Adding a wrapper for
+ * one of these is a separate scoped effort — remove its entry here when doing so.
+ */
+const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
+  // WA 3.7.0 additions; wrappers triaged wontfix-unless-recurring (PR #208).
+  'video',
+  'video-playlist',
+  // Superseded for Kigumi's purposes by known-date/time-input wrappers;
+  // full date-picker/date-input wrappers are a separate scoped effort.
+  'date-picker',
+  'date-input',
+]);
+
 interface SyncResult {
   passed: boolean;
   findings: SyncFinding[];
@@ -155,6 +171,7 @@ function checkComponentPresence(
   const findings: SyncFinding[] = [];
 
   for (const cemKey of cemKeys) {
+    if (INTENTIONALLY_UNWRAPPED.has(cemKey)) continue;
     if (!registryMap.has(cemKey)) {
       findings.push({
         component: cemKey,

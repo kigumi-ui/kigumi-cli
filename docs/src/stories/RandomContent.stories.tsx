@@ -114,6 +114,21 @@ export const MultipleItems: Story = {
   ),
 };
 
+/** Static snapshot for visual regression testing. A single child keeps the selection deterministic. */
+export const ChromaticOnly: Story = {
+  tags: ['!dev', '!autodocs'],
+  parameters: {
+    chromatic: { disableSnapshot: false, pauseAnimationAtEnd: true },
+  },
+  render: () => (
+    <div style={{ padding: '1.5rem', maxWidth: '60ch' }}>
+      <RandomContent>
+        <p>{tips[0]}</p>
+      </RandomContent>
+    </div>
+  ),
+};
+
 /** Triggers a new selection imperatively via the randomize() ref method. */
 export const ManualRandomize: Story = {
   render: () => {

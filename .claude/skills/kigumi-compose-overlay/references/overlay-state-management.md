@@ -26,10 +26,10 @@ const open = ref(false);
 
 ## requestClose() vs hide()
 
-| Method | Triggers wa-hide? | Cancelable? | Use |
-|--------|------------------|-------------|-----|
-| `requestClose()` | Yes | Yes (`event.preventDefault()`) | Always use this |
-| `hide()` | No | No | Never use on Dialog/Drawer |
+| Method           | Triggers wa-hide? | Cancelable?                    | Use                        |
+| ---------------- | ----------------- | ------------------------------ | -------------------------- |
+| `requestClose()` | Yes               | Yes (`event.preventDefault()`) | Always use this            |
+| `hide()`         | No                | No                             | Never use on Dialog/Drawer |
 
 ```tsx
 // CORRECT: triggers event lifecycle, state stays in sync
@@ -80,6 +80,8 @@ When enabled, clicking outside the overlay closes it.
 **When to use:** Read-only content, non-destructive overlays.
 **When NOT to use:** Forms with unsaved data, confirmation dialogs.
 
+Both Dialog and Drawer default to `light-dismiss={false}` (Drawer since Web Awesome 3.8.0), so outside clicks never close an overlay unless you opt in.
+
 ## Focus Management
 
 Dialog and Drawer handle focus automatically:
@@ -92,10 +94,10 @@ No manual focus management needed. Do not call `.focus()` yourself.
 
 ## Nested Overlays
 
-| Combination | Supported? |
-|---|---|
-| Dialog inside Dialog | Avoid (bad UX) |
-| Dropdown inside Dialog | Yes |
-| Tooltip inside Dialog | Yes |
-| Popover inside Dialog | Yes |
-| Dialog inside Drawer | Yes (but consider UX) |
+| Combination            | Supported?            |
+| ---------------------- | --------------------- |
+| Dialog inside Dialog   | Avoid (bad UX)        |
+| Dropdown inside Dialog | Yes                   |
+| Tooltip inside Dialog  | Yes                   |
+| Popover inside Dialog  | Yes                   |
+| Dialog inside Drawer   | Yes (but consider UX) |

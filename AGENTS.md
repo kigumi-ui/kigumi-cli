@@ -793,6 +793,28 @@ START: Change affects tier detection or packages
   - `pnpm validate:templates` → ✅
   - `pnpm test` → ✅
 
+- [ ] **Docs site & agent surfaces (hand-maintained — no validator catches these)**
+  - `docs/src/components/ui/{ComponentName}/` wrapper + export in `docs/src/components/ui/index.ts`
+  - `docs/src/stories/{ComponentName}.stories.tsx` with argTypes, a `ChromaticOnly` story, and (if the component emits events) an `interaction`-tagged `Default` story with a `play` function
+  - Interaction-test lane registration: add the story file to BOTH `docs/.storybook-test/main.ts` (`stories`) and `docs/vitest.storybook.config.ts` (`server.warmup.clientFiles`)
+  - Components overview grid: entry in `componentsByCategory` in `docs/src/components/storybook/StorybookComponentGrid.tsx` + 920×600 dark-theme PNG in `docs/src/assets/components/`
+  - Relevant `kigumi-compose-*` skill selection tables (e.g. form controls → `kigumi-compose-form/SKILL.md` + `references/form-component-cheatsheet.md`)
+  - Component counts in `templates/AGENTS.md` and `.claude/skills/kigumi-angular/SKILL.md`
+
+### Checklist: Web Awesome Version Bump
+
+The code/registry side is guarded by validators (`validate:cem-sync`, `validate:registry`, `validate:generated-fresh`). The surfaces below are **hand-maintained** and were the source of all drift found in the WA 3.7.0–3.10.0 audit (see `docs/superpowers/state/wa-drift-audit-2026-07-02.md`). Walk this list on every bump:
+
+- [ ] **Pins**: `package.json`, `docs/package.json`, `docs/kigumi.config.json`, root `kigumi.config.json` (dogfooding), `src/constants.ts` `DEFAULT_WEBAWESOME_VERSION`, `src/utils/version-map.ts` entry
+- [ ] **New upstream components**: either full wrapper (run the "Before Adding New Component" checklist above, including the docs-site items) or an explicit entry in `INTENTIONALLY_UNWRAPPED` in `scripts/validate-cem-sync.ts` with rationale
+- [ ] **Changed props/defaults/enum values**: check every changelog line against templates, `docs/src/components/ui`, stories (argTypes `defaultValue` summaries!), and registry prop values — new enum values need a demo story (e.g. Tree `leaf-multiple`)
+- [ ] **Removed CSS custom properties / parts**: grep repo-wide for the removed name; also confirm it is absent from `kigumi-theme` references
+- [ ] **Theme token docs**: re-validate `.claude/skills/kigumi-theme/references/css-variables.md` and `available-themes.md` against the new `dist/styles/themes/default.css` and palette/theme file listing; bump the "Source:" footer version
+- [ ] **Skill tables**: new components reflected in the relevant `kigumi-compose-*` skills; regenerated `.claude/skills/shared/*-api-surface.md` committed
+- [ ] **AGENTS.md sync**: component counts + "Last Updated" in root, `src/`, `templates/`, `tests/` AGENTS.md — `templates/AGENTS.md` is the one that historically gets missed
+- [ ] **Storybook grid**: new components added to `StorybookComponentGrid.tsx` + thumbnail PNGs
+- [ ] **Zero-warning gate**: `pnpm validate:cem-sync` must pass with 0 warnings (new unwrapped components must be consciously triaged, not left warning)
+
 ### Checklist: Before Merging PR
 
 - [ ] **All tests pass**

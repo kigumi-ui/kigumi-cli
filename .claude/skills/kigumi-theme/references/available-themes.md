@@ -73,6 +73,7 @@ Palettes define the color tuning for each hue: how saturated, warm, or cool the 
 | `natural`     | `.wa-palette-natural`     | Earth-toned, organic feel. Warm and grounded.                  |
 | `vogue`       | `.wa-palette-vogue`       | Fashion-forward, contemporary color balance.                   |
 | `anodized`    | `.wa-palette-anodized`    | Metallic undertones, technical aesthetic.                      |
+| `shoelace`    | `.wa-palette-shoelace`    | Color tuning matched to the classic Shoelace 2.x scales.       |
 
 ### Palette Selection
 
@@ -242,5 +243,5 @@ Pro themes require a Web Awesome Pro license. To use them:
 
 ---
 
-**Source:** Web Awesome 3.4.0 theme and palette CSS files
+**Source:** Web Awesome 3.10.0 theme and palette CSS files
 **Documentation:** [kigumi.style](https://kigumi.style) | [webawesome.com/themes](https://webawesome.com/themes)

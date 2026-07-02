@@ -29,6 +29,8 @@ export default defineConfig({
       clientFiles: [
         './node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.js',
         './src/components/ui/index.ts',
+        './src/stories/Accordion.stories.tsx',
+        './src/stories/AccordionItem.stories.tsx',
         './src/stories/Button.stories.tsx',
         './src/stories/ButtonGroup.stories.tsx',
         './src/stories/Carousel.stories.tsx',

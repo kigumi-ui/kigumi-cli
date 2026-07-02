@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Accordion, AccordionItem } from '@/components/ui';
+import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 
 /** Accordions group related disclosure panels and control how many can be open at once */
 const meta = {
@@ -67,6 +68,27 @@ type Story = StoryObj<typeof meta>;
 
 /** A default accordion allowing multiple panels open at once. */
 export const Default: Story = {
+  tags: ['interaction'],
+  play: async ({ args, canvasElement }) => {
+    const host = canvasElement.querySelector<
+      HTMLElement & { updateComplete?: Promise<unknown> }
+    >('wa-accordion');
+    if (!host) throw new Error('wa-accordion not found');
+    await host.updateComplete;
+    const cleanup = installEventProbe(host, 'wa-expand', args.onExpand);
+    const item = host.querySelector<HTMLElement>('wa-accordion-item');
+    if (!item) throw new Error('wa-accordion-item not found');
+    await (item as HTMLElement & { updateComplete?: Promise<unknown> })
+      .updateComplete;
+    // wa-expand only fires for the header-click path (item.expand() bypasses
+    // the accordion), so click the header button inside the item shadow root.
+    const button =
+      item.shadowRoot?.querySelector<HTMLElement>('[part~="button"]');
+    if (!button) throw new Error('accordion-item header button not found');
+    button.click();
+    await waitForCalled(args, 'onExpand');
+    cleanup();
+  },
   render: (args) => (
     <Accordion {...args}>
       <AccordionItem label="What is Kigumi?">

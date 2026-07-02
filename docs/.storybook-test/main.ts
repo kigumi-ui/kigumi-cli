@@ -17,6 +17,8 @@ import type { StorybookConfig } from '@storybook/react-vite';
 //      imported manually in vitest.setup.ts).
 const config: StorybookConfig = {
   stories: [
+    '../src/stories/Accordion.stories.tsx',
+    '../src/stories/AccordionItem.stories.tsx',
     '../src/stories/Button.stories.tsx',
     '../src/stories/ButtonGroup.stories.tsx',
     '../src/stories/Carousel.stories.tsx',
