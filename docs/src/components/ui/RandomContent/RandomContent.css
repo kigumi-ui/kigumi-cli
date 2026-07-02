@@ -1,0 +1,13 @@
+/**
+ * RandomContent Component Styles
+ * Documentation: https://webawesome.com/docs/components/random-content
+ *
+ * CSS Custom Properties:
+ * --animation-duration: The duration of the change animation
+ * --animation-easing: The easing of the change animation
+ * --animation-translate: The distance items travel during directional animations
+ *
+ */
+.RandomContent {
+  /* Add your custom styles here */
+}

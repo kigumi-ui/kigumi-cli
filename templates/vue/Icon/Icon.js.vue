@@ -18,6 +18,7 @@ const props = defineProps({
   label: { type: String, required: false, default: '' },
   family: { type: String, required: false },
   variant: { type: String, required: false },
+  canvas: { type: String, required: false },
   'auto-width': { type: Boolean, required: false, default: false },
   'swap-opacity': { type: Boolean, required: false, default: false },
   rotate: { type: Number, required: false },

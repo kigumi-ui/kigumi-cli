@@ -39,6 +39,7 @@ export * from './ProgressBar/ProgressBar';
 export * from './ProgressRing/ProgressRing';
 export * from './QrCode/QrCode';
 export * from './Radio/Radio';
+export * from './RandomContent/RandomContent';
 export * from './RadioGroup/RadioGroup';
 export * from './Rating/Rating';
 export * from './RelativeTime/RelativeTime';

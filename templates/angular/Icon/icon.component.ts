@@ -36,6 +36,7 @@ function ensureLoaded() {
       [attr.label]="label"
       [attr.family]="family"
       [attr.variant]="variant"
+      [attr.canvas]="canvas"
       [attr.auto-width]="autoWidth || null"
       [attr.swap-opacity]="swapOpacity || null"
       [attr.rotate]="rotate"
@@ -63,7 +64,9 @@ export class IconComponent implements AfterViewInit, OnDestroy {
   @Input() family?: string;
   /** The icon's variant (thin, light, regular, solid) */
   @Input() variant?: string;
-  /** Sets the width to match the cropped SVG viewBox */
+  /** Controls how the icon is sized within its canvas */
+  @Input() canvas?: 'fixed' | 'auto' | 'square' | 'roomy';
+  /** Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto") */
   @Input() autoWidth?: boolean;
   /** Swaps the opacity of duotone icons */
   @Input() swapOpacity?: boolean;

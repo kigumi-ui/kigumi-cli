@@ -92,7 +92,7 @@ const meta = {
       control: 'select',
       options: ['classic', 'brands'],
       description:
-        "Icon family. Free: 'classic', 'brands'. Pro adds 'sharp', 'duotone', 'sharp-duotone'.",
+        "Icon family. Free: 'classic', 'brands'. Pro adds 'sharp', 'duotone', 'sharp-duotone' and, since Font Awesome 7.3, 'mosaic', 'pixel', 'vellum', 'slab-duo', 'slab-press-duo'.",
       table: { defaultValue: { summary: 'classic' } },
     },
     variant: {
@@ -102,10 +102,15 @@ const meta = {
         "Icon weight. Free: 'regular', 'solid'. Pro adds 'thin', 'light'.",
       table: { defaultValue: { summary: 'regular' } },
     },
+    canvas: {
+      control: 'select',
+      options: ['fixed', 'auto', 'square', 'roomy'],
+      description: 'Controls how the icon is sized within its canvas.',
+    },
     'auto-width': {
       control: 'boolean',
       description:
-        'Sets the width to match the cropped SVG viewBox instead of the fixed 1.25em.',
+        'Deprecated, use canvas="auto" instead. Sets the width to match the cropped SVG viewBox instead of the fixed 1.25em.',
       table: { defaultValue: { summary: 'false' } },
     },
     'swap-opacity': {

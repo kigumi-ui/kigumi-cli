@@ -1,32 +1,31 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import './Icon.css';
+import './RandomContent.css';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
   return (loadPromise ??=
-    import('@awesome.me/webawesome/dist/components/icon/icon.js'));
+    import('@awesome.me/webawesome/dist/components/random-content/random-content.js'));
 }
 
 /**
- * Icons are symbols that can be used to represent various options within an application
+ * Randomly selects and displays one or more of its child elements
  */
-export interface IconProps {
-  name?: string;
-  library?: string;
-  src?: string;
-  label?: string;
-  family?: string;
-  variant?: string;
-  canvas?: 'fixed' | 'auto' | 'square' | 'roomy';
-  'auto-width'?: boolean;
-  'swap-opacity'?: boolean;
-  rotate?: number;
-  flip?: 'horizontal' | 'vertical' | 'both';
-  animation?: string;
+export interface RandomContentProps {
+  items?: number;
+  mode?: 'random' | 'unique' | 'sequence';
+  autoplay?: boolean;
+  'autoplay-interval'?: number;
+  animation?:
+    | 'none'
+    | 'fade'
+    | 'fade-up'
+    | 'fade-down'
+    | 'fade-left'
+    | 'fade-right';
 }
 
-const props = defineProps<IconProps>();
+const props = defineProps<RandomContentProps>();
 
 // Strip undefined and false props before forwarding to the web component.
 // Vue boolean-prop coercion materializes absent optional Boolean props as
@@ -41,8 +40,7 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  'wa-load': [event: CustomEvent];
-  'wa-error': [event: CustomEvent];
+  'wa-content-change': [event: CustomEvent];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -51,32 +49,35 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
-const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
+const handleWaContentChange = (e: Event) =>
+  emit('wa-content-change', e as CustomEvent);
 
 onMounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  el.addEventListener('wa-load', handleWaLoad);
-  el.addEventListener('wa-error', handleWaError);
+  el.addEventListener('wa-content-change', handleWaContentChange);
 });
 
 onUnmounted(() => {
   const el = elementRef.value;
   if (!el) return;
 
-  el.removeEventListener('wa-load', handleWaLoad);
-  el.removeEventListener('wa-error', handleWaError);
+  el.removeEventListener('wa-content-change', handleWaContentChange);
 });
 
 defineExpose({
+  randomize: () => (elementRef.value as any)?.randomize?.(),
   element: elementRef,
 });
 </script>
 
 <template>
-  <wa-icon ref="elementRef" v-bind="definedProps" :class="$attrs.class">
+  <wa-random-content
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
     <slot />
-  </wa-icon>
+  </wa-random-content>
 </template>

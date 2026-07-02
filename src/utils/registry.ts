@@ -824,10 +824,18 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: "The icon's variant (thin, light, regular, solid)",
       },
       {
+        name: 'canvas',
+        type: 'string',
+        values: ['fixed', 'auto', 'square', 'roomy'],
+        description: 'Controls how the icon is sized within its canvas',
+        required: false,
+      },
+      {
         name: 'auto-width',
         type: 'boolean',
         default: 'false',
-        description: 'Sets the width to match the cropped SVG viewBox',
+        description:
+          'Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto")',
       },
       {
         name: 'swap-opacity',
@@ -2588,6 +2596,63 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/radio/radio.js`,
+    tier: 'free',
+  },
+  'random-content': {
+    name: 'RandomContent',
+    tagName: 'wa-random-content',
+    category: 'Display',
+    description:
+      'Randomly selects and displays one or more of its child elements',
+    dependencies: [],
+    files: {
+      react: ['components/RandomContent.tsx', 'types/random-content.d.ts'],
+      angular: ['components/RandomContent/random-content.component.ts'],
+    },
+    props: [
+      {
+        name: 'items',
+        type: 'number',
+        default: '1',
+        description: 'The number of items to display at once',
+      },
+      {
+        name: 'mode',
+        type: 'string',
+        values: ['random', 'unique', 'sequence'],
+        default: 'unique',
+        description: 'How items are picked on each randomization',
+      },
+      {
+        name: 'autoplay',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Automatically randomizes the displayed items on an interval',
+      },
+      {
+        name: 'autoplay-interval',
+        type: 'number',
+        default: '3000',
+        description:
+          'The number of milliseconds between randomizations when autoplay is enabled',
+      },
+      {
+        name: 'animation',
+        type: 'string',
+        values: [
+          'none',
+          'fade',
+          'fade-up',
+          'fade-down',
+          'fade-left',
+          'fade-right',
+        ],
+        default: 'none',
+        description: 'The animation to apply when displayed items change',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/random-content/random-content.js`,
     tier: 'free',
   },
   rating: {

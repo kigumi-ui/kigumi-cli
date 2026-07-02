@@ -21,7 +21,6 @@
  * - field-year: Added to the year field block.
  * - field-label: The text label above each field's input.
  * - field-input: The native `<input>` inside a field.
- * - error: The inline error message region. This is an intentional difference from `<wa-date-input>` and `<wa-time-input>`, which rely on the browser's native validation popup. Because this control is composed of three separate fields, an inline `role="alert"` region gives a single, predictable place to surface the validation message rather than anchoring a native popup on one of the three fields.
  */
 .KnownDate {
   /* Add your custom styles here */

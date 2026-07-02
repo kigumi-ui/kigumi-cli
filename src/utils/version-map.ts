@@ -53,6 +53,12 @@ function compareSemver(a: string, b: string): number {
  */
 export const VERSION_MAP: VersionEntry[] = [
   {
+    kigumiVersion: '0.26.0',
+    webAwesomeVersion: '3.10.0',
+    releasedAt: '2026-07-02',
+    breakingChanges: [],
+  },
+  {
     kigumiVersion: '0.25.0',
     webAwesomeVersion: '3.9.0',
     releasedAt: '2026-07-01',
