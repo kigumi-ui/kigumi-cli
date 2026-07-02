@@ -118,6 +118,7 @@ const meta = {
     onBlur: fn(),
     onFocus: fn(),
     onInvalid: fn(),
+    onClick: fn(),
   },
 } satisfies Meta<typeof Button>;
 
