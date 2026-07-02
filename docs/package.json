@@ -19,7 +19,7 @@
     "storybook:test": "vitest run --config vitest.storybook.config.ts"
   },
   "dependencies": {
-    "@awesome.me/webawesome-pro": "3.9.0",
+    "@awesome.me/webawesome-pro": "3.10.0",
     "@storybook/addon-themes": "^10.3.4",
     "clsx": "^2.1.1",
     "fuse.js": "^7.1.0",

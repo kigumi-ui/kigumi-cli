@@ -2,6 +2,9 @@
  * Option Component Styles
  * Documentation: https://webawesome.com/docs/components/option
  *
+ * CSS Custom Properties:
+ * --current-text-color - The text color of the current (highlighted) option, paired with `--wa-form-control-activated-color`.
+ *
  * CSS Parts:
  * checked-icon - The checked icon, a `<wa-icon>` element.
  * label - The option's label.

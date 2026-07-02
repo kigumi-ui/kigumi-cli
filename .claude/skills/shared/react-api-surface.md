@@ -139,10 +139,10 @@ wa-breadcrumb-item -> <BreadcrumbItem>
 Display | free | Icons are symbols that can be used to represent various options within an application
 wa-icon -> <Icon>
 
-**Props:** name(string), library(string=default), src(string), label(string=''), family(string), variant(string), auto-width(boolean=false), swap-opacity(boolean=false), rotate(number), flip(horizontal|vertical|both), animation(string)
+**Props:** name(string), library(string=default), src(string), label(string=''), family(string), variant(string), canvas(fixed|auto|square|roomy), auto-width(boolean=false), swap-opacity(boolean=false), rotate(number), flip(horizontal|vertical|both), animation(string)
 **Events:** onLoad, onError
 **Parts:** svg, use
-**CSS:** --animation-delay(0), --animation-direction(normal), --animation-duration(1s), --animation-iteration-count(infinite), --animation-timing, --beat-fade-opacity, --beat-fade-scale, --beat-scale, --bounce-height, --bounce-jump-scale-x, --bounce-jump-scale-y, --bounce-land-scale-x, --bounce-land-scale-y, --bounce-rebound, --bounce-start-scale-x, --bounce-start-scale-y, --fade-opacity, --flip-angle, --flip-x, --flip-y, --flip-z, --primary-color(currentColor), --primary-opacity(1), --secondary-color(currentColor), --secondary-opacity(0.4)
+**CSS:** --animation-delay(0), --animation-direction(normal), --animation-duration(1s), --animation-iteration-count(infinite), --animation-timing, --beat-fade-opacity, --beat-fade-scale, --beat-scale, --bounce-height, --bounce-jump-scale-x, --bounce-jump-scale-y, --bounce-land-scale-x, --bounce-land-scale-y, --bounce-rebound, --bounce-start-scale-x, --bounce-start-scale-y, --fade-opacity, --flip-angle, --flip-x, --flip-y, --flip-z, --flip-anticipation-scale, --flip-overshoot, --bounce-anticipation, --buzz-distance, --wag-angle, --swing-angle, --jello-scale-x, --jello-scale-y, --float-height, --float-drift, --float-tilt, --float-squash-x, --float-squash-y, --float-stretch-x, --float-stretch-y, --primary-color(currentColor), --primary-opacity(1), --secondary-color(currentColor), --secondary-opacity(0.4)
 
 ## Carousel
 
@@ -448,6 +448,17 @@ wa-radio -> <Radio>
 **CSS:** --checked-icon-color, --checked-icon-scale
 **Requires:** Icon
 
+## RandomContent
+
+Display | free | Randomly selects and displays one or more of its child elements
+wa-random-content -> <RandomContent>
+
+**Props:** items(number=1), mode(random|unique|sequence=unique), autoplay(boolean=false), autoplay-interval(number=3000), animation(none|fade|fade-up|fade-down|fade-left|fade-right=none)
+**Events:** onContentChange
+**Slots:** default
+**Methods:** randomize()
+**CSS:** --animation-duration, --animation-easing, --animation-translate
+
 ## Rating
 
 Form Controls | free | Ratings give users a way to quickly view and provide feedback
@@ -497,6 +508,7 @@ wa-option -> <Option>
 **Props:** value(string=''), disabled(boolean=false), selected(boolean=false), label(string)
 **Slots:** default, start, end
 **Parts:** checked-icon, label, start, end
+**CSS:** --current-text-color
 **Requires:** Icon
 
 ## Skeleton
@@ -844,4 +856,4 @@ wa-known-date -> <KnownDate>
 **Events:** onInput, onChange, onBlur, onFocus, onInvalid
 **Slots:** label, hint
 **Methods:** focus(), blur()
-**Parts:** form-control, form-control-label, form-control-input, hint, label, base, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input, error
+**Parts:** form-control, form-control-label, form-control-input, hint, label, base, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input

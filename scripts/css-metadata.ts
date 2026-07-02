@@ -1701,7 +1701,7 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--beat-scale',
         description:
-          'Set max value that an icon with `beat` animation will scale.',
+          "Set the scale multiplier for an icon with `beat` animation. This multiplies the animation's 1.25× base pulse, so the default `1.25` peaks at ~1.56× and `2` roughly doubles the pulse.",
       },
       {
         name: '--bounce-height',
@@ -1751,22 +1751,93 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: '--flip-angle',
         description:
-          'Set rotation angle of flip for an icon with `flip` animation. A positive angle denotes a clockwise rotation, a negative angle a counter-clockwise one.',
+          'Set rotation angle of flip for an icon with `flip` or `flip-360` animation. A positive angle denotes a clockwise rotation, a negative angle a counter-clockwise one.',
       },
       {
         name: '--flip-x',
         description:
-          'Set x-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` animation.',
+          'Set x-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.',
       },
       {
         name: '--flip-y',
         description:
-          'Set y-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` animation.',
+          'Set y-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.',
       },
       {
         name: '--flip-z',
         description:
-          'Set z-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` animation.',
+          'Set z-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.',
+      },
+      {
+        name: '--flip-anticipation-scale',
+        description:
+          'Set the scale of the wind-up before an icon with `flip` or `flip-360` animation rotates.',
+      },
+      {
+        name: '--flip-overshoot',
+        description:
+          'Set how far past the final angle an icon with `flip` or `flip-360` animation rotates before settling.',
+      },
+      {
+        name: '--bounce-anticipation',
+        description:
+          'Set the downward squash distance before an icon with `bounce` animation jumps.',
+      },
+      {
+        name: '--buzz-distance',
+        description:
+          'Set the horizontal travel of an icon with `buzz` animation.',
+      },
+      {
+        name: '--wag-angle',
+        description: 'Set the peak rotation of an icon with `wag` animation.',
+      },
+      {
+        name: '--swing-angle',
+        description: 'Set the peak rotation of an icon with `swing` animation.',
+      },
+      {
+        name: '--jello-scale-x',
+        description:
+          'Set the horizontal stretch of an icon with `jello` animation.',
+      },
+      {
+        name: '--jello-scale-y',
+        description:
+          'Set the vertical stretch of an icon with `jello` animation.',
+      },
+      {
+        name: '--float-height',
+        description: 'Set the rise height of an icon with `float` animation.',
+      },
+      {
+        name: '--float-drift',
+        description:
+          'Set the horizontal drift of an icon with `float` animation.',
+      },
+      {
+        name: '--float-tilt',
+        description: 'Set the rotation of an icon with `float` animation.',
+      },
+      {
+        name: '--float-squash-x',
+        description:
+          'Set the horizontal squash of an icon with `float` animation at rest.',
+      },
+      {
+        name: '--float-squash-y',
+        description:
+          'Set the vertical squash of an icon with `float` animation at rest.',
+      },
+      {
+        name: '--float-stretch-x',
+        description:
+          'Set the horizontal stretch of an icon with `float` animation at its peak.',
+      },
+      {
+        name: '--float-stretch-y',
+        description:
+          'Set the vertical stretch of an icon with `float` animation at its peak.',
       },
       {
         name: '--primary-color',
@@ -1892,11 +1963,6 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: 'field-input',
         description: 'The native `<input>` inside a field.',
-      },
-      {
-        name: 'error',
-        description:
-          'The inline error message region. This is an intentional difference from `<wa-date-input>` and `<wa-time-input>`, which rely on the browser\'s native validation popup. Because this control is composed of three separate fields, an inline `role="alert"` region gives a single, predictable place to surface the validation message rather than anchoring a native popup on one of the three fields.',
       },
     ],
     customProperties: [],
@@ -2067,7 +2133,13 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         description: 'The container that wraps the `end` slot.',
       },
     ],
-    customProperties: [],
+    customProperties: [
+      {
+        name: '--current-text-color',
+        description:
+          'The text color of the current (highlighted) option, paired with `--wa-form-control-activated-color`.',
+      },
+    ],
     docsUrl: 'https://webawesome.com/docs/components/option',
   },
   page: {
@@ -2755,6 +2827,26 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     ],
     customProperties: [],
     docsUrl: 'https://webawesome.com/docs/components/radio-group',
+  },
+  'random-content': {
+    parts: [],
+    customProperties: [
+      {
+        name: '--animation-duration',
+        description: 'Duration of the entrance animation. Default is `300ms`.',
+      },
+      {
+        name: '--animation-easing',
+        description:
+          'Easing function for the entrance animation. Default is `ease`.',
+      },
+      {
+        name: '--animation-translate',
+        description:
+          'Translation distance for directional animations (`fade-up`, `fade-down`, `fade-left`, `fade-right`). Default is `0.5em`.',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/random-content',
   },
   rating: {
     parts: [

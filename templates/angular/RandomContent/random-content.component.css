@@ -1,0 +1,12 @@
+/**
+ * RandomContent Component Styles
+ * Documentation: https://webawesome.com/docs/components/random-content
+ *
+ * CSS Custom Properties:
+ * --animation-duration - Duration of the entrance animation. Default is `300ms`.
+ * --animation-easing - Easing function for the entrance animation. Default is `ease`.
+ * --animation-translate - Translation distance for directional animations (`fade-up`, `fade-down`, `fade-left`, `fade-right`). Default is `0.5em`.
+ */
+:host {
+  display: contents;
+}
