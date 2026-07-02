@@ -36,7 +36,7 @@ const meta = {
     },
   },
   args: {
-    src: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2I0eHVqbThpYTdpZHFmd28wbjNncHBwdG44MzF0dzY1Z3ZuM2NkcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NEvPzZ8bd1V4Y/giphy.gif',
+    src: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnkwcmtjdjByZHloZXUzcmoyb2s4Z2I0N2NtZDdmaGlsMGM5NXF1NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKSjRrfIPjeiVyM/giphy.gif',
     alt: 'Animated example',
     onLoad: fn(),
     onError: fn(),

@@ -3,9 +3,9 @@ import { PieChart } from '@/components/ui';
 
 /** Divides a circle into wedges that represent each category's share of the whole */
 const meta = {
-  title: 'Components/Pie Chart',
+  title: 'Components/PieChart',
   component: PieChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',

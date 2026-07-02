@@ -27,7 +27,7 @@ const fruits = [
 const meta = {
   title: 'Components/Combobox',
   component: Combobox,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     'allow-custom-value': {
       control: 'boolean',
@@ -43,22 +43,42 @@ const meta = {
     'allow-create': {
       control: 'boolean',
       description: 'Allows creating new options not in the list',
+      table: { defaultValue: { summary: 'false' } },
     },
     autocapitalize: {
       control: 'select',
       options: ['off', 'none', 'on', 'sentences', 'words', 'characters'],
-      description: 'Controls autocapitalization',
+      description: 'Controls autocapitalization on supported devices',
     },
     autocorrect: {
       control: 'boolean',
-      description: 'Enable or disable autocorrect',
+      description: 'Enable or disable autocorrect on supported devices',
     },
     disabled: {
       control: 'boolean',
       description: 'Disables the combobox',
       table: { defaultValue: { summary: 'false' } },
     },
+    enterkeyhint: {
+      control: 'select',
+      options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+      description: "Customizes the keyboard's Enter key label",
+    },
     hint: { control: 'text', description: 'Hint text' },
+    inputmode: {
+      control: 'select',
+      options: [
+        'none',
+        'text',
+        'decimal',
+        'numeric',
+        'tel',
+        'search',
+        'email',
+        'url',
+      ],
+      description: 'Controls virtual keyboard type',
+    },
     label: { control: 'text', description: 'Label text' },
     'max-options-visible': {
       control: 'number',
@@ -99,33 +119,14 @@ const meta = {
       description: 'Combobox size',
       table: { defaultValue: { summary: 'medium' } },
     },
+    spellcheck: {
+      control: 'boolean',
+      description: 'Enable or disable spellchecking',
+    },
     'with-clear': {
       control: 'boolean',
       description: 'Shows clear button',
       table: { defaultValue: { summary: 'false' } },
-    },
-    enterkeyhint: {
-      control: 'select',
-      options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
-      description: 'Keyboard Enter key label',
-    },
-    inputmode: {
-      control: 'select',
-      options: [
-        'none',
-        'text',
-        'decimal',
-        'numeric',
-        'tel',
-        'search',
-        'email',
-        'url',
-      ],
-      description: 'Virtual keyboard type',
-    },
-    spellcheck: {
-      control: 'boolean',
-      description: 'Enable or disable spellchecking',
     },
     value: { control: 'text', description: 'Current value of the combobox' },
     onInput: {
@@ -175,15 +176,16 @@ const meta = {
         "Emitted after the combobox's menu closes and all animations are complete.",
       table: { category: 'Events' },
     },
+    onCreate: {
+      action: 'create',
+      description:
+        'Emitted when the user selects the "create" option. Call `event.preventDefault()` to handle creation yourself. The event `detail` contains `{ inputValue: string }`.',
+      table: { category: 'Events' },
+    },
     onInvalid: {
       action: 'invalid',
       description:
         "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
-      table: { category: 'Events' },
-    },
-    onCreate: {
-      action: 'wa-create',
-      description: 'Emitted when creating new option via allow-create',
       table: { category: 'Events' },
     },
   },
@@ -197,8 +199,8 @@ const meta = {
     onAfterShow: fn(),
     onHide: fn(),
     onAfterHide: fn(),
-    onInvalid: fn(),
     onCreate: fn(),
+    onInvalid: fn(),
   },
 } satisfies Meta<typeof Combobox>;
 

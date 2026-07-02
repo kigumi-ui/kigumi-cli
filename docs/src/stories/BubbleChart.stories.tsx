@@ -3,9 +3,9 @@ import { BubbleChart } from '@/components/ui';
 
 /** Plots three-dimensional data using position and circle size to encode a third variable */
 const meta = {
-  title: 'Components/Bubble Chart',
+  title: 'Components/BubbleChart',
   component: BubbleChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',
@@ -37,7 +37,8 @@ const meta = {
     'index-axis': {
       control: 'select',
       options: ['x', 'y'],
-      description: 'Base axis for category labels',
+      description:
+        'Base axis for category labels (swap to flip chart orientation)',
       table: { defaultValue: { summary: 'x' } },
     },
     grid: {

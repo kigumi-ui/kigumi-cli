@@ -3,9 +3,9 @@ import { RadarChart } from '@/components/ui';
 
 /** Maps multiple variables onto radial axes to compare profiles at a glance */
 const meta = {
-  title: 'Components/Radar Chart',
+  title: 'Components/RadarChart',
   component: RadarChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',

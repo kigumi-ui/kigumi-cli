@@ -3,9 +3,9 @@ import { LineChart } from '@/components/ui';
 
 /** Connects sequential data points to reveal trends and patterns over a continuous axis */
 const meta = {
-  title: 'Components/Line Chart',
+  title: 'Components/LineChart',
   component: LineChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',
@@ -37,7 +37,8 @@ const meta = {
     'index-axis': {
       control: 'select',
       options: ['x', 'y'],
-      description: 'Base axis for category labels',
+      description:
+        'Base axis for category labels (swap to flip chart orientation)',
       table: { defaultValue: { summary: 'x' } },
     },
     grid: {

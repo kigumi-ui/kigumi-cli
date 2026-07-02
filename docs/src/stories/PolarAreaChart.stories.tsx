@@ -3,9 +3,9 @@ import { PolarAreaChart } from '@/components/ui';
 
 /** Arranges segments of equal angle but varying radius around a central point */
 const meta = {
-  title: 'Components/Polar Area Chart',
+  title: 'Components/PolarAreaChart',
   component: PolarAreaChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',

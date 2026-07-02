@@ -61,7 +61,8 @@ const meta = {
     },
     'with-count': {
       control: 'boolean',
-      description: 'Shows character count when maxlength is set',
+      description: 'Shows a character count when maxlength is set',
+      table: { defaultValue: { summary: 'false' } },
     },
     onBlur: {
       action: 'blur',

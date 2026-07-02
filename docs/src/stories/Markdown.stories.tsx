@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Markdown } from '@/components/ui/Markdown/Markdown';
 
-/** Renders markdown content as plain HTML using the Web Awesome markdown parser */
+/** Renders markdown content in plain HTML */
 const meta = {
   title: 'Components/Markdown',
   component: Markdown,
-  tags: ['autodocs', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     'tab-size': {
       control: 'number',

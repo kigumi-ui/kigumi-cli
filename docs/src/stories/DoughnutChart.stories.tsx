@@ -3,9 +3,9 @@ import { DoughnutChart } from '@/components/ui';
 
 /** Shows proportional segments in a ring shape with an open center for summary content */
 const meta = {
-  title: 'Components/Doughnut Chart',
+  title: 'Components/DoughnutChart',
   component: DoughnutChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',

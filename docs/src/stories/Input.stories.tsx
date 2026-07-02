@@ -111,6 +111,7 @@ const meta = {
     autocorrect: {
       control: 'boolean',
       description: 'Enable autocorrect',
+      table: { defaultValue: { summary: 'false' } },
     },
     inputmode: {
       control: 'select',
