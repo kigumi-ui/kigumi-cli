@@ -135,7 +135,21 @@ For **non-breaking additions** only (new optional props):
 - Template changes (need manual review for event handler patterns)
 - New components (use `generate-component-wrapper` skill instead)
 
-### Step 6: Suggest Next Steps
+### Step 6: Check Hand-Maintained Doc Surfaces
+
+Validators only cover code/registry drift. These surfaces are hand-maintained and must be checked against the same diff (they were the source of all drift in the WA 3.7.0–3.10.0 audit — see the "Web Awesome Version Bump" checklist in `AGENTS.md` for the full list):
+
+- `docs/src/components/storybook/StorybookComponentGrid.tsx` — hardcoded component grid + PNG per component in `docs/src/assets/components/`
+- Story files (`docs/src/stories/`) — argTypes `defaultValue` summaries for changed defaults, demo stories for new enum values
+- `docs/.storybook-test/main.ts` + `docs/vitest.storybook.config.ts` — explicit story lists for the interaction-test lane
+- `.claude/skills/kigumi-theme/references/{css-variables,available-themes}.md` — hand-sourced from `dist/styles/themes/default.css`; re-validate values and "Source:" footer
+- `kigumi-compose-*` skill selection tables — new components in the matching category
+- Component counts in `templates/AGENTS.md` and `.claude/skills/kigumi-angular/SKILL.md`
+- `INTENTIONALLY_UNWRAPPED` in `scripts/validate-cem-sync.ts` — every new upstream component must be either wrapped or consciously allowlisted with rationale
+
+Include a "Doc surface impact" section in the drift report listing which of these need updates.
+
+### Step 7: Suggest Next Steps
 
 Based on the report, suggest:
 

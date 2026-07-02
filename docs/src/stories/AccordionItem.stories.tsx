@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, waitFor } from 'storybook/test';
 import { Accordion, AccordionItem } from '@/components/ui';
 
 /** Accordion items are the individual disclosure panels placed inside an accordion */
@@ -30,6 +31,22 @@ type Story = StoryObj<typeof meta>;
 
 /** A single accordion item inside an accordion container. */
 export const Default: Story = {
+  tags: ['interaction'],
+  play: async ({ canvasElement }) => {
+    const item = canvasElement.querySelector<
+      HTMLElement & {
+        expand?: () => void;
+        expanded?: boolean;
+        updateComplete?: Promise<unknown>;
+      }
+    >('wa-accordion-item');
+    if (!item) throw new Error('wa-accordion-item not found');
+    await item.updateComplete;
+    // The item header lives in the shadow root, so call expand() rather than
+    // synthesizing a click on slotted content.
+    item.expand?.();
+    await waitFor(() => expect(item.expanded).toBe(true));
+  },
   render: (args) => (
     <Accordion>
       <AccordionItem {...args} label="What is Web Awesome?">

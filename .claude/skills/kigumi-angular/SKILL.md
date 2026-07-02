@@ -318,7 +318,7 @@ Before outputting the converted component, verify:
 
 ## Component API Reference
 
-For the complete list of all 74 components with their Inputs, Outputs, Slots, Methods, and CSS Parts:
+For the complete list of all 80 components with their Inputs, Outputs, Slots, Methods, and CSS Parts:
 
 [Angular API Surface](../shared/angular-api-surface.md)
 

@@ -289,7 +289,7 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 ### 7. No `'use client'` in React Templates
 
-React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx` / `.jsx` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 74 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
+React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx` / `.jsx` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 80 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
 
 ### 8. `suppressHydrationWarning` on the `<wa-*>` Host
 
@@ -396,4 +396,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-05-02
+**Last Updated:** 2026-07-02

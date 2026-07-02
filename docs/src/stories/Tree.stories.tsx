@@ -118,6 +118,26 @@ export const LeafSelection: Story = {
   ),
 };
 
+/** Multi-select restricted to leaf nodes: parents expand but only leaves get checkboxes. */
+export const LeafMultipleSelection: Story = {
+  args: { selection: 'leaf-multiple' },
+  render: (args) => (
+    <Tree {...args}>
+      <TreeItem expanded>
+        Formats
+        <TreeItem>PNG</TreeItem>
+        <TreeItem>JPG</TreeItem>
+        <TreeItem>SVG</TreeItem>
+      </TreeItem>
+      <TreeItem>
+        Colors
+        <TreeItem>RGB</TreeItem>
+        <TreeItem>HEX</TreeItem>
+      </TreeItem>
+    </Tree>
+  ),
+};
+
 /** Some tree items are disabled and cannot be selected. */
 export const WithDisabledItems: Story = {
   render: (args) => (

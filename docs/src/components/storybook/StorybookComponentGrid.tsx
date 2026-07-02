@@ -75,6 +75,13 @@ import popoverImage from '@/assets/components/popover.png';
 import popupImage from '@/assets/components/popup.png';
 import relativeTimeImage from '@/assets/components/relative-time.png';
 import resizeObserverImage from '@/assets/components/resize-observer.png';
+import accordionImage from '@/assets/components/accordion.png';
+import accordionItemImage from '@/assets/components/accordion-item.png';
+import checkboxGroupImage from '@/assets/components/checkbox-group.png';
+import knownDateImage from '@/assets/components/known-date.png';
+import timeInputImage from '@/assets/components/time-input.png';
+import randomContentImage from '@/assets/components/random-content.png';
+import markdownImage from '@/assets/components/markdown.png';
 import './StorybookComponentGrid.css';
 
 type ComponentEntry = {
@@ -199,6 +206,13 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       imageUrl: checkboxImage,
     },
     {
+      name: 'Checkbox Group',
+      description:
+        'Groups related Checkbox controls with a shared label and layout.',
+      kind: 'Components/Checkbox Group',
+      imageUrl: checkboxGroupImage,
+    },
+    {
       name: 'Color Picker',
       description:
         'Full-featured color selection with hue, saturation, and swatches.',
@@ -223,6 +237,13 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
         'Single-line text entry supporting all standard HTML input types.',
       kind: 'Components/Input',
       imageUrl: inputImage,
+    },
+    {
+      name: 'Known Date',
+      description:
+        'Collects a calendar date the user already knows, such as a birthday.',
+      kind: 'Components/KnownDate',
+      imageUrl: knownDateImage,
     },
     {
       name: 'Number Input',
@@ -281,6 +302,12 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
         'Multi-line text entry with configurable resize and auto-grow.',
       kind: 'Components/Textarea',
       imageUrl: textareaImage,
+    },
+    {
+      name: 'Time Input',
+      description: 'Captures a time of day with locale-aware formatting.',
+      kind: 'Components/TimeInput',
+      imageUrl: timeInputImage,
     },
   ],
   Imagery: [
@@ -381,6 +408,20 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
     },
   ],
   Organization: [
+    {
+      name: 'Accordion',
+      description:
+        'Stacks Accordion Items and coordinates their expand/collapse behavior.',
+      kind: 'Components/Accordion',
+      imageUrl: accordionImage,
+    },
+    {
+      name: 'Accordion Item',
+      description:
+        'A single expandable panel with a header, used inside an Accordion.',
+      kind: 'Components/AccordionItem',
+      imageUrl: accordionItemImage,
+    },
     {
       name: 'Card',
       description:
@@ -507,6 +548,12 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       kind: 'Components/Scatter Chart',
       imageUrl: scatterChartImage,
     },
+    {
+      name: 'Markdown',
+      description: 'Renders markdown content as formatted HTML.',
+      kind: 'Components/Markdown',
+      imageUrl: markdownImage,
+    },
   ],
   Utilities: [
     {
@@ -567,6 +614,13 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       description: 'Low-level positioning primitive built on Floating UI.',
       kind: 'Components/Popup',
       imageUrl: popupImage,
+    },
+    {
+      name: 'Random Content',
+      description:
+        'Randomly selects and displays one or more of its child elements.',
+      kind: 'Components/RandomContent',
+      imageUrl: randomContentImage,
     },
     {
       name: 'Relative Time',

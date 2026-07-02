@@ -1,6 +1,6 @@
 # CSS Variables Reference
 
-Complete reference of CSS custom properties (design tokens) defined in Web Awesome themes. All values sourced from `default.css` in Web Awesome 3.4.0.
+Complete reference of CSS custom properties (design tokens) defined in Web Awesome themes. All values sourced from `default.css` in Web Awesome 3.10.0.
 
 ## Naming Convention
 
@@ -125,8 +125,8 @@ Pattern: `--wa-color-{variant}-{property}-{intensity}`
 | `--wa-color-focus`          | `var(--wa-color-brand-60)`                                               | `var(--wa-color-brand-60)`                                                    | Focus ring color                        |
 | `--wa-color-overlay-modal`  | `color-mix(in oklab, var(--wa-color-neutral-05) 50%, transparent)`       | `color-mix(in oklab, black 60%, transparent)`                                 | Modal backdrop overlay                  |
 | `--wa-color-overlay-inline` | `color-mix(in oklab, var(--wa-color-neutral-80) 25%, transparent)`       | `color-mix(in oklab, var(--wa-color-neutral-50) 10%, transparent)`            | Inline overlay (skeleton, loading)      |
-| `--wa-color-mix-hover`      | `black 10%`                                                              | `black 8%`                                                                    | Hover state color-mix value             |
-| `--wa-color-mix-active`     | `black 20%`                                                              | `black 16%`                                                                   | Active/pressed state color-mix value    |
+| `--wa-color-mix-hover`      | `oklch(from currentColor calc(1 - l) c h) 10%`                           | `oklch(from currentColor calc(1 - l) c h) 20%`                                | Hover state color-mix value             |
+| `--wa-color-mix-active`     | `var(--wa-color-surface-default) 10%`                                    | `var(--wa-color-surface-default) 20%`                                         | Active/pressed state color-mix value    |
 
 > **Note:** `--wa-color-mix-hover` and `--wa-color-mix-active` are used inside `color-mix()` functions, not as standalone colors. Example: `color-mix(in oklab, var(--wa-color-brand-fill-loud), var(--wa-color-mix-hover))`.
 
@@ -329,7 +329,14 @@ Tokens that style all form elements (inputs, selects, textareas, checkboxes, swi
 | `--wa-panel-border-width`  | `var(--wa-border-width-s)`  | Panel border width  |
 | `--wa-panel-border-radius` | `var(--wa-border-radius-l)` | Panel border radius |
 
-## 16. Tooltips
+## 16. Buttons
+
+| Variable                       | Default         | Description                   |
+| ------------------------------ | --------------- | ----------------------------- |
+| `--wa-button-transform-hover`  | `none`          | Button transform on hover     |
+| `--wa-button-transform-active` | `scale(0.9875)` | Button transform when pressed |
+
+## 17. Tooltips
 
 | Variable                        | Default                              | Description           |
 | ------------------------------- | ------------------------------------ | --------------------- |
@@ -343,7 +350,7 @@ Tokens that style all form elements (inputs, selects, textareas, checkboxes, swi
 | `--wa-tooltip-font-size`        | `var(--wa-font-size-s)`              | Tooltip font size     |
 | `--wa-tooltip-line-height`      | `var(--wa-line-height-normal)`       | Tooltip line height   |
 
-## 17. Link Decoration
+## 18. Link Decoration
 
 | Variable                       | Default                                                               | Description             |
 | ------------------------------ | --------------------------------------------------------------------- | ----------------------- |
@@ -370,5 +377,5 @@ Use browser DevTools to inspect active CSS variables:
 
 ---
 
-**Source:** Web Awesome 3.4.0 `dist/styles/themes/default.css`
+**Source:** Web Awesome 3.10.0 `dist/styles/themes/default.css`
 **Documentation:** [kigumi.style](https://kigumi.style) | [webawesome.com/docs/theming](https://webawesome.com/docs/theming)

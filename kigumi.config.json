@@ -14,7 +14,7 @@
     "@/lib": "./src/lib"
   },
   "webAwesome": {
-    "version": "^3.1.0"
+    "version": "3.10.0"
   },
   "installedComponents": {
     "Drawer": {

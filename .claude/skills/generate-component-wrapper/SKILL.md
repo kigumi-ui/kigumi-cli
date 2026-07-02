@@ -340,4 +340,15 @@ Next steps:
 1. Build CLI: pnpm build
 2. Test React: kigumi add component-name --framework=react
 3. Test Vue: kigumi add component-name --framework=vue
+4. Docs site & agent surfaces (hand-maintained, easy to miss — see the
+   "Before Adding New Component" checklist in AGENTS.md):
+   - docs/src/components/ui/ComponentName/ wrapper + index.ts export
+   - docs/src/stories/ComponentName.stories.tsx (argTypes, ChromaticOnly,
+     interaction-tagged Default with play if the component emits events)
+   - Register the story in docs/.storybook-test/main.ts AND
+     docs/vitest.storybook.config.ts (interaction-test lane)
+   - StorybookComponentGrid.tsx entry + 920x600 dark PNG in
+     docs/src/assets/components/
+   - Relevant kigumi-compose-* skill tables; component counts in
+     templates/AGENTS.md and kigumi-angular/SKILL.md
 ```

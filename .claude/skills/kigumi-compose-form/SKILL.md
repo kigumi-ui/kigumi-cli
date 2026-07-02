@@ -92,22 +92,25 @@ User needs a form
 
 ## Form Component Selection
 
-| Need              | Component                                           | Tier  | Key Props                   |
-| ----------------- | --------------------------------------------------- | ----- | --------------------------- |
-| Text input        | `Input`                                             | free  | type, label, hint, required |
-| Email             | `Input type="email"`                                | free  | required, pattern           |
-| Password          | `Input type="password"`                             | free  | password-toggle             |
-| Number            | `Input type="number"` (free) or `NumberInput` (pro) | mixed | min, max, step              |
-| Multi-line text   | `Textarea`                                          | free  | rows, resize="auto"         |
-| Single select     | `Select` + `Option`                                 | free  | label, required             |
-| Searchable select | `Combobox` + `Option`                               | pro   | allow-custom-value          |
-| Toggle            | `Switch`                                            | free  | checked                     |
-| Checkbox          | `Checkbox`                                          | free  | checked, indeterminate      |
-| Exclusive choice  | `RadioGroup` + `Radio`                              | free  | value, orientation          |
-| File upload       | `FileInput`                                         | pro   | accept, multiple            |
-| Color             | `ColorPicker`                                       | free  | format, opacity             |
-| Range             | `Slider`                                            | free  | min, max, step              |
-| Rating            | `Rating`                                            | free  | max, precision              |
+| Need              | Component                                           | Tier  | Key Props                    |
+| ----------------- | --------------------------------------------------- | ----- | ---------------------------- |
+| Text input        | `Input`                                             | free  | type, label, hint, required  |
+| Email             | `Input type="email"`                                | free  | required, pattern            |
+| Password          | `Input type="password"`                             | free  | password-toggle              |
+| Number            | `Input type="number"` (free) or `NumberInput` (pro) | mixed | min, max, step               |
+| Multi-line text   | `Textarea`                                          | free  | rows, resize="auto"          |
+| Single select     | `Select` + `Option`                                 | free  | label, required              |
+| Searchable select | `Combobox` + `Option`                               | pro   | allow-custom-value           |
+| Toggle            | `Switch`                                            | free  | checked                      |
+| Checkbox          | `Checkbox`                                          | free  | checked, indeterminate       |
+| Checkbox set      | `CheckboxGroup` + `Checkbox`                        | free  | label, hint, orientation     |
+| Exclusive choice  | `RadioGroup` + `Radio`                              | free  | value, orientation           |
+| File upload       | `FileInput`                                         | pro   | accept, multiple             |
+| Color             | `ColorPicker`                                       | free  | format, opacity              |
+| Range             | `Slider`                                            | free  | min, max, step               |
+| Rating            | `Rating`                                            | free  | max, precision               |
+| Time of day       | `TimeInput`                                         | free  | label, hour-format, with-now |
+| Known date (DOB)  | `KnownDate`                                         | free  | label, min, max, locale      |
 
 ## Layout
 

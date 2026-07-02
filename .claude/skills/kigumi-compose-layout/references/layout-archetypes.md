@@ -314,6 +314,8 @@ TabGroup + collapsible Details sections.
 
 **Required components:** `npx kigumi add button details divider input option radio radio-group select switch tab tab-group tab-panel`
 
+For grouped panels where only one (or a limited number) should be open at a time, use `Accordion` + `AccordionItem` instead of standalone `Details` sections (`npx kigumi add accordion accordion-item`). The accordion coordinates expand/collapse across its items; independent `Details` panels stay open until closed individually.
+
 ```
 +---[General]---[Notifications]---[Security]---+
 |                                               |
