@@ -7,7 +7,7 @@ import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 const meta = {
   title: 'Components/Number Input',
   component: NumberInput,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: { control: 'text', description: 'Accessible label' },
     hint: { control: 'text', description: 'Descriptive hint text' },
@@ -52,12 +52,6 @@ const meta = {
       description: 'Emitted when the control receives input.',
       table: { category: 'Events' },
     },
-    onBeforeinput: {
-      action: 'beforeinput',
-      description:
-        'Emitted before the value changes. Can be cancelled with event.preventDefault() to prevent the value from changing.',
-      table: { category: 'Events' },
-    },
     onChange: {
       action: 'change',
       description:
@@ -74,6 +68,12 @@ const meta = {
       description: 'Emitted when the control gains focus.',
       table: { category: 'Events' },
     },
+    onBeforeinput: {
+      action: 'beforeinput',
+      description:
+        'Emitted before the value changes. Can be cancelled with `event.preventDefault()` to prevent the value from changing.',
+      table: { category: 'Events' },
+    },
     onInvalid: {
       action: 'invalid',
       description:
@@ -83,10 +83,10 @@ const meta = {
   },
   args: {
     onInput: fn(),
-    onBeforeinput: fn(),
     onChange: fn(),
     onBlur: fn(),
     onFocus: fn(),
+    onBeforeinput: fn(),
     onInvalid: fn(),
   },
 } satisfies Meta<typeof NumberInput>;

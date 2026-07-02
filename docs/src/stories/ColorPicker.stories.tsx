@@ -60,7 +60,8 @@ const meta = {
         'left-start',
         'left-end',
       ],
-      description: 'Panel placement',
+      description: 'Preferred placement of the color picker panel',
+      table: { defaultValue: { summary: 'bottom-start' } },
     },
     swatches: { control: 'text', description: 'Predefined color swatches' },
     uppercase: {

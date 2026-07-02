@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { BarChart } from '@/components/ui';
 
-/** Displays categorical data as horizontal or vertical rectangular bars scaled to their values */
+/**
+ * Displays categorical data as horizontal or vertical rectangular bars scaled to their
+ * values
+ */
 const meta = {
-  title: 'Components/Bar Chart',
+  title: 'Components/BarChart',
   component: BarChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',
@@ -43,7 +46,8 @@ const meta = {
     'index-axis': {
       control: 'select',
       options: ['x', 'y'],
-      description: 'Base axis for category labels',
+      description:
+        'Base axis for category labels (swap to flip chart orientation)',
       table: { defaultValue: { summary: 'x' } },
     },
     grid: {

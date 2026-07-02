@@ -6,7 +6,7 @@ import { ToastItem } from '@/components/ui';
 const meta = {
   title: 'Components/Toast Item',
   component: ToastItem,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     variant: {
       control: 'select',
@@ -22,34 +22,34 @@ const meta = {
     },
     duration: {
       control: 'number',
-      description: 'Auto-dismiss time in ms. 0 to keep open.',
+      description:
+        'Milliseconds before auto-dismiss. Use 0 to keep the notification visible until closed.',
       table: { defaultValue: { summary: '5000' } },
     },
+    children: { control: 'text' },
     onShow: {
       action: 'show',
-      description: 'Fires when the reveal transition starts',
+      description: 'Emitted when the toast item begins to show.',
       table: { category: 'Events' },
     },
     onAfterShow: {
       action: 'after-show',
-      description: 'Fires once the reveal transition has finished',
+      description: 'Emitted after the toast item has finished showing.',
       table: { category: 'Events' },
     },
     onHide: {
       action: 'hide',
-      description: 'Fires when the dismiss transition starts',
+      description: 'Emitted when the toast item begins to hide.',
       table: { category: 'Events' },
     },
     onAfterHide: {
       action: 'after-hide',
-      description: 'Fires once the dismiss transition has finished',
+      description: 'Emitted after the toast item has finished hiding.',
       table: { category: 'Events' },
     },
-    children: { control: 'text' },
   },
   args: {
     children: 'This is a notification',
-    duration: 0,
     onShow: fn(),
     onAfterShow: fn(),
     onHide: fn(),

@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Chart } from '@/components/ui';
 
-/** Renders interactive data visualisations including bars, lines, pies, and more via Chart.js */
+/**
+ * Renders interactive data visualisations including bars, lines, pies, and more via
+ * Chart.js
+ */
 const meta = {
   title: 'Components/Chart',
   component: Chart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',

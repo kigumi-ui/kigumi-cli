@@ -6,7 +6,7 @@ import { fn } from 'storybook/test';
 const meta = {
   title: 'Components/Dropdown Item',
   component: DropdownItem,
-  tags: ['autodocs', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     type: {
       control: 'select',

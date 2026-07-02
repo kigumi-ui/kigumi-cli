@@ -35,10 +35,11 @@ const meta = {
       description: 'Disables the rating',
       table: { defaultValue: { summary: 'false' } },
     },
-    name: { control: 'text', description: 'Form field name' },
+    name: { control: 'text', description: 'Form field name for submission' },
     required: {
       control: 'boolean',
-      description: 'Required for form submission',
+      description: 'Makes the rating required for form submission',
+      table: { defaultValue: { summary: 'false' } },
     },
     size: {
       control: 'select',
@@ -58,8 +59,9 @@ const meta = {
       table: { category: 'Events' },
     },
     onInvalid: {
-      action: 'wa-invalid',
-      description: 'Emitted on invalid form state',
+      action: 'invalid',
+      description:
+        "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
       table: { category: 'Events' },
     },
   },

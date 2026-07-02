@@ -7,7 +7,7 @@ import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 const meta = {
   title: 'Components/Copy Button',
   component: CopyButton,
-  tags: ['autodocs', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     value: { control: 'text', description: 'The text to copy' },
     from: {

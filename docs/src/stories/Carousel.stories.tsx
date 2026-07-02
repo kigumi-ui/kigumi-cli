@@ -7,7 +7,7 @@ import { installEventProbe, waitForCalled } from '@/test-utils/play-helpers';
 const meta = {
   title: 'Components/Carousel',
   component: Carousel,
-  tags: ['autodocs', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     autoplay: {
       control: 'boolean',

@@ -5,7 +5,7 @@ import { CarouselItem, Carousel } from '@/components/ui';
 const meta = {
   title: 'Components/Carousel Item',
   component: CarouselItem,
-  tags: ['autodocs', 'beta'],
+  tags: ['autodocs'],
   argTypes: {},
 } satisfies Meta<typeof CarouselItem>;
 

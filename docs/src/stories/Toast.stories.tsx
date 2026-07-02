@@ -3,11 +3,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Toast, Button } from '@/components/ui';
 import type { ToastRef } from '@/components/ui/Toast/Toast';
 
-/** Container that manages and stacks lightweight notification banners at a chosen screen edge */
+/**
+ * Container that manages and stacks lightweight notification banners at a chosen screen
+ * edge
+ */
 const meta = {
   title: 'Components/Toast',
   component: Toast,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     placement: {
       control: 'select',

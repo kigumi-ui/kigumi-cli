@@ -3,9 +3,9 @@ import { ScatterChart } from '@/components/ui';
 
 /** Positions individual data points by two numeric axes to expose correlations */
 const meta = {
-  title: 'Components/Scatter Chart',
+  title: 'Components/ScatterChart',
   component: ScatterChart,
-  tags: ['autodocs', 'pro', 'beta'],
+  tags: ['autodocs'],
   argTypes: {
     label: {
       control: 'text',

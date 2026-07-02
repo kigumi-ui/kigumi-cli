@@ -56,105 +56,71 @@ const gallery: React.CSSProperties = {
   fontSize: '2rem',
 };
 
-/**
- * Icons are symbols used to represent actions, objects, and concepts in an interface.
- *
- * The default icon library is **Font Awesome** (2 000+ free icons). Browse available
- * names at [fontawesome.com/icons](https://fontawesome.com/icons).
- *
- * You can also register alternative icon libraries (Lucide, Material, Bootstrap, etc.)
- * via `registerIconLibrary()` and reference them with the `library` prop.
- * See the **Icon Libraries** story below for details.
- */
+/** Icons are symbols that can be used to represent various options within an application */
 const meta = {
   title: 'Components/Icon',
   component: Icon,
   tags: ['autodocs'],
   argTypes: {
-    name: {
-      control: 'text',
-      description:
-        "Font Awesome icon name (e.g. 'star', 'house'). Browse at [fontawesome.com/icons](https://fontawesome.com/icons).",
-    },
+    name: { control: 'text', description: 'The name of the icon to draw' },
     library: {
       control: 'text',
-      description:
-        'Registered icon library name. Default uses Font Awesome. Register alternatives via `registerIconLibrary()` from `@awesome.me/webawesome-pro/dist/webawesome.js`.',
+      description: 'The name of a registered custom icon library',
       table: { defaultValue: { summary: 'default' } },
     },
-    src: { control: 'text', description: 'An external URL of an SVG file.' },
+    src: { control: 'text', description: 'An external URL of an SVG file' },
     label: {
       control: 'text',
-      description:
-        'Accessible label for assistive devices. Required for non-decorative icons.',
+      description: 'An alternate description for assistive devices',
     },
     family: {
-      control: 'select',
-      options: ['classic', 'brands'],
+      control: 'text',
       description:
-        "Icon family. Free: 'classic', 'brands'. Pro adds 'sharp', 'duotone', 'sharp-duotone' and, since Font Awesome 7.3, 'mosaic', 'pixel', 'vellum', 'slab-duo', 'slab-press-duo'.",
-      table: { defaultValue: { summary: 'classic' } },
+        'The family of icons (classic, brands, sharp, duotone, sharp-duotone)',
     },
     variant: {
-      control: 'select',
-      options: ['regular', 'solid'],
-      description:
-        "Icon weight. Free: 'regular', 'solid'. Pro adds 'thin', 'light'.",
-      table: { defaultValue: { summary: 'regular' } },
+      control: 'text',
+      description: "The icon's variant (thin, light, regular, solid)",
     },
     canvas: {
       control: 'select',
       options: ['fixed', 'auto', 'square', 'roomy'],
-      description: 'Controls how the icon is sized within its canvas.',
+      description: 'Controls how the icon is sized within its canvas',
     },
     'auto-width': {
       control: 'boolean',
       description:
-        'Deprecated, use canvas="auto" instead. Sets the width to match the cropped SVG viewBox instead of the fixed 1.25em.',
+        'Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto")',
       table: { defaultValue: { summary: 'false' } },
     },
     'swap-opacity': {
       control: 'boolean',
-      description:
-        'Swaps the opacity of the primary and secondary layers in duotone icons.',
+      description: 'Swaps the opacity of duotone icons',
       table: { defaultValue: { summary: 'false' } },
     },
     rotate: {
       control: 'number',
-      description: 'Rotate the icon by this many degrees.',
+      description: 'Rotate the icon by this many degrees',
     },
     flip: {
       control: 'select',
       options: ['horizontal', 'vertical', 'both'],
-      description:
-        'Mirror the icon along the horizontal, vertical, or both axes.',
+      description: 'Flip the icon horizontally, vertically, or both',
     },
     animation: {
-      control: 'select',
-      options: [
-        'beat',
-        'fade',
-        'beat-fade',
-        'bounce',
-        'flip',
-        'shake',
-        'spin',
-        'spin-pulse',
-        'spin-reverse',
-      ],
-      description:
-        'Built-in animation preset. Loops continuously. Respects `prefers-reduced-motion`.',
+      control: 'text',
+      description: 'The name of a built-in animation to apply',
     },
     onLoad: {
       action: 'load',
       description:
-        'Emitted when the icon has loaded. Does not emit when using `spriteSheet: true`.',
+        'Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit.',
       table: { category: 'Events' },
     },
     onError: {
       action: 'error',
       description:
-        'Emitted when the icon fails to load. Does not emit when using `spriteSheet: true`.',
+        'Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit.',
       table: { category: 'Events' },
     },
   },

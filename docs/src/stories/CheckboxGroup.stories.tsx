@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CheckboxGroup, Checkbox } from '@/components/ui';
 
-/** Checkbox groups label and group a set of checkboxes so they share hint text and validation */
+/**
+ * Checkbox groups label and group a set of checkboxes so they share hint text and
+ * validation
+ */
 const meta = {
-  title: 'Components/Checkbox Group',
+  title: 'Components/CheckboxGroup',
   component: CheckboxGroup,
   tags: ['autodocs'],
   argTypes: {
