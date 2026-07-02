@@ -1,0 +1,30 @@
+/**
+ * DateInput Component Styles
+ * Documentation: https://webawesome.com/docs/components/date-input
+ *
+ * CSS Custom Properties:
+ * - --show-duration: The duration of the show animation. (default: var(--wa-transition-fast))
+ * - --hide-duration: The duration of the hide animation. (default: var(--wa-transition-fast))
+ *
+ * CSS Parts:
+ * - form-control: The form control that wraps the label, input, and hint.
+ * - form-control-label: The label's wrapper.
+ * - form-control-input: The input's wrapper.
+ * - hint: The hint's wrapper.
+ * - base: The component's base wrapper.
+ * - input-wrapper: The container that wraps the start slot, segmented input, clear button, and expand button.
+ * - start: The container that wraps the `start` slot.
+ * - end: The container that wraps the `end` slot.
+ * - input: The segmented input group.
+ * - segment: Each editable segment (month/day/year spinbutton). Use `[part~="segment"]` to style all.
+ * - segment-literal: Inert literal text between segments (separators).
+ * - range-separator: The literal between the two groups in range mode.
+ * - clear-button: The clear button.
+ * - expand-button: The date picker toggle button.
+ * - expand-icon: The expand icon wrapper.
+ * - popup: The popup container.
+ * - date-picker: The popup's `<wa-date-picker>` element.
+ */
+.DateInput {
+  /* Add your custom styles here */
+}
