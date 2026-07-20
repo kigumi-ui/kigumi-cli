@@ -116,7 +116,7 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -163,7 +163,7 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -208,7 +208,7 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -245,7 +245,7 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -271,7 +271,7 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -329,7 +329,7 @@ jobs:
           package_json_file: kigumi-cli/package.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -408,7 +408,7 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -449,7 +449,7 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -508,7 +508,7 @@ jobs:
 
       - name: Setup Node.js
         if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
