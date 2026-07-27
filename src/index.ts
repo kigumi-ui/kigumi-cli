@@ -94,7 +94,6 @@ program
       'Source-framework files are staged into .kigumi/foreign/ for an ' +
       'agent-driven conversion via the kigumi-cross-framework skill.'
   )
-  .option('--no-types', 'Skip TypeScript type definitions')
   .option('-y, --yes', 'Skip all prompts (non-interactive mode)')
   .action(addCommand);
 
