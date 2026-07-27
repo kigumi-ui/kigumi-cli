@@ -155,6 +155,60 @@ describe('RegistryCache — invalidate', () => {
 });
 
 // =============================================================================
+// Branch isolation
+// =============================================================================
+
+describe('RegistryCache — branch isolation', () => {
+  const mainBranch: GitHubRegistrySource = {
+    kind: 'github',
+    url: 'https://github.com/acme/registry',
+    owner: 'acme',
+    repo: 'registry',
+    branch: 'main',
+  };
+  const stagingBranch: GitHubRegistrySource = {
+    ...mainBranch,
+    url: 'https://github.com/acme/registry/tree/staging',
+    branch: 'staging',
+  };
+
+  it('caches two branches of the same repo separately', async () => {
+    await cache.setRegistry(mainBranch, { ...testRegistry, name: 'From main' });
+    await cache.setRegistry(stagingBranch, {
+      ...testRegistry,
+      name: 'From staging',
+    });
+
+    expect((await cache.getRegistry(mainBranch))!.name).toBe('From main');
+    expect((await cache.getRegistry(stagingBranch))!.name).toBe('From staging');
+  });
+
+  it('does not serve one branch a file cached for another', async () => {
+    await cache.setFile(mainBranch, 'components/Button.tsx', 'main version');
+
+    expect(
+      await cache.getFile(stagingBranch, 'components/Button.tsx')
+    ).toBeNull();
+    expect(await cache.getFile(mainBranch, 'components/Button.tsx')).toBe(
+      'main version'
+    );
+  });
+
+  it('invalidating one branch leaves the other intact', async () => {
+    await cache.setRegistry(mainBranch, { ...testRegistry, name: 'From main' });
+    await cache.setRegistry(stagingBranch, {
+      ...testRegistry,
+      name: 'From staging',
+    });
+
+    await cache.invalidate(stagingBranch);
+
+    expect((await cache.getRegistry(mainBranch))!.name).toBe('From main');
+    expect(await cache.getRegistry(stagingBranch)).toBeNull();
+  });
+});
+
+// =============================================================================
 // invalidateAll
 // =============================================================================
 

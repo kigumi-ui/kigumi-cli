@@ -17,7 +17,7 @@ import {
 } from '../../errors/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
 import {
-  parseGitHubUrl,
+  parseRegistrySource,
   fetchRegistryJson,
   fetchFile,
 } from '../../utils/github-fetcher.js';
@@ -68,11 +68,13 @@ export async function themeInstallAction(
     // 3. Fetch registry
     const spinner = output.spinner('Fetching registry...');
     const resolvedUrl = resolveRegistrySource(options.from, config);
-    const source = parseGitHubUrl(resolvedUrl);
+    const source = parseRegistrySource(resolvedUrl, { baseDir: cwd });
 
-    const token = await getGitHubToken();
-    if (token) {
-      source.token = token;
+    if (source.kind === 'github') {
+      const token = await getGitHubToken();
+      if (token) {
+        source.token = token;
+      }
     }
 
     let registry;

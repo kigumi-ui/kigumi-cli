@@ -18,11 +18,27 @@ interface CacheMetadata {
 }
 
 /**
+ * Build the on-disk cache key for a registry source.
+ *
+ * The branch is part of the key: two branches of the same repository are
+ * distinct registries and must not share cached files. Slashes in branch
+ * names (`feat/foo`) are flattened so the key stays a single directory.
+ */
+function getCacheKey(source: GitHubRegistrySource): string {
+  const branch = source.branch.replace(/[^a-zA-Z0-9._-]/g, '-');
+  return `${source.owner}-${source.repo}-${branch}`;
+}
+
+/**
  * Get the cache directory for a specific registry
  */
 function getCacheDir(source: GitHubRegistrySource): string {
-  const key = `${source.owner}-${source.repo}`;
-  return path.join(os.homedir(), KIGUMI_CACHE_DIR, 'registries', key);
+  return path.join(
+    os.homedir(),
+    KIGUMI_CACHE_DIR,
+    'registries',
+    getCacheKey(source)
+  );
 }
 
 /**
@@ -37,8 +53,7 @@ export class RegistryCache {
   }
 
   private getDir(source: GitHubRegistrySource): string {
-    const key = `${source.owner}-${source.repo}`;
-    return path.join(this.baseDir, key);
+    return path.join(this.baseDir, getCacheKey(source));
   }
 
   /**
