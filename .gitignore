@@ -33,6 +33,10 @@ audit/
 .claude/specs/
 .claude/worktrees/
 .claude/scheduled_tasks.lock
+.claude/settings.local.json
+
+# Internal engineering process notes (specs, plans, initiative state)
+docs/superpowers/
 
 # Working temp directory for one-shot scripts
 tmp/

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or usage help
+    url: https://github.com/Siregar/kigumi-cli/discussions
+    about: Ask about how to use Kigumi, or share what you built.
+  - name: Web Awesome component behavior
+    url: https://webawesome.com
+    about: Kigumi wraps Web Awesome. Report component-level issues upstream.
+  - name: Security vulnerability
+    url: https://github.com/Siregar/kigumi-cli/security/advisories/new
+    about: Report privately rather than opening a public issue.
