@@ -69,13 +69,7 @@ export interface ComboboxProps extends Omit<
 
   /** Customizes the keyboard's Enter key label */
   enterkeyhint?:
-    | 'enter'
-    | 'done'
-    | 'go'
-    | 'next'
-    | 'previous'
-    | 'search'
-    | 'send';
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
 
   /** Hint text */
   hint?: string;

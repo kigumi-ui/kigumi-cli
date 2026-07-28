@@ -19,13 +19,7 @@ export interface ComboboxProps {
   autocorrect?: boolean;
   disabled?: boolean;
   enterkeyhint?:
-    | 'enter'
-    | 'done'
-    | 'go'
-    | 'next'
-    | 'previous'
-    | 'search'
-    | 'send';
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
   hint?: string;
   inputmode?:
     | 'none'

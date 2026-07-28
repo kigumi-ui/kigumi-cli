@@ -30,12 +30,7 @@ export interface TimeInputProps {
   'hour-format'?: 'auto' | '12' | '24';
   open?: boolean;
   placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end';
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 }
 
 const props = defineProps<TimeInputProps>();

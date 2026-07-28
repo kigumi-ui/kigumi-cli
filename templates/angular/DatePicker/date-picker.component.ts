@@ -83,14 +83,7 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
   @Input() pageBy?: 'single' | 'months';
   /** The first day of the week */
   @Input() firstDayOfWeek?:
-    | 'auto'
-    | 'sun'
-    | 'mon'
-    | 'tue'
-    | 'wed'
-    | 'thu'
-    | 'fri'
-    | 'sat';
+    'auto' | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
   /** Show leading/trailing days from adjacent months */
   @Input() withOutsideDays?: boolean;
   /** Show the ISO week-number column */

@@ -63,11 +63,7 @@ export class ButtonComponent implements AfterViewInit, OnDestroy {
   @Input() variant?: 'neutral' | 'brand' | 'success' | 'warning' | 'danger';
   /** Visual appearance style */
   @Input() appearance?:
-    | 'accent'
-    | 'filled-outlined'
-    | 'filled'
-    | 'outlined'
-    | 'plain';
+    'accent' | 'filled-outlined' | 'filled' | 'outlined' | 'plain';
   /** Button size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Gives the button rounded edges */

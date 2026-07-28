@@ -49,12 +49,7 @@ export class PieChartComponent implements AfterViewInit {
   @Input() description?: string;
   /** Placement of the dataset legend relative to the chart */
   @Input() legendPosition?:
-    | 'top'
-    | 'right'
-    | 'bottom'
-    | 'left'
-    | 'start'
-    | 'end';
+    'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
   /** Disables entrance and update motion effects */
   @Input() withoutAnimation?: boolean;
   /** Hides the dataset legend entirely */

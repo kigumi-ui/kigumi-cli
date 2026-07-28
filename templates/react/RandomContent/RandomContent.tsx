@@ -52,12 +52,7 @@ export interface RandomContentProps extends Omit<
 
   /** The animation to apply when displayed items change */
   animation?:
-    | 'none'
-    | 'fade'
-    | 'fade-up'
-    | 'fade-down'
-    | 'fade-left'
-    | 'fade-right';
+    'none' | 'fade' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right';
 
   /** Emitted whenever the displayed selection changes, including on first render, on `randomize()`, and on each autoplay tick. */
   onContentChange?: (event: CustomEvent) => void;

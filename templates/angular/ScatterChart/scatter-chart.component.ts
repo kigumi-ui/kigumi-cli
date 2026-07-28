@@ -58,12 +58,7 @@ export class ScatterChartComponent implements AfterViewInit {
   @Input() yLabel?: string;
   /** Placement of the dataset legend relative to the chart */
   @Input() legendPosition?:
-    | 'top'
-    | 'right'
-    | 'bottom'
-    | 'left'
-    | 'start'
-    | 'end';
+    'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
   /** Selects which background grid lines are drawn */
   @Input() grid?: 'x' | 'y' | 'both' | 'none';
   /** Floor value for the value axis scale */

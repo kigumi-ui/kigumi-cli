@@ -105,14 +105,7 @@ export class DateInputComponent implements AfterViewInit, OnDestroy {
   @Input() today?: string;
   /** The first day of the week in the popup calendar */
   @Input() firstDayOfWeek?:
-    | 'auto'
-    | 'sun'
-    | 'mon'
-    | 'tue'
-    | 'wed'
-    | 'thu'
-    | 'fri'
-    | 'sat';
+    'auto' | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
   /** Whitespace-separated ISO dates to disable */
   @Input() disabledDates?: string;
   /** Space-separated 3-letter weekday names to disable */
@@ -139,12 +132,7 @@ export class DateInputComponent implements AfterViewInit, OnDestroy {
   @Input() open?: boolean;
   /** The preferred popup placement */
   @Input() placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end';
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
   /** The distance in pixels between the popup and input */
   @Input() distance?: number;
 

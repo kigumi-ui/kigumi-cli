@@ -81,25 +81,14 @@ export class ComboboxComponent
   @Input() allowCreate?: boolean;
   /** Controls autocapitalization on supported devices */
   @Input() autocapitalize?:
-    | 'off'
-    | 'none'
-    | 'on'
-    | 'sentences'
-    | 'words'
-    | 'characters';
+    'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
   /** Enable or disable autocorrect on supported devices */
   @Input() autocorrect?: boolean;
   /** Disables the combobox */
   @Input() disabled?: boolean;
   /** Customizes the keyboard's Enter key label */
   @Input() enterkeyhint?:
-    | 'enter'
-    | 'done'
-    | 'go'
-    | 'next'
-    | 'previous'
-    | 'search'
-    | 'send';
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
   /** Hint text */
   @Input() hint?: string;
   /** Controls virtual keyboard type */

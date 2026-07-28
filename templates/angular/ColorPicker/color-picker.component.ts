@@ -252,14 +252,7 @@ export class ColorPickerComponent
       this.elementRef.nativeElement as unknown as {
         getFormattedValue: (
           format?:
-            | 'hex'
-            | 'hexa'
-            | 'rgb'
-            | 'rgba'
-            | 'hsl'
-            | 'hsla'
-            | 'hsv'
-            | 'hsva'
+            'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
         ) => void;
       }
     ).getFormattedValue(format);

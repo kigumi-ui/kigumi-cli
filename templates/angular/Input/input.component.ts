@@ -135,12 +135,7 @@ export class InputComponent
   @Input() autocomplete?: string;
   /** Controls automatic capitalization */
   @Input() autocapitalize?:
-    | 'off'
-    | 'none'
-    | 'on'
-    | 'sentences'
-    | 'words'
-    | 'characters';
+    'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
   /** Enable autocorrect */
   @Input() autocorrect?: boolean;
   /** Automatically focuses the input on page load */
@@ -157,13 +152,7 @@ export class InputComponent
     | 'url';
   /** Hint for Enter key label on virtual keyboards */
   @Input() enterkeyhint?:
-    | 'enter'
-    | 'done'
-    | 'go'
-    | 'next'
-    | 'previous'
-    | 'search'
-    | 'send';
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
 
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();

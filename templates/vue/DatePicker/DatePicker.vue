@@ -22,14 +22,7 @@ export interface DatePickerProps {
   months?: '1' | '2';
   'page-by'?: 'single' | 'months';
   'first-day-of-week'?:
-    | 'auto'
-    | 'sun'
-    | 'mon'
-    | 'tue'
-    | 'wed'
-    | 'thu'
-    | 'fri'
-    | 'sat';
+    'auto' | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
   'with-outside-days'?: boolean;
   'with-week-numbers'?: boolean;
   'weekday-format'?: 'narrow' | 'short' | 'long';

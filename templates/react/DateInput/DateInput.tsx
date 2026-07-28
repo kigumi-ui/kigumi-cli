@@ -98,14 +98,7 @@ export interface DateInputProps extends Omit<
 
   /** The first day of the week in the popup calendar */
   'first-day-of-week'?:
-    | 'auto'
-    | 'sun'
-    | 'mon'
-    | 'tue'
-    | 'wed'
-    | 'thu'
-    | 'fri'
-    | 'sat';
+    'auto' | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 
   /** Whitespace-separated ISO dates to disable */
   'disabled-dates'?: string;
@@ -145,12 +138,7 @@ export interface DateInputProps extends Omit<
 
   /** The preferred popup placement */
   placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end';
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
   /** The distance in pixels between the popup and input */
   distance?: number;
