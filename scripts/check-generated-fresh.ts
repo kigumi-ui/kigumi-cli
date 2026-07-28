@@ -31,6 +31,11 @@
  *     rules (next -> react template, angular -> angular template).
  *
  * Exit codes: 0 = fresh (or skipped because CEM missing); 1 = drift found.
+ *
+ *   E (llms.txt version claims): `llms.txt` is hand-maintained, ships in the
+ *     npm tarball, and is written for LLM consumers. Its sample `status --json`
+ *     payload had gone four minor releases stale unnoticed, so the CLI and Web
+ *     Awesome versions it quotes are now checked against package.json.
  */
 import fs from 'fs-extra';
 import path from 'path';
@@ -172,7 +177,7 @@ export function diffSubset(
 // ── Finding model ────────────────────────────────────────────────────────────
 
 interface Finding {
-  check: 'A' | 'B' | 'C' | 'D';
+  check: 'A' | 'B' | 'C' | 'D' | 'E';
   component: string;
   message: string;
 }
@@ -301,6 +306,50 @@ async function checkStarterFixtures(): Promise<Finding[]> {
       });
     }
   }
+  return findings;
+}
+
+// ── Check E: llms.txt version claims ─────────────────────────────────────────
+
+/**
+ * `llms.txt` is hand-maintained and ships in the npm tarball. It carries a
+ * sample `kigumi status --json` payload whose `version` and Web Awesome
+ * `version` silently went four minor releases stale before anyone noticed,
+ * which is a poor first impression for a file written for LLM consumers.
+ */
+async function checkLlmsTxtVersions(): Promise<Finding[]> {
+  const findings: Finding[] = [];
+  const llmsPath = path.join(PROJECT_ROOT, 'llms.txt');
+  if (!(await fs.pathExists(llmsPath))) return findings;
+
+  const llms = await fs.readFile(llmsPath, 'utf-8');
+  const pkg = await fs.readJSON(path.join(PROJECT_ROOT, 'package.json'));
+
+  const cliVersion: string = pkg.version;
+  const waVersion: string = (
+    pkg.dependencies?.['@awesome.me/webawesome'] ?? ''
+  ).replace(/^[^0-9]*/, '');
+
+  const claimedCli = llms.match(/"version":\s*"([^"]+)"/)?.[1];
+  if (claimedCli && claimedCli !== cliVersion) {
+    findings.push({
+      check: 'E',
+      component: 'llms.txt',
+      message: `sample status output claims kigumi ${claimedCli}, package.json says ${cliVersion}`,
+    });
+  }
+
+  const claimedWa = llms.match(
+    /"package":\s*\{[^}]*"version":\s*"([^"]+)"/
+  )?.[1];
+  if (waVersion && claimedWa && claimedWa !== waVersion) {
+    findings.push({
+      check: 'E',
+      component: 'llms.txt',
+      message: `sample status output claims Web Awesome ${claimedWa}, package.json pins ${waVersion}`,
+    });
+  }
+
   return findings;
 }
 
@@ -466,10 +515,11 @@ async function diffGeneratedTemplates(tmpDir: string): Promise<Finding[]> {
 export async function runGuard(): Promise<GuardResult> {
   const findings: Finding[] = [];
 
-  // B + C + D first: pure file comparisons, no CEM needed, fast.
+  // B + C + D + E first: pure file comparisons, no CEM needed, fast.
   findings.push(...(await checkDocsWrapperCss()));
   findings.push(...(await checkJsVariantSubset()));
   findings.push(...(await checkStarterFixtures()));
+  findings.push(...(await checkLlmsTxtVersions()));
 
   // A: tmp regen + prettier + diff. Skipped when CEM unreachable.
   const { findings: aFindings, skipped: skippedA } =
