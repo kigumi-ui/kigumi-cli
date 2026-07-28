@@ -94,12 +94,7 @@ export class TimeInputComponent implements AfterViewInit, OnDestroy {
   @Input() open?: boolean;
   /** The preferred placement of the dropdown */
   @Input() placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end';
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
   @Output() inputEvent = new EventEmitter<CustomEvent>();
   @Output() change = new EventEmitter<CustomEvent>();

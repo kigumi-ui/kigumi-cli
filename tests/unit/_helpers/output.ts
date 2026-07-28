@@ -15,14 +15,12 @@ export function createTestOutput(): OutputInterface {
     error: vi.fn(),
     note: vi.fn(),
     log: vi.fn(),
-    spinner: vi.fn(
-      (): OutputSpinner => ({
-        start: vi.fn(),
-        message: vi.fn(),
-        stop: vi.fn(),
-        error: vi.fn(),
-      })
-    ),
+    spinner: vi.fn((): OutputSpinner => ({
+      start: vi.fn(),
+      message: vi.fn(),
+      stop: vi.fn(),
+      error: vi.fn(),
+    })),
   } satisfies OutputInterface;
 }
 

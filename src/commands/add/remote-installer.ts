@@ -67,8 +67,7 @@ export class RemoteComponentInstaller {
     // framework strategy. We compute the strategy up front so the loop
     // below doesn't have to re-derive it.
     type Strategy =
-      | { kind: 'install' }
-      | { kind: 'stage'; sourceFramework: Framework };
+      { kind: 'install' } | { kind: 'stage'; sourceFramework: Framework };
     const strategies = new Map<string, Strategy>();
 
     for (const name of componentNames) {

@@ -63,12 +63,7 @@ export class BarChartComponent implements AfterViewInit {
   @Input() yLabel?: string;
   /** Placement of the dataset legend relative to the chart */
   @Input() legendPosition?:
-    | 'top'
-    | 'right'
-    | 'bottom'
-    | 'left'
-    | 'start'
-    | 'end';
+    'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
   /** Layers multiple datasets on a single axis */
   @Input() stacked?: boolean;
   /** Base axis for category labels (swap to flip chart orientation) */

@@ -17,12 +17,7 @@ export interface RandomContentProps {
   autoplay?: boolean;
   'autoplay-interval'?: number;
   animation?:
-    | 'none'
-    | 'fade'
-    | 'fade-up'
-    | 'fade-down'
-    | 'fade-left'
-    | 'fade-right';
+    'none' | 'fade' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right';
 }
 
 const props = defineProps<RandomContentProps>();

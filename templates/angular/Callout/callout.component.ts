@@ -42,11 +42,7 @@ export class CalloutComponent implements AfterViewInit {
 
   /** The callout's visual appearance */
   @Input() appearance?:
-    | 'accent'
-    | 'filled'
-    | 'outlined'
-    | 'plain'
-    | 'filled-outlined';
+    'accent' | 'filled' | 'outlined' | 'plain' | 'filled-outlined';
   /** The callout's size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** The callout's theme variant */

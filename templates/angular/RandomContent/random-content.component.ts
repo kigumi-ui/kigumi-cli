@@ -55,12 +55,7 @@ export class RandomContentComponent implements AfterViewInit, OnDestroy {
   @Input() autoplayInterval?: number;
   /** The animation to apply when displayed items change */
   @Input() animation?:
-    | 'none'
-    | 'fade'
-    | 'fade-up'
-    | 'fade-down'
-    | 'fade-left'
-    | 'fade-right';
+    'none' | 'fade' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right';
 
   @Output() contentChange = new EventEmitter<CustomEvent>();
 

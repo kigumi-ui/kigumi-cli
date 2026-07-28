@@ -237,14 +237,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
         },
         getFormattedValue: (
           format:
-            | 'hex'
-            | 'hexa'
-            | 'rgb'
-            | 'rgba'
-            | 'hsl'
-            | 'hsla'
-            | 'hsv'
-            | 'hsva'
+            'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
         ) => {
           if (
             colorpickerRef.current &&

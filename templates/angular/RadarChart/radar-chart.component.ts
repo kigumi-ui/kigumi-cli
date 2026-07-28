@@ -53,12 +53,7 @@ export class RadarChartComponent implements AfterViewInit {
   @Input() description?: string;
   /** Placement of the dataset legend relative to the chart */
   @Input() legendPosition?:
-    | 'top'
-    | 'right'
-    | 'bottom'
-    | 'left'
-    | 'start'
-    | 'end';
+    'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
   /** Layers multiple datasets on a single axis */
   @Input() stacked?: boolean;
   /** Selects which background grid lines are drawn */

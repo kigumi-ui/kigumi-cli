@@ -71,12 +71,7 @@ export class ChartComponent implements AfterViewInit {
   @Input() yLabel?: string;
   /** Where the dataset legend appears around the chart area */
   @Input() legendPosition?:
-    | 'top'
-    | 'right'
-    | 'bottom'
-    | 'left'
-    | 'start'
-    | 'end';
+    'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
   /** Layers multiple datasets on a single axis */
   @Input() stacked?: boolean;
   /** Primary axis for categories (swap to create horizontal charts) */

@@ -29,14 +29,7 @@ export interface DateInputProps {
   max?: string;
   today?: string;
   'first-day-of-week'?:
-    | 'auto'
-    | 'sun'
-    | 'mon'
-    | 'tue'
-    | 'wed'
-    | 'thu'
-    | 'fri'
-    | 'sat';
+    'auto' | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
   'disabled-dates'?: string;
   'disabled-days-of-week'?: string;
   'disable-past'?: boolean;
@@ -50,12 +43,7 @@ export interface DateInputProps {
   'weekday-format'?: 'narrow' | 'short' | 'long';
   open?: boolean;
   placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end';
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
   distance?: number;
 }
 
