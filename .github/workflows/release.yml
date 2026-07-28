@@ -14,6 +14,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      # Lets npm attach a provenance attestation to the published tarball,
+      # so consumers can verify it was built from this repo by this workflow.
+      id-token: write
     steps:
       - name: Checkout
         # Check out with the default GITHUB_TOKEN (not the PAT): it always has
