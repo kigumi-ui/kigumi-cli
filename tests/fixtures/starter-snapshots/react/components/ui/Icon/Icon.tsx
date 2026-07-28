@@ -1,8 +1,20 @@
-import { forwardRef, useRef, useImperativeHandle, useEffect, type HTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  useEffect,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
-import '@awesome.me/webawesome/dist/components/icon/icon.js';
-import type WaElement from '@awesome.me/webawesome/dist/components/icon/icon.js';
+import type WaIcon from '@awesome.me/webawesome/dist/components/icon/icon.js';
 import './Icon.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/icon/icon.js'));
+}
 
 /**
  * Icons are symbols that can be used to represent various options within an application
@@ -18,8 +30,10 @@ import './Icon.css';
  *
  * ```
  */
-export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 'onError' | 'dir'> {
-
+export interface IconProps extends Omit<
+  HTMLAttributes<HTMLElement>,
+  'onLoad' | 'onError' | 'dir'
+> {
   /** The name of the icon to draw */
   name?: string;
 
@@ -38,7 +52,10 @@ export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 
   /** The icon's variant (thin, light, regular, solid) */
   variant?: string;
 
-  /** Sets the width to match the cropped SVG viewBox */
+  /** Controls how the icon is sized within its canvas */
+  canvas?: 'fixed' | 'auto' | 'square' | 'roomy';
+
+  /** Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto") */
   'auto-width'?: boolean;
 
   /** Swaps the opacity of duotone icons */
@@ -61,13 +78,16 @@ export interface IconProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' | 
 }
 
 export interface IconRef {
-  /** Reference to the underlying element */
-  element: WaElement | null;
+  /** Reference to the underlying HTML element */
+  element: WaIcon | null;
 }
 
 export const Icon = forwardRef<IconRef, IconProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
-    const iconRef = useRef<WaElement | null>(null);
+    const iconRef = useRef<WaIcon | null>(null);
+    const setIconRef = useCallback((el: WaIcon | null) => {
+      iconRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -80,31 +100,35 @@ export const Icon = forwardRef<IconRef, IconProps>(
     );
 
     useEffect(() => {
+      ensureLoaded();
       const el = iconRef.current;
       if (!el) return;
 
-      const handleLoad = (e: Event) => {
+      const handleWaLoad = (e: Event) => {
         if (onLoad) onLoad(e as CustomEvent);
       };
 
-      const handleError = (e: Event) => {
+      const handleWaError = (e: Event) => {
         if (onError) onError(e as CustomEvent);
       };
 
-      el.addEventListener('wa-load', handleLoad);
-      el.addEventListener('wa-error', handleError);
+      el.addEventListener('wa-load', handleWaLoad);
+      el.addEventListener('wa-error', handleWaError);
 
       return () => {
-        el.removeEventListener('wa-load', handleLoad);
-        el.removeEventListener('wa-error', handleError);
+        el.removeEventListener('wa-load', handleWaLoad);
+        el.removeEventListener('wa-error', handleWaError);
       };
     }, [onLoad, onError]);
 
     return (
       <wa-icon
-        ref={(el: WaElement | null) => { iconRef.current = el; }}
+        ref={setIconRef}
         class={clsx('Icon', className)}
-        {...(props as Record<string, unknown>)}
+        {...({ suppressHydrationWarning: true, ...props } as Record<
+          string,
+          unknown
+        >)}
       >
         {children}
       </wa-icon>

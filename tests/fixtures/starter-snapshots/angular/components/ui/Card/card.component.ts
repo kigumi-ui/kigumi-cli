@@ -44,11 +44,7 @@ export class CardComponent implements AfterViewInit {
 
   /** Visual appearance style */
   @Input() appearance?:
-    | 'outlined'
-    | 'filled-outlined'
-    | 'plain'
-    | 'filled'
-    | 'accent';
+    'outlined' | 'filled-outlined' | 'plain' | 'filled' | 'accent';
   /** Card layout orientation */
   @Input() orientation?: 'vertical' | 'horizontal';
   /** Adds header section (for SSR) */
