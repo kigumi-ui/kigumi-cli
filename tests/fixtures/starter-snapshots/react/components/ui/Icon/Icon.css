@@ -3,50 +3,35 @@
  * Documentation: https://webawesome.com/docs/components/icon
  *
  * CSS Custom Properties:
- * - --animation-delay: Sets when the animation will start. (default: 0)
- * - --animation-direction: Defines whether or not the animation should play in reverse on alternate cycles. (default: normal)
- * - --animation-duration: Defines the length of time that an animation takes to complete one cycle. (default: 1s)
- * - --animation-iteration-count: Defines the number of times an animation cycle is played. (default: infinite)
- * - --animation-timing: Describes how the animation will progress over one cycle of its duration.
- * - --beat-fade-opacity: Set lowest opacity value an icon with `beat-fade` animation will fade to and from.
- * - --beat-fade-scale: Set max value that an icon with `beat-fade` animation will scale.
- * - --beat-scale: Set the scale multiplier for an icon with `beat` animation. This multiplies the animation's 1.25× base pulse, so the default `1.25` peaks at ~1.56× and `2` roughly doubles the pulse.
- * - --bounce-height: Set the max height an icon with `bounce` animation will jump to when bouncing.
- * - --bounce-jump-scale-x: Set the icon’s horizontal distortion (“squish”) at the top of the jump.
- * - --bounce-jump-scale-y: Set the icon’s vertical distortion (“squish”) at the top of the jump.
- * - --bounce-land-scale-x: Set the icon’s horizontal distortion (“squish”) when landing after the jump.
- * - --bounce-land-scale-y: Set the icon’s vertical distortion (“squish”) when landing after the jump.
- * - --bounce-rebound: Set the amount of rebound an icon with `bounce` animation has when landing after the jump.
- * - --bounce-start-scale-x: Set the icon’s horizontal distortion (“squish”) when starting to bounce.
- * - --bounce-start-scale-y: Set the icon’s vertical distortion (“squish”) when starting to bounce.
- * - --fade-opacity: Set lowest opacity value an icon with `fade` animation will fade to and from.
- * - --flip-angle: Set rotation angle of flip for an icon with `flip` or `flip-360` animation. A positive angle denotes a clockwise rotation, a negative angle a counter-clockwise one.
- * - --flip-x: Set x-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
- * - --flip-y: Set y-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
- * - --flip-z: Set z-coordinate of the vector denoting the axis of rotation (between 0 and 1) for an icon with `flip` or `flip-360` animation.
- * - --flip-anticipation-scale: Set the scale of the wind-up before an icon with `flip` or `flip-360` animation rotates.
- * - --flip-overshoot: Set how far past the final angle an icon with `flip` or `flip-360` animation rotates before settling.
- * - --bounce-anticipation: Set the downward squash distance before an icon with `bounce` animation jumps.
- * - --buzz-distance: Set the horizontal travel of an icon with `buzz` animation.
- * - --wag-angle: Set the peak rotation of an icon with `wag` animation.
- * - --swing-angle: Set the peak rotation of an icon with `swing` animation.
- * - --jello-scale-x: Set the horizontal stretch of an icon with `jello` animation.
- * - --jello-scale-y: Set the vertical stretch of an icon with `jello` animation.
- * - --float-height: Set the rise height of an icon with `float` animation.
- * - --float-drift: Set the horizontal drift of an icon with `float` animation.
- * - --float-tilt: Set the rotation of an icon with `float` animation.
- * - --float-squash-x: Set the horizontal squash of an icon with `float` animation at rest.
- * - --float-squash-y: Set the vertical squash of an icon with `float` animation at rest.
- * - --float-stretch-x: Set the horizontal stretch of an icon with `float` animation at its peak.
- * - --float-stretch-y: Set the vertical stretch of an icon with `float` animation at its peak.
- * - --primary-color: Sets a duotone icon's primary color. (default: currentColor)
- * - --primary-opacity: Sets a duotone icon's primary opacity. (default: 1)
- * - --secondary-color: Sets a duotone icon's secondary color. (default: currentColor)
- * - --secondary-opacity: Sets a duotone icon's secondary opacity. (default: 0.4)
+ * --animation-delay: Delay before the animation starts
+ * --animation-direction: Whether the animation reverses on alternating cycles
+ * --animation-duration: Duration of one animation cycle
+ * --animation-iteration-count: Number of times the animation repeats
+ * --animation-timing: Easing function describing animation progress
+ * --beat-fade-opacity: Lowest opacity for the beat-fade animation
+ * --beat-fade-scale: Maximum scale for the beat-fade animation
+ * --beat-scale: Maximum scale for the beat animation
+ * --bounce-height: Maximum jump height for the bounce animation
+ * --bounce-jump-scale-x: Horizontal squish at the top of a bounce
+ * --bounce-jump-scale-y: Vertical squish at the top of a bounce
+ * --bounce-land-scale-x: Horizontal squish on bounce landing
+ * --bounce-land-scale-y: Vertical squish on bounce landing
+ * --bounce-rebound: Rebound amount after a bounce landing
+ * --bounce-start-scale-x: Horizontal squish at bounce start
+ * --bounce-start-scale-y: Vertical squish at bounce start
+ * --fade-opacity: Lowest opacity for the fade animation
+ * --flip-angle: Rotation angle for the flip animation
+ * --flip-x: X component of the flip rotation axis
+ * --flip-y: Y component of the flip rotation axis
+ * --flip-z: Z component of the flip rotation axis
+ * --primary-color: Primary layer color for duotone icons
+ * --primary-opacity: Primary layer opacity for duotone icons
+ * --secondary-color: Secondary layer color for duotone icons
+ * --secondary-opacity: Secondary layer opacity for duotone icons
  *
  * CSS Parts:
- * - svg: The internal SVG element.
- * - use: The `<use>` element generated when using `spriteSheet: true`
+ * svg — Internal SVG element
+ * use — Use element, generated when spriteSheet mode is active
  */
 .Icon {
   /* Add your custom styles here */
