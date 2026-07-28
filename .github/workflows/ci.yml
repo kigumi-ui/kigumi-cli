@@ -414,18 +414,38 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
+      # The docs site depends on the paid Web Awesome Pro package. Pull requests
+      # from forks do not receive repository secrets, so the install below would
+      # hit Cloudsmith with an empty token and fail with a 401 on an ordinary
+      # contribution. Detect that up front and skip the docs steps instead.
+      - name: Check Pro registry access
+        id: pro
+        env:
+          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+        run: |
+          if [ -n "$WA_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping docs type-check: no Web Awesome Pro token (expected for pull requests from forks)."
+          fi
+
       - name: Configure Pro registry for docs
+        if: steps.pro.outputs.available == 'true'
         run: |
           printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
+        if: steps.pro.outputs.available == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Install docs dependencies
+        if: steps.pro.outputs.available == 'true'
         working-directory: docs
         run: pnpm install --frozen-lockfile
 
       - name: Type-check docs
+        if: steps.pro.outputs.available == 'true'
         working-directory: docs
         run: pnpm exec tsc -p tsconfig.app.json
 
@@ -455,18 +475,36 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
+      # Fork pull requests do not receive secrets, so the Pro install below
+      # would fail with a 401. Skip the docs-dependent steps instead.
+      - name: Check Pro registry access
+        id: pro
+        env:
+          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+        run: |
+          if [ -n "$WA_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping Storybook interaction tests: no Web Awesome Pro token (expected for pull requests from forks)."
+          fi
+
       - name: Configure Pro registry for docs
+        if: steps.pro.outputs.available == 'true'
         run: |
           printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
+        if: steps.pro.outputs.available == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Install docs dependencies
+        if: steps.pro.outputs.available == 'true'
         working-directory: docs
         run: pnpm install --frozen-lockfile
 
       - name: Cache Playwright browsers
+        if: steps.pro.outputs.available == 'true'
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
@@ -475,10 +513,12 @@ jobs:
             playwright-chromium-
 
       - name: Install Playwright Chromium
+        if: steps.pro.outputs.available == 'true'
         working-directory: docs
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run story interactions
+        if: steps.pro.outputs.available == 'true'
         working-directory: docs
         run: pnpm storybook:test
 
@@ -502,12 +542,28 @@ jobs:
               - 'docs/src/components/**'
               - 'docs/.storybook/**'
 
+      # Building the Storybook needs the paid Web Awesome Pro package, and
+      # Chromatic needs its own token. Fork pull requests have neither, so the
+      # visual job would fail on an ordinary contribution. Skip it instead.
+      - name: Check visual-regression credentials
+        id: pro
+        env:
+          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+          CHROMATIC_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        run: |
+          if [ -n "$WA_TOKEN" ] && [ -n "$CHROMATIC_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping visual regression: missing Web Awesome Pro or Chromatic token (expected for pull requests from forks)."
+          fi
+
       - name: Setup pnpm
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
+        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
         uses: pnpm/action-setup@v5
 
       - name: Setup Node.js
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
+        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
         uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -515,26 +571,26 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Configure Pro registry for docs
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
+        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
         run: |
           printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
 
       - name: Install root dependencies
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
+        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
         run: pnpm install --frozen-lockfile
 
       - name: Install docs dependencies
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
+        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
         working-directory: docs
         run: pnpm install --frozen-lockfile
 
       - name: Build Storybook
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
+        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
         working-directory: docs
         run: pnpm build-storybook --stats-json
 
       - name: Run Chromatic
-        if: steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test')
+        if: steps.pro.outputs.available == 'true' && (steps.visual-filter.outputs.visual == 'true' || contains(github.event.pull_request.labels.*.name, 'visual-test'))
         uses: chromaui/action@latest
         with:
           workingDir: docs
