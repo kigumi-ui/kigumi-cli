@@ -7,8 +7,13 @@ Thanks for your interest in Kigumi. This guide covers everything you need to get
 - **Node.js 22.12 or newer** (see `engines` in `package.json`)
 - **pnpm 10** (the repo pins its package manager via `packageManager`)
 - A Web Awesome Pro license is **not** required to contribute. Pro components are supported through
-  metadata and generated type shims that are committed to the repo, so a plain clone builds and tests
-  fine. Only building the documentation site end to end needs a Pro token.
+  metadata and type-check shims that carry names and signatures but no Pro-authored documentation, so
+  a plain clone builds, type-checks and tests fine.
+
+  Two things do need a Pro token, and both are maintainer tasks: building the documentation site
+  (`docs/` depends on the Pro package), and regenerating the Pro metadata and shims after a Web
+  Awesome upgrade. CI detects a missing token and skips the docs jobs, so a pull request from a fork
+  gets a clean run rather than an authentication error.
 
 ## Getting Started
 
@@ -44,10 +49,16 @@ Run these before opening a pull request. CI runs the same checks.
 ```bash
 pnpm type-check          # TypeScript across src, templates, and tests
 pnpm lint                # ESLint
+pnpm format:check        # Prettier
 pnpm test                # Unit tests
 pnpm validate:registry   # Registry and template consistency
 pnpm validate:templates  # Per-framework template completeness
+pnpm validate:generated-fresh  # Generated artifacts match their generators
 ```
+
+If `validate:generated-fresh` reports drift, regenerate rather than hand-editing: run
+`pnpm generate:templates` for component wrappers, or `pnpm generate:metadata` if you have a Pro token
+and the Web Awesome version changed.
 
 For broader changes:
 
