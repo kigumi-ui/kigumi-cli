@@ -5,13 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  DependencyInstallError,
-  PackageNotFoundError,
-  NetworkError,
-  AuthenticationError,
-  RegistryError,
-} from '../../src/errors/network.js';
+import { DependencyInstallError } from '../../src/errors/network.js';
 
 describe('DependencyInstallError', () => {
   it('creates error for registry mismatch (pnpm)', () => {
@@ -92,84 +86,6 @@ describe('DependencyInstallError', () => {
     const err = new DependencyInstallError('pkg', 'pnpm');
     expect(
       err.suggestions[1].steps.some((s: string) => s.includes('pnpm add'))
-    ).toBe(true);
-  });
-});
-
-describe('PackageNotFoundError', () => {
-  it('creates error with package name only', () => {
-    const err = new PackageNotFoundError('missing-pkg');
-    expect(err.message).toContain('missing-pkg');
-    expect(err.suggestions[0].title).toBe('Check package name');
-  });
-
-  it('creates error with registry info', () => {
-    const err = new PackageNotFoundError(
-      'missing-pkg',
-      'https://npm.example.com'
-    );
-    expect(
-      err.suggestions[0].steps.some((s: string) =>
-        s.includes('npm.example.com')
-      )
-    ).toBe(true);
-  });
-});
-
-describe('NetworkError', () => {
-  it('creates error with URL and cause', () => {
-    const cause = new Error('ECONNREFUSED');
-    const err = new NetworkError('https://api.github.com/repos', cause);
-    expect(err.message).toContain('api.github.com');
-    expect(err.suggestions[0].title).toBe('Check your network');
-  });
-});
-
-describe('AuthenticationError', () => {
-  it('creates error for generic service', () => {
-    const err = new AuthenticationError('npm registry', 401);
-    expect(err.suggestions).toHaveLength(1);
-    expect(err.suggestions[0].title).toBe('Check your credentials');
-  });
-
-  it('creates error for webawesome service with extra suggestion', () => {
-    const err = new AuthenticationError(
-      'awesome.me npm registry',
-      401,
-      'token expired'
-    );
-    expect(err.suggestions).toHaveLength(2);
-    expect(err.suggestions[1].title).toBe('Get a new Web Awesome token');
-  });
-
-  it('creates error without message', () => {
-    const err = new AuthenticationError('service', 403);
-    expect(
-      err.suggestions[0].steps.some((s: string) => s.includes('403'))
-    ).toBe(true);
-  });
-});
-
-describe('RegistryError', () => {
-  it('creates error with status code', () => {
-    const cause = new Error('timeout');
-    const err = new RegistryError(
-      'https://registry.npmjs.org',
-      'fetch',
-      cause,
-      503
-    );
-    expect(err.message).toContain('registry.npmjs.org');
-    expect(
-      err.suggestions[0].steps.some((s: string) => s.includes('503'))
-    ).toBe(true);
-  });
-
-  it('creates error without status code', () => {
-    const cause = new Error('DNS failure');
-    const err = new RegistryError('https://example.com', 'connect', cause);
-    expect(
-      err.suggestions[0].steps.every((s: string) => !s.includes('Status code'))
     ).toBe(true);
   });
 });

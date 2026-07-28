@@ -30,60 +30,61 @@ node dist/index.js add button --force
 | `dist/`           | Build output                                                   | -                                          |
 
 **Key Files:**
-| File | Purpose |
-|------|---------|
-| `src/index.ts` | CLI entry point (Commander routing) |
-| `src/utils/registry.ts` | Component definitions (single source of truth) |
-| `src/utils/tier.ts` | Free/Pro tier detection from `package.json` + `.env` |
-| `src/utils/registry-resolver.ts` | Resolves `--from` value (URL or saved registry name) |
-| `src/commands/init/` | Project initialization |
-| `src/commands/add/` | Component installation (built-in + community) |
-| `src/commands/registry.ts` | Community registry management (connect, list, remove) |
-| `src/commands/theme/install.ts` | Community theme installation from registry |
-| `src/commands/theme/list.ts` | List available themes for current tier |
-| `src/commands/theme/show.ts` | Show current theme details |
-| `src/commands/list.ts` | List all available components (`--json` supported) |
-| `src/commands/status.ts` | Project status (`--json` supported) |
-| `src/commands/upgrade.ts` | Version upgrade + dependency installation |
-| `src/commands/diff.ts` | Compare installed components vs current templates |
-| `src/commands/update.ts` | Three-way merge update for installed components |
-| `src/utils/diff-renderer.ts` | Colored unified diff output using node-diff3 diffPatch |
-| `src/utils/snapshot.ts` | Snapshot CRUD for `.kigumi/snapshots/` |
-| `src/utils/three-way-merge.ts` | Three-way merge logic using `node-diff3` |
-| `src/utils/version-check.ts` | CLI vs project version compatibility check |
-| `src/utils/version-map.ts` | Version history + breaking changes data |
-| `src/utils/github-fetcher.ts` | GitHub registry fetcher (also handles local filesystem `RegistrySource` since 0.20.0) |
-| `src/utils/foreign-files-staging.ts` | Stages source-framework files into `.kigumi/foreign/<slug>/` for `--cross-framework` |
-| `src/schemas/community-registry.ts` | Community registry schema validation |
-| `scripts/parse-custom-elements.ts` | Parse WA custom-elements.json ��� `component-metadata.ts` (events, slots, methods) |
-| `scripts/find-cem.ts` | Locate Web Awesome Pro custom-elements.json on disk (shared by parser + freshness check) |
-| `scripts/check-metadata-freshness.ts` | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM, triggering regen |
-| `scripts/check-generated-fresh.ts` | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx` event surface is a subset of `.tsx`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs in a tmp copy + diff) self-skips when the CEM is absent |
-| `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata |
-| `scripts/generate-react-templates.ts` | Generate React component templates from registry + metadata |
-| `scripts/generate-vue-templates.ts` | Generate Vue SFC templates from registry + metadata |
-| `scripts/generator-utils.ts` | Shared helpers (`DOM_GLOBALS`, `extractCustomTypeImports`) used by React + Vue generators |
-| `scripts/generate-skill-references.ts` | Generate React/Vue/Angular API surface files for skills |
-| `scripts/publish-skills.mjs` | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here) |
-| `scripts/generate-skills-index.mjs` | Generate `.well-known/skills/index.json` from published skills |
-| `scripts/post-changeset-version.ts` | Update version references after changeset version bump |
-| `scripts/setup-npmrc.mjs` | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc` |
-| `scripts/update-starter-snapshots.ts` | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header) |
-| `scripts/validate-agents.ts` | Validate AGENTS.md facts against codebase reality |
-| `scripts/validate-cem-sync.ts` | Validate CEM metadata is in sync with registry |
-| `scripts/validate-changes.ts` | Validate changeset entries |
-| `scripts/validate-parity.ts` | Validate React/Vue/Angular template parity |
-| `scripts/validate-registry.ts` | Validate registry definitions are complete |
-| `scripts/validate-templates.ts` | Validate template rendering for all components |
-| `scripts/verify-test-app.ts` | Verify test app output after build |
-| `scripts/storybook/overrides.ts` | Storybook story overrides |
-| `scripts/storybook/patch-stories.ts` | Patch generated Storybook stories |
-| `scripts/storybook/story-data.ts` | Storybook story data helpers |
-| `scripts/storybook/validate-stories.ts` | Validate Storybook story structure |
-| `scripts/state-files.ts` | Internal markdown-table parser for `docs/superpowers/state/*.md` (consumed by the three Phase-2 scripts) |
-| `scripts/state-staleness.ts` | List initiatives whose state-file is older than N days; powers the `/weekly-review` skill |
-| `scripts/triage-finding.ts` | Evaluate the 3-criteria new-finding rule and render a draft (Issue / PR-note / wontfix); powers `/triage-finding` |
-| `scripts/release-readiness.ts` | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness` |
+
+| File                                    | Purpose                                                                                                                                                                                                                                                                                                  |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/index.ts`                          | CLI entry point (Commander routing)                                                                                                                                                                                                                                                                      |
+| `src/utils/registry.ts`                 | Component definitions (single source of truth)                                                                                                                                                                                                                                                           |
+| `src/utils/tier.ts`                     | Free/Pro tier detection from `package.json` + `.env`                                                                                                                                                                                                                                                     |
+| `src/utils/registry-resolver.ts`        | Resolves `--from` value (URL or saved registry name)                                                                                                                                                                                                                                                     |
+| `src/commands/init/`                    | Project initialization                                                                                                                                                                                                                                                                                   |
+| `src/commands/add/`                     | Component installation (built-in + community)                                                                                                                                                                                                                                                            |
+| `src/commands/registry.ts`              | Community registry management (connect, list, remove)                                                                                                                                                                                                                                                    |
+| `src/commands/theme/install.ts`         | Community theme installation from registry                                                                                                                                                                                                                                                               |
+| `src/commands/theme/list.ts`            | List available themes for current tier                                                                                                                                                                                                                                                                   |
+| `src/commands/theme/show.ts`            | Show current theme details                                                                                                                                                                                                                                                                               |
+| `src/commands/list.ts`                  | List all available components (`--json` supported)                                                                                                                                                                                                                                                       |
+| `src/commands/status.ts`                | Project status (`--json` supported)                                                                                                                                                                                                                                                                      |
+| `src/commands/upgrade.ts`               | Version upgrade + dependency installation                                                                                                                                                                                                                                                                |
+| `src/commands/diff.ts`                  | Compare installed components vs current templates                                                                                                                                                                                                                                                        |
+| `src/commands/update.ts`                | Three-way merge update for installed components                                                                                                                                                                                                                                                          |
+| `src/utils/diff-renderer.ts`            | Colored unified diff output using node-diff3 diffPatch                                                                                                                                                                                                                                                   |
+| `src/utils/snapshot.ts`                 | Snapshot CRUD for `.kigumi/snapshots/`                                                                                                                                                                                                                                                                   |
+| `src/utils/three-way-merge.ts`          | Three-way merge logic using `node-diff3`                                                                                                                                                                                                                                                                 |
+| `src/utils/version-check.ts`            | CLI vs project version compatibility check                                                                                                                                                                                                                                                               |
+| `src/utils/version-map.ts`              | Version history + breaking changes data                                                                                                                                                                                                                                                                  |
+| `src/utils/github-fetcher.ts`           | GitHub registry fetcher (also handles local filesystem `RegistrySource` since 0.20.0)                                                                                                                                                                                                                    |
+| `src/utils/foreign-files-staging.ts`    | Stages source-framework files into `.kigumi/foreign/<slug>/` for `--cross-framework`                                                                                                                                                                                                                     |
+| `src/schemas/community-registry.ts`     | Community registry schema validation                                                                                                                                                                                                                                                                     |
+| `scripts/parse-custom-elements.ts`      | Parse WA custom-elements.json ��� `component-metadata.ts` (events, slots, methods)                                                                                                                                                                                                                       |
+| `scripts/find-cem.ts`                   | Locate Web Awesome Pro custom-elements.json on disk (shared by parser + freshness check)                                                                                                                                                                                                                 |
+| `scripts/check-metadata-freshness.ts`   | Prebuild gate: exits 1 when `component-metadata.ts` is missing or older than the CEM, triggering regen                                                                                                                                                                                                   |
+| `scripts/check-generated-fresh.ts`      | `validate:generated-fresh` drift guard. B: docs-wrapper CSS rules (comment-normalized) match templates; C: `.jsx` event surface is a subset of `.tsx`; D: starter-fixture CSS rules match templates. A (regenerate metadata/templates/skill-refs in a tmp copy + diff) self-skips when the CEM is absent |
+| `scripts/generate-angular-templates.ts` | Generate Angular component templates from registry + metadata                                                                                                                                                                                                                                            |
+| `scripts/generate-react-templates.ts`   | Generate React component templates from registry + metadata                                                                                                                                                                                                                                              |
+| `scripts/generate-vue-templates.ts`     | Generate Vue SFC templates from registry + metadata                                                                                                                                                                                                                                                      |
+| `scripts/generator-utils.ts`            | Shared helpers (`DOM_GLOBALS`, `extractCustomTypeImports`) used by React + Vue generators                                                                                                                                                                                                                |
+| `scripts/generate-skill-references.ts`  | Generate React/Vue/Angular API surface files for skills                                                                                                                                                                                                                                                  |
+| `scripts/publish-skills.mjs`            | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here)                                                                                                                                                                                                                                |
+| `scripts/generate-skills-index.mjs`     | Generate `.well-known/skills/index.json` from published skills                                                                                                                                                                                                                                           |
+| `scripts/post-changeset-version.ts`     | Update version references after changeset version bump                                                                                                                                                                                                                                                   |
+| `scripts/setup-npmrc.mjs`               | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc`                                                                                                                                                                                                                                              |
+| `scripts/update-starter-snapshots.ts`   | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header)                                                                                                                                                                                        |
+| `scripts/validate-agents.ts`            | Validate AGENTS.md facts against codebase reality                                                                                                                                                                                                                                                        |
+| `scripts/validate-cem-sync.ts`          | Validate CEM metadata is in sync with registry                                                                                                                                                                                                                                                           |
+| `scripts/validate-changes.ts`           | Validate changeset entries                                                                                                                                                                                                                                                                               |
+| `scripts/validate-parity.ts`            | Validate React/Vue/Angular template parity                                                                                                                                                                                                                                                               |
+| `scripts/validate-registry.ts`          | Validate registry definitions are complete                                                                                                                                                                                                                                                               |
+| `scripts/validate-templates.ts`         | Validate template rendering for all components                                                                                                                                                                                                                                                           |
+| `scripts/verify-test-app.ts`            | Verify test app output after build                                                                                                                                                                                                                                                                       |
+| `scripts/storybook/overrides.ts`        | Storybook story overrides                                                                                                                                                                                                                                                                                |
+| `scripts/storybook/patch-stories.ts`    | Patch generated Storybook stories                                                                                                                                                                                                                                                                        |
+| `scripts/storybook/story-data.ts`       | Storybook story data helpers                                                                                                                                                                                                                                                                             |
+| `scripts/storybook/validate-stories.ts` | Validate Storybook story structure                                                                                                                                                                                                                                                                       |
+| `scripts/state-files.ts`                | Internal markdown-table parser for `docs/superpowers/state/*.md` (consumed by the three Phase-2 scripts)                                                                                                                                                                                                 |
+| `scripts/state-staleness.ts`            | List initiatives whose state-file is older than N days; powers the `/weekly-review` skill                                                                                                                                                                                                                |
+| `scripts/triage-finding.ts`             | Evaluate the 3-criteria new-finding rule and render a draft (Issue / PR-note / wontfix); powers `/triage-finding`                                                                                                                                                                                        |
+| `scripts/release-readiness.ts`          | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness`                                                                                                                                                                                               |
 
 ---
 
@@ -267,18 +268,20 @@ Do not add a `'next'` entry to the `framework` enum — duplicating templates un
 Prefer Web Awesome utility classes over custom CSS for layout and style composition:
 
 **Layout utilities** (`.wa-` prefix — applied via `className` on plain HTML elements):
-| Class | Purpose |
-|-------|---------|
-| `.wa-stack` | Vertical stacking with consistent gap |
-| `.wa-grid` | Responsive column grid |
+
+| Class         | Purpose                                 |
+| ------------- | --------------------------------------- |
+| `.wa-stack`   | Vertical stacking with consistent gap   |
+| `.wa-grid`    | Responsive column grid                  |
 | `.wa-cluster` | Horizontal wrapping group (tags, chips) |
-| `.wa-flank` | Sidebar + main content split |
-| `.wa-frame` | Aspect-ratio constrained container |
-| `.wa-split` | Two equal columns |
+| `.wa-flank`   | Sidebar + main content split            |
+| `.wa-frame`   | Aspect-ratio constrained container      |
+| `.wa-split`   | Two equal columns                       |
 
 **Style utilities:**
-| Class | Purpose |
-|-------|---------|
+
+| Class      | Purpose                                |
+| ---------- | -------------------------------------- |
 | `.wa-dark` | Applies dark color scheme to a subtree |
 
 Reference: https://webawesome.com/docs/utilities/ and https://webawesome.com/docs/layout/
@@ -438,7 +441,6 @@ flowchart TD
     subgraph Errors["errors/"]
         err_base["base.ts — KigumiError"]
         err_config["config.ts"]
-        err_fs["filesystem.ts"]
         err_net["network.ts"]
         err_community["community-registry.ts"]
         err_version["version.ts\nVersionMismatchError"]
@@ -447,7 +449,6 @@ flowchart TD
     subgraph Checks["checks/"]
         check_runner["runner.ts — CheckRunner"]
         check_config["config-checks.ts"]
-        check_deps["dependency-checks.ts"]
     end
 
     subgraph Templates["templates/"]
@@ -1081,4 +1082,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-07-02 (Web Awesome 3.10.0; 84 components after adding video, video-playlist, date-picker, date-input)
+**Maintained by:** AI Assistants | **Last Updated:** 2026-07-28 (open-source 1.0 cleanup; 84 components)

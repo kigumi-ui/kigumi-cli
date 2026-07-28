@@ -5,11 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  PreFlightCheckError,
-  MissingDependencyError,
-  IncompatibleVersionError,
-} from '../../src/errors/preflight.js';
+import { PreFlightCheckError } from '../../src/errors/preflight.js';
 import { CheckSeverity } from '../../src/checks/types.js';
 import { ErrorCode } from '../../src/errors/base.js';
 
@@ -110,62 +106,5 @@ describe('PreFlightCheckError', () => {
     const error = new PreFlightCheckError(results);
     const formatted = error.format();
     expect(formatted).toContain('Pre-flight checks failed:');
-  });
-});
-
-describe('MissingDependencyError', () => {
-  it('creates error for node_modules context', () => {
-    const error = new MissingDependencyError('react', 'node_modules', 'pnpm');
-    expect(error.code).toBe(ErrorCode.MISSING_DEPENDENCY);
-    expect(error.message).toContain('react');
-    expect(error.suggestions[0].steps).toEqual(
-      expect.arrayContaining([expect.stringContaining('pnpm add react')])
-    );
-  });
-
-  it('creates error for node_modules context with npm', () => {
-    const error = new MissingDependencyError('react', 'node_modules', 'npm');
-    expect(error.suggestions[0].steps).toEqual(
-      expect.arrayContaining([expect.stringContaining('npm install react')])
-    );
-  });
-
-  it('creates error for package.json context', () => {
-    const error = new MissingDependencyError('vue', 'package.json', 'yarn');
-    expect(error.suggestions[0].title).toBe('Add dependency to package.json');
-    expect(error.suggestions[0].steps).toEqual(
-      expect.arrayContaining([expect.stringContaining('yarn add vue')])
-    );
-  });
-
-  it('creates error for package.json context with npm', () => {
-    const error = new MissingDependencyError('vue', 'package.json', 'npm');
-    expect(error.suggestions[0].steps).toEqual(
-      expect.arrayContaining([expect.stringContaining('npm install vue')])
-    );
-  });
-
-  it('creates error for global context', () => {
-    const error = new MissingDependencyError('typescript', 'global', 'npm');
-    expect(error.suggestions[0].title).toBe('Install global dependency');
-    expect(error.suggestions[0].steps).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('npm install -g typescript'),
-      ])
-    );
-  });
-});
-
-describe('IncompatibleVersionError', () => {
-  it('creates error with version details', () => {
-    const error = new IncompatibleVersionError('react', '16.0.0', '>=18.0.0');
-    expect(error.code).toBe(ErrorCode.INCOMPATIBLE_VERSION);
-    expect(error.message).toContain('react');
-    expect(error.suggestions[0].steps).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('16.0.0'),
-        expect.stringContaining('>=18.0.0'),
-      ])
-    );
   });
 });

@@ -11,7 +11,6 @@ import os from 'os';
 import {
   ConfigExistsCheck,
   PackageJsonExistsCheck,
-  GitIgnoreExistsCheck,
 } from '../../src/checks/config-checks.js';
 import { CheckSeverity } from '../../src/checks/types.js';
 
@@ -100,26 +99,6 @@ describe('PackageJsonExistsCheck', () => {
   it('passes when package.json exists', async () => {
     await withTmpDir(async (dir) => {
       await fs.writeJSON(path.join(dir, 'package.json'), { name: 'test' });
-      const result = await check.run({ cwd: dir });
-      expect(result.passed).toBe(true);
-    });
-  });
-});
-
-describe('GitIgnoreExistsCheck', () => {
-  const check = new GitIgnoreExistsCheck();
-
-  it('warns when .gitignore is missing', async () => {
-    await withTmpDir(async (dir) => {
-      const result = await check.run({ cwd: dir });
-      expect(result.passed).toBe(false);
-      expect(result.severity).toBe(CheckSeverity.WARNING);
-    });
-  });
-
-  it('passes when .gitignore exists', async () => {
-    await withTmpDir(async (dir) => {
-      await fs.writeFile(path.join(dir, '.gitignore'), 'node_modules');
       const result = await check.run({ cwd: dir });
       expect(result.passed).toBe(true);
     });

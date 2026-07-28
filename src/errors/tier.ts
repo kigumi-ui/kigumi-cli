@@ -45,43 +45,6 @@ export class TierRestrictionError extends KigumiError {
 }
 
 /**
- * Pro component required error
- */
-export class ProComponentRequiredError extends KigumiError {
-  constructor(componentName: string, freeAlternatives?: string[]) {
-    const suggestions: ErrorSuggestion[] = [
-      {
-        title: 'Upgrade to Pro tier',
-        steps: [
-          `Component "${componentName}" requires Web Awesome Pro`,
-          'Visit: https://webawesome.com/pro',
-          'Sign up for a Pro account',
-          'Update kigumi.config.json: "tier": "pro"',
-          'Add your Pro token to .env: WEBAWESOME_NPM_TOKEN=your-token',
-        ],
-      },
-    ];
-
-    if (freeAlternatives && freeAlternatives.length > 0) {
-      suggestions.push({
-        title: 'Or use a free alternative',
-        steps: [
-          'Free tier alternatives:',
-          ...freeAlternatives.map((c) => `  - ${c}`),
-        ],
-      });
-    }
-
-    super(
-      ErrorCode.PRO_COMPONENT_REQUIRED,
-      `Component requires Pro tier: ${componentName}`,
-      { componentName, freeAlternatives },
-      suggestions
-    );
-  }
-}
-
-/**
  * Pro theme required error
  */
 export class ProThemeRequiredError extends KigumiError {
@@ -107,81 +70,6 @@ export class ProThemeRequiredError extends KigumiError {
       ErrorCode.PRO_THEME_REQUIRED,
       `Theme requires Pro tier: ${themeName}`,
       { themeName, freeThemes },
-      suggestions
-    );
-  }
-}
-
-/**
- * Token required error
- */
-export class TokenRequiredError extends KigumiError {
-  constructor() {
-    const suggestions: ErrorSuggestion[] = [
-      {
-        title: 'Add your Pro token',
-        steps: [
-          'Get your token from: https://webawesome.com/pro',
-          'Sign in to your Web Awesome account',
-          'Navigate to Settings → API Tokens',
-          'Generate a new token',
-          'Add to .env file: WEBAWESOME_NPM_TOKEN=your-token',
-        ],
-      },
-      {
-        title: 'For team members',
-        steps: [
-          'Ask your team lead for the shared Pro token',
-          'Add the token to your .env file',
-          'Make sure .env is in .gitignore (security!)',
-        ],
-      },
-    ];
-
-    super(
-      ErrorCode.TOKEN_REQUIRED,
-      'Pro tier token is required but not found',
-      {
-        envVar: 'WEBAWESOME_NPM_TOKEN',
-        checked: ['process.env.WEBAWESOME_NPM_TOKEN', '~/.npmrc', '.env'],
-      },
-      suggestions
-    );
-  }
-}
-
-/**
- * Token invalid error
- */
-export class TokenInvalidError extends KigumiError {
-  constructor(statusCode?: number, message?: string) {
-    const suggestions: ErrorSuggestion[] = [
-      {
-        title: 'Check your Pro token',
-        steps: [
-          'Verify your token is correct in .env',
-          'Make sure there are no extra spaces or quotes',
-          "Check that the token hasn't expired",
-          'Get a new token from: https://webawesome.com/pro',
-        ],
-      },
-      {
-        title: 'Authentication failed',
-        steps: [
-          ...(statusCode === 401
-            ? ['Your token was rejected (401 Unauthorized)']
-            : []),
-          ...(message ? [`Error: ${message}`] : []),
-          'Verify you have an active Pro subscription',
-          'Contact support if the issue persists',
-        ],
-      },
-    ];
-
-    super(
-      ErrorCode.TOKEN_INVALID,
-      'Pro tier token is invalid or expired',
-      { statusCode, message },
       suggestions
     );
   }

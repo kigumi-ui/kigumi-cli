@@ -14,32 +14,13 @@ import {
 import {
   ConfigNotFoundError,
   ConfigInvalidError,
-  ConfigParseError,
-  ConfigFieldMissingError,
-  ConfigFieldInvalidError,
 } from '../../src/errors/config.js';
-import {
-  ValidationError,
-  InvalidFrameworkError,
-  InvalidComponentError,
-  InvalidThemeError,
-  InvalidPaletteError,
-} from '../../src/errors/validation.js';
+import { ValidationError } from '../../src/errors/validation.js';
 import {
   TierRestrictionError,
-  ProComponentRequiredError,
   ProThemeRequiredError,
-  TokenRequiredError,
-  TokenInvalidError,
 } from '../../src/errors/tier.js';
-import {
-  FileNotFoundError,
-  FileReadError,
-  FileWriteError,
-  DirectoryNotFoundError,
-  PermissionDeniedError,
-  ComponentExistsError,
-} from '../../src/errors/filesystem.js';
+import { LayersCssRewriteError } from '../../src/errors/layers-css.js';
 import type { OutputInterface } from '../../src/output/types.js';
 
 describe('Error Classes', () => {
@@ -64,16 +45,26 @@ describe('Error Classes', () => {
       expect(tierError.exitCode).toBe(3);
 
       // File system errors (400-499) -> exit code 4
-      const fileError = new FileNotFoundError('/test/file');
+      const fileError = new LayersCssRewriteError(
+        '/layers.css',
+        '@webawesome/free',
+        '@webawesome/pro',
+        'default'
+      );
       expect(fileError.exitCode).toBe(4);
     });
 
     it('should format error message correctly', () => {
-      const error = new FileNotFoundError('/path/to/file.ts');
+      const error = new LayersCssRewriteError(
+        '/path/to/layers.css',
+        '@webawesome/free',
+        '@webawesome/pro',
+        'default'
+      );
       const formatted = error.format();
 
-      expect(formatted).toContain('File not found');
-      expect(formatted).toContain('/path/to/file.ts');
+      expect(formatted).toContain('Cannot migrate layers.css automatically');
+      expect(formatted).toContain('/path/to/layers.css');
     });
 
     it('should include context details in formatted output', () => {
@@ -92,7 +83,7 @@ describe('Error Classes', () => {
     });
 
     it('should convert to JSON', () => {
-      const error = new FileNotFoundError('/test/file');
+      const error = new ConfigNotFoundError('/test');
       const json = error.toJSON();
 
       expect(json).toHaveProperty('name');
@@ -180,57 +171,6 @@ describe('Error Classes', () => {
     });
   });
 
-  describe('ConfigParseError', () => {
-    it('should include parse error message', () => {
-      const cause = new Error('Unexpected token } at position 42');
-      const error = new ConfigParseError('/config.json', cause);
-
-      expect(error.context.details?.parseError).toContain('Unexpected token');
-    });
-
-    it('should preserve original cause', () => {
-      const cause = new Error('JSON parse failed');
-      const error = new ConfigParseError('/config.json', cause);
-
-      expect(error.context.cause).toBe(cause);
-    });
-  });
-
-  describe('ConfigFieldMissingError', () => {
-    it('should include field name', () => {
-      const error = new ConfigFieldMissingError('framework');
-      expect(error.context.details?.field).toBe('framework');
-    });
-
-    it('should suggest adding the field', () => {
-      const error = new ConfigFieldMissingError('componentsDir');
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('componentsDir');
-    });
-  });
-
-  describe('ConfigFieldInvalidError', () => {
-    it('should include field, value, and expected type', () => {
-      const error = new ConfigFieldInvalidError('port', 'abc', 'number');
-
-      expect(error.context.details?.field).toBe('port');
-      expect(error.context.details?.value).toBe('abc');
-      expect(error.context.details?.expectedType).toBe('number');
-    });
-
-    it('should list valid values when provided', () => {
-      const error = new ConfigFieldInvalidError('tier', 'premium', 'string', [
-        'free',
-        'pro',
-      ]);
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('free');
-      expect(suggestions).toContain('pro');
-    });
-  });
-
   describe('ValidationError', () => {
     it('should have exit code 2', () => {
       const error = new ValidationError('field', 'value');
@@ -251,76 +191,6 @@ describe('Error Classes', () => {
 
       expect(formatted).toContain('free');
       expect(formatted).toContain('pro');
-    });
-  });
-
-  describe('InvalidFrameworkError', () => {
-    it('should list supported frameworks', () => {
-      const error = new InvalidFrameworkError('angular', ['react', 'vue']);
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('react');
-      expect(suggestions).toContain('vue');
-    });
-
-    it('should include the invalid framework', () => {
-      const error = new InvalidFrameworkError('svelte', ['react', 'vue']);
-      expect(error.message).toContain('svelte');
-    });
-  });
-
-  describe('InvalidComponentError', () => {
-    it('should include component name', () => {
-      const error = new InvalidComponentError('FakeComponent');
-      expect(error.message).toContain('FakeComponent');
-    });
-
-    it('should list available components when provided', () => {
-      const error = new InvalidComponentError('fake', ['button', 'dialog']);
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('button');
-      expect(suggestions).toContain('dialog');
-    });
-  });
-
-  describe('InvalidThemeError', () => {
-    it('should include theme name and tier', () => {
-      const error = new InvalidThemeError(
-        'premium-dark',
-        ['default', 'dawn'],
-        'free'
-      );
-
-      expect(error.context.details?.theme).toBe('premium-dark');
-      expect(error.context.details?.tier).toBe('free');
-    });
-
-    it('should list available themes', () => {
-      const error = new InvalidThemeError(
-        'custom',
-        ['awesome', 'dusk'],
-        'free'
-      );
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('awesome');
-      expect(suggestions).toContain('dusk');
-    });
-  });
-
-  describe('InvalidPaletteError', () => {
-    it('should list available palettes', () => {
-      const error = new InvalidPaletteError('rainbow', [
-        'blue',
-        'green',
-        'red',
-      ]);
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('blue');
-      expect(suggestions).toContain('green');
-      expect(suggestions).toContain('red');
     });
   });
 
@@ -352,34 +222,6 @@ describe('Error Classes', () => {
     });
   });
 
-  describe('ProComponentRequiredError', () => {
-    it('should include component name', () => {
-      const error = new ProComponentRequiredError('DataGrid');
-      expect(error.message).toContain('DataGrid');
-    });
-
-    it('should list free alternatives when provided', () => {
-      const error = new ProComponentRequiredError('Combobox', [
-        'Select',
-        'Input',
-      ]);
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('Select');
-      expect(suggestions).toContain('Input');
-    });
-
-    it('should reference current env var and config file names', () => {
-      const error = new ProComponentRequiredError('DataGrid');
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
-      expect(suggestions).toContain('kigumi.config.json');
-      expect(suggestions).not.toContain('WA_TOKEN=');
-      expect(suggestions).not.toContain('kigumi-components.json');
-    });
-  });
-
   describe('ProThemeRequiredError', () => {
     it('should list free themes', () => {
       const error = new ProThemeRequiredError('mercury', [
@@ -402,105 +244,6 @@ describe('Error Classes', () => {
       expect(suggestions).toContain('kigumi.config.json');
       expect(suggestions).not.toContain('WA_TOKEN=');
       expect(suggestions).not.toContain('kigumi-components.json');
-    });
-  });
-
-  describe('TokenRequiredError', () => {
-    it('should suggest adding token to .env with the current env var name', () => {
-      const error = new TokenRequiredError();
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('.env');
-      expect(suggestions).toContain('WEBAWESOME_NPM_TOKEN');
-      expect(suggestions).not.toContain('WA_TOKEN=');
-    });
-
-    it('should record the current env var and detection sources in context', () => {
-      const error = new TokenRequiredError();
-      const details = error.context.details as {
-        envVar: string;
-        checked: string[];
-      };
-
-      expect(details.envVar).toBe('WEBAWESOME_NPM_TOKEN');
-      // Order must match the real detection priority in src/utils/token.ts:
-      // (1) env var, (2) global ~/.npmrc, (3) project .env
-      expect(details.checked).toEqual([
-        'process.env.WEBAWESOME_NPM_TOKEN',
-        '~/.npmrc',
-        '.env',
-      ]);
-    });
-  });
-
-  describe('TokenInvalidError', () => {
-    it('should include status code when provided', () => {
-      const error = new TokenInvalidError(401, 'Unauthorized');
-      expect(error.context.details?.statusCode).toBe(401);
-    });
-
-    it('should mention 401 in suggestions', () => {
-      const error = new TokenInvalidError(401);
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('401');
-    });
-  });
-
-  describe('FileNotFoundError', () => {
-    it('should have exit code 4', () => {
-      const error = new FileNotFoundError('/test/file.ts');
-      expect(error.exitCode).toBe(4);
-    });
-
-    it('should include file path', () => {
-      const error = new FileNotFoundError('/path/to/missing.ts');
-      expect(error.message).toContain('/path/to/missing.ts');
-    });
-  });
-
-  describe('FileReadError', () => {
-    it('should include original error', () => {
-      const cause = new Error('EACCES: permission denied');
-      const error = new FileReadError('/secret.txt', cause);
-
-      expect(error.context.cause).toBe(cause);
-      expect(error.context.details?.error).toContain('EACCES');
-    });
-  });
-
-  describe('FileWriteError', () => {
-    it('should include original error', () => {
-      const cause = new Error('ENOSPC: no space left');
-      const error = new FileWriteError('/output.txt', cause);
-
-      expect(error.context.details?.error).toContain('ENOSPC');
-    });
-  });
-
-  describe('DirectoryNotFoundError', () => {
-    it('should include directory path', () => {
-      const error = new DirectoryNotFoundError('/missing/dir');
-      expect(error.context.details?.dirPath).toBe('/missing/dir');
-    });
-  });
-
-  describe('PermissionDeniedError', () => {
-    it('should include operation type', () => {
-      const error = new PermissionDeniedError('/protected', 'write');
-      expect(error.context.details?.operation).toBe('write');
-    });
-  });
-
-  describe('ComponentExistsError', () => {
-    it('should suggest --force flag', () => {
-      const error = new ComponentExistsError(
-        'Button',
-        '/src/components/Button'
-      );
-      const suggestions = error.formatSuggestions();
-
-      expect(suggestions).toContain('--force');
     });
   });
 

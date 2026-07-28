@@ -30,9 +30,6 @@ vi.mock('../../src/utils/registry-cache.js', async () => {
     getRegistryCache: vi.fn().mockReturnValue({
       getFile: vi.fn().mockResolvedValue(null),
       setFile: vi.fn().mockResolvedValue(undefined),
-      getRegistry: vi.fn().mockResolvedValue(null),
-      setRegistry: vi.fn().mockResolvedValue(undefined),
-      invalidate: vi.fn().mockResolvedValue(undefined),
     }),
   };
 });

@@ -21,7 +21,6 @@ tests/
 │   ├── config-checks.test.ts        # Config validation checks
 │   ├── config-error-surface.test.ts # Config error surface (cluster A: ConfigInvalidError vs TypeError)
 │   ├── config-schema.test.ts        # Zod config schema validation
-│   ├── dependency-checks.test.ts    # Dependency validation
 │   ├── detect-framework.test.ts     # Framework/TS/PM detection
 │   ├── diff-command.test.ts         # Diff command (component comparison)
 │   ├── diff-renderer.test.ts        # Diff renderer terminal output
@@ -576,10 +575,11 @@ Some command helpers are exported solely for direct unit testing when the
 surrounding command handler would require too much mocking to exercise the
 helper's logic in isolation. Current cases:
 
-- `resolveComponents` in `src/commands/update.ts` and `src/commands/diff.ts` —
-  exported so `tests/unit/update-command.test.ts` and
-  `tests/unit/diff-command.test.ts` can assert the scan- and names-branch
-  behaviour directly (multi-word kebab↔PascalCase canonicalization).
+- `resolveComponents` in `src/utils/installed-components.ts` — shared by the
+  `diff` and `update` commands, and asserted directly by
+  `tests/unit/update-command.test.ts`, `tests/unit/diff-command.test.ts`, and
+  `tests/unit/regression/f-095-community-component-skip.test.ts` (multi-word
+  kebab↔PascalCase canonicalization, and the builtin/community split).
 - `handleTierMigration`, `confirmMigration`, `confirmInstallation`, and
   `showPostInstallInstructions` in `src/commands/init/index.ts` — exported so
   `tests/unit/init-tier-migration.test.ts`,
@@ -695,4 +695,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-06-30 (added `check-generated-fresh.test.ts` for the validate:generated-fresh drift guard)
+**Last Updated:** 2026-07-28 (open-source 1.0 cleanup; removed tests for unused error and check classes, added f-095 community-component regression)

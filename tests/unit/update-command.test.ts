@@ -723,7 +723,7 @@ describe('updateCommand', () => {
     // charAt(0).toUpperCase() which turned button-group into Button-group.
     it('recognizes PascalCase multi-word directories in the scan branch', async () => {
       const { resolveComponents } =
-        await import('../../src/commands/update.js');
+        await import('../../src/utils/installed-components.js');
       const componentsDir = path.join(testDir, 'src/components');
       await fs.ensureDir(path.join(componentsDir, 'Button'));
       await fs.ensureDir(path.join(componentsDir, 'ButtonGroup'));
@@ -744,12 +744,12 @@ describe('updateCommand', () => {
 
       const result = await resolveComponents([], config, testDir);
 
-      expect(result).toEqual(['Button', 'ButtonGroup']);
+      expect(result.components).toEqual(['Button', 'ButtonGroup']);
     });
 
     it('canonicalizes kebab-case name arguments to PascalCase', async () => {
       const { resolveComponents } =
-        await import('../../src/commands/update.js');
+        await import('../../src/utils/installed-components.js');
       const config = {
         framework: 'react' as const,
         typescript: true,
@@ -769,12 +769,12 @@ describe('updateCommand', () => {
         testDir
       );
 
-      expect(result).toEqual(['ButtonGroup', 'Button']);
+      expect(result.components).toEqual(['ButtonGroup', 'Button']);
     });
 
     it('accepts PascalCase name arguments unchanged', async () => {
       const { resolveComponents } =
-        await import('../../src/commands/update.js');
+        await import('../../src/utils/installed-components.js');
       const config = {
         framework: 'react' as const,
         typescript: true,
@@ -794,12 +794,12 @@ describe('updateCommand', () => {
         testDir
       );
 
-      expect(result).toEqual(['ButtonGroup', 'Button']);
+      expect(result.components).toEqual(['ButtonGroup', 'Button']);
     });
 
-    it('passes unknown name arguments through so the caller can report the miss', async () => {
+    it('reports unknown name arguments as unmanaged so the caller can say so', async () => {
       const { resolveComponents } =
-        await import('../../src/commands/update.js');
+        await import('../../src/utils/installed-components.js');
       const config = {
         framework: 'react' as const,
         typescript: true,
@@ -819,7 +819,8 @@ describe('updateCommand', () => {
         testDir
       );
 
-      expect(result).toEqual(['not-a-real-component']);
+      expect(result.components).toEqual([]);
+      expect(result.unmanaged).toEqual([{ name: 'not-a-real-component' }]);
     });
   });
 });

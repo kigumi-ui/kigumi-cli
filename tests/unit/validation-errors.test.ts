@@ -6,14 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { ZodError } from 'zod';
-import {
-  ValidationError,
-  InvalidFrameworkError,
-  InvalidComponentError,
-  InvalidThemeError,
-  InvalidPaletteError,
-  InvalidOptionsError,
-} from '../../src/errors/validation.js';
+import { ValidationError } from '../../src/errors/validation.js';
 import {
   CommunityRegistryNotFoundError,
   CommunityRegistryInvalidError,
@@ -75,55 +68,6 @@ describe('ValidationError', () => {
     const f = err.format();
     expect(f).toContain('Received');
     expect(f).not.toContain('Valid values');
-  });
-});
-
-describe('InvalidFrameworkError', () => {
-  it('creates with supported frameworks', () => {
-    const err = new InvalidFrameworkError('ember', ['react', 'vue']);
-    expect(err.code).toBe(ErrorCode.INVALID_FRAMEWORK);
-  });
-});
-
-describe('InvalidComponentError', () => {
-  it('creates with available components', () => {
-    const err = new InvalidComponentError('foo', ['button', 'card']);
-    expect(err.suggestions[0].steps).toEqual(
-      expect.arrayContaining([expect.stringContaining('button')])
-    );
-  });
-
-  it('creates without available components', () => {
-    const err = new InvalidComponentError('foo');
-    expect(err.suggestions[0].steps).toEqual(
-      expect.arrayContaining([expect.stringContaining('kigumi list')])
-    );
-  });
-});
-
-describe('InvalidThemeError', () => {
-  it('creates with tier info', () => {
-    const err = new InvalidThemeError('custom', ['awesome', 'sleek'], 'free');
-    expect(err.code).toBe(ErrorCode.INVALID_THEME);
-  });
-});
-
-describe('InvalidPaletteError', () => {
-  it('creates with available palettes', () => {
-    const err = new InvalidPaletteError('neon', ['default', 'warm']);
-    expect(err.code).toBe(ErrorCode.INVALID_PALETTE);
-  });
-});
-
-describe('InvalidOptionsError', () => {
-  it('creates from ZodError and formats', () => {
-    const zodErr = new ZodError([
-      { code: 'custom', message: 'required', path: ['framework'] },
-    ]);
-    const err = new InvalidOptionsError(zodErr);
-    expect(err.code).toBe(ErrorCode.INVALID_OPTIONS);
-    const f = err.format();
-    expect(f).toContain('framework: required');
   });
 });
 

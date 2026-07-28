@@ -1,21 +1,19 @@
 /**
  * Registry Cache
  *
- * Caches registry.json and component files on disk to avoid
- * re-fetching on every `kigumi add --from` invocation.
+ * Caches community registry files on disk so repeated `kigumi add --from`
+ * runs against the same registry do not re-download every file.
+ *
+ * Entries expire after `REGISTRY_CACHE_TTL_MS`. Without an expiry a component
+ * fetched once would be served from disk forever, and users would silently
+ * keep installing a stale copy after the registry moved on.
  */
 
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { KIGUMI_CACHE_DIR, REGISTRY_CACHE_TTL_MS } from '../constants.js';
-import type { CommunityRegistry } from '../schemas/community-registry.js';
 import type { GitHubRegistrySource } from './github-fetcher.js';
-
-interface CacheMetadata {
-  fetchedAt: number;
-  version: string;
-}
 
 /**
  * Build the on-disk cache key for a registry source.
@@ -30,19 +28,7 @@ function getCacheKey(source: GitHubRegistrySource): string {
 }
 
 /**
- * Get the cache directory for a specific registry
- */
-function getCacheDir(source: GitHubRegistrySource): string {
-  return path.join(
-    os.homedir(),
-    KIGUMI_CACHE_DIR,
-    'registries',
-    getCacheKey(source)
-  );
-}
-
-/**
- * Registry cache for storing fetched registry data on disk
+ * Registry cache for storing fetched registry files on disk
  */
 export class RegistryCache {
   private baseDir: string;
@@ -56,73 +42,24 @@ export class RegistryCache {
     return path.join(this.baseDir, getCacheKey(source));
   }
 
-  /**
-   * Get cached registry.json if it exists and is fresh
-   */
-  async getRegistry(
-    source: GitHubRegistrySource
-  ): Promise<CommunityRegistry | null> {
-    const dir = this.getDir(source);
-    const registryPath = path.join(dir, 'registry.json');
-    const metaPath = path.join(dir, 'meta.json');
-
-    if (
-      !(await fs.pathExists(registryPath)) ||
-      !(await fs.pathExists(metaPath))
-    ) {
-      return null;
-    }
-
-    try {
-      const meta: CacheMetadata = await fs.readJSON(metaPath);
-
-      // Check TTL
-      if (Date.now() - meta.fetchedAt > REGISTRY_CACHE_TTL_MS) {
-        return null; // Expired
-      }
-
-      return await fs.readJSON(registryPath);
-    } catch (_error) {
-      return null;
-    }
+  private getFilePath(source: GitHubRegistrySource, filePath: string): string {
+    return path.join(this.getDir(source), 'files', filePath);
   }
 
   /**
-   * Cache a registry.json
-   */
-  async setRegistry(
-    source: GitHubRegistrySource,
-    registry: CommunityRegistry
-  ): Promise<void> {
-    const dir = this.getDir(source);
-    await fs.ensureDir(dir);
-
-    const meta: CacheMetadata = {
-      fetchedAt: Date.now(),
-      version: registry.version,
-    };
-
-    await Promise.all([
-      fs.writeJSON(path.join(dir, 'registry.json'), registry, { spaces: 2 }),
-      fs.writeJSON(path.join(dir, 'meta.json'), meta, { spaces: 2 }),
-    ]);
-  }
-
-  /**
-   * Get a cached file
+   * Get a cached file, or null when it is absent or older than the TTL.
    */
   async getFile(
     source: GitHubRegistrySource,
     filePath: string
   ): Promise<string | null> {
-    const dir = this.getDir(source);
-    const cachedPath = path.join(dir, 'files', filePath);
-
-    if (!(await fs.pathExists(cachedPath))) {
-      return null;
-    }
+    const cachedPath = this.getFilePath(source, filePath);
 
     try {
+      const stats = await fs.stat(cachedPath);
+      if (Date.now() - stats.mtimeMs > REGISTRY_CACHE_TTL_MS) {
+        return null;
+      }
       return await fs.readFile(cachedPath, 'utf-8');
     } catch (_error) {
       return null;
@@ -137,30 +74,10 @@ export class RegistryCache {
     filePath: string,
     content: string
   ): Promise<void> {
-    const dir = this.getDir(source);
-    const cachedPath = path.join(dir, 'files', filePath);
+    const cachedPath = this.getFilePath(source, filePath);
 
     await fs.ensureDir(path.dirname(cachedPath));
     await fs.writeFile(cachedPath, content);
-  }
-
-  /**
-   * Invalidate cache for a specific registry
-   */
-  async invalidate(source: GitHubRegistrySource): Promise<void> {
-    const dir = this.getDir(source);
-    if (await fs.pathExists(dir)) {
-      await fs.remove(dir);
-    }
-  }
-
-  /**
-   * Invalidate all cached registries
-   */
-  async invalidateAll(): Promise<void> {
-    if (await fs.pathExists(this.baseDir)) {
-      await fs.remove(this.baseDir);
-    }
   }
 }
 
@@ -180,5 +97,3 @@ export function getRegistryCache(): RegistryCache {
 export function resetRegistryCache(): void {
   defaultCache = undefined;
 }
-
-export { getCacheDir };

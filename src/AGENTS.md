@@ -56,7 +56,8 @@ src/
 │   ├── three-way-merge.ts # Three-way merge logic using node-diff3
 │   ├── version-check.ts  # CLI vs project version compatibility check
 │   ├── version-map.ts    # Version history + breaking changes data
-│   ├── registry-cache.ts # Disk cache for registry data (~/.kigumi/cache)
+│   ├── registry-cache.ts # Disk cache for registry files (~/.kigumi/cache), keyed by owner-repo-branch, entries expire after REGISTRY_CACHE_TTL_MS
+│   ├── installed-components.ts # Shared diff/update resolver — splits installed components into builtin (comparable against a template) and unmanaged (community or hand-written), so commands report them instead of skipping silently
 │   ├── github-token.ts   # GitHub PAT resolution chain
 │   ├── registry-resolver.ts # Resolve --from value (URL or saved name)
 │   ├── display-options.ts # Theme/palette/brand display labels + tier-aware option helpers (getThemeOptionsForTier, getPaletteOptionsForTier)
@@ -432,4 +433,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-07-02 (Web Awesome 3.10.0; 84 components after adding video, video-playlist, date-picker, date-input)
+**Last Updated:** 2026-07-28 (open-source 1.0 cleanup; shared installed-components resolver; unused error and check classes removed)

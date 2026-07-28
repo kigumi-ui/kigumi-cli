@@ -15,7 +15,7 @@ import * as p from '../prompts/index.js';
 import { getOutput } from '../output/index.js';
 import { getConfig } from '../utils/config.js';
 import { handleError } from '../errors/index.js';
-import { getComponent, normalizeComponentName } from '../utils/registry.js';
+import { getComponent } from '../utils/registry.js';
 import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
@@ -32,6 +32,10 @@ import {
   type FileStatus,
 } from '../utils/three-way-merge.js';
 import { renderDiff } from '../utils/diff-renderer.js';
+import {
+  resolveComponents,
+  reportUnmanagedComponents,
+} from '../utils/installed-components.js';
 import { detectTier, type Tier } from '../utils/tier.js';
 import {
   isNextProject,
@@ -78,7 +82,10 @@ export async function updateCommand(
     const nextRouter = isNext ? await detectNextRouter(cwd) : undefined;
 
     // 2. Determine which components to check
-    const componentsToCheck = await resolveComponents(components, config, cwd);
+    const { components: componentsToCheck, unmanaged } =
+      await resolveComponents(components, config, cwd);
+
+    reportUnmanagedComponents(unmanaged, output, 'updated');
 
     if (componentsToCheck.length === 0) {
       output.info('No installed components found to update.');
@@ -176,32 +183,6 @@ export async function updateCommand(
   } catch (error) {
     handleError(error, output);
   }
-}
-
-/**
- * Resolve which components to update.
- * If specific names given, use those. Otherwise, scan the components directory.
- */
-export async function resolveComponents(
-  names: string[],
-  config: KigumiConfig,
-  cwd: string
-): Promise<string[]> {
-  if (names.length > 0) {
-    return names.map((n) => normalizeComponentName(n) ?? n);
-  }
-
-  const componentsDir = path.join(cwd, config.componentsDir);
-  if (!(await fs.pathExists(componentsDir))) {
-    return [];
-  }
-
-  const entries = await fs.readdir(componentsDir, { withFileTypes: true });
-  return entries
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name)
-    .filter((name) => getComponent(toKebabCase(name)) !== null)
-    .sort();
 }
 
 /**

@@ -135,27 +135,6 @@ describe('CheckRunner', () => {
     expect(results).toHaveLength(2);
   });
 
-  it('runs checks in parallel', async () => {
-    const runner = new CheckRunner({ parallel: true });
-    runner
-      .add(makeCheck('a', { passed: true }))
-      .add(makeCheck('b', { passed: false, severity: CheckSeverity.ERROR }))
-      .add(makeCheck('c', { passed: true }));
-
-    const results = await runner.run(ctx);
-    expect(results).toHaveLength(3);
-  });
-
-  it('catches throwing checks in parallel mode', async () => {
-    const runner = new CheckRunner({ parallel: true });
-    runner.add(throwingCheck('broken')).add(makeCheck('ok', { passed: true }));
-
-    const results = await runner.run(ctx);
-    expect(results).toHaveLength(2);
-    expect(results[0].passed).toBe(false);
-    expect(results[1].passed).toBe(true);
-  });
-
   it('addAll adds multiple checks', async () => {
     const runner = new CheckRunner();
     runner.addAll([

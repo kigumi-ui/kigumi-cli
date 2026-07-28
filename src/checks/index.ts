@@ -7,9 +7,7 @@
  * ```typescript
  * import { CheckRunner, ConfigExistsCheck } from './checks/index.js';
  *
- * const runner = new CheckRunner()
- *   .add(new ConfigExistsCheck())
- *   .add(new NodeModulesExistsCheck());
+ * const runner = new CheckRunner().add(new ConfigExistsCheck());
  *
  * const results = await runner.run({ cwd: process.cwd() });
  *
@@ -25,21 +23,8 @@ export {
   type Check,
   type CheckContext,
   type CheckResult,
-  type CheckGroup,
 } from './types.js';
 export { CheckRunner, type CheckRunnerOptions } from './runner.js';
 
 // Configuration checks
-export {
-  ConfigExistsCheck,
-  PackageJsonExistsCheck,
-  GitIgnoreExistsCheck,
-} from './config-checks.js';
-
-// Dependency checks
-export {
-  NodeModulesExistsCheck,
-  WebAwesomeInstalledCheck,
-  DependencyInstalledCheck,
-  PackageJsonDependencyCheck,
-} from './dependency-checks.js';
+export { ConfigExistsCheck, PackageJsonExistsCheck } from './config-checks.js';
