@@ -46,8 +46,6 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
 }
 
 export interface ToastRef {
-  /** Creates a toast notification programmatically and adds it to the stack. Returns a reference to the created toast
-item element. */
   create: (message: string, options: ToastCreateOptions) => void;
   /** Reference to the underlying HTML element */
   element: WaToast | null;

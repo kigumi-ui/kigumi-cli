@@ -44,18 +44,14 @@ export interface VideoPlaylistProps extends Omit<
   /** The icon library used for placeholder icons */
   'icon-library'?: string;
 
-  /** Emitted when the active video changes. */
   onVideoChange?: (event: CustomEvent) => void;
 }
 
 export interface VideoPlaylistRef {
-  /** Plays the next video in the playlist. */
   next: () => void;
 
-  /** Plays the previous video in the playlist. */
   previous: () => void;
 
-  /** Jumps to the video at the given index. */
   goTo: (index: number) => void;
   /** Reference to the underlying HTML element */
   element: WaVideoPlaylist | null;

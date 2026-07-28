@@ -480,4 +480,11 @@ import '@/lib/kigumi'; // Must be imported before components
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
+
+Kigumi generates wrappers around [Web Awesome](https://webawesome.com), which is MIT licensed and
+copyright Fonticons, Inc. Generated components carry API documentation derived from Web Awesome's
+custom elements manifest; see [NOTICE](NOTICE) for the attribution.
+
+Web Awesome Pro is commercial software and is not redistributed here. Kigumi supports Pro components
+by rewriting import paths for projects that hold their own Pro license.

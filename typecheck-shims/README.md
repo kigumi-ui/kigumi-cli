@@ -63,6 +63,16 @@ pnpm remove @awesome.me/webawesome-pro
 git checkout package.json pnpm-lock.yaml
 ```
 
+### What the Pro shim may contain
+
+Web Awesome Pro is commercial software. Its license permits a seat holder to
+use it but forbids handing Pro assets to people without a license, and this
+repository is public. The generator therefore drops the documentation prose it
+finds in Pro's type definitions and keeps only names, types and signatures,
+which are the interface the templates must compile against. Do not re-add the
+descriptions by hand: Pro licensees already see them in their editor, from the
+package itself.
+
 ### Why we don't ship Pro as a real dep
 
 Pro requires a paid token (`WEBAWESOME_NPM_TOKEN`). Adding it to

@@ -80,54 +80,37 @@ export interface NumberInputProps extends Omit<
   /** Hides the stepper buttons */
   'without-steppers'?: boolean;
 
-  /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;
 
-  /** Emitted when an alteration to the control's value is committed by the user. */
   onChange?: (event: CustomEvent) => void;
 
-  /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
 
-  /** Emitted when the control gains focus. */
   onFocus?: (event: FocusEvent) => void;
 
-  /** Emitted before the value changes. Can be cancelled with `event.preventDefault()` to prevent the value from changing. */
   onBeforeinput?: (event: CustomEvent) => void;
 
-  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface NumberInputRef {
-  /** Sets focus on the input. */
   focus: (options: FocusOptions) => void;
 
-  /** Removes focus from the input. */
   blur: () => void;
 
-  /** Selects all the text in the input. */
   select: () => void;
 
-  /** Increments the value by the step amount. */
   stepUp: () => void;
 
-  /** Decrements the value by the step amount. */
   stepDown: () => void;
 
-  /** Do not use this when creating a "Validator". This is intended for end users of components.
-We track manually defined custom errors so we don't clear them on accident in our validators. */
   setCustomValidity: (message: string) => void;
 
-  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
-the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
-"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
   ) => void;
 
-  /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
   element: WaNumberInput | null;

@@ -143,64 +143,42 @@ export interface DateInputProps extends Omit<
   /** The distance in pixels between the popup and input */
   distance?: number;
 
-  /** Emitted on every segment edit, step, calendar interaction, and clear, even while the value is incomplete. */
   onInput?: (event: CustomEvent) => void;
 
-  /** Emitted on every committed value transition (each completed date edit, calendar selection, or clear), mirroring native `<input type="date">` rather than the commit-on-blur behavior of `<wa-input>`/`<wa-select>`. This matches the sibling `<wa-time-input>`. It does NOT fire while a value is still incomplete. */
   onChange?: (event: CustomEvent) => void;
 
-  /** Emitted when the control receives focus. */
   onFocus?: (event: FocusEvent) => void;
 
-  /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
 
-  /** Emitted when the clear button is activated. */
   onClear?: (event: CustomEvent) => void;
 
-  /** Emitted when the popup is about to open. Cancelable. */
   onShow?: (event: CustomEvent) => void;
 
-  /** Emitted after the popup opens and animations complete. */
   onAfterShow?: (event: CustomEvent) => void;
 
-  /** Emitted when the popup is about to close. Cancelable. */
   onHide?: (event: CustomEvent) => void;
 
-  /** Emitted after the popup closes and animations complete. */
   onAfterHide?: (event: CustomEvent) => void;
 
-  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface DateInputRef {
-  /** Sets focus on the first empty (else first) segment. */
   focus: (options: FocusOptions) => void;
 
-  /** Removes focus from the date input. */
   blur: () => void;
 
-  /** Opens the popup calendar. */
   show: () => void;
 
-  /** Closes the popup calendar. */
   hide: () => void;
 
-  /** Clears the current value and emits `wa-clear`, `input`, and `change`. Mirrors activating the clear button. No-op
-when already empty or when disabled/readonly. */
   clear: () => void;
 
-  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
-the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
-"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
   formStateRestoreCallback: (state: string | File | FormData | null) => void;
 
-  /** Do not use this when creating a "Validator". This is intended for end users of components.
-We track manually defined custom errors so we don't clear them on accident in our validators. */
   setCustomValidity: (message: string) => void;
 
-  /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
   element: WaDateInput | null;

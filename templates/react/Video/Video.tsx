@@ -87,60 +87,42 @@ export interface VideoProps extends Omit<
   /** The icon library used for built-in control icons */
   'icon-library'?: string;
 
-  /** Emitted when the time changes. */
   onTimeupdate?: (event: CustomEvent) => void;
 
-  /** Emitted when playback begins. */
   onPlay?: (event: CustomEvent) => void;
 
-  /** Emitted when playback stops. */
   onPause?: (event: CustomEvent) => void;
 
-  /** Emitted when the volume changes. */
   onVolumechange?: (event: CustomEvent) => void;
 
-  /** Emitted when an error occurs while loading/playing. */
   onError?: (event: CustomEvent) => void;
 
-  /** Emitted when playback ends. */
   onEnded?: (event: CustomEvent) => void;
 
-  /** Emitted when metadata has been loaded. */
   onLoadedmetadata?: (event: CustomEvent) => void;
 }
 
 export interface VideoRef {
-  /** Starts playback. */
   play: () => void;
 
-  /** Pauses playback. */
   pause: () => void;
 
-  /** Toggles between play and pause. */
   togglePlay: () => void;
 
-  /** Toggles the muted state. */
   toggleMute: () => void;
 
-  /** Seeks to a specific time in the video. */
   seek: (time: number) => void;
 
-  /** Sets the volume level. */
   setVolume: (volume: number) => void;
 
-  /** Sets the playback rate (speed). */
   setPlaybackRate: (rate: number) => void;
 
-  /** Enters fullscreen mode. */
   requestFullscreen: () => void;
 
-  /** Exits fullscreen mode. */
   exitFullscreen: () => void;
 
-  /** Gets the native video element. */
   getVideoElement: () => void;
 
-  /** Gets the current playback state. */
   getState: () => void;
   /** Reference to the underlying HTML element */
   element: WaVideo | null;
