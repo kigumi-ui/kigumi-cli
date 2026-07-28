@@ -96,6 +96,24 @@ function collectUnknownTypeIdents(typeStr: string): string[] {
 }
 
 /**
+ * Drop comments carried over from the Pro package's type definitions.
+ *
+ * Web Awesome Pro is commercial software whose license forbids distributing
+ * Pro assets to people without a license. Property names and type signatures
+ * are interface facts this repository needs in order to type-check, but the
+ * prose describing them is Fonticons' authored documentation and must not be
+ * committed here. Pro licensees still get the real descriptions from the
+ * package itself in their editor.
+ */
+function stripProProse(text: string): string {
+  return text
+    .replace(/\/\*\*[\s\S]*?\*\//g, '')
+    .replace(/^[ \t]*\/\/.*$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\{\n\s*\n/g, '{\n');
+}
+
+/**
  * Verify the expected class exists in the Pro component .d.ts, then build
  * an enriched stub that includes method signatures sourced from
  * COMPONENT_METADATA — the same source of truth the React generator uses.
@@ -247,7 +265,7 @@ function buildJsxContent(): string {
     // Props type aliases only use WaXxx['prop'] indexed accesses,
     // which resolve via the imports block at the top of the JSX file.
     // No external stubbing needed.
-    inlinedInterfaces.push(typeAlias.getText());
+    inlinedInterfaces.push(stripProProse(typeAlias.getText()));
   }
 
   const importsBlock = PRO_COMPONENTS.slice()

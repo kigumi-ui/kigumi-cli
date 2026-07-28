@@ -47,21 +47,16 @@ export interface ToastItemProps extends Omit<
   /** Milliseconds before auto-dismiss. Use 0 to keep the notification visible until closed. */
   duration?: number;
 
-  /** Emitted when the toast item begins to show. */
   onShow?: (event: CustomEvent) => void;
 
-  /** Emitted after the toast item has finished showing. */
   onAfterShow?: (event: CustomEvent) => void;
 
-  /** Emitted when the toast item begins to hide. */
   onHide?: (event: CustomEvent) => void;
 
-  /** Emitted after the toast item has finished hiding. */
   onAfterHide?: (event: CustomEvent) => void;
 }
 
 export interface ToastItemRef {
-  /** Hides the toast item with animation and removes it from the DOM. */
   hide: () => void;
   /** Reference to the underlying HTML element */
   element: WaToastItem | null;

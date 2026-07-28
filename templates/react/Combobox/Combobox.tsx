@@ -124,66 +124,45 @@ export interface ComboboxProps extends Omit<
   /** Current value of the combobox */
   value?: string;
 
-  /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;
 
-  /** Emitted when the control's value changes. */
   onChange?: (event: CustomEvent) => void;
 
-  /** Emitted when the control gains focus. */
   onFocus?: (event: FocusEvent) => void;
 
-  /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
 
-  /** Emitted when the control's value is cleared. */
   onClear?: (event: CustomEvent) => void;
 
-  /** Emitted when the combobox's menu opens. */
   onShow?: (event: CustomEvent) => void;
 
-  /** Emitted after the combobox's menu opens and all animations are complete. */
   onAfterShow?: (event: CustomEvent) => void;
 
-  /** Emitted when the combobox's menu closes. */
   onHide?: (event: CustomEvent) => void;
 
-  /** Emitted after the combobox's menu closes and all animations are complete. */
   onAfterHide?: (event: CustomEvent) => void;
 
-  /** Emitted when the user selects the "create" option. Call `event.preventDefault()` to handle creation yourself. The event `detail` contains `{ inputValue: string }`. */
   onCreate?: (event: CustomEvent) => void;
 
-  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface ComboboxRef {
-  /** Shows the listbox. */
   show: () => void;
 
-  /** Hides the listbox. */
   hide: () => void;
 
-  /** Sets focus on the control. */
   focus: (options: FocusOptions) => void;
 
-  /** Removes focus from the control. */
   blur: () => void;
 
-  /** Do not use this when creating a "Validator". This is intended for end users of components.
-We track manually defined custom errors so we don't clear them on accident in our validators. */
   setCustomValidity: (message: string) => void;
 
-  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
-the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
-"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
   ) => void;
 
-  /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
   element: WaCombobox | null;

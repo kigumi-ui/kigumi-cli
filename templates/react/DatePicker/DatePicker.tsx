@@ -108,30 +108,22 @@ export interface DatePickerProps extends Omit<
   /** A BCP-47 locale override */
   locale?: string;
 
-  /** Emitted when the value changes during interaction. In range mode, this fires after the first click of a new range. */
   onInput?: (event: CustomEvent) => void;
 
-  /** Emitted when the user commits a new value. Read the current value from `event.target.value`. */
   onChange?: (event: CustomEvent) => void;
 
-  /** Emitted when the focused day changes via keyboard navigation, paging, or pointer hover. `event.detail` is `{ date: Date }`. */
   onFocusDay?: (event: CustomEvent) => void;
 
-  /** Emitted when the date picker switches between day, month, and year views. `event.detail` is `{ view, date }`. */
   onViewChange?: (event: CustomEvent) => void;
 }
 
 export interface DatePickerRef {
-  /** Focuses the calendar at the currently focused day. */
   focus: (options: FocusOptions) => void;
 
-  /** Scrolls the view to show the given date and sets the focused day. */
   goToDate: (date: string | Date) => void;
 
-  /** Equivalent to `goToDate(today)`. */
   goToToday: () => void;
 
-  /** Clears the current selection and emits `input` then `change`. */
   clear: () => void;
   /** Reference to the underlying HTML element */
   element: WaDatePicker | null;

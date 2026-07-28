@@ -59,42 +59,29 @@ export interface FileInputProps extends Omit<
   /** Input size */
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
-  /** Emitted when file selection changes. */
   onInput?: (event: CustomEvent) => void;
 
-  /** Emitted when files are added or removed. */
   onChange?: (event: CustomEvent) => void;
 
-  /** Emitted when the dropzone gains focus. */
   onFocus?: (event: FocusEvent) => void;
 
-  /** Emitted when the dropzone loses focus. */
   onBlur?: (event: FocusEvent) => void;
 
-  /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
 }
 
 export interface FileInputRef {
-  /** Sets focus on the file input. */
   focus: (options: FocusOptions) => void;
 
-  /** Removes focus from the file input. */
   blur: () => void;
 
-  /** Do not use this when creating a "Validator". This is intended for end users of components.
-We track manually defined custom errors so we don't clear them on accident in our validators. */
   setCustomValidity: (message: string) => void;
 
-  /** Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when
-the browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of
-"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue. */
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
   ) => void;
 
-  /** Reset validity is a way of removing manual custom errors and native validation. */
   resetValidity: () => void;
   /** Reference to the underlying HTML element */
   element: WaFileInput | null;

@@ -3,23 +3,30 @@
 //
 // This file contains metadata extracted from Web Awesome's custom-elements.json
 // Run `pnpm generate:metadata` to regenerate
+//
+// Descriptions are present for Free-tier components only. Web Awesome Pro is
+// commercial software whose license forbids distributing Pro assets to people
+// without a license, so its documentation prose is not committed here. Names,
+// types and signatures are kept: they are the interface this CLI generates
+// against. Pro licensees see the real descriptions from the package itself.
 
 export interface ComponentMetadata {
   tagName: string;
   className: string;
   events: Array<{
     name: string;
-    description: string;
+    /** Absent for Pro components; see the note at the top of this file. */
+    description?: string;
     reactName?: string;
     eventType: string;
   }>;
   slots: Array<{
     name: string;
-    description: string;
+    description?: string;
   }>;
   methods: Array<{
     name: string;
-    description: string;
+    description?: string;
     parameters?: Array<{ name: string; type: string }>;
   }>;
 }
@@ -1709,40 +1716,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'input',
-        description: 'Emitted when the control receives input.',
         reactName: 'onInput',
         eventType: 'InputEvent',
       },
       {
         name: 'change',
-        description:
-          "Emitted when an alteration to the control's value is committed by the user.",
         reactName: 'onChange',
         eventType: 'ChangeEvent',
       },
       {
         name: 'blur',
-        description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
         eventType: 'BlurEvent',
       },
       {
         name: 'focus',
-        description: 'Emitted when the control gains focus.',
         reactName: 'onFocus',
         eventType: 'FocusEvent',
       },
       {
         name: 'beforeinput',
-        description:
-          'Emitted before the value changes. Can be cancelled with `event.preventDefault()` to prevent the value from changing.',
         reactName: 'onBeforeinput',
         eventType: 'BeforeinputEvent',
       },
       {
         name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
@@ -1750,37 +1748,26 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: 'label',
-        description:
-          "The input's label. Alternatively, you can use the `label` attribute.",
       },
       {
         name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed at the start of the input control.',
       },
       {
         name: 'end',
-        description:
-          'An element, such as `<wa-icon>`, placed at the end of the input control (before steppers).',
       },
       {
         name: 'increment-icon',
-        description: 'An icon to use in lieu of the default increment icon.',
       },
       {
         name: 'decrement-icon',
-        description: 'An icon to use in lieu of the default decrement icon.',
       },
       {
         name: 'hint',
-        description:
-          'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
       },
     ],
     methods: [
       {
         name: 'focus',
-        description: 'Sets focus on the input.',
         parameters: [
           {
             name: 'options',
@@ -1790,24 +1777,18 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'blur',
-        description: 'Removes focus from the input.',
       },
       {
         name: 'select',
-        description: 'Selects all the text in the input.',
       },
       {
         name: 'stepUp',
-        description: 'Increments the value by the step amount.',
       },
       {
         name: 'stepDown',
-        description: 'Decrements the value by the step amount.',
       },
       {
         name: 'setCustomValidity',
-        description:
-          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
             name: 'message',
@@ -1817,8 +1798,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'formStateRestoreCallback',
-        description:
-          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
         parameters: [
           {
             name: 'state',
@@ -1832,8 +1811,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'resetValidity',
-        description:
-          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -3164,8 +3141,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3177,8 +3152,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3190,8 +3163,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3202,71 +3173,56 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'input',
-        description: 'Emitted when the control receives input.',
         reactName: 'onInput',
         eventType: 'InputEvent',
       },
       {
         name: 'change',
-        description: "Emitted when the control's value changes.",
         reactName: 'onChange',
         eventType: 'ChangeEvent',
       },
       {
         name: 'focus',
-        description: 'Emitted when the control gains focus.',
         reactName: 'onFocus',
         eventType: 'FocusEvent',
       },
       {
         name: 'blur',
-        description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
         eventType: 'BlurEvent',
       },
       {
         name: 'wa-clear',
-        description: "Emitted when the control's value is cleared.",
         reactName: 'onClear',
         eventType: 'WaClearEvent',
       },
       {
         name: 'wa-show',
-        description: "Emitted when the combobox's menu opens.",
         reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
-        description:
-          "Emitted after the combobox's menu opens and all animations are complete.",
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
-        description: "Emitted when the combobox's menu closes.",
         reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
-        description:
-          "Emitted after the combobox's menu closes and all animations are complete.",
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
       {
         name: 'wa-create',
-        description:
-          'Emitted when the user selects the "create" option. Call `event.preventDefault()` to handle creation yourself. The event `detail` contains `{ inputValue: string }`.',
         reactName: 'onCreate',
         eventType: 'WaCreateEvent',
       },
       {
         name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
@@ -3274,51 +3230,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'The listbox options. Must be `<wa-option>` elements. You can use `<wa-divider>` to group items visually.',
       },
       {
         name: 'label',
-        description:
-          "The input's label. Alternatively, you can use the `label` attribute.",
       },
       {
         name: 'start',
-        description:
-          'An element, such as `<wa-icon>`, placed at the start of the combobox.',
       },
       {
         name: 'end',
-        description:
-          'An element, such as `<wa-icon>`, placed at the end of the combobox.',
       },
       {
         name: 'clear-icon',
-        description: 'An icon to use in lieu of the default clear icon.',
       },
       {
         name: 'expand-icon',
-        description:
-          'The icon to show when the control is expanded and collapsed. Rotates on open and close.',
       },
       {
         name: 'hint',
-        description:
-          'Text that describes how to use the input. Alternatively, you can use the `hint` attribute.',
       },
     ],
     methods: [
       {
         name: 'show',
-        description: 'Shows the listbox.',
       },
       {
         name: 'hide',
-        description: 'Hides the listbox.',
       },
       {
         name: 'focus',
-        description: 'Sets focus on the control.',
         parameters: [
           {
             name: 'options',
@@ -3328,12 +3268,9 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'blur',
-        description: 'Removes focus from the control.',
       },
       {
         name: 'setCustomValidity',
-        description:
-          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
             name: 'message',
@@ -3343,8 +3280,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'formStateRestoreCallback',
-        description:
-          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
         parameters: [
           {
             name: 'state',
@@ -3358,8 +3293,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'resetValidity',
-        description:
-          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -3369,29 +3302,21 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'input',
-        description:
-          'Emitted when the value changes during interaction. In range mode, this fires after the first click of a new range.',
         reactName: 'onInput',
         eventType: 'InputEvent',
       },
       {
         name: 'change',
-        description:
-          'Emitted when the user commits a new value. Read the current value from `event.target.value`.',
         reactName: 'onChange',
         eventType: 'ChangeEvent',
       },
       {
         name: 'wa-focus-day',
-        description:
-          'Emitted when the focused day changes via keyboard navigation, paging, or pointer hover. `event.detail` is `{ date: Date }`.',
         reactName: 'onFocusDay',
         eventType: 'WaFocusDayEvent',
       },
       {
         name: 'wa-view-change',
-        description:
-          'Emitted when the date picker switches between day, month, and year views. `event.detail` is `{ view, date }`.',
         reactName: 'onViewChange',
         eventType: 'WaViewChangeEvent',
       },
@@ -3399,29 +3324,20 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: 'previous-icon',
-        description:
-          'Icon shown inside the previous-page button. Defaults to a left chevron.',
       },
       {
         name: 'next-icon',
-        description:
-          'Icon shown inside the next-page button. Defaults to a right chevron.',
       },
       {
         name: 'header',
-        description:
-          'Replaces the entire header row including title and navigation buttons. Advanced use only.',
       },
       {
         name: 'footer',
-        description:
-          'Optional content rendered below the calendar grid. Empty by default.',
       },
     ],
     methods: [
       {
         name: 'focus',
-        description: 'Focuses the calendar at the currently focused day.',
         parameters: [
           {
             name: 'options',
@@ -3431,8 +3347,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'goToDate',
-        description:
-          'Scrolls the view to show the given date and sets the focused day.',
         parameters: [
           {
             name: 'date',
@@ -3442,12 +3356,9 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'goToToday',
-        description: 'Equivalent to `goToDate(today)`.',
       },
       {
         name: 'clear',
-        description:
-          'Clears the current selection and emits `input` then `change`.',
       },
     ],
   },
@@ -3457,64 +3368,51 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'input',
-        description:
-          'Emitted on every segment edit, step, calendar interaction, and clear, even while the value is incomplete.',
         reactName: 'onInput',
         eventType: 'InputEvent',
       },
       {
         name: 'change',
-        description:
-          'Emitted on every committed value transition (each completed date edit, calendar selection, or clear), mirroring native `<input type="date">` rather than the commit-on-blur behavior of `<wa-input>`/`<wa-select>`. This matches the sibling `<wa-time-input>`. It does NOT fire while a value is still incomplete.',
         reactName: 'onChange',
         eventType: 'ChangeEvent',
       },
       {
         name: 'focus',
-        description: 'Emitted when the control receives focus.',
         reactName: 'onFocus',
         eventType: 'FocusEvent',
       },
       {
         name: 'blur',
-        description: 'Emitted when the control loses focus.',
         reactName: 'onBlur',
         eventType: 'BlurEvent',
       },
       {
         name: 'wa-clear',
-        description: 'Emitted when the clear button is activated.',
         reactName: 'onClear',
         eventType: 'WaClearEvent',
       },
       {
         name: 'wa-show',
-        description: 'Emitted when the popup is about to open. Cancelable.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
-        description: 'Emitted after the popup opens and animations complete.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
-        description: 'Emitted when the popup is about to close. Cancelable.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
-        description: 'Emitted after the popup closes and animations complete.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
       {
         name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
@@ -3522,55 +3420,38 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: 'label',
-        description:
-          "The date input's label. Alternatively, use the `label` attribute.",
       },
       {
         name: 'hint',
-        description:
-          'Text that describes how to use the date input. Alternatively, use the `hint` attribute.',
       },
       {
         name: 'start',
-        description: 'An element placed at the start of the input.',
       },
       {
         name: 'end',
-        description: 'An element placed at the end of the input.',
       },
       {
         name: 'clear-icon',
-        description: 'An icon to use in lieu of the default clear icon.',
       },
       {
         name: 'expand-icon',
-        description:
-          'The icon to show on the date picker toggle button. Defaults to a calendar icon.',
       },
       {
         name: 'footer',
-        description: 'Content shown below the date picker inside the popup.',
       },
       {
         name: 'previous-icon',
-        description:
-          "Icon for the date picker's previous-page button. Forwarded to `<wa-date-picker>`.",
       },
       {
         name: 'next-icon',
-        description:
-          "Icon for the date picker's next-page button. Forwarded to `<wa-date-picker>`.",
       },
       {
         name: 'day-YYYY-MM-DD',
-        description:
-          'Custom content for a specific day in the popup date picker. Slot name is dynamic (e.g., `day-2026-05-25`). Forwarded to `<wa-date-picker>`.',
       },
     ],
     methods: [
       {
         name: 'focus',
-        description: 'Sets focus on the first empty (else first) segment.',
         parameters: [
           {
             name: 'options',
@@ -3580,25 +3461,18 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'blur',
-        description: 'Removes focus from the date input.',
       },
       {
         name: 'show',
-        description: 'Opens the popup calendar.',
       },
       {
         name: 'hide',
-        description: 'Closes the popup calendar.',
       },
       {
         name: 'clear',
-        description:
-          'Clears the current value and emits `wa-clear`, `input`, and `change`. Mirrors activating the clear button. No-op\nwhen already empty or when disabled/readonly.',
       },
       {
         name: 'formStateRestoreCallback',
-        description:
-          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
         parameters: [
           {
             name: 'state',
@@ -3608,8 +3482,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'setCustomValidity',
-        description:
-          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
             name: 'message',
@@ -3619,8 +3491,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'resetValidity',
-        description:
-          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -3631,8 +3501,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3643,32 +3511,26 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'input',
-        description: 'Emitted when file selection changes.',
         reactName: 'onInput',
         eventType: 'InputEvent',
       },
       {
         name: 'change',
-        description: 'Emitted when files are added or removed.',
         reactName: 'onChange',
         eventType: 'ChangeEvent',
       },
       {
         name: 'focus',
-        description: 'Emitted when the dropzone gains focus.',
         reactName: 'onFocus',
         eventType: 'FocusEvent',
       },
       {
         name: 'blur',
-        description: 'Emitted when the dropzone loses focus.',
         reactName: 'onBlur',
         eventType: 'BlurEvent',
       },
       {
         name: 'wa-invalid',
-        description:
-          "Emitted when the form control has been checked for validity and its constraints aren't satisfied.",
         reactName: 'onInvalid',
         eventType: 'WaInvalidEvent',
       },
@@ -3676,23 +3538,17 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: 'label',
-        description:
-          "The file input's label. Alternatively, you can use the `label` attribute.",
       },
       {
         name: 'hint',
-        description:
-          'Text that describes how to use the file input. Alternatively, you can use the `hint` attribute.',
       },
       {
         name: 'dropzone',
-        description: 'Custom content to show in the dropzone.',
       },
     ],
     methods: [
       {
         name: 'focus',
-        description: 'Sets focus on the file input.',
         parameters: [
           {
             name: 'options',
@@ -3702,12 +3558,9 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'blur',
-        description: 'Removes focus from the file input.',
       },
       {
         name: 'setCustomValidity',
-        description:
-          'Do not use this when creating a "Validator". This is intended for end users of components.\nWe track manually defined custom errors so we don\'t clear them on accident in our validators.',
         parameters: [
           {
             name: 'message',
@@ -3717,8 +3570,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'formStateRestoreCallback',
-        description:
-          'Called when the browser is trying to restore element’s state to state in which case reason is "restore", or when\nthe browser is trying to fulfill autofill on behalf of user in which case reason is "autocomplete". In the case of\n"restore", state is a string, File, or FormData object previously set as the second argument to setFormValue.',
         parameters: [
           {
             name: 'state',
@@ -3732,8 +3583,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'resetValidity',
-        description:
-          'Reset validity is a way of removing manual custom errors and native validation.',
       },
     ],
   },
@@ -3744,8 +3593,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3757,8 +3604,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3770,8 +3615,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3783,8 +3626,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3796,8 +3637,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'An optional `<script type="application/json">` element containing the Chart.js configuration object.',
       },
     ],
     methods: [],
@@ -3815,25 +3654,21 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'wa-show',
-        description: 'Emitted when the toast item begins to show.',
         reactName: 'onShow',
         eventType: 'WaShowEvent',
       },
       {
         name: 'wa-after-show',
-        description: 'Emitted after the toast item has finished showing.',
         reactName: 'onAfterShow',
         eventType: 'WaAfterShowEvent',
       },
       {
         name: 'wa-hide',
-        description: 'Emitted when the toast item begins to hide.',
         reactName: 'onHide',
         eventType: 'WaHideEvent',
       },
       {
         name: 'wa-after-hide',
-        description: 'Emitted after the toast item has finished hiding.',
         reactName: 'onAfterHide',
         eventType: 'WaAfterHideEvent',
       },
@@ -3841,18 +3676,14 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description: "The toast item's message content.",
       },
       {
         name: 'icon',
-        description: 'An optional icon to show at the start of the toast item.',
       },
     ],
     methods: [
       {
         name: 'hide',
-        description:
-          'Hides the toast item with animation and removes it from the DOM.',
       },
     ],
   },
@@ -3863,15 +3694,11 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'Place `<wa-toast-item>` elements here to show them as notifications.',
       },
     ],
     methods: [
       {
         name: 'create',
-        description:
-          'Creates a toast notification programmatically and adds it to the stack. Returns a reference to the created toast\nitem element.',
         parameters: [
           {
             name: 'message',
@@ -3891,43 +3718,36 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'timeupdate',
-        description: 'Emitted when the time changes.',
         reactName: 'onTimeupdate',
         eventType: 'TimeupdateEvent',
       },
       {
         name: 'play',
-        description: 'Emitted when playback begins.',
         reactName: 'onPlay',
         eventType: 'PlayEvent',
       },
       {
         name: 'pause',
-        description: 'Emitted when playback stops.',
         reactName: 'onPause',
         eventType: 'PauseEvent',
       },
       {
         name: 'volumechange',
-        description: 'Emitted when the volume changes.',
         reactName: 'onVolumechange',
         eventType: 'VolumechangeEvent',
       },
       {
         name: 'error',
-        description: 'Emitted when an error occurs while loading/playing.',
         reactName: 'onError',
         eventType: 'ErrorEvent',
       },
       {
         name: 'ended',
-        description: 'Emitted when playback ends.',
         reactName: 'onEnded',
         eventType: 'EndedEvent',
       },
       {
         name: 'loadedmetadata',
-        description: 'Emitted when metadata has been loaded.',
         reactName: 'onLoadedmetadata',
         eventType: 'LoadedmetadataEvent',
       },
@@ -3935,72 +3755,50 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'The default slot. Place `<source>` and `<track>` elements for a single video. Alternatively, use the `src` attribute for a single source.',
       },
       {
         name: 'controls-start',
-        description:
-          'Content inserted at the start of the controls bar (before play/pause). Used by `<wa-video-playlist>` to inject the prev button.',
       },
       {
         name: 'controls-after-play',
-        description:
-          'Content inserted immediately after the play/pause button. Used by `<wa-video-playlist>` to inject the next button.',
       },
       {
         name: 'poster-icon',
-        description:
-          'Icon shown on the poster play button. Defaults to a play-circle icon.',
       },
       {
         name: 'play-icon',
-        description: 'Icon shown on the play/pause button when paused.',
       },
       {
         name: 'pause-icon',
-        description: 'Icon shown on the play/pause button when playing.',
       },
       {
         name: 'volume-icon',
-        description:
-          'Icon shown on the volume/mute button when audio is active.',
       },
       {
         name: 'mute-icon',
-        description:
-          'Icon shown on the volume/mute button when muted or volume is 0.',
       },
       {
         name: 'fullscreen-icon',
-        description:
-          'Icon shown on the fullscreen button when not in fullscreen.',
       },
       {
         name: 'exit-fullscreen-icon',
-        description: 'Icon shown on the fullscreen button when in fullscreen.',
       },
     ],
     methods: [
       {
         name: 'play',
-        description: 'Starts playback.',
       },
       {
         name: 'pause',
-        description: 'Pauses playback.',
       },
       {
         name: 'togglePlay',
-        description: 'Toggles between play and pause.',
       },
       {
         name: 'toggleMute',
-        description: 'Toggles the muted state.',
       },
       {
         name: 'seek',
-        description: 'Seeks to a specific time in the video.',
         parameters: [
           {
             name: 'time',
@@ -4010,7 +3808,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'setVolume',
-        description: 'Sets the volume level.',
         parameters: [
           {
             name: 'volume',
@@ -4020,7 +3817,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'setPlaybackRate',
-        description: 'Sets the playback rate (speed).',
         parameters: [
           {
             name: 'rate',
@@ -4030,19 +3826,15 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
       },
       {
         name: 'requestFullscreen',
-        description: 'Enters fullscreen mode.',
       },
       {
         name: 'exitFullscreen',
-        description: 'Exits fullscreen mode.',
       },
       {
         name: 'getVideoElement',
-        description: 'Gets the native video element.',
       },
       {
         name: 'getState',
-        description: 'Gets the current playback state.',
       },
     ],
   },
@@ -4052,7 +3844,6 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     events: [
       {
         name: 'wa-video-change',
-        description: 'Emitted when the active video changes.',
         reactName: 'onVideoChange',
         eventType: 'WaVideoChangeEvent',
       },
@@ -4060,22 +3851,17 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
     slots: [
       {
         name: '',
-        description:
-          'The default slot. Place `<wa-video>` elements to create a playlist.',
       },
     ],
     methods: [
       {
         name: 'next',
-        description: 'Plays the next video in the playlist.',
       },
       {
         name: 'previous',
-        description: 'Plays the previous video in the playlist.',
       },
       {
         name: 'goTo',
-        description: 'Jumps to the video at the given index.',
         parameters: [
           {
             name: 'index',
