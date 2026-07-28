@@ -2,7 +2,7 @@
  * Registry Cache Tests
  *
  * Tests for src/utils/registry-cache.ts — disk-based cache for
- * community registry data and component files.
+ * community registry files.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -16,8 +16,6 @@ import {
 } from '../../src/utils/registry-cache.js';
 import { REGISTRY_CACHE_TTL_MS } from '../../src/constants.js';
 import type { GitHubRegistrySource } from '../../src/utils/github-fetcher.js';
-import type { Framework } from '../../src/schemas/config.js';
-import type { CommunityRegistry } from '../../src/schemas/community-registry.js';
 
 // =============================================================================
 // Shared Fixtures
@@ -32,14 +30,6 @@ const testSource: GitHubRegistrySource = {
   owner: 'test',
   repo: 'registry',
   branch: 'main',
-};
-
-const testRegistry: CommunityRegistry = {
-  name: 'Test Registry',
-  version: '1.0.0',
-  frameworks: ['react'] as Framework[],
-  components: {},
-  themes: {},
 };
 
 beforeEach(async () => {
@@ -58,22 +48,6 @@ afterEach(async () => {
 // =============================================================================
 
 describe('RegistryCache — cache hit/miss', () => {
-  it('getRegistry returns null when cache is empty', async () => {
-    const result = await cache.getRegistry(testSource);
-    expect(result).toBeNull();
-  });
-
-  it('setRegistry then getRegistry returns the data', async () => {
-    await cache.setRegistry(testSource, testRegistry);
-    const result = await cache.getRegistry(testSource);
-
-    expect(result).not.toBeNull();
-    expect(result!.name).toBe('Test Registry');
-    expect(result!.version).toBe('1.0.0');
-    expect(result!.components).toEqual({});
-    expect(result!.themes).toEqual({});
-  });
-
   it('getFile returns null when not cached', async () => {
     const result = await cache.getFile(testSource, 'components/Button.tsx');
     expect(result).toBeNull();
@@ -86,6 +60,25 @@ describe('RegistryCache — cache hit/miss', () => {
     const result = await cache.getFile(testSource, 'components/Button.tsx');
     expect(result).toBe(content);
   });
+
+  it('caches nested paths without collision', async () => {
+    await cache.setFile(testSource, 'react/Button/Button.tsx', 'react');
+    await cache.setFile(testSource, 'vue/Button/Button.vue', 'vue');
+
+    expect(await cache.getFile(testSource, 'react/Button/Button.tsx')).toBe(
+      'react'
+    );
+    expect(await cache.getFile(testSource, 'vue/Button/Button.vue')).toBe(
+      'vue'
+    );
+  });
+
+  it('setFile overwrites a previously cached file', async () => {
+    await cache.setFile(testSource, 'a.txt', 'first');
+    await cache.setFile(testSource, 'a.txt', 'second');
+
+    expect(await cache.getFile(testSource, 'a.txt')).toBe('second');
+  });
 });
 
 // =============================================================================
@@ -93,64 +86,38 @@ describe('RegistryCache — cache hit/miss', () => {
 // =============================================================================
 
 describe('RegistryCache — TTL expiry', () => {
-  it('getRegistry returns null when cache is expired', async () => {
-    const now = Date.now();
+  it('getFile returns null once the entry is older than the TTL', async () => {
+    await cache.setFile(testSource, 'components/Button.tsx', 'cached');
 
-    // Set the registry at "now"
-    vi.spyOn(Date, 'now').mockReturnValue(now);
-    await cache.setRegistry(testSource, testRegistry);
+    // Backdate the file past the TTL rather than mocking Date.now, so the
+    // check runs against the real mtime the cache reads.
+    const cachedPath = path.join(
+      testDir,
+      'test-registry-main',
+      'files',
+      'components/Button.tsx'
+    );
+    const stale = new Date(Date.now() - REGISTRY_CACHE_TTL_MS - 60_000);
+    await fs.utimes(cachedPath, stale, stale);
 
-    // Advance time past the TTL
-    vi.spyOn(Date, 'now').mockReturnValue(now + REGISTRY_CACHE_TTL_MS + 1);
-    const result = await cache.getRegistry(testSource);
-
-    expect(result).toBeNull();
-  });
-});
-
-// =============================================================================
-// invalidate
-// =============================================================================
-
-describe('RegistryCache — invalidate', () => {
-  it('invalidate(source) removes only that source cache', async () => {
-    const otherSource: GitHubRegistrySource = {
-      kind: 'github',
-      url: 'https://github.com/other/components',
-      owner: 'other',
-      repo: 'components',
-      branch: 'main',
-    };
-
-    const otherRegistry: CommunityRegistry = {
-      name: 'Other Registry',
-      version: '2.0.0',
-      frameworks: ['vue'] as Framework[],
-      components: {},
-      themes: {},
-    };
-
-    await cache.setRegistry(testSource, testRegistry);
-    await cache.setRegistry(otherSource, otherRegistry);
-
-    await cache.invalidate(testSource);
-
-    // testSource should be gone
-    const testResult = await cache.getRegistry(testSource);
-    expect(testResult).toBeNull();
-
-    // otherSource should still exist
-    const otherResult = await cache.getRegistry(otherSource);
-    expect(otherResult).not.toBeNull();
-    expect(otherResult!.name).toBe('Other Registry');
+    expect(await cache.getFile(testSource, 'components/Button.tsx')).toBeNull();
   });
 
-  it('after invalidate, getRegistry returns null', async () => {
-    await cache.setRegistry(testSource, testRegistry);
-    await cache.invalidate(testSource);
+  it('getFile still returns content just inside the TTL', async () => {
+    await cache.setFile(testSource, 'components/Button.tsx', 'cached');
 
-    const result = await cache.getRegistry(testSource);
-    expect(result).toBeNull();
+    const cachedPath = path.join(
+      testDir,
+      'test-registry-main',
+      'files',
+      'components/Button.tsx'
+    );
+    const fresh = new Date(Date.now() - REGISTRY_CACHE_TTL_MS + 60_000);
+    await fs.utimes(cachedPath, fresh, fresh);
+
+    expect(await cache.getFile(testSource, 'components/Button.tsx')).toBe(
+      'cached'
+    );
   });
 });
 
@@ -172,17 +139,6 @@ describe('RegistryCache — branch isolation', () => {
     branch: 'staging',
   };
 
-  it('caches two branches of the same repo separately', async () => {
-    await cache.setRegistry(mainBranch, { ...testRegistry, name: 'From main' });
-    await cache.setRegistry(stagingBranch, {
-      ...testRegistry,
-      name: 'From staging',
-    });
-
-    expect((await cache.getRegistry(mainBranch))!.name).toBe('From main');
-    expect((await cache.getRegistry(stagingBranch))!.name).toBe('From staging');
-  });
-
   it('does not serve one branch a file cached for another', async () => {
     await cache.setFile(mainBranch, 'components/Button.tsx', 'main version');
 
@@ -194,80 +150,29 @@ describe('RegistryCache — branch isolation', () => {
     );
   });
 
-  it('invalidating one branch leaves the other intact', async () => {
-    await cache.setRegistry(mainBranch, { ...testRegistry, name: 'From main' });
-    await cache.setRegistry(stagingBranch, {
-      ...testRegistry,
-      name: 'From staging',
-    });
+  it('keeps both branches when each caches the same path', async () => {
+    await cache.setFile(mainBranch, 'Button.tsx', 'from main');
+    await cache.setFile(stagingBranch, 'Button.tsx', 'from staging');
 
-    await cache.invalidate(stagingBranch);
-
-    expect((await cache.getRegistry(mainBranch))!.name).toBe('From main');
-    expect(await cache.getRegistry(stagingBranch)).toBeNull();
+    expect(await cache.getFile(mainBranch, 'Button.tsx')).toBe('from main');
+    expect(await cache.getFile(stagingBranch, 'Button.tsx')).toBe(
+      'from staging'
+    );
   });
-});
 
-// =============================================================================
-// invalidateAll
-// =============================================================================
-
-describe('RegistryCache — invalidateAll', () => {
-  it('invalidateAll removes all cached registries', async () => {
-    const sourceA: GitHubRegistrySource = {
-      kind: 'github',
-      url: 'https://github.com/a/repo',
-      owner: 'a',
-      repo: 'repo',
-      branch: 'main',
-    };
-    const sourceB: GitHubRegistrySource = {
-      kind: 'github',
-      url: 'https://github.com/b/repo',
-      owner: 'b',
-      repo: 'repo',
-      branch: 'main',
+  it('flattens slashes in branch names into a single directory', async () => {
+    const featureBranch: GitHubRegistrySource = {
+      ...mainBranch,
+      branch: 'feat/new-components',
     };
 
-    const registryA = { ...testRegistry, name: 'Registry A' };
-    const registryB = { ...testRegistry, name: 'Registry B' };
+    await cache.setFile(featureBranch, 'Button.tsx', 'from feature');
 
-    await cache.setRegistry(sourceA, registryA);
-    await cache.setRegistry(sourceB, registryB);
-
-    await cache.invalidateAll();
-
-    const resultA = await cache.getRegistry(sourceA);
-    const resultB = await cache.getRegistry(sourceB);
-    expect(resultA).toBeNull();
-    expect(resultB).toBeNull();
-  });
-
-  it('after invalidateAll, getRegistry for any source returns null', async () => {
-    await cache.setRegistry(testSource, testRegistry);
-    await cache.invalidateAll();
-
-    const result = await cache.getRegistry(testSource);
-    expect(result).toBeNull();
-  });
-});
-
-// =============================================================================
-// Corrupted meta.json
-// =============================================================================
-
-describe('RegistryCache — corrupted meta.json', () => {
-  it('getRegistry returns null for invalid JSON in meta.json (does not throw)', async () => {
-    // Write a valid registry.json but corrupt meta.json
-    const dir = path.join(testDir, 'test-registry');
-    await fs.ensureDir(dir);
-    await fs.writeJSON(path.join(dir, 'registry.json'), testRegistry, {
-      spaces: 2,
-    });
-    await fs.writeFile(path.join(dir, 'meta.json'), '{ broken json !!!');
-
-    const result = await cache.getRegistry(testSource);
-    expect(result).toBeNull();
+    expect(await cache.getFile(featureBranch, 'Button.tsx')).toBe(
+      'from feature'
+    );
+    const entries = await fs.readdir(testDir);
+    expect(entries).toContain('acme-registry-feat-new-components');
   });
 });
 

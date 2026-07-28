@@ -65,14 +65,3 @@ export interface Check {
    */
   run(context: CheckContext): Promise<CheckResult>;
 }
-
-/**
- * Check group
- *
- * Logical grouping of related checks
- */
-export interface CheckGroup {
-  name: string;
-  description: string;
-  checks: Check[];
-}

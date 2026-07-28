@@ -17,42 +17,25 @@ export enum ErrorCode {
   // Configuration errors (exit code 1)
   CONFIG_NOT_FOUND = 100,
   CONFIG_INVALID = 101,
-  CONFIG_PARSE_ERROR = 102,
 
   // Validation errors (exit code 2)
   VALIDATION_FAILED = 200,
   INVALID_FRAMEWORK = 201,
   INVALID_COMPONENT = 202,
-  INVALID_THEME = 203,
-  INVALID_PALETTE = 204,
-  INVALID_OPTIONS = 205,
 
   // Tier restriction errors (exit code 3)
   TIER_RESTRICTION = 300,
-  PRO_COMPONENT_REQUIRED = 301,
   PRO_THEME_REQUIRED = 302,
-  TOKEN_REQUIRED = 303,
-  TOKEN_INVALID = 304,
 
   // File system errors (exit code 4)
-  FILE_NOT_FOUND = 400,
-  FILE_READ_ERROR = 401,
-  FILE_WRITE_ERROR = 402,
-  DIRECTORY_NOT_FOUND = 403,
-  PERMISSION_DENIED = 404,
   MIGRATION_PARSE_ERROR = 405,
 
   // Network/Dependency errors (exit code 5)
   DEPENDENCY_INSTALL_FAILED = 500,
-  PACKAGE_NOT_FOUND = 501,
-  NETWORK_ERROR = 502,
-  AUTH_FAILED = 503,
   REGISTRY_ERROR = 504,
 
   // Pre-flight check errors (exit code 6)
   PREFLIGHT_CHECK_FAILED = 600,
-  MISSING_DEPENDENCY = 601,
-  INCOMPATIBLE_VERSION = 602,
 
   // Version errors (exit code 7)
   VERSION_MISMATCH = 700,

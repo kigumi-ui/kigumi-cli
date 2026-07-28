@@ -30,54 +30,19 @@ export {
 } from './base.js';
 
 // Configuration errors
-export {
-  ConfigNotFoundError,
-  ConfigInvalidError,
-  ConfigParseError,
-  ConfigFieldMissingError,
-  ConfigFieldInvalidError,
-} from './config.js';
+export { ConfigNotFoundError, ConfigInvalidError } from './config.js';
 
 // Validation errors
-export {
-  ValidationError,
-  InvalidFrameworkError,
-  InvalidComponentError,
-  InvalidThemeError,
-  InvalidPaletteError,
-  InvalidOptionsError,
-} from './validation.js';
+export { ValidationError } from './validation.js';
 
 // Tier restriction errors
-export {
-  TierRestrictionError,
-  ProComponentRequiredError,
-  ProThemeRequiredError,
-  TokenRequiredError,
-  TokenInvalidError,
-} from './tier.js';
-
-// File system errors
-export {
-  FileNotFoundError,
-  FileReadError,
-  FileWriteError,
-  DirectoryNotFoundError,
-  PermissionDeniedError,
-  ComponentExistsError,
-} from './filesystem.js';
+export { TierRestrictionError, ProThemeRequiredError } from './tier.js';
 
 // layers.css rewrite errors
 export { LayersCssRewriteError } from './layers-css.js';
 
 // Network and dependency errors
-export {
-  DependencyInstallError,
-  PackageNotFoundError,
-  NetworkError,
-  AuthenticationError,
-  RegistryError,
-} from './network.js';
+export { DependencyInstallError } from './network.js';
 
 // Community registry errors
 export {
@@ -90,12 +55,7 @@ export {
 } from './community-registry.js';
 
 // Pre-flight check errors
-export {
-  PreFlightCheckError,
-  MissingDependencyError,
-  IncompatibleVersionError,
-  type CheckResult,
-} from './preflight.js';
+export { PreFlightCheckError, type CheckResult } from './preflight.js';
 
 // Version errors
 export { VersionMismatchError } from './version.js';

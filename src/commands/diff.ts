@@ -16,7 +16,7 @@ import pc from 'picocolors';
 import { getOutput } from '../output/index.js';
 import { getConfig } from '../utils/config.js';
 import { handleError } from '../errors/index.js';
-import { getComponent, normalizeComponentName } from '../utils/registry.js';
+import { getComponent } from '../utils/registry.js';
 import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
@@ -28,6 +28,10 @@ import {
 } from '../utils/template.js';
 import { loadSnapshot } from '../utils/snapshot.js';
 import { renderDiff } from '../utils/diff-renderer.js';
+import {
+  resolveComponents,
+  reportUnmanagedComponents,
+} from '../utils/installed-components.js';
 import type { KigumiConfig } from '../schemas/config.js';
 import type { ComponentDefinition } from '../utils/registry.js';
 
@@ -70,7 +74,10 @@ export async function diffCommand(
     const config = getConfig(cwd);
 
     // 2. Determine which components to check
-    const componentsToCheck = await resolveComponents(components, config, cwd);
+    const { components: componentsToCheck, unmanaged } =
+      await resolveComponents(components, config, cwd);
+
+    reportUnmanagedComponents(unmanaged, output, 'compared');
 
     if (componentsToCheck.length === 0) {
       output.info('No installed components found to compare.');
@@ -169,35 +176,6 @@ export async function diffCommand(
   } catch (error) {
     handleError(error, output);
   }
-}
-
-/**
- * Resolve which components to check.
- * If specific names given, use those. Otherwise, scan the components directory.
- */
-export async function resolveComponents(
-  names: string[],
-  config: KigumiConfig,
-  cwd: string
-): Promise<string[]> {
-  if (names.length > 0) {
-    // Canonicalize user input (kebab or PascalCase) to the registry's PascalCase name.
-    // Unknown inputs pass through unchanged so diffComponent() can report the miss.
-    return names.map((n) => normalizeComponentName(n) ?? n);
-  }
-
-  // Scan components directory for installed components
-  const componentsDir = path.join(cwd, config.componentsDir);
-  if (!(await fs.pathExists(componentsDir))) {
-    return [];
-  }
-
-  const entries = await fs.readdir(componentsDir, { withFileTypes: true });
-  return entries
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name)
-    .filter((name) => getComponent(toKebabCase(name)) !== null) // Only builtin components
-    .sort();
 }
 
 /**

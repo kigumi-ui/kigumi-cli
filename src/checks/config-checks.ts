@@ -83,35 +83,3 @@ export class PackageJsonExistsCheck implements Check {
     };
   }
 }
-
-/**
- * Check if .gitignore exists
- */
-export class GitIgnoreExistsCheck implements Check {
-  readonly id = 'gitignore-exists';
-  readonly name = 'Gitignore Exists';
-  readonly description = 'Check if .gitignore exists (optional)';
-
-  async run(context: CheckContext): Promise<CheckResult> {
-    const gitignorePath = path.join(context.cwd, '.gitignore');
-    const exists = await fs.pathExists(gitignorePath);
-
-    if (!exists) {
-      return {
-        passed: false,
-        severity: CheckSeverity.WARNING,
-        message: '.gitignore not found',
-        suggestion: [
-          'Create .gitignore to avoid committing sensitive files',
-          'Kigumi can create one for you during init',
-        ],
-      };
-    }
-
-    return {
-      passed: true,
-      severity: CheckSeverity.INFO,
-      message: '.gitignore exists',
-    };
-  }
-}

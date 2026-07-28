@@ -15,11 +15,6 @@ export interface CheckRunnerOptions {
    * Stop on first error (default: true)
    */
   stopOnError?: boolean;
-
-  /**
-   * Run checks in parallel (default: false)
-   */
-  parallel?: boolean;
 }
 
 /**
@@ -34,7 +29,6 @@ export class CheckRunner {
   constructor(options: CheckRunnerOptions = {}) {
     this.options = {
       stopOnError: options.stopOnError ?? true,
-      parallel: options.parallel ?? false,
     };
   }
 
@@ -69,10 +63,6 @@ export class CheckRunner {
   async run(context: CheckContext): Promise<CheckResult[]> {
     if (this.checks.length === 0) {
       return [];
-    }
-
-    if (this.options.parallel) {
-      return this.runParallel(context);
     }
 
     return this.runSequential(context);
@@ -113,26 +103,6 @@ export class CheckRunner {
     }
 
     return results;
-  }
-
-  /**
-   * Run checks in parallel
-   */
-  private async runParallel(context: CheckContext): Promise<CheckResult[]> {
-    const promises = this.checks.map(async (check) => {
-      try {
-        return await check.run(context);
-      } catch (error) {
-        return {
-          passed: false,
-          severity: CheckSeverity.ERROR,
-          message: `Check "${check.name}" failed with error: ${error instanceof Error ? error.message : String(error)}`,
-          suggestion: ['Check the logs for more details'],
-        } as CheckResult;
-      }
-    });
-
-    return Promise.all(promises);
   }
 
   /**
