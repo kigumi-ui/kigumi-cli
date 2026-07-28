@@ -1,6 +1,6 @@
 # Kigumi
 
-> shadcn/ui for Web Awesome. Framework-specific component wrappers for React, Vue, Angular, and Next.js. Version 0.13.0.
+> shadcn/ui for Web Awesome. Framework-specific component wrappers for React, Vue, Angular, and Next.js.
 
 Kigumi generates React, Vue, Angular, and Next.js wrapper components around Web Awesome web components. Components are copied into your project (not imported from a package), giving you full ownership and customization control.
 
@@ -29,14 +29,14 @@ npx kigumi status --json
 Output schema:
 ```json
 {
-  "version": "0.13.0",
+  "version": "0.26.0",
   "tier": "free",
   "framework": "react",
   "typescript": true,
   "componentsDir": "src/components/ui",
   "theme": { "selected": "awesome", "palette": "rudimentary", "brandColor": "blue" },
   "token": false,
-  "package": { "package": "@awesome.me/webawesome", "version": "3.3.1" },
+  "package": { "package": "@awesome.me/webawesome", "version": "3.10.0" },
   "components": ["Button", "Card", "Dialog"],
   "warnings": []
 }
