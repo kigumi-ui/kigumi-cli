@@ -14,8 +14,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # Lets npm attach a provenance attestation to the published tarball,
-      # so consumers can verify it was built from this repo by this workflow.
+      # Would let npm attach a provenance attestation, but npm only verifies
+      # provenance for public source repos; this repo is private, so
+      # publishing stays unsigned until that changes.
       id-token: write
     steps:
       - name: Checkout
@@ -97,6 +98,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # changeset publish has no --provenance flag; npm publish reads this
-          # instead. id-token: write (above) grants the OIDC token it needs.
-          NPM_CONFIG_PROVENANCE: true
