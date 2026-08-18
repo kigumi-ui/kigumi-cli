@@ -97,3 +97,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # changeset publish has no --provenance flag; npm publish reads this
+          # instead. id-token: write (above) grants the OIDC token it needs.
+          NPM_CONFIG_PROVENANCE: true
