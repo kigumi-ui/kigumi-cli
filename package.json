@@ -78,7 +78,7 @@
     "release-readiness:dry-run": "tsx scripts/release-readiness.ts dry-run",
     "changeset": "changeset",
     "version": "changeset version && tsx scripts/post-changeset-version.ts",
-    "release": "pnpm build && changeset publish --provenance"
+    "release": "pnpm build && changeset publish"
   },
   "keywords": [
     "web-awesome",
