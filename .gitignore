@@ -44,3 +44,10 @@ tmp/
 # Stryker mutation testing
 .stryker-tmp/
 reports/mutation/
+
+graphify-out/cost.json        # local only
+graphify-out/cache/         # optional: commit for speed, skip to keep repo small
+graphify-out/.graphify_analysis.json    # local working state (clustering intermediate)
+graphify-out/.graphify_labels.json.sig  # local working state (label integrity signature)
+graphify-out/.graphify_python           # local working state (interpreter path)
+graphify-out/.graphify_root             # local working state (scan root)
