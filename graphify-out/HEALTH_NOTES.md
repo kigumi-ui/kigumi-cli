@@ -1,0 +1,27 @@
+# Graph Health Notes
+
+## Dangling-endpoint / collapsed-edge warning (2026-08-22)
+
+The initial build's Step 4.5 diagnostic (`graphify.diagnostics.diagnose_extraction`)
+reported ~3,390 dangling-endpoint edges and ~1,150 collapsed edges. That diagnostic
+ran against the pre-build extraction (`.graphify_extract.json`), which is now deleted
+by the normal build cleanup.
+
+**Re-running the diagnostic directly against the current `graphify-out/graph.json`
+shows zero dangling, zero missing-endpoint, zero self-loop, and zero collapsed edges.**
+This is expected, not a bug: `graphify.build.build_from_json` explicitly filters out
+edges whose source/target "does not match any node id" during the build/merge step
+(`validate_extraction`'s dangling-edge check is intentionally non-fatal — see the
+`# Dangling edges (stdlib/external imports) are expected` comment in `build.py`).
+
+Root cause: AST extraction on this repo emits `imports`/`calls` edges pointing at
+external packages (`react`, `@angular/core`, `rxjs`, etc.) and, plausibly, at
+Angular `@Input()`/`@Output()` decorator targets that don't resolve to a node in the
+corpus. These are dropped before `graph.json` is written, so the persisted graph
+is clean. No extraction bug found; no code fix applied.
+
+Takeaway for future queries: `graph.json` can be trusted for precise "does X call Y"
+queries. If a future `--update` run's Step 4.5 diagnostic (which runs on the fresh
+pre-build extraction) reports a similarly large dangling-edge count, re-check it
+against the post-build `graph.json` before treating it as corruption — the two
+numbers measure different things (raw extraction vs. build-filtered graph).
