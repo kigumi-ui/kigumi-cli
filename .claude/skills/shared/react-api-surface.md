@@ -5,31 +5,29 @@
 
 ## Transformation Rules
 
-| HTML                                | React                                |
-| ----------------------------------- | ------------------------------------ |
-| `class="..."`                       | `className="..."`                    |
-| `style="max-width: 60ch"`           | `style={{ maxWidth: '60ch' }}`       |
-| Kebab-case props (`with-caret`)     | Keep as-is                           |
-| `slot="header"`                     | `slot="header"` (preserved)          |
-| Self-closing: `<wa-icon></wa-icon>` | `<Icon />`                           |
-| Native events (change, input)       | `onChange`, `onInput` via `e.target` |
-| Custom events (wa-hide, wa-show)    | `onHide`, `onShow` via CustomEvent   |
+| HTML | React |
+|------|-------|
+| `class="..."` | `className="..."` |
+| `style="max-width: 60ch"` | `style={{ maxWidth: '60ch' }}` |
+| Kebab-case props (`with-caret`) | Keep as-is |
+| `slot="header"` | `slot="header"` (preserved) |
+| Self-closing: `<wa-icon></wa-icon>` | `<Icon />` |
+| Native events (change, input) | `onChange`, `onInput` via `e.target` |
+| Custom events (wa-hide, wa-show) | `onHide`, `onShow` via CustomEvent |
 
 ---
 
 ## Button
-
 Actions | free | Buttons represent actions that are available to the user
 wa-button -> <Button>
 
-**Props:** variant(neutral|brand|success|warning|danger=neutral), appearance(accent|filled-outlined|filled|outlined|plain=filled), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), disabled(boolean=false), loading(boolean=false), with-caret(boolean=false), href(string), target(\_blank|\_self|\_parent|\_top), download(string), rel(string), type(button|submit|reset=button), name(string), value(string), formaction(string), formenctype(string), formmethod(string), formnovalidate(boolean=false), formtarget(string)
+**Props:** variant(neutral|brand|success|warning|danger=neutral), appearance(accent|filled-outlined|filled|outlined|plain=filled), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), disabled(boolean=false), loading(boolean=false), with-caret(boolean=false), href(string), target(_blank|_self|_parent|_top), download(string), rel(string), type(button|submit|reset=button), name(string), value(string), formaction(string), formenctype(string), formmethod(string), formnovalidate(boolean=false), formtarget(string)
 **Events:** onBlur, onFocus, onInvalid
 **Slots:** default, start, end
 **Methods:** click(), focus(), blur()
 **Parts:** base, start, label, end, caret, spinner
 
 ## ButtonGroup
-
 Actions | free | Groups related buttons into organized sections, supporting both horizontal and vertical layouts
 wa-button-group -> <ButtonGroup>
 
@@ -39,7 +37,6 @@ wa-button-group -> <ButtonGroup>
 **Requires:** Button
 
 ## Input
-
 Form Controls | free | Inputs collect data from the user
 wa-input -> <Input>
 
@@ -50,7 +47,6 @@ wa-input -> <Input>
 **Parts:** label, hint, base, input, start, clear-button, password-toggle-button, end
 
 ## Card
-
 Organization | free | Cards can be used to group related subjects in a container
 wa-card -> <Card>
 
@@ -60,7 +56,6 @@ wa-card -> <Card>
 **CSS:** --spacing(var(--wa-space-l))
 
 ## Dialog
-
 Overlays | free | Dialogs display important prompts and information
 wa-dialog -> <Dialog>
 
@@ -68,11 +63,10 @@ wa-dialog -> <Dialog>
 **Events:** onShow, onAfterShow, onHide, onAfterHide
 **Slots:** default, label, header-actions, footer
 **Methods:** show(), requestClose()
-**Parts:** dialog, header, header-actions, title, close-button, close-button\_\_base, body, footer
+**Parts:** dialog, header, header-actions, title, close-button, close-button__base, body, footer
 **CSS:** --spacing, --width, --backdrop-filter(none), --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 
 ## AnimatedImage
-
 Display | free | A component for displaying animated GIFs and WEBPs that play and pause on interaction
 wa-animated-image -> <AnimatedImage>
 
@@ -84,7 +78,6 @@ wa-animated-image -> <AnimatedImage>
 **Requires:** Icon
 
 ## Animation
-
 Display | free | Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
 wa-animation -> <Animation>
 
@@ -94,7 +87,6 @@ wa-animation -> <Animation>
 **Methods:** cancel(), finish()
 
 ## Avatar
-
 Display | free | Avatars are used to represent a person or object
 wa-avatar -> <Avatar>
 
@@ -106,7 +98,6 @@ wa-avatar -> <Avatar>
 **Requires:** Icon
 
 ## Badge
-
 Display | free | Badges are used to draw attention and display statuses or counts
 wa-badge -> <Badge>
 
@@ -116,7 +107,6 @@ wa-badge -> <Badge>
 **CSS:** --pulse-color
 
 ## Breadcrumb
-
 Navigation | free | Breadcrumbs provide a group of links so users can easily navigate a website hierarchy
 wa-breadcrumb -> <Breadcrumb>
 
@@ -126,16 +116,14 @@ wa-breadcrumb -> <Breadcrumb>
 **Requires:** Icon
 
 ## BreadcrumbItem
-
 Navigation | free | Breadcrumb Items are used inside breadcrumbs to represent different links
 wa-breadcrumb-item -> <BreadcrumbItem>
 
-**Props:** href(string), target(\_blank|\_parent|\_self|\_top), rel(string=noreferrer noopener)
+**Props:** href(string), target(_blank|_parent|_self|_top), rel(string=noreferrer noopener)
 **Slots:** default, start, end, separator
 **Parts:** label, start, end, separator
 
 ## Icon
-
 Display | free | Icons are symbols that can be used to represent various options within an application
 wa-icon -> <Icon>
 
@@ -145,7 +133,6 @@ wa-icon -> <Icon>
 **CSS:** --animation-delay(0), --animation-direction(normal), --animation-duration(1s), --animation-iteration-count(infinite), --animation-timing, --beat-fade-opacity, --beat-fade-scale, --beat-scale, --bounce-height, --bounce-jump-scale-x, --bounce-jump-scale-y, --bounce-land-scale-x, --bounce-land-scale-y, --bounce-rebound, --bounce-start-scale-x, --bounce-start-scale-y, --fade-opacity, --flip-angle, --flip-x, --flip-y, --flip-z, --flip-anticipation-scale, --flip-overshoot, --bounce-anticipation, --buzz-distance, --wag-angle, --swing-angle, --jello-scale-x, --jello-scale-y, --float-height, --float-drift, --float-tilt, --float-squash-x, --float-squash-y, --float-stretch-x, --float-stretch-y, --primary-color(currentColor), --primary-opacity(1), --secondary-color(currentColor), --secondary-opacity(0.4)
 
 ## Carousel
-
 Display | free | Displays an arbitrary number of content slides along a horizontal or vertical axis
 wa-carousel -> <Carousel>
 
@@ -158,7 +145,6 @@ wa-carousel -> <Carousel>
 **Requires:** CarouselItem
 
 ## CarouselItem
-
 Display | free | Represents an individual slide within a carousel component
 wa-carousel-item -> <CarouselItem>
 
@@ -167,7 +153,6 @@ wa-carousel-item -> <CarouselItem>
 **CSS:** --aspect-ratio
 
 ## Checkbox
-
 Form Controls | free | Checkboxes allow the user to toggle an option on or off
 wa-checkbox -> <Checkbox>
 
@@ -180,7 +165,6 @@ wa-checkbox -> <Checkbox>
 **Requires:** Icon
 
 ## CheckboxGroup
-
 Form Controls | free | Checkbox groups label and group a set of checkboxes so they share hint text and validation
 wa-checkbox-group -> <CheckboxGroup>
 
@@ -190,7 +174,6 @@ wa-checkbox-group -> <CheckboxGroup>
 **CSS:** --gap(0.5em)
 
 ## ColorPicker
-
 Form Controls | free | Color pickers allow the user to select a color
 wa-color-picker -> <ColorPicker>
 
@@ -198,12 +181,11 @@ wa-color-picker -> <ColorPicker>
 **Events:** onChange, onInput, onShow, onAfterShow, onHide, onAfterHide, onBlur, onFocus, onInvalid
 **Slots:** label, hint
 **Methods:** getHexString(), focus(), blur(), getFormattedValue(), show(), hide()
-**Parts:** base, trigger, swatches, swatch, grid, grid-handle, slider, slider-handle, hue-slider, hue-slider-handle, opacity-slider, opacity-slider-handle, preview, input, eyedropper-button, eyedropper-button**base, eyedropper-button**start, eyedropper-button**label, eyedropper-button**end, eyedropper-button**caret, format-button, format-button**base, format-button**start, format-button**label, format-button**end, format-button**caret
+**Parts:** base, trigger, swatches, swatch, grid, grid-handle, slider, slider-handle, hue-slider, hue-slider-handle, opacity-slider, opacity-slider-handle, preview, input, eyedropper-button, eyedropper-button__base, eyedropper-button__start, eyedropper-button__label, eyedropper-button__end, eyedropper-button__caret, format-button, format-button__base, format-button__start, format-button__label, format-button__end, format-button__caret
 **CSS:** --grid-width, --grid-height, --grid-handle-size, --slider-height, --slider-handle-size
 **Requires:** Button, Icon, Input, Popup
 
 ## Combobox
-
 Form Controls | pro | Combines a text input with a listbox for filtering and selecting options
 wa-combobox -> <Combobox>
 
@@ -211,12 +193,11 @@ wa-combobox -> <Combobox>
 **Events:** onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onCreate, onInvalid
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
-**Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag**content, tag**remove-button, tag**remove-button**base, clear-button, expand-icon
+**Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --tag-max-size(10ch)
 **Requires:** Button, Icon, Option, Popup, Tag
 
 ## Comparison
-
 Display | free | Compare visual differences between similar content with a sliding panel
 wa-comparison -> <Comparison>
 
@@ -228,7 +209,6 @@ wa-comparison -> <Comparison>
 **Requires:** Icon
 
 ## Page
-
 Layout | free | Pages offer an easy way to scaffold entire page layouts using minimal markup
 wa-page -> <Page>
 
@@ -239,7 +219,6 @@ wa-page -> <Page>
 **CSS:** --menu-width(auto), --main-width(1fr), --aside-width(auto), --banner-height(0px), --header-height(0px), --subheader-height(0px)
 
 ## CopyButton
-
 Actions | free | Copies text data to the clipboard when clicked
 wa-copy-button -> <CopyButton>
 
@@ -250,7 +229,6 @@ wa-copy-button -> <CopyButton>
 **Requires:** Icon, Tooltip
 
 ## Details
-
 Organization | free | Shows a brief summary and expands to show additional content
 wa-details -> <Details>
 
@@ -263,7 +241,6 @@ wa-details -> <Details>
 **Requires:** Icon
 
 ## Divider
-
 Layout | free | Dividers are used to visually separate content
 wa-divider -> <Divider>
 
@@ -271,7 +248,6 @@ wa-divider -> <Divider>
 **CSS:** --color, --width, --spacing
 
 ## Drawer
-
 Overlays | free | Drawers slide in from a container edge to expose additional options
 wa-drawer -> <Drawer>
 
@@ -279,12 +255,11 @@ wa-drawer -> <Drawer>
 **Events:** onShow, onAfterShow, onHide, onAfterHide
 **Slots:** default, label, header-actions, footer
 **Methods:** show(), requestClose()
-**Parts:** dialog, header, header-actions, title, close-button, close-button\_\_base, body, footer
+**Parts:** dialog, header, header-actions, title, close-button, close-button__base, body, footer
 **CSS:** --spacing, --size, --backdrop-filter(none), --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 **Requires:** Icon
 
 ## Dropdown
-
 Overlays | free | Dropdowns expose additional content that pops up when the user interacts with a trigger
 wa-dropdown -> <Dropdown>
 
@@ -296,7 +271,6 @@ wa-dropdown -> <Dropdown>
 **Requires:** Popup
 
 ## DropdownItem
-
 Overlays | free | Dropdown items are used inside dropdowns to represent individual menu items
 wa-dropdown-item -> <DropdownItem>
 
@@ -308,28 +282,24 @@ wa-dropdown-item -> <DropdownItem>
 **Requires:** Icon
 
 ## FormatBytes
-
 Formatting | free | Formats a number as a human-readable byte value
 wa-format-bytes -> <FormatBytes>
 
 **Props:** value(number=0), unit(byte|bit=byte), display(long|short|narrow=short), lang(string)
 
 ## FormatDate
-
 Formatting | free | Formats a date/time using the Intl.DateTimeFormat API
 wa-format-date -> <FormatDate>
 
 **Props:** date(string), weekday(narrow|short|long), era(narrow|short|long), year(numeric|2-digit), month(numeric|2-digit|narrow|short|long), day(numeric|2-digit), hour(numeric|2-digit), minute(numeric|2-digit), second(numeric|2-digit), hour-format(auto|12|24=auto), time-zone-name(short|long), time-zone(string), lang(string)
 
 ## FormatNumber
-
 Formatting | free | Formats a number using the Intl.NumberFormat API
 wa-format-number -> <FormatNumber>
 
 **Props:** value(number=0), type(currency|decimal|percent=decimal), currency(string=USD), currency-display(symbol|narrowSymbol|code|name=symbol), minimum-integer-digits(number), minimum-fraction-digits(number), maximum-fraction-digits(number), minimum-significant-digits(number), maximum-significant-digits(number), without-grouping(boolean=false), lang(string)
 
 ## Include
-
 Utilities | free | Includes give you the power to embed external HTML files into the page
 wa-include -> <Include>
 
@@ -337,7 +307,6 @@ wa-include -> <Include>
 **Events:** onLoad, onIncludeError
 
 ## IntersectionObserver
-
 Utilities | free | Observes changes in the intersection of a target element with an ancestor
 wa-intersection-observer -> <IntersectionObserver>
 
@@ -346,7 +315,6 @@ wa-intersection-observer -> <IntersectionObserver>
 **Slots:** default
 
 ## Markdown
-
 Display | free | Renders markdown content in plain HTML
 wa-markdown -> <Markdown>
 
@@ -354,7 +322,6 @@ wa-markdown -> <Markdown>
 **Methods:** getMarked(), updateAll(), renderMarkdown()
 
 ## MutationObserver
-
 Utilities | free | Observes changes to a target element and emits events when they occur
 wa-mutation-observer -> <MutationObserver>
 
@@ -363,7 +330,6 @@ wa-mutation-observer -> <MutationObserver>
 **Slots:** default
 
 ## ResizeObserver
-
 Utilities | free | Reports changes to the dimensions of an element
 wa-resize-observer -> <ResizeObserver>
 
@@ -372,7 +338,6 @@ wa-resize-observer -> <ResizeObserver>
 **Slots:** default
 
 ## Popover
-
 Overlays | free | Popovers display additional content when users interact with a trigger element
 wa-popover -> <Popover>
 
@@ -380,12 +345,11 @@ wa-popover -> <Popover>
 **Events:** onShow, onAfterShow, onHide, onAfterHide
 **Slots:** default
 **Methods:** show(), hide()
-**Parts:** dialog, body, popup, popup**popup, popup**arrow
+**Parts:** dialog, body, popup, popup__popup, popup__arrow
 **CSS:** --arrow-size(0.375rem), --max-width(25rem), --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast))
 **Requires:** Popup
 
 ## Popup
-
 Overlays | free | Popup is a utility component for positioning elements relative to an anchor
 wa-popup -> <Popup>
 
@@ -397,7 +361,6 @@ wa-popup -> <Popup>
 **CSS:** --arrow-size(6px), --popup-border-width, --arrow-color(black), --auto-size-available-width, --auto-size-available-height, --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast))
 
 ## ProgressBar
-
 Progress | free | Progress bars are used to show the completion of a task or operation
 wa-progress-bar -> <ProgressBar>
 
@@ -407,7 +370,6 @@ wa-progress-bar -> <ProgressBar>
 **CSS:** --track-height(1rem), --track-color(var(--wa-color-neutral-fill-normal)), --indicator-color(var(--wa-color-brand-fill-loud))
 
 ## ProgressRing
-
 Progress | free | Progress rings are used to show the completion of a task in a circular format
 wa-progress-ring -> <ProgressRing>
 
@@ -417,7 +379,6 @@ wa-progress-ring -> <ProgressRing>
 **CSS:** --size, --track-width, --track-color, --indicator-width, --indicator-color, --indicator-transition-duration
 
 ## QrCode
-
 Display | free | Generates QR codes for encoding text, URLs, or data
 wa-qr-code -> <QrCode>
 
@@ -425,7 +386,6 @@ wa-qr-code -> <QrCode>
 **Parts:** base
 
 ## RadioGroup
-
 Form Controls | free | Radio groups are used to group multiple radios so only one can be selected
 wa-radio-group -> <RadioGroup>
 
@@ -437,7 +397,6 @@ wa-radio-group -> <RadioGroup>
 **Requires:** ButtonGroup
 
 ## Radio
-
 Form Controls | free | Radios allow the user to select a single option from a group
 wa-radio -> <Radio>
 
@@ -449,7 +408,6 @@ wa-radio -> <Radio>
 **Requires:** Icon
 
 ## RandomContent
-
 Display | free | Randomly selects and displays one or more of its child elements
 wa-random-content -> <RandomContent>
 
@@ -460,7 +418,6 @@ wa-random-content -> <RandomContent>
 **CSS:** --animation-duration, --animation-easing, --animation-translate
 
 ## Rating
-
 Form Controls | free | Ratings give users a way to quickly view and provide feedback
 wa-rating -> <Rating>
 
@@ -471,14 +428,12 @@ wa-rating -> <Rating>
 **Requires:** Icon
 
 ## RelativeTime
-
 Formatting | free | Outputs a localized time phrase relative to the current date and time
 wa-relative-time -> <RelativeTime>
 
 **Props:** date(string), format(long|short|narrow=long), numeric(always|auto=auto), sync(boolean=false), lang(string)
 
 ## Scroller
-
 Layout | free | Adds a scrollable container with optional shadow indicators
 wa-scroller -> <Scroller>
 
@@ -488,7 +443,6 @@ wa-scroller -> <Scroller>
 **CSS:** --shadow-color(var(--wa-color-surface-default)), --shadow-size(2rem)
 
 ## Select
-
 Form Controls | free | Selects allow you to choose items from a menu of predefined options
 wa-select -> <Select>
 
@@ -496,12 +450,11 @@ wa-select -> <Select>
 **Events:** onInput, onChange, onFocus, onBlur, onClear, onShow, onAfterShow, onHide, onAfterHide, onInvalid
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
-**Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, tag**content, tag**remove-button, tag**remove-button**base, clear-button, expand-icon
+**Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --tag-max-size(10ch)
 **Requires:** Icon, Option, Popup, Tag
 
 ## Option
-
 Form Controls | free | Options define the selectable items within various form controls
 wa-option -> <Option>
 
@@ -512,7 +465,6 @@ wa-option -> <Option>
 **Requires:** Icon
 
 ## Skeleton
-
 Display | free | Skeletons are used to provide a visual representation of where content will eventually load
 wa-skeleton -> <Skeleton>
 
@@ -521,7 +473,6 @@ wa-skeleton -> <Skeleton>
 **CSS:** --color, --sheen-color
 
 ## Slider
-
 Form Controls | free | Sliders allow the user to select a value within a range
 wa-slider -> <Slider>
 
@@ -529,11 +480,10 @@ wa-slider -> <Slider>
 **Events:** onChange, onBlur, onFocus, onInput, onInvalid
 **Slots:** label, hint, reference
 **Methods:** focus(), blur(), stepDown(), stepUp()
-**Parts:** label, hint, slider, track, indicator, markers, marker, references, thumb, thumb-min, thumb-max, tooltip, tooltip**tooltip, tooltip**content, tooltip\_\_arrow
+**Parts:** label, hint, slider, track, indicator, markers, marker, references, thumb, thumb-min, thumb-max, tooltip, tooltip__tooltip, tooltip__content, tooltip__arrow
 **CSS:** --track-size(0.75em), --marker-width(0.1875em), --marker-height(0.1875em), --thumb-width(1.25em), --thumb-height(1.25em)
 
 ## Spinner
-
 Progress | free | Spinners are used to show the progress of an indeterminate operation
 wa-spinner -> <Spinner>
 
@@ -542,7 +492,6 @@ wa-spinner -> <Spinner>
 **CSS:** --track-width, --track-color, --indicator-color, --speed
 
 ## SplitPanel
-
 Layout | free | Split panels display two adjacent panels with a divider for resizing
 wa-split-panel -> <SplitPanel>
 
@@ -554,7 +503,6 @@ wa-split-panel -> <SplitPanel>
 **Requires:** Icon
 
 ## Switch
-
 Form Controls | free | Switches allow the user to toggle an option on or off
 wa-switch -> <Switch>
 
@@ -566,19 +514,17 @@ wa-switch -> <Switch>
 **CSS:** --width, --height, --thumb-size
 
 ## TabGroup
-
 Navigation | free | Tab groups organize content into a container that shows one section at a time
 wa-tab-group -> <TabGroup>
 
 **Props:** placement(top|bottom|start|end=top), activation(auto|manual=auto), without-scroll-controls(boolean=false), active(string)
 **Events:** onTabShow, onTabHide
 **Slots:** default, nav
-**Parts:** base, nav, tabs, body, scroll-button, scroll-button-start, scroll-button-end, scroll-button\_\_base
+**Parts:** base, nav, tabs, body, scroll-button, scroll-button-start, scroll-button-end, scroll-button__base
 **CSS:** --indicator-color, --track-color, --track-width
 **Requires:** Icon
 
 ## Tab
-
 Navigation | free | Tabs are used inside tab groups to represent selectable tabs
 wa-tab -> <Tab>
 
@@ -588,7 +534,6 @@ wa-tab -> <Tab>
 **Requires:** Icon
 
 ## TabPanel
-
 Navigation | free | Tab panels are used inside tab groups to display content for each tab
 wa-tab-panel -> <TabPanel>
 
@@ -598,18 +543,16 @@ wa-tab-panel -> <TabPanel>
 **CSS:** --padding
 
 ## Tag
-
 Display | free | Tags are used as labels to organize things or indicate selections
 wa-tag -> <Tag>
 
 **Props:** appearance(accent|filled|outlined|filled-outlined=filled-outlined), pill(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), variant(brand|neutral|success|warning|danger=neutral), with-remove(boolean=false)
 **Events:** onRemove
 **Slots:** default
-**Parts:** base, content, remove-button, remove-button\_\_base
+**Parts:** base, content, remove-button, remove-button__base
 **Requires:** Icon
 
 ## Textarea
-
 Form Controls | free | Textareas collect multi-line text data from the user
 wa-textarea -> <Textarea>
 
@@ -620,7 +563,6 @@ wa-textarea -> <Textarea>
 **Parts:** label, form-control-input, hint, textarea, base, count
 
 ## Tooltip
-
 Overlays | free | Tooltips display additional information based on a specific action
 wa-tooltip -> <Tooltip>
 
@@ -628,12 +570,11 @@ wa-tooltip -> <Tooltip>
 **Events:** onShow, onAfterShow, onHide, onAfterHide
 **Slots:** default
 **Methods:** show(), hide()
-**Parts:** base, base**popup, base**arrow, body
+**Parts:** base, base__popup, base__arrow, body
 **CSS:** --max-width
 **Requires:** Popup
 
 ## Tree
-
 Navigation | free | Trees allow you to display a hierarchical list of selectable tree items
 wa-tree -> <Tree>
 
@@ -644,7 +585,6 @@ wa-tree -> <Tree>
 **CSS:** --indent-size(var(--wa-space-m)), --indent-guide-color(var(--wa-color-surface-border)), --indent-guide-offset(0), --indent-guide-style(solid), --indent-guide-width(0)
 
 ## TreeItem
-
 Navigation | free | Tree items are used inside trees to represent hierarchical items
 wa-tree-item -> <TreeItem>
 
@@ -652,12 +592,11 @@ wa-tree-item -> <TreeItem>
 **Events:** onExpand, onAfterExpand, onCollapse, onAfterCollapse, onLazyChange, onLazyLoad
 **Slots:** default, expand-icon, collapse-icon
 **Methods:** getChildrenItems()
-**Parts:** base, item, indentation, expand-button, spinner, spinner**base, label, children, checkbox, checkbox**base, checkbox**control, checkbox**checked-icon, checkbox**indeterminate-icon, checkbox**label
+**Parts:** base, item, indentation, expand-button, spinner, spinner__base, label, children, checkbox, checkbox__base, checkbox__control, checkbox__checked-icon, checkbox__indeterminate-icon, checkbox__label
 **CSS:** --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 **Requires:** Icon, Checkbox, Spinner
 
 ## ZoomableFrame
-
 Display | free | Zoomable frames display iframe content with zoom controls
 wa-zoomable-frame -> <ZoomableFrame>
 
@@ -669,7 +608,6 @@ wa-zoomable-frame -> <ZoomableFrame>
 **Requires:** ButtonGroup, Icon
 
 ## Callout
-
 Display | free | Callouts are used to display important messages inline
 wa-callout -> <Callout>
 
@@ -678,7 +616,6 @@ wa-callout -> <Callout>
 **Parts:** icon, message
 
 ## FileInput
-
 Form Controls | pro | File inputs allow users to select and upload files from their device
 wa-file-input -> <FileInput>
 
@@ -689,7 +626,6 @@ wa-file-input -> <FileInput>
 **Parts:** label, hint, base, dropzone, dropzone-icon, dropzone-text, file-list, file, file-thumbnail, file-image, file-icon, file-details, file-name, file-size, remove-button
 
 ## NumberInput
-
 Form Controls | pro | Number inputs allow users to enter numeric values with optional step controls
 wa-number-input -> <NumberInput>
 
@@ -700,7 +636,6 @@ wa-number-input -> <NumberInput>
 **Parts:** label, form-control-label, hint, base, input, start, end, stepper, stepper-increment, stepper-decrement
 
 ## Sparkline
-
 Display | pro | Sparklines are small inline data visualizations for showing trends
 wa-sparkline -> <Sparkline>
 
@@ -709,7 +644,6 @@ wa-sparkline -> <Sparkline>
 **CSS:** --fill-color, --line-color, --line-width
 
 ## Chart
-
 Data Display | pro | Renders interactive data visualisations including bars, lines, pies, and more via Chart.js
 wa-chart -> <Chart>
 
@@ -718,7 +652,6 @@ wa-chart -> <Chart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## BarChart
-
 Data Display | pro | Displays categorical data as horizontal or vertical rectangular bars scaled to their values
 wa-bar-chart -> <BarChart>
 
@@ -727,7 +660,6 @@ wa-bar-chart -> <BarChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## LineChart
-
 Data Display | pro | Connects sequential data points to reveal trends and patterns over a continuous axis
 wa-line-chart -> <LineChart>
 
@@ -736,7 +668,6 @@ wa-line-chart -> <LineChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## BubbleChart
-
 Data Display | pro | Plots three-dimensional data using position and circle size to encode a third variable
 wa-bubble-chart -> <BubbleChart>
 
@@ -745,7 +676,6 @@ wa-bubble-chart -> <BubbleChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## DoughnutChart
-
 Data Display | pro | Shows proportional segments in a ring shape with an open center for summary content
 wa-doughnut-chart -> <DoughnutChart>
 
@@ -754,7 +684,6 @@ wa-doughnut-chart -> <DoughnutChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## PieChart
-
 Data Display | pro | Divides a circle into wedges that represent each category's share of the whole
 wa-pie-chart -> <PieChart>
 
@@ -763,7 +692,6 @@ wa-pie-chart -> <PieChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## PolarAreaChart
-
 Data Display | pro | Arranges segments of equal angle but varying radius around a central point
 wa-polar-area-chart -> <PolarAreaChart>
 
@@ -772,7 +700,6 @@ wa-polar-area-chart -> <PolarAreaChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## RadarChart
-
 Data Display | pro | Maps multiple variables onto radial axes to compare profiles at a glance
 wa-radar-chart -> <RadarChart>
 
@@ -781,7 +708,6 @@ wa-radar-chart -> <RadarChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## ScatterChart
-
 Data Display | pro | Positions individual data points by two numeric axes to expose correlations
 wa-scatter-chart -> <ScatterChart>
 
@@ -790,7 +716,6 @@ wa-scatter-chart -> <ScatterChart>
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 
 ## Toast
-
 Feedback | pro | Container that manages and stacks lightweight notification banners at a chosen screen edge
 wa-toast -> <Toast>
 
@@ -802,7 +727,6 @@ wa-toast -> <Toast>
 **Requires:** ToastItem
 
 ## ToastItem
-
 Feedback | pro | A single notification banner that can be stacked inside a Toast container
 wa-toast-item -> <ToastItem>
 
@@ -810,11 +734,10 @@ wa-toast-item -> <ToastItem>
 **Events:** onShow, onAfterShow, onHide, onAfterHide
 **Slots:** default, icon
 **Methods:** hide()
-**Parts:** toast-item, accent, icon, content, close-button, progress-ring, progress-ring**base, progress-ring**label, progress-ring**track, progress-ring**indicator, close-icon, close-icon\_\_svg
+**Parts:** toast-item, accent, icon, content, close-button, progress-ring, progress-ring__base, progress-ring__label, progress-ring__track, progress-ring__indicator, close-icon, close-icon__svg
 **CSS:** --accent-width, --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 
 ## Accordion
-
 Organization | free | Accordions group related disclosure panels and control how many can be open at once
 wa-accordion -> <Accordion>
 
@@ -825,7 +748,6 @@ wa-accordion -> <Accordion>
 **Requires:** AccordionItem
 
 ## AccordionItem
-
 Organization | free | Accordion items are the individual disclosure panels placed inside an accordion
 wa-accordion-item -> <AccordionItem>
 
@@ -836,7 +758,6 @@ wa-accordion-item -> <AccordionItem>
 **CSS:** --spacing(var(--wa-space-m)), --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal)), --easing(var(--wa-transition-easing))
 
 ## TimeInput
-
 Form Controls | free | Time inputs collect a time of day from the user
 wa-time-input -> <TimeInput>
 
@@ -848,7 +769,6 @@ wa-time-input -> <TimeInput>
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --column-item-height(2.25em), --column-width(3em)
 
 ## KnownDate
-
 Form Controls | free | Known dates collect a calendar date the user already knows, such as a birthday
 wa-known-date -> <KnownDate>
 
@@ -859,7 +779,6 @@ wa-known-date -> <KnownDate>
 **Parts:** form-control, form-control-label, form-control-input, hint, label, base, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input
 
 ## Video
-
 Media | pro | Displays a video player with customizable controls, captions, and thumbnails
 wa-video -> <Video>
 
@@ -872,7 +791,6 @@ wa-video -> <Video>
 **Requires:** Dropdown, DropdownItem, Popover, Slider, Button, Icon
 
 ## VideoPlaylist
-
 Media | pro | Groups multiple videos into a playlist with next/previous navigation
 wa-video-playlist -> <VideoPlaylist>
 
@@ -884,7 +802,6 @@ wa-video-playlist -> <VideoPlaylist>
 **Requires:** Video, Icon
 
 ## DatePicker
-
 Form Controls | pro | An inline calendar for selecting a single date or a date range
 wa-date-picker -> <DatePicker>
 
@@ -896,7 +813,6 @@ wa-date-picker -> <DatePicker>
 **Requires:** Icon
 
 ## DateInput
-
 Form Controls | pro | A segmented date field with an optional popup calendar, for use in forms
 wa-date-input -> <DateInput>
 
@@ -907,3 +823,4 @@ wa-date-input -> <DateInput>
 **Parts:** form-control, form-control-label, form-control-input, hint, base, input-wrapper, start, end, input, segment, segment-literal, range-separator, clear-button, expand-button, expand-icon, popup, date-picker
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast))
 **Requires:** DatePicker, Icon, Popup
+

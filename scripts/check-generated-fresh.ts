@@ -363,12 +363,20 @@ const GENERATED_DIFF_TARGETS = [
   '.claude/skills/shared/angular-api-surface.md',
 ];
 
-// Every diff target is Prettier-formatted before comparing, so the committed
-// (Prettier-clean) files match the generator's raw output without false
-// whitespace/formatting diffs. Generators emit consistent output today, but
-// normalizing all targets uniformly avoids the asymmetry of prettifying only
-// the markdown and leaving the .ts outputs raw.
-const PRETTIER_TARGETS = GENERATED_DIFF_TARGETS;
+// Only the .ts outputs are Prettier-formatted before comparing, so the
+// committed (Prettier-clean) files match the generator's output without false
+// whitespace diffs.
+//
+// The api-surface markdown is deliberately EXCLUDED. Prettier treats `_` as
+// emphasis syntax, so running it over these files rewrites the identifiers they
+// document: `eyedropper-button__base` becomes `eyedropper-button**base` and
+// `_blank` becomes `\_blank`. Those are Web Awesome CSS part and attribute
+// names that agents copy into user code, so mangling them makes the reference
+// wrong. Compare the generator's raw markdown instead, and keep these files out
+// of `format`/`format:check` so nothing re-mangles them.
+const PRETTIER_TARGETS = GENERATED_DIFF_TARGETS.filter(
+  (target) => !target.endsWith('.md')
+);
 
 /** Symlink `target` -> `linkPath` when `target` exists; no-op otherwise. */
 async function symlinkIfExists(
