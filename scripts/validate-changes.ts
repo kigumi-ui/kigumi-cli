@@ -9,17 +9,14 @@
  * - Catch regressions before they reach production
  *
  * CHECKS:
- * - Template changes maintain TS/JS variant parity (e.g. .tsx + .jsx pair)
- * - Component registry consistency
- * - Import path correctness (free vs pro)
- * - TypeScript/JavaScript variant parity
- * - Test file existence for new components
- * - No hardcoded tier-specific logic outside tier.ts
+ * - Generated files carry no manual-edit markers
+ * - Import path correctness (no mixed free/pro imports in one file)
+ * - Template TS/JS variant parity (e.g. .tsx + .jsx pair)
+ * - Anti-patterns (see ANTI_PATTERNS)
  *
  * USAGE:
  *   pnpm validate:changes
  *   node scripts/validate-changes.ts
- *   node scripts/validate-changes.ts --fix
  */
 
 import fs from 'fs-extra';
@@ -100,7 +97,7 @@ async function findFiles(
   return results;
 }
 
-interface ValidationResult {
+export interface ValidationResult {
   passed: boolean;
   errors: string[];
   warnings: string[];
@@ -111,7 +108,7 @@ interface ValidationResult {
   };
 }
 
-interface ValidationIssue {
+export interface ValidationIssue {
   file: string;
   line?: number;
   message: string;
@@ -154,28 +151,13 @@ async function checkGeneratedFiles(): Promise<void> {
   }
 }
 
-/**
- * Check for direct tier-specific logic outside tier.ts
- * WHY: Tier detection should be centralized in tier.ts
- *
- * NOTE: Comparisons like `tier === 'pro'` are legitimate when `tier` is
- * obtained from `detectTier()`. We only flag direct string comparisons
- * that bypass the tier detection system entirely, such as:
- * - Hardcoded environment checks: `process.env.TIER === 'pro'`
- * - Direct config property access: `config.tier === 'free'`
- *
- * This check is currently disabled as most usages are legitimate.
- * Re-enable with more sophisticated AST analysis if needed.
- */
-async function checkTierLogic(): Promise<void> {
-  // Disabled: Too many false positives. The pattern `tier === 'pro'` is
-  // legitimate when tier comes from detectTier(). A proper check would
-  // need AST analysis to trace variable origins.
-  //
-  // Previous implementation flagged all `tier === 'pro'` patterns, but
-  // this produced 19 false positives across the codebase where tier
-  // was correctly obtained via detectTier() before comparison.
-}
+// NOTE: checkTierLogic() was removed. It was an empty function body that still
+// ran on every invocation and still appeared in the CHECKS list above, reading
+// as coverage that did not exist. The original implementation flagged every
+// `tier === 'pro'` comparison and produced 19 false positives, because that
+// comparison is correct when `tier` came from detectTier(). Enforcing "tier is
+// never stored in config" needs type-level or schema-level enforcement, not
+// string matching over source.
 
 /**
  * Check for incorrect import paths (mixing free/pro packages)
@@ -277,54 +259,78 @@ async function checkTemplateParity(): Promise<void> {
 }
 
 /**
+ * Anti-patterns scanned by {@link scanAntiPatterns}.
+ *
+ * NOTE: 'declare module "react"' check removed.
+ * - CSSProperties extension via 'declare module "react"' is legitimate
+ * - IntrinsicElements correctly uses 'declare global' already
+ * - Previous check produced false positives on comments
+ *
+ * NOTE: the `class` vs `className` check was removed deliberately. A
+ * line-based regex cannot see multi-line JSX, which is where the real risk
+ * lives (templates/ carries hundreds of legitimate `className` uses on plain
+ * HTML elements). The previous pattern was also written backwards and matched
+ * nothing for months. Replacing it needs an AST rule, not another regex.
+ * Do not re-add a regex here.
+ */
+const ANTI_PATTERNS: ReadonlyArray<{ pattern: RegExp; message: string }> = [
+  {
+    pattern: /\.hide\(\)/,
+    message: 'Use requestClose() instead of hide() for dialog API',
+  },
+];
+
+/**
+ * Scan a single file's contents for anti-patterns.
+ *
+ * WHY this is a separate pure function: the regexes are the part that can
+ * silently stop matching. Keeping them out of the filesystem walk makes them
+ * directly unit-testable with literal strings, so a broken pattern fails a
+ * test instead of quietly reporting green.
+ */
+export function scanAntiPatterns(
+  content: string,
+  file: string
+): ValidationIssue[] {
+  const found: ValidationIssue[] = [];
+
+  content.split('\n').forEach((line, index) => {
+    for (const { pattern, message } of ANTI_PATTERNS) {
+      if (pattern.test(line)) {
+        found.push({ file, line: index + 1, message, severity: 'error' });
+      }
+    }
+  });
+
+  return found;
+}
+
+/**
  * Check for common anti-patterns
  * WHY: Catch mistakes before they propagate
  */
 async function checkAntiPatterns(): Promise<void> {
-  const sourceFiles = await findFiles('src/**/*.ts', {
-    cwd: PROJECT_ROOT,
-    ignore: ['.test.ts', '.d.ts'],
-  });
-
-  const antiPatterns = [
-    {
-      pattern: /className\s*=.*<wa-/,
-      message: 'Use "class" not "className" for Web Components',
-    },
-    // NOTE: 'declare module "react"' check removed.
-    // - CSSProperties extension via 'declare module "react"' is legitimate
-    // - IntrinsicElements correctly uses 'declare global' already
-    // - Previous check produced false positives on comments
-    {
-      pattern: /\.hide\(\)/,
-      message: 'Use requestClose() instead of hide() for dialog API',
-    },
+  const sourceFiles = [
+    ...(await findFiles('src/**/*.ts', {
+      cwd: PROJECT_ROOT,
+      ignore: ['.test.ts', '.d.ts'],
+    })),
+    ...(await findFiles('src/**/*.tsx', {
+      cwd: PROJECT_ROOT,
+      ignore: ['.test.tsx'],
+    })),
   ];
 
   for (const file of sourceFiles) {
-    const filePath = path.join(PROJECT_ROOT, file);
-    const content = await fs.readFile(filePath, 'utf-8');
-    const lines = content.split('\n');
-
-    lines.forEach((line, index) => {
-      for (const { pattern, message } of antiPatterns) {
-        if (pattern.test(line)) {
-          issues.push({
-            file,
-            line: index + 1,
-            message,
-            severity: 'error',
-          });
-        }
-      }
-    });
+    const content = await fs.readFile(path.join(PROJECT_ROOT, file), 'utf-8');
+    issues.push(...scanAntiPatterns(content, file));
   }
 }
 
 /**
  * Main validation function
  */
-async function validateChanges(): Promise<ValidationResult> {
+export async function validateChanges(): Promise<ValidationResult> {
   console.log(pc.cyan('\n🔍 Validating changes...\n'));
 
   const stats = {
@@ -335,7 +341,6 @@ async function validateChanges(): Promise<ValidationResult> {
 
   // Run all checks
   await checkGeneratedFiles();
-  await checkTierLogic();
   await checkImportPaths();
   await checkTemplateParity();
   await checkAntiPatterns();
@@ -423,4 +428,7 @@ async function main() {
   }
 }
 
-main();
+// Only run when executed directly, not when imported (keeps the script testable)
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
