@@ -6,124 +6,124 @@
 
 ## Summary
 
-- 8486 nodes · 13060 edges · 632 communities (540 shown, 92 thin omitted)
+- 8404 nodes · 12602 edges · 818 communities (639 shown, 179 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 176 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
 
-- Built from commit: `7e372a0f`
+- Built from commit: `88d8b4f4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 
-- CLI Entry & Add Command Core
-- Docs UI Component Wrappers (React, misc)
-- Registry Init & Config Schemas
+- Brand/List Command Core
+- AccordionItem Docs UI Wrapper (React)
+- Community Registry Schemas
 - Release Readiness Gates
-- Error Handling System
+- Add Validator & Brand Colors
 - Init Command Config Builder
 - Add Command Cross-Framework Tests
-- Docs Component Snapshots
-- Project Config Utils
-- Remote Component Selector & Registry
-- DateInput Cross-Framework Templates
-- package.json Scripts
+- ColorPicker React Template (Types)
+- Project Config & JSON Utils
 - Doctor Diagnostics & Version Alignment
-- KnownDate Cross-Framework Templates
-- Component Installer Core
-- DatePicker Cross-Framework Templates
-- Details Cross-Framework Templates
-- Dropdown Cross-Framework Templates
-- Popover Cross-Framework Templates
-- Accordion Cross-Framework Templates
-- Drawer Cross-Framework Templates
-- RadioGroup Vue Template (JS)
-- CLI Reference & Keywords
-- Animation Cross-Framework Templates
-- Radio Cross-Framework Templates
-- DropdownItem Cross-Framework Templates
-- TreeItem Cross-Framework Templates
-- ZoomableFrame Cross-Framework Templates
-- Carousel Cross-Framework Templates
+- DateInput Vue Template
+- package.json Scripts
+- Init File Generator & Constants
+- KnownDate Vue Template
+- Update Command & Component Installer
+- DatePicker Vue Template
+- Details Vue Template
+- Dropdown Vue Template
+- Popover Vue Template
+- Accordion Vue Template
+- Drawer Vue Template
+- Add Command Core
+- FormatNumber Vue Template
+- Animation Vue Template
+- Radio Vue Template
+- DropdownItem Vue Template
+- TreeItem Vue Template
+- ZoomableFrame Vue Template
+- Carousel Vue Template
 - Kigumi Studio Color Utilities
-- VideoPlaylist Cross-Framework Templates
-- AnimatedImage Cross-Framework Templates
-- Diff Command & Component Validation
+- VideoPlaylist Vue Template
+- AnimatedImage Vue Template
+- Parity Validation Script
 - Skill References Generator
-- CopyButton Cross-Framework Templates
+- CopyButton Vue Template
 - Kigumi Studio Editor
-- Include Cross-Framework Templates
-- TabGroup Cross-Framework Templates
-- Popup Cross-Framework Templates
-- RandomContent Cross-Framework Templates
-- AccordionItem Cross-Framework Templates
-- Avatar Cross-Framework Templates
-- Comparison Cross-Framework Templates
-- IntersectionObserver Cross-Framework Templates
-- Page Cross-Framework Templates
-- ResizeObserver Cross-Framework Templates
-- SplitPanel Cross-Framework Templates
-- Tag Cross-Framework Templates
-- Tree Cross-Framework Templates
-- Detemplate Script (HBS Extraction)
-- Markdown Cross-Framework Templates
+- Include Vue Template
+- TabGroup Vue Template
+- Popup Vue Template
+- RandomContent Vue Template
+- AccordionItem Vue Template
+- Avatar Vue Template
+- Comparison Vue Template
+- IntersectionObserver Vue Template
+- Page Vue Template
+- ResizeObserver Vue Template
+- SplitPanel Vue Template
+- Tag Vue Template
+- Tree Vue Template
+- Template Validation Script
+- Markdown Vue Template
 - Config & Package.json Checks
-- Toast Cross-Framework Templates
-- Barchart Cross-Framework Templates
-- BreadcrumbItem Cross-Framework Templates
-- Breadcrumb Cross-Framework Templates
-- BubbleChart Cross-Framework Templates
-- ButtonGroup Cross-Framework Templates
-- Callout Cross-Framework Templates
-- Chart Cross-Framework Templates
-- Checkboxgroup Cross-Framework Templates
-- Divider Cross-Framework Templates
+- Toast Vue Template
+- BarChart Vue Template
+- BreadcrumbItem Vue Template
+- Breadcrumb Vue Template
+- BubbleChart Vue Template
+- ButtonGroup Vue Template
+- Callout Vue Template
+- Chart Vue Template
+- CheckboxGroup Vue Template
+- Divider Vue Template
 - Docs App tsconfig
-- Doughnutchart Cross-Framework Templates
-- Formatbytes Cross-Framework Templates
-- FormatDate Cross-Framework Templates
-- Formatnumber Cross-Framework Templates
-- Linechart Cross-Framework Templates
-- Option Cross-Framework Templates
-- Piechart Cross-Framework Templates
-- Polarareachart Cross-Framework Templates
-- Progressbar Cross-Framework Templates
-- Progressring Cross-Framework Templates
-- Qrcode Cross-Framework Templates
-- Radarchart Cross-Framework Templates
-- Scroller Cross-Framework Templates
-- Skeleton Cross-Framework Templates
-- Sparkline Cross-Framework Templates
-- Tab Cross-Framework Templates
-- Tabpanel Cross-Framework Templates
-- Carouselitem Cross-Framework Templates
-- Spinner Cross-Framework Templates
+- DoughnutChart Vue Template
+- FormatBytes Vue Template
+- FormatDate Vue Template
+- FormatNumber Angular Template
+- LineChart Vue Template
+- Option Vue Template
+- PieChart Vue Template
+- PolarAreaChart Vue Template
+- Progressbar Vue Template
+- Progressring Vue Template
+- QRCode Vue Template
+- Radarchart Vue Template
+- Scroller Vue Template
+- Skeleton Vue Template
+- Sparkline Vue Template
+- Tab Vue Template
+- TabPanel Vue Template
+- CarouselItem Vue Template
+- Spinner Vue Template
 - WA Pro BarChart Typecheck Shim
 - CSS Metadata & Angular Template Generation
 - Vue Template Generator
-- Storybook Story Patching
+- Storybook Story Overrides
 - Tsconfig Cross-Framework Templates
 - Generated-Files Freshness Check
 - CLI Prompts (Clack)
 - React Template Generator
-- Scatterchart Cross-Framework Templates
-- Remote Component Installer
+- Scatterchart Vue Template
+- Component Installer Core
 - Input Angular Template
 - Input Angular Starter Fixture
-- Typecheck Shims WA PRO Jsx D
-- Concept Cluster
+- WA Pro JSX Typecheck Shims
+- Backlog-Bankruptcy Masterplan Design Spec
 - Templates Angular Colorpicker Color Picker Component
 - Textarea Angular Template
 - Textarea Angular Starter Fixture
 - Data Display Skill Patterns
-- Test-Infra Hardening Clusters
-- Tsconfig Cross-Framework Templates (Ts)
+- Test Infrastructure Hardening Live Status
+- Tsconfig Angular Template
 - Validate Changes
 - Templates Angular Numberinput Number Input Component
 - Package Dependencies
-- Docs devDependencies
+- chromatic Dependency (docs)
 - Docs Node tsconfig
 - Combobox Angular Template
 - Slider Angular Template
@@ -134,29 +134,29 @@
 - Overlay Skill Patterns
 - Switch Angular Template
 - Switch Angular Starter Fixture
-- Card React Template
+- Card React Template (Test)
 - Test-Infra Agent Fixtures
 - Kigumi Studio Knowledgebase
-- Card Cross-Framework Templates
+- Card Vue Template
 - Select Angular Template
 - Combobox Vue Template
-- Agents Skill
+- Kigumi CLI AI Agent Guide
 - GitHub Workflow: Mutation
 - Storybook Docs Theming
 - Package Repository
-- Parse Custom Elements
-- WA Pro Shim Sync Script
+- CEM Parsing & WA Sync
+- Test Output Helpers
 - Checkbox Angular Template
-- Templates Angular Radiogroup Radio Group Component
+- RadioGroup Angular Template
 - Select Vue Template
-- Badge Cross-Framework Templates
+- Badge Vue Template
 - Foundations & Layout Concepts
 - Landing Page Components
 - Dogfood 0.20.0 Findings
 - Typecheck Shims
-- Relativetime Cross-Framework Templates
-- Metadata Freshness Check
-- Templates Angular Fileinput File Input Component
+- Relativetime Vue Template
+- Find-CEM Script
+- FileInput Angular Template
 - Rating Angular Template
 - ColorPicker Vue Template
 - TimeInput Vue Template
@@ -166,74 +166,74 @@
 - Kigumi Studio CSS Generator
 - WA 3.6-3.10 Drift Findings
 - CEM Sync Validation Script
-- Combobox Vue Template (JS)
+- DateInput Angular Template
 - Select Vue Starter Fixture
-- Next.js Detection & Update Command
+- Next.js Detection & Framework Utils
 - Docs Dependencies (WA Pro)
 - Button Angular Template
 - Chromatic Visual Regression Config
 - Theme Preset Skill References
-- Concept WA
-- WA Component
+- Theme Customization Guide
+- React API Surface Reference
 - Test-Infra Precommit & Husky
 - Stories Relativetime Stories
 - Tsconfig Tests
 - Test Baseline Check Script
 - Skills Index Generator
 - Update Starter Snapshots
-- Brand/Palette/Theme Commands
+- CLI Entry & Brand Command
 - Output Console
 - Templates Angular Timeinput Time Input Component
 - Video Angular Template
 - MutationObserver Vue Template
-- Select Vue Template (JS)
+- Config Error Surface Tests
 - Kigumi CLI
 - Superpowers State Files
 - Kigumi Studio Studiocontext
 - Stories Icon Stories
-- ColorPicker Vue Template (JS)
+- Upgrade Command & Version Map Tests
 - Input Vue Template
 - NumberInput Vue Template
-- TimeInput Vue Template (JS)
+- KnownDate Angular Template
 - Video Vue Template
 - Button Angular Starter Fixture
 - Release & Triage Skills
 - Cluster Q2 CI Completeness Design
 - Kigumi Studio Shadow
-- ToastItem Cross-Framework Templates
+- ToastItem Vue Template
 - Checkbox Vue Template
-- Badge Cross-Framework Templates (Js)
+- Badge React Template (Test)
 - Slider Vue Template
 - Switch Vue Template
 - Textarea Vue Template
 - Badge React Starter Fixture
-- Badge Vue Starter Fixture
-- Agent WA
+- Input Vue Starter Fixture
+- DatePicker Angular Template
 - Mock Budget & Config Lifecycle Concepts
-- Dialog Cross-Framework Templates
+- Dialog Angular Template
 - Components Landing
 - Components Storybook
 - Stories Button Stories
 - Stories Input Stories
 - Stories Layout
-- Icon Cross-Framework Templates
+- Icon Vue Template
 - Validate Agents
 - Dialog Vue Template
 - FileInput Vue Template
 - Tooltip Vue Template
-- Input Vue Starter Fixture
+- Carousel Angular Template
 - Integration Test Helpers
 - Feature Spec Skill Types
 - Form Skill Patterns (Cross-Skill)
 - Docs Landing HTML & Studio Agents
 - Stories Combobox Stories
 - Post-Changeset Version Script
-- Parity Validation Script
-- Input Vue Template (JS)
-- NumberInput Vue Template (JS)
+- Registry Component Selector
+- Radio Angular Template
+- VideoPlaylist Angular Template
 - Rating Vue Template
 - Bubblechart Cross-Framework Templates
-- Video Vue Template (JS)
+- Accordion Angular Template
 - Switch Vue Starter Fixture
 - Textarea Vue Starter Fixture
 - GitHub Workflow: Release
@@ -245,17 +245,17 @@
 - Stories Select Stories
 - Tooltip Angular Template
 - Button Vue Template
-- Checkbox Vue Template (JS)
-- Slider Vue Template (JS)
+- AccordionItem Angular Template
+- Animation Angular Template
 - Tooltip React Template
-- Textarea Vue Template (JS)
+- Details Angular Template
 - Tooltip Angular Starter Fixture
 - Dialog Vue Starter Fixture
 - Tooltip Vue Starter Fixture
 - WA Pro Video Typecheck Shim
-- Angular Peer Dependencies
+- angular-forms Dependency
 - Cross-Framework Skill Rules
-- Test-Infra Hardening Clusters (Q/T/V)
+- Cluster T (Property-based + edges, F-X6/F-X7, PLANNED depends on Q1+A)
 - Byte-Identity Guard & Detemplate
 - Stories Badge Stories
 - Docs Foundations Motion Stories
@@ -265,17 +265,17 @@
 - Stories Slider Stories
 - Stories Textarea Stories
 - Config Lifecycle Findings (F050-F132)
-- Mutationobserver Cross-Framework Templates
-- RadioGroup React Template
-- Rating Cross-Framework Templates
+- MutationObserver React Template (Test)
+- RadioGroup React Template (Test)
+- Rating React Template (Test)
 - Check Mock Budget
 - Setup Npmrc
-- Dialog Vue Template (JS)
-- FileInput Vue Template (JS)
-- Animation React Template
-- Tooltip Vue Template (JS)
+- DropdownItem Angular Template
+- Page Angular Template
+- Animation React Template (Test)
+- Popover Angular Template
 - Badge Next Starter Fixture
-- Integration Compile Check Test
+- Page Docs Snapshot
 - Changeset Config
 - Cursor Skills
 - React/Vue Skill Concepts
@@ -298,7 +298,7 @@
 - Skill Kigumi
 - Templates Angular Mutationobserver Mutation Observer Component
 - webawesome Dependency
-- Page React Template
+- Page React Template (Test)
 - Dialog Angular Starter Fixture
 - Button Vue Starter Fixture
 - React Ref Typing Findings
@@ -320,13 +320,13 @@
 - Stories Tree Stories
 - Stories Treeitem Stories
 - Backlog Bankruptcy Skills Design
-- Input Cross-Framework Templates
+- Input React Template (JSX)
 - Prettierrc Arrowparens
-- Switch Cross-Framework Templates
-- RadioGroup Cross-Framework Templates
-- Button Vue Template (JS)
+- Switch React Template (Test)
+- RadioGroup React Template (JSX)
+- ZoomableFrame Angular Template
 - Card Next Starter Fixture
-- Test-Infra Cluster S
+- tests/unit/_helpers/ directory
 - Badge Angular Starter Fixture
 - Icon Angular Starter Fixture
 - Icon Vue Starter Fixture
@@ -350,11 +350,11 @@
 - Stories Tabgroup Stories
 - Vercel Deployment Config
 - Verify Test App
-- Diff Renderer Utils
+- Detemplate Script (HBS Extraction)
 - Badge Angular Template
 - Card Angular Template
-- Video Cross-Framework Templates
-- Memory Kigumi
+- BreadcrumbItem Docs UI Wrapper (React)
+- Popup Angular Template
 - Card Angular Starter Fixture
 - WA Pro Combobox Typecheck Shim
 - Docs Package Metadata
@@ -384,28 +384,28 @@
 - Package Files
 - Snapshot Utils
 - Callout Docs Snapshot
-- Button React Template
-- Checkbox React Template
-- ColorPicker React Template
-- Combobox React Template
-- DateInput React Template
-- Dialog React Template
+- Button React Template (Test)
+- Checkbox React Template (Test)
+- ColorPicker React Template (Test)
+- Combobox React Template (Test)
+- DateInput React Template (Test)
+- Dialog React Template (Test)
 - FileInput React Template
 - Checkbox Docs Snapshot
-- Input React Template
-- NumberInput React Template
+- Input React Template (Test)
+- NumberInput React Template (Test)
 - Divider Docs Snapshot
-- Select React Template
-- Slider React Template
+- Select React Template (Test)
+- Slider React Template (Test)
 - Dropdown Docs Snapshot
-- Textarea React Template
+- Textarea React Template (Test)
 - TimeInput React Template
-- ToastItem React Template
+- ToastItem React Template (Test)
 - Tooltip React Template (test)
-- TreeItem React Template
+- TreeItem React Template (Test)
 - Video React Template
 - Changelog PRO
-- Checkbox Cross-Framework Templates
+- Checkbox React Template (JSX)
 - Palette Tier Gating
 - Kigumi Studio Agents
 - Stories Carouselitem Stories
@@ -418,8 +418,8 @@
 - Stories Video Stories
 - Utils Play Helpers
 - Vite Env Types (docs)
-- Fileinput Cross-Framework Templates
-- Select Cross-Framework Templates
+- Accordion React Template (JSX)
+- Select React Template (JSX)
 - Vite Env Types (root)
 - WA Pro FileInput Typecheck Shim
 - Dialog Docs Snapshot
@@ -436,49 +436,49 @@
 - Stories Scatterchart Stories
 - Stories Videoplaylist Stories
 - GitHub Workflow: Maintenance
-- Input Docs Snapshot
+- RandomContent Angular Template
 - Button Next Starter Fixture
 - Dialog Next Starter Fixture
-- Docs UI Component Wrappers (React)
-- Textarea React/Next Template (JSX)
+- ToastItem Angular Template
+- Textarea Next Starter Fixture
 - Tooltip Next Starter Fixture
-- Badge Docs UI Wrapper (React)
+- Badge Docs UI Wrapper
 - Button React Starter Fixture
 - ButtonGroup Docs UI Wrapper (React)
-- CarouselItem Docs UI Wrapper (React)
+- TreeItem Angular Template
 - Integration Config Lifecycle Test
 - Unit Angular Templates Test
 - Unit No Handlebars Tokens Test
 - Unit Regression PR 126 React Ref
-- Typecheck Shims React Jsx D
+- React JSX Typecheck Shims
 - WA Pro DatePicker Typecheck Shim
-- ColorPicker Cross-Framework Templates
-- Combobox Cross-Framework Templates
-- Chart Docs UI Wrapper (React)
-- Avatar Docs Snapshot
-- Badge Docs Snapshot
+- BreadcrumbItem React Template (JSX)
+- Combobox React Template (JSX)
+- AnimatedImage Angular Template
+- Avatar Angular Template
+- Comparison Angular Template
 - Breadcrumb Docs Snapshot
 - Card Docs Snapshot
 - Carousel Docs Snapshot
 - Chart Docs Snapshot
 - Combobox Docs Snapshot
-- Comparison Docs Snapshot
+- CopyButton Angular Template
 - Details Docs Snapshot
-- DatePicker Docs UI Wrapper (React)
-- Divider Docs UI Wrapper (React)
-- Page Docs Snapshot
-- Popover Docs Snapshot
+- Drawer Angular Template
+- Dropdown Angular Template
+- Icon Angular Template
+- Include Angular Template
 - Popup Docs Snapshot
 - Radio Docs Snapshot
-- Drawer Docs UI Wrapper (React)
+- IntersectionObserver Angular Template
 - Skeleton Docs Snapshot
 - Slider Docs Snapshot
 - Sparkline Docs Snapshot
 - Spinner Docs Snapshot
 - Switch Docs Snapshot
-- Dropdown Docs UI Wrapper (React)
+- ResizeObserver Angular Template
 - Textarea Docs Snapshot
-- Toast Docs Snapshot
+- SplitPanel Angular Template
 - Tooltip Docs Snapshot
 - Tree Docs Snapshot
 - Components Landing Ecosystem
@@ -486,74 +486,79 @@
 - Components Storybook Tokentable
 - Accordion Docs UI Wrapper (React)
 - DropdownItem Docs UI Wrapper (React)
-- Animation Docs UI Wrapper (React)
-- LineChart Docs UI Wrapper (React)
+- TabGroup Angular Template
+- Tag Angular Template
 - BarChart Docs UI Wrapper (React)
 - Breadcrumb Docs UI Wrapper (React)
 - BubbleChart Docs UI Wrapper (React)
-- MutationObserver Docs UI Wrapper (React)
-- Callout Docs UI Wrapper (React)
+- Tree Angular Template
+- Markdown Angular Template
 - Card Docs UI Wrapper (React)
-- Carousel Docs UI Wrapper (React)
+- ButtonGroup React Template (JSX)
 - CheckboxGroup Docs UI Wrapper (React)
-- ColorPicker Docs UI Wrapper (React)
-- Combobox Docs UI Wrapper (React)
+- Toast Angular Template
+- Mutation testing (pnpm test:mutation, Cluster V F-X10)
 - Comparison Docs UI Wrapper (React)
 - CopyButton Docs UI Wrapper (React)
 - DateInput Docs UI Wrapper (React)
-- Details Docs UI Wrapper (React)
-- Dialog Docs UI Wrapper (React)
+- Mock budget rule: total <50 in tests/unit/, theme-commands.test.ts <10
+- Metadata Freshness Check
 - DoughnutChart Docs UI Wrapper (React)
-- FileInput Docs UI Wrapper (React)
+- Three-Way Merge Utils
 - FormatBytes Docs UI Wrapper (React)
 - PolarAreaChart Docs UI Wrapper (React)
 - FormatNumber Docs UI Wrapper (React)
-- Icon Docs UI Wrapper (React)
-- Input Docs UI Wrapper (React)
-- IntersectionObserver Docs UI Wrapper (React)
+- Icon Docs UI Wrapper
+- BarChart Angular Template
+- Breadcrumb Angular Template
 - KnownDate Docs UI Wrapper (React)
 - Markdown Docs UI Wrapper (React)
-- NumberInput Docs UI Wrapper (React)
+- BreadcrumbItem Angular Template
 - Option Docs UI Wrapper (React)
 - Page Docs UI Wrapper (React)
-- PieChart Docs UI Wrapper (React)
-- Popover Docs UI Wrapper (React)
+- BubbleChart Angular Template
+- ButtonGroup Angular Template
 - Popup Docs UI Wrapper (React)
-- types-fs-extra Dependency
+- Callout Angular Template
 - QRCode Docs UI Wrapper (React)
 - Radio Docs UI Wrapper (React)
-- RadioGroup Docs UI Wrapper (React)
-- RandomContent Docs UI Wrapper (React)
+- Chart Angular Template
+- CheckboxGroup Angular Template
 - Rating Docs UI Wrapper (React)
 - stryker-mutator-vitest-runner Dependency
-- ResizeObserver Docs UI Wrapper (React)
-- tslib Dependency
+- Divider Angular Template
+- DoughnutChart Angular Template
 - vitest-coverage-v8 Dependency (root)
-- Select Docs UI Wrapper (React)
-- Skeleton Docs UI Wrapper (React)
+- c8 Dependency
+- clsx Dependency
 - stryker-mutator-core Dependency
 - Sparkline Docs UI Wrapper (React)
 - testing-library-react Dependency
-- SplitPanel Docs UI Wrapper (React)
+- FormatBytes Angular Template
 - types-react Dependency (root)
-- Tab Docs UI Wrapper (React)
+- FormatDate Angular Template
 - types-semver Dependency
 - TabPanel Docs UI Wrapper (React)
-- Tag Docs UI Wrapper (React)
-- Textarea Docs UI Wrapper (React)
-- TimeInput Docs UI Wrapper (React)
+- LineChart Angular Template
+- Option Angular Template
+- PieChart Angular Template
 - Toast Docs UI Wrapper (React)
 - ToastItem Docs UI Wrapper (React)
-- Tooltip Docs UI Wrapper (React)
+- PolarAreaChart Angular Template
 - Tree Docs UI Wrapper (React)
+- Progressbar Angular Template
+- Progressring Angular Template
+- QRCode Angular Template
 - Stories Layout Grid
-- Numberinput Cross-Framework Templates
+- Radarchart Angular Template
+- NumberInput React Template (JSX)
 - Coverage All
-- Slider Cross-Framework Templates
-- TimeInput Cross-Framework Templates
+- Slider React Template (JSX)
+- Dropdown React Template (JSX)
+- Relativetime Angular Template
 - E2E Smoke Test
-- Unit Regression F 068 Vue Boolean
-- Unit Vue Templates Test
+- F-068 Vue Boolean Prop Regression Test
+- Vue Templates Unit Test
 - WA Pro VideoPlaylist Typecheck Shim
 - Hooks Pre Tool Guardrails
 - Hooks Stop Quality Check
@@ -570,16 +575,22 @@
 - Storybook Test
 - Docs tsconfig (root references)
 - Github Issue Template
-- Button Cross-Framework Templates
+- Button React Template (JSX)
 - E2E Diff Test
 - Agents Release
+- Scatterchart Angular Template
+- Scroller Angular Template
+- Skeleton Angular Template
+- Sparkline Angular Template
+- Tab Angular Template
 - Changelog Dialog
+- TabPanel Angular Template
 - Chromatic Com
 - Hooks Notify Completion
 - Components
 - Components (Roadmapboard)
 - Components (Storybookcomponentgrid)
-- eslint Dependency (docs)
+- Markdown React Template (JSX)
 - eslint-js Dependency
 - eslint-plugin-react-refresh Dependency
 - eslint-plugin-storybook Dependency
@@ -600,10 +611,34 @@
 - Storybook Main
 - Storybook Test Main
 - Vite Config
+- Open Fix Clusters (Latin) Live Status
+- CarouselItem Angular Template
+- Spinner Angular Template
+- Accordion React Template (Test)
 - Mcp
+- AccordionItem React Template (Test)
+- AnimatedImage React Template (Test)
+- Avatar React Template (Test)
+- BarChart React Template (Test)
+- Breadcrumb React Template (Test)
+- BreadcrumbItem React Template (Test)
+- ButtonGroup React Template (Test)
+- Callout React Template (Test)
+- Carousel React Template (Test)
+- CarouselItem React Template (Test)
+- Chart React Template (Test)
+- CheckboxGroup React Template (Test)
+- Comparison React Template
 - tsx Dependency
+- CopyButton React Template (Test)
+- DatePicker React Template (Test)
+- Details React Template
+- Divider React Template (Test)
+- DoughnutChart React Template (Test)
 - vitest Dependency (root)
+- Drawer React Template (Test)
 - vue Dependency
+- Dropdown React Template (Test)
 - Typecheck Shims CSS D
 - WA Pro Toast Typecheck Shim
 - WA Pro ToastItem Typecheck Shim
@@ -617,6 +652,160 @@
 - Storybook Public Robots Txt
 - Release Readiness State (2026-06-18)
 - Release Readiness State (2026-06-27)
+- DropdownItem React Template (Test)
+- FormatBytes React Template (Test)
+- FormatDate React Template (Test)
+- FormatNumber React Template (Test)
+- Icon React Template (Test)
+- Include React Template
+- IntersectionObserver React Template (Test)
+- KnownDate React Template (Test)
+- LineChart React Template (Test)
+- Markdown React Template (Test)
+- Option React Template (Test)
+- PieChart React Template
+- PolarAreaChart React Template (Test)
+- Popover React Template (Test)
+- Popup React Template (Test)
+- Progressbar React Template (Test)
+- Progressring React Template (Test)
+- QRCode React Template (Test)
+- Radarchart React Template (Test)
+- Radio React Template (Test)
+- RandomContent React Template (Test)
+- Relativetime React Template (Test)
+- ResizeObserver React Template
+- Scatterchart React Template (Test)
+- Scroller React Template (Test)
+- Skeleton React Template (Test)
+- Sparkline React Template (Test)
+- Spinner React Template
+- SplitPanel React Template (Test)
+- Tab React Template (Test)
+- TabGroup React Template
+- TabPanel React Template (Test)
+- Tag React Template (Test)
+- Toast React Template
+- Tree React Template (Test)
+- VideoPlaylist React Template (Test)
+- ZoomableFrame React Template (Test)
+- Icon Next Starter Fixture
+- Diff Roundtrip Test
+- Husky post-commit Hook
+- Input Next Starter Fixture
+- Select Next Starter Fixture
+- Switch Next Starter Fixture
+- Dialog React Starter Fixture
+- Icon React Starter Fixture
+- Input React Starter Fixture
+- Select React Starter Fixture
+- Switch React Starter Fixture
+- Textarea React Starter Fixture
+- Tooltip React Starter Fixture
+- Add Command Unit Test
+- Animation Docs Snapshot
+- Comparison Docs Snapshot
+- Icon Docs Snapshot
+- Include Docs Snapshot
+- Option Docs Snapshot
+- Rating Docs Snapshot
+- Tab Docs Snapshot
+- Tag Docs Snapshot
+- Landing InstallCommandExample Component
+- Avatar Docs UI Wrapper (React)
+- Button Docs UI Wrapper
+- CarouselItem Docs UI Wrapper (React)
+- FormatDate Docs UI Wrapper (React)
+- MutationObserver Docs UI Wrapper (React)
+- RandomContent Docs UI Wrapper (React)
+- Select Docs UI Wrapper
+- Skeleton Docs UI Wrapper
+- Spinner Docs UI Wrapper (React)
+- Switch Docs UI Wrapper
+- VideoPlaylist Docs UI Wrapper (React)
+- Husky post-checkout Hook
+- AccordionItem React Template (JSX)
+- AnimatedImage React Template (JSX)
+- Animation React Template (JSX)
+- Avatar React Template (JSX)
+- Badge React Template (JSX)
+- BarChart React Template (JSX)
+- Breadcrumb React Template (JSX)
+- BubbleChart React Template
+- Callout React Template (JSX)
+- Card React Template (JSX)
+- Carousel React Template (JSX)
+- CarouselItem React Template (JSX)
+- Chart React Template (JSX)
+- CheckboxGroup React Template (JSX)
+- Rating React Template (JSX)
+- CopyButton React Template (JSX)
+- DateInput React Template (JSX)
+- DatePicker React Template (JSX)
+- Skeleton React Template (JSX)
+- Dialog React Template (JSX)
+- Divider React Template (JSX)
+- DoughnutChart React Template (JSX)
+- Drawer React Template (JSX)
+- DropdownItem React Template (JSX)
+- FormatBytes React Template (JSX)
+- FormatDate React Template (JSX)
+- FormatNumber React Template (JSX)
+- Icon React Template (JSX)
+- IntersectionObserver React Template (JSX)
+- KnownDate React Template (JSX)
+- LineChart React Template (JSX)
+- MutationObserver React Template (JSX)
+- Option React Template (JSX)
+- Page React Template (JSX)
+- Sparkline React Template (JSX)
+- PolarAreaChart React Template (JSX)
+- Popover React Template (JSX)
+- Popup React Template (JSX)
+- Progressbar React Template (JSX)
+- Progressring React Template (JSX)
+- QRCode React Template (JSX)
+- Radarchart React Template (JSX)
+- Radio React Template (JSX)
+- RandomContent React Template (JSX)
+- Relativetime React Template (JSX)
+- Tab React Template (JSX)
+- Scatterchart React Template (JSX)
+- Scroller React Template (JSX)
+- ZoomableFrame React Template (JSX)
+- SplitPanel React Template (JSX)
+- Switch React Template (JSX)
+- storybook-addon-tag-badges
+- TabPanel React Template (JSX)
+- Tag React Template (JSX)
+- Textarea React Template (JSX)
+- ToastItem React Template (JSX)
+- Tree React Template (JSX)
+- TreeItem React Template (JSX)
+- VideoPlaylist React Template (JSX)
+- @angular/common
+- @angular/compiler
+- @awesome.me/webawesome
+- @changesets/cli
+- eslint-config-prettier
+- fast-check
+- husky
+- lint-staged
+- eslint
+- @eslint/js
+- jsdom
+- prettier
+- react
+- react-dom
+- rxjs
+- @stryker-mutator/vitest-runner
+- @testing-library/vue
+- tsup
+- @types/node
+- typescript
+- typescript-eslint
+- @vitest/coverage-v8
+- vue-tsc
 
 ## God Nodes (most connected - your core abstractions)
 
@@ -639,10 +828,10 @@
   docs/superpowers/specs/2026-07-02-pro-media-date-components-design.md → src/AGENTS.md
 - `Tier System (Free/Pro Detection)` --references--> `detectTier()` [EXTRACTED]
   AGENTS.md → src/utils/tier.ts
-- `resolveComponents toLowerCase bug (F-018)` --rationale_for--> `normalizeComponentName()` [EXTRACTED]
-  CHANGELOG.md → src/utils/registry.ts
-- `docs/.npmrc token generation rationale` --semantically_similar_to--> `Fork PR secret-skip rationale` [INFERRED] [semantically similar]
-  docs/README.md → .github/workflows/ci.yml
+- `Next.js as a React Variant` --references--> `detectNextRouter()` [EXTRACTED]
+  AGENTS.md → src/utils/detect-framework.ts
+- `Next.js as a React Variant` --references--> `isNextProject()` [EXTRACTED]
+  AGENTS.md → src/utils/detect-framework.ts
 
 ## Import Cycles
 
@@ -675,417 +864,417 @@
 - **State-file governance skills (triage, weekly review, release readiness)** — claude_skills_triage_finding_skill, claude_skills_weekly_review_skill, claude_skills_release_readiness_skill, doc_initiatives_md [INFERRED 0.85]
 - **Test Infrastructure Hardening cluster progression (Q1 -> S/R -> T -> V)** — cluster_q1, cluster_r, cluster_s, cluster_t, cluster_v, initiative_test_infrastructure_hardening [INFERRED 0.85]
 
-## Communities (632 total, 92 thin omitted)
+## Communities (818 total, 179 thin omitted)
 
-### Community 0 - "CLI Entry & Add Command Core"
+### Community 0 - "Brand/List Command Core"
 
 Cohesion: 0.08
-Nodes (55): ConfigExistsCheck, addCommand(), addFromBuiltinRegistry(), addFromRemoteRegistry(), printSummary(), resolveImportBase(), BRAND_COLORS, brandAction() (+47 more)
+Nodes (51): brandAction(), listCommand(), ListOptions, paletteAction(), AddComponentOptions, FRAMEWORK_EXTENSIONS, registryAddComponentAction(), AddSourceOptions (+43 more)
 
-### Community 1 - "Docs UI Component Wrappers (React, misc)"
+### Community 1 - "AccordionItem Docs UI Wrapper (React)"
 
-Cohesion: 0.02
-Nodes (60): AnimatedImage, AnimatedImageProps, AnimatedImageRef, Avatar, AvatarProps, AvatarRef, BreadcrumbItem, BreadcrumbItemProps (+52 more)
+Cohesion: 0.01
+Nodes (123): AccordionItem, AccordionItemProps, AccordionItemRef, AnimatedImage, AnimatedImageProps, AnimatedImageRef, Animation, AnimationProps (+115 more)
 
-### Community 2 - "Registry Init & Config Schemas"
+### Community 2 - "Community Registry Schemas"
 
 Cohesion: 0.05
-Nodes (52): generateReadme(), registryInitAction(), RegistryInitOptions, FRAMEWORKS, frameworkSchema, InstalledComponent, installedComponentSchema, InstalledTheme (+44 more)
+Nodes (56): communityComponentSchema, communityRegistrySchema, CommunityTheme, communityThemeSchema, componentFilesSchema, safePathSchema, DEFAULT_CONFIG, FRAMEWORKS (+48 more)
 
 ### Community 3 - "Release Readiness Gates"
 
 Cohesion: 0.05
 Nodes (61): badge(), buildGateSpecs(), CHANGESET_DIR, decideGoNoGo(), Decision, __dirname, __filename, GateResult (+53 more)
 
-### Community 4 - "Error Handling System"
+### Community 4 - "Add Validator & Brand Colors"
 
-Cohesion: 0.07
-Nodes (27): DEFAULT_WEBAWESOME_VERSION, GITHUB_REPO_URL, ErrorCode, ErrorContext, ErrorSuggestion, KigumiError, UnknownError, UserCancelledError (+19 more)
+Cohesion: 0.08
+Nodes (24): BRAND_COLORS, GITHUB_REPO_URL, ErrorCode, ErrorContext, ErrorSuggestion, KigumiError, UnknownError, UserCancelledError (+16 more)
 
 ### Community 5 - "Init Command Config Builder"
 
-Cohesion: 0.05
-Nodes (74): diagnoseAndFixLayersCss(), buildConfigInteractive(), buildConfigNonInteractive(), ensureBoolean(), ensureString(), getLayoutDefaults(), preservePersistentFields(), NOTE: Tier is now detected from .env, not stored in config (+66 more)
+Cohesion: 0.09
+Nodes (41): buildConfigInteractive(), buildConfigNonInteractive(), ensureBoolean(), ensureString(), getLayoutDefaults(), preservePersistentFields(), NOTE: Tier is now detected from .env, not stored in config, NOTE: Tier is now detected from .env, not stored in config (+33 more)
 
 ### Community 6 - "Add Command Cross-Framework Tests"
 
-Cohesion: 0.11
-Nodes (21): PromptsAdapter, __dirname, _PROJECT_ROOT, combinedOutput(), runWithTypoConfig(), setupProject(), setupSeams(), typoConfig (+13 more)
+Cohesion: 0.20
+Nodes (6): PromptsAdapter, cannedRegistry, createTestPrompts(), PromptScripts, clearTestSeams(), registerTestSeams()
 
-### Community 7 - "Docs Component Snapshots"
+### Community 7 - "ColorPicker React Template (Types)"
 
-Cohesion: 0.04
-Nodes (36): Animation, AnimationProps, AnimationRef, Comparison, ComparisonProps, ComparisonRef, Icon, IconProps (+28 more)
+Cohesion: 0.03
+Nodes (49): Avatar, AvatarProps, AvatarRef, Badge, BadgeProps, BadgeRef, Input, InputProps (+41 more)
 
-### Community 8 - "Project Config Utils"
+### Community 8 - "Project Config & JSON Utils"
 
 Cohesion: 0.19
 Nodes (12): readJSONWithComments(), stripJSONComments(), configureTSConfig(), configureVitePathAliases(), configureVueCustomElements(), configureVueTypes(), toKigumiAlias(), TSConfig (+4 more)
 
-### Community 9 - "Remote Component Selector & Registry"
+### Community 9 - "Doctor Diagnostics & Version Alignment"
 
-Cohesion: 0.10
-Nodes (26): getAvailableRemoteComponents(), selectRemoteComponents(), selectRemoteComponentsInteractive(), AddComponentOptions, FRAMEWORK_EXTENSIONS, registryAddComponentAction(), AddThemeOptions, registryAddThemeAction() (+18 more)
+Cohesion: 0.09
+Nodes (29): checkVersionAlignment(), diagnoseAndFix(), diagnoseAndFixLayersCss(), diagnoseObsoleteTypeDecls(), DiagnosticResult, doctorCommand(), DoctorOptions, findComponentFiles() (+21 more)
 
-### Community 10 - "DateInput Cross-Framework Templates"
+### Community 10 - "DateInput Vue Template"
 
-Cohesion: 0.05
-Nodes (37): DateInputComponent, ensureLoaded(), Component, Input, Output, ViewChild, DateInput, ensureLoaded() (+29 more)
+Cohesion: 0.09
+Nodes (29): DateInputProps, definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput() (+21 more)
 
 ### Community 11 - "package.json Scripts"
 
 Cohesion: 0.04
 Nodes (54): scripts, build, changeset, check:mocks, check:tests, coverage:all, dev, format (+46 more)
 
-### Community 12 - "Doctor Diagnostics & Version Alignment"
-
-Cohesion: 0.04
-Nodes (78): Tier System (Free/Pro Detection), checkVersionAlignment(), diagnoseAndFix(), diagnoseObsoleteTypeDecls(), DiagnosticResult, doctorCommand(), DoctorOptions, findComponentFiles() (+70 more)
-
-### Community 13 - "KnownDate Cross-Framework Templates"
+### Community 12 - "Init File Generator & Constants"
 
 Cohesion: 0.05
-Nodes (31): ensureLoaded(), KnownDateComponent, Component, Input, Output, ViewChild, ensureLoaded(), KnownDate (+23 more)
+Nodes (79): Tier System (Free/Pro Detection), ensureEnvFile(), generateNextProviders(), generateNpmrc(), generateProjectFiles(), WHY: Both tiers need .npmrc to override potential global ~/.npmrc, NOTE: Token is NOT stored in project .npmrc - user configures it globally via:, checkLockfileCompatibility() (+71 more)
 
-### Community 14 - "Component Installer Core"
+### Community 13 - "KnownDate Vue Template"
 
 Cohesion: 0.11
-Nodes (37): ComponentInstaller, WHY: updateComponentIndex modifies a shared barrel file, must run, diffComponentFiles(), buildFileSpecs(), ComponentUpdateResult, FileSpec, processComponent(), UpdateOptions (+29 more)
+Nodes (19): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+11 more)
 
-### Community 15 - "DatePicker Cross-Framework Templates"
+### Community 14 - "Update Command & Component Installer"
 
-Cohesion: 0.05
-Nodes (29): DatePickerComponent, ensureLoaded(), Component, Input, Output, ViewChild, DatePickerProps, DatePickerRef (+21 more)
+Cohesion: 0.08
+Nodes (55): resolveComponents toLowerCase bug (F-018), WHY: updateComponentIndex modifies a shared barrel file, must run, compareFile(), ComponentDiffResult, diffCommand(), diffComponent(), diffComponentFiles(), DiffOptions (+47 more)
 
-### Community 16 - "Details Cross-Framework Templates"
+### Community 15 - "DatePicker Vue Template"
 
-Cohesion: 0.05
-Nodes (31): DetailsComponent, ensureLoaded(), Component, Input, Output, ViewChild, DetailsProps, DetailsRef (+23 more)
+Cohesion: 0.12
+Nodes (17): DatePickerProps, definedProps, elementRef, emit, handleChange(), handleInput(), handleWaFocusDay(), handleWaViewChange() (+9 more)
 
-### Community 17 - "Dropdown Cross-Framework Templates"
+### Community 16 - "Details Vue Template"
 
-Cohesion: 0.06
-Nodes (33): DropdownComponent, ensureLoaded(), Component, Input, Output, ViewChild, DropdownProps, DropdownRef (+25 more)
+Cohesion: 0.11
+Nodes (19): definedProps, DetailsProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow() (+11 more)
 
-### Community 18 - "Popover Cross-Framework Templates"
-
-Cohesion: 0.05
-Nodes (31): ensureLoaded(), PopoverComponent, Component, Input, Output, ViewChild, ensureLoaded(), Popover (+23 more)
-
-### Community 19 - "Accordion Cross-Framework Templates"
-
-Cohesion: 0.06
-Nodes (29): AccordionComponent, ensureLoaded(), Component, Input, Output, ViewChild, AccordionProps, AccordionRef (+21 more)
-
-### Community 20 - "Drawer Cross-Framework Templates"
-
-Cohesion: 0.06
-Nodes (31): DrawerComponent, ensureLoaded(), Component, Input, Output, ViewChild, DrawerProps, DrawerRef (+23 more)
-
-### Community 21 - "RadioGroup Vue Template (JS)"
-
-Cohesion: 0.27
-Nodes (8): definedProps, elementRef, emit, handleChange(), handleInput(), handleWaInvalid(), model, props
-
-### Community 22 - "CLI Reference & Keywords"
+### Community 17 - "Dropdown Vue Template"
 
 Cohesion: 0.10
-Nodes (15): keywords, cli, components, ui, vue, web-awesome, definedProps, elementRef (+7 more)
+Nodes (21): definedProps, DropdownProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaSelect() (+13 more)
 
-### Community 23 - "Animation Cross-Framework Templates"
+### Community 18 - "Popover Vue Template"
 
-Cohesion: 0.07
-Nodes (23): AnimationComponent, ensureLoaded(), Component, Input, Output, ViewChild, Animation, ensureLoaded() (+15 more)
+Cohesion: 0.11
+Nodes (19): definedProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow(), definedProps (+11 more)
 
-### Community 24 - "Radio Cross-Framework Templates"
+### Community 19 - "Accordion Vue Template"
 
-Cohesion: 0.06
-Nodes (25): ensureLoaded(), RadioComponent, Component, Input, Output, ViewChild, ensureLoaded(), Radio (+17 more)
+Cohesion: 0.12
+Nodes (17): AccordionProps, definedProps, elementRef, emit, handleWaAfterCollapse(), handleWaAfterExpand(), handleWaCollapse(), handleWaExpand() (+9 more)
 
-### Community 25 - "DropdownItem Cross-Framework Templates"
+### Community 20 - "Drawer Vue Template"
 
-Cohesion: 0.06
-Nodes (25): DropdownItemComponent, ensureLoaded(), Component, Input, Output, ViewChild, DropdownItemProps, DropdownItemRef (+17 more)
+Cohesion: 0.11
+Nodes (19): definedProps, DrawerProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow() (+11 more)
 
-### Community 26 - "TreeItem Cross-Framework Templates"
+### Community 21 - "Add Command Core"
 
-Cohesion: 0.07
-Nodes (29): ensureLoaded(), TreeItemComponent, Component, Input, Output, ViewChild, ensureLoaded(), TreeItem (+21 more)
+Cohesion: 0.10
+Nodes (30): addCommand(), addFromBuiltinRegistry(), addFromRemoteRegistry(), printSummary(), resolveImportBase(), REGISTRY_CACHE_TTL_MS, PathTraversalError, validateCommunityRegistry() (+22 more)
 
-### Community 27 - "ZoomableFrame Cross-Framework Templates"
+### Community 22 - "FormatNumber Vue Template"
 
-Cohesion: 0.06
-Nodes (25): ensureLoaded(), Component, Input, Output, ViewChild, ZoomableFrameComponent, ensureLoaded(), ZoomableFrame (+17 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, FormatNumberProps, definedProps, elementRef, emit, props (+1 more)
 
-### Community 28 - "Carousel Cross-Framework Templates"
+### Community 23 - "Animation Vue Template"
 
-Cohesion: 0.06
-Nodes (23): CarouselComponent, ensureLoaded(), Component, Input, Output, ViewChild, CarouselProps, CarouselRef (+15 more)
+Cohesion: 0.12
+Nodes (15): AnimationProps, definedProps, elementRef, emit, handleWaCancel(), handleWaFinish(), handleWaStart(), definedProps (+7 more)
+
+### Community 24 - "Radio Vue Template"
+
+Cohesion: 0.13
+Nodes (13): definedProps, elementRef, emit, handleBlur(), handleFocus(), definedProps, elementRef, emit (+5 more)
+
+### Community 25 - "DropdownItem Vue Template"
+
+Cohesion: 0.13
+Nodes (13): definedProps, DropdownItemProps, elementRef, emit, handleBlur(), handleFocus(), definedProps, elementRef (+5 more)
+
+### Community 26 - "TreeItem Vue Template"
+
+Cohesion: 0.11
+Nodes (21): definedProps, elementRef, emit, handleWaAfterCollapse(), handleWaAfterExpand(), handleWaCollapse(), handleWaExpand(), handleWaLazyChange() (+13 more)
+
+### Community 27 - "ZoomableFrame Vue Template"
+
+Cohesion: 0.13
+Nodes (13): definedProps, elementRef, emit, handleError(), handleLoad(), definedProps, elementRef, emit (+5 more)
+
+### Community 28 - "Carousel Vue Template"
+
+Cohesion: 0.13
+Nodes (11): CarouselProps, definedProps, elementRef, emit, handleWaSlideChange(), definedProps, elementRef, emit (+3 more)
 
 ### Community 29 - "Kigumi Studio Color Utilities"
 
 Cohesion: 0.11
 Nodes (36): StudioProvider(), contrastRatio(), DARK_NEUTRAL_OVERRIDES, DARK_SEMANTICS, darkenHex(), formatOklch(), gamutClipOklch(), generateBrandPalette() (+28 more)
 
-### Community 30 - "VideoPlaylist Cross-Framework Templates"
+### Community 30 - "VideoPlaylist Vue Template"
 
-Cohesion: 0.06
-Nodes (23): ensureLoaded(), Component, Input, Output, ViewChild, VideoPlaylistComponent, ensureLoaded(), VideoPlaylist (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaVideoChange(), definedProps, elementRef, emit, handleWaVideoChange() (+3 more)
 
-### Community 31 - "AnimatedImage Cross-Framework Templates"
+### Community 31 - "AnimatedImage Vue Template"
 
-Cohesion: 0.06
-Nodes (25): AnimatedImageComponent, ensureLoaded(), Component, Input, Output, ViewChild, AnimatedImageProps, AnimatedImageRef (+17 more)
+Cohesion: 0.13
+Nodes (13): AnimatedImageProps, definedProps, elementRef, emit, handleWaError(), handleWaLoad(), definedProps, elementRef (+5 more)
 
-### Community 32 - "Diff Command & Component Validation"
+### Community 32 - "Parity Validation Script"
 
-Cohesion: 0.09
-Nodes (26): resolveComponents toLowerCase bug (F-018), validateComponents(), compareFile(), ComponentDiffResult, diffCommand(), diffComponent(), DiffOptions, FileDiffResult (+18 more)
+Cohesion: 0.19
+Nodes (11): __dirname, __filename, main(), ParityFinding, ParityResult, printResults(), PROJECT_ROOT, NOTE: Template directory existence and file completeness are already checked by (+3 more)
 
 ### Community 33 - "Skill References Generator"
 
-Cohesion: 0.08
-Nodes (36): CECssPart, CECssProperty, CEDeclaration, CEEvent, CEMember, CEModule, CESlot, ComponentCEMetadata (+28 more)
+Cohesion: 0.11
+Nodes (30): CECssPart, CECssProperty, CEDeclaration, CEEvent, CEMember, CEModule, CESlot, ComponentCEMetadata (+22 more)
 
-### Community 34 - "CopyButton Cross-Framework Templates"
+### Community 34 - "CopyButton Vue Template"
 
-Cohesion: 0.06
-Nodes (25): CopyButtonComponent, ensureLoaded(), Component, Input, Output, ViewChild, CopyButtonProps, CopyButtonRef (+17 more)
+Cohesion: 0.13
+Nodes (13): CopyButtonProps, definedProps, elementRef, emit, handleWaCopy(), handleWaError(), definedProps, elementRef (+5 more)
 
 ### Community 35 - "Kigumi Studio Editor"
 
 Cohesion: 0.13
 Nodes (23): BorderEditor(), ColorEditor(), EditorSection(), EditorSectionProps, FocusEditor(), FormControlEditor(), PropertyControlProps, PropertyRow() (+15 more)
 
-### Community 36 - "Include Cross-Framework Templates"
+### Community 36 - "Include Vue Template"
 
-Cohesion: 0.06
-Nodes (25): ensureLoaded(), IncludeComponent, Component, Input, Output, ViewChild, IncludeProps, IncludeRef (+17 more)
+Cohesion: 0.13
+Nodes (13): definedProps, elementRef, emit, handleWaIncludeError(), handleWaLoad(), IncludeProps, definedProps, elementRef (+5 more)
 
-### Community 37 - "TabGroup Cross-Framework Templates"
+### Community 37 - "TabGroup Vue Template"
 
-Cohesion: 0.06
-Nodes (25): ensureLoaded(), TabGroupComponent, Component, Input, Output, ViewChild, ensureLoaded(), TabGroup (+17 more)
+Cohesion: 0.13
+Nodes (13): definedProps, elementRef, emit, handleWaTabHide(), handleWaTabShow(), definedProps, elementRef, emit (+5 more)
 
-### Community 38 - "Popup Cross-Framework Templates"
+### Community 38 - "Popup Vue Template"
 
-Cohesion: 0.06
-Nodes (23): ensureLoaded(), PopupComponent, Component, Input, Output, ViewChild, ensureLoaded(), Popup (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaReposition(), definedProps, elementRef, emit, handleWaReposition() (+3 more)
 
-### Community 39 - "RandomContent Cross-Framework Templates"
+### Community 39 - "RandomContent Vue Template"
 
-Cohesion: 0.06
-Nodes (23): ensureLoaded(), RandomContentComponent, Component, Input, Output, ViewChild, ensureLoaded(), RandomContent (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaContentChange(), definedProps, elementRef, emit, handleWaContentChange() (+3 more)
 
-### Community 40 - "AccordionItem Cross-Framework Templates"
+### Community 40 - "AccordionItem Vue Template"
 
-Cohesion: 0.06
-Nodes (20): AccordionItemComponent, ensureLoaded(), Component, Input, ViewChild, AccordionItemProps, AccordionItemRef, AccordionItem (+12 more)
+Cohesion: 0.13
+Nodes (9): AccordionItemProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 41 - "Avatar Cross-Framework Templates"
+### Community 41 - "Avatar Vue Template"
 
-Cohesion: 0.07
-Nodes (23): AvatarComponent, ensureLoaded(), Component, Input, Output, ViewChild, AvatarProps, AvatarRef (+15 more)
+Cohesion: 0.13
+Nodes (11): AvatarProps, definedProps, elementRef, emit, handleWaError(), definedProps, elementRef, emit (+3 more)
 
-### Community 42 - "Comparison Cross-Framework Templates"
+### Community 42 - "Comparison Vue Template"
 
-Cohesion: 0.07
-Nodes (23): ComparisonComponent, ensureLoaded(), Component, Input, Output, ViewChild, ComparisonProps, ComparisonRef (+15 more)
+Cohesion: 0.13
+Nodes (11): ComparisonProps, definedProps, elementRef, emit, handleChange(), definedProps, elementRef, emit (+3 more)
 
-### Community 43 - "IntersectionObserver Cross-Framework Templates"
+### Community 43 - "IntersectionObserver Vue Template"
 
-Cohesion: 0.07
-Nodes (23): ensureLoaded(), IntersectionObserverComponent, Component, Input, Output, ViewChild, IntersectionObserverProps, IntersectionObserverRef (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaIntersect(), IntersectionObserverProps, definedProps, elementRef, emit (+3 more)
 
-### Community 44 - "Page Cross-Framework Templates"
+### Community 44 - "Page Vue Template"
 
-Cohesion: 0.07
-Nodes (16): ensureLoaded(), PageComponent, Component, Input, ViewChild, ensureLoaded(), Page, definedProps (+8 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, PageProps (+1 more)
 
-### Community 45 - "ResizeObserver Cross-Framework Templates"
+### Community 45 - "ResizeObserver Vue Template"
 
-Cohesion: 0.07
-Nodes (23): ensureLoaded(), ResizeObserverComponent, Component, Input, Output, ViewChild, ensureLoaded(), ResizeObserver (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaResize(), definedProps, elementRef, emit, handleWaResize() (+3 more)
 
-### Community 46 - "SplitPanel Cross-Framework Templates"
+### Community 46 - "SplitPanel Vue Template"
 
-Cohesion: 0.07
-Nodes (23): ensureLoaded(), SplitPanelComponent, Component, Input, Output, ViewChild, ensureLoaded(), SplitPanel (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaReposition(), definedProps, elementRef, emit, handleWaReposition() (+3 more)
 
-### Community 47 - "Tag Cross-Framework Templates"
+### Community 47 - "Tag Vue Template"
 
-Cohesion: 0.07
-Nodes (23): ensureLoaded(), TagComponent, Component, Input, Output, ViewChild, ensureLoaded(), Tag (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaRemove(), definedProps, elementRef, emit, handleWaRemove() (+3 more)
 
-### Community 48 - "Tree Cross-Framework Templates"
+### Community 48 - "Tree Vue Template"
 
-Cohesion: 0.07
-Nodes (23): ensureLoaded(), TreeComponent, Component, Input, Output, ViewChild, ensureLoaded(), Tree (+15 more)
+Cohesion: 0.13
+Nodes (11): definedProps, elementRef, emit, handleWaSelectionChange(), definedProps, elementRef, emit, handleWaSelectionChange() (+3 more)
 
-### Community 49 - "Detemplate Script (HBS Extraction)"
+### Community 49 - "Template Validation Script"
 
-Cohesion: 0.09
-Nodes (33): buildLookup(), __dirname, __filename, FRAMEWORKS, listHbsFiles(), main(), PROJECT_ROOT, substitute() (+25 more)
+Cohesion: 0.16
+Nodes (16): .claude/hooks/stop-quality-check.sh, CLAUDE.md (Kigumi CLI project), collectSourceFiles(), __dirname, __filename, main(), printResults(), PROJECT_ROOT (+8 more)
 
-### Community 50 - "Markdown Cross-Framework Templates"
+### Community 50 - "Markdown Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), MarkdownComponent, Component, Input, ViewChild, ensureLoaded(), Markdown, MarkdownProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, MarkdownProps (+1 more)
 
 ### Community 51 - "Config & Package.json Checks"
 
 Cohesion: 0.14
-Nodes (10): PackageJsonExistsCheck, CheckRunner, CheckRunnerOptions, Check, CheckContext, CheckResult, CheckSeverity, getSearchPlaces() (+2 more)
+Nodes (11): ConfigExistsCheck, PackageJsonExistsCheck, CheckRunner, CheckRunnerOptions, Check, CheckContext, CheckResult, CheckSeverity (+3 more)
 
-### Community 52 - "Toast Cross-Framework Templates"
+### Community 52 - "Toast Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), ToastComponent, Component, Input, ViewChild, ensureLoaded(), Toast, ToastProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 53 - "Barchart Cross-Framework Templates"
+### Community 53 - "BarChart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): BarChartComponent, ensureLoaded(), Component, Input, ViewChild, BarChartProps, BarChartRef, BarChart (+12 more)
+Cohesion: 0.13
+Nodes (9): BarChartProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 54 - "BreadcrumbItem Cross-Framework Templates"
+### Community 54 - "BreadcrumbItem Vue Template"
 
-Cohesion: 0.07
-Nodes (20): BreadcrumbItemComponent, ensureLoaded(), Component, Input, ViewChild, BreadcrumbItemProps, BreadcrumbItemRef, BreadcrumbItem (+12 more)
+Cohesion: 0.13
+Nodes (9): BreadcrumbItemProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 55 - "Breadcrumb Cross-Framework Templates"
+### Community 55 - "Breadcrumb Vue Template"
 
-Cohesion: 0.07
-Nodes (20): BreadcrumbComponent, ensureLoaded(), Component, Input, ViewChild, BreadcrumbProps, BreadcrumbRef, Breadcrumb (+12 more)
+Cohesion: 0.10
+Nodes (15): keywords, cli, components, ui, vue, web-awesome, BreadcrumbProps, definedProps (+7 more)
 
-### Community 56 - "BubbleChart Cross-Framework Templates"
+### Community 56 - "BubbleChart Vue Template"
 
-Cohesion: 0.09
-Nodes (16): BubbleChartComponent, ensureLoaded(), Component, Input, ViewChild, BubbleChart, ensureLoaded(), BubbleChartProps (+8 more)
+Cohesion: 0.13
+Nodes (9): BubbleChartProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 57 - "ButtonGroup Cross-Framework Templates"
+### Community 57 - "ButtonGroup Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ButtonGroupComponent, ensureLoaded(), Component, Input, ViewChild, ButtonGroupProps, ButtonGroupRef, ButtonGroup (+12 more)
+Cohesion: 0.13
+Nodes (9): ButtonGroupProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 58 - "Callout Cross-Framework Templates"
+### Community 58 - "Callout Vue Template"
 
-Cohesion: 0.07
-Nodes (20): CalloutComponent, ensureLoaded(), Component, Input, ViewChild, CalloutProps, CalloutRef, Callout (+12 more)
+Cohesion: 0.13
+Nodes (9): CalloutProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 59 - "Chart Cross-Framework Templates"
+### Community 59 - "Chart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ChartComponent, ensureLoaded(), Component, Input, ViewChild, ChartProps, ChartRef, Chart (+12 more)
+Cohesion: 0.13
+Nodes (9): ChartProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 60 - "Checkboxgroup Cross-Framework Templates"
+### Community 60 - "CheckboxGroup Vue Template"
 
-Cohesion: 0.07
-Nodes (20): CheckboxGroupComponent, ensureLoaded(), Component, Input, ViewChild, CheckboxGroupProps, CheckboxGroupRef, CheckboxGroup (+12 more)
+Cohesion: 0.13
+Nodes (9): CheckboxGroupProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 61 - "Divider Cross-Framework Templates"
+### Community 61 - "Divider Vue Template"
 
-Cohesion: 0.07
-Nodes (20): DividerComponent, ensureLoaded(), Component, Input, ViewChild, DividerProps, DividerRef, Divider (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, DividerProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
 ### Community 62 - "Docs App tsconfig"
 
 Cohesion: 0.06
 Nodes (33): compilerOptions, allowImportingTsExtensions, baseUrl, erasableSyntaxOnly, jsx, lib, module, moduleDetection (+25 more)
 
-### Community 63 - "Doughnutchart Cross-Framework Templates"
+### Community 63 - "DoughnutChart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): DoughnutChartComponent, ensureLoaded(), Component, Input, ViewChild, DoughnutChartProps, DoughnutChartRef, DoughnutChart (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, DoughnutChartProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 64 - "Formatbytes Cross-Framework Templates"
+### Community 64 - "FormatBytes Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), FormatBytesComponent, Component, Input, ViewChild, FormatBytesProps, FormatBytesRef, ensureLoaded() (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, FormatBytesProps, definedProps, elementRef, emit, props (+1 more)
 
-### Community 65 - "FormatDate Cross-Framework Templates"
+### Community 65 - "FormatDate Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), FormatDateComponent, Component, Input, ViewChild, FormatDateProps, FormatDateRef, ensureLoaded() (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, FormatDateProps, definedProps, elementRef, emit, props (+1 more)
 
-### Community 66 - "Formatnumber Cross-Framework Templates"
+### Community 66 - "FormatNumber Angular Template"
 
-Cohesion: 0.14
-Nodes (11): ensureLoaded(), FormatNumberComponent, Component, Input, ViewChild, FormatNumberProps, FormatNumberRef, ensureLoaded() (+3 more)
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), FormatNumberComponent, Component, Input, ViewChild
 
-### Community 67 - "Linechart Cross-Framework Templates"
+### Community 67 - "LineChart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), LineChartComponent, Component, Input, ViewChild, ensureLoaded(), LineChart, LineChartProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, LineChartProps (+1 more)
 
-### Community 68 - "Option Cross-Framework Templates"
+### Community 68 - "Option Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), OptionComponent, Component, Input, ViewChild, ensureLoaded(), Option, OptionProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, OptionProps (+1 more)
 
-### Community 69 - "Piechart Cross-Framework Templates"
+### Community 69 - "PieChart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), PieChartComponent, Component, Input, ViewChild, ensureLoaded(), PieChart, PieChartProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, PieChartProps (+1 more)
 
-### Community 70 - "Polarareachart Cross-Framework Templates"
+### Community 70 - "PolarAreaChart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), PolarAreaChartComponent, Component, Input, ViewChild, ensureLoaded(), PolarAreaChart, PolarAreaChartProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, PolarAreaChartProps (+1 more)
 
-### Community 71 - "Progressbar Cross-Framework Templates"
+### Community 71 - "Progressbar Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), ProgressBarComponent, Component, Input, ViewChild, ensureLoaded(), ProgressBar, ProgressBarProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, ProgressBarProps (+1 more)
 
-### Community 72 - "Progressring Cross-Framework Templates"
+### Community 72 - "Progressring Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), ProgressRingComponent, Component, Input, ViewChild, ensureLoaded(), ProgressRing, ProgressRingProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, ProgressRingProps (+1 more)
 
-### Community 73 - "Qrcode Cross-Framework Templates"
+### Community 73 - "QRCode Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), QrCodeComponent, Component, Input, ViewChild, ensureLoaded(), QrCode, QrCodeProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 74 - "Radarchart Cross-Framework Templates"
+### Community 74 - "Radarchart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), RadarChartComponent, Component, Input, ViewChild, ensureLoaded(), RadarChart, RadarChartProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 75 - "Scroller Cross-Framework Templates"
+### Community 75 - "Scroller Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), ScrollerComponent, Component, Input, ViewChild, ensureLoaded(), Scroller, ScrollerProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 76 - "Skeleton Cross-Framework Templates"
+### Community 76 - "Skeleton Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), SkeletonComponent, Component, Input, ViewChild, ensureLoaded(), Skeleton, SkeletonProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 77 - "Sparkline Cross-Framework Templates"
+### Community 77 - "Sparkline Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), SparklineComponent, Component, Input, ViewChild, ensureLoaded(), Sparkline, SparklineProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 78 - "Tab Cross-Framework Templates"
+### Community 78 - "Tab Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), TabComponent, Component, Input, ViewChild, ensureLoaded(), Tab, TabProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 79 - "Tabpanel Cross-Framework Templates"
+### Community 79 - "TabPanel Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), TabPanelComponent, Component, Input, ViewChild, ensureLoaded(), TabPanel, TabPanelProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 80 - "Carouselitem Cross-Framework Templates"
+### Community 80 - "CarouselItem Vue Template"
 
-Cohesion: 0.07
-Nodes (19): CarouselItemComponent, ensureLoaded(), Component, ViewChild, CarouselItemProps, CarouselItemRef, CarouselItem, ensureLoaded() (+11 more)
+Cohesion: 0.13
+Nodes (9): CarouselItemProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
-### Community 81 - "Spinner Cross-Framework Templates"
+### Community 81 - "Spinner Vue Template"
 
-Cohesion: 0.07
-Nodes (19): ensureLoaded(), SpinnerComponent, Component, ViewChild, ensureLoaded(), Spinner, SpinnerProps, SpinnerRef (+11 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
 ### Community 82 - "WA Pro BarChart Typecheck Shim"
 
@@ -1094,18 +1283,18 @@ Nodes (31): @awesome.me/webawesome/dist/components/bar-chart/bar-chart.js, @awes
 
 ### Community 83 - "CSS Metadata & Angular Template Generation"
 
-Cohesion: 0.09
-Nodes (28): ComponentCSSMetadata, CSS_METADATA, CSSCustomProperty, CSSPart, BUILTIN_TYPE_NAMES, collectNamedTypeImports(), CVA_CHECKED_COMPONENTS, CVA_VALUE_COMPONENTS (+20 more)
+Cohesion: 0.07
+Nodes (32): ComponentCSSMetadata, CSS_METADATA, CSSCustomProperty, CSSPart, BUILTIN_TYPE_NAMES, collectNamedTypeImports(), CVA_CHECKED_COMPONENTS, CVA_VALUE_COMPONENTS (+24 more)
 
 ### Community 84 - "Vue Template Generator"
 
 Cohesion: 0.12
 Nodes (28): buildJsdocBlock(), buildListenerEntries(), CHECKED_MODEL_COMPONENTS, convertToVuePropType(), __dirname, __filename, formatVueDefault(), generateComponentTemplates() (+20 more)
 
-### Community 85 - "Storybook Story Patching"
+### Community 85 - "Storybook Story Overrides"
 
-Cohesion: 0.13
-Nodes (25): STORY_OVERRIDES, StoryOverride, DRY_RUN, formatArgType(), generateArgsBlock(), generateArgTypesBlock(), generateJsDoc(), generateMetaBlock() (+17 more)
+Cohesion: 0.07
+Nodes (43): STORY_OVERRIDES, StoryOverride, DRY_RUN, formatArgType(), generateArgsBlock(), generateArgTypesBlock(), generateJsDoc(), generateMetaBlock() (+35 more)
 
 ### Community 86 - "Tsconfig Cross-Framework Templates"
 
@@ -1124,38 +1313,38 @@ Nodes (22): confirm(), getPrompts(), intro(), isCancel, log, multiselect(), note
 
 ### Community 89 - "React Template Generator"
 
-Cohesion: 0.13
+Cohesion: 0.14
 Nodes (22): convertToReactPropType(), __dirname, __filename, generateComponentTemplates(), generateCSSTemplate(), generateReactTypescriptTemplate(), generateTestTypescriptTemplate(), main() (+14 more)
 
-### Community 90 - "Scatterchart Cross-Framework Templates"
+### Community 90 - "Scatterchart Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), ScatterChartComponent, Component, Input, ViewChild, ensureLoaded(), ScatterChart, ScatterChartProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 91 - "Remote Component Installer"
+### Community 91 - "Component Installer Core"
 
-Cohesion: 0.06
-Nodes (39): InstallResult, RemoteComponentInstaller, KIGUMI_CACHE_DIR, REGISTRY_CACHE_TTL_MS, OutputSpinner, CommunityComponent, ComponentFiles, validateCommunityRegistry() (+31 more)
+Cohesion: 0.04
+Nodes (44): ComponentInstaller, InstallResult, getAvailableRemoteComponents(), selectRemoteComponents(), selectRemoteComponentsInteractive(), RemoteComponentInstaller, ExistingConfigAction, FileGenerationOptions (+36 more)
 
 ### Community 92 - "Input Angular Template"
 
 Cohesion: 0.09
-Nodes (5): InputComponent, Component, Input, Output, ViewChild
+Nodes (6): ensureLoaded(), InputComponent, Component, Input, Output, ViewChild
 
 ### Community 93 - "Input Angular Starter Fixture"
 
 Cohesion: 0.09
 Nodes (6): ensureLoaded(), InputComponent, Component, Input, Output, ViewChild
 
-### Community 94 - "Typecheck Shims WA PRO Jsx D"
+### Community 94 - "WA Pro JSX Typecheck Shims"
 
 Cohesion: 0.08
 Nodes (26): BaseEvents, BaseProps, IntrinsicElements, JSX, NOTE: Both `declare module 'react'` and `declare global` augmentations, react, WaBarChartProps, WaBubbleChartProps (+18 more)
 
-### Community 95 - "Concept Cluster"
+### Community 95 - "Backlog-Bankruptcy Masterplan Design Spec"
 
-Cohesion: 0.16
-Nodes (22): Bug-bash regression test, Bug-injection acceptance gate, Cluster P: Coverage Rationalization, Cluster Q1: Test Foundation, Cluster Q2: CI Completeness, Cluster R: Real-World Starter E2E, Cluster S: Mock Reduction, Cluster T: Property-based + Edge Cases (+14 more)
+Cohesion: 0.13
+Nodes (26): Bug-bash regression test, Bug-injection acceptance gate, Cluster P: Coverage Rationalization, Cluster Q1: Test Foundation, Cluster Q2: CI Completeness, Cluster R: Real-World Starter E2E, Cluster S: Mock Reduction, Cluster T: Property-based + Edge Cases (+18 more)
 
 ### Community 96 - "Templates Angular Colorpicker Color Picker Component"
 
@@ -1177,12 +1366,12 @@ Nodes (6): ensureLoaded(), TextareaComponent, Component, Input, Output, ViewChil
 Cohesion: 0.14
 Nodes (24): Data Display Patterns Reference, Pattern B: Data Table, Pattern D: Detail View, Pattern E: Empty State, Pattern B4: Filtered Table, Pattern C: List View, Pattern F: Loading State, Pattern B3: Paginated Table (+16 more)
 
-### Community 100 - "Test-Infra Hardening Clusters"
+### Community 100 - "Test Infrastructure Hardening Live Status"
 
-Cohesion: 0.09
-Nodes (31): Cluster A: Config Lifecycle Hardening (test-infra), Cluster P: Coverage Rationalization, Cluster Q1: Test Foundation, Cluster Q2: CI Completeness, Cluster R: Real-world Starter E2E, Cluster S: Mock Reduction, Cluster T: Property-Based + Edge Cases, Cluster U: Story play() Interactions (+23 more)
+Cohesion: 0.12
+Nodes (24): Cluster A: Config Lifecycle Hardening (test-infra), Cluster P: Coverage Rationalization, Cluster Q1: Test Foundation, Cluster Q2: CI Completeness, Cluster R: Real-world Starter E2E, Cluster S: Mock Reduction, Cluster T: Property-Based + Edge Cases, Cluster U: Story play() Interactions (+16 more)
 
-### Community 101 - "Tsconfig Cross-Framework Templates (Ts)"
+### Community 101 - "Tsconfig Angular Template"
 
 Cohesion: 0.08
 Nodes (23): **/_.component.ts, \**/_.spec.ts, compilerOptions, emitDecoratorMetadata, esModuleInterop, experimentalDecorators, isolatedModules, lib (+15 more)
@@ -1202,10 +1391,10 @@ Nodes (6): ensureLoaded(), NumberInputComponent, Component, Input, Output, ViewC
 Cohesion: 0.09
 Nodes (23): cheerio, @clack/prompts, commander, cosmiconfig, node-diff3, dependencies, cheerio, @clack/prompts (+15 more)
 
-### Community 105 - "Docs devDependencies"
+### Community 105 - "chromatic Dependency (docs)"
 
 Cohesion: 0.09
-Nodes (23): chromatic, devDependencies, chromatic, eslint-plugin-react-hooks, jsdom, playwright, @storybook/addon-a11y, @storybook/addon-links (+15 more)
+Nodes (23): chromatic, devDependencies, chromatic, eslint, eslint-plugin-react-hooks, jsdom, playwright, @storybook/addon-a11y (+15 more)
 
 ### Community 106 - "Docs Node tsconfig"
 
@@ -1224,8 +1413,8 @@ Nodes (6): ensureLoaded(), SliderComponent, Component, Input, Output, ViewChild
 
 ### Community 109 - "RadioGroup Vue Template"
 
-Cohesion: 0.19
-Nodes (9): definedProps, elementRef, emit, handleChange(), handleInput(), handleWaInvalid(), model, props (+1 more)
+Cohesion: 0.11
+Nodes (17): definedProps, elementRef, emit, handleChange(), handleInput(), handleWaInvalid(), definedProps, elementRef (+9 more)
 
 ### Community 110 - "Select Angular Starter Fixture"
 
@@ -1239,8 +1428,8 @@ Nodes (22): compilerOptions, allowJs, declaration, esModuleInterop, forceConsist
 
 ### Community 112 - "Registry Validation Script"
 
-Cohesion: 0.14
-Nodes (19): .claude/hooks/stop-quality-check.sh, CLAUDE.md (Kigumi CLI project), ALLOWED_PROP_TYPES, AllowedPropType, __dirname, __filename, main(), printResults() (+11 more)
+Cohesion: 0.16
+Nodes (17): ALLOWED_PROP_TYPES, AllowedPropType, __dirname, __filename, main(), printResults(), PROJECT_ROOT, TEMPLATES_DIR (+9 more)
 
 ### Community 113 - "Overlay Skill Patterns"
 
@@ -1257,7 +1446,7 @@ Nodes (6): ensureLoaded(), SwitchComponent, Component, Input, Output, ViewChild
 Cohesion: 0.11
 Nodes (6): ensureLoaded(), SwitchComponent, Component, Input, Output, ViewChild
 
-### Community 116 - "Card React Template"
+### Community 116 - "Card React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): CardProps, CardRef, Card, ensureLoaded()
@@ -1272,10 +1461,10 @@ Nodes (20): Cluster R (starter snapshots), .claude/skills/kigumi-angular/evals/e
 Cohesion: 0.16
 Nodes (13): ShadowComponentEditor(), ITEMS, KnowledgeItem, StudioKnowledgeBase(), useDebouncedValue(), ComponentShowcase(), StudioHeader(), StudioLayout() (+5 more)
 
-### Community 119 - "Card Cross-Framework Templates"
+### Community 119 - "Card Vue Template"
 
-Cohesion: 0.12
-Nodes (11): Card, ensureLoaded(), CardProps, definedProps, elementRef, emit, definedProps, elementRef (+3 more)
+Cohesion: 0.13
+Nodes (9): CardProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
 ### Community 120 - "Select Angular Template"
 
@@ -1284,13 +1473,13 @@ Nodes (6): ensureLoaded(), SelectComponent, Component, Input, Output, ViewChild
 
 ### Community 121 - "Combobox Vue Template"
 
-Cohesion: 0.15
-Nodes (17): ComboboxProps, definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput() (+9 more)
+Cohesion: 0.08
+Nodes (33): ComboboxProps, definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput() (+25 more)
 
-### Community 122 - "Agents Skill"
+### Community 122 - "Kigumi CLI AI Agent Guide"
 
-Cohesion: 0.19
-Nodes (20): docs-sync agent, template-refactor agent, Kigumi CLI AI Agent Guide, Skill: apply-theme-to-figma, Skill: generate-component-wrapper, Skill: generate-theme-preset, Skill: kigumi-angular, Skill: kigumi-compose-data (+12 more)
+Cohesion: 0.10
+Nodes (29): docs-sync agent, template-refactor agent, Kigumi CLI AI Agent Guide, Skill: apply-theme-to-figma, Skill: generate-component-wrapper, Skill: generate-theme-preset, Skill: kigumi-angular, Skill: kigumi-compose-data (+21 more)
 
 ### Community 123 - "GitHub Workflow: Mutation"
 
@@ -1307,35 +1496,35 @@ Nodes (14): DocsContainer(), getInitialTheme(), resolveTheme(), kigumiDark, kigu
 Cohesion: 0.10
 Nodes (19): author, bin, kigumi, bugs, url, description, engines, node (+11 more)
 
-### Community 126 - "Parse Custom Elements"
+### Community 126 - "CEM Parsing & WA Sync"
 
-Cohesion: 0.14
-Nodes (19): ComponentCSSMetadata, ComponentMetadata, CSSCustomProperty, CSSPart, CustomElementDeclaration, CustomElementsJSON, __dirname, extractCssMetadata() (+11 more)
+Cohesion: 0.12
+Nodes (21): wa-sync agent, Web Awesome Sync Chain, ComponentCSSMetadata, ComponentMetadata, CSSCustomProperty, CSSPart, CustomElementDeclaration, CustomElementsJSON (+13 more)
 
-### Community 127 - "WA Pro Shim Sync Script"
+### Community 127 - "Test Output Helpers"
 
-Cohesion: 0.15
-Nodes (18): buildClassDeclaration(), buildJsxContent(), buildPathsContent(), classNameFor(), collectUnknownTypeIdents(), __dirname, __filename, kebabToPascal() (+10 more)
+Cohesion: 0.29
+Nodes (5): createRecordingOutput(), RecordingOutput, writeTierFixture(), makeConfig(), projectInfo
 
 ### Community 128 - "Checkbox Angular Template"
 
 Cohesion: 0.11
 Nodes (6): CheckboxComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
-### Community 129 - "Templates Angular Radiogroup Radio Group Component"
+### Community 129 - "RadioGroup Angular Template"
 
 Cohesion: 0.12
 Nodes (6): ensureLoaded(), RadioGroupComponent, Component, Input, Output, ViewChild
 
 ### Community 130 - "Select Vue Template"
 
-Cohesion: 0.15
-Nodes (16): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+8 more)
+Cohesion: 0.08
+Nodes (31): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+23 more)
 
-### Community 131 - "Badge Cross-Framework Templates"
+### Community 131 - "Badge Vue Template"
 
-Cohesion: 0.12
-Nodes (11): Badge, ensureLoaded(), BadgeProps, definedProps, elementRef, emit, definedProps, elementRef (+3 more)
+Cohesion: 0.13
+Nodes (9): BadgeProps, definedProps, elementRef, emit, definedProps, elementRef, emit, props (+1 more)
 
 ### Community 132 - "Foundations & Layout Concepts"
 
@@ -1357,19 +1546,19 @@ Nodes (19): Dialog/Drawer open-attribute pattern (private methods workaround), k
 Cohesion: 0.15
 Nodes (18): scripts/generate-react-templates.ts, package.json#files whitelist (dist, templates, llms.txt, README.md), pnpm setup:npmrc, pnpm typecheck:templates, PRO_COMPONENTS list (in sync-wa-pro-shim.ts), scripts/sync-wa-pro-shim.ts, templates/<framework>/tsconfig.json, typecheck-shims/css.d.ts (+10 more)
 
-### Community 136 - "Relativetime Cross-Framework Templates"
+### Community 136 - "Relativetime Vue Template"
 
-Cohesion: 0.07
-Nodes (20): ensureLoaded(), RelativeTimeComponent, Component, Input, ViewChild, ensureLoaded(), RelativeTime, RelativeTimeProps (+12 more)
+Cohesion: 0.13
+Nodes (9): definedProps, elementRef, emit, definedProps, elementRef, emit, props, props (+1 more)
 
-### Community 137 - "Metadata Freshness Check"
+### Community 137 - "Find-CEM Script"
 
-Cohesion: 0.16
-Nodes (14): compareFreshness(), __dirname, __filename, FreshnessCheckResult, main(), PROJECT_ROOT, __dirname, __filename (+6 more)
+Cohesion: 0.29
+Nodes (8): __dirname, __filename, findCustomElementsJson(), findCustomElementsJsonSync(), PROJECT_ROOT, resolvePinnedProVersion(), selectProStoreDirs(), STORE_DIRS
 
-### Community 138 - "Templates Angular Fileinput File Input Component"
+### Community 138 - "FileInput Angular Template"
 
-Cohesion: 0.12
+Cohesion: 0.11
 Nodes (6): ensureLoaded(), FileInputComponent, Component, Input, Output, ViewChild
 
 ### Community 139 - "Rating Angular Template"
@@ -1379,13 +1568,13 @@ Nodes (6): ensureLoaded(), RatingComponent, Component, Input, Output, ViewChild
 
 ### Community 140 - "ColorPicker Vue Template"
 
-Cohesion: 0.16
-Nodes (15): ColorPickerProps, definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput() (+7 more)
+Cohesion: 0.09
+Nodes (29): ColorPickerProps, definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput() (+21 more)
 
 ### Community 141 - "TimeInput Vue Template"
 
-Cohesion: 0.16
-Nodes (15): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+7 more)
+Cohesion: 0.09
+Nodes (29): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+21 more)
 
 ### Community 142 - "Compose-Skill Angular References"
 
@@ -1417,20 +1606,20 @@ Nodes (18): Add Pro Media & Date Components Design, WA 3.7.0-3.10.0 Drift Audit,
 Cohesion: 0.18
 Nodes (16): checkComponentPresence(), checkPropValueDrift(), getCemAttributeTypes(), getCemKeys(), getRegistryMap(), INTENTIONALLY_UNWRAPPED, main(), parseStringEnum() (+8 more)
 
-### Community 148 - "Combobox Vue Template (JS)"
+### Community 148 - "DateInput Angular Template"
 
-Cohesion: 0.18
-Nodes (16): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+8 more)
+Cohesion: 0.12
+Nodes (6): DateInputComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 149 - "Select Vue Starter Fixture"
 
 Cohesion: 0.18
 Nodes (16): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+8 more)
 
-### Community 150 - "Next.js Detection & Update Command"
+### Community 150 - "Next.js Detection & Framework Utils"
 
-Cohesion: 0.18
-Nodes (15): Next.js as a React Variant, Next.js Pages Router CSS Policy, InitContext, formatFileStatus(), updateCommand(), detectFramework(), detectNextRouter(), detectPackageManager() (+7 more)
+Cohesion: 0.23
+Nodes (10): Next.js as a React Variant, Next.js Pages Router CSS Policy, detectFramework(), detectPackageManager(), detectSourceLayout(), detectTypeScript(), Framework, getProjectInfo() (+2 more)
 
 ### Community 151 - "Docs Dependencies (WA Pro)"
 
@@ -1439,8 +1628,8 @@ Nodes (17): @awesome.me/webawesome-pro, dependencies, @awesome.me/webawesome-pro
 
 ### Community 152 - "Button Angular Template"
 
-Cohesion: 0.17
-Nodes (5): ButtonComponent, Component, Input, Output, ViewChild
+Cohesion: 0.14
+Nodes (6): ButtonComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 153 - "Chromatic Visual Regression Config"
 
@@ -1452,15 +1641,15 @@ Nodes (17): Chromatic (visual regression), Kigumi Docs README, setup:npmrc scrip
 Cohesion: 0.13
 Nodes (17): Existing Presets Reference (8 presets), Bunny Fonts Reference, Shadow Components Reference (35 components), Studio Token System Reference (43 Properties), Dark Mode Inversion Rule, Skill: generate-theme-preset (detailed), docs/src/kigumi-studio/lib/preset-loader.ts, docs/src/kigumi-studio/lib/preset-schema.ts (+9 more)
 
-### Community 155 - "Concept WA"
+### Community 155 - "Theme Customization Guide"
 
 Cohesion: 0.19
 Nodes (17): Available Themes Reference, CSS Variables Reference, Theme Customization Guide, kigumi-theme Skill, CSS Parts (::part()) Styling, src/lib/layers.css, Semantic Color Variants (brand/success/warning/danger/neutral), Brand Color Axis (.wa-brand-*) (+9 more)
 
-### Community 156 - "WA Component"
+### Community 156 - "React API Surface Reference"
 
 Cohesion: 0.22
-Nodes (17): Vue State Patterns Reference, Angular API Surface Reference, React API Surface Reference, Vue API Surface Reference, Angular ControlValueAccessor Form Integration, Vue defineModel() on Form Controls, Web Awesome Component Registry (73 components), Button Component (+9 more)
+Nodes (17): Vue State Patterns Reference, Angular API Surface Reference, React API Surface Reference, Vue API Surface Reference, Angular ControlValueAccessor Form Integration, Vue defineModel() on Form Controls, Web Awesome Component Registry (73 components), Chart Family (Chart/BarChart/LineChart/PieChart/etc.) (+9 more)
 
 ### Community 157 - "Test-Infra Precommit & Husky"
 
@@ -1492,10 +1681,10 @@ Nodes (14): __dirname, __filename, listFiles(), main(), OUTPUT_DIR, OUTPUT_FILE,
 Cohesion: 0.15
 Nodes (16): Args, CLI_PATH, COMPONENTS, COPY_EXCLUDES, copyStarter(), __dirname, __filename, isStarterFramework() (+8 more)
 
-### Community 163 - "Brand/Palette/Theme Commands"
+### Community 163 - "CLI Entry & Brand Command"
 
-Cohesion: 0.07
-Nodes (37): major, brandCommand, paletteCommand, themeCommand, hasUnrecognizedKeyError(), promptConfirm(), upgradeCommand(), UpgradeOptions (+29 more)
+Cohesion: 0.08
+Nodes (27): major, brandCommand, initCommand(), saveAndGenerate(), paletteCommand, themeCommand, GITHUB_ISSUES_URL, KIGUMI_CACHE_DIR (+19 more)
 
 ### Community 165 - "Templates Angular Timeinput Time Input Component"
 
@@ -1504,18 +1693,18 @@ Nodes (6): ensureLoaded(), TimeInputComponent, Component, Input, Output, ViewChi
 
 ### Community 166 - "Video Angular Template"
 
-Cohesion: 0.12
-Nodes (5): Component, Input, Output, ViewChild, VideoComponent
+Cohesion: 0.10
+Nodes (6): ensureLoaded(), Component, Input, Output, ViewChild, VideoComponent
 
 ### Community 167 - "MutationObserver Vue Template"
 
 Cohesion: 0.13
 Nodes (11): definedProps, elementRef, emit, handleWaMutation(), definedProps, elementRef, emit, handleWaMutation() (+3 more)
 
-### Community 168 - "Select Vue Template (JS)"
+### Community 168 - "Config Error Surface Tests"
 
-Cohesion: 0.19
-Nodes (15): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+7 more)
+Cohesion: 0.53
+Nodes (5): combinedOutput(), runWithTypoConfig(), setupProject(), setupSeams(), typoConfig
 
 ### Community 169 - "Kigumi CLI"
 
@@ -1537,30 +1726,30 @@ Nodes (13): cloneDefaults(), getPersistedOnce(), loadInitialValues(), loadPersis
 Cohesion: 0.12
 Nodes (15): Animations, BrandIcons, caption, ChromaticOnly, CommonIcons, Default, FlipAndRotate, gallery (+7 more)
 
-### Community 173 - "ColorPicker Vue Template (JS)"
+### Community 173 - "Upgrade Command & Version Map Tests"
 
-Cohesion: 0.20
-Nodes (14): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+6 more)
+Cohesion: 0.22
+Nodes (10): BreakingChange, compareSemver(), getBreakingChangesBetween(), getLatestVersion(), getVersionEntry(), getVersionsBetween(), VERSION_MAP, VersionEntry (+2 more)
 
 ### Community 174 - "Input Vue Template"
 
-Cohesion: 0.17
-Nodes (12): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaClear() (+4 more)
+Cohesion: 0.10
+Nodes (23): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaClear() (+15 more)
 
 ### Community 175 - "NumberInput Vue Template"
 
-Cohesion: 0.17
-Nodes (12): definedProps, elementRef, emit, handleBeforeinput(), handleBlur(), handleChange(), handleFocus(), handleInput() (+4 more)
+Cohesion: 0.10
+Nodes (23): definedProps, elementRef, emit, handleBeforeinput(), handleBlur(), handleChange(), handleFocus(), handleInput() (+15 more)
 
-### Community 176 - "TimeInput Vue Template (JS)"
+### Community 176 - "KnownDate Angular Template"
 
-Cohesion: 0.21
-Nodes (14): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaAfterHide() (+6 more)
+Cohesion: 0.15
+Nodes (6): ensureLoaded(), KnownDateComponent, Component, Input, Output, ViewChild
 
 ### Community 177 - "Video Vue Template"
 
-Cohesion: 0.18
-Nodes (12): definedProps, elementRef, emit, handleEnded(), handleError(), handleLoadedmetadata(), handlePause(), handlePlay() (+4 more)
+Cohesion: 0.10
+Nodes (23): definedProps, elementRef, emit, handleEnded(), handleError(), handleLoadedmetadata(), handlePause(), handlePlay() (+15 more)
 
 ### Community 178 - "Button Angular Starter Fixture"
 
@@ -1582,25 +1771,25 @@ Nodes (15): Starter pin refs (vars.STARTER_<F>_REF), Cluster Q2: CI Completeness
 Cohesion: 0.22
 Nodes (10): ComboboxElement, ComboboxElement, PROPERTIES_BY_VAR, SHADOW_CATEGORIES, SHADOW_COMPONENTS, SHADOW_COMPONENTS_BY_CATEGORY, ShadowCategory, ShadowComponent (+2 more)
 
-### Community 182 - "ToastItem Cross-Framework Templates"
+### Community 182 - "ToastItem Vue Template"
 
-Cohesion: 0.07
-Nodes (25): ensureLoaded(), ToastItemComponent, Component, Input, Output, ViewChild, ensureLoaded(), ToastItem (+17 more)
+Cohesion: 0.12
+Nodes (17): definedProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow(), definedProps (+9 more)
 
 ### Community 183 - "Checkbox Vue Template"
 
-Cohesion: 0.18
-Nodes (11): CheckboxProps, definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput() (+3 more)
+Cohesion: 0.10
+Nodes (21): CheckboxProps, definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput() (+13 more)
 
-### Community 184 - "Badge Cross-Framework Templates (Js)"
+### Community 184 - "Badge React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): BadgeProps, BadgeRef, Badge, ensureLoaded()
 
 ### Community 185 - "Slider Vue Template"
 
-Cohesion: 0.18
-Nodes (11): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+3 more)
+Cohesion: 0.10
+Nodes (21): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+13 more)
 
 ### Community 186 - "Switch Vue Template"
 
@@ -1609,33 +1798,33 @@ Nodes (21): definedProps, elementRef, emit, handleBlur(), handleChange(), handle
 
 ### Community 187 - "Textarea Vue Template"
 
-Cohesion: 0.18
-Nodes (11): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+3 more)
+Cohesion: 0.10
+Nodes (21): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+13 more)
 
 ### Community 188 - "Badge React Starter Fixture"
 
-Cohesion: 0.07
-Nodes (27): Badge, BadgeProps, BadgeRef, ensureLoaded(), Dialog, DialogProps, DialogRef, ensureLoaded() (+19 more)
+Cohesion: 0.50
+Nodes (4): Badge, BadgeProps, BadgeRef, ensureLoaded()
 
-### Community 189 - "Badge Vue Starter Fixture"
+### Community 189 - "Input Vue Starter Fixture"
 
-Cohesion: 0.13
-Nodes (10): BadgeProps, definedProps, elementRef, emit, props, CardProps, definedProps, elementRef (+2 more)
+Cohesion: 0.08
+Nodes (22): BadgeProps, definedProps, elementRef, emit, props, CardProps, definedProps, elementRef (+14 more)
 
-### Community 190 - "Agent WA"
+### Community 190 - "DatePicker Angular Template"
 
-Cohesion: 0.14
-Nodes (11): wa-sync agent, Web Awesome Sync Chain, Templates-First Development, Templates converted from Handlebars to real source files, Skill: generate-component-wrapper (detailed), Code of Conduct (Contributor Covenant), The One Rule That Matters Most (never edit generated code), Community Registries (concept) (+3 more)
+Cohesion: 0.16
+Nodes (6): DatePickerComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 191 - "Mock Budget & Config Lifecycle Concepts"
 
 Cohesion: 0.18
 Nodes (14): Baseline allowlist pattern (incremental strict-mode adoption), pnpm check:tests script, Load-validate-save config lifecycle invariant, Production DI hooks pattern (setXForTesting), Cluster S: Mock Reduction Specification, scripts/check-mock-budget.ts, scripts/check-tests-baseline.ts, setOutputForTesting() / resetOutputForTesting() (+6 more)
 
-### Community 192 - "Dialog Cross-Framework Templates"
+### Community 192 - "Dialog Angular Template"
 
-Cohesion: 0.18
-Nodes (8): DialogComponent, ensureLoaded(), Component, Input, Output, ViewChild, Dialog, ensureLoaded()
+Cohesion: 0.24
+Nodes (6): DialogComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 193 - "Components Landing"
 
@@ -1662,10 +1851,10 @@ Nodes (13): Appearances, ChromaticOnly, Default, Disabled, meta, Password, Pill,
 Cohesion: 0.16
 Nodes (14): Cluster (Layout page), .wa-cluster class, Flank (Layout page), .wa-flank class (with :start/:end position), --flank-size / --content-percentage custom properties, Flex Wrap (Layout page), .wa-flex-wrap / .wa-flex-nowrap / .wa-flex-wrap-reverse classes, Frame (Layout page) (+6 more)
 
-### Community 198 - "Icon Cross-Framework Templates"
+### Community 198 - "Icon Vue Template"
 
-Cohesion: 0.06
-Nodes (29): ensureLoaded(), IconComponent, Component, Input, Output, ViewChild, IconProps, IconRef (+21 more)
+Cohesion: 0.13
+Nodes (13): definedProps, elementRef, emit, handleWaError(), handleWaLoad(), IconProps, definedProps, elementRef (+5 more)
 
 ### Community 199 - "Validate Agents"
 
@@ -1674,23 +1863,23 @@ Nodes (13): checkComponentCounts(), checkProComponents(), checkTemplateDirs(), c
 
 ### Community 200 - "Dialog Vue Template"
 
-Cohesion: 0.19
-Nodes (10): definedProps, DialogProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow() (+2 more)
+Cohesion: 0.11
+Nodes (19): definedProps, DialogProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow() (+11 more)
 
 ### Community 201 - "FileInput Vue Template"
 
-Cohesion: 0.20
-Nodes (10): definedProps, elementRef, emit, FileInputProps, handleBlur(), handleChange(), handleFocus(), handleInput() (+2 more)
+Cohesion: 0.11
+Nodes (19): definedProps, elementRef, emit, FileInputProps, handleBlur(), handleChange(), handleFocus(), handleInput() (+11 more)
 
 ### Community 202 - "Tooltip Vue Template"
 
-Cohesion: 0.19
-Nodes (10): definedProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow(), open (+2 more)
+Cohesion: 0.11
+Nodes (19): definedProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow(), definedProps (+11 more)
 
-### Community 203 - "Input Vue Starter Fixture"
+### Community 203 - "Carousel Angular Template"
 
-Cohesion: 0.21
-Nodes (12): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaClear() (+4 more)
+Cohesion: 0.18
+Nodes (6): CarouselComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 204 - "Integration Test Helpers"
 
@@ -1722,20 +1911,20 @@ Nodes (12): AllowCustomValue, Appearances, ChromaticOnly, Default, Disabled, fru
 Cohesion: 0.27
 Nodes (11): AGENTS_PATH, bumpAgentsVersion(), CATEGORY_ORDER, CHANGELOG_PATH, __filename, formatCategories(), parseCategories(), parseLatestVersion() (+3 more)
 
-### Community 210 - "Parity Validation Script"
+### Community 210 - "Registry Component Selector"
 
-Cohesion: 0.19
-Nodes (11): __dirname, __filename, main(), ParityFinding, ParityResult, printResults(), PROJECT_ROOT, NOTE: Template directory existence and file completeness are already checked by (+3 more)
+Cohesion: 0.08
+Nodes (25): buildSelectorChoices(), getAllAvailableComponents(), selectComponents(), selectComponentsInteractive(), validateComponents(), getAllComponents(), getComponentNames(), hasComponent() (+17 more)
 
-### Community 211 - "Input Vue Template (JS)"
+### Community 211 - "Radio Angular Template"
 
-Cohesion: 0.23
-Nodes (11): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaClear() (+3 more)
+Cohesion: 0.18
+Nodes (6): ensureLoaded(), RadioComponent, Component, Input, Output, ViewChild
 
-### Community 212 - "NumberInput Vue Template (JS)"
+### Community 212 - "VideoPlaylist Angular Template"
 
-Cohesion: 0.23
-Nodes (11): definedProps, elementRef, emit, handleBeforeinput(), handleBlur(), handleChange(), handleFocus(), handleInput() (+3 more)
+Cohesion: 0.18
+Nodes (6): ensureLoaded(), Component, Input, Output, ViewChild, VideoPlaylistComponent
 
 ### Community 213 - "Rating Vue Template"
 
@@ -1747,10 +1936,10 @@ Nodes (17): definedProps, elementRef, emit, handleChange(), handleWaHover(), han
 Cohesion: 0.43
 Nodes (4): BubbleChartProps, BubbleChartRef, BubbleChart, ensureLoaded()
 
-### Community 215 - "Video Vue Template (JS)"
+### Community 215 - "Accordion Angular Template"
 
-Cohesion: 0.24
-Nodes (11): definedProps, elementRef, emit, handleEnded(), handleError(), handleLoadedmetadata(), handlePause(), handlePlay() (+3 more)
+Cohesion: 0.20
+Nodes (6): AccordionComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 216 - "Switch Vue Starter Fixture"
 
@@ -1804,23 +1993,23 @@ Nodes (6): ensureLoaded(), TooltipComponent, Component, Input, Output, ViewChild
 
 ### Community 226 - "Button Vue Template"
 
-Cohesion: 0.21
-Nodes (8): ButtonProps, definedProps, elementRef, emit, handleBlur(), handleFocus(), handleWaInvalid(), props
+Cohesion: 0.12
+Nodes (15): ButtonProps, definedProps, elementRef, emit, handleBlur(), handleFocus(), handleWaInvalid(), definedProps (+7 more)
 
-### Community 227 - "Checkbox Vue Template (JS)"
+### Community 227 - "AccordionItem Angular Template"
 
-Cohesion: 0.24
-Nodes (10): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+2 more)
+Cohesion: 0.20
+Nodes (5): AccordionItemComponent, ensureLoaded(), Component, Input, ViewChild
 
-### Community 228 - "Slider Vue Template (JS)"
+### Community 228 - "Animation Angular Template"
 
-Cohesion: 0.24
-Nodes (10): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+2 more)
+Cohesion: 0.20
+Nodes (6): AnimationComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
-### Community 230 - "Textarea Vue Template (JS)"
+### Community 230 - "Details Angular Template"
 
-Cohesion: 0.24
-Nodes (10): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+2 more)
+Cohesion: 0.20
+Nodes (6): DetailsComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 231 - "Tooltip Angular Starter Fixture"
 
@@ -1837,20 +2026,20 @@ Nodes (10): definedProps, DialogProps, elementRef, emit, handleWaAfterHide(), ha
 Cohesion: 0.23
 Nodes (10): definedProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow(), open (+2 more)
 
-### Community 235 - "Angular Peer Dependencies"
+### Community 235 - "angular-forms Dependency"
 
-Cohesion: 0.04
-Nodes (55): @angular/common, @angular/compiler, @angular/forms, @awesome.me/webawesome, @changesets/cli, eslint-config-prettier, fast-check, husky (+47 more)
+Cohesion: 0.18
+Nodes (11): @angular/forms, devDependencies, @angular/forms, tslib, @types/fs-extra, @types/react-dom, vue-eslint-parser, @types/react-dom (+3 more)
 
 ### Community 236 - "Cross-Framework Skill Rules"
 
 Cohesion: 0.24
 Nodes (11): Angular API Surface Reference, kigumi-angular Skill, kigumi-compose-form Skill, Native DOM Events Rule (Forms), CustomEvent Rule (Overlays), Framework-Agnostic Layer Concept, kigumi-cross-framework Skill, .kigumi/foreign/<slug>/ Staging Directory (+3 more)
 
-### Community 237 - "Test-Infra Hardening Clusters (Q/T/V)"
+### Community 237 - "Cluster T (Property-based + edges, F-X6/F-X7, PLANNED depends on Q1+A)"
 
-Cohesion: 0.14
-Nodes (19): Cluster Q1 (Test foundation, F-132/F-050/F-052), Cluster T (Property-based + edges, F-X6/F-X7, PLANNED depends on Q1+A), Cluster V (Evidence layer, F-X10/F-X11, BLOCKED depends on Q1+Q2), Initiative: test-infrastructure-hardening, test-infrastructure-hardening-status.md (state-file link), Cluster T1 (property tests), Cluster T2 (corrupt-config), Cluster T3 (concurrency / failure-modes) (+11 more)
+Cohesion: 0.31
+Nodes (10): Cluster Q1 (Test foundation, F-132/F-050/F-052), Cluster T (Property-based + edges, F-X6/F-X7, PLANNED depends on Q1+A), Cluster V (Evidence layer, F-X10/F-X11, BLOCKED depends on Q1+Q2), Initiative: test-infrastructure-hardening, test-infrastructure-hardening-status.md (state-file link), Cluster T1 (property tests), Cluster T2 (corrupt-config), Cluster T3 (concurrency / failure-modes) (+2 more)
 
 ### Community 238 - "Byte-Identity Guard & Detemplate"
 
@@ -1897,20 +2086,20 @@ Nodes (10): Appearances, ChromaticOnly, Default, Disabled, meta, ResizeModes, Si
 Cohesion: 0.25
 Nodes (10): Cluster A: Config Lifecycle Hardening Design Spec, Cluster Q1: Test Foundation Specification, F-050: vitest storybookTest configDir wrong, F-052: lint configs glob too narrow, F-132: tests/ not type-checked, ConfigExistsCheck, ConfigValidCheck (deleted), getConfig() (+2 more)
 
-### Community 247 - "Mutationobserver Cross-Framework Templates"
+### Community 247 - "MutationObserver React Template (Test)"
 
-Cohesion: 0.25
-Nodes (6): ensureLoaded(), MutationObserver, MutationObserverProps, MutationObserverRef, ensureLoaded(), MutationObserver
+Cohesion: 0.43
+Nodes (4): MutationObserverProps, MutationObserverRef, ensureLoaded(), MutationObserver
 
-### Community 248 - "RadioGroup React Template"
+### Community 248 - "RadioGroup React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): RadioGroupProps, RadioGroupRef, ensureLoaded(), RadioGroup
 
-### Community 249 - "Rating Cross-Framework Templates"
+### Community 249 - "Rating React Template (Test)"
 
-Cohesion: 0.25
-Nodes (6): ensureLoaded(), Rating, RatingProps, RatingRef, ensureLoaded(), Rating
+Cohesion: 0.43
+Nodes (4): RatingProps, RatingRef, ensureLoaded(), Rating
 
 ### Community 250 - "Check Mock Budget"
 
@@ -1922,35 +2111,35 @@ Nodes (10): countMockSubstrings(), __dirname, evaluate(), FileCount, __filename,
 Cohesion: 0.29
 Nodes (9): detectToken(), __filename, getTokenFromDotenv(), getTokenFromEnvVar(), getTokenFromGlobalNpmrc(), main(), ROOT_DIR, writeDocsNpmrc() (+1 more)
 
-### Community 252 - "Dialog Vue Template (JS)"
+### Community 252 - "DropdownItem Angular Template"
 
-Cohesion: 0.25
-Nodes (9): definedProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow(), open (+1 more)
+Cohesion: 0.20
+Nodes (6): DropdownItemComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
-### Community 253 - "FileInput Vue Template (JS)"
+### Community 253 - "Page Angular Template"
 
-Cohesion: 0.27
-Nodes (9): definedProps, elementRef, emit, handleBlur(), handleChange(), handleFocus(), handleInput(), handleWaInvalid() (+1 more)
+Cohesion: 0.20
+Nodes (5): ensureLoaded(), PageComponent, Component, Input, ViewChild
 
-### Community 254 - "Animation React Template"
+### Community 254 - "Animation React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): AnimationProps, AnimationRef, Animation, ensureLoaded()
 
-### Community 255 - "Tooltip Vue Template (JS)"
+### Community 255 - "Popover Angular Template"
 
-Cohesion: 0.25
-Nodes (9): definedProps, elementRef, emit, handleWaAfterHide(), handleWaAfterShow(), handleWaHide(), handleWaShow(), open (+1 more)
+Cohesion: 0.20
+Nodes (6): ensureLoaded(), PopoverComponent, Component, Input, Output, ViewChild
 
 ### Community 256 - "Badge Next Starter Fixture"
 
-Cohesion: 0.15
-Nodes (12): Badge, BadgeProps, BadgeRef, ensureLoaded(), ensureLoaded(), Input, InputProps, InputRef (+4 more)
+Cohesion: 0.50
+Nodes (4): Badge, BadgeProps, BadgeRef, ensureLoaded()
 
-### Community 257 - "Integration Compile Check Test"
+### Community 257 - "Page Docs Snapshot"
 
-Cohesion: 0.18
-Nodes (4): CompileResult, __dirname, __filename, _PROJECT_ROOT
+Cohesion: 0.50
+Nodes (3): Page, PageProps, PageRef
 
 ### Community 258 - "Changeset Config"
 
@@ -2062,7 +2251,7 @@ Nodes (6): ensureLoaded(), MutationObserverComponent, Component, Input, Output, 
 Cohesion: 0.50
 Nodes (3): Select, SelectProps, SelectRef
 
-### Community 280 - "Page React Template"
+### Community 280 - "Page React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): PageProps, PageRef, ensureLoaded(), Page
@@ -2172,35 +2361,30 @@ Nodes (8): Default, Disabled, Expanded, meta, Nested, Selected, Story, WithIcons
 Cohesion: 0.22
 Nodes (9): 3-Criteria New-Finding Rule, Stop-Hook Freshness Check, triage-finding Skill, weekly-review Skill, Release Readiness Report 2026-05-04, scripts/release-readiness.ts, scripts/state-files.ts (shared parser), scripts/state-staleness.ts (+1 more)
 
-### Community 302 - "Input Cross-Framework Templates"
-
-Cohesion: 0.33
-Nodes (3): ensureLoaded(), ensureLoaded(), Input
-
 ### Community 303 - "Prettierrc Arrowparens"
 
 Cohesion: 0.22
 Nodes (8): arrowParens, endOfLine, printWidth, semi, singleQuote, tabWidth, trailingComma, useTabs
 
-### Community 304 - "Switch Cross-Framework Templates"
+### Community 304 - "Switch React Template (Test)"
 
-Cohesion: 0.12
-Nodes (14): ensureLoaded(), Switch, SwitchProps, SwitchRef, ensureLoaded(), Switch, ensureLoaded(), Switch (+6 more)
+Cohesion: 0.43
+Nodes (4): SwitchProps, SwitchRef, ensureLoaded(), Switch
 
-### Community 306 - "Button Vue Template (JS)"
+### Community 306 - "ZoomableFrame Angular Template"
 
-Cohesion: 0.31
-Nodes (7): definedProps, elementRef, emit, handleBlur(), handleFocus(), handleWaInvalid(), props
+Cohesion: 0.20
+Nodes (6): ensureLoaded(), Component, Input, Output, ViewChild, ZoomableFrameComponent
 
 ### Community 307 - "Card Next Starter Fixture"
 
 Cohesion: 0.50
 Nodes (4): Card, CardProps, CardRef, ensureLoaded()
 
-### Community 308 - "Test-Infra Cluster S"
+### Community 308 - "tests/unit/_helpers/ directory"
 
-Cohesion: 0.13
-Nodes (17): Cluster S (mock-reduction initiative), "Check mock budget" CI step (.github/workflows/ci.yml), @clack/prompts wrapper migration, createRecordingOutput() (_helpers/output.ts), createTestAddOptions(overrides) (_helpers/add-options.ts), createTestKigumiConfig(overrides) (_helpers/kigumi-config.ts), createTestOutput() (_helpers/output.ts), createTestPrompts(scripts) (_helpers/prompts.ts) (+9 more)
+Cohesion: 0.28
+Nodes (9): createRecordingOutput() (_helpers/output.ts), createTestAddOptions(overrides) (_helpers/add-options.ts), createTestKigumiConfig(overrides) (_helpers/kigumi-config.ts), createTestOutput() (_helpers/output.ts), createTestPrompts(scripts) (_helpers/prompts.ts), registerTestSeams(output, prompts) / clearTestSeams() (_helpers/seams.ts), setOutputForTesting / resetOutputForTesting (src/output/index.ts DI hook), tests/unit/_helpers/ directory (+1 more)
 
 ### Community 309 - "Badge Angular Starter Fixture"
 
@@ -2307,10 +2491,10 @@ Nodes (7): buildCommand, framework, headers, installCommand, outputDirectory, re
 Cohesion: 0.29
 Nodes (7): CLI_PATH, __dirname, __filename, main(), readJSONWithComments(), ROOT_DIR, TEST_APP_DIR
 
-### Community 332 - "Diff Renderer Utils"
+### Community 332 - "Detemplate Script (HBS Extraction)"
 
-Cohesion: 0.36
-Nodes (6): buildHunks(), DiffLine, formatHunks(), Hunk, renderDiff(), RenderDiffOptions
+Cohesion: 0.24
+Nodes (10): buildLookup(), __dirname, __filename, FRAMEWORKS, listHbsFiles(), main(), PROJECT_ROOT, substitute() (+2 more)
 
 ### Community 333 - "Badge Angular Template"
 
@@ -2322,15 +2506,15 @@ Nodes (5): BadgeComponent, ensureLoaded(), Component, Input, ViewChild
 Cohesion: 0.32
 Nodes (5): CardComponent, ensureLoaded(), Component, Input, ViewChild
 
-### Community 335 - "Video Cross-Framework Templates"
+### Community 335 - "BreadcrumbItem Docs UI Wrapper (React)"
 
-Cohesion: 0.29
-Nodes (3): ensureLoaded(), ensureLoaded(), Video
+Cohesion: 0.50
+Nodes (3): BreadcrumbItem, BreadcrumbItemProps, BreadcrumbItemRef
 
-### Community 336 - "Memory Kigumi"
+### Community 336 - "Popup Angular Template"
 
-Cohesion: 0.67
-Nodes (4): ORIENT-UNDERSTAND-TRACE-AUDIT-LOG session structure, Kigumi CLI Developer Onboarding Design Spec, kigumi-cli-onboarding-progress.md (checkpoint file), kigumi-cli-overview.md (2nd brain backlog)
+Cohesion: 0.22
+Nodes (6): ensureLoaded(), PopupComponent, Component, Input, Output, ViewChild
 
 ### Community 337 - "Card Angular Starter Fixture"
 
@@ -2472,32 +2656,32 @@ Nodes (5): deleteSnapshot(), getSnapshotDir(), hasSnapshot(), loadSnapshot(), sa
 Cohesion: 0.50
 Nodes (3): Callout, CalloutProps, CalloutRef
 
-### Community 366 - "Button React Template"
+### Community 366 - "Button React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): ButtonProps, ButtonRef, Button, ensureLoaded()
 
-### Community 367 - "Checkbox React Template"
+### Community 367 - "Checkbox React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): CheckboxProps, CheckboxRef, Checkbox, ensureLoaded()
 
-### Community 368 - "ColorPicker React Template"
+### Community 368 - "ColorPicker React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): ColorPickerProps, ColorPickerRef, ColorPicker, ensureLoaded()
 
-### Community 369 - "Combobox React Template"
+### Community 369 - "Combobox React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): ComboboxProps, ComboboxRef, Combobox, ensureLoaded()
 
-### Community 370 - "DateInput React Template"
+### Community 370 - "DateInput React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): DateInputProps, DateInputRef, DateInput, ensureLoaded()
 
-### Community 371 - "Dialog React Template"
+### Community 371 - "Dialog React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): DialogProps, DialogRef, Dialog, ensureLoaded()
@@ -2512,12 +2696,12 @@ Nodes (4): FileInputProps, FileInputRef, ensureLoaded(), FileInput
 Cohesion: 0.50
 Nodes (3): Checkbox, CheckboxProps, CheckboxRef
 
-### Community 374 - "Input React Template"
+### Community 374 - "Input React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): InputProps, InputRef, ensureLoaded(), Input
 
-### Community 375 - "NumberInput React Template"
+### Community 375 - "NumberInput React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): NumberInputProps, NumberInputRef, ensureLoaded(), NumberInput
@@ -2527,12 +2711,12 @@ Nodes (4): NumberInputProps, NumberInputRef, ensureLoaded(), NumberInput
 Cohesion: 0.50
 Nodes (3): Divider, DividerProps, DividerRef
 
-### Community 377 - "Select React Template"
+### Community 377 - "Select React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): SelectProps, SelectRef, ensureLoaded(), Select
 
-### Community 378 - "Slider React Template"
+### Community 378 - "Slider React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): SliderProps, SliderRef, ensureLoaded(), Slider
@@ -2542,7 +2726,7 @@ Nodes (4): SliderProps, SliderRef, ensureLoaded(), Slider
 Cohesion: 0.50
 Nodes (3): Dropdown, DropdownProps, DropdownRef
 
-### Community 380 - "Textarea React Template"
+### Community 380 - "Textarea React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): TextareaProps, TextareaRef, ensureLoaded(), Textarea
@@ -2552,7 +2736,7 @@ Nodes (4): TextareaProps, TextareaRef, ensureLoaded(), Textarea
 Cohesion: 0.43
 Nodes (4): TimeInputProps, TimeInputRef, ensureLoaded(), TimeInput
 
-### Community 382 - "ToastItem React Template"
+### Community 382 - "ToastItem React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): ToastItemProps, ToastItemRef, ensureLoaded(), ToastItem
@@ -2562,7 +2746,7 @@ Nodes (4): ToastItemProps, ToastItemRef, ensureLoaded(), ToastItem
 Cohesion: 0.43
 Nodes (4): TooltipProps, TooltipRef, ensureLoaded(), Tooltip
 
-### Community 384 - "TreeItem React Template"
+### Community 384 - "TreeItem React Template (Test)"
 
 Cohesion: 0.43
 Nodes (4): TreeItemProps, TreeItemRef, ensureLoaded(), TreeItem
@@ -2697,10 +2881,10 @@ Nodes (4): clips, Default, meta, Story
 Cohesion: 0.40
 Nodes (5): Maintenance Workflow, licenses job (License Check), security job (Security Audit), test-compat job (Test Node 22), Trivy (vulnerability scanner)
 
-### Community 418 - "Input Docs Snapshot"
+### Community 418 - "RandomContent Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Input, InputProps, InputRef
+Cohesion: 0.22
+Nodes (6): ensureLoaded(), RandomContentComponent, Component, Input, Output, ViewChild
 
 ### Community 419 - "Button Next Starter Fixture"
 
@@ -2712,22 +2896,22 @@ Nodes (4): Button, ButtonProps, ButtonRef, ensureLoaded()
 Cohesion: 0.50
 Nodes (4): Dialog, DialogProps, DialogRef, ensureLoaded()
 
-### Community 421 - "Docs UI Component Wrappers (React)"
+### Community 421 - "ToastItem Angular Template"
+
+Cohesion: 0.22
+Nodes (6): ensureLoaded(), ToastItemComponent, Component, Input, Output, ViewChild
+
+### Community 422 - "Textarea Next Starter Fixture"
 
 Cohesion: 0.50
-Nodes (3): AccordionItem, AccordionItemProps, AccordionItemRef
-
-### Community 422 - "Textarea React/Next Template (JSX)"
-
-Cohesion: 0.28
-Nodes (6): ensureLoaded(), Textarea, ensureLoaded(), Textarea, TextareaProps, TextareaRef
+Nodes (4): ensureLoaded(), Textarea, TextareaProps, TextareaRef
 
 ### Community 423 - "Tooltip Next Starter Fixture"
 
 Cohesion: 0.50
 Nodes (4): ensureLoaded(), Tooltip, TooltipProps, TooltipRef
 
-### Community 424 - "Badge Docs UI Wrapper (React)"
+### Community 424 - "Badge Docs UI Wrapper"
 
 Cohesion: 0.50
 Nodes (3): Badge, BadgeProps, BadgeRef
@@ -2742,10 +2926,10 @@ Nodes (4): Button, ButtonProps, ButtonRef, ensureLoaded()
 Cohesion: 0.50
 Nodes (3): ButtonGroup, ButtonGroupProps, ButtonGroupRef
 
-### Community 427 - "CarouselItem Docs UI Wrapper (React)"
+### Community 427 - "TreeItem Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Checkbox, CheckboxProps, CheckboxRef
+Cohesion: 0.22
+Nodes (6): ensureLoaded(), TreeItemComponent, Component, Input, Output, ViewChild
 
 ### Community 429 - "Unit Angular Templates Test"
 
@@ -2762,25 +2946,25 @@ Nodes (3): __dirname, SOURCE_EXTENSIONS, TEMPLATES_DIR
 Cohesion: 0.40
 Nodes (4): __dirname, REPO_ROOT, TemplateCheck, TEMPLATES
 
-### Community 432 - "Typecheck Shims React Jsx D"
+### Community 432 - "React JSX Typecheck Shims"
 
 Cohesion: 0.40
 Nodes (4): CSSProperties, IntrinsicElements, JSX, react
 
-### Community 436 - "Chart Docs UI Wrapper (React)"
+### Community 436 - "AnimatedImage Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Chart, ChartProps, ChartRef
+Cohesion: 0.24
+Nodes (6): AnimatedImageComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
-### Community 437 - "Avatar Docs Snapshot"
+### Community 437 - "Avatar Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Avatar, AvatarProps, AvatarRef
+Cohesion: 0.24
+Nodes (6): AvatarComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
-### Community 438 - "Badge Docs Snapshot"
+### Community 438 - "Comparison Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Badge, BadgeProps, BadgeRef
+Cohesion: 0.24
+Nodes (6): ComparisonComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 439 - "Breadcrumb Docs Snapshot"
 
@@ -2807,35 +2991,35 @@ Nodes (3): Chart, ChartProps, ChartRef
 Cohesion: 0.50
 Nodes (3): Combobox, ComboboxProps, ComboboxRef
 
-### Community 444 - "Comparison Docs Snapshot"
+### Community 444 - "CopyButton Angular Template"
 
-Cohesion: 0.50
-Nodes (3): ProgressBar, ProgressBarProps, ProgressBarRef
+Cohesion: 0.24
+Nodes (6): CopyButtonComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
 ### Community 445 - "Details Docs Snapshot"
 
 Cohesion: 0.50
 Nodes (3): Details, DetailsProps, DetailsRef
 
-### Community 446 - "DatePicker Docs UI Wrapper (React)"
+### Community 446 - "Drawer Angular Template"
 
-Cohesion: 0.50
-Nodes (3): DatePicker, DatePickerProps, DatePickerRef
+Cohesion: 0.24
+Nodes (6): DrawerComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
-### Community 447 - "Divider Docs UI Wrapper (React)"
+### Community 447 - "Dropdown Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Divider, DividerProps, DividerRef
+Cohesion: 0.24
+Nodes (6): DropdownComponent, ensureLoaded(), Component, Input, Output, ViewChild
 
-### Community 448 - "Page Docs Snapshot"
+### Community 448 - "Icon Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Page, PageProps, PageRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), IconComponent, Component, Input, Output, ViewChild
 
-### Community 449 - "Popover Docs Snapshot"
+### Community 449 - "Include Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Popover, PopoverProps, PopoverRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), IncludeComponent, Component, Input, Output, ViewChild
 
 ### Community 450 - "Popup Docs Snapshot"
 
@@ -2847,10 +3031,10 @@ Nodes (3): Popup, PopupProps, PopupRef
 Cohesion: 0.50
 Nodes (3): Radio, RadioProps, RadioRef
 
-### Community 452 - "Drawer Docs UI Wrapper (React)"
+### Community 452 - "IntersectionObserver Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Drawer, DrawerProps, DrawerRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), IntersectionObserverComponent, Component, Input, Output, ViewChild
 
 ### Community 453 - "Skeleton Docs Snapshot"
 
@@ -2877,20 +3061,20 @@ Nodes (3): Spinner, SpinnerProps, SpinnerRef
 Cohesion: 0.50
 Nodes (3): Switch, SwitchProps, SwitchRef
 
-### Community 458 - "Dropdown Docs UI Wrapper (React)"
+### Community 458 - "ResizeObserver Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Dropdown, DropdownProps, DropdownRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), ResizeObserverComponent, Component, Input, Output, ViewChild
 
 ### Community 459 - "Textarea Docs Snapshot"
 
 Cohesion: 0.50
 Nodes (3): Textarea, TextareaProps, TextareaRef
 
-### Community 460 - "Toast Docs Snapshot"
+### Community 460 - "SplitPanel Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Toast, ToastProps, ToastRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), SplitPanelComponent, Component, Input, Output, ViewChild
 
 ### Community 461 - "Tooltip Docs Snapshot"
 
@@ -2912,15 +3096,15 @@ Nodes (3): Accordion, AccordionProps, AccordionRef
 Cohesion: 0.50
 Nodes (3): ProgressRing, ProgressRingProps, ProgressRingRef
 
-### Community 468 - "Animation Docs UI Wrapper (React)"
+### Community 468 - "TabGroup Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Animation, AnimationProps, AnimationRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), TabGroupComponent, Component, Input, Output, ViewChild
 
-### Community 469 - "LineChart Docs UI Wrapper (React)"
+### Community 469 - "Tag Angular Template"
 
-Cohesion: 0.50
-Nodes (3): LineChart, LineChartProps, LineChartRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), TagComponent, Component, Input, Output, ViewChild
 
 ### Community 470 - "BarChart Docs UI Wrapper (React)"
 
@@ -2937,40 +3121,35 @@ Nodes (3): Breadcrumb, BreadcrumbProps, BreadcrumbRef
 Cohesion: 0.50
 Nodes (3): BubbleChart, BubbleChartProps, BubbleChartRef
 
-### Community 473 - "MutationObserver Docs UI Wrapper (React)"
+### Community 473 - "Tree Angular Template"
 
-Cohesion: 0.50
-Nodes (3): ScatterChart, ScatterChartProps, ScatterChartRef
+Cohesion: 0.24
+Nodes (6): ensureLoaded(), TreeComponent, Component, Input, Output, ViewChild
 
-### Community 474 - "Callout Docs UI Wrapper (React)"
+### Community 474 - "Markdown Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Callout, CalloutProps, CalloutRef
+Cohesion: 0.28
+Nodes (5): ensureLoaded(), MarkdownComponent, Component, Input, ViewChild
 
 ### Community 475 - "Card Docs UI Wrapper (React)"
 
 Cohesion: 0.50
 Nodes (3): Card, CardProps, CardRef
 
-### Community 476 - "Carousel Docs UI Wrapper (React)"
-
-Cohesion: 0.50
-Nodes (3): Carousel, CarouselProps, CarouselRef
-
 ### Community 477 - "CheckboxGroup Docs UI Wrapper (React)"
 
 Cohesion: 0.50
 Nodes (3): CheckboxGroup, CheckboxGroupProps, CheckboxGroupRef
 
-### Community 478 - "ColorPicker Docs UI Wrapper (React)"
+### Community 478 - "Toast Angular Template"
 
-Cohesion: 0.50
-Nodes (3): ColorPicker, ColorPickerProps, ColorPickerRef
+Cohesion: 0.28
+Nodes (5): ensureLoaded(), ToastComponent, Component, Input, ViewChild
 
-### Community 479 - "Combobox Docs UI Wrapper (React)"
+### Community 479 - "Mutation testing (pnpm test:mutation, Cluster V F-X10)"
 
-Cohesion: 0.50
-Nodes (3): Combobox, ComboboxProps, ComboboxRef
+Cohesion: 0.22
+Nodes (9): coverageAnalysis: 'all' (Stryker config choice), disableTypeChecks: 'src/**/*.ts' (Stryker config choice), Mutation testing (pnpm test:mutation, Cluster V F-X10), .github/workflows/mutation.yml (weekly Sun 02:00 UTC + manual dispatch), Patched @stryker-mutator/vitest-runner (patches/), pnpm check:tests (tsc --noEmit -p tsconfig.tests.json gate), PR #137 (retired tsc baseline, fixed 133 errors), stryker.conf.mjs (+1 more)
 
 ### Community 480 - "Comparison Docs UI Wrapper (React)"
 
@@ -2987,25 +3166,25 @@ Nodes (3): CopyButton, CopyButtonProps, CopyButtonRef
 Cohesion: 0.50
 Nodes (3): DateInput, DateInputProps, DateInputRef
 
-### Community 483 - "Details Docs UI Wrapper (React)"
+### Community 483 - "Mock budget rule: total <50 in tests/unit/, theme-commands.test.ts <10"
 
-Cohesion: 0.50
-Nodes (3): Details, DetailsProps, DetailsRef
+Cohesion: 0.25
+Nodes (8): Cluster S (mock-reduction initiative), "Check mock budget" CI step (.github/workflows/ci.yml), @clack/prompts wrapper migration, MOCK_BUDGET_ENFORCE=1 env var, Mock budget rule: total <50 in tests/unit/, theme-commands.test.ts <10, scripts/check-mock-budget.ts (pnpm check:mocks), setPromptsForTesting (PromptsAdapter routing), Legitimate vi.mock exceptions (execa/child_process, unwrapped third-party SDKs)
 
-### Community 484 - "Dialog Docs UI Wrapper (React)"
+### Community 484 - "Metadata Freshness Check"
 
-Cohesion: 0.50
-Nodes (3): Dialog, DialogProps, DialogRef
+Cohesion: 0.32
+Nodes (6): compareFreshness(), __dirname, __filename, FreshnessCheckResult, main(), PROJECT_ROOT
 
 ### Community 485 - "DoughnutChart Docs UI Wrapper (React)"
 
 Cohesion: 0.50
 Nodes (3): DoughnutChart, DoughnutChartProps, DoughnutChartRef
 
-### Community 486 - "FileInput Docs UI Wrapper (React)"
+### Community 486 - "Three-Way Merge Utils"
 
-Cohesion: 0.50
-Nodes (3): FileInput, FileInputProps, FileInputRef
+Cohesion: 0.36
+Nodes (6): ComponentUpdateResult, FileMergeResult, FileStatus, mergeFile(), MergeResult, threeWayMerge()
 
 ### Community 487 - "FormatBytes Docs UI Wrapper (React)"
 
@@ -3022,20 +3201,20 @@ Nodes (3): PolarAreaChart, PolarAreaChartProps, PolarAreaChartRef
 Cohesion: 0.50
 Nodes (3): FormatNumber, FormatNumberProps, FormatNumberRef
 
-### Community 490 - "Icon Docs UI Wrapper (React)"
+### Community 490 - "Icon Docs UI Wrapper"
 
 Cohesion: 0.50
 Nodes (3): Icon, IconProps, IconRef
 
-### Community 491 - "Input Docs UI Wrapper (React)"
+### Community 491 - "BarChart Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Input, InputProps, InputRef
+Cohesion: 0.32
+Nodes (5): BarChartComponent, ensureLoaded(), Component, Input, ViewChild
 
-### Community 492 - "IntersectionObserver Docs UI Wrapper (React)"
+### Community 492 - "Breadcrumb Angular Template"
 
-Cohesion: 0.50
-Nodes (3): IntersectionObserver, IntersectionObserverProps, IntersectionObserverRef
+Cohesion: 0.32
+Nodes (5): BreadcrumbComponent, ensureLoaded(), Component, Input, ViewChild
 
 ### Community 493 - "KnownDate Docs UI Wrapper (React)"
 
@@ -3047,10 +3226,10 @@ Nodes (3): KnownDate, KnownDateProps, KnownDateRef
 Cohesion: 0.50
 Nodes (3): Markdown, MarkdownProps, MarkdownRef
 
-### Community 495 - "NumberInput Docs UI Wrapper (React)"
+### Community 495 - "BreadcrumbItem Angular Template"
 
-Cohesion: 0.50
-Nodes (3): NumberInput, NumberInputProps, NumberInputRef
+Cohesion: 0.32
+Nodes (5): BreadcrumbItemComponent, ensureLoaded(), Component, Input, ViewChild
 
 ### Community 496 - "Option Docs UI Wrapper (React)"
 
@@ -3062,20 +3241,25 @@ Nodes (3): Option, OptionProps, OptionRef
 Cohesion: 0.50
 Nodes (3): Page, PageProps, PageRef
 
-### Community 498 - "PieChart Docs UI Wrapper (React)"
+### Community 498 - "BubbleChart Angular Template"
 
-Cohesion: 0.50
-Nodes (3): PieChart, PieChartProps, PieChartRef
+Cohesion: 0.32
+Nodes (5): BubbleChartComponent, ensureLoaded(), Component, Input, ViewChild
 
-### Community 499 - "Popover Docs UI Wrapper (React)"
+### Community 499 - "ButtonGroup Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Popover, PopoverProps, PopoverRef
+Cohesion: 0.32
+Nodes (5): ButtonGroupComponent, ensureLoaded(), Component, Input, ViewChild
 
 ### Community 500 - "Popup Docs UI Wrapper (React)"
 
 Cohesion: 0.50
 Nodes (3): Popup, PopupProps, PopupRef
+
+### Community 501 - "Callout Angular Template"
+
+Cohesion: 0.32
+Nodes (5): CalloutComponent, ensureLoaded(), Component, Input, ViewChild
 
 ### Community 502 - "QRCode Docs UI Wrapper (React)"
 
@@ -3087,15 +3271,15 @@ Nodes (3): QrCode, QrCodeProps, QrCodeRef
 Cohesion: 0.50
 Nodes (3): Radio, RadioProps, RadioRef
 
-### Community 504 - "RadioGroup Docs UI Wrapper (React)"
+### Community 504 - "Chart Angular Template"
 
-Cohesion: 0.50
-Nodes (3): RadioGroup, RadioGroupProps, RadioGroupRef
+Cohesion: 0.32
+Nodes (5): ChartComponent, ensureLoaded(), Component, Input, ViewChild
 
-### Community 505 - "RandomContent Docs UI Wrapper (React)"
+### Community 505 - "CheckboxGroup Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Scroller, ScrollerProps, ScrollerRef
+Cohesion: 0.32
+Nodes (5): CheckboxGroupComponent, ensureLoaded(), Component, Input, ViewChild
 
 ### Community 506 - "Rating Docs UI Wrapper (React)"
 
@@ -3107,50 +3291,50 @@ Nodes (3): Rating, RatingProps, RatingRef
 Cohesion: 0.50
 Nodes (3): TabGroup, TabGroupProps, TabGroupRef
 
-### Community 508 - "ResizeObserver Docs UI Wrapper (React)"
+### Community 508 - "Divider Angular Template"
 
-Cohesion: 0.50
-Nodes (3): ResizeObserver, ResizeObserverProps, ResizeObserverRef
+Cohesion: 0.32
+Nodes (5): DividerComponent, ensureLoaded(), Component, Input, ViewChild
 
-### Community 509 - "tslib Dependency"
+### Community 509 - "DoughnutChart Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Video, VideoProps, VideoRef
+Cohesion: 0.32
+Nodes (5): DoughnutChartComponent, ensureLoaded(), Component, Input, ViewChild
 
 ### Community 514 - "Sparkline Docs UI Wrapper (React)"
 
 Cohesion: 0.50
 Nodes (3): Sparkline, SparklineProps, SparklineRef
 
-### Community 516 - "SplitPanel Docs UI Wrapper (React)"
+### Community 516 - "FormatBytes Angular Template"
 
-Cohesion: 0.50
-Nodes (3): SplitPanel, SplitPanelProps, SplitPanelRef
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), FormatBytesComponent, Component, Input, ViewChild
 
-### Community 518 - "Tab Docs UI Wrapper (React)"
+### Community 518 - "FormatDate Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Tab, TabProps, TabRef
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), FormatDateComponent, Component, Input, ViewChild
 
 ### Community 520 - "TabPanel Docs UI Wrapper (React)"
 
 Cohesion: 0.50
 Nodes (3): TabPanel, TabPanelProps, TabPanelRef
 
-### Community 521 - "Tag Docs UI Wrapper (React)"
+### Community 521 - "LineChart Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Tag, TagProps, TagRef
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), LineChartComponent, Component, Input, ViewChild
 
-### Community 522 - "Textarea Docs UI Wrapper (React)"
+### Community 522 - "Option Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Textarea, TextareaProps, TextareaRef
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), OptionComponent, Component, Input, ViewChild
 
-### Community 523 - "TimeInput Docs UI Wrapper (React)"
+### Community 523 - "PieChart Angular Template"
 
-Cohesion: 0.50
-Nodes (3): TimeInput, TimeInputProps, TimeInputRef
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), PieChartComponent, Component, Input, ViewChild
 
 ### Community 524 - "Toast Docs UI Wrapper (React)"
 
@@ -3162,32 +3346,57 @@ Nodes (3): Toast, ToastProps, ToastRef
 Cohesion: 0.50
 Nodes (3): ToastItem, ToastItemProps, ToastItemRef
 
-### Community 526 - "Tooltip Docs UI Wrapper (React)"
+### Community 526 - "PolarAreaChart Angular Template"
 
-Cohesion: 0.50
-Nodes (3): Tooltip, TooltipProps, TooltipRef
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), PolarAreaChartComponent, Component, Input, ViewChild
 
 ### Community 527 - "Tree Docs UI Wrapper (React)"
 
 Cohesion: 0.50
 Nodes (3): Tree, TreeProps, TreeRef
 
+### Community 528 - "Progressbar Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), ProgressBarComponent, Component, Input, ViewChild
+
+### Community 529 - "Progressring Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), ProgressRingComponent, Component, Input, ViewChild
+
+### Community 530 - "QRCode Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), QrCodeComponent, Component, Input, ViewChild
+
 ### Community 531 - "Stories Layout Grid"
 
 Cohesion: 0.83
 Nodes (4): Grid (Layout page), .wa-grid class, --min-column-size custom property, .wa-span-grid class
+
+### Community 532 - "Radarchart Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), RadarChartComponent, Component, Input, ViewChild
+
+### Community 537 - "Relativetime Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), RelativeTimeComponent, Component, Input, ViewChild
 
 ### Community 538 - "E2E Smoke Test"
 
 Cohesion: 0.50
 Nodes (3): CLI_PATH, FREE_TIER_ENV, TEST_DIR
 
-### Community 539 - "Unit Regression F 068 Vue Boolean"
+### Community 539 - "F-068 Vue Boolean Prop Regression Test"
 
 Cohesion: 0.50
 Nodes (3): __dirname, REPO_ROOT, SAMPLE_TEMPLATES
 
-### Community 540 - "Unit Vue Templates Test"
+### Community 540 - "Vue Templates Unit Test"
 
 Cohesion: 0.50
 Nodes (3): __dirname, __filename, TEMPLATES_DIR
@@ -3207,10 +3416,500 @@ Nodes (3): Dependabot WA Version-Pin Ignore Rule, src/utils/version-map.ts, Depe
 Cohesion: 0.67
 Nodes (3): Bug Report Issue Template, Issue Template Config, Feature Request Issue Template
 
-### Community 557 - "Button Cross-Framework Templates"
+### Community 560 - "Scatterchart Angular Template"
 
-Cohesion: 0.29
-Nodes (3): ensureLoaded(), Button, ensureLoaded()
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), ScatterChartComponent, Component, Input, ViewChild
+
+### Community 561 - "Scroller Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), ScrollerComponent, Component, Input, ViewChild
+
+### Community 562 - "Skeleton Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), SkeletonComponent, Component, Input, ViewChild
+
+### Community 563 - "Sparkline Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), SparklineComponent, Component, Input, ViewChild
+
+### Community 564 - "Tab Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), TabComponent, Component, Input, ViewChild
+
+### Community 566 - "TabPanel Angular Template"
+
+Cohesion: 0.32
+Nodes (5): ensureLoaded(), TabPanelComponent, Component, Input, ViewChild
+
+### Community 605 - "Open Fix Clusters (Latin) Live Status"
+
+Cohesion: 0.33
+Nodes (7): Open Fix Clusters (Latin) Live Status, Initiative: open-fix-clusters-latin, Latin Cluster B: schema-cleanup, Latin Cluster G: build-and-release-pipeline, scripts/check-metadata-freshness.ts, scripts/find-cem.ts, scripts/post-build.ts (removed)
+
+### Community 606 - "CarouselItem Angular Template"
+
+Cohesion: 0.38
+Nodes (4): CarouselItemComponent, ensureLoaded(), Component, ViewChild
+
+### Community 607 - "Spinner Angular Template"
+
+Cohesion: 0.38
+Nodes (4): ensureLoaded(), SpinnerComponent, Component, ViewChild
+
+### Community 608 - "Accordion React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): AccordionProps, AccordionRef, Accordion, ensureLoaded()
+
+### Community 610 - "AccordionItem React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): AccordionItemProps, AccordionItemRef, AccordionItem, ensureLoaded()
+
+### Community 611 - "AnimatedImage React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): AnimatedImageProps, AnimatedImageRef, AnimatedImage, ensureLoaded()
+
+### Community 612 - "Avatar React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): AvatarProps, AvatarRef, Avatar, ensureLoaded()
+
+### Community 613 - "BarChart React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): BarChartProps, BarChartRef, BarChart, ensureLoaded()
+
+### Community 614 - "Breadcrumb React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): BreadcrumbProps, BreadcrumbRef, Breadcrumb, ensureLoaded()
+
+### Community 615 - "BreadcrumbItem React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): BreadcrumbItemProps, BreadcrumbItemRef, BreadcrumbItem, ensureLoaded()
+
+### Community 616 - "ButtonGroup React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ButtonGroupProps, ButtonGroupRef, ButtonGroup, ensureLoaded()
+
+### Community 617 - "Callout React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): CalloutProps, CalloutRef, Callout, ensureLoaded()
+
+### Community 618 - "Carousel React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): CarouselProps, CarouselRef, Carousel, ensureLoaded()
+
+### Community 619 - "CarouselItem React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): CarouselItemProps, CarouselItemRef, CarouselItem, ensureLoaded()
+
+### Community 620 - "Chart React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ChartProps, ChartRef, Chart, ensureLoaded()
+
+### Community 621 - "CheckboxGroup React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): CheckboxGroupProps, CheckboxGroupRef, CheckboxGroup, ensureLoaded()
+
+### Community 622 - "Comparison React Template"
+
+Cohesion: 0.43
+Nodes (4): ComparisonProps, ComparisonRef, Comparison, ensureLoaded()
+
+### Community 624 - "CopyButton React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): CopyButtonProps, CopyButtonRef, CopyButton, ensureLoaded()
+
+### Community 625 - "DatePicker React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): DatePickerProps, DatePickerRef, DatePicker, ensureLoaded()
+
+### Community 626 - "Details React Template"
+
+Cohesion: 0.43
+Nodes (4): DetailsProps, DetailsRef, Details, ensureLoaded()
+
+### Community 627 - "Divider React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): DividerProps, DividerRef, Divider, ensureLoaded()
+
+### Community 628 - "DoughnutChart React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): DoughnutChartProps, DoughnutChartRef, DoughnutChart, ensureLoaded()
+
+### Community 630 - "Drawer React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): DrawerProps, DrawerRef, Drawer, ensureLoaded()
+
+### Community 632 - "Dropdown React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): DropdownProps, DropdownRef, Dropdown, ensureLoaded()
+
+### Community 654 - "DropdownItem React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): DropdownItemProps, DropdownItemRef, DropdownItem, ensureLoaded()
+
+### Community 655 - "FormatBytes React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): FormatBytesProps, FormatBytesRef, ensureLoaded(), FormatBytes
+
+### Community 666 - "FormatDate React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): FormatDateProps, FormatDateRef, ensureLoaded(), FormatDate
+
+### Community 667 - "FormatNumber React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): FormatNumberProps, FormatNumberRef, ensureLoaded(), FormatNumber
+
+### Community 668 - "Icon React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): IconProps, IconRef, ensureLoaded(), Icon
+
+### Community 669 - "Include React Template"
+
+Cohesion: 0.43
+Nodes (4): IncludeProps, IncludeRef, ensureLoaded(), Include
+
+### Community 670 - "IntersectionObserver React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): IntersectionObserverProps, IntersectionObserverRef, ensureLoaded(), IntersectionObserver
+
+### Community 671 - "KnownDate React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): KnownDateProps, KnownDateRef, ensureLoaded(), KnownDate
+
+### Community 672 - "LineChart React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): LineChartProps, LineChartRef, ensureLoaded(), LineChart
+
+### Community 673 - "Markdown React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): MarkdownProps, MarkdownRef, ensureLoaded(), Markdown
+
+### Community 674 - "Option React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): OptionProps, OptionRef, ensureLoaded(), Option
+
+### Community 675 - "PieChart React Template"
+
+Cohesion: 0.43
+Nodes (4): PieChartProps, PieChartRef, ensureLoaded(), PieChart
+
+### Community 676 - "PolarAreaChart React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): PolarAreaChartProps, PolarAreaChartRef, ensureLoaded(), PolarAreaChart
+
+### Community 677 - "Popover React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): PopoverProps, PopoverRef, ensureLoaded(), Popover
+
+### Community 678 - "Popup React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): PopupProps, PopupRef, ensureLoaded(), Popup
+
+### Community 679 - "Progressbar React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ProgressBarProps, ProgressBarRef, ensureLoaded(), ProgressBar
+
+### Community 680 - "Progressring React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ProgressRingProps, ProgressRingRef, ensureLoaded(), ProgressRing
+
+### Community 681 - "QRCode React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): QrCodeProps, QrCodeRef, ensureLoaded(), QrCode
+
+### Community 682 - "Radarchart React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): RadarChartProps, RadarChartRef, ensureLoaded(), RadarChart
+
+### Community 683 - "Radio React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): RadioProps, RadioRef, ensureLoaded(), Radio
+
+### Community 684 - "RandomContent React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): RandomContentProps, RandomContentRef, ensureLoaded(), RandomContent
+
+### Community 685 - "Relativetime React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): RelativeTimeProps, RelativeTimeRef, ensureLoaded(), RelativeTime
+
+### Community 686 - "ResizeObserver React Template"
+
+Cohesion: 0.43
+Nodes (4): ResizeObserverProps, ResizeObserverRef, ensureLoaded(), ResizeObserver
+
+### Community 687 - "Scatterchart React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ScatterChartProps, ScatterChartRef, ensureLoaded(), ScatterChart
+
+### Community 688 - "Scroller React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ScrollerProps, ScrollerRef, ensureLoaded(), Scroller
+
+### Community 689 - "Skeleton React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): SkeletonProps, SkeletonRef, ensureLoaded(), Skeleton
+
+### Community 690 - "Sparkline React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): SparklineProps, SparklineRef, ensureLoaded(), Sparkline
+
+### Community 691 - "Spinner React Template"
+
+Cohesion: 0.43
+Nodes (4): SpinnerProps, SpinnerRef, ensureLoaded(), Spinner
+
+### Community 692 - "SplitPanel React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): SplitPanelProps, SplitPanelRef, ensureLoaded(), SplitPanel
+
+### Community 693 - "Tab React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): TabProps, TabRef, ensureLoaded(), Tab
+
+### Community 694 - "TabGroup React Template"
+
+Cohesion: 0.43
+Nodes (4): TabGroupProps, TabGroupRef, ensureLoaded(), TabGroup
+
+### Community 695 - "TabPanel React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): TabPanelProps, TabPanelRef, ensureLoaded(), TabPanel
+
+### Community 696 - "Tag React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): TagProps, TagRef, ensureLoaded(), Tag
+
+### Community 697 - "Toast React Template"
+
+Cohesion: 0.43
+Nodes (4): ToastProps, ToastRef, ensureLoaded(), Toast
+
+### Community 698 - "Tree React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): TreeProps, TreeRef, ensureLoaded(), Tree
+
+### Community 699 - "VideoPlaylist React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ensureLoaded(), VideoPlaylist, VideoPlaylistProps, VideoPlaylistRef
+
+### Community 700 - "ZoomableFrame React Template (Test)"
+
+Cohesion: 0.43
+Nodes (4): ensureLoaded(), ZoomableFrame, ZoomableFrameProps, ZoomableFrameRef
+
+### Community 701 - "Icon Next Starter Fixture"
+
+Cohesion: 0.40
+Nodes (4): ensureLoaded(), Icon, IconProps, IconRef
+
+### Community 703 - "Husky post-commit Hook"
+
+Cohesion: 0.40
+Nodes (4): post-commit script, GRAPHIFY_CHANGED, GRAPHIFY_REBUILD_LOG, PYTHONHASHSEED
+
+### Community 704 - "Input Next Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Input, InputProps, InputRef
+
+### Community 705 - "Select Next Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Select, SelectProps, SelectRef
+
+### Community 706 - "Switch Next Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Switch, SwitchProps, SwitchRef
+
+### Community 707 - "Dialog React Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): Dialog, DialogProps, DialogRef, ensureLoaded()
+
+### Community 708 - "Icon React Starter Fixture"
+
+Cohesion: 0.40
+Nodes (3): Icon, IconProps, IconRef
+
+### Community 709 - "Input React Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Input, InputProps, InputRef
+
+### Community 710 - "Select React Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Select, SelectProps, SelectRef
+
+### Community 711 - "Switch React Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Switch, SwitchProps, SwitchRef
+
+### Community 712 - "Textarea React Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Textarea, TextareaProps, TextareaRef
+
+### Community 713 - "Tooltip React Starter Fixture"
+
+Cohesion: 0.50
+Nodes (4): ensureLoaded(), Tooltip, TooltipProps, TooltipRef
+
+### Community 715 - "Animation Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Animation, AnimationProps, AnimationRef
+
+### Community 716 - "Comparison Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Comparison, ComparisonProps, ComparisonRef
+
+### Community 717 - "Icon Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Icon, IconProps, IconRef
+
+### Community 718 - "Include Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Include, IncludeProps, IncludeRef
+
+### Community 719 - "Option Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Option, OptionProps, OptionRef
+
+### Community 720 - "Rating Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Rating, RatingProps, RatingRef
+
+### Community 721 - "Tab Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Tab, TabProps, TabRef
+
+### Community 722 - "Tag Docs Snapshot"
+
+Cohesion: 0.50
+Nodes (3): Tag, TagProps, TagRef
+
+### Community 724 - "Avatar Docs UI Wrapper (React)"
+
+Cohesion: 0.50
+Nodes (3): Avatar, AvatarProps, AvatarRef
+
+### Community 725 - "Button Docs UI Wrapper"
+
+Cohesion: 0.50
+Nodes (3): Button, ButtonProps, ButtonRef
+
+### Community 726 - "CarouselItem Docs UI Wrapper (React)"
+
+Cohesion: 0.50
+Nodes (3): CarouselItem, CarouselItemProps, CarouselItemRef
+
+### Community 727 - "FormatDate Docs UI Wrapper (React)"
+
+Cohesion: 0.50
+Nodes (3): FormatDate, FormatDateProps, FormatDateRef
+
+### Community 728 - "MutationObserver Docs UI Wrapper (React)"
+
+Cohesion: 0.50
+Nodes (3): MutationObserver, MutationObserverProps, MutationObserverRef
+
+### Community 729 - "RandomContent Docs UI Wrapper (React)"
+
+Cohesion: 0.50
+Nodes (3): RandomContent, RandomContentProps, RandomContentRef
+
+### Community 730 - "Select Docs UI Wrapper"
+
+Cohesion: 0.50
+Nodes (3): Select, SelectProps, SelectRef
+
+### Community 731 - "Skeleton Docs UI Wrapper"
+
+Cohesion: 0.50
+Nodes (3): Skeleton, SkeletonProps, SkeletonRef
+
+### Community 732 - "Spinner Docs UI Wrapper (React)"
+
+Cohesion: 0.50
+Nodes (3): Spinner, SpinnerProps, SpinnerRef
+
+### Community 733 - "Switch Docs UI Wrapper"
+
+Cohesion: 0.50
+Nodes (3): Switch, SwitchProps, SwitchRef
+
+### Community 734 - "VideoPlaylist Docs UI Wrapper (React)"
+
+Cohesion: 0.50
+Nodes (3): VideoPlaylist, VideoPlaylistProps, VideoPlaylistRef
+
+### Community 735 - "Husky post-checkout Hook"
+
+Cohesion: 0.50
+Nodes (3): post-checkout script, GRAPHIFY_REBUILD_LOG, PYTHONHASHSEED
 
 ## Ambiguous Edges - Review These
 
@@ -3221,9 +3920,9 @@ Nodes (3): ensureLoaded(), Button, ensureLoaded()
 
 ## Knowledge Gaps
 
-- **3064 isolated node(s):** `ListOptions`, `AddSourceOptions`, `ListSourcesOptions`, `RemoveSourceOptions`, `StatusOptions` (+3059 more)
+- **3064 isolated node(s):** `ListOptions`, `AddComponentOptions`, `AddSourceOptions`, `AddThemeOptions`, `RegistryInitOptions` (+3059 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **92 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **179 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 
@@ -3233,13 +3932,13 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: shares_data_with) - confidence is low._
 - **What is the exact relationship between `Initiative: test-infrastructure-hardening` and `test-infrastructure-hardening-status.md (state-file link)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `react` connect `Docs Component Snapshots` to `Docs UI Component Wrappers (React, misc)`, `Sparkline Docs UI Wrapper (React)`, `SplitPanel Docs UI Wrapper (React)`, `Tab Docs UI Wrapper (React)`, `TabPanel Docs UI Wrapper (React)`, `Tag Docs UI Wrapper (React)`, `Textarea Docs UI Wrapper (React)`, `TimeInput Docs UI Wrapper (React)`, `Toast Docs UI Wrapper (React)`, `ToastItem Docs UI Wrapper (React)`, `Tooltip Docs UI Wrapper (React)`, `Tree Docs UI Wrapper (React)`, `DateInput Cross-Framework Templates`, `DatePicker Cross-Framework Templates`, `Details Cross-Framework Templates`, `Accordion Cross-Framework Templates`, `Drawer Cross-Framework Templates`, `Dropdown Cross-Framework Templates`, `CLI Reference & Keywords`, `Animation Cross-Framework Templates`, `Numberinput Cross-Framework Templates`, `DropdownItem Cross-Framework Templates`, `Popover Cross-Framework Templates`, `Radio Cross-Framework Templates`, `Carousel Cross-Framework Templates`, `Kigumi Studio Color Utilities`, `Slider Cross-Framework Templates`, `AnimatedImage Cross-Framework Templates`, `TimeInput Cross-Framework Templates`, `TreeItem Cross-Framework Templates`, `CopyButton Cross-Framework Templates`, `Kigumi Studio Editor`, `Include Cross-Framework Templates`, `TabGroup Cross-Framework Templates`, `Popup Cross-Framework Templates`, `RandomContent Cross-Framework Templates`, `AccordionItem Cross-Framework Templates`, `Avatar Cross-Framework Templates`, `Comparison Cross-Framework Templates`, `IntersectionObserver Cross-Framework Templates`, `Page Cross-Framework Templates`, `Button Cross-Framework Templates`, `ResizeObserver Cross-Framework Templates`, `SplitPanel Cross-Framework Templates`, `Tag Cross-Framework Templates`, `Tree Cross-Framework Templates`, `Markdown Cross-Framework Templates`, `Toast Cross-Framework Templates`, `Barchart Cross-Framework Templates`, `BreadcrumbItem Cross-Framework Templates`, `Breadcrumb Cross-Framework Templates`, `BubbleChart Cross-Framework Templates`, `ButtonGroup Cross-Framework Templates`, `Callout Cross-Framework Templates`, `Chart Cross-Framework Templates`, `Checkboxgroup Cross-Framework Templates`, `Divider Cross-Framework Templates`, `Doughnutchart Cross-Framework Templates`, `Formatbytes Cross-Framework Templates`, `FormatDate Cross-Framework Templates`, `Formatnumber Cross-Framework Templates`, `KnownDate Cross-Framework Templates`, `Linechart Cross-Framework Templates`, `Option Cross-Framework Templates`, `Piechart Cross-Framework Templates`, `Polarareachart Cross-Framework Templates`, `Progressbar Cross-Framework Templates`, `Progressring Cross-Framework Templates`, `Qrcode Cross-Framework Templates`, `Radarchart Cross-Framework Templates`, `Scroller Cross-Framework Templates`, `Skeleton Cross-Framework Templates`, `Sparkline Cross-Framework Templates`, `Tab Cross-Framework Templates`, `Carouselitem Cross-Framework Templates`, `Spinner Cross-Framework Templates`, `Tabpanel Cross-Framework Templates`, `Scatterchart Cross-Framework Templates`, `Card React Template`, `Kigumi Studio Knowledgebase`, `Card Cross-Framework Templates`, `Storybook Docs Theming`, `Badge Cross-Framework Templates`, `Foundations & Layout Concepts`, `Relativetime Cross-Framework Templates`, `ZoomableFrame Cross-Framework Templates`, `Kigumi Studio Toolbar ImportDialog`, `VideoPlaylist Cross-Framework Templates`, `Kigumi Studio Studiocontext`, `Kigumi Studio Shadow`, `ToastItem Cross-Framework Templates`, `Badge Cross-Framework Templates (Js)`, `Badge React Starter Fixture`, `Dialog Cross-Framework Templates`, `Components Landing`, `Components Storybook`, `Icon Cross-Framework Templates`, `Bubblechart Cross-Framework Templates`, `Tooltip React Template`, `Mutationobserver Cross-Framework Templates`, `RadioGroup React Template`, `Rating Cross-Framework Templates`, `Animation React Template`, `Badge Next Starter Fixture`, `Components Landing Heropreview`, `Stories Dialog Stories`, `Stories Randomcontent Stories`, `Stories Tag Stories`, `webawesome Dependency`, `Page React Template`, `Kigumi Studio Preset`, `Stories Drawer Stories`, `Input Cross-Framework Templates`, `Switch Cross-Framework Templates`, `RadioGroup Cross-Framework Templates`, `Card Next Starter Fixture`, `Card React Starter Fixture`, `Hooks Useframeworksync`, `Hooks Usepatternsync`, `Stories Popover Stories`, `Video Cross-Framework Templates`, `Contexts Themecontext`, `Stories Animatedimage Stories`, `Stories Animation Stories`, `Button Docs Snapshot`, `Callout Docs Snapshot`, `Button React Template`, `Checkbox React Template`, `ColorPicker React Template`, `Combobox React Template`, `DateInput React Template`, `Dialog React Template`, `FileInput React Template`, `Checkbox Docs Snapshot`, `Input React Template`, `NumberInput React Template`, `Divider Docs Snapshot`, `Select React Template`, `Slider React Template`, `Dropdown Docs Snapshot`, `Textarea React Template`, `TimeInput React Template`, `ToastItem React Template`, `Tooltip React Template (test)`, `TreeItem React Template`, `Video React Template`, `Checkbox Cross-Framework Templates`, `Stories Toast Stories`, `Fileinput Cross-Framework Templates`, `Select Cross-Framework Templates`, `Dialog Docs Snapshot`, `Drawer Docs Snapshot`, `Components Landing Troubleshooting`, `Stories Intersectionobserver Stories`, `Stories Mutationobserver Stories`, `Stories Resizeobserver Stories`, `Input Docs Snapshot`, `Button Next Starter Fixture`, `Dialog Next Starter Fixture`, `Docs UI Component Wrappers (React)`, `Textarea React/Next Template (JSX)`, `Tooltip Next Starter Fixture`, `Badge Docs UI Wrapper (React)`, `Button React Starter Fixture`, `ButtonGroup Docs UI Wrapper (React)`, `CarouselItem Docs UI Wrapper (React)`, `ColorPicker Cross-Framework Templates`, `Combobox Cross-Framework Templates`, `Chart Docs UI Wrapper (React)`, `Avatar Docs Snapshot`, `Badge Docs Snapshot`, `Breadcrumb Docs Snapshot`, `Card Docs Snapshot`, `Carousel Docs Snapshot`, `Chart Docs Snapshot`, `Combobox Docs Snapshot`, `Comparison Docs Snapshot`, `Details Docs Snapshot`, `DatePicker Docs UI Wrapper (React)`, `Divider Docs UI Wrapper (React)`, `Page Docs Snapshot`, `Popover Docs Snapshot`, `Popup Docs Snapshot`, `Radio Docs Snapshot`, `Drawer Docs UI Wrapper (React)`, `Skeleton Docs Snapshot`, `Slider Docs Snapshot`, `Sparkline Docs Snapshot`, `Spinner Docs Snapshot`, `Switch Docs Snapshot`, `Dropdown Docs UI Wrapper (React)`, `Textarea Docs Snapshot`, `Toast Docs Snapshot`, `Tooltip Docs Snapshot`, `Tree Docs Snapshot`, `Components Storybook Tokentable`, `Accordion Docs UI Wrapper (React)`, `DropdownItem Docs UI Wrapper (React)`, `Animation Docs UI Wrapper (React)`, `LineChart Docs UI Wrapper (React)`, `BarChart Docs UI Wrapper (React)`, `Breadcrumb Docs UI Wrapper (React)`, `BubbleChart Docs UI Wrapper (React)`, `MutationObserver Docs UI Wrapper (React)`, `Callout Docs UI Wrapper (React)`, `Card Docs UI Wrapper (React)`, `Carousel Docs UI Wrapper (React)`, `CheckboxGroup Docs UI Wrapper (React)`, `ColorPicker Docs UI Wrapper (React)`, `Combobox Docs UI Wrapper (React)`, `Comparison Docs UI Wrapper (React)`, `CopyButton Docs UI Wrapper (React)`, `DateInput Docs UI Wrapper (React)`, `Details Docs UI Wrapper (React)`, `Dialog Docs UI Wrapper (React)`, `DoughnutChart Docs UI Wrapper (React)`, `FileInput Docs UI Wrapper (React)`, `FormatBytes Docs UI Wrapper (React)`, `PolarAreaChart Docs UI Wrapper (React)`, `FormatNumber Docs UI Wrapper (React)`, `Icon Docs UI Wrapper (React)`, `Input Docs UI Wrapper (React)`, `IntersectionObserver Docs UI Wrapper (React)`, `KnownDate Docs UI Wrapper (React)`, `Markdown Docs UI Wrapper (React)`, `NumberInput Docs UI Wrapper (React)`, `Option Docs UI Wrapper (React)`, `Page Docs UI Wrapper (React)`, `PieChart Docs UI Wrapper (React)`, `Popover Docs UI Wrapper (React)`, `Popup Docs UI Wrapper (React)`, `QRCode Docs UI Wrapper (React)`, `Radio Docs UI Wrapper (React)`, `RadioGroup Docs UI Wrapper (React)`, `RandomContent Docs UI Wrapper (React)`, `Rating Docs UI Wrapper (React)`, `stryker-mutator-vitest-runner Dependency`, `ResizeObserver Docs UI Wrapper (React)`, `tslib Dependency`?**
-  _High betweenness centrality (0.318) - this node is a cross-community bridge._
-- **Why does `vue` connect `CLI Reference & Keywords` to `DateInput Cross-Framework Templates`, `KnownDate Cross-Framework Templates`, `DatePicker Cross-Framework Templates`, `Details Cross-Framework Templates`, `Dropdown Cross-Framework Templates`, `Popover Cross-Framework Templates`, `Accordion Cross-Framework Templates`, `Drawer Cross-Framework Templates`, `RadioGroup Vue Template (JS)`, `Animation Cross-Framework Templates`, `Radio Cross-Framework Templates`, `DropdownItem Cross-Framework Templates`, `TreeItem Cross-Framework Templates`, `ZoomableFrame Cross-Framework Templates`, `Carousel Cross-Framework Templates`, `VideoPlaylist Cross-Framework Templates`, `AnimatedImage Cross-Framework Templates`, `CopyButton Cross-Framework Templates`, `Include Cross-Framework Templates`, `TabGroup Cross-Framework Templates`, `Popup Cross-Framework Templates`, `RandomContent Cross-Framework Templates`, `AccordionItem Cross-Framework Templates`, `Avatar Cross-Framework Templates`, `Comparison Cross-Framework Templates`, `IntersectionObserver Cross-Framework Templates`, `Page Cross-Framework Templates`, `ResizeObserver Cross-Framework Templates`, `SplitPanel Cross-Framework Templates`, `Tag Cross-Framework Templates`, `Tree Cross-Framework Templates`, `Markdown Cross-Framework Templates`, `Toast Cross-Framework Templates`, `Barchart Cross-Framework Templates`, `BreadcrumbItem Cross-Framework Templates`, `Breadcrumb Cross-Framework Templates`, `BubbleChart Cross-Framework Templates`, `ButtonGroup Cross-Framework Templates`, `Callout Cross-Framework Templates`, `Chart Cross-Framework Templates`, `Checkboxgroup Cross-Framework Templates`, `Divider Cross-Framework Templates`, `Doughnutchart Cross-Framework Templates`, `Formatbytes Cross-Framework Templates`, `FormatDate Cross-Framework Templates`, `Linechart Cross-Framework Templates`, `Option Cross-Framework Templates`, `Piechart Cross-Framework Templates`, `Polarareachart Cross-Framework Templates`, `Progressbar Cross-Framework Templates`, `Progressring Cross-Framework Templates`, `Qrcode Cross-Framework Templates`, `Radarchart Cross-Framework Templates`, `Scroller Cross-Framework Templates`, `Skeleton Cross-Framework Templates`, `Sparkline Cross-Framework Templates`, `Tab Cross-Framework Templates`, `Tabpanel Cross-Framework Templates`, `Carouselitem Cross-Framework Templates`, `Spinner Cross-Framework Templates`, `Scatterchart Cross-Framework Templates`, `RadioGroup Vue Template`, `Card Cross-Framework Templates`, `Combobox Vue Template`, `Select Vue Template`, `Badge Cross-Framework Templates`, `Relativetime Cross-Framework Templates`, `ColorPicker Vue Template`, `TimeInput Vue Template`, `Combobox Vue Template (JS)`, `Select Vue Starter Fixture`, `MutationObserver Vue Template`, `Select Vue Template (JS)`, `ColorPicker Vue Template (JS)`, `Input Vue Template`, `NumberInput Vue Template`, `TimeInput Vue Template (JS)`, `Video Vue Template`, `ToastItem Cross-Framework Templates`, `Checkbox Vue Template`, `Slider Vue Template`, `Switch Vue Template`, `Textarea Vue Template`, `Badge Vue Starter Fixture`, `Icon Cross-Framework Templates`, `Dialog Vue Template`, `FileInput Vue Template`, `Tooltip Vue Template`, `Input Vue Starter Fixture`, `Input Vue Template (JS)`, `NumberInput Vue Template (JS)`, `Rating Vue Template`, `Video Vue Template (JS)`, `Switch Vue Starter Fixture`, `Textarea Vue Starter Fixture`, `Button Vue Template`, `Checkbox Vue Template (JS)`, `Slider Vue Template (JS)`, `Textarea Vue Template (JS)`, `Dialog Vue Starter Fixture`, `Tooltip Vue Starter Fixture`, `Dialog Vue Template (JS)`, `FileInput Vue Template (JS)`, `Tooltip Vue Template (JS)`, `Button Vue Starter Fixture`, `Button Vue Template (JS)`, `Icon Vue Starter Fixture`?**
-  _High betweenness centrality (0.253) - this node is a cross-community bridge._
-- **Why does `keywords` connect `CLI Reference & Keywords` to `Package Repository`, `Docs Component Snapshots`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
-- **What connects `ListOptions`, `AddSourceOptions`, `ListSourcesOptions` to the rest of the system?**
+- **Why does `vue` connect `Breadcrumb Vue Template` to `DateInput Vue Template`, `KnownDate Vue Template`, `DatePicker Vue Template`, `Details Vue Template`, `Dropdown Vue Template`, `Popover Vue Template`, `Accordion Vue Template`, `Drawer Vue Template`, `FormatNumber Vue Template`, `Animation Vue Template`, `Radio Vue Template`, `DropdownItem Vue Template`, `TreeItem Vue Template`, `ZoomableFrame Vue Template`, `Carousel Vue Template`, `VideoPlaylist Vue Template`, `AnimatedImage Vue Template`, `CopyButton Vue Template`, `Include Vue Template`, `TabGroup Vue Template`, `Popup Vue Template`, `RandomContent Vue Template`, `AccordionItem Vue Template`, `Avatar Vue Template`, `Comparison Vue Template`, `IntersectionObserver Vue Template`, `Page Vue Template`, `ResizeObserver Vue Template`, `SplitPanel Vue Template`, `Tag Vue Template`, `Tree Vue Template`, `Markdown Vue Template`, `Toast Vue Template`, `BarChart Vue Template`, `BreadcrumbItem Vue Template`, `BubbleChart Vue Template`, `ButtonGroup Vue Template`, `Callout Vue Template`, `Chart Vue Template`, `CheckboxGroup Vue Template`, `Divider Vue Template`, `DoughnutChart Vue Template`, `FormatBytes Vue Template`, `FormatDate Vue Template`, `LineChart Vue Template`, `Option Vue Template`, `PieChart Vue Template`, `PolarAreaChart Vue Template`, `Progressbar Vue Template`, `Progressring Vue Template`, `QRCode Vue Template`, `Radarchart Vue Template`, `Scroller Vue Template`, `Skeleton Vue Template`, `Sparkline Vue Template`, `Tab Vue Template`, `TabPanel Vue Template`, `CarouselItem Vue Template`, `Spinner Vue Template`, `Scatterchart Vue Template`, `RadioGroup Vue Template`, `Card Vue Template`, `Combobox Vue Template`, `Select Vue Template`, `Badge Vue Template`, `Relativetime Vue Template`, `ColorPicker Vue Template`, `TimeInput Vue Template`, `Select Vue Starter Fixture`, `MutationObserver Vue Template`, `Input Vue Template`, `NumberInput Vue Template`, `Video Vue Template`, `ToastItem Vue Template`, `Checkbox Vue Template`, `Slider Vue Template`, `Switch Vue Template`, `Textarea Vue Template`, `Input Vue Starter Fixture`, `Icon Vue Template`, `Dialog Vue Template`, `FileInput Vue Template`, `Tooltip Vue Template`, `Rating Vue Template`, `Switch Vue Starter Fixture`, `Textarea Vue Starter Fixture`, `Button Vue Template`, `Dialog Vue Starter Fixture`, `Tooltip Vue Starter Fixture`, `Button Vue Starter Fixture`, `Icon Vue Starter Fixture`?**
+  _High betweenness centrality (0.190) - this node is a cross-community bridge._
+- **Why does `react` connect `ColorPicker React Template (Types)` to `AccordionItem Docs UI Wrapper (React)`, `Sparkline Docs UI Wrapper (React)`, `Tooltip React Starter Fixture`, `TabPanel Docs UI Wrapper (React)`, `Toast Docs UI Wrapper (React)`, `ToastItem Docs UI Wrapper (React)`, `Tree Docs UI Wrapper (React)`, `NumberInput React Template (JSX)`, `Slider React Template (JSX)`, `Dropdown React Template (JSX)`, `Kigumi Studio Color Utilities`, `Kigumi Studio Editor`, `Button React Template (JSX)`, `Breadcrumb Vue Template`, `Markdown React Template (JSX)`, `MutationObserver React Template (Test)`, `Accordion React Template (Test)`, `RadioGroup React Template (Test)`, `AccordionItem React Template (Test)`, `AnimatedImage React Template (Test)`, `Avatar React Template (Test)`, `BarChart React Template (Test)`, `Breadcrumb React Template (Test)`, `BreadcrumbItem React Template (Test)`, `ButtonGroup React Template (Test)`, `Callout React Template (Test)`, `Carousel React Template (Test)`, `CarouselItem React Template (Test)`, `Chart React Template (Test)`, `CheckboxGroup React Template (Test)`, `Comparison React Template`, `CopyButton React Template (Test)`, `DatePicker React Template (Test)`, `Details React Template`, `Divider React Template (Test)`, `Card React Template (Test)`, `DoughnutChart React Template (Test)`, `Kigumi Studio Knowledgebase`, `Drawer React Template (Test)`, `Dropdown React Template (Test)`, `Rating React Template (Test)`, `Storybook Docs Theming`, `Tooltip React Template`, `Foundations & Layout Concepts`, `DropdownItem React Template (Test)`, `FormatBytes React Template (Test)`, `Kigumi Studio Toolbar ImportDialog`, `FormatDate React Template (Test)`, `FormatNumber React Template (Test)`, `Icon React Template (Test)`, `Include React Template`, `IntersectionObserver React Template (Test)`, `KnownDate React Template (Test)`, `LineChart React Template (Test)`, `Markdown React Template (Test)`, `Option React Template (Test)`, `PieChart React Template`, `PolarAreaChart React Template (Test)`, `Popover React Template (Test)`, `Popup React Template (Test)`, `Progressbar React Template (Test)`, `Progressring React Template (Test)`, `QRCode React Template (Test)`, `Radarchart React Template (Test)`, `Kigumi Studio Studiocontext`, `Radio React Template (Test)`, `RandomContent React Template (Test)`, `Relativetime React Template (Test)`, `ResizeObserver React Template`, `Scatterchart React Template (Test)`, `Scroller React Template (Test)`, `Skeleton React Template (Test)`, `Sparkline React Template (Test)`, `Spinner React Template`, `Kigumi Studio Shadow`, `SplitPanel React Template (Test)`, `Tab React Template (Test)`, `Badge React Template (Test)`, `TabGroup React Template`, `TabPanel React Template (Test)`, `Tag React Template (Test)`, `Toast React Template`, `Tree React Template (Test)`, `VideoPlaylist React Template (Test)`, `ZoomableFrame React Template (Test)`, `Icon Next Starter Fixture`, `Components Landing`, `Components Storybook`, `Input Next Starter Fixture`, `Select Next Starter Fixture`, `Switch Next Starter Fixture`, `Dialog React Starter Fixture`, `Icon React Starter Fixture`, `Input React Starter Fixture`, `Select React Starter Fixture`, `Switch React Starter Fixture`, `Animation Docs Snapshot`, `Comparison Docs Snapshot`, `Icon Docs Snapshot`, `Include Docs Snapshot`, `Option Docs Snapshot`, `Rating Docs Snapshot`, `Tab Docs Snapshot`, `Tag Docs Snapshot`, `Landing InstallCommandExample Component`, `Avatar Docs UI Wrapper (React)`, `Button Docs UI Wrapper`, `CarouselItem Docs UI Wrapper (React)`, `FormatDate Docs UI Wrapper (React)`, `MutationObserver Docs UI Wrapper (React)`, `RandomContent Docs UI Wrapper (React)`, `Select Docs UI Wrapper`, `Skeleton Docs UI Wrapper`, `Spinner Docs UI Wrapper (React)`, `Switch Docs UI Wrapper`, `VideoPlaylist Docs UI Wrapper (React)`, `Bubblechart Cross-Framework Templates`, `AccordionItem React Template (JSX)`, `AnimatedImage React Template (JSX)`, `Animation React Template (JSX)`, `Avatar React Template (JSX)`, `Badge React Template (JSX)`, `BarChart React Template (JSX)`, `Breadcrumb React Template (JSX)`, `BubbleChart React Template`, `Callout React Template (JSX)`, `Card React Template (JSX)`, `Carousel React Template (JSX)`, `CarouselItem React Template (JSX)`, `Chart React Template (JSX)`, `CheckboxGroup React Template (JSX)`, `Rating React Template (JSX)`, `CopyButton React Template (JSX)`, `DateInput React Template (JSX)`, `DatePicker React Template (JSX)`, `Skeleton React Template (JSX)`, `Dialog React Template (JSX)`, `Divider React Template (JSX)`, `DoughnutChart React Template (JSX)`, `Drawer React Template (JSX)`, `DropdownItem React Template (JSX)`, `FormatBytes React Template (JSX)`, `FormatDate React Template (JSX)`, `FormatNumber React Template (JSX)`, `Icon React Template (JSX)`, `IntersectionObserver React Template (JSX)`, `KnownDate React Template (JSX)`, `Animation React Template (Test)`, `LineChart React Template (JSX)`, `MutationObserver React Template (JSX)`, `Page Docs Snapshot`, `Option React Template (JSX)`, `Page React Template (JSX)`, `PolarAreaChart React Template (JSX)`, `Popover React Template (JSX)`, `Components Landing Heropreview`, `Popup React Template (JSX)`, `Progressbar React Template (JSX)`, `Progressring React Template (JSX)`, `QRCode React Template (JSX)`, `Stories Dialog Stories`, `Radarchart React Template (JSX)`, `Radio React Template (JSX)`, `RandomContent React Template (JSX)`, `Relativetime React Template (JSX)`, `Stories Randomcontent Stories`, `Scatterchart React Template (JSX)`, `Stories Tag Stories`, `Scroller React Template (JSX)`, `SplitPanel React Template (JSX)`, `Switch React Template (JSX)`, `Tab React Template (JSX)`, `webawesome Dependency`, `Page React Template (Test)`, `TabPanel React Template (JSX)`, `Tag React Template (JSX)`, `Textarea React Template (JSX)`, `Kigumi Studio Preset`, `ToastItem React Template (JSX)`, `Tree React Template (JSX)`, `TreeItem React Template (JSX)`, `VideoPlaylist React Template (JSX)`, `Stories Drawer Stories`, `Sparkline React Template (JSX)`, `Input React Template (JSX)`, `Badge Next Starter Fixture`, `Switch React Template (Test)`, `RadioGroup React Template (JSX)`, `Card Next Starter Fixture`, `Card React Starter Fixture`, `Hooks Useframeworksync`, `Hooks Usepatternsync`, `Stories Popover Stories`, `BreadcrumbItem Docs UI Wrapper (React)`, `Contexts Themecontext`, `Stories Animatedimage Stories`, `Stories Animation Stories`, `ZoomableFrame React Template (JSX)`, `Button Docs Snapshot`, `Callout Docs Snapshot`, `Button React Template (Test)`, `Checkbox React Template (Test)`, `ColorPicker React Template (Test)`, `Combobox React Template (Test)`, `DateInput React Template (Test)`, `Dialog React Template (Test)`, `FileInput React Template`, `Checkbox Docs Snapshot`, `Input React Template (Test)`, `NumberInput React Template (Test)`, `Divider Docs Snapshot`, `Select React Template (Test)`, `Slider React Template (Test)`, `Dropdown Docs Snapshot`, `Textarea React Template (Test)`, `TimeInput React Template`, `ToastItem React Template (Test)`, `Tooltip React Template (test)`, `TreeItem React Template (Test)`, `Video React Template`, `Checkbox React Template (JSX)`, `Stories Toast Stories`, `Accordion React Template (JSX)`, `Select React Template (JSX)`, `Dialog Docs Snapshot`, `Drawer Docs Snapshot`, `Components Landing Troubleshooting`, `Stories Intersectionobserver Stories`, `Stories Mutationobserver Stories`, `Stories Resizeobserver Stories`, `Button Next Starter Fixture`, `Dialog Next Starter Fixture`, `Textarea Next Starter Fixture`, `Tooltip Next Starter Fixture`, `Badge Docs UI Wrapper`, `Button React Starter Fixture`, `ButtonGroup Docs UI Wrapper (React)`, `BreadcrumbItem React Template (JSX)`, `Combobox React Template (JSX)`, `Badge React Starter Fixture`, `Breadcrumb Docs Snapshot`, `Card Docs Snapshot`, `Carousel Docs Snapshot`, `Chart Docs Snapshot`, `Combobox Docs Snapshot`, `Details Docs Snapshot`, `Popup Docs Snapshot`, `Radio Docs Snapshot`, `Skeleton Docs Snapshot`, `Slider Docs Snapshot`, `Sparkline Docs Snapshot`, `Spinner Docs Snapshot`, `Switch Docs Snapshot`, `Textarea Docs Snapshot`, `Tooltip Docs Snapshot`, `Tree Docs Snapshot`, `Components Storybook Tokentable`, `Accordion Docs UI Wrapper (React)`, `DropdownItem Docs UI Wrapper (React)`, `BarChart Docs UI Wrapper (React)`, `Breadcrumb Docs UI Wrapper (React)`, `BubbleChart Docs UI Wrapper (React)`, `Card Docs UI Wrapper (React)`, `ButtonGroup React Template (JSX)`, `CheckboxGroup Docs UI Wrapper (React)`, `Comparison Docs UI Wrapper (React)`, `CopyButton Docs UI Wrapper (React)`, `DateInput Docs UI Wrapper (React)`, `DoughnutChart Docs UI Wrapper (React)`, `FormatBytes Docs UI Wrapper (React)`, `PolarAreaChart Docs UI Wrapper (React)`, `FormatNumber Docs UI Wrapper (React)`, `Icon Docs UI Wrapper`, `KnownDate Docs UI Wrapper (React)`, `Markdown Docs UI Wrapper (React)`, `Option Docs UI Wrapper (React)`, `Page Docs UI Wrapper (React)`, `Popup Docs UI Wrapper (React)`, `QRCode Docs UI Wrapper (React)`, `Radio Docs UI Wrapper (React)`, `Rating Docs UI Wrapper (React)`, `stryker-mutator-vitest-runner Dependency`, `Textarea React Starter Fixture`?**
+  _High betweenness centrality (0.170) - this node is a cross-community bridge._
+- **Why does `keywords` connect `Breadcrumb Vue Template` to `Package Repository`, `ColorPicker React Template (Types)`?**
+  _High betweenness centrality (0.134) - this node is a cross-community bridge._
+- **What connects `ListOptions`, `AddComponentOptions`, `AddSourceOptions` to the rest of the system?**
   _3064 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `CLI Entry & Add Command Core` be split into smaller, more focused modules?**
-  _Cohesion score 0.08055555555555556 - nodes in this community are weakly interconnected._
+- **Should `Brand/List Command Core` be split into smaller, more focused modules?**
+  _Cohesion score 0.07894736842105263 - nodes in this community are weakly interconnected._
