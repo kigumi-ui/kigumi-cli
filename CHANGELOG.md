@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.0] - 2026-08-18
 
+### Added
+
+- **New Web Awesome Pro components: Video, VideoPlaylist, DatePicker, DateInput.** Video (`wa-video`) is a video player with `none`/`standard`/`full` control presets, poster, captions, timeline thumbnails, and playback methods (`play`, `pause`, `seek`, `setVolume`, `requestFullscreen`, and more). VideoPlaylist (`wa-video-playlist`) groups `<Video>` elements into a playlist with `next()`/`previous()`/`goTo()` navigation and a `wa-video-change` event. DatePicker (`wa-date-picker`) is an inline calendar for single or range date selection with min/max, disabled dates, week numbers, and locale support. DateInput (`wa-date-input`) is a form-associated segmented date field with an optional popup calendar, validation, and clear button. All four are Pro-tier and require a Web Awesome Pro license.
+
+### Changed
+
+- **Web Awesome Pro documentation text is no longer bundled.** Pro is commercial software whose license does not permit passing its assets to people without a license, so the descriptions extracted from it are gone from the component metadata and type-check shims. Names, types and signatures stay, and the generated wrappers still compile identically. Pro licensees see the real descriptions from the package itself. Free-tier components keep their full documentation, and the attribution the Web Awesome license asks for now ships in `NOTICE`.
+
+### Fixed
+
+- **`diff` and `update` no longer skip community components silently.** Components installed from a community registry have no built-in template to compare against, so both commands dropped them from the scan and then reported "all components are up to date". They are now listed explicitly, with the registry they came from and what to do about them.
+- **`llms.txt` reports the current versions.** The sample `kigumi status --json` payload still quoted kigumi 0.13.0 and Web Awesome 3.3.1, four minor releases behind. Corrected, and the version claims are now checked against `package.json` by `validate:generated-fresh` so they cannot drift again.
+- **Registry cache keys now include the branch.** Two branches of the same registry repository shared one cache directory, so fetching from `owner/repo` and from `owner/repo/tree/staging` would overwrite each other's cached files. Each branch now caches independently.
+- **Cached registry files now expire.** The one-hour cache lifetime was only checked on a code path the CLI does not use, so a component file downloaded from a community registry was served from disk indefinitely and `kigumi add --from` kept installing a stale copy. Cached files older than the lifetime are refetched.
+- **`theme install` accepts local registry paths.** `kigumi theme install <name> --from ../sibling-repo` failed with "Only GitHub URLs are supported" even though `kigumi add --from ../sibling-repo` has always accepted local paths. Theme installs now use the same source parser as component installs, so relative paths, absolute paths, and `~` paths all work.
+
+### Removed
+
+- **Removed the inert `--no-types` flag from `kigumi add`.** The flag was accepted but never read: TypeScript output has always been controlled by the `typescript` field in `kigumi.config.json`, which `kigumi init` sets from your project. Passing `--no-types` silently did nothing, so it is gone rather than left as a promise the CLI does not keep.
+
 ## [0.26.0] - 2026-07-02
 
 ### Added
