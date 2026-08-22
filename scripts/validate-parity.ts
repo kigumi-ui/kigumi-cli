@@ -7,12 +7,19 @@
  * Specifically checks that the registry `files` field matches actual template presence,
  * and detects orphaned template directories without registry entries.
  *
- * CHECKS:
- * - Registry `files` field references both frameworks when templates exist
+ * CHECKS (both fail the build):
+ * - Registry `files` field references every framework that has templates
  * - No orphaned template directories (templates without registry entry)
  *
  * NOTE: Template directory existence and file completeness are already checked by
  * validate:templates. This script focuses on the metadata/registry layer instead.
+ *
+ * WHAT `registry.files` ACTUALLY IS: documentation metadata describing where a
+ * component's files land, in the shape the community registry publishes. It is
+ * NOT the path the local installer writes to: `add` builds its destination as
+ * `<componentsDir>/<Name>/<file>` (see src/commands/add/installer.ts) and never
+ * reads this field. Keeping it accurate therefore protects readers and the
+ * community-registry surface, not local install behaviour.
  *
  * USAGE:
  *   pnpm validate:parity
@@ -32,6 +39,13 @@ const TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates');
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
+/**
+ * Frameworks that ship template directories. Deliberately narrower than the
+ * `Framework` type in src/, which also carries 'unknown'.
+ */
+const FRAMEWORKS = ['react', 'vue', 'angular'] as const;
+type Framework = (typeof FRAMEWORKS)[number];
+
 interface ParityFinding {
   component: string;
   category: 'registry-files-gap' | 'orphaned-template';
@@ -45,8 +59,8 @@ interface ParityResult {
   stats: {
     totalComponents: number;
     registryFilesGaps: number;
-    orphanedReact: number;
-    orphanedVue: number;
+    /** Orphaned template directories, keyed by framework. */
+    orphaned: Record<Framework, number>;
   };
 }
 
@@ -61,14 +75,13 @@ export async function validateParity(): Promise<ParityResult> {
     stats: {
       totalComponents: Object.keys(components).length,
       registryFilesGaps: 0,
-      orphanedReact: 0,
-      orphanedVue: 0,
+      orphaned: { react: 0, vue: 0, angular: 0 },
     },
   };
 
   // 1. Check registry `files` field matches template presence
   for (const [, component] of Object.entries(components)) {
-    for (const framework of ['react', 'vue'] as const) {
+    for (const framework of FRAMEWORKS) {
       const dir = path.join(TEMPLATES_DIR, framework, component.name);
       const hasTemplates = await fs.pathExists(dir);
       const hasFilesEntry = (component.files[framework]?.length ?? 0) > 0;
@@ -78,7 +91,7 @@ export async function validateParity(): Promise<ParityResult> {
         result.findings.push({
           component: component.name,
           category: 'registry-files-gap',
-          severity: 'warning',
+          severity: 'error',
           message: `${framework} templates exist but registry.files.${framework} is empty`,
         });
       }
@@ -88,7 +101,7 @@ export async function validateParity(): Promise<ParityResult> {
   // 2. Check for orphaned template directories (not in registry)
   const registryNames = new Set(Object.values(components).map((c) => c.name));
 
-  for (const framework of ['react', 'vue'] as const) {
+  for (const framework of FRAMEWORKS) {
     const frameworkDir = path.join(TEMPLATES_DIR, framework);
     if (!(await fs.pathExists(frameworkDir))) continue;
 
@@ -99,13 +112,12 @@ export async function validateParity(): Promise<ParityResult> {
 
     for (const dirName of templateDirs) {
       if (!registryNames.has(dirName)) {
-        if (framework === 'react') result.stats.orphanedReact++;
-        else result.stats.orphanedVue++;
+        result.stats.orphaned[framework]++;
 
         result.findings.push({
           component: dirName,
           category: 'orphaned-template',
-          severity: 'warning',
+          severity: 'error',
           message: `Orphaned ${framework} template directory (no registry entry)`,
         });
       }
@@ -127,9 +139,12 @@ function printResults(result: ParityResult): void {
   console.log(`  Total registry components:  ${result.stats.totalComponents}`);
   console.log(`  Registry files gaps:       ${result.stats.registryFilesGaps}`);
 
-  if (result.stats.orphanedReact || result.stats.orphanedVue) {
-    console.log(`  Orphaned React dirs:       ${result.stats.orphanedReact}`);
-    console.log(`  Orphaned Vue dirs:         ${result.stats.orphanedVue}`);
+  for (const [framework, count] of Object.entries(result.stats.orphaned)) {
+    if (count > 0) {
+      console.log(
+        `  Orphaned ${framework} dirs:${' '.repeat(Math.max(1, 12 - framework.length))}${count}`
+      );
+    }
   }
   console.log('');
 

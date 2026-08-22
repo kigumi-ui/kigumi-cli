@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (91 files at top level, ~1500 tests; more under scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (92 files at top level, ~1500 tests; more under scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -89,6 +89,7 @@ tests/
 │   ├── validate-changes.test.ts     # AI guard-rail checks + anti-pattern matcher
 │   ├── validate-cem-sync.test.ts    # CEM sync validation
 │   ├── validate-parity.test.ts      # Template parity validation
+│   ├── validate-parity-detection.test.ts  # Parity detection proven on a synthetic registry
 │   ├── validate-registry.test.ts    # Registry validator (fields, props, tags)
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── validation-errors.test.ts    # Validation error classes
@@ -696,4 +697,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-22 (guardrails cluster A: added validate-changes.test.ts covering the pure anti-pattern matcher)
+**Last Updated:** 2026-08-22 (guardrails clusters A and B: added validate-changes.test.ts and validate-parity-detection.test.ts)
