@@ -155,6 +155,26 @@ jobs:
         # check-metadata-freshness, and validate:cem-sync instead.
         run: pnpm run validate:generated-fresh
 
+      - name: Validate Changes
+        run: pnpm run validate:changes
+
+      - name: Validate Stories
+        run: pnpm run validate:stories
+
+      - name: Validate Parity
+        run: pnpm run validate:parity
+
+      - name: Validate AGENTS.md
+        run: pnpm run validate:agents
+
+      - name: Validate CEM Sync
+        # Runs unauthenticated on purpose. The component-presence half reads the
+        # committed COMPONENT_METADATA and always applies; only the prop-value
+        # drift half needs the Pro CEM, and it self-skips when that is absent
+        # (validate-cem-sync.ts). Gating this step on WEBAWESOME_NPM_TOKEN would
+        # mean installing docs dependencies here for no additional coverage.
+        run: pnpm run validate:cem-sync
+
   test:
     name: Test
     runs-on: ubuntu-latest
