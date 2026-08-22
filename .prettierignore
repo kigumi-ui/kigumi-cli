@@ -6,3 +6,9 @@ coverage
 .pnpm-store
 pnpm-lock.yaml
 tests/fixtures/starter-snapshots
+
+# Generated agent references. Prettier reads `_` as emphasis and rewrites the
+# identifiers these files document (eyedropper-button__base -> **base,
+# _blank -> \_blank), which are Web Awesome part and attribute names copied
+# verbatim into user code. check-generated-fresh compares them raw.
+.claude/skills/shared/*-api-surface.md
