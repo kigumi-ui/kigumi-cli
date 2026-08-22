@@ -62,7 +62,12 @@ function parseCategories(content: string): Map<string, string[]> {
   cleaned = cleaned.replace(/^ {2}###/gm, '###');
   cleaned = cleaned.replace(/^ {2}(\S)/gm, '$1');
 
-  // Parse into categories
+  // Parse into categories. Content that appears before any ### header (e.g.
+  // a changeset written as plain prose without a category) falls back to
+  // "Changed" instead of being silently dropped -- validate:changesets
+  // should catch header-less changesets before they merge, but this is the
+  // last line of defense against losing a changeset's content entirely.
+  const FALLBACK_CATEGORY = 'Changed';
   let currentCategory: string | null = null;
   const lines = cleaned.split('\n');
 
@@ -76,8 +81,12 @@ function parseCategories(content: string): Map<string, string[]> {
       continue;
     }
 
-    if (currentCategory && line.trim()) {
-      categories.get(currentCategory)!.push(line);
+    if (line.trim()) {
+      const category = currentCategory ?? FALLBACK_CATEGORY;
+      if (!categories.has(category)) {
+        categories.set(category, []);
+      }
+      categories.get(category)!.push(line);
     }
   }
 
