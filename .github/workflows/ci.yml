@@ -145,6 +145,9 @@ jobs:
       - name: Validate Templates
         run: pnpm run validate:templates
 
+      - name: Validate Changesets
+        run: pnpm run validate:changesets
+
       - name: Validate generated-artifact freshness
         # Checks B/C/D (docs-wrapper CSS, .jsx subset, starter fixtures) run here.
         # Check A (generator regen) self-skips: no Web Awesome CEM / Pro token in

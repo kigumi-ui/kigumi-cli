@@ -93,6 +93,25 @@ const MULTI_CHANGESET_HASH_FIXTURE = `# Changelog
 - Prior entry kept verbatim.
 `;
 
+// Real-world shape of a changeset written as plain prose with no ### Category
+// header at all (the pattern that produced a fully empty v0.27.0 CHANGELOG.md
+// entry: 8 changesets were authored this way and their content vanished).
+const NO_CATEGORY_HEADER_FIXTURE = `# Changelog
+
+## 0.27.0
+
+### Patch Changes
+
+- **Cached registry files now expire.** Stale copies no longer stick around forever.
+- **\`theme install\` accepts local registry paths.** Relative and absolute paths now work.
+
+## [0.26.0] - 2026-07-02
+
+### Fixed
+
+- Prior entry kept verbatim.
+`;
+
 describe('rewriteChangelog', () => {
   it('reformats a fresh changesets entry to Keep-a-Changelog', () => {
     expect(rewriteChangelog(CHANGELOG_FIXTURE, TODAY)).toMatchSnapshot();
@@ -133,6 +152,15 @@ describe('rewriteChangelog', () => {
     const changedBlock = result.slice(changed, fixed);
     expect(changedBlock).toContain('Enum A corrected.');
     expect(changedBlock).toContain('Web Awesome upgraded to 3.6.0.');
+  });
+
+  it('falls back to Changed instead of dropping content with no category header', () => {
+    const result = rewriteChangelog(NO_CATEGORY_HEADER_FIXTURE, '2026-08-18');
+
+    // Regression: this content used to vanish entirely (empty v0.27.0 entry).
+    expect(result).toContain('Cached registry files now expire.');
+    expect(result).toContain('`theme install` accepts local registry paths.');
+    expect(result).toContain('### Changed');
   });
 });
 

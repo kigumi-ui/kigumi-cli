@@ -952,6 +952,16 @@ git add .changeset/*.md
 git commit -m "chore: add changeset"
 ```
 
+The summary **must** start with a Keep a Changelog category header (`### Added` / `### Changed` / `### Fixed` / `### Deprecated` / `### Removed` / `### Security` / `### Breaking Changes`), e.g.:
+
+```markdown
+### Fixed
+
+- **Scope**: What was broken and what changed
+```
+
+Content without a header is silently dropped from `CHANGELOG.md` at release time (`scripts/post-changeset-version.ts` only buckets lines that follow a header). `pnpm validate:changesets` (wired into CI) catches this before merge — see `.claude/skills/release/SKILL.md` for the full format.
+
 **Step 3: Push and create PR**
 
 ```bash
@@ -1082,4 +1092,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-07-28 (open-source 1.0 cleanup; 84 components)
+**Maintained by:** AI Assistants | **Last Updated:** 2026-08-22 (changeset category-header convention documented; 84 components)

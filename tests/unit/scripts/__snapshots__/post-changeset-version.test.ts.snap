@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Drop legacy tier schema entirely.
+- Add Vue Phase 6 component coverage.
 - Default Toast placement is now \`top-end\`.
 
 ### Fixed
