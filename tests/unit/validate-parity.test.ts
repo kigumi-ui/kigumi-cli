@@ -27,14 +27,14 @@ describe('validate:parity', () => {
     expect(result.stats.totalComponents).toBeGreaterThan(0);
   });
 
-  it('should detect registry files gaps (templates exist but files field empty)', async () => {
+  it('should report no findings against the real repo state', async () => {
+    // The registry and templates are expected to be in sync on a clean tree.
+    // Detection itself is proven separately, against a synthetic registry, so
+    // this assertion does not depend on debt existing to be meaningful.
     const result = await validateParity();
 
-    // Many components have Vue templates but empty registry.files.vue
-    const gapFindings = result.findings.filter(
-      (f) => f.category === 'registry-files-gap'
-    );
-    expect(gapFindings.length).toBeGreaterThan(0);
+    expect(result.findings).toEqual([]);
+    expect(result.passed).toBe(true);
   });
 
   it('should categorize all findings with valid severity levels', async () => {

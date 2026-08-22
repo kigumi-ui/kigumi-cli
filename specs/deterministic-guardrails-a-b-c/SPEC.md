@@ -206,12 +206,12 @@ consistency, and normalizes the four outliers in the same PR.
 
 ### Angular baseline caveat
 
-85 template directories against 84 registry components means at least one
-`orphaned-template` finding is likely once Angular is scanned. **Measure the
-Angular baseline before flipping severity.** If it introduces new debt, that
-debt is fixed in the same PR, or Angular findings stay `warning` behind an
-explicit, documented carve-out. A fresh backlog must not ride in under a newly
-strict gate.
+**Measured: Angular adds zero findings.** `files.angular` was already complete
+at 84/84, and there are no orphaned directories in any framework. The apparent
+85-vs-84 discrepancy is `templates/<framework>/tsconfig.json`, a file, which the
+orphan check already skips because it filters to directories. Both categories
+were therefore safe to flip for all three frameworks in one step, with no
+carve-out needed.
 
 ### Test change
 
@@ -306,13 +306,14 @@ a mysterious failure on an unrelated PR.
 
 ## Open questions
 
-- Should the four nested `files.vue` paths be normalized to flat, or should the
-  registry instead be corrected to describe real install paths (nested for every
-  framework)? This spec picks flat-for-consistency on the grounds that the field
-  describes nothing at runtime, but correcting it properly is defensible and
-  would be a larger change touching react and angular too.
-- Does the Angular scan surface an orphan (85 dirs vs 84 components)? Must be
-  measured before B flips severity.
+- ~~Should the four nested `files.vue` paths be normalized to flat?~~
+  **Resolved: flat.** Confirmed by the user. All 84 vue entries now read
+  `components/<Name>.vue`, and each was verified to map to a real template file
+  on disk.
+- ~~Does the Angular scan surface an orphan (85 dirs vs 84 components)?~~
+  **Resolved: no.** The 85th entry is `tsconfig.json`, a file, and the orphan
+  check already filters to directories. Adding Angular produced zero findings:
+  `files.angular` was already complete at 84/84.
 - Is the meta-check worth a cluster: statically flag any `scripts/validate-*.ts`
   whose failure predicate references a severity no emit site produces? It would
   have caught both bugs repaired here.
