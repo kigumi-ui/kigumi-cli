@@ -76,6 +76,7 @@ tests/
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
+│   ├── theme-install-local-source.test.ts  # `theme install --from` with a local registry
 │   ├── three-way-merge.test.ts      # Three-way merge algorithm
 │   ├── tier.test.ts                 # Tier detection
 │   ├── tier-consistency.test.ts     # Registry/tier consistency validation
@@ -697,4 +698,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-22 (guardrails clusters A and B: added validate-changes.test.ts and validate-parity-detection.test.ts)
+**Last Updated:** 2026-08-22 (guardrails clusters A-C: added validate-changes.test.ts and validate-parity-detection.test.ts; restored the missing theme-install-local-source.test.ts entry)
