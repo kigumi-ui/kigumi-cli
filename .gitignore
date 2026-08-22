@@ -45,9 +45,12 @@ tmp/
 .stryker-tmp/
 reports/mutation/
 
-graphify-out/cost.json        # local only
-graphify-out/cache/         # optional: commit for speed, skip to keep repo small
-graphify-out/.graphify_analysis.json    # local working state (clustering intermediate)
-graphify-out/.graphify_labels.json.sig  # local working state (label integrity signature)
-graphify-out/.graphify_python           # local working state (interpreter path)
-graphify-out/.graphify_root             # local working state (scan root)
+# graphify-out/: local only
+graphify-out/cost.json
+# graphify-out/: optional - commit for speed, skip to keep repo small
+graphify-out/cache/
+# graphify-out/: local working state (clustering intermediate, label signature, interpreter path, scan root)
+graphify-out/.graphify_analysis.json
+graphify-out/.graphify_labels.json.sig
+graphify-out/.graphify_python
+graphify-out/.graphify_root
