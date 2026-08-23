@@ -326,9 +326,14 @@ async function checkLlmsTxtVersions(): Promise<Finding[]> {
   const pkg = await fs.readJSON(path.join(PROJECT_ROOT, 'package.json'));
 
   const cliVersion: string = pkg.version;
-  const waVersion: string = (
-    pkg.dependencies?.['@awesome.me/webawesome'] ?? ''
-  ).replace(/^[^0-9]*/, '');
+  // Web Awesome sits in devDependencies here. Reading only `dependencies` left
+  // waVersion as '' and made the Web Awesome half of this check inert: the
+  // `if (waVersion && ...)` guard below could never be true.
+  const waSpec: string =
+    pkg.dependencies?.['@awesome.me/webawesome'] ??
+    pkg.devDependencies?.['@awesome.me/webawesome'] ??
+    '';
+  const waVersion: string = waSpec.replace(/^[^0-9]*/, '');
 
   const claimedCli = llms.match(/"version":\s*"([^"]+)"/)?.[1];
   if (claimedCli && claimedCli !== cliVersion) {
