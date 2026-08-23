@@ -804,9 +804,9 @@ START: Change affects tier detection or packages
 
 ### Checklist: Web Awesome Version Bump
 
-The code/registry side is guarded by validators (`validate:cem-sync`, `validate:registry`, `validate:generated-fresh`). The surfaces below are **hand-maintained** and were the source of all drift found in the WA 3.7.0–3.10.0 audit (see `docs/superpowers/state/wa-drift-audit-2026-07-02.md`). Walk this list on every bump:
+The code/registry side is guarded by validators (`validate:cem-sync`, `validate:registry`, `validate:generated-fresh`, `validate:wa-pins`). The surfaces below are **hand-maintained** and were the source of all drift found in the WA 3.7.0–3.10.0 audit (see `docs/superpowers/state/wa-drift-audit-2026-07-02.md`). Walk this list on every bump:
 
-- [ ] **Pins**: `package.json`, `docs/package.json`, `docs/kigumi.config.json`, root `kigumi.config.json` (dogfooding), `src/constants.ts` `DEFAULT_WEBAWESOME_VERSION`, `src/utils/version-map.ts` entry
+- [ ] **Pins** (now enforced — run `pnpm validate:wa-pins`): `package.json`, `docs/package.json`, `docs/kigumi.config.json`, root `kigumi.config.json` (dogfooding), `src/constants.ts` `DEFAULT_WEBAWESOME_VERSION`, `src/utils/version-map.ts` newest entry. All six must name the same exact version. **Adding the `version-map.ts` entry is not optional**: `kigumi upgrade` installs whatever the newest entry names, so skipping it makes upgrade hand users an older Web Awesome than the CLI ships.
 - [ ] **New upstream components**: either full wrapper (run the "Before Adding New Component" checklist above, including the docs-site items) or an explicit entry in `INTENTIONALLY_UNWRAPPED` in `scripts/validate-cem-sync.ts` with rationale
 - [ ] **Changed props/defaults/enum values**: check every changelog line against templates, `docs/src/components/ui`, stories (argTypes `defaultValue` summaries!), and registry prop values — new enum values need a demo story (e.g. Tree `leaf-multiple`)
 - [ ] **Removed CSS custom properties / parts**: grep repo-wide for the removed name; also confirm it is absent from `kigumi-theme` references
@@ -1092,4 +1092,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-08-22 (changeset category-header convention documented; 84 components)
+**Maintained by:** AI Assistants | **Last Updated:** 2026-08-23 (Web Awesome pin consistency enforced via validate:wa-pins; 84 components)
