@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/Badge/Badge';
 import { Button } from '@/components/ui/Button/Button';
 import { Icon } from '@/components/ui/Icon/Icon';
 
-const BANNER_STORAGE_KEY = 'banner-20260626-dismissed';
+const BANNER_STORAGE_KEY = 'banner-20260823-dismissed';
 
 export const Banner = () => {
   const [isDismissed, setIsDismissed] = useState(() => {
@@ -27,7 +27,7 @@ export const Banner = () => {
     >
       <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
         <Badge pill variant="neutral" appearance="accent" attention="pulse">
-          New framework
+          New
         </Badge>
         <span>
           <strong>Next.js</strong> is now supported. Use{' '}
