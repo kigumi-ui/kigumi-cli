@@ -1,9 +1,14 @@
 /**
  * Post-processor for `changeset version` output.
  * Transforms the latest CHANGELOG.md entry from changesets format
- * into Keep a Changelog format, and bumps the `**Version**:` marker in
- * AGENTS.md to match the freshly-bumped package.json version (kept in sync
- * so `validate-agents` stays green without a manual edit).
+ * into Keep a Changelog format, and bumps the version markers in AGENTS.md and
+ * llms.txt to match the freshly-bumped package.json version (kept in sync so
+ * `validate-agents` and `validate:generated-fresh` check E stay green without a
+ * manual edit).
+ *
+ * llms.txt ships in the npm tarball and carries a sample `kigumi status --json`
+ * payload. Every release used to leave its `version` one behind, failing check E
+ * on the release PR until someone hand-edited it.
  *
  * Run via: pnpm version (package.json: "changeset version && tsx scripts/post-changeset-version.ts")
  */
@@ -15,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const CHANGELOG_PATH = resolve(import.meta.dirname, '..', 'CHANGELOG.md');
 const AGENTS_PATH = resolve(import.meta.dirname, '..', 'AGENTS.md');
+const LLMS_PATH = resolve(import.meta.dirname, '..', 'llms.txt');
 
 const CATEGORY_ORDER = [
   'Breaking Changes',
@@ -196,6 +202,15 @@ export function bumpAgentsVersion(agentsText: string, version: string): string {
   );
 }
 
+/**
+ * Bump the CLI version inside llms.txt's sample `kigumi status --json` payload.
+ * Only the first `"version"` key is rewritten: the second one belongs to the
+ * nested Web Awesome `package` object and must keep tracking Web Awesome.
+ */
+export function bumpLlmsVersion(llmsText: string, version: string): string {
+  return llmsText.replace(/("version":\s*")[^"]+(")/, `$1${version}$2`);
+}
+
 function run(): void {
   try {
     const changelog = readFileSync(CHANGELOG_PATH, 'utf-8');
@@ -210,6 +225,13 @@ function run(): void {
     if (bumpedAgents !== agents) {
       writeFileSync(AGENTS_PATH, bumpedAgents);
       console.error(`AGENTS.md: bumped version to ${version}`);
+    }
+
+    const llms = readFileSync(LLMS_PATH, 'utf-8');
+    const bumpedLlms = bumpLlmsVersion(llms, version);
+    if (bumpedLlms !== llms) {
+      writeFileSync(LLMS_PATH, bumpedLlms);
+      console.error(`llms.txt: bumped version to ${version}`);
     }
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err));
