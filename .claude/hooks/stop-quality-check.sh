@@ -128,6 +128,12 @@ if echo "$CHANGED_FILES" | grep -qE 'AGENTS\.md|registry\.ts|tests/unit/'; then
   VA_OUTPUT=$(pnpm validate:agents 2>&1) || ERRORS="${ERRORS}--- AGENTS.md Validation Errors ---\n${VA_OUTPUT}\n\n"
 fi
 
+# Any file that names a Web Awesome version. Missing one location ships a
+# split-brain pin, and a missing VERSION_MAP entry makes `upgrade` downgrade.
+if echo "$CHANGED_FILES" | grep -qE 'package\.json|kigumi\.config\.json|constants\.ts|version-map\.ts'; then
+  WP_OUTPUT=$(pnpm validate:wa-pins 2>&1) || ERRORS="${ERRORS}--- Web Awesome Pin Errors ---\n${WP_OUTPUT}\n\n"
+fi
+
 # --- Report ---
 
 if [ -n "$ERRORS" ]; then

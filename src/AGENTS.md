@@ -55,7 +55,7 @@ src/
 │   ├── snapshot.ts       # Snapshot CRUD for .kigumi/snapshots/ (three-way merge base; also saved for community --from installs)
 │   ├── three-way-merge.ts # Three-way merge logic using node-diff3
 │   ├── version-check.ts  # CLI vs project version compatibility check
-│   ├── version-map.ts    # Version history + breaking changes data
+│   ├── version-map.ts    # Version history + breaking changes data (newest entry must match DEFAULT_WEBAWESOME_VERSION; see validate:wa-pins)
 │   ├── registry-cache.ts # Disk cache for registry files (~/.kigumi/cache), keyed by owner-repo-branch, entries expire after REGISTRY_CACHE_TTL_MS
 │   ├── installed-components.ts # Shared diff/update resolver — splits installed components into builtin (comparable against a template) and unmanaged (community or hand-written), so commands report them instead of skipping silently
 │   ├── github-token.ts   # GitHub PAT resolution chain
@@ -433,4 +433,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-07-28 (open-source 1.0 cleanup; shared installed-components resolver; unused error and check classes removed)
+**Last Updated:** 2026-08-23 (version-map upgrade invariant documented; enforced by validate:wa-pins)

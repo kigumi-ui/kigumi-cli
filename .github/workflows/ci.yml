@@ -175,6 +175,14 @@ jobs:
         # mean installing docs dependencies here for no additional coverage.
         run: pnpm run validate:cem-sync
 
+      - name: Validate Web Awesome pins
+        # The WA version lives in six places (both package.json files, both
+        # kigumi.config.json files, DEFAULT_WEBAWESOME_VERSION, and the newest
+        # VERSION_MAP entry). A bump that misses one ships silently, and a
+        # missed VERSION_MAP entry makes `kigumi upgrade` install an older WA
+        # than the CLI targets.
+        run: pnpm run validate:wa-pins
+
   test:
     name: Test
     runs-on: ubuntu-latest

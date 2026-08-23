@@ -49,6 +49,11 @@ describe('VERSION_MAP', () => {
     }
   });
 
+  // This asserts a HISTORICAL fact: kigumi 0.20.0 really did ship WA 3.5.0, and
+  // that pairing must never be rewritten. It deliberately says nothing about the
+  // current version. The forward-looking invariant (newest entry ==
+  // DEFAULT_WEBAWESOME_VERSION) lives in validate-wa-pins.test.ts, asserted
+  // against the constant so it cannot rot into protecting a stale literal.
   it('has a 0.20.0 entry pinned exactly to Web Awesome 3.5.0', () => {
     const entry = VERSION_MAP.find((e) => e.kigumiVersion === '0.20.0');
     expect(entry).toBeDefined();

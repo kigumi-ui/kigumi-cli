@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (92 files at top level, ~1500 tests; more under scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (93 files at top level, ~1500 tests; more under scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -91,6 +91,7 @@ tests/
 │   ├── validate-cem-sync.test.ts    # CEM sync validation
 │   ├── validate-parity.test.ts      # Template parity validation
 │   ├── validate-parity-detection.test.ts  # Parity detection proven on a synthetic registry
+│   ├── validate-wa-pins.test.ts     # Web Awesome pin consistency across all six locations
 │   ├── validate-registry.test.ts    # Registry validator (fields, props, tags)
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── validation-errors.test.ts    # Validation error classes
@@ -698,4 +699,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-22 (guardrails clusters A-C: added validate-changes.test.ts and validate-parity-detection.test.ts; restored the missing theme-install-local-source.test.ts entry)
+**Last Updated:** 2026-08-23 (added validate-wa-pins.test.ts covering Web Awesome pin consistency and the version-map upgrade invariant)

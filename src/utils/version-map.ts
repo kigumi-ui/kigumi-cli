@@ -50,6 +50,17 @@ function compareSemver(a: string, b: string): number {
  *
  * Each release that changes templates, WA version, or component APIs
  * should have an entry here. Add new entries at the TOP of the array.
+ *
+ * INVARIANT: the newest entry's `webAwesomeVersion` must equal
+ * `DEFAULT_WEBAWESOME_VERSION` (src/constants.ts). `kigumi upgrade` writes
+ * `getVersionEntry(target).webAwesomeVersion` into the user's config and
+ * installs it, and `getVersionEntry` falls back to the highest entry <= the
+ * request. So bumping Web Awesome without adding an entry here makes `upgrade`
+ * install an older Web Awesome than the CLI actually ships, silently.
+ *
+ * `pnpm validate:wa-pins` enforces this, along with the five other places the
+ * Web Awesome version is written down. Newest-first ordering is enforced too,
+ * because that check reads VERSION_MAP[0].
  */
 export const VERSION_MAP: VersionEntry[] = [
   {
