@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.1] - 2026-08-23
+
+### Added
+
+- **validate:wa-pins**: A new check that holds every location naming a Web Awesome version to the same exact version, and enforces the upgrade-path invariant that the newest `VERSION_MAP` entry matches `DEFAULT_WEBAWESOME_VERSION`. That invariant was previously unenforced: `kigumi upgrade` installs whatever the newest map entry names, so bumping Web Awesome without adding an entry made upgrade hand users an older Web Awesome than the CLI ships, with nothing failing. The check also rejects range syntax, since a Kigumi release targets one specific Web Awesome version and must never auto-float. It runs in `validate:all`, in CI as its own step, in the release-readiness gates, and in the stop hook whenever a file naming a version changes.
+
+### Changed
+
+- **validate:parity**: Angular is now checked alongside React and Vue. It had been excluded since the script was written, so Angular metadata was never verified in either direction; it turned out to be complete. Orphan counts are now tracked per framework rather than collapsing everything that is not React into a Vue tally.
+- **registry**: The four `files.vue` paths that used a nested `components/<Name>/<Name>.vue` shape now use the flat `components/<Name>.vue` form their React and Angular siblings already used.
+- **validate:changes**: The anti-pattern matcher moved into a pure, exported `scanAntiPatterns()` function covered by table tests, so a rule that stops matching fails a test instead of reporting success. The script now also carries an import guard, which is what makes it testable at all, and scans `.tsx` alongside `.ts`.
+
+### Fixed
+
+- **Agent skill references**: The generated `*-api-surface.md` files documented Web Awesome CSS part and attribute names incorrectly. They were run through Prettier, which reads `_` as emphasis syntax and rewrote the identifiers it found: `eyedropper-button__base` was stored as `eyedropper-button**base`, and `target="_blank"` as `target="\_blank"`. Agents copy these names verbatim into user code, so the reference was actively misleading. The files are now compared and committed as the generator emits them, and are excluded from Prettier so nothing re-mangles them.
+- **validate:generated-fresh**: Check A could not pass on a checkout with a Web Awesome Pro CEM, because it compared Prettier-rewritten markdown against raw generator output. It now passes, and catches a re-introduced mangling.
+- **CI**: Five validators now gate pull requests. `validate:changes`, `validate:stories`, `validate:parity`, `validate:agents` and `validate:cem-sync` ran only via `pnpm validate:all` or inside a local Claude session, so a human-authored PR bypassed them entirely. Each is now its own named step in the quality job, so a failure points at the check that failed.
+- **tests/AGENTS.md**: Restored the missing `theme-install-local-source.test.ts` entry. Its absence made `validate:agents` fail on a clean tree, which is why the check could not be wired into CI before now.
+- **llms.txt**: The sample `kigumi status --json` payload claimed version 0.26.0 against a 0.27.0 package.
+- **validate:parity**: The check can now fail. Both finding types were hardcoded to `warning` while the pass/fail predicate only looked for `error`, so the script reported success no matter what it found, including the 57 real gaps it had been listing for months. Missing `files` entries and orphaned template directories are now errors.
+- **registry**: Backfilled the 57 missing `files.vue` entries, so every component declares the frameworks it actually ships templates for. Each path was verified against the template file on disk.
+- **validate:changes**: The script's header no longer advertises a `--fix` flag it never implemented, and its check list now matches what actually runs.
+
+### Removed
+
+- **validate:changes**: Dropped the `class`/`className` anti-pattern. Its regex required the `<wa-` tag to appear after the attribute, so it matched nothing for months; catching the real case (multi-line JSX) needs an AST rule rather than a line regex.
+- **validate:changes**: Dropped `checkTierLogic()`, an empty function that still ran on every invocation and still appeared in the script's documented check list, reading as coverage that did not exist.
+
 ## [0.27.0] - 2026-08-18
 
 ### Added
