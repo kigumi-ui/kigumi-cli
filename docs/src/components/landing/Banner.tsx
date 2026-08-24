@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Badge } from '@/components/ui/Badge/Badge';
 import { Button } from '@/components/ui/Button/Button';
 import { Icon } from '@/components/ui/Icon/Icon';
 
@@ -26,9 +25,6 @@ export const Banner = () => {
       className="banner wa-gap-xs wa-justify-content-center wa-align-items-center"
     >
       <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
-        <Badge pill variant="neutral" appearance="accent" attention="pulse">
-          New
-        </Badge>
         <span>
           <strong>Next.js</strong> is now supported. Use{' '}
           <code>npx kigumi upgrade</code> to install the latest version or try
