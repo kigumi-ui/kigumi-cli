@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (94 files at top level, ~1500 tests; more under scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (95 files at top level, ~1500 tests; more under scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -97,6 +97,7 @@ tests/
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
+│   ├── validate-agents.test.ts      # Pure matcher for templates/AGENTS.md component-count claims (cluster Q)
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
@@ -700,4 +701,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-23 (added validate-wa-pins.test.ts and post-changeset-version.test.ts covering release-time version markers)
+**Last Updated:** 2026-08-26 (added validate-agents.test.ts covering the templates/AGENTS.md count-claim matcher)
