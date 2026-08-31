@@ -183,6 +183,13 @@ jobs:
         # than the CLI targets.
         run: pnpm run validate:wa-pins
 
+      - name: Validate GHA job permissions
+        # A job-level `permissions:` block REPLACES the workflow-level one
+        # instead of merging, so a job that declares any permissions silently
+        # drops every scope it does not restate. Dropping `contents: read`
+        # breaks actions/checkout, which is how PR #173 regressed.
+        run: pnpm run validate:gha-permissions
+
   test:
     name: Test
     runs-on: ubuntu-latest

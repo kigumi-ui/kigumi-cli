@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (95 files at top level, ~1500 tests; more under scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (96 files at top level, ~1500 tests; more under scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -98,6 +98,7 @@ tests/
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── validate-agents.test.ts      # Pure matcher for templates/AGENTS.md component-count claims (cluster Q)
+│   ├── validate-gha-permissions.test.ts # Pure matcher for GHA job-level permissions vs actions/checkout (cluster V)
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
@@ -701,4 +702,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-26 (added validate-agents.test.ts covering the templates/AGENTS.md count-claim matcher)
+**Last Updated:** 2026-08-26 (added validate-agents.test.ts and validate-gha-permissions.test.ts covering the count-claim and GHA job-permissions matchers)
