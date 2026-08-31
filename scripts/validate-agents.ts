@@ -12,6 +12,7 @@
  * - Pro-only component list matches registry tier assignments
  * - Template diagram lists all frameworks with correct counts
  * - Test file count and list completeness in tests/AGENTS.md
+ * - Component-count claims in templates/AGENTS.md prose match the registry
  *
  * USAGE:
  *   pnpm validate:agents
@@ -28,7 +29,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.dirname(__dirname);
 
-interface ValidationResult {
+export interface ValidationResult {
   passed: boolean;
   errors: string[];
   warnings: string[];
@@ -230,6 +231,71 @@ async function checkTemplateDirs(): Promise<string[]> {
 }
 
 // ---------------------------------------------------------------------------
+// Check: templates/AGENTS.md component-count claims
+// ---------------------------------------------------------------------------
+
+/**
+ * A count claim found in prose, e.g. "a single set of 84 React templates".
+ */
+export interface TemplateCountClaim {
+  /** The framework the claim is about. */
+  framework: string;
+  /** The number the prose asserts. */
+  claimed: number;
+  /** The full sentence fragment, for the error message. */
+  context: string;
+}
+
+/**
+ * Extracts per-framework template-count claims from prose.
+ *
+ * Pure on purpose: templates/AGENTS.md is the one AGENTS.md file no check
+ * ever opened, and it drifted to "80 React templates" while the real count
+ * was 84. A matcher buried in a filesystem walk cannot be table-tested,
+ * which is exactly how the className regex stayed dead for months.
+ */
+export function findTemplateCountClaims(content: string): TemplateCountClaim[] {
+  const claims: TemplateCountClaim[] = [];
+  // "<n> React templates", "<n> Vue templates", "<n> Angular templates".
+  // Case-insensitive on the framework, so "84 react templates" also counts.
+  const pattern = /(\d+)\s+(React|Vue|Angular)\s+templates/gi;
+
+  for (const match of content.matchAll(pattern)) {
+    claims.push({
+      framework: match[2].toLowerCase(),
+      claimed: parseInt(match[1], 10),
+      context: match[0],
+    });
+  }
+
+  return claims;
+}
+
+/**
+ * Compares every count claim in prose against the real component total.
+ * Pure, so the comparison is testable without touching disk.
+ */
+export function checkTemplateCountClaims(
+  content: string,
+  actualCount: number,
+  filename = 'templates/AGENTS.md'
+): string[] {
+  return findTemplateCountClaims(content)
+    .filter((claim) => claim.claimed !== actualCount)
+    .map(
+      (claim) =>
+        `${filename} says "${claim.context}", but templates/${claim.framework}/ ` +
+        `has ${actualCount} components. Update the sentence to ${actualCount}`
+    );
+}
+
+async function checkTemplateGuideCounts(): Promise<string[]> {
+  const totalCount = Object.keys(getAllComponents()).length;
+  const templatesAgents = await readAgentsFile('templates/AGENTS.md');
+  return checkTemplateCountClaims(templatesAgents, totalCount);
+}
+
+// ---------------------------------------------------------------------------
 // Check: Test file count and completeness
 // ---------------------------------------------------------------------------
 
@@ -268,7 +334,7 @@ async function checkTestFiles(): Promise<string[]> {
 // Main
 // ---------------------------------------------------------------------------
 
-async function validateAgents(): Promise<ValidationResult> {
+export async function validateAgents(): Promise<ValidationResult> {
   const result: ValidationResult = {
     passed: true,
     errors: [],
@@ -288,6 +354,7 @@ async function validateAgents(): Promise<ValidationResult> {
     { name: 'Pro component list', fn: checkProComponents },
     { name: 'Template directories', fn: checkTemplateDirs },
     { name: 'Test files', fn: checkTestFiles },
+    { name: 'Template guide counts', fn: checkTemplateGuideCounts },
   ];
 
   for (const check of checks) {
@@ -356,4 +423,7 @@ async function main() {
   }
 }
 
-main();
+// Only run when executed directly, not when imported (keeps the script testable)
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
