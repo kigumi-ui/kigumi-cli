@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (96 files at top level, ~1500 tests; more under scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (97 files at top level, ~1500 tests; more under scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -97,6 +97,7 @@ tests/
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
+│   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
 │   ├── validate-agents.test.ts      # Pure matcher for templates/AGENTS.md component-count claims (cluster Q)
 │   ├── validate-gha-permissions.test.ts # Pure matcher for GHA job-level permissions vs actions/checkout (cluster V)
 │   ├── version-error.test.ts        # Version error classes
@@ -702,4 +703,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-26 (added validate-agents.test.ts and validate-gha-permissions.test.ts covering the count-claim and GHA job-permissions matchers)
+**Last Updated:** 2026-09-04 (added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers)

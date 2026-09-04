@@ -1,0 +1,5 @@
+#!/bin/sh
+# Reject AI attribution trailers before they enter the history.
+# Prose mentioning Claude is fine; only Co-Authored-By and "Generated with"
+# attribution lines are rejected. See scripts/check-commit-attribution.ts.
+npx tsx scripts/check-commit-attribution.ts "$1"
