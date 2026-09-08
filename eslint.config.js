@@ -3,6 +3,8 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import vueParser from 'vue-eslint-parser';
 
+import kigumiPlugin from './tools/eslint-plugin-kigumi/index.js';
+
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -15,6 +17,14 @@ export default tseslint.config(
       'tests/.tmp-*/**',
       'tests/fixtures/starter-snapshots/**',
     ],
+  },
+  // House rules live in a local plugin (tools/eslint-plugin-kigumi). It is a
+  // plain directory imported by relative path, not an npm package: flat config
+  // takes any object with a `rules` map, so no packaging or workspace is
+  // needed. Registered here with no rules enabled yet -- clusters E, F and K
+  // add the first ones.
+  {
+    plugins: { kigumi: kigumiPlugin },
   },
   {
     rules: {

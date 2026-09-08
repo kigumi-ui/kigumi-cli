@@ -15,5 +15,6 @@
   ],
   "docs/**/*.{ts,tsx}": ["prettier --write"],
   "*.{vue,html,css}": ["prettier --write"],
-  "*.{js,jsx,json,md}": ["prettier --write"]
+  "*.{js,jsx,json,md}": ["prettier --write"],
+  "tools/**/*.js": ["eslint --fix", "prettier --write"]
 }
