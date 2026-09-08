@@ -26,6 +26,7 @@ node dist/index.js add button --force
 | `src/`            | CLI source code                                                | [src/AGENTS.md](src/AGENTS.md)             |
 | `templates/`      | Component templates (real `.tsx`/`.vue`/`.component.ts` files) | [templates/AGENTS.md](templates/AGENTS.md) |
 | `tests/`          | Unit & E2E tests                                               | [tests/AGENTS.md](tests/AGENTS.md)         |
+| `tools/`          | Local dev tooling (ESLint plugin); not published               | -                                          |
 | `.claude/skills/` | AI agent skills                                                | -                                          |
 | `dist/`           | Build output                                                   | -                                          |
 
@@ -69,6 +70,7 @@ node dist/index.js add button --force
 | `scripts/publish-skills.mjs`            | Copy whitelisted skills to docs/public/ for Vercel (whitelist lives here)                                                                                                                                                                                                                                |
 | `scripts/generate-skills-index.mjs`     | Generate `.well-known/skills/index.json` from published skills                                                                                                                                                                                                                                           |
 | `scripts/post-changeset-version.ts`     | Update version references after changeset version bump                                                                                                                                                                                                                                                   |
+| `tools/eslint-plugin-kigumi/`           | Local ESLint plugin (plain directory, imported by relative path from `eslint.config.js`, not an npm package, no workspace). Rules are `.js` so `pnpm lint` needs no build step. Tested via RuleTester in `tests/unit/eslint-rules/`                                                                      |
 | `scripts/setup-npmrc.mjs`               | Write Pro token from `.env` to `~/.npmrc` and `docs/.npmrc`                                                                                                                                                                                                                                              |
 | `scripts/update-starter-snapshots.ts`   | Bulk-regenerate `tests/fixtures/starter-snapshots/` from local starter clones (env-var driven; see script header)                                                                                                                                                                                        |
 | `scripts/validate-agents.ts`            | Validate AGENTS.md facts against codebase reality (6 checks: version, component counts, pro list, template dirs, test files, and prose count claims in `templates/AGENTS.md`)                                                                                                                            |
@@ -1095,4 +1097,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-04 (validate:agents now covers templates/AGENTS.md count claims; GHA job permissions enforced via validate:gha-permissions; commit attribution enforced via a husky commit-msg hook; 84 components)
+**Maintained by:** AI Assistants | **Last Updated:** 2026-09-04 (local eslint-plugin-kigumi scaffold added under tools/; validate:agents now covers templates/AGENTS.md count claims; GHA job permissions enforced via validate:gha-permissions; commit attribution enforced via a husky commit-msg hook; 84 components)
