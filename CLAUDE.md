@@ -41,6 +41,7 @@ Update the "Last Updated" date at the bottom of any AGENTS.md you modify.
 ## Development Workflow
 
 - Work in **git worktrees** on dedicated branches, never directly on main. Create worktrees at `.claude/worktrees/<branch-name>`.
+  This is enforced: `.claude/hooks/pre-tool-guardrails.sh` denies edits and commits while you are on `main`. Reads still work. Set `KIGUMI_ALLOW_MAIN=1` to override, as the release flow does.
 - Create a **draft PR** early. This keeps work visible and skips Chromatic until you're ready.
 - Mark the PR as **Ready for Review** when you want CI visual regression (Chromatic) to run.
 - To force Chromatic on a PR that didn't change visual files, add the `visual-test` label.
