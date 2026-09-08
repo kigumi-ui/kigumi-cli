@@ -5,6 +5,8 @@ import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
+import { interactionStoryPaths } from './.storybook-test/interaction-stories';
+
 const dirname =
   typeof __dirname !== 'undefined'
     ? __dirname
@@ -29,35 +31,10 @@ export default defineConfig({
       clientFiles: [
         './node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.js',
         './src/components/ui/index.ts',
-        './src/stories/Accordion.stories.tsx',
-        './src/stories/AccordionItem.stories.tsx',
-        './src/stories/Button.stories.tsx',
-        './src/stories/ButtonGroup.stories.tsx',
-        './src/stories/Carousel.stories.tsx',
-        './src/stories/Checkbox.stories.tsx',
-        './src/stories/ColorPicker.stories.tsx',
-        './src/stories/Combobox.stories.tsx',
-        './src/stories/CopyButton.stories.tsx',
-        './src/stories/Details.stories.tsx',
-        './src/stories/Dialog.stories.tsx',
-        './src/stories/Drawer.stories.tsx',
-        './src/stories/Dropdown.stories.tsx',
-        './src/stories/Input.stories.tsx',
-        './src/stories/NumberInput.stories.tsx',
-        './src/stories/Popover.stories.tsx',
-        './src/stories/ProgressBar.stories.tsx',
-        './src/stories/Radio.stories.tsx',
-        './src/stories/RadioGroup.stories.tsx',
-        './src/stories/Rating.stories.tsx',
-        './src/stories/Select.stories.tsx',
-        './src/stories/Slider.stories.tsx',
-        './src/stories/SplitPanel.stories.tsx',
-        './src/stories/Switch.stories.tsx',
-        './src/stories/TabGroup.stories.tsx',
-        './src/stories/Tag.stories.tsx',
-        './src/stories/Textarea.stories.tsx',
-        './src/stories/Tooltip.stories.tsx',
-        './src/stories/Tree.stories.tsx',
+        // Story list comes from .storybook-test/interaction-stories.ts, the
+        // same source .storybook-test/main.ts uses, so the warmup set and the
+        // lane's story glob cannot drift apart.
+        ...interactionStoryPaths('./src/stories/'),
       ],
     },
   },
