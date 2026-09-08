@@ -197,6 +197,12 @@ jobs:
         # silently left out of the lane.
         run: pnpm run validate:story-lanes
 
+      - name: Validate fixture exclusions
+        # Starter snapshots are recorded CLI output. Prettier, ESLint and tsc
+        # must all skip them, in three separate ignore lists; dropping any one
+        # is silent until a formatter rewrites a fixture.
+        run: pnpm run validate:fixture-exclusions
+
   test:
     name: Test
     runs-on: ubuntu-latest
