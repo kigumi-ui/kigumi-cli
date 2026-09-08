@@ -190,6 +190,13 @@ jobs:
         # breaks actions/checkout, which is how PR #173 regressed.
         run: pnpm run validate:gha-permissions
 
+      - name: Validate story interaction lanes
+        # The lane's story subset is shared by .storybook-test/main.ts and
+        # vitest.storybook.config.ts. This checks it against the stories
+        # actually tagged `interaction`, so a new tagged story cannot be
+        # silently left out of the lane.
+        run: pnpm run validate:story-lanes
+
   test:
     name: Test
     runs-on: ubuntu-latest

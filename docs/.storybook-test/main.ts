@@ -1,13 +1,15 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 
+import { interactionStoryPaths } from './interaction-stories';
+
 // Dedicated Storybook config for the storybook-vitest lane. Three reasons
 // for the split from .storybook/main.ts:
-//   1. Stories glob is narrowed to the interaction-tagged files (currently
-//      27) so the vitest browser orchestrator does not try to import
-//      untagged stories whose iframe handshake flakes in headless CI
-//      (e.g. ToastItem, ProgressRing). When you add a new story to this
-//      list, also extend `server.warmup.clientFiles` in
-//      vitest.storybook.config.ts so the deps optimizer pre-transforms it.
+//   1. Stories are narrowed to the interaction-tagged files so the vitest
+//      browser orchestrator does not try to import untagged stories whose
+//      iframe handshake flakes in headless CI (e.g. ToastItem,
+//      ProgressRing). The list lives in ./interaction-stories.ts, which
+//      vitest.storybook.config.ts reads too, so adding a story in one place
+//      keeps both the glob and the deps-optimizer warmup in sync.
 //   2. @storybook/addon-docs is omitted. The dev preview imports
 //      DocsContainer from @storybook/addon-docs/blocks, which forces Vite's
 //      deps optimizer to bundle the addon-docs subgraph; under load the
@@ -16,37 +18,7 @@ import type { StorybookConfig } from '@storybook/react-vite';
 //   3. addon-vitest is the only addon the lane needs (a11y annotations are
 //      imported manually in vitest.setup.ts).
 const config: StorybookConfig = {
-  stories: [
-    '../src/stories/Accordion.stories.tsx',
-    '../src/stories/AccordionItem.stories.tsx',
-    '../src/stories/Button.stories.tsx',
-    '../src/stories/ButtonGroup.stories.tsx',
-    '../src/stories/Carousel.stories.tsx',
-    '../src/stories/Checkbox.stories.tsx',
-    '../src/stories/ColorPicker.stories.tsx',
-    '../src/stories/Combobox.stories.tsx',
-    '../src/stories/CopyButton.stories.tsx',
-    '../src/stories/Details.stories.tsx',
-    '../src/stories/Dialog.stories.tsx',
-    '../src/stories/Drawer.stories.tsx',
-    '../src/stories/Dropdown.stories.tsx',
-    '../src/stories/Input.stories.tsx',
-    '../src/stories/NumberInput.stories.tsx',
-    '../src/stories/Popover.stories.tsx',
-    '../src/stories/ProgressBar.stories.tsx',
-    '../src/stories/Radio.stories.tsx',
-    '../src/stories/RadioGroup.stories.tsx',
-    '../src/stories/Rating.stories.tsx',
-    '../src/stories/Select.stories.tsx',
-    '../src/stories/Slider.stories.tsx',
-    '../src/stories/SplitPanel.stories.tsx',
-    '../src/stories/Switch.stories.tsx',
-    '../src/stories/TabGroup.stories.tsx',
-    '../src/stories/Tag.stories.tsx',
-    '../src/stories/Textarea.stories.tsx',
-    '../src/stories/Tooltip.stories.tsx',
-    '../src/stories/Tree.stories.tsx',
-  ],
+  stories: interactionStoryPaths('../src/stories/'),
   core: {
     disableTelemetry: true,
   },
