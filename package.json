@@ -115,7 +115,7 @@
     "@angular/core": "^21.2.17",
     "@angular/forms": "^21.2.17",
     "@awesome.me/webawesome": "3.10.0",
-    "@changesets/cli": "^2.31.0",
+    "@changesets/cli": "^3.0.2",
     "@eslint/js": "^10.0.1",
     "@stryker-mutator/core": "^9.6.1",
     "@stryker-mutator/vitest-runner": "^9.6.1",
