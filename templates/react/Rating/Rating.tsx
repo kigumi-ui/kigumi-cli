@@ -66,7 +66,7 @@ export interface RatingProps extends Omit<
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
   /** Emitted when the rating's value changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the user hovers over a value. The `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the rating's value would be if the user were to commit to the hovered value. */
   onHover?: (event: CustomEvent) => void;
@@ -144,7 +144,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleWaHover = (e: Event) => {

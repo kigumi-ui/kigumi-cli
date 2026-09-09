@@ -143,9 +143,9 @@ export interface DateInputProps extends Omit<
   /** The distance in pixels between the popup and input */
   distance?: number;
 
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   onFocus?: (event: FocusEvent) => void;
 
@@ -288,11 +288,11 @@ export const DateInput = forwardRef<DateInputRef, DateInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleFocus = (e: Event) => {

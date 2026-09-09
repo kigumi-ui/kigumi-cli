@@ -105,10 +105,10 @@ export interface SelectProps extends Omit<
   'help-text'?: string;
 
   /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the control's value changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control gains focus. */
   onFocus?: (event: FocusEvent) => void;
@@ -265,11 +265,11 @@ export const Select = forwardRef<SelectRef, SelectProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleFocus = (e: Event) => {

@@ -47,7 +47,7 @@ const emit = defineEmits<{
   play: [event: CustomEvent];
   pause: [event: CustomEvent];
   volumechange: [event: CustomEvent];
-  error: [event: CustomEvent];
+  error: [event: Event];
   ended: [event: CustomEvent];
   loadedmetadata: [event: CustomEvent];
 }>();
@@ -62,7 +62,7 @@ const handleTimeupdate = (e: Event) => emit('timeupdate', e as CustomEvent);
 const handlePlay = (e: Event) => emit('play', e as CustomEvent);
 const handlePause = (e: Event) => emit('pause', e as CustomEvent);
 const handleVolumechange = (e: Event) => emit('volumechange', e as CustomEvent);
-const handleError = (e: Event) => emit('error', e as CustomEvent);
+const handleError = (e: Event) => emit('error', e as Event);
 const handleEnded = (e: Event) => emit('ended', e as CustomEvent);
 const handleLoadedmetadata = (e: Event) =>
   emit('loadedmetadata', e as CustomEvent);

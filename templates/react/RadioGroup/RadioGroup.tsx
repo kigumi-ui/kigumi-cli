@@ -69,10 +69,10 @@ export interface RadioGroupProps extends Omit<
   'help-text'?: string;
 
   /** Emitted when the radio group receives user input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the radio group's selected value changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
@@ -158,11 +158,11 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleWaInvalid = (e: Event) => {

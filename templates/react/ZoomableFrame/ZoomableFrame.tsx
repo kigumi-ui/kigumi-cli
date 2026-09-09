@@ -69,10 +69,10 @@ export interface ZoomableFrameProps extends Omit<
   referrerpolicy?: string;
 
   /** Emitted when the internal iframe when it finishes loading. */
-  onLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: Event) => void;
 
   /** Emitted from the internal iframe when it fails to load. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: Event) => void;
 }
 
 export interface ZoomableFrameRef {
@@ -124,11 +124,11 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       if (!el) return;
 
       const handleLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+        if (onLoad) onLoad(e as Event);
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as Event);
       };
 
       el.addEventListener('load', handleLoad);

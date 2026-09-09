@@ -53,8 +53,8 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  input: [event: CustomEvent];
-  change: [event: CustomEvent];
+  input: [event: InputEvent];
+  change: [event: Event];
   'wa-focus-day': [event: CustomEvent];
   'wa-view-change': [event: CustomEvent];
 }>();
@@ -65,8 +65,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => emit('input', e as CustomEvent);
-const handleChange = (e: Event) => emit('change', e as CustomEvent);
+const handleInput = (e: Event) => emit('input', e as InputEvent);
+const handleChange = (e: Event) => emit('change', e as Event);
 const handleWaFocusDay = (e: Event) => emit('wa-focus-day', e as CustomEvent);
 const handleWaViewChange = (e: Event) =>
   emit('wa-view-change', e as CustomEvent);

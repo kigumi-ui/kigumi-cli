@@ -111,8 +111,8 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
   /** A BCP-47 locale override */
   @Input() locale?: string;
 
-  @Output() inputEvent = new EventEmitter<CustomEvent>();
-  @Output() change = new EventEmitter<CustomEvent>();
+  @Output() inputEvent = new EventEmitter<InputEvent>();
+  @Output() change = new EventEmitter<Event>();
   @Output() focusDay = new EventEmitter<CustomEvent>();
   @Output() viewChange = new EventEmitter<CustomEvent>();
 
@@ -135,10 +135,10 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleInputEvent = (e: Event) =>
-      this.inputEvent.emit(e as CustomEvent);
+      this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    const handleChange = (e: Event) => this.change.emit(e as Event);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleFocusDay = (e: Event) => this.focusDay.emit(e as CustomEvent);

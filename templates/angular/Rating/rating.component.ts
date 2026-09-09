@@ -79,7 +79,7 @@ export class RatingComponent
   /** Rating size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
-  @Output() change = new EventEmitter<CustomEvent>();
+  @Output() change = new EventEmitter<Event>();
   @Output() hover = new EventEmitter<CustomEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
@@ -104,7 +104,7 @@ export class RatingComponent
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    const handleChange = (e: Event) => this.change.emit(e as Event);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleHover = (e: Event) => this.hover.emit(e as CustomEvent);

@@ -44,10 +44,10 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  blur: [event: CustomEvent];
-  change: [event: CustomEvent];
+  blur: [event: FocusEvent];
+  change: [event: Event];
   focus: [event: FocusEvent];
-  input: [event: CustomEvent];
+  input: [event: InputEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
 
@@ -64,12 +64,12 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
-const handleChange = (e: Event) => emit('change', e as CustomEvent);
+const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
+const handleChange = (e: Event) => emit('change', e as Event);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleInput = (e: Event) => {
   model.value = (e.target as any).value;
-  emit('input', e as CustomEvent);
+  emit('input', e as InputEvent);
 };
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 

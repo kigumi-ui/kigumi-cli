@@ -39,8 +39,8 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  load: [event: CustomEvent];
-  error: [event: CustomEvent];
+  load: [event: Event];
+  error: [event: Event];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -49,8 +49,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleLoad = (e: Event) => emit('load', e as CustomEvent);
-const handleError = (e: Event) => emit('error', e as CustomEvent);
+const handleLoad = (e: Event) => emit('load', e as Event);
+const handleError = (e: Event) => emit('error', e as Event);
 
 onMounted(() => {
   const el = elementRef.value;

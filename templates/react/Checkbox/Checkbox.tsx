@@ -63,7 +63,7 @@ export interface CheckboxProps extends Omit<
   value?: string;
 
   /** Emitted when the checked state changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the checkbox loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -72,7 +72,7 @@ export interface CheckboxProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the checkbox receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
   onInvalid?: (event: CustomEvent) => void;
@@ -192,7 +192,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleBlur = (e: Event) => {
@@ -204,7 +204,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       };
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleWaInvalid = (e: Event) => {

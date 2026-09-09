@@ -30,7 +30,7 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  change: [event: CustomEvent];
+  change: [event: Event];
 }>();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -39,7 +39,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => emit('change', e as CustomEvent);
+const handleChange = (e: Event) => emit('change', e as Event);
 
 onMounted(() => {
   const el = elementRef.value;

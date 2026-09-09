@@ -16,7 +16,11 @@ import {
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
-import { extractCustomTypeImports, writeFormatted } from './generator-utils.js';
+import {
+  extractCustomTypeImports,
+  mapEventType,
+  writeFormatted,
+} from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,26 +41,6 @@ function toReactEventName(eventName: string): string {
     .join('');
 
   return 'on' + camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
-}
-
-/**
- * Map event type from custom-elements.json to React/TypeScript type
- */
-function mapEventType(eventType: string): string {
-  // Standard DOM events
-  if (eventType === 'FocusEvent' || eventType === 'BlurEvent')
-    return 'FocusEvent';
-  if (eventType === 'MouseEvent') return 'MouseEvent';
-  if (eventType === 'KeyboardEvent') return 'KeyboardEvent';
-  if (eventType === 'InputEvent') return 'CustomEvent';
-  if (eventType === 'ChangeEvent') return 'CustomEvent';
-  if (eventType === 'LoadEvent') return 'CustomEvent';
-  if (eventType === 'ErrorEvent') return 'CustomEvent';
-
-  // All wa-* custom events are CustomEvent
-  if (eventType.startsWith('Wa')) return 'CustomEvent';
-
-  return 'CustomEvent';
 }
 
 /**
@@ -111,7 +95,7 @@ export function generateReactTypescriptTemplate(
   const eventProps = metadata.events
     .map((event) => {
       const reactName = toReactEventName(event.name);
-      const eventType = mapEventType(event.eventType);
+      const eventType = mapEventType(event.name);
       const comment = event.description
         ? `\n  /** ${event.description} */`
         : '';
@@ -189,7 +173,7 @@ export function generateReactTypescriptTemplate(
   const eventHandlers = metadata.events
     .map((event) => {
       const reactName = toReactEventName(event.name);
-      const eventType = mapEventType(event.eventType);
+      const eventType = mapEventType(event.name);
       return `      const handle${event.name
         .split('-')
         .map((p) => p.charAt(0).toUpperCase() + p.slice(1))

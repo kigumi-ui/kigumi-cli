@@ -78,10 +78,10 @@ export interface KnownDateProps extends Omit<
   locale?: string;
 
   /** Emitted as the user types in any field. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the committed value transitions to a new ISO date. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -190,11 +190,11 @@ export const KnownDate = forwardRef<KnownDateRef, KnownDateProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleBlur = (e: Event) => {

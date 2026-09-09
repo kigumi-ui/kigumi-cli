@@ -37,7 +37,7 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  change: [event: CustomEvent];
+  change: [event: Event];
   'wa-hover': [event: CustomEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
@@ -57,7 +57,7 @@ onMounted(() => {
 
 const handleChange = (e: Event) => {
   model.value = (e.target as any).value;
-  emit('change', e as CustomEvent);
+  emit('change', e as Event);
 };
 const handleWaHover = (e: Event) => emit('wa-hover', e as CustomEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);

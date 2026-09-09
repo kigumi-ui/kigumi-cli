@@ -114,3 +114,43 @@ export async function writeFormatted(
   const formatted = await formatWithPrettier(filePath, content);
   await fs.writeFile(filePath, formatted);
 }
+
+/**
+ * Native DOM events that Web Awesome components fire, mapped to the interface
+ * the DOM actually defines for them.
+ *
+ * Keyed on the event's real `name` (`blur`), never on Web Awesome's
+ * `eventName` (`BlurEvent`). The latter is a pascal-cased naming convention
+ * from the manifest, and for native events it names no real type: there is no
+ * `BlurEvent` interface, blur events are `FocusEvent`. Deriving a type by
+ * pattern-matching that string is what let the three generators drift apart.
+ *
+ * See docs/adr/0001-event-types-are-never-inferred-from-names.md.
+ */
+const NATIVE_EVENT_TYPES: Record<string, string> = {
+  blur: 'FocusEvent',
+  focus: 'FocusEvent',
+  change: 'Event',
+  input: 'InputEvent',
+  beforeinput: 'InputEvent',
+  load: 'Event',
+  error: 'Event',
+};
+
+/**
+ * The TypeScript type a handler receives for a given event.
+ *
+ * Two rules, and every event falls under exactly one:
+ *   - A native DOM event takes its own DOM interface.
+ *   - A Web Awesome custom event (always `wa-`-prefixed) is a `CustomEvent`.
+ *
+ * The result depends only on the event, never on the framework, so all three
+ * generators call this. Framework-specific naming (`onBlur`, `blurEvent`) is a
+ * separate concern and stays in each generator.
+ *
+ * @param eventName The event's DOM name, e.g. `blur` or `wa-show`.
+ */
+export function mapEventType(eventName: string): string {
+  if (eventName.startsWith('wa-')) return 'CustomEvent';
+  return NATIVE_EVENT_TYPES[eventName] ?? 'CustomEvent';
+}
