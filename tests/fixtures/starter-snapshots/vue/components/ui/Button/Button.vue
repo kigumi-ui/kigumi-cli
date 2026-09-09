@@ -48,7 +48,7 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  blur: [event: CustomEvent];
+  blur: [event: FocusEvent];
   focus: [event: FocusEvent];
   'wa-invalid': [event: CustomEvent];
 }>();
@@ -59,7 +59,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
 

@@ -41,7 +41,7 @@ export class ComparisonComponent implements AfterViewInit, OnDestroy {
   /** Divider location as percentage (0-100) */
   @Input() position?: number;
 
-  @Output() change = new EventEmitter<CustomEvent>();
+  @Output() change = new EventEmitter<Event>();
 
   private cleanups: (() => void)[] = [];
 
@@ -61,7 +61,7 @@ export class ComparisonComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    const handleChange = (e: Event) => this.change.emit(e as Event);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
   }

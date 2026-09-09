@@ -80,15 +80,15 @@ export interface NumberInputProps extends Omit<
   /** Hides the stepper buttons */
   'without-steppers'?: boolean;
 
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   onBlur?: (event: FocusEvent) => void;
 
   onFocus?: (event: FocusEvent) => void;
 
-  onBeforeinput?: (event: CustomEvent) => void;
+  onBeforeinput?: (event: InputEvent) => void;
 
   onInvalid?: (event: CustomEvent) => void;
 }
@@ -220,11 +220,11 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleBlur = (e: Event) => {
@@ -236,7 +236,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       };
 
       const handleBeforeinput = (e: Event) => {
-        if (onBeforeinput) onBeforeinput(e as CustomEvent);
+        if (onBeforeinput) onBeforeinput(e as InputEvent);
       };
 
       const handleWaInvalid = (e: Event) => {

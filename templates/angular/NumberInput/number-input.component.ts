@@ -88,11 +88,11 @@ export class NumberInputComponent
   /** Hides the stepper buttons */
   @Input() withoutSteppers?: boolean;
 
-  @Output() inputEvent = new EventEmitter<CustomEvent>();
-  @Output() change = new EventEmitter<CustomEvent>();
-  @Output() blurEvent = new EventEmitter<CustomEvent>();
+  @Output() inputEvent = new EventEmitter<InputEvent>();
+  @Output() change = new EventEmitter<Event>();
+  @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
-  @Output() beforeinput = new EventEmitter<CustomEvent>();
+  @Output() beforeinput = new EventEmitter<InputEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
   private onChangeCallback: (value: unknown) => void = () => {};
@@ -117,13 +117,13 @@ export class NumberInputComponent
     }
 
     const handleInputEvent = (e: Event) =>
-      this.inputEvent.emit(e as CustomEvent);
+      this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    const handleChange = (e: Event) => this.change.emit(e as Event);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
+    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
     const handleFocusEvent = (e: Event) =>
@@ -131,7 +131,7 @@ export class NumberInputComponent
     el.addEventListener('focus', handleFocusEvent);
     this.cleanups.push(() => el.removeEventListener('focus', handleFocusEvent));
     const handleBeforeinput = (e: Event) =>
-      this.beforeinput.emit(e as CustomEvent);
+      this.beforeinput.emit(e as InputEvent);
     el.addEventListener('beforeinput', handleBeforeinput);
     this.cleanups.push(() =>
       el.removeEventListener('beforeinput', handleBeforeinput)

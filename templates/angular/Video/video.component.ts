@@ -87,7 +87,7 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
   @Output() playEvent = new EventEmitter<CustomEvent>();
   @Output() pauseEvent = new EventEmitter<CustomEvent>();
   @Output() volumechange = new EventEmitter<CustomEvent>();
-  @Output() error = new EventEmitter<CustomEvent>();
+  @Output() error = new EventEmitter<Event>();
   @Output() ended = new EventEmitter<CustomEvent>();
   @Output() loadedmetadata = new EventEmitter<CustomEvent>();
 
@@ -128,7 +128,7 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
     this.cleanups.push(() =>
       el.removeEventListener('volumechange', handleVolumechange)
     );
-    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    const handleError = (e: Event) => this.error.emit(e as Event);
     el.addEventListener('error', handleError);
     this.cleanups.push(() => el.removeEventListener('error', handleError));
     const handleEnded = (e: Event) => this.ended.emit(e as CustomEvent);

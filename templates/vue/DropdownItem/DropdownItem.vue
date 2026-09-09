@@ -35,7 +35,7 @@ const definedProps = computed(() => {
 });
 
 const emit = defineEmits<{
-  blur: [event: CustomEvent];
+  blur: [event: FocusEvent];
   focus: [event: FocusEvent];
 }>();
 
@@ -45,7 +45,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleBlur = (e: Event) => emit('blur', e as CustomEvent);
+const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 
 onMounted(() => {

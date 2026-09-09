@@ -59,7 +59,7 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
   /** The dropdown item variant */
   @Input() variant?: 'default' | 'danger';
 
-  @Output() blur = new EventEmitter<CustomEvent>();
+  @Output() blur = new EventEmitter<FocusEvent>();
   @Output() focus = new EventEmitter<FocusEvent>();
 
   private cleanups: (() => void)[] = [];
@@ -80,7 +80,7 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleBlur = (e: Event) => this.blur.emit(e as CustomEvent);
+    const handleBlur = (e: Event) => this.blur.emit(e as FocusEvent);
     el.addEventListener('blur', handleBlur);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlur));
     const handleFocus = (e: Event) => this.focus.emit(e as FocusEvent);

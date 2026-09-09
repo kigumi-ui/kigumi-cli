@@ -26,7 +26,7 @@ import {
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { toKebabCase } from '../src/utils/naming.js';
-import { writeFormatted } from './generator-utils.js';
+import { mapEventType, writeFormatted } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -104,17 +104,6 @@ function toOutputName(eventName: string): string {
 }
 
 /**
- * Map event type to TypeScript type
- */
-function mapEventType(eventType: string): string {
-  if (eventType === 'FocusEvent') return 'FocusEvent';
-  if (eventType === 'Event') return 'Event';
-  if (eventType === 'MouseEvent') return 'MouseEvent';
-  if (eventType === 'KeyboardEvent') return 'KeyboardEvent';
-  return 'CustomEvent';
-}
-
-/**
  * Get events for a component from metadata
  */
 function getEvents(componentKey: string): EventInfo[] {
@@ -124,7 +113,7 @@ function getEvents(componentKey: string): EventInfo[] {
   return metadata.events.map((e) => ({
     name: e.name,
     outputName: toOutputName(e.name),
-    type: mapEventType(e.eventType),
+    type: mapEventType(e.name),
   }));
 }
 

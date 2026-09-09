@@ -124,9 +124,9 @@ export interface ComboboxProps extends Omit<
   /** Current value of the combobox */
   value?: string;
 
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   onFocus?: (event: FocusEvent) => void;
 
@@ -268,11 +268,11 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleFocus = (e: Event) => {

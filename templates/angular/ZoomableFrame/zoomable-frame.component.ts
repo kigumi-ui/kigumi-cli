@@ -71,8 +71,8 @@ export class ZoomableFrameComponent implements AfterViewInit, OnDestroy {
   /** Referrer policy */
   @Input() referrerpolicy?: string;
 
-  @Output() load = new EventEmitter<CustomEvent>();
-  @Output() error = new EventEmitter<CustomEvent>();
+  @Output() load = new EventEmitter<Event>();
+  @Output() error = new EventEmitter<Event>();
 
   private cleanups: (() => void)[] = [];
 
@@ -92,10 +92,10 @@ export class ZoomableFrameComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
+    const handleLoad = (e: Event) => this.load.emit(e as Event);
     el.addEventListener('load', handleLoad);
     this.cleanups.push(() => el.removeEventListener('load', handleLoad));
-    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    const handleError = (e: Event) => this.error.emit(e as Event);
     el.addEventListener('error', handleError);
     this.cleanups.push(() => el.removeEventListener('error', handleError));
   }

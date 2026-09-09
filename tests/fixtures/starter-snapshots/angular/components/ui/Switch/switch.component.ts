@@ -73,9 +73,9 @@ export class SwitchComponent
   /** Hint text */
   @Input() hint?: string;
 
-  @Output() change = new EventEmitter<CustomEvent>();
-  @Output() inputEvent = new EventEmitter<CustomEvent>();
-  @Output() blurEvent = new EventEmitter<CustomEvent>();
+  @Output() change = new EventEmitter<Event>();
+  @Output() inputEvent = new EventEmitter<InputEvent>();
+  @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
@@ -100,14 +100,14 @@ export class SwitchComponent
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    const handleChange = (e: Event) => this.change.emit(e as Event);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleInputEvent = (e: Event) =>
-      this.inputEvent.emit(e as CustomEvent);
+      this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
+    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
     const handleFocusEvent = (e: Event) =>

@@ -62,10 +62,10 @@ export interface SwitchProps extends Omit<
   hint?: string;
 
   /** Emitted when the control's checked state changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -191,11 +191,11 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleBlur = (e: Event) => {

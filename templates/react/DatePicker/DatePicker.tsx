@@ -108,9 +108,9 @@ export interface DatePickerProps extends Omit<
   /** A BCP-47 locale override */
   locale?: string;
 
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   onFocusDay?: (event: CustomEvent) => void;
 
@@ -195,11 +195,11 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleWaFocusDay = (e: Event) => {

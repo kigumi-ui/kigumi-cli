@@ -104,10 +104,10 @@ export interface TimeInputProps extends Omit<
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
   /** Emitted as the user types into a segment or interacts with the popup columns. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the committed value changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control receives focus. */
   onFocus?: (event: FocusEvent) => void;
@@ -258,11 +258,11 @@ export const TimeInput = forwardRef<TimeInputRef, TimeInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleFocus = (e: Event) => {

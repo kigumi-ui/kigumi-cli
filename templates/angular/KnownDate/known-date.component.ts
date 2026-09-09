@@ -80,9 +80,9 @@ export class KnownDateComponent implements AfterViewInit, OnDestroy {
   /** The locale used to format and parse the date */
   @Input() locale?: string;
 
-  @Output() inputEvent = new EventEmitter<CustomEvent>();
-  @Output() change = new EventEmitter<CustomEvent>();
-  @Output() blurEvent = new EventEmitter<CustomEvent>();
+  @Output() inputEvent = new EventEmitter<InputEvent>();
+  @Output() change = new EventEmitter<Event>();
+  @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
   @Output() invalid = new EventEmitter<CustomEvent>();
 
@@ -105,13 +105,13 @@ export class KnownDateComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleInputEvent = (e: Event) =>
-      this.inputEvent.emit(e as CustomEvent);
+      this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as CustomEvent);
+    const handleChange = (e: Event) => this.change.emit(e as Event);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as CustomEvent);
+    const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
     const handleFocusEvent = (e: Event) =>

@@ -59,9 +59,9 @@ export interface FileInputProps extends Omit<
   /** Input size */
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   onFocus?: (event: FocusEvent) => void;
 
@@ -165,11 +165,11 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleFocus = (e: Event) => {

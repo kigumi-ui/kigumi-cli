@@ -21,7 +21,11 @@ import {
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
-import { extractCustomTypeImports, writeFormatted } from './generator-utils.js';
+import {
+  extractCustomTypeImports,
+  mapEventType,
+  writeFormatted,
+} from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -100,18 +104,6 @@ function convertToVuePropType(tsType: string): string {
 }
 
 /**
- * Map event type from custom-elements.json to Vue/TypeScript type
- */
-function mapEventType(eventType: string): string {
-  if (eventType === 'FocusEvent') return 'FocusEvent';
-  if (eventType === 'Event') return 'Event';
-  if (eventType === 'MouseEvent') return 'MouseEvent';
-  if (eventType === 'KeyboardEvent') return 'KeyboardEvent';
-  if (eventType.startsWith('Wa')) return 'CustomEvent';
-  return 'CustomEvent';
-}
-
-/**
  * Convert event name to PascalCase handler name
  */
 function pascalCase(str: string): string {
@@ -176,7 +168,7 @@ function buildListenerEntries(
 
   // Component events from metadata — merge with model sync where needed
   for (const event of metadata.events) {
-    const eventType = mapEventType(event.eventType);
+    const eventType = mapEventType(event.name);
     const handlerName = `handle${pascalCase(event.name)}`;
     usedEvents.add(event.name);
 
@@ -327,7 +319,7 @@ export function generateVueTypescriptTemplate(
     metadata.events.length > 0
       ? metadata.events
           .map((event) => {
-            const eventType = mapEventType(event.eventType);
+            const eventType = mapEventType(event.name);
             return `  '${event.name}': [event: ${eventType}];`;
           })
           .join('\n')

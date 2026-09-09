@@ -95,7 +95,7 @@ export interface VideoProps extends Omit<
 
   onVolumechange?: (event: CustomEvent) => void;
 
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: Event) => void;
 
   onEnded?: (event: CustomEvent) => void;
 
@@ -263,7 +263,7 @@ export const Video = forwardRef<VideoRef, VideoProps>(
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as Event);
       };
 
       const handleEnded = (e: Event) => {

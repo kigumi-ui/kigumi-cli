@@ -146,10 +146,10 @@ export interface InputProps extends Omit<
     'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
 
   /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when an alteration to the control's value is committed by the user. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -353,11 +353,11 @@ export const Input = forwardRef<InputRef, InputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e as Event);
       };
 
       const handleBlur = (e: Event) => {
