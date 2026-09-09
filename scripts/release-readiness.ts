@@ -5,7 +5,7 @@
  *
  * Runs all pre-release gates, performs state-file meta-checks,
  * aggregates results into a Go/No-Go markdown report persisted to
- * `docs/superpowers/state/release-readiness-YYYY-MM-DD.md`.
+ * `.claude/reports/release-readiness-YYYY-MM-DD.md`.
  *
  * Usage:
  *   tsx scripts/release-readiness.ts run [--quick] [--dry-run]
@@ -16,22 +16,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execaSync } from 'execa';
 import pc from 'picocolors';
-import {
-  loadInitiatives,
-  loadClusters,
-  type ClusterRow,
-  type InitiativeRow,
-} from './state-files.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.dirname(__dirname);
-const STATE_DIR = path.join(PROJECT_ROOT, 'docs/superpowers/state');
-const INITIATIVES_PATH = path.join(STATE_DIR, 'INITIATIVES.md');
-const TEST_INFRA_PATH = path.join(
-  STATE_DIR,
-  'test-infrastructure-hardening-status.md'
-);
+// Reports land in .claude/reports/ (gitignored working state), not in the
+// repo tree: they are a snapshot for the person cutting the release, not
+// documentation anyone else needs to read later.
+const REPORT_DIR = path.join(PROJECT_ROOT, '.claude/reports');
 const CHANGESET_DIR = path.join(PROJECT_ROOT, '.changeset');
 const PACK_SOFT_CAP_BYTES = 2 * 1024 * 1024;
 
@@ -44,12 +35,6 @@ export interface GateResult {
 }
 
 export interface MetaResult {
-  blockingInitiatives: {
-    name: string;
-    status: InitiativeRow['status'];
-    stateFile: string;
-  }[];
-  testInfraClusters: { cluster: string; status: ClusterRow['status'] }[];
   changesetCount: number;
   packageVersion: string;
   lastTag: string | null;
@@ -174,20 +159,6 @@ function runPackSmoke(): GateResult {
 }
 
 function gatherMeta(): MetaResult {
-  const initiatives = loadInitiatives(INITIATIVES_PATH);
-  // Exact match on 'v0.20.0' so 'post-v0.20.0' rows are not flagged as blocking.
-  const blockingInitiatives = initiatives
-    .filter((i) => i.blocks?.toLowerCase().trim() === 'v0.20.0')
-    .map((i) => ({ name: i.name, status: i.status, stateFile: i.stateFile }));
-
-  let testInfraClusters: MetaResult['testInfraClusters'] = [];
-  if (fs.existsSync(TEST_INFRA_PATH)) {
-    testInfraClusters = loadClusters(TEST_INFRA_PATH).map((c) => ({
-      cluster: c.cluster,
-      status: c.status,
-    }));
-  }
-
   let changesetCount = 0;
   if (fs.existsSync(CHANGESET_DIR)) {
     changesetCount = fs
@@ -206,8 +177,6 @@ function gatherMeta(): MetaResult {
     tagResult.exitCode === 0 ? tagResult.stdout.trim().replace(/^v/, '') : null;
 
   return {
-    blockingInitiatives,
-    testInfraClusters,
     changesetCount,
     packageVersion: pkg.version,
     lastTag,
@@ -219,20 +188,6 @@ export function decideGoNoGo(gates: GateResult[], meta: MetaResult): Decision {
   for (const g of gates) {
     if (!g.pass)
       reasons.push(`gate "${g.name}" failed${g.detail ? `: ${g.detail}` : ''}`);
-  }
-  for (const i of meta.blockingInitiatives) {
-    if (i.status !== 'SHIPPED') {
-      reasons.push(
-        `initiative "${i.name}" status is ${i.status} (expected SHIPPED)`
-      );
-    }
-  }
-  for (const c of meta.testInfraClusters) {
-    if (c.status !== 'SHIPPED') {
-      reasons.push(
-        `Cluster ${c.cluster} status is ${c.status} (expected SHIPPED)`
-      );
-    }
   }
   if (meta.changesetCount === 0) {
     reasons.push('no unreleased changesets present in `.changeset/`');
@@ -261,22 +216,6 @@ export function renderReport(input: ReportInputs, decision: Decision): string {
     })
     .join('\n');
 
-  const initiativeRows =
-    input.meta.blockingInitiatives
-      .map(
-        (i) =>
-          `| ${i.status === 'SHIPPED' ? '✅' : '❌'} | ${i.name} | ${i.status} |`
-      )
-      .join('\n') || '| - | (no blocking initiatives configured) | - |';
-
-  const clusterRows =
-    input.meta.testInfraClusters
-      .map(
-        (c) =>
-          `| ${c.status === 'SHIPPED' ? '✅' : '❌'} | ${c.cluster} | ${c.status} |`
-      )
-      .join('\n') || '| - | (no clusters parsed) | - |';
-
   const reasonsBlock =
     decision.reasons.length === 0
       ? '_All checks satisfied._'
@@ -301,18 +240,6 @@ export function renderReport(input: ReportInputs, decision: Decision): string {
     gateRows,
     ``,
     `## Meta-checks`,
-    ``,
-    `### v0.20.0-blocking initiatives`,
-    ``,
-    `|  | Initiative | Status |`,
-    `| --- | --- | --- |`,
-    initiativeRows,
-    ``,
-    `### test-infra clusters`,
-    ``,
-    `|  | Cluster | Status |`,
-    `| --- | --- | --- |`,
-    clusterRows,
     ``,
     `### Release scaffolding`,
     ``,
@@ -341,14 +268,15 @@ function persistReport(content: string, dryRun: boolean): string | null {
     ),
   ];
   const fileName = candidates.find(
-    (c) => !fs.existsSync(path.join(STATE_DIR, c))
+    (c) => !fs.existsSync(path.join(REPORT_DIR, c))
   );
   if (!fileName) {
     throw new Error(
       'Could not find a free release-readiness filename within 99 collisions'
     );
   }
-  const filePath = path.join(STATE_DIR, fileName);
+  const filePath = path.join(REPORT_DIR, fileName);
+  fs.mkdirSync(REPORT_DIR, { recursive: true });
   fs.writeFileSync(filePath, content, 'utf8');
   return filePath;
 }

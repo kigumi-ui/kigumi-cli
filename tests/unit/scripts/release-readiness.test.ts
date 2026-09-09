@@ -19,29 +19,6 @@ const greenGates: GateResult[] = [
 ];
 
 const goMeta: MetaResult = {
-  blockingInitiatives: [
-    {
-      name: 'test-infrastructure-hardening',
-      status: 'SHIPPED',
-      stateFile: 'test-infrastructure-hardening-status.md',
-    },
-    {
-      name: 'open-fix-clusters-latin',
-      status: 'SHIPPED',
-      stateFile: 'open-fix-clusters-latin-status.md',
-    },
-  ],
-  testInfraClusters: [
-    { cluster: 'Q1', status: 'SHIPPED' },
-    { cluster: 'Q2', status: 'SHIPPED' },
-    { cluster: 'R', status: 'SHIPPED' },
-    { cluster: 'S', status: 'SHIPPED' },
-    { cluster: 'P', status: 'SHIPPED' },
-    { cluster: 'A', status: 'SHIPPED' },
-    { cluster: 'T', status: 'SHIPPED' },
-    { cluster: 'U', status: 'SHIPPED' },
-    { cluster: 'V', status: 'SHIPPED' },
-  ],
   changesetCount: 2,
   packageVersion: '0.20.0',
   lastTag: '0.19.2',
@@ -61,36 +38,6 @@ describe('decideGoNoGo', () => {
     const decision = decideGoNoGo(failed, goMeta);
     expect(decision.go).toBe(false);
     expect(decision.reasons.some((r) => r.includes('lint'))).toBe(true);
-  });
-
-  it('returns NO-GO when a blocking initiative is not SHIPPED', () => {
-    const meta: MetaResult = {
-      ...goMeta,
-      blockingInitiatives: [
-        {
-          name: 'test-infrastructure-hardening',
-          status: 'IN-PROGRESS',
-          stateFile: 'x.md',
-        },
-      ],
-    };
-    const decision = decideGoNoGo(greenGates, meta);
-    expect(decision.go).toBe(false);
-    expect(
-      decision.reasons.some((r) => r.includes('test-infrastructure-hardening'))
-    ).toBe(true);
-  });
-
-  it('returns NO-GO when a test-infra cluster is not SHIPPED', () => {
-    const meta: MetaResult = {
-      ...goMeta,
-      testInfraClusters: goMeta.testInfraClusters.map((c) =>
-        c.cluster === 'V' ? { ...c, status: 'BLOCKED' as const } : c
-      ),
-    };
-    const decision = decideGoNoGo(greenGates, meta);
-    expect(decision.go).toBe(false);
-    expect(decision.reasons.some((r) => r.includes('Cluster V'))).toBe(true);
   });
 
   it('returns NO-GO when no changeset exists', () => {

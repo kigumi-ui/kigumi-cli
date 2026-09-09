@@ -34,6 +34,7 @@ audit/
 .claude/worktrees/
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
+.claude/reports/
 
 # Internal engineering process notes (specs, plans, initiative state)
 docs/superpowers/
@@ -45,12 +46,6 @@ tmp/
 .stryker-tmp/
 reports/mutation/
 
-# graphify-out/: local only
-graphify-out/cost.json
-# graphify-out/: optional - commit for speed, skip to keep repo small
-graphify-out/cache/
-# graphify-out/: local working state (clustering intermediate, label signature, interpreter path, scan root)
-graphify-out/.graphify_analysis.json
-graphify-out/.graphify_labels.json.sig
-graphify-out/.graphify_python
-graphify-out/.graphify_root
+# graphify-out/: generated knowledge-graph artifacts, local only.
+# Regenerate with /graphify; the dumps are multi-MB and go stale immediately.
+graphify-out/

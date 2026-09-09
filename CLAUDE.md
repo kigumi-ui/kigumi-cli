@@ -22,7 +22,7 @@ Sub-guides: [src/AGENTS.md](src/AGENTS.md) | [templates/AGENTS.md](templates/AGE
 5. **No `!important`**: Use CSS cascade layers (`layers.css` handles base < theme ordering).
 6. **Tier from `.env`**: Never store tier in config. Always detect via `detectTier()`.
 7. **No `any`**: Use `unknown` or proper types.
-8. **KigumiConfig type**: Import from `src/schemas/config.ts` (Zod-inferred, complete), NOT from `src/utils/config.ts` (old interface, incomplete).
+8. **KigumiConfig type**: Defined once in `src/schemas/config.ts` (Zod-inferred). `src/utils/config.ts` re-exports it; either import path gives the same type.
 9. **`@/components/ui` in docs/**: The docs site uses Kigumi wrappers from `@/components/ui`, not raw `wa-*` tags.
 
 ## Keep Docs in Sync
@@ -41,7 +41,6 @@ Update the "Last Updated" date at the bottom of any AGENTS.md you modify.
 ## Development Workflow
 
 - Work in **git worktrees** on dedicated branches, never directly on main. Create worktrees at `.claude/worktrees/<branch-name>`.
-  This is enforced: `.claude/hooks/pre-tool-guardrails.sh` denies edits and commits while you are on `main`. Reads still work. Set `KIGUMI_ALLOW_MAIN=1` to override, as the release flow does.
 - Create a **draft PR** early. This keeps work visible and skips Chromatic until you're ready.
 - Mark the PR as **Ready for Review** when you want CI visual regression (Chromatic) to run.
 - To force Chromatic on a PR that didn't change visual files, add the `visual-test` label.
@@ -56,6 +55,44 @@ pnpm validate:registry  # Registry consistency
 pnpm validate:templates # Template file completeness
 ```
 
-## Superpowers Plans
+## Plans
 
-Save superpowers plans to `.claude/plans/` (gitignored, not `docs/superpowers/plans/`).
+Save plans to `.claude/plans/` (gitignored).
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues on `Siregar/kigumi-cli`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary, label strings unchanged. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` plus `docs/adr/`. See `docs/agents/domain.md`.
+
+### Workflow skills
+
+Engineering process runs on the `mattpocock-skills` plugin. There is no
+superpowers/state directory and no Second Brain protocol; both were retired.
+
+| Situation                                     | Skill                                                          |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| New feature, big enough to span sessions      | `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` |
+| New feature, fits in one session              | `/grill-with-docs` → `/implement`                              |
+| Something is broken                           | `/diagnosing-bugs`                                             |
+| Incoming bug report or request                | `/triage`                                                      |
+| Before merging anything                       | `/code-review`                                                 |
+| Spare capacity, want to find unknown problems | `/improve-codebase-architecture`                               |
+| A term or boundary is fuzzy                   | `/domain-modeling`                                             |
+| Designing a module's shape                    | `/codebase-design`                                             |
+
+`/improve-codebase-architecture` is the replacement for the old audit cycle
+that produced the F-XXX finding lists: it surfaces deepening opportunities
+rather than bug inventories. Findings that need tracking become GitHub issues.
+
+Kigumi's own domain skills (`kigumi-react`/`vue`/`angular`, the four
+`kigumi-compose-*`, `generate-*`, `apply-theme-to-figma`, `kigumi-theme`,
+`kigumi-cross-framework`, `release`, `release-readiness`) are unaffected.
