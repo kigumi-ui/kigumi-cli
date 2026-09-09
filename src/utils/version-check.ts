@@ -37,6 +37,13 @@ function parseSemver(
  * - Same major, different minor: minor-mismatch (warn but proceed)
  * - Different major: major-mismatch (hard error)
  * - No kigumiVersion in config: no-pin (info message, proceed)
+ *
+ * Exception: a project pinned to 0.x running against CLI 1.x is a
+ * minor-mismatch, not a major-mismatch. 1.0.0 marked the surface as stable
+ * rather than changing it, so every 0.x project is compatible with it. Without
+ * this carve-out the 1.0.0 release would hard-fail `add` in every project that
+ * existed before it, for a release that broke nothing. Later major jumps
+ * (1.x -> 2.x) stay fatal.
  */
 export function checkVersionCompatibility(
   configVersion: string | undefined,
@@ -55,8 +62,11 @@ export function checkVersionCompatibility(
   }
 
   if (parsedConfig.major !== parsedCli.major) {
+    // The 0.x -> 1.x step is the one major jump that changed no behaviour, so
+    // it warns instead of blocking. See the rules note above.
+    const isZeroToOne = parsedConfig.major === 0 && parsedCli.major === 1;
     return {
-      status: 'major-mismatch',
+      status: isZeroToOne ? 'minor-mismatch' : 'major-mismatch',
       configVersion,
       cliVersion,
     };

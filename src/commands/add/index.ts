@@ -108,9 +108,17 @@ export async function addCommand(components: string[], options?: AddOptions) {
     }
 
     if (versionResult.status === 'minor-mismatch') {
+      // A 0.x project on a 1.x CLI reaches this branch by the carve-out in
+      // checkVersionCompatibility. Pinning the CLI back to a 0.x version is the
+      // wrong advice there, so point at `upgrade` instead.
+      const crossedIntoV1 =
+        versionResult.configVersion.startsWith('0.') &&
+        !versionResult.cliVersion.startsWith('0.');
       output.warning(
         `CLI version ${versionResult.cliVersion} differs from project version ${versionResult.configVersion}. ` +
-          `Consider: npx kigumi@${versionResult.configVersion} add <component>`
+          (crossedIntoV1
+            ? `Run "npx kigumi@${versionResult.cliVersion} upgrade" to pin your project to it.`
+            : `Consider: npx kigumi@${versionResult.configVersion} add <component>`)
       );
     }
 

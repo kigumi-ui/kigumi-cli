@@ -41,17 +41,53 @@ describe('checkVersionCompatibility', () => {
   });
 
   it('returns major-mismatch when major differs', () => {
-    const result = checkVersionCompatibility('0.12.0', '1.0.0');
+    const result = checkVersionCompatibility('1.2.0', '2.0.0');
     expect(result).toEqual({
       status: 'major-mismatch',
-      configVersion: '0.12.0',
-      cliVersion: '1.0.0',
+      configVersion: '1.2.0',
+      cliVersion: '2.0.0',
     });
   });
 
   it('returns major-mismatch when CLI major is lower', () => {
-    const result = checkVersionCompatibility('1.0.0', '0.12.0');
+    const result = checkVersionCompatibility('2.0.0', '1.12.0');
     expect(result.status).toBe('major-mismatch');
+  });
+
+  describe('the 0.x -> 1.x carve-out', () => {
+    // 1.0.0 marked the surface stable rather than changing it, so a 0.x
+    // project is compatible with a 1.x CLI. Without this, releasing 1.0.0
+    // hard-fails `add` in every project that predates it.
+    it.each(['0.12.0', '0.18.3', '0.19.0', '0.27.2'])(
+      'warns instead of blocking for a project pinned at %s',
+      (configVersion) => {
+        const result = checkVersionCompatibility(configVersion, '1.0.0');
+        expect(result).toEqual({
+          status: 'minor-mismatch',
+          configVersion,
+          cliVersion: '1.0.0',
+        });
+      }
+    );
+
+    it('applies to later 1.x releases too, not just 1.0.0', () => {
+      expect(checkVersionCompatibility('0.27.2', '1.4.0').status).toBe(
+        'minor-mismatch'
+      );
+    });
+
+    it('does not soften 0.x against 2.x', () => {
+      expect(checkVersionCompatibility('0.27.2', '2.0.0').status).toBe(
+        'major-mismatch'
+      );
+    });
+
+    it('does not soften a 1.x project against a 0.x CLI', () => {
+      // Downgrade, not upgrade: the carve-out is one-directional.
+      expect(checkVersionCompatibility('1.0.0', '0.27.2').status).toBe(
+        'major-mismatch'
+      );
+    });
   });
 
   it('returns match for unparseable versions', () => {
