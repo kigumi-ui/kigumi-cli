@@ -11,7 +11,6 @@
  * EXPORTS:
  * - detectTier() - Async tier detection (PREFERRED)
  * - detectTierSync() - Sync version (use only when absolutely necessary)
- * - getProToken() - Get token from any source
  * - getWebAwesomePackage() - Get npm package name for tier
  *
  * @see AGENTS.md Rule #8 for tier system architecture
@@ -105,16 +104,6 @@ export function detectTierSync(cwd: string): Tier {
   // Fallback to token detection (for init command or if no package installed yet)
   const token = detectProTokenSync(cwd);
   return token ? 'pro' : 'free';
-}
-
-/**
- * Get Pro token from fallback chain
- *
- * @param cwd - Current working directory
- * @returns Token string if found, null otherwise
- */
-export async function getProToken(cwd: string): Promise<string | null> {
-  return detectProToken(cwd);
 }
 
 /**

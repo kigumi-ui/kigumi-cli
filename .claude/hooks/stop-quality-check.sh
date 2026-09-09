@@ -143,26 +143,5 @@ if [ -n "$ERRORS" ]; then
   exit 0
 fi
 
-# --- Phase 2 backlog-bankruptcy: weekly state-file freshness reminder ---
-# Opt-out via KIGUMI_SKIP_FRESHNESS=1. Silent on weekends, when state-file
-# was touched in the last 14 days, or when the current session has fewer
-# than 2 commits in the last hour (the >=2-commit threshold filters out
-# trivial single-edit sessions).
-if [ -z "${KIGUMI_SKIP_FRESHNESS:-}" ]; then
-  day_of_week=$(date +%u)
-  if [ "$day_of_week" -le 5 ]; then
-    initiatives_file="docs/superpowers/state/INITIATIVES.md"
-    if [ -f "$initiatives_file" ]; then
-      last_touch=$(git log -1 --format=%ct -- "$initiatives_file" 2>/dev/null || echo 0)
-      now=$(date +%s)
-      days_stale=$(( (now - last_touch) / 86400 ))
-      session_commits=$(git log --since="1 hour ago" --oneline 2>/dev/null | wc -l | tr -d ' ')
-      if [ "$days_stale" -gt 14 ] && [ "$session_commits" -ge 2 ]; then
-        echo "📋 Weekly state-review overdue (last INITIATIVES.md update: ${days_stale} days ago). Run /weekly-review when convenient." >&2
-      fi
-    fi
-  fi
-fi
-
 # All checks passed
 exit 0

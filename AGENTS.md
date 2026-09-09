@@ -88,9 +88,6 @@ node dist/index.js add button --force
 | `scripts/storybook/patch-stories.ts`     | Patch generated Storybook stories                                                                                                                                                                                                                                                                        |
 | `scripts/storybook/story-data.ts`        | Storybook story data helpers                                                                                                                                                                                                                                                                             |
 | `scripts/storybook/validate-stories.ts`  | Validate Storybook story structure                                                                                                                                                                                                                                                                       |
-| `scripts/state-files.ts`                 | Internal markdown-table parser for `docs/superpowers/state/*.md` (consumed by the three Phase-2 scripts)                                                                                                                                                                                                 |
-| `scripts/state-staleness.ts`             | List initiatives whose state-file is older than N days; powers the `/weekly-review` skill                                                                                                                                                                                                                |
-| `scripts/triage-finding.ts`              | Evaluate the 3-criteria new-finding rule and render a draft (Issue / PR-note / wontfix); powers `/triage-finding`                                                                                                                                                                                        |
 | `scripts/release-readiness.ts`           | Run all pre-release gates + state-file meta-checks, persist a Go/No-Go report; powers `/release-readiness`                                                                                                                                                                                               |
 
 ---
@@ -811,7 +808,7 @@ START: Change affects tier detection or packages
 
 ### Checklist: Web Awesome Version Bump
 
-The code/registry side is guarded by validators (`validate:cem-sync`, `validate:registry`, `validate:generated-fresh`, `validate:wa-pins`). The surfaces below are **hand-maintained** and were the source of all drift found in the WA 3.7.0–3.10.0 audit (see `docs/superpowers/state/wa-drift-audit-2026-07-02.md`). Walk this list on every bump:
+The code/registry side is guarded by validators (`validate:cem-sync`, `validate:registry`, `validate:generated-fresh`, `validate:wa-pins`). The surfaces below are **hand-maintained** and were the source of all drift found in the WA 3.7.0–3.10.0 audit (PR #220). Walk this list on every bump:
 
 - [ ] **Pins** (now enforced — run `pnpm validate:wa-pins`): `package.json`, `docs/package.json`, `docs/kigumi.config.json`, root `kigumi.config.json` (dogfooding), `src/constants.ts` `DEFAULT_WEBAWESOME_VERSION`, `src/utils/version-map.ts` newest entry. All six must name the same exact version. **Adding the `version-map.ts` entry is not optional**: `kigumi upgrade` installs whatever the newest entry names, so skipping it makes upgrade hand users an older Web Awesome than the CLI ships.
 - [ ] **New upstream components**: either full wrapper (run the "Before Adding New Component" checklist above, including the docs-site items) or an explicit entry in `INTENTIONALLY_UNWRAPPED` in `scripts/validate-cem-sync.ts` with rationale
@@ -1076,15 +1073,9 @@ pnpm build && pnpm test && pnpm lint && pnpm type-check
 gh pr checks
 
 # Pre-release: aggregate gates + state-file meta-checks into a Go/No-Go report
-# (writes docs/superpowers/state/release-readiness-YYYY-MM-DD.md)
+# (writes .claude/reports/release-readiness-YYYY-MM-DD.md)
 pnpm release-readiness               # full run
 pnpm release-readiness:quick         # skip e2e
-
-# Triage a finding against the 3-criteria new-finding rule (Phase 1)
-pnpm triage-finding evaluate --json '{"finding":{...},"criteria":{"K1":...,"K2":...,"K3":...}}'
-
-# List initiatives whose state-file is older than 14 days
-pnpm state-staleness list
 ```
 
 ---
@@ -1099,4 +1090,4 @@ pnpm state-staleness list
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-04 (local eslint-plugin-kigumi scaffold added under tools/; validate:agents now covers templates/AGENTS.md count claims; GHA job permissions enforced via validate:gha-permissions; commit attribution enforced via a husky commit-msg hook; story interaction lanes derive from one shared list; fixture exclusions enforced across the three ignore lists; 84 components)
+**Maintained by:** AI Assistants | **Last Updated:** 2026-09-09 (local eslint-plugin-kigumi scaffold added under tools/; validate:agents now covers templates/AGENTS.md count claims; GHA job permissions enforced via validate:gha-permissions; commit attribution enforced via a husky commit-msg hook; story interaction lanes derive from one shared list; fixture exclusions enforced across the three ignore lists; 84 components; superpowers state-files and the Second Brain protocol retired in favour of the mattpocock-skills workflow)

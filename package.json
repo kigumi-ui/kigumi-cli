@@ -38,8 +38,6 @@
     "prebuild": "tsx scripts/check-metadata-freshness.ts || pnpm generate:metadata",
     "build": "tsup",
     "start": "node dist/index.js",
-    "state-staleness": "tsx scripts/state-staleness.ts",
-    "triage-finding": "tsx scripts/triage-finding.ts",
     "type-check": "tsc --noEmit && pnpm typecheck:templates && pnpm check:tests",
     "typecheck:templates": "tsc --noEmit -p templates/react/tsconfig.json && vue-tsc --noEmit -p templates/vue/tsconfig.json && tsc --noEmit -p templates/angular/tsconfig.json",
     "check:tests": "tsx scripts/check-tests-baseline.ts",

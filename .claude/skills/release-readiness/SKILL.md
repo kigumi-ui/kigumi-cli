@@ -1,17 +1,16 @@
 ---
 name: release-readiness
 description: >
-  Run all pre-release gates and state-file meta-checks, then produce a
-  committable Go/No-Go report. Use this skill before tagging a release,
-  when the user asks "is v0.20.0 ready", or when the user wants a
-  pre-flight check on release-blocking work.
+  Run all pre-release gates, then produce a Go/No-Go report. Use this
+  skill before tagging a release, when the user asks whether a version is
+  ready, or when the user wants a pre-flight check before releasing.
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Write
 ---
 
 # Release Readiness
 
-Aggregates the full validation suite and state-file meta-checks into a single Go/No-Go decision. Output: a markdown report persisted to `docs/superpowers/state/release-readiness-YYYY-MM-DD.md` plus a terminal summary.
+Aggregates the full validation suite into a single Go/No-Go decision. Output: a markdown report written to `.claude/reports/release-readiness-YYYY-MM-DD.md` (gitignored working state) plus a terminal summary.
 
 ## Before you start
 
@@ -36,11 +35,10 @@ pnpm release-readiness:quick
 Both invocations:
 
 - Run all gates (build, type-check, lint, test:coverage, test:integration, validate:all, pack-smoke; plus test:e2e for the full run, which already covers the starter snapshot tests).
-- Parse `docs/superpowers/state/INITIATIVES.md` and `docs/superpowers/state/test-infrastructure-hardening-status.md` for meta-checks.
 - Count unreleased changesets in `.changeset/`.
 - Compare `package.json` version against the last git tag.
 - Render a markdown report.
-- Persist to `docs/superpowers/state/release-readiness-YYYY-MM-DD.md` (or append HHMM suffix if a report for today already exists).
+- Write to `.claude/reports/release-readiness-YYYY-MM-DD.md` (or append HHMM suffix if a report for today already exists).
 - Print the report path and the GO / NO-GO decision to stderr; markdown content (in dry-run mode) goes to stdout.
 
 The script exits 0 on GO, exits 1 on NO-GO, exits 2 on usage error.
@@ -50,22 +48,13 @@ The script exits 0 on GO, exits 1 on NO-GO, exits 2 on usage error.
 After the script returns, point the user at the report:
 
 ```bash
-ls -t docs/superpowers/state/release-readiness-*.md | head -1
+ls -t .claude/reports/release-readiness-*.md | head -1
 ```
 
 Read and summarize the decision:
 
-- **GO**: All gates passed, all v0.20.0-blocking initiatives are SHIPPED, all relevant test-infra clusters are SHIPPED, ≥1 changeset is pending, version > last tag. Tagging is safe.
-- **NO-GO**: Read the numbered reasons from the report. Suggest the next action for each (e.g., "Cluster T not SHIPPED" → "open cluster-T spec / start the work").
-
-## Step 3: Commit the report
-
-The report is committable evidence of pre-release state. Stage and commit:
-
-```bash
-git add docs/superpowers/state/release-readiness-*.md
-git commit -m "chore(release): readiness report YYYY-MM-DD"
-```
+- **GO**: All gates passed, ≥1 changeset is pending, version > last tag. Tagging is safe.
+- **NO-GO**: Read the numbered reasons from the report. Suggest the next action for each (e.g., "no unreleased changesets" → "write a changeset for the pending work").
 
 ## What this skill does NOT do
 
@@ -75,6 +64,5 @@ git commit -m "chore(release): readiness report YYYY-MM-DD"
 
 ## When to re-run
 
-- After fixing any flagged gate or meta issue.
-- After merging a state-file update that flips a row from `IN-PROGRESS` to `SHIPPED`.
+- After fixing any flagged gate.
 - Before invoking the `release` skill (always).

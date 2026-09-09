@@ -4,7 +4,7 @@
  * Tests for src/utils/tier.ts:
  * - detectTier() - Async tier detection
  * - detectTierSync() - Sync tier detection
- * - getProToken() - Token extraction
+ * - detectProToken() - Token extraction (from src/utils/token.ts)
  * - getWebAwesomePackage() - Package name lookup
  */
 
@@ -15,9 +15,9 @@ import os from 'os';
 import {
   detectTier,
   detectTierSync,
-  getProToken,
   getWebAwesomePackage,
 } from '../../src/utils/tier.js';
+import { detectProToken } from '../../src/utils/token.js';
 import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
@@ -197,15 +197,15 @@ describe('tier detection', () => {
     });
   });
 
-  describe('getProToken', () => {
+  describe('detectProToken', () => {
     it('should return null when no .env file exists', async () => {
-      const token = await getProToken(testDir);
+      const token = await detectProToken(testDir);
       expect(token).toBeNull();
     });
 
     it('should return null when .env exists but has no token', async () => {
       await fs.writeFile(path.join(testDir, '.env'), 'SOME_OTHER_VAR=value\n');
-      const token = await getProToken(testDir);
+      const token = await detectProToken(testDir);
       expect(token).toBeNull();
     });
 
@@ -214,7 +214,7 @@ describe('tier detection', () => {
         path.join(testDir, '.env'),
         'WEBAWESOME_NPM_TOKEN=my-secret-token\n'
       );
-      const token = await getProToken(testDir);
+      const token = await detectProToken(testDir);
       expect(token).toBe('my-secret-token');
     });
 
@@ -223,7 +223,7 @@ describe('tier detection', () => {
         path.join(testDir, '.env'),
         'WEBAWESOME_NPM_TOKEN=my-secret-token  \n'
       );
-      const token = await getProToken(testDir);
+      const token = await detectProToken(testDir);
       expect(token).toBe('my-secret-token');
     });
 
@@ -231,7 +231,7 @@ describe('tier detection', () => {
       // When token is empty (WEBAWESOME_NPM_TOKEN=), the regex matches
       // but tokenMatch[1] is empty, so the ternary returns null
       await fs.writeFile(path.join(testDir, '.env'), 'WEBAWESOME_NPM_TOKEN=\n');
-      const token = await getProToken(testDir);
+      const token = await detectProToken(testDir);
       expect(token).toBeNull();
     });
 
@@ -241,7 +241,7 @@ describe('tier detection', () => {
         path.join(testDir, '.env'),
         `WEBAWESOME_NPM_TOKEN=${specialToken}\n`
       );
-      const token = await getProToken(testDir);
+      const token = await detectProToken(testDir);
       expect(token).toBe(specialToken);
     });
   });

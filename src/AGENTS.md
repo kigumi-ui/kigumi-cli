@@ -156,7 +156,7 @@ npm config set //npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken TOKEN
 
 Loads/saves `kigumi.config.json`. **Never stores tier** - always detected.
 
-**Important:** Import `KigumiConfig` type from `src/schemas/config.ts` (Zod-inferred, complete), NOT from `src/utils/config.ts` (old interface, missing `installedThemes` etc.).
+**Important:** `KigumiConfig` is defined once, in `src/schemas/config.ts` (Zod-inferred). `src/utils/config.ts` re-exports that same type, so either import path is correct.
 
 **Lifecycle invariant:** load, validate, save are three honest operations:
 

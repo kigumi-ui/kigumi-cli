@@ -402,17 +402,18 @@ describe('Error Classes', () => {
         note: vi.fn(),
       };
 
-      // UserCancelledError typically has no suggestions
+      // UserCancelledError is constructed without suggestions, so
+      // formatSuggestions() returns '' and the note branch is skipped.
       const error = new UserCancelledError();
 
       try {
         handleError(error, mockOutput as OutputInterface);
       } catch {
-        // Expected
+        // handleError calls process.exit, which the mock throws on
       }
 
-      // note should not be called because formatSuggestions returns empty string
-      // Actually UserCancelledError has no suggestions, so this should work
+      expect(mockOutput.error).toHaveBeenCalled();
+      expect(mockOutput.note).not.toHaveBeenCalled();
     });
   });
 });
