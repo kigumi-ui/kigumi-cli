@@ -86,15 +86,40 @@ jobs:
       - name: Verify package contents
         run: pnpm pack --dry-run 2>&1 | head -50
 
+      - name: Authenticate with npm
+        # changesets/action v1 wrote this file itself from the NPM_TOKEN env
+        # var; v2 removed that, so the registry credential has to exist before
+        # `changeset publish` runs. Written to $HOME rather than the workspace
+        # so it cannot be swept into the release commit by the action's
+        # `git add .`.
+        run: |
+          set -euo pipefail
+          if [ -z "${NPM_TOKEN}" ]; then
+            echo "::error::NPM_TOKEN is empty. Publishing would run unauthenticated."
+            exit 1
+          fi
+          printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > "${HOME}/.npmrc"
+          npm whoami > /dev/null 2>&1 \
+            || (echo "::error::NPM_TOKEN is set but npm rejected it (expired or revoked?)."; exit 1)
+          echo "npm authentication OK."
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Version and Publish
         id: changesets
-        uses: changesets/action@v1
+        # v2 renamed every input this step uses and dropped its own NPM_TOKEN
+        # handling. Unknown `with:` keys are ignored silently by Actions, so a
+        # v1-shaped call against v2 does not fail the job -- it just stops
+        # creating the version PR and publishes unauthenticated. The .npmrc
+        # step above is what replaces the removed token handling.
+        uses: changesets/action@v2
         with:
-          version: pnpm run version
-          publish: pnpm release
-          createGithubReleases: true
-          commit: "chore(release): bump version"
-          title: "chore(release): bump version"
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          version-script: pnpm run version
+          publish-script: pnpm release
+          create-github-releases: true
+          commit-message: "chore(release): bump version"
+          pr-title: "chore(release): bump version"
+          # v1 took this from the GITHUB_TOKEN env var; v2 requires it as an
+          # explicit input. Still the PAT, because the default token cannot
+          # open the version PR.
+          github-token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
