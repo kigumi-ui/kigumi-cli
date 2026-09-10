@@ -398,8 +398,8 @@ remains an option for a future move; the rename is mechanical.
 
 The `describe()` block name should match the protected PR/F-ID.
 
-**Adding a new entry.** Pick a bug from `~/.claude/projects/kigumi-cli-overview.md`
-or recent merged PRs that (a) was user-visible, (b) had a non-trivial fix,
+**Adding a new entry.** Pick a bug from a closed GitHub issue or a recent
+merged PR that (a) was user-visible, (b) had a non-trivial fix,
 (c) covers a structural area the rest of the suite touches. Write a test that
 asserts the invariant the fix established. Verify on a scratch branch:
 
@@ -607,6 +607,14 @@ helper's logic in isolation. Current cases:
   over `{blank, prose, bullet}`) rather than inferred from whole-changelog
   fixtures.
 
+- `isPlaceholder`, `findSecretsInText`, `findHomePaths`, `findTrackedEnvFiles`
+  and `isScannable` in `scripts/validate-no-secrets.ts` — the matchers,
+  asserted directly by `tests/unit/scripts/validate-no-secrets.test.ts`.
+  Exported so the placeholder-vs-real boundary can be pinned case by case
+  without staging a repository full of fixture files. This is also the one
+  file the validator exempts from its own scan, since its fixtures must look
+  like real credentials to prove the matchers fire.
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
@@ -714,4 +722,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-10 (registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
+**Last Updated:** 2026-09-10 (registered the `validate-no-secrets.ts` credential matchers as test-only exports and added validate-no-secrets.test.ts covering the committed-credential guard; registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
