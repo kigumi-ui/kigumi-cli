@@ -6,6 +6,7 @@ import vueLogo from '@/assets/vuejs-logo.svg';
 import angularLogo from '@/assets/angular-logo.svg';
 import nextjsLogo from '@/assets/nextjs-logo.svg';
 import vitejsLogo from '@/assets/vitejs-logo.svg';
+import '@/components/FlushCodeBlock.css';
 
 const frameworks = [
   { id: 'vitejs', src: vitejsLogo, alt: 'Vite' },
@@ -159,7 +160,7 @@ export function Ecosystem() {
                     className="wa-flank:end wa-align-items-center wa-gap-xs"
                     style={{ position: 'relative', overflow: 'auto' }}
                   >
-                    <pre>
+                    <pre className="flush-code">
                       <code>
                         <span
                           style={{

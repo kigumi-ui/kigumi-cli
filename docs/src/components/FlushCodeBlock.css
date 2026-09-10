@@ -1,0 +1,37 @@
+/**
+ * Flush code blocks
+ *
+ * Web Awesome's native.css gives every `pre` a `border-radius` on all four
+ * corners. That is right for a standalone code block, but wrong when the `pre`
+ * sits flush against the edges of a rounded panel: its corners curve away from
+ * the panel border and leave a visible gap.
+ *
+ * These classes are opt-in so that padded, standalone `pre` elements keep the
+ * native look. They are deliberately unlayered: this file is imported from the
+ * component, so it outranks Web Awesome's `base` layer without `!important`,
+ * and it applies on the docs site and in Storybook alike (Storybook does not
+ * load the site's page stylesheets).
+ */
+
+.flush-code {
+  /*
+   * The inner radius of a panel is its own radius minus its border width, so
+   * the curve of the child follows the inside of the border, not its centre.
+   */
+  --flush-code-radius: calc(
+    var(--wa-panel-border-radius) - var(--wa-panel-border-width)
+  );
+
+  margin: 0;
+
+  /* Fills the whole panel: follow its curve on all four corners. */
+  border-radius: var(--flush-code-radius);
+}
+
+/*
+ * Sits below a tab bar or a filename row: the divider above runs straight, so
+ * the top corners must be square and only the bottom follows the panel.
+ */
+.flush-code--below-divider {
+  border-radius: 0 0 var(--flush-code-radius) var(--flush-code-radius);
+}

@@ -8,6 +8,7 @@ import reactLogo from '@/assets/react-logo.svg';
 import vueLogo from '@/assets/vuejs-logo.svg';
 import angularLogo from '@/assets/angular-logo.svg';
 import nextjsLogo from '@/assets/nextjs-logo.svg';
+import '@/components/FlushCodeBlock.css';
 
 interface FrameworkSnippet {
   code: string;
@@ -120,7 +121,7 @@ function CodePane({ snippet }: { snippet: FrameworkSnippet }) {
         className="wa-flank:end wa-align-items-start wa-gap-xs"
         style={{ position: 'relative' }}
       >
-        <pre>
+        <pre className="flush-code flush-code--below-divider">
           <code>{snippet.code}</code>
         </pre>
         <span

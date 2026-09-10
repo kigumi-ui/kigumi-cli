@@ -4,6 +4,7 @@ import { TabGroup } from '@/components/ui/TabGroup/TabGroup';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { TabPanel } from '@/components/ui/TabPanel/TabPanel';
 import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
+import '@/components/FlushCodeBlock.css';
 
 const PACKAGE_MANAGERS = {
   npm: 'npx kigumi init',
@@ -37,7 +38,7 @@ export function InstallCommandExample() {
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
                 style={{ position: 'relative' }}
               >
-                <pre>
+                <pre className="flush-code flush-code--below-divider">
                   <code>
                     <span
                       style={{
