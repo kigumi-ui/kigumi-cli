@@ -185,7 +185,7 @@ export const UPDATE_CHECK_CACHE_FILE = 'update-check.json';
 // =============================================================================
 
 /** GitHub repository URL */
-export const GITHUB_REPO_URL = 'https://github.com/Siregar/kigumi-cli';
+export const GITHUB_REPO_URL = 'https://github.com/kigumi-ui/kigumi-cli';
 
 /** GitHub issues URL for bug reports */
 export const GITHUB_ISSUES_URL = `${GITHUB_REPO_URL}/issues`;

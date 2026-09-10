@@ -2147,6 +2147,6 @@ npx kigumi registry remove <name>
 ## Links
 
 - **Homepage**: https://kigumi.style
-- **Repository**: https://github.com/Siregar/kigumi-cli
+- **Repository**: https://github.com/kigumi-ui/kigumi-cli
 - **Web Awesome Docs**: https://webawesome.com/docs
 - **Storybook**: https://docs.kigumi.style

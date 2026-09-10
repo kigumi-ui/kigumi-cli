@@ -63,7 +63,7 @@ Save plans to `.claude/plans/` (gitignored).
 
 ### Issue tracker
 
-Issues live in GitHub Issues on `Siregar/kigumi-cli`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues live in GitHub Issues on `kigumi-ui/kigumi-cli`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

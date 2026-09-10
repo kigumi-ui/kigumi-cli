@@ -19,11 +19,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Siregar/kigumi-cli.git"
+    "url": "https://github.com/kigumi-ui/kigumi-cli.git"
   },
   "homepage": "https://kigumi.style",
   "bugs": {
-    "url": "https://github.com/Siregar/kigumi-cli/issues"
+    "url": "https://github.com/kigumi-ui/kigumi-cli/issues"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
