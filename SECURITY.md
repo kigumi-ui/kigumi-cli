@@ -9,7 +9,7 @@ Security fixes land on the latest released minor version. Older versions are not
 Please do not open a public issue for security problems.
 
 Report vulnerabilities through
-[GitHub's private security advisory form](https://github.com/Siregar/kigumi-cli/security/advisories/new),
+[GitHub's private security advisory form](https://github.com/kigumi-ui/kigumi-cli/security/advisories/new),
 or by email to legal@kigumi.style.
 
 Include what you have: the affected version, the steps to reproduce, and what an attacker could achieve.

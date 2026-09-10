@@ -18,7 +18,7 @@ Thanks for your interest in Kigumi. This guide covers everything you need to get
 ## Getting Started
 
 ```bash
-git clone https://github.com/Siregar/kigumi-cli.git
+git clone https://github.com/kigumi-ui/kigumi-cli.git
 cd kigumi-cli
 pnpm install
 pnpm build

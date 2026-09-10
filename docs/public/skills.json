@@ -11,7 +11,7 @@
       "author": "Kigumi",
       "license": "MIT",
       "homepage": "https://kigumi.style",
-      "repository": "https://github.com/Siregar/kigumi-cli",
+      "repository": "https://github.com/kigumi-ui/kigumi-cli",
       "url": "https://kigumi.style/skills/kigumi-react",
       "install": {
         "cli": "npx skills add https://kigumi.style/skills/kigumi-react",
@@ -36,7 +36,7 @@
       "author": "Kigumi",
       "license": "MIT",
       "homepage": "https://kigumi.style",
-      "repository": "https://github.com/Siregar/kigumi-cli",
+      "repository": "https://github.com/kigumi-ui/kigumi-cli",
       "url": "https://kigumi.style/skills/kigumi-theme",
       "install": {
         "cli": "npx skills add https://kigumi.style/skills/kigumi-theme",
