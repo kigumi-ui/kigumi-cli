@@ -46,7 +46,36 @@ describe('configureTSConfig', () => {
 
     expect(result).toBe(true);
     const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
-    expect(updated.compilerOptions.baseUrl).toBe('.');
+    expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
+  });
+
+  it('does not write baseUrl, which TypeScript 7 rejects outright', async () => {
+    // TS deprecated baseUrl in 6.0 (TS5101) and removed it in 7.0 (TS5102).
+    // `typescript@latest` is 7.x, so writing it here made a fresh user's very
+    // first `tsc` run fail on a config we generated. `paths` resolves relative
+    // to the tsconfig without it.
+    const tsconfig = { compilerOptions: { target: 'ES2022' } };
+    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), tsconfig);
+
+    await configureTSConfig(testDir, mockOutput);
+
+    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
+    expect(updated.compilerOptions).not.toHaveProperty('baseUrl');
+    expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
+  });
+
+  it("leaves a project's own existing baseUrl alone", async () => {
+    // Theirs to keep or migrate. Removing it could change how their other path
+    // mappings resolve, which is not ours to decide.
+    const tsconfig = {
+      compilerOptions: { target: 'ES2022', baseUrl: './app' },
+    };
+    await fs.writeJSON(path.join(testDir, 'tsconfig.app.json'), tsconfig);
+
+    await configureTSConfig(testDir, mockOutput);
+
+    const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
+    expect(updated.compilerOptions.baseUrl).toBe('./app');
     expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
   });
 
@@ -198,8 +227,9 @@ describe('configureTSConfig', () => {
 
     const updated = await fs.readJSON(path.join(testDir, 'tsconfig.app.json'));
 
-    // Should add path aliases
-    expect(updated.compilerOptions.baseUrl).toBe('.');
+    // Should add path aliases, and no baseUrl: a real Vite 6 project on
+    // typescript@latest (7.x) fails with TS5102 if we write one.
+    expect(updated.compilerOptions).not.toHaveProperty('baseUrl');
     expect(updated.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
 
     // Should preserve ALL Vite 6 defaults (no longer modified)
