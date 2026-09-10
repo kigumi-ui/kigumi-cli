@@ -1,4 +1,5 @@
 import { Card, CopyButton } from '@/components/ui';
+import '@/components/FlushCodeBlock.css';
 
 interface CodeBlockProps {
   /** The command or code to display */
@@ -16,7 +17,7 @@ export function CodeBlock({ value, copyValue, multiline }: CodeBlockProps) {
     return (
       <Card appearance="outlined" style={{ '--spacing': '0' }}>
         <div style={{ position: 'relative' }}>
-          <pre style={{ margin: 0 }}>
+          <pre className="flush-code">
             <code>{value}</code>
           </pre>
           <span
@@ -42,7 +43,7 @@ export function CodeBlock({ value, copyValue, multiline }: CodeBlockProps) {
         className="wa-flank:end wa-align-items-center wa-gap-xs"
         style={{ position: 'relative' }}
       >
-        <pre style={{ margin: 0 }}>
+        <pre className="flush-code">
           <code>{value}</code>
         </pre>
         <span

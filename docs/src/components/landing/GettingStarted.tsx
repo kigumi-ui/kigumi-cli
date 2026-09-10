@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card/Card';
 import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
 import { FrameworkCodeBlock } from '@/components/landing/FrameworkCodeBlock';
 import { Link } from 'react-router-dom';
+import '@/components/FlushCodeBlock.css';
 
 export function GettingStarted() {
   return (
@@ -37,7 +38,7 @@ export function GettingStarted() {
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
                 style={{ position: 'relative' }}
               >
-                <pre>
+                <pre className="flush-code">
                   <code>
                     <span
                       style={{
@@ -112,7 +113,7 @@ export function GettingStarted() {
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
                 style={{ position: 'relative' }}
               >
-                <pre>
+                <pre className="flush-code">
                   <code>
                     <span
                       style={{

@@ -4,6 +4,7 @@ import { TabGroup } from '@/components/ui/TabGroup/TabGroup';
 import { Tab } from '@/components/ui/Tab/Tab';
 import { TabPanel } from '@/components/ui/TabPanel/TabPanel';
 import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
+import '@/components/FlushCodeBlock.css';
 
 interface PatternSnippet {
   code: string;
@@ -65,7 +66,7 @@ function CodePane({ snippet }: { snippet: PatternSnippet }) {
         className="wa-flank:end wa-align-items-start wa-gap-xs"
         style={{ position: 'relative' }}
       >
-        <pre>
+        <pre className="flush-code flush-code--below-divider">
           <code>{snippet.code}</code>
         </pre>
         <span

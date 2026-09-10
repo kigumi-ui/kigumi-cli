@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button/Button';
 import { Card } from '@/components/ui/Card/Card';
 import { CopyButton } from '@/components/ui/CopyButton/CopyButton';
 import { Icon } from '@/components/ui/Icon/Icon';
+import '@/components/FlushCodeBlock.css';
 
 export function GettingStartedLanding() {
   return (
@@ -39,7 +40,7 @@ export function GettingStartedLanding() {
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
                 style={{ position: 'relative' }}
               >
-                <pre>
+                <pre className="flush-code">
                   <code>
                     <span
                       style={{
@@ -103,7 +104,7 @@ export function GettingStartedLanding() {
                 className="wa-flank:end wa-align-items-center wa-gap-xs"
                 style={{ position: 'relative' }}
               >
-                <pre>
+                <pre className="flush-code">
                   <code>
                     <span
                       style={{
