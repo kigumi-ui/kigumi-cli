@@ -1,9 +1,9 @@
 # Regression suite
 
 Each test in this directory protects against a specific historical bug that
-shipped (and was fixed) in the past. The suite is the bug-bash arm of
-[Cluster V](../../../docs/superpowers/specs/2026-04-29-cluster-v-evidence-layer-design.md):
-mutation testing measures _whether_ tests catch breakage in general; this
+shipped (and was fixed) in the past. The suite is the bug-bash arm of the
+evidence layer: mutation testing measures _whether_ tests catch breakage in
+general; this
 directory provides documented evidence that the suite catches the specific
 breakage real users have hit.
 

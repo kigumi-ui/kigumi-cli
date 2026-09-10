@@ -164,9 +164,8 @@ output), plus `pnpm validate:templates` if run as part of `test:all`.
 
 ## Recording the result
 
-After 5/5 confirmed, append a paragraph to
-`docs/superpowers/state/test-infrastructure-hardening-status.md` Phase 5
-section with:
+After 5/5 confirmed, record the run on the GitHub issue that tracks the gate
+with:
 
 - Run date (ISO).
 - Gate-branch tip SHA (captured **before** the branch was deleted; e.g.

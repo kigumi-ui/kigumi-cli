@@ -137,7 +137,7 @@ function main(): void {
     console.error(
       pc.red(
         '\nReplace vi.mock with helpers from tests/unit/_helpers/ + DI hooks ' +
-          '(see docs/superpowers/specs/2026-05-02-cluster-s-mock-reduction-design.md).\n'
+          '(see tests/AGENTS.md, "Mock Budget", for the legitimate exceptions).\n'
       )
     );
     process.exit(1);
