@@ -87,16 +87,84 @@ function parseCategories(content: string): Map<string, string[]> {
       continue;
     }
 
-    if (line.trim()) {
-      const category = currentCategory ?? FALLBACK_CATEGORY;
-      if (!categories.has(category)) {
-        categories.set(category, []);
-      }
-      categories.get(category)!.push(line);
+    const category = currentCategory ?? FALLBACK_CATEGORY;
+    if (!categories.has(category)) {
+      categories.set(category, []);
     }
+    const bucket = categories.get(category)!;
+
+    // Blank lines are content, not noise: a changeset body may span several
+    // paragraphs and wrap a fenced code block, and markdown needs the blank
+    // line on each side of a fence. Dropping every blank line here glued whole
+    // entries into one paragraph and produced a CHANGELOG.md that
+    // `prettier --check` rejected. Collect them verbatim; `tidyBlankLines`
+    // below decides which ones survive.
+    bucket.push(line.trim() ? line : '');
+  }
+
+  for (const [cat, items] of categories) {
+    categories.set(cat, tidyBlankLines(items));
   }
 
   return categories;
+}
+
+/**
+ * Normalise the blank lines inside one category bucket.
+ *
+ * Two rules, and they pull in opposite directions:
+ *
+ * 1. A blank line BETWEEN two single-line bullets is dropped. Changesets emits
+ *    those between wrapped items, and keeping them turns a tight markdown list
+ *    into a loose one, which renders with paragraph spacing between bullets.
+ * 2. Every other blank line is kept, collapsed to at most one. These are the
+ *    paragraph breaks inside a multi-line entry and the blank lines that must
+ *    surround a fenced code block for markdown (and `prettier --check`) to
+ *    accept it.
+ *
+ * Leading and trailing blanks are dropped so no section opens or closes with
+ * one.
+ */
+export function tidyBlankLines(items: string[]): string[] {
+  const isBullet = (line: string | undefined): boolean =>
+    /^\s*- /.test(line ?? '');
+
+  const out: string[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const line = items[i]!;
+
+    if (line.trim()) {
+      out.push(line);
+      continue;
+    }
+
+    // A blank only ever separates. If nothing precedes it in the output, or a
+    // separator is already there, it has nothing to do -- which is what keeps
+    // sections from opening on a blank or stacking two of them.
+    const prev = out[out.length - 1];
+    if (prev === undefined || !prev.trim()) {
+      continue;
+    }
+
+    // What this blank would separate FROM: the next non-blank line, skipping
+    // any further blanks in the run.
+    const next = items.slice(i + 1).find((l) => l.trim());
+
+    // Nothing follows, so there is nothing to separate. Returning here is what
+    // guarantees the result never ends on a blank, which is why no separate
+    // trailing-trim pass is needed.
+    if (next === undefined) return out;
+
+    // Rule 1: two single-line bullets stay tight.
+    if (isBullet(prev) && isBullet(next)) {
+      continue;
+    }
+
+    out.push('');
+  }
+
+  return out;
 }
 
 function formatCategories(categories: Map<string, string[]>): string {

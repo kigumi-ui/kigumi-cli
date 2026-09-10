@@ -600,6 +600,12 @@ helper's logic in isolation. Current cases:
   `tests/unit/init-validate-and-prepare.test.ts` can cover Free↔Pro migration
   prompts, post-install instruction branches, and the non-interactive paths
   without staging the entire `initCommand` orchestration.
+- `tidyBlankLines` in `scripts/post-changeset-version.ts` — the whole
+  blank-line policy for the generated changelog, asserted directly by
+  `tests/unit/scripts/post-changeset-version.test.ts`. Exported so the
+  invariants can be enumerated exhaustively (every sequence up to length 7
+  over `{blank, prose, bullet}`) rather than inferred from whole-changelog
+  fixtures.
 
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
@@ -708,4 +714,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-09 (removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
+**Last Updated:** 2026-09-10 (registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
