@@ -615,6 +615,12 @@ helper's logic in isolation. Current cases:
   file the validator exempts from its own scan, since its fixtures must look
   like real credentials to prove the matchers fire.
 
+- `findBrokenLinks`, `isCheckableTarget`, `normalizeTarget` and `isExcluded`
+  in `scripts/validate-doc-links.ts` — the link matchers, asserted directly by
+  `tests/unit/scripts/validate-doc-links.test.ts`. `findBrokenLinks` takes its
+  `exists` probe as an argument, so the checker is exercised without laying
+  files on disk.
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
@@ -722,4 +728,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-10 (registered the `validate-no-secrets.ts` credential matchers as test-only exports and added validate-no-secrets.test.ts covering the committed-credential guard; registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
+**Last Updated:** 2026-09-10 (added validate-doc-links.test.ts covering the markdown link matchers; registered the `validate-no-secrets.ts` credential matchers as test-only exports and added validate-no-secrets.test.ts covering the committed-credential guard; registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)

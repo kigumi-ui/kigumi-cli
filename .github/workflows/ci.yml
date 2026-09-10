@@ -211,6 +211,13 @@ jobs:
         # repository secret, which is the shape this catches.
         run: pnpm run validate:no-secrets
 
+      - name: Validate documentation links
+        # A relative link is a claim that a path exists. Nothing verified those
+        # claims, so they rotted: .cursor/SKILLS.md pointed at six deleted
+        # files for six months. A dead link in an agent-facing document sends
+        # the reader somewhere instead of nowhere.
+        run: pnpm run validate:doc-links
+
   test:
     name: Test
     runs-on: ubuntu-latest

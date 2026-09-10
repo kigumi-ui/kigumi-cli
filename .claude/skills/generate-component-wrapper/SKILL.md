@@ -228,8 +228,6 @@ Vue templates follow a similar pattern. Reference the Vue template generator at 
 
 Vue templates are functional but generic — they pass all props via `v-bind="props"` and expose a default `<slot />`. Component-specific named slots, events, and methods are not yet generated. Users can access those via `elementRef.value` on the underlying web component.
 
-See the [Vue Template Implementation memory](../../memory/MEMORY.md) for details on the current state and planned improvements.
-
 ## Step 7: Validate Templates
 
 Check that generated templates:

@@ -795,10 +795,8 @@ import { Icon, Input } from '@/components/ui';
 </Input>
 ```
 
-See the enriched component references for full slot, part, and event details:
-
-- [Input reference](../../kigumi-react/references/components/input.md)
-- [Select reference](../../kigumi-react/references/components/select.md)
+For full slot, part, and event details, load the `kigumi-react` skill: it
+carries the per-component surface this recipe composes.
 
 ---
 
