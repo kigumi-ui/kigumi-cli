@@ -46,6 +46,11 @@ tmp/
 .stryker-tmp/
 reports/mutation/
 
+# .husky/.graphify-python: the interpreter path recorded at hook-install time.
+# Local only, because an interpreter path contains the developer's home
+# directory and this repo is public.
+.husky/.graphify-python
+
 # graphify-out/: generated knowledge-graph artifacts, local only.
 # Regenerate with /graphify; the dumps are multi-MB and go stale immediately.
 graphify-out/

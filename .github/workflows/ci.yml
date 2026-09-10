@@ -203,6 +203,14 @@ jobs:
         # is silent until a formatter rewrites a fixture.
         run: pnpm run validate:fixture-exclusions
 
+      - name: Validate no committed credentials
+        # This repository is public, so a committed credential is visible to
+        # everyone and stays reachable in forks and clones after deletion:
+        # rotation is the only real remedy. A live Chromatic project token sat
+        # in docs/package.json while CI read the same credential from a
+        # repository secret, which is the shape this catches.
+        run: pnpm run validate:no-secrets
+
   test:
     name: Test
     runs-on: ubuntu-latest

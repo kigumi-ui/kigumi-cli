@@ -10,7 +10,7 @@
     "dev": "vite",
     "prebuild": "node ../scripts/publish-skills.mjs && node ../scripts/generate-skills-index.mjs && cp ../llms.txt public/",
     "build": "tsc -b && vite build",
-    "chromatic": "chromatic --project-token=chpt_4e3397305b8d707",
+    "chromatic": "chromatic",
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
