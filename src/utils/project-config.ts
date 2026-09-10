@@ -203,9 +203,17 @@ export async function configureTSConfig(
   // Initialize compilerOptions if missing
   tsconfig.compilerOptions = tsconfig.compilerOptions || {};
 
-  // Add path alias matching the project's source layout if not present
+  // Add path alias matching the project's source layout if not present.
+  //
+  // Deliberately does NOT write `baseUrl`. TypeScript deprecated it in 6.0
+  // (error TS5101) and removed it in 7.0 (error TS5102), and `typescript@latest`
+  // is 7.x, so writing it made the user's very first `tsc` run fail on a config
+  // we generated. `paths` entries resolve relative to the tsconfig without it.
+  //
+  // An existing `baseUrl` in the project's own tsconfig is left alone: it is
+  // theirs to keep or migrate, and removing it could change how their other
+  // path mappings resolve.
   if (!tsconfig.compilerOptions.paths?.['@/*']) {
-    tsconfig.compilerOptions.baseUrl = tsconfig.compilerOptions.baseUrl || '.';
     tsconfig.compilerOptions.paths = {
       ...tsconfig.compilerOptions.paths,
       '@/*': sourceLayout === 'src' ? ['./src/*'] : ['./*'],
