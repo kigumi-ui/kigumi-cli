@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { check as prettierCheck } from 'prettier';
 import {
   bumpAgentsVersion,
   parseLatestVersion,
   rewriteChangelog,
+  tidyBlankLines,
 } from '../../../scripts/post-changeset-version.js';
 
 const TODAY = '2026-05-02';
@@ -112,6 +114,43 @@ const NO_CATEGORY_HEADER_FIXTURE = `# Changelog
 - Prior entry kept verbatim.
 `;
 
+// Real-world shape of a changeset whose body is MULTI-LINE prose: separate
+// paragraphs and a fenced code block. Every blank line used to be dropped,
+// which glued paragraphs together and stripped the blank lines around the
+// fence -- the exact shape prettier rejected on the 1.0.0 release PR.
+const MULTILINE_BODY_FIXTURE = `# Changelog
+
+## 1.0.0
+
+### Patch Changes
+
+- abc1234: ### Fixed
+
+  \`kigumi init\` no longer writes \`baseUrl\` into your \`tsconfig.json\`.
+
+  TypeScript removed it in 7.0, so a fresh project's first \`tsc\` run failed:
+
+  \`\`\`
+  error TS5102: Option 'baseUrl' has been removed.
+  \`\`\`
+
+  The \`@/*\` alias resolves without it, so nothing else changes.
+
+- def5678: ### Fixed
+
+  A second entry that must not glue onto the first one.
+
+- 9990000: ### Removed
+
+  A later category so a trailing blank in Fixed shows at the section join.
+
+## [0.27.0] - 2026-08-18
+
+### Fixed
+
+- Prior entry kept verbatim.
+`;
+
 describe('rewriteChangelog', () => {
   it('reformats a fresh changesets entry to Keep-a-Changelog', () => {
     expect(rewriteChangelog(CHANGELOG_FIXTURE, TODAY)).toMatchSnapshot();
@@ -154,6 +193,32 @@ describe('rewriteChangelog', () => {
     expect(changedBlock).toContain('Web Awesome upgraded to 3.6.0.');
   });
 
+  it('preserves blank lines inside a multi-line entry body', () => {
+    const result = rewriteChangelog(MULTILINE_BODY_FIXTURE, '2026-09-10');
+
+    // A fenced code block must keep the blank line on each side, otherwise
+    // prettier --check fails on the generated CHANGELOG.md.
+    expect(result).toMatch(/\n\n```\nerror TS5102/);
+    expect(result).toMatch(/has been removed\.\n```\n\n/);
+
+    // Paragraphs within one entry stay separated.
+    expect(result).toMatch(/tsconfig\.json`\.\n\n/);
+
+    // Two separate entries do not run together.
+    expect(result).toMatch(
+      /nothing else changes\.\n\nA second entry that must not glue/
+    );
+
+    // No blank line may open a category section, and none may be left
+    // dangling at its end -- a trailing blank shows up as a triple newline
+    // where the next `### ` section is joined on.
+    expect(result).not.toMatch(/### \w+\n\n\n/);
+    expect(result).not.toMatch(/\n\n\n/);
+    expect(result).toMatch(
+      /glue onto the first one\.\n\n### Removed\n\nA later category/
+    );
+  });
+
   it('falls back to Changed instead of dropping content with no category header', () => {
     const result = rewriteChangelog(NO_CATEGORY_HEADER_FIXTURE, '2026-08-18');
 
@@ -161,6 +226,107 @@ describe('rewriteChangelog', () => {
     expect(result).toContain('Cached registry files now expire.');
     expect(result).toContain('`theme install` accepts local registry paths.');
     expect(result).toContain('### Changed');
+  });
+});
+
+// The generated CHANGELOG.md is committed by the release bot and then checked
+// by `pnpm run format:check` in CI. Asserting the real prettier contract here
+// keeps that failure in the unit lane, where it is cheap, instead of on the
+// release PR, where it blocks a publish.
+describe('generated changelog is prettier-clean', () => {
+  const cases: Array<[string, string]> = [
+    ['a standard multi-changeset entry', CHANGELOG_FIXTURE],
+    ['hash-on-header-line changesets', MULTI_CHANGESET_HASH_FIXTURE],
+    ['category-less prose changesets', NO_CATEGORY_HEADER_FIXTURE],
+    ['multi-line bodies with a code fence', MULTILINE_BODY_FIXTURE],
+  ];
+
+  for (const [name, fixture] of cases) {
+    it(`formats ${name} to prettier's markdown style`, async () => {
+      const result = rewriteChangelog(fixture, TODAY);
+      await expect(prettierCheck(result, { parser: 'markdown' })).resolves.toBe(
+        true
+      );
+    });
+  }
+});
+
+// `tidyBlankLines` is the whole of the blank-line policy, and the rules it
+// balances pull against each other: some blanks must survive, others must not.
+// Rather than hand-pick cases and hope they cover the interactions, enumerate
+// EVERY sequence up to length 7 over an alphabet of {blank, prose, bullet} --
+// 3,280 inputs -- and assert the invariants hold for all of them.
+//
+// It is a test-only export (see tests/AGENTS.md, "Internals Exported for Test
+// Coverage"): it has no caller outside `parseCategories`, and is exported so
+// these invariants can be asserted against the real function, not a copy.
+describe('tidyBlankLines invariants (test-only export)', () => {
+  const ALPHABET = ['', 'prose', '- bullet'];
+
+  function* allInputs(maxLen: number): Generator<string[]> {
+    for (let len = 0; len <= maxLen; len++) {
+      const total = ALPHABET.length ** len;
+      for (let n = 0; n < total; n++) {
+        const arr: string[] = [];
+        let k = n;
+        for (let d = 0; d < len; d++) {
+          arr.push(ALPHABET[k % ALPHABET.length]!);
+          k = Math.floor(k / ALPHABET.length);
+        }
+        yield arr;
+      }
+    }
+  }
+
+  const isBlank = (l: string) => !l.trim();
+  const isBullet = (l: string | undefined) => /^\s*- /.test(l ?? '');
+
+  it('holds for every sequence up to length 7', () => {
+    let checked = 0;
+    const failures: string[] = [];
+
+    const fail = (msg: string, input: string[], out: string[]) => {
+      if (failures.length < 5) {
+        failures.push(
+          `${msg}\n  in:  ${JSON.stringify(input)}\n  out: ${JSON.stringify(out)}`
+        );
+      }
+    };
+
+    for (const input of allInputs(7)) {
+      const out = tidyBlankLines(input);
+      checked++;
+
+      // A section never opens on a blank line.
+      if (out.length > 0 && isBlank(out[0]!)) fail('leading blank', input, out);
+
+      // A section never closes on a blank line. This is the invariant that
+      // makes a separate trailing-trim pass unnecessary.
+      if (out.length > 0 && isBlank(out[out.length - 1]!)) {
+        fail('trailing blank', input, out);
+      }
+
+      for (let i = 1; i < out.length; i++) {
+        // Blanks are collapsed to at most one, so prettier never sees a run.
+        if (isBlank(out[i]!) && isBlank(out[i - 1]!)) {
+          fail('stacked blanks', input, out);
+        }
+        // Rule 1: two single-line bullets stay tight.
+        if (isBlank(out[i]!) && isBullet(out[i - 1]) && isBullet(out[i + 1])) {
+          fail('bullets separated', input, out);
+        }
+      }
+
+      // Non-blank content is never dropped, duplicated, or reordered. Only
+      // the blank lines between them are up for negotiation.
+      expect(out.filter((l) => !isBlank(l))).toEqual(
+        input.filter((l) => !isBlank(l))
+      );
+    }
+
+    expect(failures, failures.join('\n\n')).toEqual([]);
+    // Sum of 3^len for len 0..7.
+    expect(checked).toBe(3280);
   });
 });
 
