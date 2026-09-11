@@ -181,7 +181,13 @@ jobs:
       # server having a bad day cannot turn this repo red.
       - name: Check external links
         id: links
-        run: pnpm check:external-links | tee link-report.txt
+        # The report is pasted into an issue for a human to read, so keep ANSI
+        # escapes out of it. Runners set FORCE_COLOR, which overrides the
+        # library's own TTY detection, so NO_COLOR has to be explicit.
+        env:
+          NO_COLOR: '1'
+          FORCE_COLOR: '0'
+        run: pnpm --silent check:external-links | tee link-report.txt
 
       - name: Report dead links
         if: steps.links.outputs.failures != '0' && steps.links.outputs.failures != ''
@@ -230,7 +236,10 @@ jobs:
       # only reports that a release exists; the upgrade stays a decision.
       - name: Compare pinned versions against the registry
         id: versions
-        run: pnpm check:upstream-versions | tee version-report.txt
+        env:
+          NO_COLOR: '1'
+          FORCE_COLOR: '0'
+        run: pnpm --silent check:upstream-versions | tee version-report.txt
 
       - name: Report version drift
         if: steps.versions.outputs.drift == '1'
