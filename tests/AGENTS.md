@@ -621,6 +621,19 @@ helper's logic in isolation. Current cases:
   `exists` probe as an argument, so the checker is exercised without laying
   files on disk.
 
+- `isPlaceholder`, `normalizeUrl` and `extractUrls` in
+  `scripts/check-external-links.ts` — the URL matchers, asserted directly by
+  `tests/unit/scripts/check-external-links.test.ts`. Exported so the
+  placeholder-and-punctuation boundary can be pinned case by case without
+  making a single network request, which is the whole reason the reporter is
+  weekly rather than part of `validate:all`.
+
+- `parsePinned`, `majorOf`, `isMajorBump` and `readWebAwesomePin` in
+  `scripts/check-upstream-versions.ts` — the version matchers, asserted
+  directly by `tests/unit/scripts/check-upstream-versions.test.ts`. Exported
+  so the major-boundary rule, including the downgrade and unparseable cases,
+  can be asserted without reaching the npm registry.
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
