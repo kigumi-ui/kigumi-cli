@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import logoImg from '@/assets/icon.svg';
 import { ThemeFab } from './ThemeFab';
+import { Icon } from '../ui';
 
 export function Header() {
   return (
@@ -38,6 +39,14 @@ export function Header() {
             className="wa-caption-m header__changelog"
           >
             Changelog
+          </a>
+          <a
+            href="https://github.com/kigumi-ui/kigumi-cli"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="wa-caption-m"
+          >
+            GitHub
           </a>
           <ThemeFab />
         </div>

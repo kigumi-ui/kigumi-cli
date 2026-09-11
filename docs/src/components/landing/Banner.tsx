@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button/Button';
 import { Icon } from '@/components/ui/Icon/Icon';
 
-const BANNER_STORAGE_KEY = 'banner-20260823-dismissed';
+const BANNER_STORAGE_KEY = 'banner-20260911-dismissed';
 
 export const Banner = () => {
   const [isDismissed, setIsDismissed] = useState(() => {
@@ -26,18 +26,16 @@ export const Banner = () => {
     >
       <div className="banner__content wa-gap-s wa-align-items-center wa-justify-content-center">
         <span>
-          <strong>Next.js</strong> is now supported. Use{' '}
-          <code>npx kigumi upgrade</code> to install the latest version or try
-          the{' '}
+          <strong>Kigumi CLI</strong> is now open source. Check out the{' '}
           <a
-            href="https://github.com/kigumi-ui/kigumi-next-starter"
+            href="https://github.com/kigumi-ui"
             target="_blank"
             className="wa-text-link"
             rel="noopener noreferrer"
           >
-            Next.js starter
+            GitHub repository
           </a>{' '}
-          template.
+          to contribute.
         </span>
       </div>
       <Button
