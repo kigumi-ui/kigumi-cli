@@ -634,6 +634,12 @@ helper's logic in isolation. Current cases:
   so the major-boundary rule, including the downgrade and unparseable cases,
   can be asserted without reaching the npm registry.
 
+- `tagNames`, `attributeTypes` and `diffManifests` in
+  `scripts/check-wa-upgrade.ts` — the manifest comparators, asserted directly
+  by `tests/unit/scripts/check-wa-upgrade.test.ts`. Exported so the
+  added/removed/changed boundary can be pinned against hand-built manifests
+  rather than downloading two real Web Awesome tarballs per assertion.
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
