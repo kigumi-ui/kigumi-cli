@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import logoImg from '@/assets/icon.svg';
 import { ThemeFab } from './ThemeFab';
-import { Icon } from '../ui';
 
 export function Header() {
   return (
