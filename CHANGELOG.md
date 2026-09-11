@@ -12,10 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Run all 15 validators on the weekly maintenance schedule, not only when a pull request touches a file. Drift caused by the outside world moving is now visible without anyone editing anything.
 - Report external links in `README.md` and `NOTICE` weekly. Requests are sequential with a retry, so throttling is not mistaken for a dead page.
 - Report weekly when Web Awesome or a tracked toolchain package publishes a version ahead of the pins. Upgrading stays a decision; nothing is changed automatically.
-
-Both upstream reports open or update an issue and always exit successfully, so a third-party outage can never turn the repository red.
-
 - Report weekly what a Web Awesome upgrade would actually involve. The check compares the published package's custom-elements manifest against the pinned one and names the components added or removed, the attributes removed or retyped on surviving components, and the six pin locations a bump has to update. It reads the free package, so it needs no Web Awesome token, and it never touches the pin.
+
+All three reports open or update an issue and always exit successfully, so a third-party outage can never turn the repository red.
 
 ## [1.0.0] - 2026-09-10
 
