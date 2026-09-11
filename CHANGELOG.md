@@ -5,6 +5,232 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-09-10
+
+### Added
+
+A husky `commit-msg` hook that rejects AI attribution trailers
+(`Co-Authored-By: Claude`, `Generated with ...`) before they enter the git
+history. Prose mentioning Claude is deliberately still allowed, since the
+history legitimately discusses Claude hooks and sessions.
+
+Internal ESLint plugin scaffold (`tools/eslint-plugin-kigumi`) with a
+RuleTester harness running in the existing unit-test lane. No lint rules are
+enabled yet; this is the foundation the upcoming `class`-not-`className`,
+listener-cleanup and typed-error rules build on.
+
+`validate:fixture-exclusions` fails the build when `.prettierignore`,
+`eslint.config.js` or `tsconfig.tests.json` stops excluding
+`tests/fixtures/starter-snapshots`. Those files are recorded CLI output, so a
+formatter rewriting them silently invalidates every snapshot diff.
+
+`validate:no-secrets` fails the build when a tracked file contains a
+provider-prefixed credential (Chromatic, npm, GitHub, Slack, AWS, OpenAI,
+Anthropic, Stripe), an absolute home-directory path, or when a `.env` file is
+tracked at all.
+
+It matches on provider prefixes rather than entropy: an entropy scan flags
+every hash and minified bundle, and a check that noisy gets switched off.
+Placeholders like `your_token_here`, `/Users/you/...` and the existing test
+fixtures are deliberately allowed so docs can keep showing the shape of a path
+or token.
+
+`validate:doc-links` fails the build when a relative markdown link points at a
+path that does not exist.
+
+A relative link is a claim that a file exists, and nothing verified those
+claims. `.cursor/SKILLS.md` pointed at six skill files for six months after the
+directory holding them was deleted, two skills sent readers to reference docs
+that were never written, and three documents still pointed into
+`docs/superpowers/`, removed when that workflow was retired.
+
+External URLs, anchors, and links inside code blocks are deliberately not
+checked: reaching the network makes the build flaky, and a link in a code
+sample is syntax rather than a claim. `tests/fixtures/` is excluded, because a
+fixture that links to a missing file is usually the point of the fixture.
+
+`validate:gha-permissions` fails the build when a workflow job that runs
+`actions/checkout` declares its own `permissions:` block without a readable
+`contents:` scope. Job-level permissions replace the workflow-level ones rather
+than merging, so a missing `contents: read` silently breaks checkout.
+
+The Claude PreToolUse hook now denies file edits and commits while the session
+is on the default branch, pointing at the worktree workflow CLAUDE.md requires.
+Reads are unaffected, and `KIGUMI_ALLOW_MAIN=1` overrides it for the release
+flow, which legitimately commits on `main`.
+
+### Changed
+
+First stable release. Kigumi's CLI surface, its `kigumi.config.json` format and
+the shape of the components it generates are now covered by semantic versioning:
+a breaking change to any of them requires a major bump.
+
+Nothing in this release breaks an existing project. 1.0.0 signals maturity, not
+a rewrite. Commands, flags and config keep working as they did in the 0.27 line,
+and the version reflects that the surface is settled enough to promise that.
+
+Projects pinned to a 0.x `kigumiVersion` keep working against the 1.x CLI. You
+will see a one-time warning suggesting `kigumi upgrade`, which pins the project
+forward; nothing is required of you before then.
+
+Point `.changeset/config.json`'s `$schema` at `@changesets/config@4.0.0`, which
+is what `@changesets/cli@3.0.2` now resolves. The URL is an editor hint only, so
+nothing was broken, but a stale pointer sends editors to the wrong schema.
+
+The repository moved to the `kigumi-ui` organisation.
+
+`package.json`'s `repository` and `bugs` fields, and the repository URL the CLI
+prints in its error messages, now point at
+`https://github.com/kigumi-ui/kigumi-cli`. The npm package name is unchanged.
+
+Retire the superpowers state-file workflow in favour of the mattpocock-skills
+engineering flow. `release-readiness` no longer parses `INITIATIVES.md` or the
+test-infra cluster table: those meta-checks were pinned to `v0.20.0`, six minor
+versions behind the current release, so they could not fail for a real reason.
+The gate suite, changeset count and version-vs-tag comparison are unchanged, and
+the report now lands in `.claude/reports/` instead of the repository tree.
+
+The interaction-test lane's story list now lives in one module
+(`docs/.storybook-test/interaction-stories.ts`) that both
+`.storybook-test/main.ts` and `vitest.storybook.config.ts` derive from, instead
+of being typed out by hand in both. `validate:story-lanes` additionally checks
+that list against the stories actually tagged `interaction`.
+
+### Fixed
+
+The release changelog no longer collapses multi-line entries into a single
+paragraph.
+
+`post-changeset-version.ts` dropped every blank line while bucketing changeset
+bodies into categories. Any entry longer than one paragraph came out glued
+together, separate entries ran into each other, and a fenced code block lost the
+blank line markdown requires on each side. The 1.0.0 release PR failed
+`format:check` on exactly that.
+
+Blank lines inside an entry are now preserved and collapsed to one. A blank line
+between two single-line bullets is still dropped, so ordinary bullet lists stay
+tight rather than rendering with paragraph spacing. The generated output is
+asserted against prettier's own markdown formatter in the unit lane, so this
+class of failure can no longer reach a release PR.
+
+Migrated the release workflow to `changesets/action` v2.
+
+v2 renamed every input the workflow used (`version`, `publish`, `commit`,
+`title`, `createGithubReleases`) and replaced the `GITHUB_TOKEN` env var with an
+explicit `github-token` input. GitHub Actions ignores unknown `with:` keys
+silently, so the v1-shaped call would not have failed CI. The next release would
+have stopped opening the version PR and published unauthenticated.
+
+v2 also dropped the action's own `.npmrc` handling, which is what consumed
+`NPM_TOKEN`. Registry auth is now written explicitly before `changeset publish`,
+into `$HOME` rather than the workspace so it cannot be swept into the release
+commit, and it fails fast with an actionable message when the token is missing
+or rejected.
+
+The Storybook interaction lane no longer installs Playwright's system
+dependencies, removing a hard dependency on Google's Debian mirror from CI.
+
+`playwright install --with-deps` shells out to apt. When that mirror serves a
+corrupted package index the job fails before running any test, which is what
+repeatedly blocked the 1.0.0 release PR. Measured on a passing run, 24 of the 33
+packages were already present on the runner; the 9 actually installed were fonts
+with no bearing on a Latin-only, non-pixel-comparing test lane.
+
+Native DOM events now get their real handler type in generated wrappers,
+instead of `CustomEvent`.
+
+Web Awesome's manifest gives each event a pascal-cased `eventName` (`blur`
+becomes `BlurEvent`), which reads like a type but names no real DOM interface.
+Each generator pattern-matched that string on its own, so they disagreed.
+Handler types now come from the event's real DOM name through one shared table.
+
+**React** — `change` is `Event`, `input` and `beforeinput` are `InputEvent`,
+`load` and `error` are `Event`. `blur` and `focus` were already correct.
+
+**Vue and Angular** — the same four corrections, plus `blur`, which was
+`CustomEvent` and is now `FocusEvent`.
+
+Web Awesome's own `wa-*` events are unchanged: they stay `CustomEvent`.
+
+Your existing files are untouched; nothing changes until you regenerate a
+component. When you do, a handler you had typed as `CustomEvent` will no longer
+compile. Widening the parameter to the type listed above fixes it, and the new
+type is the one the DOM actually delivers.
+
+The Chromatic project token is no longer hardcoded in `docs/package.json`.
+
+The `chromatic` script passed `--project-token=chpt_...` as a literal while the
+CI workflow read the same credential from the `CHROMATIC_PROJECT_TOKEN`
+repository secret. The workflow treated it as a secret and the local
+convenience script did not. The script now relies on the environment variable
+the Chromatic CLI already reads, and `docs/.env.example` documents it.
+
+The husky hooks no longer carry an absolute path into the maintainer's home
+directory. `post-commit` and `post-checkout` both pinned a `/Users/<name>/...`
+interpreter path, which leaked a username to every clone and pointed at a
+location that exists on no other machine. The path moves to an untracked
+`.husky/.graphify-python`, read with `read` rather than the whitespace-stripping
+used elsewhere, because stripping breaks any path containing a space.
+
+Removed the dead `.cursor/SKILLS.md` index and the stale `docs/superpowers/`
+references, including one in a `check:mocks` error message that sent developers
+to a deleted design doc.
+
+`kigumi init` no longer writes `baseUrl` into your `tsconfig.json`.
+
+TypeScript deprecated `baseUrl` in 6.0 and removed it in 7.0, and
+`typescript@latest` is now 7.x. Writing it meant a fresh project's very first
+`tsc` run failed on a config Kigumi had generated:
+
+```
+error TS5102: Option 'baseUrl' has been removed. Please remove it from your
+configuration.
+```
+
+The `@/*` path alias resolves relative to the tsconfig without it, so nothing
+else changes. A `baseUrl` already present in your own tsconfig is left untouched.
+
+`templates/AGENTS.md` claimed "a single set of 80 React templates" while the
+real count was 84. `validate:agents` now checks component-count claims in that
+file, which is the one AGENTS.md no validator previously opened.
+
+`kigumi add` no longer refuses to run in projects created before 1.0.0.
+
+The version check treats a differing major as fatal. Every 0.x project pins a
+major of 0, so a 1.x CLI hard-failed in all of them with `VersionMismatchError`
+before doing any work. Since 1.0.0 marked the surface stable rather than
+changing it, that blocked every existing project for a release that broke
+nothing.
+
+A 0.x project on a 1.x CLI now warns and proceeds, pointing at
+`kigumi upgrade` to pin the project forward. Later major jumps stay fatal.
+
+### Removed
+
+`scripts/state-files.ts`, `scripts/state-staleness.ts` and
+`scripts/triage-finding.ts`, along with the `weekly-review` and `triage-finding`
+skills; issue tracking moves to GitHub Issues.
+
+`scripts/detemplate.ts`, a one-shot Handlebars migration tool whose own header
+said it should be deleted once the migration shipped. No `.hbs` files remain and
+handlebars is not a dependency.
+
+`getProToken()` from `src/utils/tier.ts`, a pass-through wrapper around
+`detectProToken()` with no callers outside its own tests.
+
+`graphify-out/`, `docs/superpowers/` and `.claude/settings.local.json` are no
+longer tracked. All three were already matched by `.gitignore` while remaining in
+the index.
+
+`templates/AGENTS.md` no longer ships in the npm tarball.
+
+It is contributor documentation, not runtime input: every path it cites
+(`../AGENTS.md`, `.claude/skills/`, `../../typecheck-shims/`) exists in the
+repository and not in the package, so in a published install all of its links
+dangle. The `files` array now names the three template directories explicitly
+rather than all of `templates/`. A negation entry does not work here, because
+pnpm ships the file anyway.
+
 ## [0.27.2] - 2026-08-23
 
 ### Fixed
