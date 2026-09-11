@@ -70,6 +70,8 @@
     "validate:gha-permissions": "tsx scripts/validate-gha-permissions.ts",
     "validate:no-secrets": "tsx scripts/validate-no-secrets.ts",
     "validate:doc-links": "tsx scripts/validate-doc-links.ts",
+    "check:external-links": "tsx scripts/check-external-links.ts",
+    "check:upstream-versions": "tsx scripts/check-upstream-versions.ts",
     "validate:story-lanes": "tsx scripts/validate-story-lanes.ts",
     "generate:stories": "tsx scripts/storybook/patch-stories.ts",
     "validate:all": "pnpm validate:registry && pnpm validate:templates && pnpm validate:changes && pnpm validate:changesets && pnpm validate:stories && pnpm validate:cem-sync && pnpm validate:parity && pnpm validate:agents && pnpm validate:generated-fresh && pnpm validate:wa-pins && pnpm validate:gha-permissions && pnpm validate:story-lanes && pnpm validate:fixture-exclusions && pnpm validate:no-secrets && pnpm validate:doc-links",
