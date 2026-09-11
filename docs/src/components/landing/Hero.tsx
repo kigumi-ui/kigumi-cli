@@ -46,6 +46,16 @@ export function Hero() {
                   Customize theme
                 </Button>
               </ButtonGroup>
+              <Button
+                variant="brand"
+                appearance="filled-outlined"
+                size="medium"
+                href="https://github.com/kigumi-ui/kigumi-cli"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name="github" family="brands" /> View on GitHub
+              </Button>
             </div>
           </div>
 
