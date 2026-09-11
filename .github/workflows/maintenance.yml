@@ -191,13 +191,20 @@ jobs:
 
       - name: Report dead links
         if: steps.links.outputs.failures != '0' && steps.links.outputs.failures != ''
+        # Reporting must never turn the repo red. Without this, a transient
+        # GitHub API failure in the step below would fail the job for the very
+        # outage it exists to report.
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          # Match on the title rather than `--search`, which needs the issue to
+          # be indexed first. A run that creates an issue and queries for it
+          # moments later would miss it and open a duplicate.
           EXISTING=$(gh issue list --repo "${{ github.repository }}" \
-            --label upstream-report --state open --search "External links in head:" \
-            --json number --jq '.[0].number // empty')
+            --label upstream-report --state open --json number,title \
+            --jq 'map(select(.title | startswith("External links"))) | .[0].number // empty')
           BODY=$(printf 'The weekly external link check found links that did not respond.\n\n```\n%s\n```\n\nReported by `.github/workflows/maintenance.yml`. Checked weekly; nothing is failing because of this.\n' "$(cat link-report.txt)")
           if [ -n "$EXISTING" ]; then
             gh issue comment "$EXISTING" --body "$BODY"
@@ -243,13 +250,14 @@ jobs:
 
       - name: Report version drift
         if: steps.versions.outputs.drift == '1'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           EXISTING=$(gh issue list --repo "${{ github.repository }}" \
-            --label upstream-report --state open --search "Upstream versions in head:" \
-            --json number --jq '.[0].number // empty')
+            --label upstream-report --state open --json number,title \
+            --jq 'map(select(.title | startswith("Upstream versions"))) | .[0].number // empty')
           BODY=$(printf 'The weekly upstream check found newer published versions.\n\n```\n%s\n```\n\nReported by `.github/workflows/maintenance.yml`. Upgrading is a decision, not an automatic action.\n' "$(cat version-report.txt)")
           if [ -n "$EXISTING" ]; then
             gh issue comment "$EXISTING" --body "$BODY"
