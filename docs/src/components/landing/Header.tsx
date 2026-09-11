@@ -30,16 +30,6 @@ export function Header() {
             Kigumi Studio
           </Link>
           <a
-            href={
-              import.meta.env.DEV
-                ? 'http://localhost:6006/?path=/docs/general-changelog--docs'
-                : 'https://docs.kigumi.style/?path=/docs/general-changelog--docs'
-            }
-            className="wa-caption-m header__changelog"
-          >
-            Changelog
-          </a>
-          <a
             href="https://github.com/kigumi-ui/kigumi-cli"
             target="_blank"
             rel="noopener noreferrer"
