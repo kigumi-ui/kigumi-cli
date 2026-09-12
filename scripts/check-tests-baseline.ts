@@ -36,14 +36,38 @@ export interface BaselineDiff {
   unchanged: TscError[];
 }
 
-const ERROR_LINE = /^([^()]+)\((\d+),\d+\): error (TS\d+):/;
+// tsc has two diagnostic layouts and emits the pretty one by default even
+// when its output is piped to a non-TTY:
+//
+//   plain  (--pretty false):  path/to/file.ts(12,34): error TS2345: ...
+//   pretty (default):         path/to/file.ts:12:34 - error TS2345: ...
+//
+// `runTsc` forces `--pretty false`, so the plain form is what we actually
+// parse. The pretty form is still accepted so that output captured from a
+// bare `tsc` invocation (a developer piping by hand, a CI step that drops
+// the flag) is not silently read as "no errors". Pretty output also wraps
+// every field in ANSI escapes, which `stripAnsi` removes before matching.
+const ERROR_LINE_PLAIN = /^(.+?)\((\d+),\d+\): error (TS\d+):/;
+const ERROR_LINE_PRETTY = /^(.+?):(\d+):\d+ - error (TS\d+):/;
+
+// The `/g` flag is safe on this shared module-level regex only because it is
+// used with `String.replace`, which scans from the start each call. Switching
+// a caller to `.test()` or `.exec()` would make `lastIndex` persist between
+// calls and drop matches on every other line.
+// eslint-disable-next-line no-control-regex
+const ANSI = /\x1b\[[0-9;]*m/g;
+
+export function stripAnsi(text: string): string {
+  return text.replace(ANSI, '');
+}
 
 export function parseTscOutput(stdoutPlusStderr: string): TscError[] {
   const errors: TscError[] = [];
   // CRLF-tolerant split so Windows runs and any tooling that normalizes
   // line endings still parse the same way as Unix runs.
-  for (const line of stdoutPlusStderr.split(/\r?\n/)) {
-    const m = ERROR_LINE.exec(line);
+  for (const rawLine of stdoutPlusStderr.split(/\r?\n/)) {
+    const line = stripAnsi(rawLine);
+    const m = ERROR_LINE_PLAIN.exec(line) ?? ERROR_LINE_PRETTY.exec(line);
     if (!m) continue;
     errors.push({ file: m[1], line: Number(m[2]), code: m[3] });
   }
@@ -87,6 +111,22 @@ export function formatBaseline(errors: TscError[]): string {
   return `{\n${body}\n}\n`;
 }
 
+/**
+ * Did tsc fail in a way the baseline gate cannot classify?
+ *
+ * tsc exits 0 when clean and non-zero otherwise, but the code alone does not
+ * say why: on TypeScript 6.0.3 an ordinary type error and an unreadable
+ * tsconfig both exit 2, and pointing `-p` at a missing file exits 1. So the
+ * signal for "tsc itself broke" is a non-zero exit that produced no parseable
+ * diagnostics, never the code's value.
+ */
+export function tscItselfFailed(
+  exitCode: number,
+  parsedErrorCount: number
+): boolean {
+  return exitCode !== 0 && parsedErrorCount === 0;
+}
+
 interface TscRunResult {
   output: string;
   exitCode: number;
@@ -94,10 +134,17 @@ interface TscRunResult {
 
 function runTsc(): TscRunResult {
   try {
-    const result = execaSync('npx', ['tsc', '--noEmit', '-p', TSCONFIG], {
-      reject: false,
-      stripFinalNewline: false,
-    });
+    // `--pretty false` pins the diagnostic layout. Without it tsc colours
+    // and reformats its output even when piped, which the error regexes do
+    // not match -- and an unparsed error list reads as "no errors".
+    const result = execaSync(
+      'npx',
+      ['tsc', '--noEmit', '--pretty', 'false', '-p', TSCONFIG],
+      {
+        reject: false,
+        stripFinalNewline: false,
+      }
+    );
     return {
       output: `${result.stdout}\n${result.stderr}`,
       exitCode: result.exitCode ?? 0,
@@ -115,15 +162,12 @@ function main(): void {
   const tsc = runTsc();
   const current = parseTscOutput(tsc.output);
 
-  // tsc exits 0 on success, 1 on type errors, 2+ on bad arguments / config
-  // problems / unrecoverable issues. Distinguish "type errors found" (which
-  // we diff against the baseline) from "tsc itself broke" (which the
-  // baseline gate cannot rescue).
-  if (tsc.exitCode > 1 && current.length === 0) {
+  if (tscItselfFailed(tsc.exitCode, current.length)) {
     console.error(
       pc.red(
-        `tsc exited ${tsc.exitCode} with no parseable error lines. ` +
-          `tsconfig.tests.json is likely broken. Output:\n${tsc.output}`
+        `tsc exited ${tsc.exitCode} with no parseable error lines, so the ` +
+          `baseline gate cannot classify the result. Either tsconfig.tests.json ` +
+          `is unreadable or tsc changed its diagnostic format. Output:\n${tsc.output}`
       )
     );
     process.exit(tsc.exitCode);
