@@ -11,22 +11,25 @@ export type VersionCheckResult =
   | { status: 'match' }
   | { status: 'minor-mismatch'; configVersion: string; cliVersion: string }
   | { status: 'major-mismatch'; configVersion: string; cliVersion: string }
-  | { status: 'no-pin' };
+  | { status: 'no-pin' }
+  | { status: 'unparseable-pin'; configVersion: string };
 
 /**
- * Parse a semver string into major.minor.patch numbers.
- * Returns null if the string is not a valid semver.
+ * Parse a semver string. Returns null if it is not valid semver.
+ *
+ * Uses `semver.parse` rather than a regex so that `v` prefixes and
+ * pre-release tags are handled by the same library that does the comparison
+ * in {@link satisfiesMinimum}. The previous regex was anchored but not
+ * terminated, so it accepted trailing junk (`1.2.3.4`) while rejecting
+ * ordinary forms like `v1.2.3`.
+ *
+ * Deliberately NOT `semver.coerce`, which is lenient in ways that turn
+ * corrupt input into a confident wrong answer: it reads `1.2.3.4` as
+ * `1.2.3`, and flattens `1.0.0-beta.1` to `1.0.0`. A pin we cannot read
+ * should be reported, not guessed at.
  */
-function parseSemver(
-  version: string
-): { major: number; minor: number; patch: number } | null {
-  const match = version.match(/^(\d+)\.(\d+)\.(\d+)/);
-  if (!match) return null;
-  return {
-    major: parseInt(match[1], 10),
-    minor: parseInt(match[2], 10),
-    patch: parseInt(match[3], 10),
-  };
+function parseSemver(version: string): semver.SemVer | null {
+  return semver.parse(version.trim());
 }
 
 /**
@@ -37,6 +40,7 @@ function parseSemver(
  * - Same major, different minor: minor-mismatch (warn but proceed)
  * - Different major: major-mismatch (hard error)
  * - No kigumiVersion in config: no-pin (info message, proceed)
+ * - kigumiVersion present but not valid semver: unparseable-pin (warn, proceed)
  *
  * Exception: a project pinned to 0.x running against CLI 1.x is a
  * minor-mismatch, not a major-mismatch. 1.0.0 marked the surface as stable
@@ -56,8 +60,19 @@ export function checkVersionCompatibility(
   const parsedConfig = parseSemver(configVersion);
   const parsedCli = parseSemver(cliVersion);
 
-  // If either version can't be parsed, treat as match to avoid blocking
-  if (!parsedConfig || !parsedCli) {
+  // An unreadable pin stays permissive: it is almost always a hand-edited or
+  // corrupted config, and a bad string there must never stop `add` from
+  // working. But it is reported rather than swallowed, because the real
+  // consequence is that the compatibility check silently does not run. The
+  // previous code returned 'match' here, which was indistinguishable from a
+  // genuine match.
+  if (!parsedConfig) {
+    return { status: 'unparseable-pin', configVersion };
+  }
+
+  // An unparseable CLI version is our own bug, not the user's, and there is
+  // nothing actionable for them in a warning about it. Stay silent.
+  if (!parsedCli) {
     return { status: 'match' };
   }
 

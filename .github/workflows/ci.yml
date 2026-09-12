@@ -218,6 +218,20 @@ jobs:
         # the reader somewhere instead of nowhere.
         run: pnpm run validate:doc-links
 
+      - name: Validate flush code blocks
+        # Web Awesome rounds all four corners of every `pre`, so a code block
+        # sitting flush in a panel needs an opt-in class or its corners curve
+        # away from the border. Seven such sites accumulated before anyone
+        # noticed, because only a human looking at the page can see it.
+        run: pnpm run validate:flush-code
+
+      - name: Validate shared cache keys
+        # The Playwright cache is written by cache-warm.yml on main and read
+        # here on PRs; that only works while both use the same key and path.
+        # Drift is silent: CI still passes and just re-downloads 249 MB, which
+        # looks identical to the cache step not existing.
+        run: pnpm run validate:cache-keys
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -569,18 +583,17 @@ jobs:
         working-directory: docs
         run: pnpm install --frozen-lockfile
 
-      # This cache never hits, and cannot as written. GitHub scopes a cache
-      # written on a PR branch to that PR's ref, and only caches on the default
-      # branch are visible to other branches. This workflow triggers solely on
-      # `pull_request`, so every save lands on refs/pull/<n>/merge and the next
-      # PR starts cold: "Cache not found for input keys" on every observed run,
-      # including the fallback restore-key, while the 249 MB browser download
-      # repeats each time.
+      # Reads the entry cache-warm.yml writes on pushes to main. GitHub scopes
+      # a cache written on a PR branch to that PR's ref, and only caches on the
+      # default branch are visible to other branches. This workflow triggers
+      # solely on `pull_request`, so before that producer existed every save
+      # landed on refs/pull/<n>/merge and no PR could read one: "Cache not
+      # found for input keys" on every observed run, including the fallback
+      # restore-key, while the 249 MB browser download repeated each time.
       #
-      # Kept rather than deleted because it costs nothing while wrong and starts
-      # working the moment this workflow also runs on pushes to main, which is
-      # the actual fix. Tracked separately; not bundled here to keep the
-      # mirror-dependency removal reviewable on its own.
+      # The key and path must stay identical to cache-warm.yml's, which
+      # validate:cache-keys enforces. Drift is silent: this lane still passes
+      # and just re-downloads, which looks the same as having no cache at all.
       - name: Cache Playwright browsers
         if: steps.pro.outputs.available == 'true'
         uses: actions/cache@v6
