@@ -81,7 +81,16 @@ export interface OutputInterface {
   spinner(message: string): OutputSpinner;
 
   /**
-   * Log a message (for debugging)
+   * Log a debug message.
+   *
+   * IMPORTANT: this is gated on `process.env.DEBUG`. With DEBUG unset, which
+   * is how users run the CLI, the message is discarded and nothing is
+   * printed. Use {@link OutputInterface.info} for anything the user is meant
+   * to read.
+   *
+   * Some existing call sites in `init` and `doctor` do use this for
+   * user-facing output, and those messages are silently swallowed as a
+   * result. That is a known bug, not a pattern to copy.
    */
   log(message: string): void;
 }
