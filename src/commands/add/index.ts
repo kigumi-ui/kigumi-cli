@@ -128,6 +128,14 @@ export async function addCommand(components: string[], options?: AddOptions) {
       );
     }
 
+    if (versionResult.status === 'unparseable-pin') {
+      output.warning(
+        `Could not read kigumiVersion "${versionResult.configVersion}" in kigumi.config.json, ` +
+          'so the version compatibility check was skipped. ' +
+          `Run "npx kigumi@${CLI_VERSION} upgrade" to pin a valid version.`
+      );
+    }
+
     // Branch: Remote registry flow vs. local built-in flow
     if (validatedOptions.from) {
       await addFromRemoteRegistry(

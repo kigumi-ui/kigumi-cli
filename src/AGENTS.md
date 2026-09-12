@@ -82,6 +82,23 @@ src/
 └── checks/               # Pre-flight validation
 ```
 
+### Two kinds of content under `src/`
+
+Most of `src/` is CLI code: it runs when someone invokes `kigumi`. A few
+files are **template artifacts** that the CLI copies into a consumer's
+project and never executes itself:
+
+| File                | What it is                                       |
+| ------------------- | ------------------------------------------------ |
+| `src/lib/kigumi.ts` | Setup module written into the consumer's project |
+| `src/vite-env.d.ts` | Ambient types for the consumer's Vite project    |
+
+Nothing in `src/` imports either one, which is expected rather than dead
+code. Searching for the import that "must" exist is wasted effort. The
+paths that reference them, such as `utils/regenerate.ts` and
+`commands/init/file-generator.ts`, are talking about the generated copy in
+the consumer's tree, not about these files.
+
 ## Key Modules
 
 ### `utils/registry.ts` - Component Registry
@@ -418,6 +435,13 @@ output.warn('Pro theme requires token');
 output.error('Failed to install');
 ```
 
+`output.log()` is **not** general-purpose printing. It is gated on
+`process.env.DEBUG`, so with DEBUG unset the message is discarded. Use
+`output.info()` for anything the user is meant to read.
+
+Some call sites in `init` and `doctor` currently break this rule, so their
+output never reaches users. That is a tracked bug; do not copy the pattern.
+
 ---
 
 ## Code Style
@@ -433,4 +457,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-23 (version-map upgrade invariant documented; enforced by validate:wa-pins)
+**Last Updated:** 2026-09-12 (template artifacts under src/ named explicitly; output.log() documented as DEBUG-gated; dead EXIT_SUCCESS/EXIT_ERROR constants removed)

@@ -90,14 +90,55 @@ describe('checkVersionCompatibility', () => {
     });
   });
 
-  it('returns match for unparseable versions', () => {
-    const result = checkVersionCompatibility('invalid', '0.12.0');
-    expect(result.status).toBe('match');
-  });
+  describe('unreadable pins', () => {
+    // These used to return 'match', which was indistinguishable from a real
+    // match: the compatibility check silently did not run. They now report
+    // 'unparseable-pin', which still proceeds but says so.
+    it.each([
+      ['a non-version string', 'invalid'],
+      ['a truncated version', '0.24'],
+      ['a bare major', '0'],
+      ['a leading zero', '01.0.0'],
+      ['trailing junk', '1.2.3.4'],
+      ['an empty string after trimming', '   '],
+    ])('reports %s as an unreadable pin', (_label, configVersion) => {
+      const result = checkVersionCompatibility(configVersion, '1.0.0');
 
-  it('returns match when both are unparseable', () => {
-    const result = checkVersionCompatibility('foo', 'bar');
-    expect(result.status).toBe('match');
+      expect(result.status).toBe('unparseable-pin');
+    });
+
+    it('carries the offending value so the caller can name it', () => {
+      const result = checkVersionCompatibility('0.24', '1.0.0');
+
+      expect(result).toEqual({
+        status: 'unparseable-pin',
+        configVersion: '0.24',
+      });
+    });
+
+    it.each([
+      ['a v prefix', 'v0.27.2'],
+      ['surrounding whitespace', ' 0.27.2 '],
+    ])('still reads %s as a real version', (_label, configVersion) => {
+      // Regression guard: the old regex rejected both of these outright.
+      const result = checkVersionCompatibility(configVersion, '0.27.2');
+
+      expect(result.status).toBe('match');
+    });
+
+    it('does not flatten a pre-release tag onto the release', () => {
+      // semver.coerce() would read this as 1.0.0 and report a match.
+      const result = checkVersionCompatibility('1.0.0-beta.1', '1.1.0');
+
+      expect(result.status).toBe('minor-mismatch');
+    });
+
+    it('stays silent when our own CLI version is the unreadable one', () => {
+      // Nothing actionable for the user, so this must not warn at them.
+      const result = checkVersionCompatibility('1.0.0', 'bar');
+
+      expect(result.status).toBe('match');
+    });
   });
 });
 
