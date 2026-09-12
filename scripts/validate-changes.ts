@@ -21,6 +21,7 @@
 
 import fs from 'fs-extra';
 import path from 'path';
+import { glob } from 'tinyglobby';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { getAllComponents } from '../src/utils/registry.js';
@@ -30,71 +31,29 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.dirname(__dirname);
 
 /**
- * Simple glob-like function using fs-extra
- * Supports basic patterns like 'src/**\/*.ts'
+ * Find files matching a glob pattern.
+ *
+ * Delegates to tinyglobby rather than walking the tree by hand. The previous
+ * implementation compared ignore patterns with `String.includes()` after
+ * stripping `*`, so an ignore of `.d.ts` also hid any file under a directory
+ * named `my.d.ts-helpers/`. That is a false negative: the validator reports a
+ * pass having never read the file.
+ *
+ * `ignore` entries are globs, not substrings. To skip a suffix, pass
+ * `'**\/*.test.ts'`, not `'.test.ts'`.
  */
-async function findFiles(
+export async function findFiles(
   pattern: string,
   options: { cwd?: string; ignore?: string[] } = {}
 ): Promise<string[]> {
   const { cwd = PROJECT_ROOT, ignore = [] } = options;
-  const results: string[] = [];
 
-  // Parse pattern
-  const parts = pattern.split('/');
-  const isRecursive = parts.includes('**');
-
-  async function walkDir(dir: string, depth = 0): Promise<void> {
-    try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
-
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        const relativePath = path.relative(cwd, fullPath);
-
-        // Check ignore patterns
-        const shouldIgnore = ignore.some((ignorePattern) => {
-          const normalizedIgnore = ignorePattern.replace(/\*\*/g, '');
-          return relativePath.includes(normalizedIgnore.replace(/\*/g, ''));
-        });
-
-        if (shouldIgnore) continue;
-
-        if (entry.isDirectory()) {
-          if (entry.name === 'node_modules' || entry.name === '.git') continue;
-          if (isRecursive || depth < parts.length - 1) {
-            await walkDir(fullPath, depth + 1);
-          }
-        } else if (entry.isFile()) {
-          // Match file extension pattern like '*.ts'
-          const extPattern = parts[parts.length - 1];
-          if (extPattern.includes('*')) {
-            const ext = extPattern.replace('*', '');
-            if (entry.name.endsWith(ext)) {
-              results.push(relativePath);
-            }
-          } else if (entry.name === extPattern) {
-            results.push(relativePath);
-          }
-        }
-      }
-    } catch {
-      // Ignore permission errors
-    }
-  }
-
-  // Start from the first non-glob directory
-  let startDir = cwd;
-  for (const part of parts) {
-    if (part.includes('*')) break;
-    startDir = path.join(startDir, part);
-  }
-
-  if (await fs.pathExists(startDir)) {
-    await walkDir(startDir);
-  }
-
-  return results;
+  return glob(pattern, {
+    cwd,
+    ignore: ['**/node_modules/**', '**/.git/**', ...ignore],
+    dot: true,
+    onlyFiles: true,
+  });
 }
 
 export interface ValidationResult {
@@ -313,11 +272,11 @@ async function checkAntiPatterns(): Promise<void> {
   const sourceFiles = [
     ...(await findFiles('src/**/*.ts', {
       cwd: PROJECT_ROOT,
-      ignore: ['.test.ts', '.d.ts'],
+      ignore: ['**/*.test.ts', '**/*.d.ts'],
     })),
     ...(await findFiles('src/**/*.tsx', {
       cwd: PROJECT_ROOT,
-      ignore: ['.test.tsx'],
+      ignore: ['**/*.test.tsx'],
     })),
   ];
 

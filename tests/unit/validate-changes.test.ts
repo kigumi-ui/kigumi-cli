@@ -14,10 +14,14 @@
  *    green for months precisely because only tier 1 existed.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import fs from 'fs-extra';
+import path from 'node:path';
+import os from 'node:os';
 import {
   validateChanges,
   scanAntiPatterns,
+  findFiles,
 } from '../../scripts/validate-changes.js';
 
 describe('validate:changes', () => {
@@ -94,6 +98,84 @@ describe('validate:changes', () => {
       const content = '<wa-button className={styles.x}>Click</wa-button>';
 
       expect(scanAntiPatterns(content, 'src/example.tsx')).toEqual([]);
+    });
+  });
+  describe('findFiles (glob matching)', () => {
+    // Built on disk rather than mocked: the defects these pin were in how the
+    // old hand-rolled walker read real directory entries, so a fake fs would
+    // have reproduced the abstraction rather than the bug.
+    let tmp: string;
+
+    beforeAll(async () => {
+      tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-findfiles-'));
+      await Promise.all([
+        fs.outputFile(path.join(tmp, 'src/real.ts'), ''),
+        fs.outputFile(path.join(tmp, 'src/plain.ts'), ''),
+        fs.outputFile(path.join(tmp, 'src/thing.test.ts'), ''),
+        fs.outputFile(path.join(tmp, 'src/types.d.ts'), ''),
+        // A file whose name merely CONTAINS the ignored suffix.
+        fs.outputFile(path.join(tmp, 'src/thing.test.ts.bak.ts'), ''),
+        // A directory whose name merely CONTAINS the ignored suffix.
+        fs.outputFile(path.join(tmp, 'src/my.d.ts-helpers/keep.ts'), ''),
+        fs.outputFile(path.join(tmp, 'src/deep/Nested.tsx'), ''),
+        fs.outputFile(path.join(tmp, 'src/Button.tsx'), ''),
+        fs.outputFile(path.join(tmp, 'src/Button.stories.tsx'), ''),
+      ]);
+    });
+
+    afterAll(async () => {
+      await fs.remove(tmp);
+    });
+
+    it('should ignore a suffix without swallowing names that merely contain it', async () => {
+      const found = await findFiles('src/**/*.ts', {
+        cwd: tmp,
+        ignore: ['**/*.test.ts', '**/*.d.ts'],
+      });
+
+      expect(found).toContain(path.join('src', 'thing.test.ts.bak.ts'));
+      expect(found).not.toContain(path.join('src', 'thing.test.ts'));
+      expect(found).not.toContain(path.join('src', 'types.d.ts'));
+    });
+
+    it('should treat a bare suffix as a literal glob, not a substring', async () => {
+      // The call sites used to pass bare '.d.ts' and '.test.ts', which the old
+      // matcher stripped of glob characters and fed to String.includes(). That
+      // made '.d.ts' match the DIRECTORY 'src/my.d.ts-helpers/' and skip every
+      // file beneath it. A validator that never reads a file still reports a
+      // pass, which is the failure this pins.
+      //
+      // Passing those same bare values now matches nothing, so the directory
+      // survives. The suffix form the call sites use lives in the test above.
+      const found = await findFiles('src/**/*.ts', {
+        cwd: tmp,
+        ignore: ['.test.ts', '.d.ts'],
+      });
+
+      expect(found).toContain(path.join('src', 'my.d.ts-helpers', 'keep.ts'));
+      expect(found).toContain(path.join('src', 'thing.test.ts'));
+    });
+
+    it('should anchor a single-star segment to one directory level', async () => {
+      const found = await findFiles('src/*.tsx', { cwd: tmp });
+
+      expect(found).toContain(path.join('src', 'Button.tsx'));
+      expect(found).not.toContain(path.join('src', 'deep', 'Nested.tsx'));
+    });
+
+    it('should match a star that is not in the leading position', async () => {
+      const found = await findFiles('src/Button.*', { cwd: tmp });
+
+      expect(found.sort()).toEqual([
+        path.join('src', 'Button.stories.tsx'),
+        path.join('src', 'Button.tsx'),
+      ]);
+    });
+
+    it('should return no matches rather than throwing for a missing directory', async () => {
+      await expect(
+        findFiles('does-not-exist/**/*.ts', { cwd: tmp })
+      ).resolves.toEqual([]);
     });
   });
 });
