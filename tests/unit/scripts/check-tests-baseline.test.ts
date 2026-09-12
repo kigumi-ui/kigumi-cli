@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   parseTscOutput,
+  stripAnsi,
   loadBaseline,
   diffBaseline,
   formatBaseline,
@@ -34,10 +35,11 @@ describe('parseTscOutput', () => {
     expect(parseTscOutput('')).toEqual([]);
   });
 
-  it('ignores lines that look error-ish but are not the canonical TS shape', () => {
+  it('ignores lines that look error-ish but carry no TS error code', () => {
     const out = [
       'Found 5 errors in 2 files.',
       "tests/unit/a.test.ts:12 - some other tool's diagnostic",
+      'tests/unit/a.test.ts:12:3 - warning TS6133: unused',
     ].join('\n');
     expect(parseTscOutput(out)).toEqual([]);
   });
@@ -50,6 +52,50 @@ describe('parseTscOutput', () => {
       { file: 'tests/unit/a.test.ts', line: 1, code: 'TS2345' },
       { file: 'tests/unit/b.test.ts', line: 3, code: 'TS2769' },
     ]);
+  });
+
+  // tsc emits its pretty layout by default even when piped to a non-TTY, so
+  // output captured without `--pretty false` uses `file:line:col - error` and
+  // wraps every field in ANSI escapes. Parsing only the plain layout made the
+  // gate read a real failure as a clean run. The ANSI case below is verbatim
+  // TypeScript 6.0.3 output, escape bytes included.
+  it('parses pretty-format lines (file:line:col - error)', () => {
+    const out =
+      "tests/unit/a.test.ts:1:14 - error TS2322: Type 'string' is not assignable to type 'number'.";
+    expect(parseTscOutput(out)).toEqual([
+      { file: 'tests/unit/a.test.ts', line: 1, code: 'TS2322' },
+    ]);
+  });
+
+  it('parses real ANSI-coloured tsc output', () => {
+    const out = [
+      "\u001b[96mtests/unit/_probe.test.ts\u001b[0m:\u001b[93m1\u001b[0m:\u001b[93m14\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS2322: \u001b[0mType 'string' is not assignable to type 'number'.",
+      '',
+      "\u001b[7m1\u001b[0m export const broken: number = 'nope';",
+      '\u001b[7m \u001b[0m \u001b[91m             ~~~~~~\u001b[0m',
+      '',
+      'Found 1 error in tests/unit/_probe.test.ts\u001b[90m:1\u001b[0m',
+    ].join('\n');
+    expect(parseTscOutput(out)).toEqual([
+      { file: 'tests/unit/_probe.test.ts', line: 1, code: 'TS2322' },
+    ]);
+  });
+
+  it('parses a Windows absolute path, whose drive letter contains a colon', () => {
+    const out =
+      'C:\\repo\\tests\\unit\\a.test.ts(1,2): error TS2345: Foo\n' +
+      'C:\\repo\\tests\\unit\\b.test.ts:3:4 - error TS2769: Bar';
+    expect(parseTscOutput(out)).toEqual([
+      { file: 'C:\\repo\\tests\\unit\\a.test.ts', line: 1, code: 'TS2345' },
+      { file: 'C:\\repo\\tests\\unit\\b.test.ts', line: 3, code: 'TS2769' },
+    ]);
+  });
+});
+
+describe('stripAnsi', () => {
+  it('removes SGR escape sequences and leaves plain text untouched', () => {
+    expect(stripAnsi('\u001b[96mfoo\u001b[0m')).toBe('foo');
+    expect(stripAnsi('already plain')).toBe('already plain');
   });
 });
 
