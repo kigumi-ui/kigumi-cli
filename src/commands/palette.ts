@@ -7,7 +7,6 @@
  */
 
 import type { KigumiConfig } from '../schemas/config.js';
-import type { PaletteOptions } from '../schemas/options.js';
 
 import { Command } from 'commander';
 import * as p from '../prompts/index.js';
@@ -25,6 +24,12 @@ import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
 import { detectTier } from '../utils/tier.js';
 import { getAvailablePalettes } from '../utils/tier-restrictions.js';
+
+interface PaletteOptions {
+  /** Keep the current palette without prompting */
+  yes?: boolean;
+  cwd?: string;
+}
 
 async function paletteAction(
   paletteName?: string,

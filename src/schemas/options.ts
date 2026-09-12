@@ -1,13 +1,19 @@
 /**
  * Command Options Validation Schemas
  *
- * Zod schemas for validating command-line options
+ * Zod schemas for validating command-line options.
+ *
+ * Only `init` and `add` perform Zod-level option validation. Every other
+ * command relies on Commander's own option parsing and types its handler
+ * with a local interface. Schemas for five further commands once lived here
+ * but were never called, and had drifted from the options those commands
+ * actually declare, so they were removed rather than adopted. Add a schema
+ * here only together with the `validators` call site that uses it.
  */
 
 import { z } from 'zod';
 import type { ZodIssue } from 'zod';
 import { frameworkSchema } from './config.js';
-import { tierSchema } from '../utils/tier.js';
 
 /**
  * Init command options schema
@@ -55,58 +61,6 @@ export const addOptionsSchema = z.object({
 export type AddOptions = z.infer<typeof addOptionsSchema>;
 
 /**
- * Theme set command options schema
- */
-export const themeSetOptionsSchema = z.object({
-  cwd: z.string().optional(),
-});
-
-export type ThemeSetOptions = z.infer<typeof themeSetOptionsSchema>;
-
-/**
- * Palette command options schema
- */
-export const paletteOptionsSchema = z.object({
-  yes: z.boolean().optional(), // Keep current palette non-interactively
-  cwd: z.string().optional(),
-});
-
-export type PaletteOptions = z.infer<typeof paletteOptionsSchema>;
-
-/**
- * Brand command options schema
- */
-export const brandOptionsSchema = z.object({
-  yes: z.boolean().optional(), // Keep current brand color non-interactively
-  cwd: z.string().optional(),
-});
-
-export type BrandOptions = z.infer<typeof brandOptionsSchema>;
-
-/**
- * Update command options schema
- */
-export const updateOptionsSchema = z.object({
-  dryRun: z.boolean().optional().default(false),
-  force: z.boolean().optional().default(false),
-  yes: z.boolean().optional(),
-  cwd: z.string().optional(),
-});
-
-export type UpdateOptions = z.infer<typeof updateOptionsSchema>;
-
-/**
- * List command options schema
- */
-export const listOptionsSchema = z.object({
-  tier: tierSchema.optional(),
-  category: z.string().optional(),
-  json: z.boolean().optional().default(false),
-});
-
-export type ListOptions = z.infer<typeof listOptionsSchema>;
-
-/**
  * Validate command options
  *
  * Generic validator for command options
@@ -141,10 +95,4 @@ export function validateOptions<T extends z.ZodType>(
 export const validators = {
   init: (options: unknown) => validateOptions(initOptionsSchema, options),
   add: (options: unknown) => validateOptions(addOptionsSchema, options),
-  themeSet: (options: unknown) =>
-    validateOptions(themeSetOptionsSchema, options),
-  palette: (options: unknown) => validateOptions(paletteOptionsSchema, options),
-  brand: (options: unknown) => validateOptions(brandOptionsSchema, options),
-  list: (options: unknown) => validateOptions(listOptionsSchema, options),
-  update: (options: unknown) => validateOptions(updateOptionsSchema, options),
 } as const;

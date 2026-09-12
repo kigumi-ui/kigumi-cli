@@ -40,20 +40,10 @@ export {
 export {
   initOptionsSchema,
   addOptionsSchema,
-  updateOptionsSchema,
-  themeSetOptionsSchema,
-  paletteOptionsSchema,
-  brandOptionsSchema,
-  listOptionsSchema,
   validateOptions,
   validators,
   type InitOptions,
   type AddOptions,
-  type UpdateOptions,
-  type ThemeSetOptions,
-  type PaletteOptions,
-  type BrandOptions,
-  type ListOptions,
 } from './options.js';
 
 // Community registry schemas
