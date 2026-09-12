@@ -50,6 +50,10 @@ export interface BaselineDiff {
 const ERROR_LINE_PLAIN = /^(.+?)\((\d+),\d+\): error (TS\d+):/;
 const ERROR_LINE_PRETTY = /^(.+?):(\d+):\d+ - error (TS\d+):/;
 
+// The `/g` flag is safe on this shared module-level regex only because it is
+// used with `String.replace`, which scans from the start each call. Switching
+// a caller to `.test()` or `.exec()` would make `lastIndex` persist between
+// calls and drop matches on every other line.
 // eslint-disable-next-line no-control-regex
 const ANSI = /\x1b\[[0-9;]*m/g;
 
@@ -107,6 +111,22 @@ export function formatBaseline(errors: TscError[]): string {
   return `{\n${body}\n}\n`;
 }
 
+/**
+ * Did tsc fail in a way the baseline gate cannot classify?
+ *
+ * tsc exits 0 when clean and non-zero otherwise, but the code alone does not
+ * say why: on TypeScript 6.0.3 an ordinary type error and an unreadable
+ * tsconfig both exit 2, and pointing `-p` at a missing file exits 1. So the
+ * signal for "tsc itself broke" is a non-zero exit that produced no parseable
+ * diagnostics, never the code's value.
+ */
+export function tscItselfFailed(
+  exitCode: number,
+  parsedErrorCount: number
+): boolean {
+  return exitCode !== 0 && parsedErrorCount === 0;
+}
+
 interface TscRunResult {
   output: string;
   exitCode: number;
@@ -142,11 +162,7 @@ function main(): void {
   const tsc = runTsc();
   const current = parseTscOutput(tsc.output);
 
-  // tsc exits 0 when clean and non-zero otherwise, but the code alone does
-  // not say why: on TypeScript 6.0.3 an ordinary type error and an
-  // unreadable tsconfig both exit 2. So the signal for "tsc itself broke"
-  // is a non-zero exit with no parseable diagnostics, not the code's value.
-  if (tsc.exitCode !== 0 && current.length === 0) {
+  if (tscItselfFailed(tsc.exitCode, current.length)) {
     console.error(
       pc.red(
         `tsc exited ${tsc.exitCode} with no parseable error lines, so the ` +

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   parseTscOutput,
   stripAnsi,
+  tscItselfFailed,
   loadBaseline,
   diffBaseline,
   formatBaseline,
@@ -96,6 +97,28 @@ describe('stripAnsi', () => {
   it('removes SGR escape sequences and leaves plain text untouched', () => {
     expect(stripAnsi('\u001b[96mfoo\u001b[0m')).toBe('foo');
     expect(stripAnsi('already plain')).toBe('already plain');
+  });
+});
+
+describe('tscItselfFailed', () => {
+  // Exit codes below are measured against TypeScript 6.0.3, not assumed:
+  // a plain type error and an unreadable tsconfig both exit 2, and pointing
+  // `-p` at a missing file exits 1. So the exit code cannot classify the
+  // failure on its own; only the absence of parseable diagnostics can.
+  it('is false on a clean run', () => {
+    expect(tscItselfFailed(0, 0)).toBe(false);
+  });
+
+  it('is false when tsc reported diagnostics we could parse', () => {
+    // A type error exits 2 and yields parseable lines: the gate handles it.
+    expect(tscItselfFailed(2, 1)).toBe(false);
+  });
+
+  it('is true when tsc failed but produced nothing parseable', () => {
+    // A missing `-p` target exits 1 with only a TS5058 banner. The previous
+    // `exitCode > 1` condition let exactly this case through.
+    expect(tscItselfFailed(1, 0)).toBe(true);
+    expect(tscItselfFailed(2, 0)).toBe(true);
   });
 });
 
