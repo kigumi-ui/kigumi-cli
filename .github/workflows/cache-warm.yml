@@ -1,0 +1,99 @@
+name: Cache Warm
+
+# Populates the Playwright browser cache on the default branch.
+#
+# GitHub scopes a cache written on a PR branch to that PR's ref, and only
+# caches on the default branch are visible to other branches. CI triggers
+# solely on `pull_request`, so every Playwright save landed on
+# refs/pull/<n>/merge and no PR could ever read one: "Cache not found for
+# input keys" on every observed run, while the 249 MB browser download
+# repeated each time and the unreadable entries accumulated.
+#
+# This workflow exists to write that one entry on refs/heads/main. It runs
+# nothing else, because the point is the cache save, not the test.
+#
+# The key must stay in lockstep with the "Cache Playwright browsers" step in
+# ci.yml. A key that drifts here silently returns CI to a cold download,
+# which looks exactly like this workflow not existing at all.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # The key is derived from this file, so only a change to it can
+      # invalidate the entry the PR lane looks for.
+      - 'docs/pnpm-lock.yaml'
+      - '.github/workflows/cache-warm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cache-warm
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    name: Warm Playwright cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # A push to main has access to secrets, unlike a fork PR, so the Pro
+      # registry is reachable here. Guarded anyway so a repo without the
+      # secret configured skips rather than fails.
+      - name: Check Pro registry access
+        id: pro
+        env:
+          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+        run: |
+          if [ -n "$WA_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping cache warm: no Web Awesome Pro token."
+          fi
+
+      - name: Configure Pro registry for docs
+        if: steps.pro.outputs.available == 'true'
+        run: |
+          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
+
+      - name: Install docs dependencies
+        if: steps.pro.outputs.available == 'true'
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      # Key and path must match ci.yml's "Cache Playwright browsers" step
+      # exactly, or the entry written here is not the one that lane looks up.
+      - name: Cache Playwright browsers
+        id: cache
+        if: steps.pro.outputs.available == 'true'
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('docs/pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-chromium-
+
+      # Only download when the exact key is absent. A restore-keys hit still
+      # leaves cache-hit false, and re-downloading then would not save a new
+      # entry under the exact key, so the miss would repeat forever.
+      - name: Install Playwright Chromium
+        if: steps.pro.outputs.available == 'true' && steps.cache.outputs.cache-hit != 'true'
+        working-directory: docs
+        # No --with-deps, matching ci.yml: it shells out to apt against
+        # Google's Debian mirror and dies when that mirror serves a bad index.
+        run: pnpm exec playwright install chromium
