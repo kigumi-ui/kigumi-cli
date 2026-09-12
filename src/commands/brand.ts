@@ -7,7 +7,6 @@
  */
 
 import type { KigumiConfig } from '../schemas/config.js';
-import type { BrandOptions } from '../schemas/options.js';
 
 import { Command } from 'commander';
 import * as p from '../prompts/index.js';
@@ -36,6 +35,12 @@ const BRAND_COLORS = [
   'pink',
   'gray',
 ];
+
+interface BrandOptions {
+  /** Keep the current brand color without prompting */
+  yes?: boolean;
+  cwd?: string;
+}
 
 async function brandAction(colorName?: string, options: BrandOptions = {}) {
   const output = getOutput();
