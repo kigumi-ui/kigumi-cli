@@ -218,6 +218,13 @@ jobs:
         # the reader somewhere instead of nowhere.
         run: pnpm run validate:doc-links
 
+      - name: Validate flush code blocks
+        # Web Awesome rounds all four corners of every `pre`, so a code block
+        # sitting flush in a panel needs an opt-in class or its corners curve
+        # away from the border. Seven such sites accumulated before anyone
+        # noticed, because only a human looking at the page can see it.
+        run: pnpm run validate:flush-code
+
   test:
     name: Test
     runs-on: ubuntu-latest
