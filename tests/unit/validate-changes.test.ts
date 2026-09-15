@@ -12,6 +12,17 @@
  *    that matches nothing still reports a well-formed passing result. The
  *    previous `className` anti-pattern was written backwards and reported
  *    green for months precisely because only tier 1 existed.
+ *
+ * checkImportPaths() (#26) was the same failure mode by a different route:
+ * it globbed src/components/**, a directory that has never existed in this
+ * repo, so it always walked zero files and could never report an error no
+ * matter what the files contained. It has been deleted rather than
+ * re-pointed, because templates/ -- the only other plausible target -- can't
+ * exhibit the bug it checked for either (every template imports the free
+ * package path verbatim; the free->pro swap happens at generation time, not
+ * in template source). The 'no directory it could point to' test below pins
+ * that a mixed-import fixture placed at src/components/ was checked, and
+ * still cannot be, so nobody re-adds this glob against this repo tree.
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
@@ -176,6 +187,26 @@ describe('validate:changes', () => {
       await expect(
         findFiles('does-not-exist/**/*.ts', { cwd: tmp })
       ).resolves.toEqual([]);
+    });
+
+    it('would find a mixed free/pro import file if one existed under src/components', async () => {
+      // Pins the root cause of #26: findFiles() itself is not broken, the
+      // glob was just aimed at a directory this repo never has. If
+      // src/components/ genuinely existed with a mixed-import file, findFiles
+      // would surface it -- proving checkImportPaths()'s zero-files result
+      // came from the missing directory, not a matcher bug, and that no
+      // future contributor should "fix" this by patching findFiles.
+      await fs.outputFile(
+        path.join(tmp, 'src/components/Mixed.tsx'),
+        [
+          "import { Button } from '@awesome.me/webawesome';",
+          "import { Chart } from '@awesome.me/webawesome-pro';",
+        ].join('\n')
+      );
+
+      const found = await findFiles('src/components/**/*.tsx', { cwd: tmp });
+
+      expect(found).toContain(path.join('src', 'components', 'Mixed.tsx'));
     });
   });
 });
