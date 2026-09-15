@@ -273,6 +273,149 @@ const MARKDOWN_FIXTURE: ComponentDefinition = {
   tier: 'free',
 };
 
+// Input exercises the `value` v-model branch: `defineModel<string>()`, the
+// value watcher, `:value="model"` on the template, and a listener entry whose
+// handler both syncs the model and re-emits.
+const INPUT_FIXTURE: ComponentDefinition = {
+  name: 'Input',
+  tagName: 'wa-input',
+  category: 'Form Controls',
+  description: 'Inputs collect data from the user',
+  dependencies: [],
+  files: {
+    react: ['components/Input.tsx', 'types/input.d.ts'],
+    vue: ['components/Input.vue'],
+    angular: ['components/Input/input.component.ts'],
+  },
+  props: [
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Accessible label for the input',
+      required: false,
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Input value',
+      required: false,
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the input',
+    },
+    {
+      name: 'with-clear',
+      type: 'boolean',
+      default: 'false',
+      description: 'Adds a clear button when input has content',
+      required: false,
+    },
+  ],
+  importPath: '@awesome.me/webawesome/dist/components/input/input.js',
+  tier: 'free',
+};
+
+// NumberInput exercises the number-typed value model: `defineModel<number>()`
+// rather than `defineModel<string>()`, driven by the `value` prop's type.
+const NUMBER_INPUT_FIXTURE: ComponentDefinition = {
+  name: 'NumberInput',
+  tagName: 'wa-number-input',
+  category: 'Form Controls',
+  description: 'Number inputs collect numeric data from the user',
+  dependencies: [],
+  files: {
+    react: ['components/NumberInput.tsx', 'types/number-input.d.ts'],
+    vue: ['components/NumberInput.vue'],
+    angular: ['components/NumberInput/number-input.component.ts'],
+  },
+  props: [
+    {
+      name: 'value',
+      type: 'number',
+      description: 'The current value',
+      required: false,
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the number input',
+    },
+  ],
+  importPath:
+    '@awesome.me/webawesome/dist/components/number-input/number-input.js',
+  tier: 'free',
+};
+
+// Dialog exercises the `open` v-model branch: `defineModel<boolean>('open')`,
+// the open watcher, `:open="open"` on the template, and the wa-show/wa-hide
+// listener entries that both sync `open` and re-emit. It also carries an
+// @remarks JSDoc note for its removed imperative methods.
+const DIALOG_FIXTURE: ComponentDefinition = {
+  name: 'Dialog',
+  tagName: 'wa-dialog',
+  category: 'Overlays',
+  description: 'Dialogs appear above the page and require a response',
+  dependencies: [],
+  files: {
+    react: ['components/Dialog.tsx', 'types/dialog.d.ts'],
+    vue: ['components/Dialog.vue'],
+    angular: ['components/Dialog/dialog.component.ts'],
+  },
+  props: [
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Accessible label for the dialog',
+      required: false,
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the dialog is open',
+    },
+    {
+      name: 'without-header',
+      type: 'boolean',
+      default: 'false',
+      description: 'Hides the dialog header',
+    },
+  ],
+  importPath: '@awesome.me/webawesome/dist/components/dialog/dialog.js',
+  tier: 'free',
+};
+
+// Toast exercises two branches no other fixture reaches: the component-specific
+// `import type` block (its create() takes a ToastCreateOptions parameter), and
+// exposed methods carrying parameters — typed in the TS variant, bare in JS.
+const TOAST_FIXTURE: ComponentDefinition = {
+  name: 'Toast',
+  tagName: 'wa-toast',
+  category: 'Feedback',
+  description: 'Toasts are used to display brief notifications',
+  dependencies: [],
+  files: {
+    react: ['components/Toast.tsx', 'types/toast.d.ts'],
+    vue: ['components/Toast.vue'],
+    angular: ['components/Toast/toast.component.ts'],
+  },
+  props: [
+    {
+      name: 'variant',
+      type: 'string',
+      values: ['brand', 'success', 'warning', 'danger'],
+      default: 'brand',
+      description: "The toast's theme variant",
+    },
+  ],
+  importPath: '@awesome.me/webawesome/dist/components/toast/toast.js',
+  tier: 'pro',
+};
+
 describe('generateVueTypescriptTemplate', () => {
   it('emits the Button wrapper', () => {
     expect(generateVueTypescriptTemplate(BUTTON_FIXTURE)).toMatchSnapshot();
@@ -288,6 +431,24 @@ describe('generateVueTypescriptTemplate', () => {
 
   it('emits the Markdown wrapper with the @remarks JSDoc for removed imperative methods', () => {
     expect(generateVueTypescriptTemplate(MARKDOWN_FIXTURE)).toMatchSnapshot();
+  });
+
+  it('emits the Input wrapper (value v-model branch)', () => {
+    expect(generateVueTypescriptTemplate(INPUT_FIXTURE)).toMatchSnapshot();
+  });
+
+  it('emits the NumberInput wrapper (number-typed value model)', () => {
+    expect(
+      generateVueTypescriptTemplate(NUMBER_INPUT_FIXTURE)
+    ).toMatchSnapshot();
+  });
+
+  it('emits the Dialog wrapper (open v-model branch)', () => {
+    expect(generateVueTypescriptTemplate(DIALOG_FIXTURE)).toMatchSnapshot();
+  });
+
+  it('emits the Toast wrapper (custom type import, parameterised method)', () => {
+    expect(generateVueTypescriptTemplate(TOAST_FIXTURE)).toMatchSnapshot();
   });
 });
 
@@ -306,6 +467,24 @@ describe('generateVueJavascriptTemplate', () => {
 
   it('emits the Markdown JS wrapper with the @remarks JSDoc for removed imperative methods', () => {
     expect(generateVueJavascriptTemplate(MARKDOWN_FIXTURE)).toMatchSnapshot();
+  });
+
+  it('emits the Input JS wrapper (value v-model branch)', () => {
+    expect(generateVueJavascriptTemplate(INPUT_FIXTURE)).toMatchSnapshot();
+  });
+
+  it('emits the NumberInput JS wrapper (untyped value model)', () => {
+    expect(
+      generateVueJavascriptTemplate(NUMBER_INPUT_FIXTURE)
+    ).toMatchSnapshot();
+  });
+
+  it('emits the Dialog JS wrapper (open v-model branch)', () => {
+    expect(generateVueJavascriptTemplate(DIALOG_FIXTURE)).toMatchSnapshot();
+  });
+
+  it('emits the Toast JS wrapper (no type import, bare method params)', () => {
+    expect(generateVueJavascriptTemplate(TOAST_FIXTURE)).toMatchSnapshot();
   });
 });
 
