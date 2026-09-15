@@ -694,34 +694,36 @@ export function showPostInstallInstructions(
   output.info(pc.dim(`\t${packageManager} run dev\n`));
 
   // Info box with project structure
-  output.log(pc.bold(pc.cyan('ℹ️  Generated Files:\n')));
-  output.log(pc.dim(`\tComponents:\t${config.componentsDir}/`));
-  output.log(pc.dim(`\tStyles:\t\t${config.stylesDir}/theme.css`));
-  output.log(pc.dim(`\tSetup:\t\t${config.utilsDir}/kigumi.ts\n`));
+  output.info(pc.bold(pc.cyan('ℹ️  Generated Files:\n')));
+  output.info(pc.dim(`\tComponents:\t${config.componentsDir}/`));
+  output.info(pc.dim(`\tStyles:\t\t${config.stylesDir}/theme.css`));
+  output.info(pc.dim(`\tSetup:\t\t${config.utilsDir}/kigumi.ts\n`));
 
   // Info box with theme details (using display labels for proper capitalization)
-  output.log(pc.bold(pc.cyan('🎨 Theme Configuration:\n')));
-  output.log(pc.dim(`\tTheme:\t\t${getThemeLabel(config.theme.selected)}`));
-  output.log(pc.dim(`\tPalette:\t${getPaletteLabel(config.theme.palette)}`));
-  output.log(
+  output.info(pc.bold(pc.cyan('🎨 Theme Configuration:\n')));
+  output.info(pc.dim(`\tTheme:\t\t${getThemeLabel(config.theme.selected)}`));
+  output.info(pc.dim(`\tPalette:\t${getPaletteLabel(config.theme.palette)}`));
+  output.info(
     pc.dim(`\tBrand Color:\t${getBrandColorLabel(config.theme.brandColor)}`)
   );
-  output.log(
+  output.info(
     pc.dim(
       '\tEdit theme.css to customize: https://www.npmjs.com/package/kigumi#customization\n'
     )
   );
 
   // Additional resources
-  output.log(pc.bold(pc.cyan('📚 Useful Web Awesome resources:\n')));
-  output.log(pc.dim('\t• Components: https://webawesome.com/docs/components/'));
-  output.log(pc.dim('\t• Design Tokens: https://webawesome.com/docs/tokens/'));
-  output.log(
+  output.info(pc.bold(pc.cyan('📚 Useful Web Awesome resources:\n')));
+  output.info(
+    pc.dim('\t• Components: https://webawesome.com/docs/components/')
+  );
+  output.info(pc.dim('\t• Design Tokens: https://webawesome.com/docs/tokens/'));
+  output.info(
     pc.dim('\t• Style Utilities: https://webawesome.com/docs/utilities/')
   );
-  output.log(pc.dim('\t• Layout: https://webawesome.com/docs/layout/'));
-  output.log(pc.dim('\t• Themes: https://webawesome.com/docs/themes'));
-  output.log(
+  output.info(pc.dim('\t• Layout: https://webawesome.com/docs/layout/'));
+  output.info(pc.dim('\t• Themes: https://webawesome.com/docs/themes'));
+  output.info(
     pc.dim('\t• Color Palettes: https://webawesome.com/docs/color-palettes\n')
   );
 }
