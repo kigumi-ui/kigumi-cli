@@ -148,11 +148,13 @@ jobs:
       - name: Validate Changesets
         run: pnpm run validate:changesets
 
-      - name: Validate generated-artifact freshness
-        # Checks B/C/D (docs-wrapper CSS, .jsx subset, starter fixtures) run here.
-        # Check A (generator regen) self-skips: no Web Awesome CEM / Pro token in
-        # this job, so metadata/template freshness stays covered by prebuild,
-        # check-metadata-freshness, and validate:cem-sync instead.
+      # Checks B/C/D/E (docs-wrapper CSS, .jsx subset, starter fixtures,
+      # llms.txt) are pure file comparisons and need no manifest, so they stay
+      # in this token-free job. Check A needs the Pro package and runs in the
+      # `freshness` job below.
+      - name: Validate generated-artifact freshness (B/C/D/E)
+        env:
+          KIGUMI_FRESHNESS_ALLOW_SKIP: '1'
         run: pnpm run validate:generated-fresh
 
       - name: Validate Changes
@@ -231,6 +233,66 @@ jobs:
         # Drift is silent: CI still passes and just re-downloads 249 MB, which
         # looks identical to the cache step not existing.
         run: pnpm run validate:cache-keys
+
+  freshness:
+    name: Generated freshness (Check A)
+    runs-on: ubuntu-latest
+    # Runs unconditionally, with no path filter. A generator change that does
+    # not regenerate its templates touches only `scripts/`, which matches none
+    # of the filters above, so every gated job skips; this is the check that
+    # catches it, and gating it would reopen exactly that hole (issue #43).
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # Check A regenerates every template and diffs it against what is
+      # committed, which needs a manifest describing all components -- only the
+      # Pro package has one. Fork pull requests receive no secrets, so detect
+      # that and skip loudly rather than failing an outside contribution.
+      - name: Check Pro registry access
+        id: pro
+        env:
+          WA_TOKEN: ${{ secrets.WEBAWESOME_NPM_TOKEN }}
+        run: |
+          if [ -n "$WA_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Generator drift NOT verified: no Web Awesome Pro token (expected for pull requests from forks)."
+          fi
+
+      - name: Configure Pro registry for docs
+        if: steps.pro.outputs.available == 'true'
+        run: |
+          printf '@awesome.me:registry=https://npm.cloudsmith.io/fortawesome/webawesome-pro/\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:_authToken=%s\n//npm.cloudsmith.io/fortawesome/webawesome-pro/:always-auth=true\n' "${{ secrets.WEBAWESOME_NPM_TOKEN }}" > docs/.npmrc
+
+      - name: Install root dependencies
+        if: steps.pro.outputs.available == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Install docs dependencies
+        if: steps.pro.outputs.available == 'true'
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      # No KIGUMI_FRESHNESS_ALLOW_SKIP here: on a branch that has the token, an
+      # unusable manifest means the install is broken, and tolerating that is
+      # what let Check A skip on every run for months.
+      - name: Validate generated-artifact freshness (Check A)
+        if: steps.pro.outputs.available == 'true'
+        run: pnpm run validate:generated-fresh
 
   test:
     name: Test
