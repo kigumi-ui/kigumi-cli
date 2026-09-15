@@ -10,7 +10,6 @@
  *
  * CHECKS:
  * - Generated files carry no manual-edit markers
- * - Import path correctness (no mixed free/pro imports in one file)
  * - Template TS/JS variant parity (e.g. .tsx + .jsx pair)
  * - Anti-patterns (see ANTI_PATTERNS)
  *
@@ -72,7 +71,6 @@ export interface ValidationIssue {
   line?: number;
   message: string;
   severity: 'error' | 'warning';
-  fixable?: boolean;
 }
 
 const issues: ValidationIssue[] = [];
@@ -118,52 +116,20 @@ async function checkGeneratedFiles(): Promise<void> {
 // never stored in config" needs type-level or schema-level enforcement, not
 // string matching over source.
 
-/**
- * Check for incorrect import paths (mixing free/pro packages)
- * WHY: Component imports must match project tier
- */
-async function checkImportPaths(): Promise<void> {
-  // Check TypeScript and JavaScript files in src/components
-  const tsFiles = await findFiles('src/components/**/*.ts', {
-    cwd: PROJECT_ROOT,
-  });
-  const tsxFiles = await findFiles('src/components/**/*.tsx', {
-    cwd: PROJECT_ROOT,
-  });
-  const jsFiles = await findFiles('src/components/**/*.js', {
-    cwd: PROJECT_ROOT,
-  });
-  const jsxFiles = await findFiles('src/components/**/*.jsx', {
-    cwd: PROJECT_ROOT,
-  });
-  const componentFiles = [...tsFiles, ...tsxFiles, ...jsFiles, ...jsxFiles];
-
-  for (const file of componentFiles) {
-    const filePath = path.join(PROJECT_ROOT, file);
-    const content = await fs.readFile(filePath, 'utf-8');
-    const lines = content.split('\n');
-
-    // Check for mixed free/pro imports (both packages in same file)
-    // Regex uses negative lookahead to match '@awesome.me/webawesome' NOT followed by '-pro'
-    const hasFreeImport = /@awesome\.me\/webawesome(?!-pro)/.test(content);
-    const hasProImport = content.includes('@awesome.me/webawesome-pro');
-
-    if (hasFreeImport && hasProImport) {
-      // Find the first line with a web awesome import for error reporting
-      const importLineIndex = lines.findIndex((line) =>
-        line.includes('@awesome.me/webawesome')
-      );
-
-      issues.push({
-        file,
-        line: importLineIndex !== -1 ? importLineIndex + 1 : undefined,
-        message: 'Mixed free/pro imports detected. Use doctor command to fix.',
-        severity: 'error',
-        fixable: true,
-      });
-    }
-  }
-}
+// NOTE: checkImportPaths() was removed (#26). It globbed src/components/**
+// for mixed free/pro Web Awesome imports, but that directory only exists in
+// a *consumer's* generated project (DEFAULT_COMPONENTS_DIR in
+// src/constants.ts) -- it has never existed in this repo, so the glob always
+// returned zero files and the check could never fail. Re-pointing it at
+// templates/ was considered and rejected: every template file imports only
+// the free package path verbatim (see templates/*/*/*.tsx), because the
+// free->pro swap happens at generation time via string replacement in
+// materializeTemplate, not by templates hand-authoring both import variants.
+// A file that imports both packages cannot occur in templates/ either, so
+// that relocation would still be a check that can never trigger. Mixed
+// free/pro imports are a consumer-tree concern and are already fully owned
+// by `kigumi doctor` (src/commands/doctor.ts), which scans and fixes a real
+// consumer's installed components.
 
 /**
  * Check template parity (TS/JS variants must exist for both React and Vue)
@@ -300,7 +266,6 @@ export async function validateChanges(): Promise<ValidationResult> {
 
   // Run all checks
   await checkGeneratedFiles();
-  await checkImportPaths();
   await checkTemplateParity();
   await checkAntiPatterns();
 
@@ -360,14 +325,6 @@ function printResults(result: ValidationResult): void {
     console.log(
       pc.red(`❌ Validation failed with ${result.errors.length} error(s)\n`)
     );
-
-    // Provide helpful fix suggestions
-    const fixableIssues = issues.filter((i) => i.fixable);
-    if (fixableIssues.length > 0) {
-      console.log(pc.yellow('💡 Fixable issues detected. Run these commands:'));
-      console.log(pc.yellow('  • pnpm run doctor (fix import paths)'));
-      console.log('');
-    }
   }
 }
 
