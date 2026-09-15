@@ -105,29 +105,27 @@ describe('E2E Smoke Test - Free Tier', () => {
     expect(viteConfig).toContain("'@'");
   });
 
-  // Skipped: stale assertion against modern Vite tsconfig.app.json shape.
-  // Modern Vite templates do not set allowSyntheticDefaultImports; kigumi does not
-  // override that. Surfaced when Cluster Q2 wired e2e into CI for the first time.
-  // Follow-up: realign assertions to reflect what kigumi actually merges into a
-  // current Vite-template tsconfig.app.json.
-  it.skip('should configure tsconfig.app.json correctly', async () => {
+  it('should configure tsconfig.app.json correctly', async () => {
     const tsconfig = await fs.readJSON(
       path.join(TEST_DIR, 'tsconfig.app.json')
     );
 
-    // Required path aliases
-    expect(tsconfig.compilerOptions.baseUrl).toBe('.');
+    // The `@/*` path alias is the only key init writes here.
     expect(tsconfig.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
 
-    // Required for React imports
-    expect(tsconfig.compilerOptions.esModuleInterop).toBe(true);
-    expect(tsconfig.compilerOptions.allowSyntheticDefaultImports).toBe(true);
+    // Deliberately no `baseUrl`. TypeScript deprecated it in 6.0 (TS5101) and
+    // removed it in 7.0 (TS5102), so writing it made the consumer's first
+    // `tsc` run fail on a config we had generated; `paths` resolves relative
+    // to the tsconfig without it. See src/utils/project-config.ts.
+    expect(tsconfig.compilerOptions.baseUrl).toBeUndefined();
 
-    // Should NOT have verbatimModuleSyntax (breaks React)
-    expect(tsconfig.compilerOptions.verbatimModuleSyntax).toBeUndefined();
-
-    // Should NOT have restrictive types array
-    expect(tsconfig.compilerOptions.types).toBeUndefined();
+    // Init merges into the Vite template's tsconfig rather than rewriting it,
+    // so the template's own compiler options must survive untouched. These two
+    // are asserted as passed-through, not as values kigumi wants: a current
+    // Vite react-ts template sets both, and stripping either would break the
+    // consumer's build.
+    expect(tsconfig.compilerOptions.verbatimModuleSyntax).toBe(true);
+    expect(tsconfig.compilerOptions.types).toEqual(['vite/client']);
   });
 
   it('should install @types/react in devDependencies', async () => {
@@ -191,14 +189,11 @@ describe('E2E Smoke Test - Free Tier', () => {
     expect(buttonContent).toContain('@awesome.me/webawesome');
   });
 
-  // Skipped: kigumi's init merges `baseUrl: '.'` into tsconfig.app.json without
-  // setting `ignoreDeprecations: '6.0'`. Modern Vite templates pull TypeScript 6
-  // (deprecates `baseUrl`, ref reference-tsup-ts6-baseurl in 2nd brain), so
-  // `tsc -b` fails with TS5101. Real product bug surfacing here, not a test rot.
-  // Follow-up: kigumi init/upgrade should add `ignoreDeprecations: '6.0'` when
-  // baseUrl is preserved, or stop setting baseUrl and rely on inherited paths.
-  // Surfaced when Cluster Q2 wired e2e into CI for the first time.
-  it.skip('should pass TypeScript check (tsc -b)', async () => {
+  // This is the test that proves the tsconfig init generates actually compiles.
+  // It was skipped while init wrote `baseUrl` into tsconfig.app.json, which made
+  // `tsc -b` fail with TS5101 on TypeScript 6+. Init stopped writing `baseUrl`,
+  // so the product bug is gone and the test earns its place again.
+  it('should pass TypeScript check (tsc -b)', async () => {
     // Create a test App that uses the component
     const appContent = `import '@/lib/kigumi';
 import { Button } from '@/components/ui/Button/Button';
@@ -224,10 +219,9 @@ export default App;
     expect(result.exitCode).toBe(0);
   }, 60000);
 
-  // Skipped: cascades from the tsc -b failure above (Vite uses tsc internally for
-  // type-check before bundling). Same root cause: TS5101 on baseUrl.
-  // Surfaced when Cluster Q2 wired e2e into CI for the first time.
-  it.skip('should build successfully with Vite', async () => {
+  // Was skipped alongside the `tsc -b` test above, which it cascaded from:
+  // Vite type-checks before bundling, so it hit the same TS5101 on baseUrl.
+  it('should build successfully with Vite', async () => {
     const result = await execa('pnpm', ['run', 'build'], {
       cwd: TEST_DIR,
       reject: false,
