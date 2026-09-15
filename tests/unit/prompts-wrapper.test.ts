@@ -9,6 +9,13 @@
  *   to @clack/prompts).
  * - The default isCancel returns false for non-cancel symbols (proves the
  *   default adapter delegates to clack without invoking interactive I/O).
+ * - isCancel narrows `string | symbol` to `string` after a guarded throw,
+ *   at compile time. This is a regression test for a bug where isCancel
+ *   was exported via `as PromptsAdapter['isCancel']`, which produced a
+ *   plain boolean-returning function with no type predicate: call sites
+ *   compiled, but the value stayed `string | symbol` on the non-cancel
+ *   branch. If isCancel ever loses its `value is symbol` predicate again,
+ *   this test fails to type-check.
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
@@ -118,6 +125,23 @@ describe('prompts wrapper', () => {
     expect(p.isCancel(undefined)).toBe(false);
     // Adapter not consulted after reset.
     expect(adapter.isCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('narrows string | symbol to string via isCancel (compile-time)', async () => {
+    const adapter = buildAdapter({
+      text: vi.fn(async () => 'typed') as unknown as PromptsAdapter['text'],
+      isCancel: vi.fn(() => false) as unknown as PromptsAdapter['isCancel'],
+    });
+    setPromptsForTesting(adapter);
+
+    const result = await p.text({ message: 'type' });
+    if (p.isCancel(result)) {
+      throw new Error('unreachable');
+    }
+    // If isCancel lost its type predicate, `result` would still be
+    // `string | symbol` here and this assignment would fail to compile.
+    const narrowed: string = result;
+    expect(narrowed).toBe('typed');
   });
 
   it('replaces a previously registered adapter on a second call', () => {

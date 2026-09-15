@@ -85,8 +85,9 @@ export const spinner: PromptsAdapter['spinner'] = (
   ...args: Parameters<PromptsAdapter['spinner']>
 ) => getPrompts().spinner(...args);
 
-export const isCancel: PromptsAdapter['isCancel'] = ((value: unknown) =>
-  getPrompts().isCancel(value)) as PromptsAdapter['isCancel'];
+export function isCancel(value: unknown): value is symbol {
+  return getPrompts().isCancel(value);
+}
 
 /**
  * `log` is exposed as an accessor object whose methods route through
