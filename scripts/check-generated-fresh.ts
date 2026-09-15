@@ -10,8 +10,10 @@
  *
  *   A (generator-driven): regenerate metadata + templates + skill-refs into a
  *     tmp copy, run Prettier on the outputs, then diff against the committed
- *     files. Skipped when the Web Awesome CEM isn't on disk (fresh clone / no
- *     Pro token), mirroring `check-metadata-freshness`.
+ *     files. Requires a CEM describing every registry component -- in practice
+ *     the Pro package. A partial CEM is refused rather than silently narrowed,
+ *     and a run that could not verify says so instead of reporting a pass
+ *     (issue #43). Runs in CI's own `freshness` job, which installs Pro.
  *
  *   B (docs-wrapper CSS, comment-normalized): the hand-maintained docs wrappers
  *     in `docs/src/components/ui/` were authored with a richer comment style than
@@ -30,7 +32,9 @@
  *     `tests/fixtures/starter-snapshots/` must match its source template by
  *     rules (next -> react template, angular -> angular template).
  *
- * Exit codes: 0 = fresh (or skipped because CEM missing); 1 = drift found.
+ * Exit codes: 0 = fresh (or, outside CI and on fork PRs, unverified because no
+ * complete CEM was reachable -- reported as "NOT verified", never as a pass);
+ * 1 = drift found, or the CEM was unusable where verification was required.
  *
  *   E (llms.txt version claims): `llms.txt` is hand-maintained, ships in the
  *     npm tarball, and is written for LLM consumers. Its sample `status --json`
