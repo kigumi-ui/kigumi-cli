@@ -19,7 +19,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 import { toKebabCase } from '../src/utils/naming.js';
-import { resolveCem } from './find-cem.js';
+import { resolveCem, assessCemCompleteness } from './find-cem.js';
 
 const PROJECT_ROOT = process.cwd();
 
@@ -217,27 +217,19 @@ async function loadCustomElementsMetadata(): Promise<
   Map<string, ComponentCEMetadata>
 > {
   const resolution = await resolveCem(PROJECT_ROOT);
-  const registrySize = Object.keys(LOCAL_REGISTRY).length;
+  const verdict = assessCemCompleteness(
+    resolution,
+    Object.keys(LOCAL_REGISTRY).length
+  );
 
-  // "Found a manifest" is not the same as "found a complete manifest". The
-  // free package resolves fine but describes only the free components, and
-  // generating from it drops every Pro entry -- the same silent degradation,
-  // from a different source.
-  if (!resolution.found || !resolution.path) {
+  // Same all-or-nothing policy the freshness guard applies, from the same
+  // function: "found a manifest" is not "found a complete manifest", and the
+  // free package resolves fine while describing only the free components.
+  if (!verdict.usable || !resolution.path) {
     throw new Error(
-      'No Custom Elements Manifest found, so the API surface would be ' +
-        'generated without enrichment and silently lose every Methods and ' +
-        'Parts line.\n' +
-        'Install the Web Awesome Pro package first: pnpm setup:npmrc, then ' +
-        'pnpm install in docs/.'
-    );
-  }
-
-  if (resolution.componentCount < registrySize) {
-    throw new Error(
-      `The ${resolution.tier} Custom Elements Manifest describes ` +
-        `${resolution.componentCount} of ${registrySize} registry components, ` +
-        'so the generated API surface would silently omit the rest.\n' +
+      `Cannot generate the API surface: ${verdict.reason}.\n` +
+        'Generating anyway would silently drop the components the manifest ' +
+        'does not describe, along with their Methods and Parts lines.\n' +
         'Install the Web Awesome Pro package: pnpm setup:npmrc, then ' +
         'pnpm install in docs/.'
     );

@@ -47,7 +47,15 @@ import os from 'os';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
-import { resolveCem, type CemResolution } from './find-cem.js';
+import {
+  resolveCem,
+  assessCemCompleteness,
+  type CemVerdict,
+} from './find-cem.js';
+
+// Re-exported so the guard's own consumers and tests keep one import site.
+export { assessCemCompleteness } from './find-cem.js';
+export type { CemVerdict, CemOutcome } from './find-cem.js';
 import { getAllComponents } from '../src/utils/registry.js';
 
 /** How many components the registry tracks, i.e. what a complete CEM covers. */
@@ -150,60 +158,6 @@ export function isDocsOnlyCssAllowed(
     if (!matchesAllowedPart) return false;
   }
   return true;
-}
-
-/** Why Check A can or cannot run against the CEM that was resolved. */
-export type CemOutcome = 'complete' | 'partial' | 'absent';
-
-export interface CemVerdict {
-  usable: boolean;
-  outcome: CemOutcome;
-  reason: string;
-}
-
-/**
- * Decide whether a resolved CEM is complete enough for Check A to run.
- *
- * Check A regenerates every template and diffs it against what is committed.
- * That is only honest against a CEM describing every component the registry
- * tracks: run against the free package it would verify the free subset and say
- * nothing about the remaining Pro components. Issue #43 is what happens when
- * "said nothing" gets printed as a pass, so the gate is all-or-nothing and a
- * partial CEM is refused rather than quietly narrowed.
- *
- * A CEM describing *more* components than the registry tracks is a superset,
- * not a gap: Web Awesome may ship a component Kigumi has not wrapped yet.
- */
-export function assessCemCompleteness(
-  resolution: CemResolution,
-  registrySize: number
-): CemVerdict {
-  if (!resolution.found) {
-    return {
-      usable: false,
-      outcome: 'absent',
-      reason:
-        'no Custom Elements Manifest found (Web Awesome Pro not installed)',
-    };
-  }
-
-  if (resolution.componentCount < registrySize) {
-    return {
-      usable: false,
-      outcome: 'partial',
-      reason:
-        `the ${resolution.tier} Custom Elements Manifest describes ` +
-        `${resolution.componentCount} of ${registrySize} registry components`,
-    };
-  }
-
-  return {
-    usable: true,
-    outcome: 'complete',
-    reason:
-      `${resolution.tier} Custom Elements Manifest, ` +
-      `${resolution.componentCount} components`,
-  };
 }
 
 export interface ReactSurface {
