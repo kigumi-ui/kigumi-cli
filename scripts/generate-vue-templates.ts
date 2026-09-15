@@ -274,11 +274,27 @@ function buildJsdocBlock(componentKey: string, description: string): string {
 }
 
 // =============================================================================
-// TypeScript Template
+// Unified SFC assembler
 // =============================================================================
 
-export function generateVueTypescriptTemplate(
-  component: ComponentDefinition
+/**
+ * Assemble a Vue SFC for a component in either the TypeScript or the
+ * JavaScript dialect.
+ *
+ * The two dialects share every structural decision — which props are excluded
+ * by `defineModel`, which listeners exist, which watchers sync the model, which
+ * attributes land on the `<wa-*>` element. They differ only in how those
+ * decisions are *rendered*: type annotations on handler bodies and model
+ * declarations, `as any` casts on the element ref inside watchers and exposed
+ * methods, the `lang="ts"` script attribute, and the component-specific
+ * `import type` block (TS only).
+ *
+ * Every such divergence is expressed as a `typed ? … : …` at its point of use,
+ * so the shell around them exists once.
+ */
+function assembleVueSFC(
+  component: ComponentDefinition,
+  { typed }: { typed: boolean }
 ): string {
   const componentKey = component.tagName.replace('wa-', '');
   const metadata = COMPONENT_METADATA[componentKey] || {
@@ -292,38 +308,49 @@ export function generateVueTypescriptTemplate(
   const hasOpenModel = OPEN_MODEL_COMPONENTS.has(componentKey);
   const hasAnyModel = hasValueModel || hasCheckedModel || hasOpenModel;
 
-  // Determine which props to exclude from the interface (handled by defineModel)
+  // Determine which props to exclude (handled by defineModel)
   const excludedProps = new Set<string>();
   if (hasValueModel) excludedProps.add('value');
   if (hasCheckedModel) excludedProps.add('checked');
   if (hasOpenModel) excludedProps.add('open');
 
-  // 1. Props Interface (from registry, excluding model props)
+  // 1. Props — a TS interface body, or an Options-API props object
   const filteredProps = component.props.filter(
     (p) => !excludedProps.has(p.name)
   );
-  const propsInterface = filteredProps
+  const propsSection = filteredProps
     .map((prop) => {
       const quotedName = prop.name.includes('-') ? `'${prop.name}'` : prop.name;
-      let type = prop.type;
-      if (prop.values && prop.values.length > 0) {
-        type = prop.values.map((v) => `'${v}'`).join(' | ');
+      if (typed) {
+        let type = prop.type;
+        if (prop.values && prop.values.length > 0) {
+          type = prop.values.map((v) => `'${v}'`).join(' | ');
+        }
+        const optional = prop.required ? '' : '?';
+        return `  ${quotedName}${optional}: ${type};`;
       }
-      const optional = prop.required ? '' : '?';
-      return `  ${quotedName}${optional}: ${type};`;
+      const type = convertToVuePropType(prop.type);
+      const required = prop.required ? 'true' : 'false';
+      const defaultValue = prop.default
+        ? `, default: ${formatVueDefault(prop.type, prop.default)}`
+        : '';
+      return `    ${quotedName}: { type: ${type}, required: ${required}${defaultValue} }`;
     })
-    .join('\n');
+    .join(typed ? '\n' : ',\n');
 
-  // 2. Emits Interface (from metadata)
-  const emitsInterface =
-    metadata.events.length > 0
+  // 2. Emits — a typed call-signature block, or a plain event-name array
+  const emitsSection = typed
+    ? metadata.events.length > 0
       ? metadata.events
-          .map((event) => {
-            const eventType = mapEventType(event.name);
-            return `  '${event.name}': [event: ${eventType}];`;
-          })
+          .map(
+            (event) =>
+              `  '${event.name}': [event: ${mapEventType(event.name)}];`
+          )
           .join('\n')
-      : '  // No events for this component';
+      : '  // No events for this component'
+    : metadata.events.length > 0
+      ? `['${metadata.events.map((e) => e.name).join("', '")}']`
+      : '[]';
 
   // 3. Build unified listener entries
   const listeners = buildListenerEntries(
@@ -334,28 +361,32 @@ export function generateVueTypescriptTemplate(
     hasOpenModel
   );
 
-  // 4. Exposed Methods (from metadata)
+  // 4. Exposed Methods — typed params and an `as any` ref cast, or bare params
   const exposedMethods =
     metadata.methods.length > 0
       ? metadata.methods
           .map((method) => {
+            const ref = typed
+              ? '(elementRef.value as any)'
+              : 'elementRef.value';
             if (method.parameters && method.parameters.length > 0) {
-              const params = method.parameters
-                .map((p) => `${p.name}: ${p.type}`)
-                .join(', ');
+              const params = typed
+                ? method.parameters
+                    .map((p) => `${p.name}: ${p.type}`)
+                    .join(', ')
+                : method.parameters.map((p) => p.name).join(', ');
               const args = method.parameters.map((p) => p.name).join(', ');
-              return `  ${method.name}: (${params}) => (elementRef.value as any)?.${method.name}?.(${args})`;
-            } else {
-              return `  ${method.name}: () => (elementRef.value as any)?.${method.name}?.()`;
+              return `  ${method.name}: (${params}) => ${ref}?.${method.name}?.(${args})`;
             }
+            return `  ${method.name}: () => ${ref}?.${method.name}?.()`;
           })
           .join(',\n')
       : '';
 
-  const hasMethodsOrElement = metadata.methods.length > 0;
-  const exposeContent = hasMethodsOrElement
-    ? `${exposedMethods},\n  element: elementRef`
-    : '  element: elementRef';
+  const exposeContent =
+    metadata.methods.length > 0
+      ? `${exposedMethods},\n  element: elementRef`
+      : '  element: elementRef';
 
   // Build imports
   const vueImports: string[] = ['ref', 'computed', 'onMounted'];
@@ -365,31 +396,35 @@ export function generateVueTypescriptTemplate(
   // Build defineModel declarations
   const modelDeclarations: string[] = [];
   if (hasValueModel) {
-    const valueType = getModelValueType(componentKey, component);
-    modelDeclarations.push(`const model = defineModel<${valueType}>();`);
+    const typeArg = typed
+      ? `<${getModelValueType(componentKey, component)}>`
+      : '';
+    modelDeclarations.push(`const model = defineModel${typeArg}();`);
   }
   if (hasCheckedModel) {
     modelDeclarations.push(
-      `const model = defineModel<boolean>({ default: false });`
+      `const model = defineModel${typed ? '<boolean>' : ''}({ default: false });`
     );
   }
   if (hasOpenModel) {
     modelDeclarations.push(
-      `const open = defineModel<boolean>('open', { default: false });`
+      `const open = defineModel${typed ? '<boolean>' : ''}('open', { default: false });`
     );
   }
 
-  // Build model sync watchers (model → element)
+  // Build model sync watchers (model → element). The TS variant casts the ref
+  // to `any` so the WA-specific properties type-check.
+  const elAccess = typed ? 'elementRef.value as any' : 'elementRef.value';
   const modelWatchers: string[] = [];
   if (hasValueModel) {
     modelWatchers.push(`watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = ${elAccess};
   if (el && el.value !== val) el.value = val ?? '';
 });`);
   }
   if (hasCheckedModel) {
     modelWatchers.push(`watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = ${elAccess};
   if (el && el.checked !== val) el.checked = val ?? false;
 });`);
   }
@@ -403,7 +438,7 @@ export function generateVueTypescriptTemplate(
     // equivalent: setting the property triggers the same internal show/hide
     // sequence. One uniform code path, no dead branches.
     modelWatchers.push(`watch(open, (newOpen) => {
-  const el = elementRef.value as any;
+  const el = ${elAccess};
   if (el && el.open !== newOpen) el.open = newOpen;
 });`);
   }
@@ -411,7 +446,11 @@ export function generateVueTypescriptTemplate(
   // Generate handler declarations + addEventListener calls (only when listeners exist)
   const handlerDeclarations =
     listeners.length > 0
-      ? listeners.map((l) => `const ${l.handlerName} = ${l.tsBody};`).join('\n')
+      ? listeners
+          .map(
+            (l) => `const ${l.handlerName} = ${typed ? l.tsBody : l.jsBody};`
+          )
+          .join('\n')
       : '';
   const addListenerCalls = listeners
     .map((l) => `  el.addEventListener('${l.event}', ${l.handlerName});`)
@@ -458,50 +497,73 @@ onMounted(() => {
 });
 `;
 
-  // Component-specific type imports for non-primitive parameter types.
+  // Component-specific type imports for non-primitive parameter types (TS only).
   // Mirrors the React generator's heuristic: walk method parameter types,
   // pull PascalCase identifiers, drop DOM/JS globals, import the rest from
   // the component's own module (e.g. ToastCreateOptions from Toast).
-  const customTypes = extractCustomTypeImports(metadata.methods);
+  const customTypes = typed ? extractCustomTypeImports(metadata.methods) : [];
   const typeImport =
     customTypes.length > 0
       ? `import type { ${customTypes.join(', ')} } from '${component.importPath}';\n`
       : '';
 
-  // Assemble the template
-  return `<script setup lang="ts">
-import { ${vueImports.join(', ')} } from 'vue';
-${typeImport}import './${component.name}.css';
-
-let loadPromise: Promise<unknown> | null = null;
-function ensureLoaded() {
-  return (loadPromise ??= import('${component.importPath}'));
+  // The props block: a TS interface plus a type-argument defineProps, or an
+  // Options-API defineProps object.
+  const propsBlock = typed
+    ? `export interface ${component.name}Props {
+${propsSection}
 }
 
-${buildJsdocBlock(componentKey, component.description)}
-export interface ${component.name}Props {
-${propsInterface}
-}
+const props = defineProps<${component.name}Props>();`
+    : `const props = defineProps({
+${propsSection}
+});`;
 
-const props = defineProps<${component.name}Props>();
-
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+  // The definedProps computed: identical logic, annotated in the TS variant.
+  const definedPropsBlock = typed
+    ? `const definedProps = computed(() => {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
     if (value !== undefined && value !== false) result[key] = value;
   }
   return result;
-});
+});`
+    : `const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});`;
 
-const emit = defineEmits<{
-${emitsInterface}
-}>();
+  const emitBlock = typed
+    ? `const emit = defineEmits<{
+${emitsSection}
+}>();`
+    : `const emit = defineEmits(${emitsSection});`;
 
-${modelDeclarations.length > 0 ? modelDeclarations.join('\n') + '\n\n' : ''}const elementRef = ref<HTMLElement | null>(null);
+  // Assemble the template
+  return `<script setup${typed ? ' lang="ts"' : ''}>
+import { ${vueImports.join(', ')} } from 'vue';
+${typeImport}import './${component.name}.css';
+
+let loadPromise${typed ? ': Promise<unknown> | null' : ''} = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('${component.importPath}'));
+}
+
+${buildJsdocBlock(componentKey, component.description)}
+${propsBlock}
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+${definedPropsBlock}
+
+${emitBlock}
+
+${modelDeclarations.length > 0 ? modelDeclarations.join('\n') + '\n\n' : ''}const elementRef = ref${typed ? '<HTMLElement | null>' : ''}(null);
 ${modelWatchers.length > 0 ? '\n' + modelWatchers.join('\n\n') + '\n' : ''}${loadBlock}${lifecycleBlock}
 defineExpose({
 ${exposeContent},
@@ -516,6 +578,16 @@ ${templateAttrs.join('\n')}
   </${component.tagName}>
 </template>
 `;
+}
+
+// =============================================================================
+// TypeScript Template
+// =============================================================================
+
+export function generateVueTypescriptTemplate(
+  component: ComponentDefinition
+): string {
+  return assembleVueSFC(component, { typed: true });
 }
 
 // =============================================================================
@@ -525,205 +597,7 @@ ${templateAttrs.join('\n')}
 export function generateVueJavascriptTemplate(
   component: ComponentDefinition
 ): string {
-  const componentKey = component.tagName.replace('wa-', '');
-  const metadata = COMPONENT_METADATA[componentKey] || {
-    events: [],
-    slots: [],
-    methods: [],
-  };
-
-  const hasValueModel = VALUE_MODEL_COMPONENTS.has(componentKey);
-  const hasCheckedModel = CHECKED_MODEL_COMPONENTS.has(componentKey);
-  const hasOpenModel = OPEN_MODEL_COMPONENTS.has(componentKey);
-  const hasAnyModel = hasValueModel || hasCheckedModel || hasOpenModel;
-
-  const excludedProps = new Set<string>();
-  if (hasValueModel) excludedProps.add('value');
-  if (hasCheckedModel) excludedProps.add('checked');
-  if (hasOpenModel) excludedProps.add('open');
-
-  // 1. Props (from registry)
-  const filteredProps = component.props.filter(
-    (p) => !excludedProps.has(p.name)
-  );
-  const propsOptions = filteredProps
-    .map((prop) => {
-      const quotedName = prop.name.includes('-') ? `'${prop.name}'` : prop.name;
-      const type = convertToVuePropType(prop.type);
-      const required = prop.required ? 'true' : 'false';
-      const defaultValue = prop.default
-        ? `, default: ${formatVueDefault(prop.type, prop.default)}`
-        : '';
-      return `    ${quotedName}: { type: ${type}, required: ${required}${defaultValue} }`;
-    })
-    .join(',\n');
-
-  // 2. Emits (from metadata)
-  const emitsList =
-    metadata.events.length > 0
-      ? `['${metadata.events.map((e) => e.name).join("', '")}']`
-      : '[]';
-
-  // 3. Build unified listener entries
-  const listeners = buildListenerEntries(
-    componentKey,
-    metadata,
-    hasValueModel,
-    hasCheckedModel,
-    hasOpenModel
-  );
-
-  // 4. Exposed Methods (from metadata)
-  const exposedMethods =
-    metadata.methods.length > 0
-      ? metadata.methods
-          .map((method) => {
-            if (method.parameters && method.parameters.length > 0) {
-              const params = method.parameters.map((p) => p.name).join(', ');
-              return `  ${method.name}: (${params}) => elementRef.value?.${method.name}?.(${params})`;
-            } else {
-              return `  ${method.name}: () => elementRef.value?.${method.name}?.()`;
-            }
-          })
-          .join(',\n')
-      : '';
-
-  const hasMethodsOrElement = metadata.methods.length > 0;
-  const exposeContent = hasMethodsOrElement
-    ? `${exposedMethods},\n  element: elementRef`
-    : '  element: elementRef';
-
-  // Build imports
-  const vueImports: string[] = ['ref', 'computed', 'onMounted'];
-  if (listeners.length > 0) vueImports.push('onUnmounted');
-  if (hasAnyModel) vueImports.push('watch');
-
-  // Build defineModel declarations
-  const modelDeclarations: string[] = [];
-  if (hasValueModel) modelDeclarations.push(`const model = defineModel();`);
-  if (hasCheckedModel)
-    modelDeclarations.push(`const model = defineModel({ default: false });`);
-  if (hasOpenModel)
-    modelDeclarations.push(
-      `const open = defineModel('open', { default: false });`
-    );
-
-  // Build model sync watchers (model → element)
-  const modelWatchers: string[] = [];
-  if (hasValueModel) {
-    modelWatchers.push(`watch(model, (val) => {
-  const el = elementRef.value;
-  if (el && el.value !== val) el.value = val ?? '';
-});`);
-  }
-  if (hasCheckedModel) {
-    modelWatchers.push(`watch(model, (val) => {
-  const el = elementRef.value;
-  if (el && el.checked !== val) el.checked = val ?? false;
-});`);
-  }
-  if (hasOpenModel) {
-    // See the TS-template comment above for why we drive open-state via the
-    // attribute and not via show()/hide() method calls.
-    modelWatchers.push(`watch(open, (newOpen) => {
-  const el = elementRef.value;
-  if (el && el.open !== newOpen) el.open = newOpen;
-});`);
-  }
-
-  // Generate handler declarations + addEventListener/removeEventListener calls (only when listeners exist)
-  const handlerDeclarations =
-    listeners.length > 0
-      ? listeners.map((l) => `const ${l.handlerName} = ${l.jsBody};`).join('\n')
-      : '';
-  const addListenerCalls = listeners
-    .map((l) => `  el.addEventListener('${l.event}', ${l.handlerName});`)
-    .join('\n');
-  const removeListenerCalls = listeners
-    .map((l) => `  el.removeEventListener('${l.event}', ${l.handlerName});`)
-    .join('\n');
-
-  // Build template attributes
-  const templateAttrs: string[] = [
-    '    ref="elementRef"',
-    '    v-bind="definedProps"',
-    '    :class="$attrs.class"',
-  ];
-  if (hasValueModel) templateAttrs.push('    :value="model"');
-  if (hasCheckedModel) templateAttrs.push('    :checked="model"');
-  if (hasOpenModel) templateAttrs.push('    :open="open"');
-
-  // Build lifecycle blocks (only when there are listeners)
-  const lifecycleBlock =
-    listeners.length > 0
-      ? `
-${handlerDeclarations}
-
-onMounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-${addListenerCalls}
-});
-
-onUnmounted(() => {
-  const el = elementRef.value;
-  if (!el) return;
-
-${removeListenerCalls}
-});
-`
-      : '';
-
-  const loadBlock = `
-onMounted(() => {
-  ensureLoaded();
-});
-`;
-
-  return `<script setup>
-import { ${vueImports.join(', ')} } from 'vue';
-import './${component.name}.css';
-
-let loadPromise = null;
-function ensureLoaded() {
-  return (loadPromise ??= import('${component.importPath}'));
-}
-
-${buildJsdocBlock(componentKey, component.description)}
-const props = defineProps({
-${propsOptions}
-});
-
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
-  const result = {};
-  for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
-  }
-  return result;
-});
-
-const emit = defineEmits(${emitsList});
-
-${modelDeclarations.length > 0 ? modelDeclarations.join('\n') + '\n\n' : ''}const elementRef = ref(null);
-${modelWatchers.length > 0 ? '\n' + modelWatchers.join('\n\n') + '\n' : ''}${loadBlock}${lifecycleBlock}
-defineExpose({
-${exposeContent},
-});
-</script>
-
-<template>
-  <${component.tagName}
-${templateAttrs.join('\n')}
-  >
-    <slot />
-  </${component.tagName}>
-</template>
-`;
+  return assembleVueSFC(component, { typed: false });
 }
 
 // =============================================================================
