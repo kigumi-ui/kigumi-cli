@@ -25,6 +25,7 @@ jobs:
       docs: ${{ steps.filter.outputs.docs }}
       src: ${{ steps.filter.outputs.src }}
       templates: ${{ steps.filter.outputs.templates }}
+      scripts: ${{ steps.filter.outputs.scripts }}
       integration: ${{ steps.filter.outputs.integration }}
       e2e: ${{ steps.filter.outputs.e2e }}
       starters: ${{ steps.filter.outputs.starters }}
@@ -47,6 +48,15 @@ jobs:
               - 'src/**'
             templates:
               - 'templates/**'
+            # Generators and validators. A change here can alter every
+            # template's content without touching `templates/**` itself, so it
+            # must reach the template-exercising jobs. Correctness no longer
+            # depends on this -- the ungated `freshness` job catches drift
+            # either way -- but this gets the signal to the PR sooner and
+            # covers the case where a generator change alters behaviour the
+            # freshness diff cannot see.
+            scripts:
+              - 'scripts/**'
             integration:
               - 'tests/integration/**'
             e2e:
@@ -335,6 +345,7 @@ jobs:
       needs.changes.outputs.src == 'true'
       || needs.changes.outputs.templates == 'true'
       || needs.changes.outputs.integration == 'true'
+      || needs.changes.outputs.scripts == 'true'
       || needs.changes.outputs.deps == 'true'
       || contains(github.event.pull_request.labels.*.name, 'full-ci')
       || github.head_ref == 'changeset-release/main'
@@ -376,6 +387,7 @@ jobs:
       needs.changes.outputs.src == 'true'
       || needs.changes.outputs.templates == 'true'
       || needs.changes.outputs.e2e == 'true'
+      || needs.changes.outputs.scripts == 'true'
       || needs.changes.outputs.deps == 'true'
       || contains(github.event.pull_request.labels.*.name, 'full-ci')
       || github.head_ref == 'changeset-release/main'
@@ -452,6 +464,7 @@ jobs:
       needs.changes.outputs.templates == 'true'
       || needs.changes.outputs.src == 'true'
       || needs.changes.outputs.starters == 'true'
+      || needs.changes.outputs.scripts == 'true'
       || needs.changes.outputs.deps == 'true'
       || contains(github.event.pull_request.labels.*.name, 'full-ci')
       || github.head_ref == 'changeset-release/main'
@@ -538,6 +551,7 @@ jobs:
         needs.changes.outputs.docs == 'true'
         || needs.changes.outputs.src == 'true'
         || needs.changes.outputs.templates == 'true'
+        || needs.changes.outputs.scripts == 'true'
         || needs.changes.outputs.deps == 'true'
         || contains(github.event.pull_request.labels.*.name, 'full-ci')
         || github.head_ref == 'changeset-release/main'
