@@ -44,9 +44,45 @@ const DOUBLE_INIT_TIMEOUT_MS = 360_000;
  * `readJSONWithComments`: this suite exercises the CLI as a black box, and a
  * bug in that helper should not be able to hide itself from the test that
  * would catch it.
+ *
+ * String literals are copied verbatim rather than scanned for comment markers.
+ * A naive `/\/\*[\s\S]*?\*\//g` would rewrite `"src/**\/*.ts"` to `"src*.ts"`:
+ * still valid JSON, so the corruption passes silently into the assertions.
  */
 function stripBlockComments(content: string): string {
-  return content.replace(/\/\*[\s\S]*?\*\//g, '');
+  let result = '';
+  let i = 0;
+
+  while (i < content.length) {
+    if (content[i] === '"') {
+      // Copy the whole string literal, honouring backslash escapes.
+      let j = i + 1;
+      while (j < content.length) {
+        if (content[j] === '\\') {
+          j += 2;
+        } else if (content[j] === '"') {
+          j++;
+          break;
+        } else {
+          j++;
+        }
+      }
+      result += content.slice(i, j);
+      i = j;
+      continue;
+    }
+
+    if (content[i] === '/' && content[i + 1] === '*') {
+      const end = content.indexOf('*/', i + 2);
+      i = end === -1 ? content.length : end + 2;
+      continue;
+    }
+
+    result += content[i];
+    i++;
+  }
+
+  return result;
 }
 
 describe('E2E Smoke Test - Free Tier', () => {
@@ -152,6 +188,12 @@ describe('E2E Smoke Test - Free Tier', () => {
     // the pre-init snapshot rather than hardcoded literals: the contract under
     // test is "init does not clobber the consumer's config", which holds
     // whatever Vite's template contains today.
+    //
+    // Guard the loop first: an empty snapshot (a template without
+    // compilerOptions, or an over-eager comment strip) would make it assert
+    // nothing while still reporting green.
+    expect(Object.keys(viteCompilerOptions).length).toBeGreaterThan(0);
+
     for (const [key, value] of Object.entries(viteCompilerOptions)) {
       if (key === 'paths') continue; // the one key init owns, asserted above
       expect(tsconfig.compilerOptions[key]).toEqual(value);
