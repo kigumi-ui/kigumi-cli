@@ -435,12 +435,9 @@ output.warn('Pro theme requires token');
 output.error('Failed to install');
 ```
 
-`output.log()` is **not** general-purpose printing. It is gated on
+`output.debug()` is **not** general-purpose printing. It is gated on
 `process.env.DEBUG`, so with DEBUG unset the message is discarded. Use
 `output.info()` for anything the user is meant to read.
-
-Some call sites in `init` and `doctor` currently break this rule, so their
-output never reaches users. That is a tracked bug; do not copy the pattern.
 
 ---
 
@@ -457,4 +454,4 @@ output never reaches users. That is a tracked bug; do not copy the pattern.
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-12 (template artifacts under src/ named explicitly; output.log() documented as DEBUG-gated; dead EXIT_SUCCESS/EXIT_ERROR constants removed)
+**Last Updated:** 2026-09-15 (output.log() renamed to output.debug(); its 22 misused call sites in init/doctor now use output.info())

@@ -18,9 +18,9 @@ import type { OutputInterface } from '../../src/output/types.js';
 function collectMessages(output: OutputInterface): string[] {
   const infoCalls = (output.info as ReturnType<typeof import('vitest').vi.fn>)
     .mock.calls;
-  const logCalls = (output.log as ReturnType<typeof import('vitest').vi.fn>)
+  const debugCalls = (output.debug as ReturnType<typeof import('vitest').vi.fn>)
     .mock.calls;
-  return [...infoCalls.flat(), ...logCalls.flat()].map((arg) =>
+  return [...infoCalls.flat(), ...debugCalls.flat()].map((arg) =>
     typeof arg === 'string' ? arg : String(arg)
   );
 }
@@ -209,6 +209,53 @@ describe('showPostInstallInstructions', () => {
       expect(messages).toEqual(
         expect.arrayContaining([expect.stringContaining('Theme Configuration')])
       );
+    });
+  });
+
+  describe('regression: user-facing summary must reach info(), not debug()', () => {
+    it('emits the Generated Files / Theme Configuration / resources blocks via info() with DEBUG unset', () => {
+      const originalDebug = process.env.DEBUG;
+      delete process.env.DEBUG;
+
+      try {
+        const config = createTestKigumiConfig({
+          framework: 'react',
+          typescript: true,
+        });
+
+        showPostInstallInstructions(output, config, 'npm', true, 'free');
+
+        const infoCalls = (
+          output.info as ReturnType<typeof import('vitest').vi.fn>
+        ).mock.calls
+          .flat()
+          .map((arg) => (typeof arg === 'string' ? arg : String(arg)));
+
+        // These lines were previously sent through log(), which is
+        // silently discarded unless DEBUG is set (issue #28).
+        expect(infoCalls).toEqual(
+          expect.arrayContaining([expect.stringContaining('Generated Files')])
+        );
+        expect(infoCalls).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining('Theme Configuration'),
+          ])
+        );
+        expect(infoCalls).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining('Useful Web Awesome resources'),
+          ])
+        );
+
+        // debug() must not have been used for this user-facing summary.
+        expect(output.debug).not.toHaveBeenCalled();
+      } finally {
+        if (originalDebug !== undefined) {
+          process.env.DEBUG = originalDebug;
+        } else {
+          delete process.env.DEBUG;
+        }
+      }
     });
   });
 });

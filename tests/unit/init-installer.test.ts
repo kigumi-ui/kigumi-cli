@@ -45,7 +45,7 @@ function createMockOutput(): OutputInterface {
     error: vi.fn(),
     note: vi.fn(),
     spinner: vi.fn(() => spinnerMock),
-    log: vi.fn(),
+    debug: vi.fn(),
   };
 }
 
@@ -1016,7 +1016,7 @@ describe('cleanupOldPackage', () => {
       mockOutput
     );
 
-    expect(mockOutput.log).toHaveBeenCalledWith(
+    expect(mockOutput.debug).toHaveBeenCalledWith(
       expect.stringContaining('Package cleanup skipped')
     );
   });

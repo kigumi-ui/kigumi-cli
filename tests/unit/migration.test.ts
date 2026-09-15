@@ -30,7 +30,7 @@ function createMockOutput(): OutputInterface {
     warning: vi.fn(),
     info: vi.fn(),
     note: vi.fn(),
-    log: vi.fn(),
+    debug: vi.fn(),
     spinner: vi.fn(() => ({
       start: vi.fn(),
       stop: vi.fn(),

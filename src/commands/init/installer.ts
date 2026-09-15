@@ -202,7 +202,7 @@ export async function installDependencies(
       if (token) {
         env[ENV_TOKEN_KEY] = token;
         const source = getTokenSourceSync(cwd);
-        output.log(
+        output.debug(
           `[DEBUG] Pro token loaded from ${describeTokenSource(source)}`
         );
       }
@@ -409,7 +409,7 @@ export async function cleanupOldPackage(
       });
 
       spinner.stop(`Removed old package: ${oldPackage}`);
-      output.log(`[DEBUG] Cleaned up old package: ${oldPackage}`);
+      output.debug(`[DEBUG] Cleaned up old package: ${oldPackage}`);
     } catch (_error) {
       // Non-critical error, just log it
       spinner.error(`Failed to remove old package: ${oldPackage}`);
@@ -419,6 +419,6 @@ export async function cleanupOldPackage(
     }
   } catch (error) {
     // Ignore errors in cleanup - it's a nice-to-have
-    output.log(`[DEBUG] Package cleanup skipped: ${error}`);
+    output.debug(`[DEBUG] Package cleanup skipped: ${error}`);
   }
 }

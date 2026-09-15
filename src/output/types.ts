@@ -87,10 +87,6 @@ export interface OutputInterface {
    * is how users run the CLI, the message is discarded and nothing is
    * printed. Use {@link OutputInterface.info} for anything the user is meant
    * to read.
-   *
-   * Some existing call sites in `init` and `doctor` do use this for
-   * user-facing output, and those messages are silently swallowed as a
-   * result. That is a known bug, not a pattern to copy.
    */
-  log(message: string): void;
+  debug(message: string): void;
 }

@@ -447,8 +447,8 @@ export async function doctorCommand(
     if (options.dryRun) {
       output.warning(`Found ${results.length} issue(s):`);
       for (const result of results) {
-        output.log(`  × ${result.relativePath}`);
-        output.log(`    ${result.issue}`);
+        output.info(`  × ${result.relativePath}`);
+        output.info(`    ${result.issue}`);
       }
       output.note(
         'Dry run mode',
@@ -461,16 +461,16 @@ export async function doctorCommand(
       if (fixedCount > 0) {
         output.success(`Fixed ${fixedCount} issue(s):`);
         for (const result of results.filter((r) => r.fixed)) {
-          output.log(`  ✓ ${result.relativePath}`);
-          output.log(`    ${result.issue}`);
+          output.info(`  ✓ ${result.relativePath}`);
+          output.info(`    ${result.issue}`);
         }
       }
 
       if (unfixedCount > 0) {
         output.warning(`${unfixedCount} issue(s) require manual action:`);
         for (const result of results.filter((r) => !r.fixed)) {
-          output.log(`  × ${result.relativePath}`);
-          output.log(`    ${result.issue}`);
+          output.info(`  × ${result.relativePath}`);
+          output.info(`    ${result.issue}`);
         }
       }
 

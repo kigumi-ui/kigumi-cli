@@ -16,6 +16,11 @@ import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../../src/constants.js';
+import {
+  setOutputForTesting,
+  resetOutputForTesting,
+} from '../../src/output/index.js';
+import { createRecordingOutput } from './_helpers/output.js';
 
 describe('doctor command', () => {
   let testDir: string;
@@ -514,6 +519,134 @@ describe('doctor command', () => {
       // File should be unchanged -- the comment is not a real issue
       const after = await fs.readFile(layersPath, 'utf-8');
       expect(after).toBe(content);
+    });
+  });
+
+  describe('regression: issue detail lines must reach the user with DEBUG unset', () => {
+    let originalDebug: string | undefined;
+
+    beforeEach(() => {
+      originalDebug = process.env.DEBUG;
+      delete process.env.DEBUG;
+    });
+
+    afterEach(() => {
+      resetOutputForTesting();
+      if (originalDebug !== undefined) {
+        process.env.DEBUG = originalDebug;
+      } else {
+        delete process.env.DEBUG;
+      }
+    });
+
+    it('surfaces dry-run issue details via info(), not debug()', async () => {
+      await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+      });
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { [WEB_AWESOME_FREE_PACKAGE]: '^4.0.0' },
+      });
+      const componentPath = path.join(
+        testDir,
+        'src/components/Button/Button.tsx'
+      );
+      await fs.ensureDir(path.dirname(componentPath));
+      await fs.writeFile(
+        componentPath,
+        `import '${WEB_AWESOME_PRO_PACKAGE}/dist/components/button/button.js';\n`
+      );
+
+      const output = createRecordingOutput();
+      setOutputForTesting(output);
+
+      await doctorCommand({ cwd: testDir, dryRun: true });
+
+      const infoMessages = output.calls
+        .filter((c) => c.method === 'info')
+        .map((c) => String(c.args[0]));
+
+      expect(infoMessages.some((m) => m.includes('Button/Button.tsx'))).toBe(
+        true
+      );
+      expect(output.calls.some((c) => c.method === 'debug')).toBe(false);
+    });
+
+    it('surfaces fixed-issue detail lines via info(), not debug()', async () => {
+      await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+      });
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { [WEB_AWESOME_FREE_PACKAGE]: '^4.0.0' },
+      });
+      const componentPath = path.join(
+        testDir,
+        'src/components/Button/Button.tsx'
+      );
+      await fs.ensureDir(path.dirname(componentPath));
+      await fs.writeFile(
+        componentPath,
+        `import '${WEB_AWESOME_PRO_PACKAGE}/dist/components/button/button.js';\n`
+      );
+
+      const output = createRecordingOutput();
+      setOutputForTesting(output);
+
+      await doctorCommand({ cwd: testDir });
+
+      const infoMessages = output.calls
+        .filter((c) => c.method === 'info')
+        .map((c) => String(c.args[0]));
+
+      expect(infoMessages.some((m) => m.includes('Button/Button.tsx'))).toBe(
+        true
+      );
+      expect(output.calls.some((c) => c.method === 'debug')).toBe(false);
+    });
+
+    it('surfaces manual-action detail lines via info(), not debug()', async () => {
+      // A restructured layers.css triggers the "manual action required"
+      // branch (LayersCssRewriteError path leaves the result unfixed).
+      await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), {
+        framework: 'react',
+        typescript: true,
+        componentsDir: 'src/components',
+        utilsDir: 'src/lib',
+        stylesDir: 'src/styles',
+        theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
+      });
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { [WEB_AWESOME_PRO_PACKAGE]: '^4.0.0' },
+      });
+      await fs.writeFile(
+        path.join(testDir, '.env'),
+        'WEBAWESOME_NPM_TOKEN=abcdefghij1234567890'
+      );
+      await fs.ensureDir(path.join(testDir, 'src/styles'));
+      const layersPath = path.join(testDir, 'src/styles/layers.css');
+      await fs.writeFile(
+        layersPath,
+        `@layer base, theme;\n\n/* NOTE: @awesome.me/webawesome imports are now loaded via JS in main.ts */\n\n@import '@/styles/theme.css' layer(theme);\n`
+      );
+
+      const output = createRecordingOutput();
+      setOutputForTesting(output);
+
+      await doctorCommand({ cwd: testDir });
+
+      const infoMessages = output.calls
+        .filter((c) => c.method === 'info')
+        .map((c) => String(c.args[0]));
+
+      expect(
+        infoMessages.some((m) =>
+          m.includes(path.join('src', 'styles', 'layers.css'))
+        )
+      ).toBe(true);
+      expect(output.calls.some((c) => c.method === 'debug')).toBe(false);
     });
   });
 

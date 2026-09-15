@@ -57,7 +57,7 @@ function createMockOutput(): OutputInterface {
     error: vi.fn(),
     note: vi.fn(),
     spinner: vi.fn().mockReturnValue(mockSpinner),
-    log: vi.fn(),
+    debug: vi.fn(),
   };
 }
 

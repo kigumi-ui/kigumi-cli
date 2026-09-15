@@ -191,7 +191,7 @@ export async function migratePackageReferences(
         if (result.changed) {
           migratedCount++;
           const relativePath = path.relative(cwd, filePath);
-          output.log(`[DEBUG] Migrated: ${relativePath}`);
+          output.debug(`[DEBUG] Migrated: ${relativePath}`);
         }
       } catch (error) {
         if (error instanceof LayersCssRewriteError) {
@@ -266,7 +266,7 @@ export async function reverseMigratePackageReferences(
         if (result.changed) {
           migratedCount++;
           const relativePath = path.relative(cwd, filePath);
-          output.log(`[DEBUG] Reverse migrated: ${relativePath}`);
+          output.debug(`[DEBUG] Reverse migrated: ${relativePath}`);
         }
       } catch (error) {
         if (error instanceof LayersCssRewriteError) {
