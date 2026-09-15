@@ -37,7 +37,61 @@ const FREE_TIER_ENV = {
 const INIT_TIMEOUT_MS = 240_000;
 const DOUBLE_INIT_TIMEOUT_MS = 360_000;
 
+/**
+ * Strip `/* ... *\/` comments so a JSONC file can be JSON.parse'd.
+ *
+ * Deliberately local rather than importing the CLI's own
+ * `readJSONWithComments`: this suite exercises the CLI as a black box, and a
+ * bug in that helper should not be able to hide itself from the test that
+ * would catch it.
+ *
+ * String literals are copied verbatim rather than scanned for comment markers.
+ * A naive `/\/\*[\s\S]*?\*\//g` would rewrite `"src/**\/*.ts"` to `"src*.ts"`:
+ * still valid JSON, so the corruption passes silently into the assertions.
+ */
+function stripBlockComments(content: string): string {
+  let result = '';
+  let i = 0;
+
+  while (i < content.length) {
+    if (content[i] === '"') {
+      // Copy the whole string literal, honouring backslash escapes.
+      let j = i + 1;
+      while (j < content.length) {
+        if (content[j] === '\\') {
+          j += 2;
+        } else if (content[j] === '"') {
+          j++;
+          break;
+        } else {
+          j++;
+        }
+      }
+      result += content.slice(i, j);
+      i = j;
+      continue;
+    }
+
+    if (content[i] === '/' && content[i + 1] === '*') {
+      const end = content.indexOf('*/', i + 2);
+      i = end === -1 ? content.length : end + 2;
+      continue;
+    }
+
+    result += content[i];
+    i++;
+  }
+
+  return result;
+}
+
 describe('E2E Smoke Test - Free Tier', () => {
+  // The Vite template's own compilerOptions, captured before init touches them.
+  // The tsconfig test below compares against this instead of hardcoded literals,
+  // so it measures what kigumi does (merge without clobbering) rather than
+  // pinning whatever the current Vite template happens to emit.
+  let viteCompilerOptions: Record<string, unknown>;
+
   beforeAll(async () => {
     // Cleanup any previous test
     await fs.remove(TEST_DIR);
@@ -48,6 +102,16 @@ describe('E2E Smoke Test - Free Tier', () => {
       cwd: TEST_DIR,
       env: { ...process.env },
     });
+
+    // Vite ships tsconfig.app.json as JSONC (`/* Bundler mode */` and
+    // `/* Linting */` section headers), so JSON.parse rejects it outright.
+    // Every other read in this file runs after init, which rewrites the file
+    // as plain JSON, which is why they can use fs.readJSON directly.
+    const raw = await fs.readFile(
+      path.join(TEST_DIR, 'tsconfig.app.json'),
+      'utf-8'
+    );
+    viteCompilerOptions = JSON.parse(stripBlockComments(raw)).compilerOptions;
   }, 180000);
 
   afterAll(async () => {
@@ -105,29 +169,35 @@ describe('E2E Smoke Test - Free Tier', () => {
     expect(viteConfig).toContain("'@'");
   });
 
-  // Skipped: stale assertion against modern Vite tsconfig.app.json shape.
-  // Modern Vite templates do not set allowSyntheticDefaultImports; kigumi does not
-  // override that. Surfaced when Cluster Q2 wired e2e into CI for the first time.
-  // Follow-up: realign assertions to reflect what kigumi actually merges into a
-  // current Vite-template tsconfig.app.json.
-  it.skip('should configure tsconfig.app.json correctly', async () => {
+  it('should configure tsconfig.app.json correctly', async () => {
     const tsconfig = await fs.readJSON(
       path.join(TEST_DIR, 'tsconfig.app.json')
     );
 
-    // Required path aliases
-    expect(tsconfig.compilerOptions.baseUrl).toBe('.');
+    // The `@/*` path alias is the only key init writes here.
     expect(tsconfig.compilerOptions.paths).toEqual({ '@/*': ['./src/*'] });
 
-    // Required for React imports
-    expect(tsconfig.compilerOptions.esModuleInterop).toBe(true);
-    expect(tsconfig.compilerOptions.allowSyntheticDefaultImports).toBe(true);
+    // Deliberately no `baseUrl`. TypeScript deprecated it in 6.0 (TS5101) and
+    // removed it in 7.0 (TS5102), so writing it made the consumer's first
+    // `tsc` run fail on a config we had generated; `paths` resolves relative
+    // to the tsconfig without it. See src/utils/project-config.ts.
+    expect(tsconfig.compilerOptions.baseUrl).toBeUndefined();
 
-    // Should NOT have verbatimModuleSyntax (breaks React)
-    expect(tsconfig.compilerOptions.verbatimModuleSyntax).toBeUndefined();
+    // Init merges into the Vite template's tsconfig rather than rewriting it,
+    // so every option the template set must survive untouched. Compared against
+    // the pre-init snapshot rather than hardcoded literals: the contract under
+    // test is "init does not clobber the consumer's config", which holds
+    // whatever Vite's template contains today.
+    //
+    // Guard the loop first: an empty snapshot (a template without
+    // compilerOptions, or an over-eager comment strip) would make it assert
+    // nothing while still reporting green.
+    expect(Object.keys(viteCompilerOptions).length).toBeGreaterThan(0);
 
-    // Should NOT have restrictive types array
-    expect(tsconfig.compilerOptions.types).toBeUndefined();
+    for (const [key, value] of Object.entries(viteCompilerOptions)) {
+      if (key === 'paths') continue; // the one key init owns, asserted above
+      expect(tsconfig.compilerOptions[key]).toEqual(value);
+    }
   });
 
   it('should install @types/react in devDependencies', async () => {
@@ -191,14 +261,11 @@ describe('E2E Smoke Test - Free Tier', () => {
     expect(buttonContent).toContain('@awesome.me/webawesome');
   });
 
-  // Skipped: kigumi's init merges `baseUrl: '.'` into tsconfig.app.json without
-  // setting `ignoreDeprecations: '6.0'`. Modern Vite templates pull TypeScript 6
-  // (deprecates `baseUrl`, ref reference-tsup-ts6-baseurl in 2nd brain), so
-  // `tsc -b` fails with TS5101. Real product bug surfacing here, not a test rot.
-  // Follow-up: kigumi init/upgrade should add `ignoreDeprecations: '6.0'` when
-  // baseUrl is preserved, or stop setting baseUrl and rely on inherited paths.
-  // Surfaced when Cluster Q2 wired e2e into CI for the first time.
-  it.skip('should pass TypeScript check (tsc -b)', async () => {
+  // This is the test that proves the tsconfig init generates actually compiles.
+  // It was skipped while init wrote `baseUrl` into tsconfig.app.json, which made
+  // `tsc -b` fail with TS5101 on TypeScript 6+. Init stopped writing `baseUrl`,
+  // so the product bug is gone and the test earns its place again.
+  it('should pass TypeScript check (tsc -b)', async () => {
     // Create a test App that uses the component
     const appContent = `import '@/lib/kigumi';
 import { Button } from '@/components/ui/Button/Button';
@@ -224,10 +291,9 @@ export default App;
     expect(result.exitCode).toBe(0);
   }, 60000);
 
-  // Skipped: cascades from the tsc -b failure above (Vite uses tsc internally for
-  // type-check before bundling). Same root cause: TS5101 on baseUrl.
-  // Surfaced when Cluster Q2 wired e2e into CI for the first time.
-  it.skip('should build successfully with Vite', async () => {
+  // Was skipped alongside the `tsc -b` test above, which it cascaded from:
+  // Vite type-checks before bundling, so it hit the same TS5101 on baseUrl.
+  it('should build successfully with Vite', async () => {
     const result = await execa('pnpm', ['run', 'build'], {
       cwd: TEST_DIR,
       reject: false,
