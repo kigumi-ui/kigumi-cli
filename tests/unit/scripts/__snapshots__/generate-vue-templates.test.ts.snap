@@ -207,6 +207,202 @@ defineExpose({
 "
 `;
 
+exports[`generateVueJavascriptTemplate > emits the Dialog JS wrapper (open v-model branch) 1`] = `
+"<script setup>
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Dialog.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
+}
+
+/**
+ * Dialogs appear above the page and require a response
+ *
+ * @remarks Open and close programmatically by binding the \`open\` prop (e.g. \`<Dialog v-model:open="isOpen">\`). The previous \`show()\` / \`requestClose()\` methods are marked private in WA 3.5.0+ and are no longer exposed.
+ */
+const props = defineProps({
+    label: { type: String, required: false },
+    'without-header': { type: Boolean, required: false, default: false }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
+
+const open = defineModel('open', { default: false });
+
+const elementRef = ref(null);
+
+watch(open, (newOpen) => {
+  const el = elementRef.value;
+  if (el && el.open !== newOpen) el.open = newOpen;
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleWaShow = (e) => { open.value = true; emit('wa-show', e); };
+const handleWaAfterShow = (e) => emit('wa-after-show', e);
+const handleWaHide = (e) => { open.value = false; emit('wa-hide', e); };
+const handleWaAfterHide = (e) => emit('wa-after-hide', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('wa-show', handleWaShow);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  el.addEventListener('wa-hide', handleWaHide);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-show', handleWaShow);
+  el.removeEventListener('wa-after-show', handleWaAfterShow);
+  el.removeEventListener('wa-hide', handleWaHide);
+  el.removeEventListener('wa-after-hide', handleWaAfterHide);
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-dialog
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :open="open"
+  >
+    <slot />
+  </wa-dialog>
+</template>
+"
+`;
+
+exports[`generateVueJavascriptTemplate > emits the Input JS wrapper (value v-model branch) 1`] = `
+"<script setup>
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Input.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/input/input.js'));
+}
+
+/**
+ * Inputs collect data from the user
+ */
+const props = defineProps({
+    label: { type: String, required: false },
+    disabled: { type: Boolean, required: false, default: false },
+    'with-clear': { type: Boolean, required: false, default: false }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['input', 'change', 'blur', 'focus', 'wa-clear', 'wa-invalid']);
+
+const model = defineModel();
+
+const elementRef = ref(null);
+
+watch(model, (val) => {
+  const el = elementRef.value;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleChange = (e) => emit('change', e);
+const handleBlur = (e) => emit('blur', e);
+const handleFocus = (e) => emit('focus', e);
+const handleWaClear = (e) => emit('wa-clear', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('input', handleInput);
+  el.addEventListener('change', handleChange);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('wa-clear', handleWaClear);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('wa-clear', handleWaClear);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  select: () => elementRef.value?.select?.(),
+  setSelectionRange: (selectionStart, selectionEnd, selectionDirection) => elementRef.value?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
+  setRangeText: (replacement, start, end, selectMode) => elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
+  showPicker: () => elementRef.value?.showPicker?.(),
+  stepUp: () => elementRef.value?.stepUp?.(),
+  stepDown: () => elementRef.value?.stepDown?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-input
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :value="model"
+  >
+    <slot />
+  </wa-input>
+</template>
+"
+`;
+
 exports[`generateVueJavascriptTemplate > emits the Markdown JS wrapper with the @remarks JSDoc for removed imperative methods 1`] = `
 "<script setup>
 import { ref, computed, onMounted } from 'vue';
@@ -260,6 +456,107 @@ defineExpose({
   >
     <slot />
   </wa-markdown>
+</template>
+"
+`;
+
+exports[`generateVueJavascriptTemplate > emits the NumberInput JS wrapper (untyped value model) 1`] = `
+"<script setup>
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './NumberInput.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
+}
+
+/**
+ * Number inputs collect numeric data from the user
+ */
+const props = defineProps({
+    disabled: { type: Boolean, required: false, default: false }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits(['input', 'change', 'blur', 'focus', 'beforeinput', 'wa-invalid']);
+
+const model = defineModel();
+
+const elementRef = ref(null);
+
+watch(model, (val) => {
+  const el = elementRef.value;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleInput = (e) => { model.value = e.target.value; emit('input', e); };
+const handleChange = (e) => emit('change', e);
+const handleBlur = (e) => emit('blur', e);
+const handleFocus = (e) => emit('focus', e);
+const handleBeforeinput = (e) => emit('beforeinput', e);
+const handleWaInvalid = (e) => emit('wa-invalid', e);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('input', handleInput);
+  el.addEventListener('change', handleChange);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('beforeinput', handleBeforeinput);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('beforeinput', handleBeforeinput);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  focus: (options) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  select: () => elementRef.value?.select?.(),
+  stepUp: () => elementRef.value?.stepUp?.(),
+  stepDown: () => elementRef.value?.stepDown?.(),
+  setCustomValidity: (message) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state, reason) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-number-input
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :value="model"
+  >
+    <slot />
+  </wa-number-input>
 </template>
 "
 `;
@@ -361,6 +658,61 @@ defineExpose({
   >
     <slot />
   </wa-switch>
+</template>
+"
+`;
+
+exports[`generateVueJavascriptTemplate > emits the Toast JS wrapper (no type import, bare method params) 1`] = `
+"<script setup>
+import { ref, computed, onMounted } from 'vue';
+import './Toast.css';
+
+let loadPromise = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast/toast.js'));
+}
+
+/**
+ * Toasts are used to display brief notifications
+ */
+const props = defineProps({
+    variant: { type: String, required: false, default: 'brand' }
+});
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits([]);
+
+const elementRef = ref(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  create: (message, options) => elementRef.value?.create?.(message, options),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-toast
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-toast>
 </template>
 "
 `;
@@ -532,6 +884,218 @@ defineExpose({
 "
 `;
 
+exports[`generateVueTypescriptTemplate > emits the Dialog wrapper (open v-model branch) 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Dialog.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/dialog/dialog.js'));
+}
+
+/**
+ * Dialogs appear above the page and require a response
+ *
+ * @remarks Open and close programmatically by binding the \`open\` prop (e.g. \`<Dialog v-model:open="isOpen">\`). The previous \`show()\` / \`requestClose()\` methods are marked private in WA 3.5.0+ and are no longer exposed.
+ */
+export interface DialogProps {
+  label?: string;
+  'without-header'?: boolean;
+}
+
+const props = defineProps<DialogProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  'wa-show': [event: CustomEvent];
+  'wa-after-show': [event: CustomEvent];
+  'wa-hide': [event: CustomEvent];
+  'wa-after-hide': [event: CustomEvent];
+}>();
+
+const open = defineModel<boolean>('open', { default: false });
+
+const elementRef = ref<HTMLElement | null>(null);
+
+watch(open, (newOpen) => {
+  const el = elementRef.value as any;
+  if (el && el.open !== newOpen) el.open = newOpen;
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleWaShow = (e: Event) => { open.value = true; emit('wa-show', e as CustomEvent); };
+const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
+const handleWaHide = (e: Event) => { open.value = false; emit('wa-hide', e as CustomEvent); };
+const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('wa-show', handleWaShow);
+  el.addEventListener('wa-after-show', handleWaAfterShow);
+  el.addEventListener('wa-hide', handleWaHide);
+  el.addEventListener('wa-after-hide', handleWaAfterHide);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('wa-show', handleWaShow);
+  el.removeEventListener('wa-after-show', handleWaAfterShow);
+  el.removeEventListener('wa-hide', handleWaHide);
+  el.removeEventListener('wa-after-hide', handleWaAfterHide);
+});
+
+defineExpose({
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-dialog
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :open="open"
+  >
+    <slot />
+  </wa-dialog>
+</template>
+"
+`;
+
+exports[`generateVueTypescriptTemplate > emits the Input wrapper (value v-model branch) 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './Input.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/input/input.js'));
+}
+
+/**
+ * Inputs collect data from the user
+ */
+export interface InputProps {
+  label?: string;
+  disabled?: boolean;
+  'with-clear'?: boolean;
+}
+
+const props = defineProps<InputProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  'input': [event: InputEvent];
+  'change': [event: Event];
+  'blur': [event: FocusEvent];
+  'focus': [event: FocusEvent];
+  'wa-clear': [event: CustomEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const model = defineModel<string>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+watch(model, (val) => {
+  const el = elementRef.value as any;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as InputEvent); };
+const handleChange = (e: Event) => emit('change', e as Event);
+const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleWaClear = (e: Event) => emit('wa-clear', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('input', handleInput);
+  el.addEventListener('change', handleChange);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('wa-clear', handleWaClear);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('wa-clear', handleWaClear);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  select: () => (elementRef.value as any)?.select?.(),
+  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => (elementRef.value as any)?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
+  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => (elementRef.value as any)?.setRangeText?.(replacement, start, end, selectMode),
+  showPicker: () => (elementRef.value as any)?.showPicker?.(),
+  stepUp: () => (elementRef.value as any)?.stepUp?.(),
+  stepDown: () => (elementRef.value as any)?.stepDown?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-input
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :value="model"
+  >
+    <slot />
+  </wa-input>
+</template>
+"
+`;
+
 exports[`generateVueTypescriptTemplate > emits the Markdown wrapper with the @remarks JSDoc for removed imperative methods 1`] = `
 "<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
@@ -589,6 +1153,116 @@ defineExpose({
   >
     <slot />
   </wa-markdown>
+</template>
+"
+`;
+
+exports[`generateVueTypescriptTemplate > emits the NumberInput wrapper (number-typed value model) 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import './NumberInput.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/number-input/number-input.js'));
+}
+
+/**
+ * Number inputs collect numeric data from the user
+ */
+export interface NumberInputProps {
+  disabled?: boolean;
+}
+
+const props = defineProps<NumberInputProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  'input': [event: InputEvent];
+  'change': [event: Event];
+  'blur': [event: FocusEvent];
+  'focus': [event: FocusEvent];
+  'beforeinput': [event: InputEvent];
+  'wa-invalid': [event: CustomEvent];
+}>();
+
+const model = defineModel<number>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+watch(model, (val) => {
+  const el = elementRef.value as any;
+  if (el && el.value !== val) el.value = val ?? '';
+});
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as InputEvent); };
+const handleChange = (e: Event) => emit('change', e as Event);
+const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
+const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
+const handleBeforeinput = (e: Event) => emit('beforeinput', e as InputEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+
+onMounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.addEventListener('input', handleInput);
+  el.addEventListener('change', handleChange);
+  el.addEventListener('blur', handleBlur);
+  el.addEventListener('focus', handleFocus);
+  el.addEventListener('beforeinput', handleBeforeinput);
+  el.addEventListener('wa-invalid', handleWaInvalid);
+});
+
+onUnmounted(() => {
+  const el = elementRef.value;
+  if (!el) return;
+
+  el.removeEventListener('input', handleInput);
+  el.removeEventListener('change', handleChange);
+  el.removeEventListener('blur', handleBlur);
+  el.removeEventListener('focus', handleFocus);
+  el.removeEventListener('beforeinput', handleBeforeinput);
+  el.removeEventListener('wa-invalid', handleWaInvalid);
+});
+
+defineExpose({
+  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  blur: () => (elementRef.value as any)?.blur?.(),
+  select: () => (elementRef.value as any)?.select?.(),
+  stepUp: () => (elementRef.value as any)?.stepUp?.(),
+  stepDown: () => (elementRef.value as any)?.stepDown?.(),
+  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-number-input
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+    :value="model"
+  >
+    <slot />
+  </wa-number-input>
 </template>
 "
 `;
@@ -698,6 +1372,66 @@ defineExpose({
   >
     <slot />
   </wa-switch>
+</template>
+"
+`;
+
+exports[`generateVueTypescriptTemplate > emits the Toast wrapper (custom type import, parameterised method) 1`] = `
+"<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
+import './Toast.css';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??= import('@awesome.me/webawesome/dist/components/toast/toast.js'));
+}
+
+/**
+ * Toasts are used to display brief notifications
+ */
+export interface ToastProps {
+  variant?: 'brand' | 'success' | 'warning' | 'danger';
+}
+
+const props = defineProps<ToastProps>();
+
+// Strip undefined and false props before forwarding to the web component.
+// Vue boolean-prop coercion materializes absent optional Boolean props as
+// \`false\`, but Web Awesome elements read attribute presence as truthy, so
+// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
+const definedProps = computed(() => {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    if (value !== undefined && value !== false) result[key] = value;
+  }
+  return result;
+});
+
+const emit = defineEmits<{
+  // No events for this component
+}>();
+
+const elementRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  ensureLoaded();
+});
+
+defineExpose({
+  create: (message: string, options: ToastCreateOptions) => (elementRef.value as any)?.create?.(message, options),
+  element: elementRef,
+});
+</script>
+
+<template>
+  <wa-toast
+    ref="elementRef"
+    v-bind="definedProps"
+    :class="$attrs.class"
+  >
+    <slot />
+  </wa-toast>
 </template>
 "
 `;
