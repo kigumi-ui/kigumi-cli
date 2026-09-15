@@ -284,10 +284,16 @@ function buildJsdocBlock(componentKey: string, description: string): string {
  * The two dialects share every structural decision — which props are excluded
  * by `defineModel`, which listeners exist, which watchers sync the model, which
  * attributes land on the `<wa-*>` element. They differ only in how those
- * decisions are *rendered*: type annotations on handler bodies and model
- * declarations, `as any` casts on the element ref inside watchers and exposed
- * methods, the `lang="ts"` script attribute, and the component-specific
- * `import type` block (TS only).
+ * decisions are *rendered*:
+ *
+ * - the props and emits declaration shape — a `Props` interface plus
+ *   `defineProps<T>()` and a typed `defineEmits<{…}>()` in TS, an Options-API
+ *   `defineProps({…})` object and a plain event-name array in JS;
+ * - type annotations on handler bodies, model declarations, the `definedProps`
+ *   accumulator, and the element ref;
+ * - `as any` casts on the element ref inside watchers and exposed methods;
+ * - the `lang="ts"` script attribute;
+ * - the component-specific `import type` block (TS only).
  *
  * Every such divergence is expressed as a `typed ? … : …` at its point of use,
  * so the shell around them exists once.
