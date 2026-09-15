@@ -37,7 +37,25 @@ const FREE_TIER_ENV = {
 const INIT_TIMEOUT_MS = 240_000;
 const DOUBLE_INIT_TIMEOUT_MS = 360_000;
 
+/**
+ * Strip `/* ... *\/` comments so a JSONC file can be JSON.parse'd.
+ *
+ * Deliberately local rather than importing the CLI's own
+ * `readJSONWithComments`: this suite exercises the CLI as a black box, and a
+ * bug in that helper should not be able to hide itself from the test that
+ * would catch it.
+ */
+function stripBlockComments(content: string): string {
+  return content.replace(/\/\*[\s\S]*?\*\//g, '');
+}
+
 describe('E2E Smoke Test - Free Tier', () => {
+  // The Vite template's own compilerOptions, captured before init touches them.
+  // The tsconfig test below compares against this instead of hardcoded literals,
+  // so it measures what kigumi does (merge without clobbering) rather than
+  // pinning whatever the current Vite template happens to emit.
+  let viteCompilerOptions: Record<string, unknown>;
+
   beforeAll(async () => {
     // Cleanup any previous test
     await fs.remove(TEST_DIR);
@@ -48,6 +66,16 @@ describe('E2E Smoke Test - Free Tier', () => {
       cwd: TEST_DIR,
       env: { ...process.env },
     });
+
+    // Vite ships tsconfig.app.json as JSONC (`/* Bundler mode */` and
+    // `/* Linting */` section headers), so JSON.parse rejects it outright.
+    // Every other read in this file runs after init, which rewrites the file
+    // as plain JSON, which is why they can use fs.readJSON directly.
+    const raw = await fs.readFile(
+      path.join(TEST_DIR, 'tsconfig.app.json'),
+      'utf-8'
+    );
+    viteCompilerOptions = JSON.parse(stripBlockComments(raw)).compilerOptions;
   }, 180000);
 
   afterAll(async () => {
@@ -120,12 +148,14 @@ describe('E2E Smoke Test - Free Tier', () => {
     expect(tsconfig.compilerOptions.baseUrl).toBeUndefined();
 
     // Init merges into the Vite template's tsconfig rather than rewriting it,
-    // so the template's own compiler options must survive untouched. These two
-    // are asserted as passed-through, not as values kigumi wants: a current
-    // Vite react-ts template sets both, and stripping either would break the
-    // consumer's build.
-    expect(tsconfig.compilerOptions.verbatimModuleSyntax).toBe(true);
-    expect(tsconfig.compilerOptions.types).toEqual(['vite/client']);
+    // so every option the template set must survive untouched. Compared against
+    // the pre-init snapshot rather than hardcoded literals: the contract under
+    // test is "init does not clobber the consumer's config", which holds
+    // whatever Vite's template contains today.
+    for (const [key, value] of Object.entries(viteCompilerOptions)) {
+      if (key === 'paths') continue; // the one key init owns, asserted above
+      expect(tsconfig.compilerOptions[key]).toEqual(value);
+    }
   });
 
   it('should install @types/react in devDependencies', async () => {
