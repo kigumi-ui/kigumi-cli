@@ -43,7 +43,14 @@ import os from 'os';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
-import { findCustomElementsJson, type CemResolution } from './find-cem.js';
+import { resolveCem, type CemResolution } from './find-cem.js';
+import { getAllComponents } from '../src/utils/registry.js';
+
+/** How many components the registry tracks, i.e. what a complete CEM covers. */
+function countRegistryComponents(): number {
+  const all: unknown = getAllComponents();
+  return Array.isArray(all) ? all.length : Object.keys(all as object).length;
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -230,16 +237,81 @@ export function diffSubset(
 
 // ── Finding model ────────────────────────────────────────────────────────────
 
-interface Finding {
+export interface Finding {
   check: 'A' | 'B' | 'C' | 'D' | 'E';
   component: string;
   message: string;
 }
 
-interface GuardResult {
+export interface GuardResult {
   passed: boolean;
-  skippedA: boolean;
   findings: Finding[];
+  /** Whether Check A had a manifest complete enough to run against. */
+  cem: CemVerdict;
+}
+
+export interface GuardSummary {
+  exitCode: number;
+  /** True only when Check A actually ran against a complete manifest. */
+  verified: boolean;
+  headline: string;
+  detail: string;
+}
+
+export interface SummarizeOptions {
+  /**
+   * Whether an unusable manifest may be tolerated. True only where the Pro
+   * package genuinely cannot be installed -- fork pull requests, which receive
+   * no secrets. Everywhere else an unusable manifest is a real failure.
+   */
+  allowSkip?: boolean;
+}
+
+/**
+ * Turn a guard result into an exit code and a report.
+ *
+ * Keeps "did it pass" and "did it actually run" as separate facts. Before
+ * issue #43 they were conflated: Check A printed "freshness check passed!"
+ * directly beneath its own skip notice and exited 0, so a job that had never
+ * verified anything looked exactly like one that had.
+ */
+export function summarizeGuard(
+  result: GuardResult,
+  options: SummarizeOptions = {}
+): GuardSummary {
+  if (result.findings.length > 0) {
+    return {
+      exitCode: 1,
+      verified: result.cem.usable,
+      headline: `Drift found (${result.findings.length})`,
+      detail: result.findings
+        .map((f) => `  [${f.check}] ${f.component}: ${f.message}`)
+        .join('\n'),
+    };
+  }
+
+  if (!result.cem.usable) {
+    const skipAllowed = options.allowSkip ?? false;
+    return {
+      exitCode: skipAllowed ? 0 : 1,
+      verified: false,
+      headline: skipAllowed
+        ? `Check A skipped, NOT verified: ${result.cem.reason}`
+        : `Check A could not run: ${result.cem.reason}`,
+      detail: skipAllowed
+        ? 'Generator drift is unguarded on this run. Expected only where the\n' +
+          'Web Awesome Pro package cannot be installed (fork pull requests).'
+        : 'Install the Web Awesome Pro package so the guard can regenerate and\n' +
+          'diff every template (pnpm setup:npmrc, then install docs deps).',
+    };
+  }
+
+  return {
+    exitCode: 0,
+    verified: true,
+    headline: 'Generated-artifact freshness check passed!',
+    detail: `  Verified against the ${result.cem.reason}.`,
+  };
 }
 
 // ── Check B: docs-wrapper CSS (comment-normalized) ───────────────────────────
@@ -449,12 +521,14 @@ async function symlinkIfExists(
 
 async function checkGeneratorFreshness(): Promise<{
   findings: Finding[];
-  skipped: boolean;
+  cem: CemVerdict;
 }> {
-  const cemPath = await findCustomElementsJson();
-  if (!cemPath) {
-    // Fresh clone / no Pro token: cannot regenerate, mirror metadata-freshness.
-    return { findings: [], skipped: true };
+  const resolution = await resolveCem(PROJECT_ROOT);
+  const cem = assessCemCompleteness(resolution, countRegistryComponents());
+  if (!cem.usable) {
+    // Cannot regenerate honestly. The caller decides whether that is a skip or
+    // a failure; either way it is never reported as a pass (issue #43).
+    return { findings: [], cem };
   }
 
   const tmpDir = await fs.mkdtemp(
@@ -528,7 +602,7 @@ async function checkGeneratorFreshness(): Promise<{
     // Diff generated template files (NOT hand-maintained .jsx / .test.jsx).
     findings.push(...(await diffGeneratedTemplates(tmpDir)));
 
-    return { findings, skipped: false };
+    return { findings, cem };
   } finally {
     await fs.remove(tmpDir);
   }
@@ -588,45 +662,52 @@ export async function runGuard(): Promise<GuardResult> {
   findings.push(...(await checkStarterFixtures()));
   findings.push(...(await checkLlmsTxtVersions()));
 
-  // A: tmp regen + prettier + diff. Skipped when CEM unreachable.
-  const { findings: aFindings, skipped: skippedA } =
-    await checkGeneratorFreshness();
+  // A: tmp regen + prettier + diff. Needs a complete manifest.
+  const { findings: aFindings, cem } = await checkGeneratorFreshness();
   findings.push(...aFindings);
 
-  return { passed: findings.length === 0, skippedA, findings };
+  return { passed: findings.length === 0, findings, cem };
 }
 
-function printResult(result: GuardResult): void {
+/**
+ * Skipping is permitted only where the Web Awesome Pro package genuinely
+ * cannot be installed: a fork pull request, which receives no repository
+ * secrets. Everywhere else an unusable manifest is a real failure, because
+ * tolerating it everywhere is what let Check A skip on every CI run.
+ */
+function skipPermitted(): boolean {
+  if (process.env.KIGUMI_FRESHNESS_ALLOW_SKIP === '1') return true;
+  // Outside CI a developer may not have the Pro package; keep local runs
+  // usable, but still report them as unverified rather than as a pass.
+  return process.env.CI !== 'true';
+}
+
+function printSummary(summary: GuardSummary): void {
   console.log(pc.cyan('\nValidating generated-artifact freshness...\n'));
-  if (result.skippedA) {
+
+  const paint =
+    summary.exitCode !== 0 ? pc.red : summary.verified ? pc.green : pc.yellow;
+
+  console.log(paint(summary.headline));
+  if (summary.detail) console.log(summary.detail);
+  console.log('');
+
+  if (summary.exitCode !== 0 && summary.verified) {
     console.log(
       pc.yellow(
-        '  Check A skipped: Web Awesome CEM not found (fresh clone / no Pro token).\n'
+        'Fix: regenerate the affected artifacts (pnpm generate:* / update:starter-snapshots)\n' +
+          'or reconcile the hand-maintained docs wrapper / .jsx variant.\n'
       )
     );
   }
-  if (result.findings.length === 0) {
-    console.log(pc.green('Generated-artifact freshness check passed!\n'));
-    return;
-  }
-  console.log(pc.red(`Drift found (${result.findings.length}):`));
-  for (const f of result.findings) {
-    console.log(pc.red(`  [${f.check}] ${f.component}: ${f.message}`));
-  }
-  console.log('');
-  console.log(
-    pc.yellow(
-      'Fix: regenerate the affected artifacts (pnpm generate:* / update:starter-snapshots)\n' +
-        'or reconcile the hand-maintained docs wrapper / .jsx variant.\n'
-    )
-  );
 }
 
 async function main(): Promise<void> {
   try {
     const result = await runGuard();
-    printResult(result);
-    process.exit(result.passed ? 0 : 1);
+    const summary = summarizeGuard(result, { allowSkip: skipPermitted() });
+    printSummary(summary);
+    process.exit(summary.exitCode);
   } catch (error) {
     console.error(pc.red('Fatal error during generated-freshness check:'));
     console.error(error);
