@@ -55,27 +55,27 @@ export async function generateProjectFiles(
 
   try {
     // 1. Create necessary directories
-    output.log(`[DEBUG] Creating directories in ${cwd}`);
+    output.debug(`[DEBUG] Creating directories in ${cwd}`);
     const componentsDir = config.componentsDir;
     const utilsDir = config.utilsDir;
     const stylesDir = config.stylesDir;
 
-    output.log(`[DEBUG] Components dir: ${componentsDir}`);
-    output.log(`[DEBUG] Utils dir: ${utilsDir}`);
-    output.log(`[DEBUG] Styles dir: ${stylesDir}`);
+    output.debug(`[DEBUG] Components dir: ${componentsDir}`);
+    output.debug(`[DEBUG] Utils dir: ${utilsDir}`);
+    output.debug(`[DEBUG] Styles dir: ${stylesDir}`);
 
     await fs.ensureDir(path.join(cwd, componentsDir));
-    output.log(`[DEBUG] ✓ Created ${componentsDir}`);
+    output.debug(`[DEBUG] ✓ Created ${componentsDir}`);
 
     await fs.ensureDir(path.join(cwd, utilsDir));
-    output.log(`[DEBUG] ✓ Created ${utilsDir}`);
+    output.debug(`[DEBUG] ✓ Created ${utilsDir}`);
 
     await fs.ensureDir(path.join(cwd, stylesDir));
-    output.log(`[DEBUG] ✓ Created ${stylesDir}`);
+    output.debug(`[DEBUG] ✓ Created ${stylesDir}`);
 
     // 2. Generate kigumi.ts (and layers.css)
     spinner.message('Generating kigumi.ts...');
-    output.log(`[DEBUG] Generating kigumi.ts in ${utilsDir}`);
+    output.debug(`[DEBUG] Generating kigumi.ts in ${utilsDir}`);
     const { layersPreserved } = await regenerateKigumiSetup(
       cwd,
       config,
@@ -85,32 +85,32 @@ export async function generateProjectFiles(
       isNext,
       nextRouter
     );
-    output.log(`[DEBUG] ✓ kigumi.ts generated`);
+    output.debug(`[DEBUG] ✓ kigumi.ts generated`);
     if (layersPreserved) {
-      output.log(`[DEBUG] layers.css already exists, skipping generation`);
+      output.debug(`[DEBUG] layers.css already exists, skipping generation`);
       output.info(
         'ℹ️  Existing layers.css found - preserving your custom layers'
       );
     } else {
-      output.log(`[DEBUG] ✓ layers.css generated`);
+      output.debug(`[DEBUG] ✓ layers.css generated`);
     }
 
     // 3. Generate theme.css (only if it doesn't exist)
     spinner.message('Generating theme.css...');
-    output.log(`[DEBUG] Checking for existing theme.css in ${stylesDir}`);
+    output.debug(`[DEBUG] Checking for existing theme.css in ${stylesDir}`);
 
     const themeCssPath = path.join(cwd, stylesDir, 'theme.css');
     const themeCssExists = await fs.pathExists(themeCssPath);
 
     if (themeCssExists) {
-      output.log(`[DEBUG] theme.css already exists, skipping generation`);
+      output.debug(`[DEBUG] theme.css already exists, skipping generation`);
       output.info(
         'ℹ️  Existing theme.css found - preserving your custom styles'
       );
     } else {
       const themeCss = await generateThemeCSS();
       await fs.writeFile(themeCssPath, themeCss);
-      output.log(`[DEBUG] ✓ theme.css generated`);
+      output.debug(`[DEBUG] ✓ theme.css generated`);
     }
 
     // 4. Generate JSX type declarations (TypeScript + React)
@@ -132,23 +132,23 @@ export async function generateProjectFiles(
 
     // 5. Generate/update .gitignore
     spinner.message('Updating .gitignore...');
-    output.log(`[DEBUG] Updating .gitignore`);
+    output.debug(`[DEBUG] Updating .gitignore`);
     await generateGitIgnore(cwd);
-    output.log(`[DEBUG] ✓ .gitignore updated`);
+    output.debug(`[DEBUG] ✓ .gitignore updated`);
 
     // 6. Update .env file with token (append if exists, create if not)
     if (tier === 'pro' && proToken) {
       spinner.message('Updating .env file...');
-      output.log(`[DEBUG] Updating .env file with token`);
+      output.debug(`[DEBUG] Updating .env file with token`);
       await ensureEnvFile(cwd, proToken, output);
-      output.log(`[DEBUG] ✓ .env updated`);
+      output.debug(`[DEBUG] ✓ .env updated`);
     }
 
     // 8. Generate .npmrc (both tiers need it to override global config)
     spinner.message('Generating .npmrc...');
-    output.log(`[DEBUG] Generating .npmrc`);
+    output.debug(`[DEBUG] Generating .npmrc`);
     await generateNpmrc(cwd, tier);
-    output.log(`[DEBUG] ✓ .npmrc generated`);
+    output.debug(`[DEBUG] ✓ .npmrc generated`);
 
     // 9. Configure path aliases and TypeScript compatibility
     if (config.framework === 'react' || config.framework === 'vue') {
@@ -195,7 +195,7 @@ export async function generateProjectFiles(
       spinner.message('Generating providers.tsx...');
       await generateNextProviders(cwd, config, output);
     } else if (isNext && nextRouter === 'pages') {
-      output.log(
+      output.debug(
         '[DEBUG] Pages Router detected — skipping providers.tsx (user wires _app.tsx manually)'
       );
     }
@@ -205,7 +205,7 @@ export async function generateProjectFiles(
     spinner.error('File generation failed');
     if (error instanceof Error) {
       output.error(`[ERROR] File generation error: ${error.message}`);
-      output.log(`[ERROR] Stack: ${error.stack}`);
+      output.debug(`[ERROR] Stack: ${error.stack}`);
     }
     throw error;
   }
@@ -249,7 +249,7 @@ async function generateNextProviders(
   }
 
   if (!appDir) {
-    output.log(`[DEBUG] No app/ directory found — skipping providers.tsx`);
+    output.debug(`[DEBUG] No app/ directory found — skipping providers.tsx`);
     return;
   }
 
@@ -272,7 +272,7 @@ export function KigumiProvider({ children }: { children: React.ReactNode }) {
 `;
 
   await fs.writeFile(providersPath, content);
-  output.log(`[DEBUG] ✓ providers.tsx generated`);
+  output.debug(`[DEBUG] ✓ providers.tsx generated`);
 }
 
 /**
@@ -288,7 +288,7 @@ async function ensureEnvFile(
 
   // Check if .env already exists
   if (await fs.pathExists(envPath)) {
-    output.log(`[DEBUG] .env already exists, checking for token`);
+    output.debug(`[DEBUG] .env already exists, checking for token`);
 
     const content = await fs.readFile(envPath, 'utf-8');
 
@@ -297,12 +297,12 @@ async function ensureEnvFile(
 
     if (match) {
       // Token exists - don't overwrite
-      output.log(`[DEBUG] ${ENV_TOKEN_KEY} already set in .env`);
+      output.debug(`[DEBUG] ${ENV_TOKEN_KEY} already set in .env`);
       return;
     }
 
     // Append token
-    output.log(`[DEBUG] Adding ${ENV_TOKEN_KEY} to .env`);
+    output.debug(`[DEBUG] Adding ${ENV_TOKEN_KEY} to .env`);
     const appendContent = `\n# Web Awesome Pro authentication token\n${ENV_TOKEN_KEY}=${token}\n`;
     await fs.appendFile(envPath, appendContent);
     return;

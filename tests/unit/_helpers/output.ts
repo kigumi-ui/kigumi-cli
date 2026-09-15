@@ -14,7 +14,7 @@ export function createTestOutput(): OutputInterface {
     warn: vi.fn(),
     error: vi.fn(),
     note: vi.fn(),
-    log: vi.fn(),
+    debug: vi.fn(),
     spinner: vi.fn((): OutputSpinner => ({
       start: vi.fn(),
       message: vi.fn(),
@@ -65,7 +65,7 @@ export function createRecordingOutput(): RecordingOutput {
     warn: (m) => record('warn', [m]),
     error: (m, e) => record('error', e === undefined ? [m] : [m, e]),
     note: (t, m) => record('note', [t, m]),
-    log: (m) => record('log', [m]),
+    debug: (m) => record('debug', [m]),
     spinner: (m) => {
       record('spinner', [m]);
       return noopSpinner;

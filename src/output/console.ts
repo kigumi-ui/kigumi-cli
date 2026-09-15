@@ -100,8 +100,8 @@ export class ConsoleOutput implements OutputInterface {
     return new ClackSpinner(message);
   }
 
-  log(message: string): void {
-    // Only show log messages when DEBUG environment variable is set
+  debug(message: string): void {
+    // Only show debug messages when DEBUG environment variable is set
     if (process.env.DEBUG) {
       p.log.message(message);
     }

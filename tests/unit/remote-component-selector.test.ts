@@ -31,7 +31,7 @@ const stubOutput: OutputInterface = {
   step: vi.fn(),
   spinner: vi.fn(),
   cancel: vi.fn(),
-  log: vi.fn(),
+  debug: vi.fn(),
   note: vi.fn(),
   message: vi.fn(),
   raw: vi.fn(),
