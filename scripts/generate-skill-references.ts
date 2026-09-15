@@ -14,11 +14,12 @@
  * - .claude/skills/shared/angular-api-surface.md
  */
 
-import { mkdir, writeFile, readFile, readdir } from 'fs/promises';
-import { existsSync, readFileSync } from 'fs';
+import { mkdir, writeFile, readFile } from 'fs/promises';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
 import { toKebabCase } from '../src/utils/naming.js';
+import { resolveCem, assessCemCompleteness } from './find-cem.js';
 
 const PROJECT_ROOT = process.cwd();
 
@@ -197,120 +198,44 @@ function formatMethodParams(
 // Load custom-elements.json
 // ---------------------------------------------------------------------------
 
-/**
- * Resolve the Web Awesome Pro version pinned in `<root>/docs/package.json`.
- * Returns null when unreadable, in which case the caller falls back to
- * "highest installed version wins". Mirrors find-cem.ts (finding F-152).
- */
-function resolvePinnedProVersion(root: string): string | null {
-  try {
-    const pkg = JSON.parse(
-      readFileSync(join(root, 'docs', 'package.json'), 'utf-8')
-    );
-    const spec: unknown =
-      pkg?.dependencies?.['@awesome.me/webawesome-pro'] ??
-      pkg?.devDependencies?.['@awesome.me/webawesome-pro'];
-    if (typeof spec !== 'string') return null;
-    const version = spec.replace(/^[\s^~>=<]+/, '').trim();
-    return version || null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Order pnpm-store dirs to probe for the Pro CEM, preferring the pinned version
- * over a stale higher one left in the store (finding F-152).
- */
-function selectProStoreDirs(
-  storeDirs: string[],
-  pinnedVersion: string | null
-): string[] {
-  const prefix = '@awesome.me+webawesome-pro@';
-  const proDirs = storeDirs.filter((d) => d.startsWith(prefix));
-
-  if (pinnedVersion) {
-    const exact = `${prefix}${pinnedVersion}`;
-    const pinned = proDirs.filter(
-      (d) => d === exact || d.startsWith(`${exact}_`)
-    );
-    if (pinned.length > 0) return pinned;
-  }
-
-  return proDirs.sort().reverse();
-}
-
-/**
- * Find custom-elements.json in node_modules (supports pnpm hoisting).
- * Searches: docs/node_modules, root node_modules. When running inside a
- * git worktree, also searches the main worktree's node_modules.
- */
-async function findCustomElementsJson(): Promise<string | null> {
-  const roots = [PROJECT_ROOT];
-
-  // In a git worktree, the main repo may host node_modules
-  try {
-    const { execSync } = await import('child_process');
-    const gitCommon = execSync('git rev-parse --git-common-dir', {
-      encoding: 'utf-8',
-    }).trim();
-    // gitCommon points to e.g. /repo/.git -- parent is the main worktree
-    const mainRoot = join(gitCommon, '..');
-    if (mainRoot !== PROJECT_ROOT) {
-      roots.push(mainRoot);
-    }
-  } catch {
-    // Not in a git repo or git not available -- ignore
-  }
-
-  for (const root of roots) {
-    const pinnedVersion = resolvePinnedProVersion(root);
-    const searchPaths = [
-      join(root, 'docs', 'node_modules', '.pnpm'),
-      join(root, 'node_modules', '.pnpm'),
-    ];
-
-    for (const pnpmPath of searchPaths) {
-      if (!existsSync(pnpmPath)) continue;
-      const dirs = await readdir(pnpmPath);
-      const webAwesomeDirs = selectProStoreDirs(dirs, pinnedVersion);
-
-      for (const dir of webAwesomeDirs) {
-        const jsonPath = join(
-          pnpmPath,
-          dir,
-          'node_modules/@awesome.me/webawesome-pro/dist/custom-elements.json'
-        );
-        if (existsSync(jsonPath)) return jsonPath;
-      }
-    }
-
-    // Try direct path (non-pnpm)
-    const directPath = join(
-      root,
-      'node_modules/@awesome.me/webawesome-pro/dist/custom-elements.json'
-    );
-    if (existsSync(directPath)) return directPath;
-  }
-
-  return null;
-}
+// CEM resolution is delegated to scripts/find-cem.ts. This module used to
+// carry its own copy, which additionally walked up to the main worktree via
+// `git rev-parse --git-common-dir`. That made local runs silently richer
+// than CI runs: inside the freshness guard's tmp copy there is no `.git`,
+// so the lookup threw, the catch swallowed it, and this generator emitted
+// 45% smaller output with every Methods and Parts line missing (issue #43).
 
 /**
  * Load custom-elements.json and build a Map<tagName, ComponentCEMetadata>.
+ *
+ * Throws when no CEM is reachable. The previous behaviour -- warn, return an
+ * empty map, carry on -- produced a committed file that looked complete but
+ * silently lost every Methods and Parts line, and nothing downstream could tell
+ * the difference. Failing here is what makes that impossible.
  */
 async function loadCustomElementsMetadata(): Promise<
   Map<string, ComponentCEMetadata>
 > {
-  const jsonPath = await findCustomElementsJson();
+  const resolution = await resolveCem(PROJECT_ROOT);
+  const verdict = assessCemCompleteness(
+    resolution,
+    Object.keys(LOCAL_REGISTRY).length
+  );
 
-  if (!jsonPath) {
-    console.warn(
-      '  WARNING: custom-elements.json not found. Generating without enrichment.\n'
+  // Same all-or-nothing policy the freshness guard applies, from the same
+  // function: "found a manifest" is not "found a complete manifest", and the
+  // free package resolves fine while describing only the free components.
+  if (!verdict.usable || !resolution.path) {
+    throw new Error(
+      `Cannot generate the API surface: ${verdict.reason}.\n` +
+        'Generating anyway would silently drop the components the manifest ' +
+        'does not describe, along with their Methods and Parts lines.\n' +
+        'Install the Web Awesome Pro package: pnpm setup:npmrc, then ' +
+        'pnpm install in docs/.'
     );
-    return new Map();
   }
 
+  const jsonPath = resolution.path;
   console.log(
     `  Reading custom-elements.json from: ${jsonPath.replace(PROJECT_ROOT + '/', '')}\n`
   );
@@ -905,4 +830,10 @@ async function main() {
   console.log('\nDone.\n');
 }
 
-main().catch(console.error);
+// `catch(console.error)` printed the failure and still exited 0, so a caller
+// could only tell this generator had failed by reading its log. That is the
+// same shape as issue #43: visible to a human, invisible to CI.
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exit(1);
+});
