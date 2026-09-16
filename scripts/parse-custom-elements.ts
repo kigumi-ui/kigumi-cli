@@ -15,7 +15,7 @@ import { spawn } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { findCustomElementsJson } from './find-cem.js';
+import { resolveCem } from './find-cem.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -238,16 +238,22 @@ function formatWithPrettier(files: string[]): Promise<void> {
  * Parse custom-elements.json and extract component metadata
  */
 async function parseCustomElements(): Promise<ParsedOutput> {
-  const filePath = await findCustomElementsJson();
+  const resolution = await resolveCem(PROJECT_ROOT);
 
-  if (!filePath) {
+  if (!resolution.found || resolution.path === null) {
     throw new Error(
       'custom-elements.json not found. Make sure @awesome.me/webawesome-pro is installed in docs/node_modules'
     );
   }
 
+  const filePath = resolution.path;
+
+  // Name the tier and component count, not just the path: this generator feeds
+  // component-metadata.ts, and a run against the free manifest would quietly
+  // emit metadata for the free subset alone.
   console.log(
-    `📖 Reading custom-elements.json from: ${path.relative(PROJECT_ROOT, filePath)}`
+    `📖 Reading custom-elements.json from: ${path.relative(PROJECT_ROOT, filePath)} ` +
+      `(${resolution.tier}, ${resolution.componentCount} components)`
   );
 
   const data = (await fs.readJson(filePath)) as CustomElementsJSON;

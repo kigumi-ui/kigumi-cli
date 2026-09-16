@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (100 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (99 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-validator.test.ts        # Component validation
@@ -31,10 +31,10 @@ tests/
 │   ├── error-classes.test.ts        # Error class hierarchy
 │   ├── errors.test.ts               # Error formatting
 │   ├── file-diff.test.ts            # File modification detection
-│   ├── find-cem.test.ts             # find-cem pinned-version CEM resolution (F-152)
-│   ├── scripts/resolve-cem.test.ts  # resolveCem: tier preference, root-scoping, no worktree escape (#43)
+│   ├── scripts/resolve-cem.test.ts  # resolveCem: tier preference, root-scoping, no worktree escape (#43), pinned-version selection (F-152)
 │   ├── scripts/cem-completeness.test.ts # Check A's all-or-nothing CEM gate (#43)
-│   ├── scripts/guard-outcome.test.ts    # Freshness guard reporting: skip is never a pass (#43)
+│   ├── scripts/guard-outcome.test.ts    # Shared guard reporting: skip is never a pass (#43)
+│   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
 │   ├── helpers.test.ts              # Cluster S helpers (createRecordingOutput, createTestPrompts, writeTierFixture)
@@ -750,4 +750,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-15 (added resolve-cem, cem-completeness and guard-outcome unit tests plus tests/integration/generator-drift-guard.test.ts, the #43 regression that drifts a generator and asserts the freshness guard exits non-zero; it skips via ctx.skip() with a printed reason when no complete CEM is installed; added validate-doc-links.test.ts covering the markdown link matchers; registered the `validate-no-secrets.ts` credential matchers as test-only exports and added validate-no-secrets.test.ts covering the committed-credential guard; registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
+**Last Updated:** 2026-09-16 (guard-outcome moved to scripts/guard-outcome.ts and shared with validate:cem-sync; find-cem.test.ts removed, its F-152 pin cases ported to resolve-cem.test.ts on real store trees; added validate-cem-sync-coverage.test.ts; added resolve-cem, cem-completeness and guard-outcome unit tests plus tests/integration/generator-drift-guard.test.ts, the #43 regression that drifts a generator and asserts the freshness guard exits non-zero; it skips via ctx.skip() with a printed reason when no complete CEM is installed; added validate-doc-links.test.ts covering the markdown link matchers; registered the `validate-no-secrets.ts` credential matchers as test-only exports and added validate-no-secrets.test.ts covering the committed-credential guard; registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)

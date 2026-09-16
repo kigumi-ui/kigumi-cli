@@ -17,7 +17,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { findCustomElementsJson } from './find-cem.js';
+import { resolveCem } from './find-cem.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,16 +47,38 @@ export function compareFreshness(
   return { isStale: false, reason: 'fresh' };
 }
 
+/** What each outcome means, for the one line this script prints about itself. */
+const REASON_TEXT: Record<FreshnessCheckResult['reason'], string> = {
+  'metadata-missing': 'component-metadata.ts is missing; regenerating',
+  'cem-newer':
+    'Web Awesome CEM is newer than component-metadata.ts; regenerating',
+  fresh: 'component-metadata.ts is up to date with the Web Awesome CEM',
+  'cem-missing-skip-check':
+    'NOT CHECKED: no Web Awesome CEM on disk, so metadata freshness could ' +
+    'not be compared. Skipping regeneration (expected in a fresh clone or ' +
+    'without docs dependencies installed).',
+};
+
 async function main(): Promise<void> {
   const metaPath = path.join(PROJECT_ROOT, 'src/utils/component-metadata.ts');
 
   const metaExists = await fs.pathExists(metaPath);
   const metaMtime = metaExists ? (await fs.stat(metaPath)).mtimeMs : null;
 
-  const cemPath = await findCustomElementsJson();
+  const cemResolution = await resolveCem(PROJECT_ROOT);
+  const cemPath = cemResolution.path;
   const cemMtime = cemPath ? (await fs.stat(cemPath)).mtimeMs : null;
 
-  const { isStale } = compareFreshness(metaMtime, cemMtime);
+  const { isStale, reason } = compareFreshness(metaMtime, cemMtime);
+
+  // `compareFreshness` distinguishes "fresh" from "could not check", and the
+  // exit code cannot: both are 0, deliberately, so `pnpm build` keeps working
+  // without docs dependencies. Printing the reason is what stops the two from
+  // being indistinguishable to whoever reads the build log -- the same
+  // conflation that hid issue #43 for months, in a branch that is otherwise
+  // correct to be lenient.
+  console.error(`[metadata-freshness] ${REASON_TEXT[reason]}`);
+
   process.exit(isStale ? 1 : 0);
 }
 
