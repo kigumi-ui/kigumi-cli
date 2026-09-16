@@ -17,7 +17,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { findCustomElementsJson } from './find-cem.js';
+import { resolveCem } from './find-cem.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,7 +65,8 @@ async function main(): Promise<void> {
   const metaExists = await fs.pathExists(metaPath);
   const metaMtime = metaExists ? (await fs.stat(metaPath)).mtimeMs : null;
 
-  const cemPath = await findCustomElementsJson();
+  const cemResolution = await resolveCem(PROJECT_ROOT);
+  const cemPath = cemResolution.path;
   const cemMtime = cemPath ? (await fs.stat(cemPath)).mtimeMs : null;
 
   const { isStale, reason } = compareFreshness(metaMtime, cemMtime);
