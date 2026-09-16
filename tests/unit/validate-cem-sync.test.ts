@@ -15,8 +15,8 @@ import {
 } from '../../scripts/validate-cem-sync.js';
 
 describe('validate:cem-sync', () => {
-  it('should return a valid result structure', () => {
-    const result = validateCemSync();
+  it('should return a valid result structure', async () => {
+    const result = await validateCemSync();
 
     expect(result).toHaveProperty('passed');
     expect(result).toHaveProperty('findings');
@@ -24,21 +24,21 @@ describe('validate:cem-sync', () => {
     expect(Array.isArray(result.findings)).toBe(true);
   });
 
-  it('should report non-zero CEM and registry component counts', () => {
-    const result = validateCemSync();
+  it('should report non-zero CEM and registry component counts', async () => {
+    const result = await validateCemSync();
 
-    expect(result.stats.cemComponents).toBeGreaterThan(0);
+    expect(result.stats.metadataComponents).toBeGreaterThan(0);
     expect(result.stats.registryComponents).toBeGreaterThan(0);
   });
 
-  it('should have synced components when both sources are populated', () => {
-    const result = validateCemSync();
+  it('should have synced components when both sources are populated', async () => {
+    const result = await validateCemSync();
 
     expect(result.stats.synced).toBeGreaterThan(0);
   });
 
-  it('should categorize all findings with valid severity and category', () => {
-    const result = validateCemSync();
+  it('should categorize all findings with valid severity and category', async () => {
+    const result = await validateCemSync();
 
     for (const finding of result.findings) {
       expect(['error', 'warning']).toContain(finding.severity);
@@ -52,15 +52,15 @@ describe('validate:cem-sync', () => {
     }
   });
 
-  it('should pass when no error-severity findings exist', () => {
-    const result = validateCemSync();
+  it('should pass when no error-severity findings exist', async () => {
+    const result = await validateCemSync();
 
     const errors = result.findings.filter((f) => f.severity === 'error');
     expect(result.passed).toBe(errors.length === 0);
   });
 
-  it('onlyInCem stat matches count of missing-from-registry findings', () => {
-    const result = validateCemSync();
+  it('onlyInCem stat matches count of missing-from-registry findings', async () => {
+    const result = await validateCemSync();
 
     const missing = result.findings.filter(
       (f) => f.category === 'missing-from-registry'
@@ -68,8 +68,8 @@ describe('validate:cem-sync', () => {
     expect(result.stats.onlyInCem).toBe(missing);
   });
 
-  it('onlyInRegistry stat matches count of missing-from-cem findings', () => {
-    const result = validateCemSync();
+  it('onlyInRegistry stat matches count of missing-from-cem findings', async () => {
+    const result = await validateCemSync();
 
     const missing = result.findings.filter(
       (f) => f.category === 'missing-from-cem'
@@ -77,13 +77,32 @@ describe('validate:cem-sync', () => {
     expect(result.stats.onlyInRegistry).toBe(missing);
   });
 
-  it('propValueDrift stat matches count of prop-value-drift findings', () => {
-    const result = validateCemSync();
+  it('propValueDrift stat matches count of prop-value-drift findings', async () => {
+    const result = await validateCemSync();
 
     const drift = result.findings.filter(
       (f) => f.category === 'prop-value-drift'
     ).length;
     expect(result.stats.propValueDrift).toBe(drift);
+  });
+
+  it('reports whether the prop-value half actually ran', async (ctx) => {
+    // Every assertion above holds just as well when no manifest was read --
+    // which is how the silent no-op survived. This one asserts the premise the
+    // others depend on, so a run that compared nothing cannot look like a run
+    // that compared everything.
+    const result = await validateCemSync();
+
+    if (!result.cem.usable) {
+      // No complete manifest here (fresh clone, no Pro install). That is a
+      // legitimate environment, but it must surface as a skip, never as a
+      // silent pass.
+      ctx.skip();
+      return;
+    }
+
+    expect(result.cem.outcome).toBe('complete');
+    expect(result.cem.reason).toMatch(/\d+ components/);
   });
 });
 

@@ -1,0 +1,98 @@
+# A guard may not report success for a check it did not run
+
+Twice now a validator has shipped the same defect: a module could not reach its
+input, returned an empty result, and its caller read empty as "nothing wrong".
+Both times the guard printed a green pass and exited 0 while verifying nothing.
+
+**Issue #43: `validate:generated-fresh` Check A.** The check that catches
+"generator changed, templates not regenerated" was gated on a CEM probe that
+only looked in `docs/node_modules` for the Pro package. CI installs neither, so
+Check A skipped on every run for months, printing
+`Generated-artifact freshness check passed!` directly beneath its own skip
+notice.
+
+**`validate:cem-sync`, the prop-value half.** `getCemAttributeTypes()` returned
+an empty map when the manifest was unreachable ("degrades to a no-op rather
+than failing", per its own docblock). `checkPropValueDrift` read empty as
+nothing-to-compare and returned early, and the report printed
+`Prop-value drift: 0`, the same `0` as a clean run across all 84 components.
+Two runs with and without the manifest on disk produced byte-identical output.
+The half exists because Web Awesome 3.6.0 widened a `size` enum and nobody
+noticed; it had itself been silent ever since.
+
+Both were found by inspection, not by failure. That is the point: this defect
+class cannot announce itself, because the only symptom is a green run.
+
+## The rule
+
+A guard reports three outcomes, not two: **passed**, **failed**, and **did not
+run**. The third may never be presented as the first.
+
+Concretely:
+
+- **Absence of an input is a distinct state.** A resolver reports what it found
+  (`resolveCem` returns `found`, `tier`, `componentCount`); it does not decide
+  what absence means.
+- **The caller decides the policy, and may not map absence onto success.**
+  Check A regenerates every template, so a partial manifest makes it dishonest
+  and is refused. A generator that merely enriches its output may legitimately
+  continue without one. What neither may do is stay quiet.
+- **"Did it pass" and "did it actually run" are separate fields.**
+  `GuardSummary` carries `exitCode` and `verified` independently, and only a
+  fully verified, finding-free run may print an unqualified pass headline.
+- **A number that looks like evidence must come from the evidence.**
+  `validate:cem-sync` printed `CEM components: 84` from the committed
+  `COMPONENT_METADATA`, not from any manifest, so it printed 84 with no CEM on
+  disk at all. It is now labelled `Metadata components`.
+- **Skip where a dependency is legitimately absent; fail where its absence
+  means something is broken.** `skipPermitted` tolerates a missing Pro package
+  outside CI and on fork pull requests, which receive no secrets, and refuses
+  everywhere else. A tolerated skip is still reported as `NOT verified`.
+- **In tests, a skip is `ctx.skip()`.** A test that silently passes because its
+  premise was absent is the same defect wearing a different hat.
+
+## Prior art
+
+The shape is well understood outside this repo.
+
+The [Monitoring Plugins guidelines](https://www.monitoring-plugins.org/doc/guidelines.html)
+define exit codes 0/1/2 as OK/Warning/Critical, all three meaning _"the plugin
+was able to check the service"_, and reserve **3 (Unknown)** for failures that
+"prevent it from performing the specified operation". Inability to check has its
+own code because it is not a result.
+
+[TAP](https://testanything.org/tap-version-14-specification.html) counts a
+`# SKIP` point as skipped rather than passed, and says harnesses "should report
+`SKIP` test points found as a list of items that were not tested".
+
+pytest's maintainers
+([pytest-dev/pytest#1364](https://github.com/pytest-dev/pytest/issues/1364))
+refused a built-in "fail on skip" and recommended choosing at the call site
+(skip locally, fail on CI) after a reporter described a CI bug that stopped
+dependencies installing: _"pytest was quietly skipping them and we didn't even
+know because we were happy with the green builds."_
+
+We deliberately did **not** adopt a distinct exit code. Nothing in this repo
+reads beyond zero/non-zero, and a second convention would only let the two
+guards disagree. The distinction is carried by `verified`.
+
+## Consequences
+
+`scripts/guard-outcome.ts` owns this vocabulary (`summarizeGuard`,
+`GuardSummary`, `skipPermitted`) and both CEM-dependent guards consume it. A
+third guard that needs a manifest uses it too rather than writing its own
+reporting.
+
+A check that cannot run in CI must either be given what it needs (the
+`freshness` job installs Pro for exactly this reason) or fail. "It self-skips
+when the input is absent" is not a justification; it is a description of the
+bug.
+
+When reviewing a guard, the question is not "does it pass" but "what did it
+compare, and would the output differ if it had compared nothing". If those two
+runs look the same, the guard is not a guard.
+
+An automated check for this shape, a lint rule for callers that map an empty
+result onto success, is tracked in issue #47. It is hard to express without
+false positives, because `[]` legitimately means "no findings" in every
+validator here, and was kept out of the change that established the rule.

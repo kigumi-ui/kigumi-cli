@@ -10,8 +10,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   summarizeGuard,
+  skipPermitted,
   type GuardResult,
-} from '../../../scripts/check-generated-fresh.js';
+} from '../../../scripts/guard-outcome.js';
 
 function guard(over: Partial<GuardResult> = {}): GuardResult {
   return {
@@ -26,9 +27,15 @@ function guard(over: Partial<GuardResult> = {}): GuardResult {
   };
 }
 
+/** How Check A labels itself, so these tests exercise its real wording. */
+const CHECK_A = {
+  label: 'Check A',
+  passHeadline: 'Generated-artifact freshness check passed!',
+} as const;
+
 describe('summarizeGuard', () => {
   it('passes when Check A ran against a complete manifest and found nothing', () => {
-    const summary = summarizeGuard(guard());
+    const summary = summarizeGuard(guard(), CHECK_A);
 
     expect(summary.exitCode).toBe(0);
     expect(summary.verified).toBe(true);
@@ -63,7 +70,8 @@ describe('summarizeGuard', () => {
           outcome: 'absent',
           reason: 'no Custom Elements Manifest found',
         },
-      })
+      }),
+      CHECK_A
     );
 
     expect(summary.verified).toBe(false);
@@ -108,5 +116,62 @@ describe('summarizeGuard', () => {
     expect(summary.exitCode).toBe(0);
     expect(summary.verified).toBe(false);
     expect(summary.headline).toMatch(/skip/i);
+  });
+
+  it('names the caller-supplied check in its could-not-run headline', () => {
+    // The module is shared by two guards, so a headline saying "Check A" when
+    // the prop-value half is what could not run would misdirect the reader.
+    const summary = summarizeGuard(
+      guard({
+        cem: { usable: false, outcome: 'absent', reason: 'no manifest' },
+      }),
+      { label: 'Prop-value drift', allowSkip: false }
+    );
+
+    expect(summary.headline).toMatch(/^Prop-value drift could not run/);
+    expect(summary.headline).not.toMatch(/Check A/);
+  });
+
+  it('never prints a bare pass headline for an unverified run', () => {
+    // The invariant the module exists for, asserted against every outcome
+    // rather than one example.
+    for (const allowSkip of [true, false]) {
+      const summary = summarizeGuard(
+        guard({
+          cem: { usable: false, outcome: 'absent', reason: 'no manifest' },
+        }),
+        { ...CHECK_A, allowSkip }
+      );
+
+      expect(summary.verified).toBe(false);
+      expect(summary.headline).not.toBe(CHECK_A.passHeadline);
+    }
+  });
+});
+
+describe('skipPermitted', () => {
+  it('permits skipping outside CI, where Pro may legitimately be absent', () => {
+    expect(skipPermitted({})).toBe(true);
+  });
+
+  it('refuses to skip under CI', () => {
+    // The #43 failure mode: tolerating an unusable manifest everywhere is what
+    // let Check A skip on every CI run for months.
+    expect(skipPermitted({ CI: 'true' })).toBe(false);
+  });
+
+  it('permits an explicitly opted-in skip under CI, for fork pull requests', () => {
+    expect(
+      skipPermitted({ CI: 'true', KIGUMI_FRESHNESS_ALLOW_SKIP: '1' })
+    ).toBe(true);
+  });
+
+  it('treats any other opt-in value as not opting in', () => {
+    expect(
+      skipPermitted({ CI: 'true', KIGUMI_FRESHNESS_ALLOW_SKIP: '0' })
+    ).toBe(false);
+    expect(
+      skipPermitted({ CI: 'true', KIGUMI_FRESHNESS_ALLOW_SKIP: 'true' })
+    ).toBe(false);
   });
 });

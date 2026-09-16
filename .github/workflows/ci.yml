@@ -179,12 +179,17 @@ jobs:
       - name: Validate AGENTS.md
         run: pnpm run validate:agents
 
-      - name: Validate CEM Sync
-        # Runs unauthenticated on purpose. The component-presence half reads the
-        # committed COMPONENT_METADATA and always applies; only the prop-value
-        # drift half needs the Pro CEM, and it self-skips when that is absent
-        # (validate-cem-sync.ts). Gating this step on WEBAWESOME_NPM_TOKEN would
-        # mean installing docs dependencies here for no additional coverage.
+      # Only the component-presence half can run here: it reads the committed
+      # COMPONENT_METADATA and needs no manifest. The prop-value half needs the
+      # Pro CEM and runs in the `freshness` job below, so ALLOW_SKIP lets it
+      # report itself as NOT RUN instead of failing this token-free job.
+      #
+      # This step used to claim the split cost "no additional coverage",
+      # because the prop-value half self-skipped silently and its absence was
+      # invisible. It was in fact a no-op on every run of this job.
+      - name: Validate CEM Sync (component presence)
+        env:
+          KIGUMI_FRESHNESS_ALLOW_SKIP: '1'
         run: pnpm run validate:cem-sync
 
       - name: Validate Web Awesome pins
@@ -303,6 +308,16 @@ jobs:
       - name: Validate generated-artifact freshness (Check A)
         if: steps.pro.outputs.available == 'true'
         run: pnpm run validate:generated-fresh
+
+      # The prop-value half of validate:cem-sync, which compares every registry
+      # enum against the manifest's attribute types. It is the check that exists
+      # because the WA 3.6.0 `size` widening reached main unnoticed, and until
+      # now it had never actually run in CI: it self-skipped wherever the Pro
+      # package was absent, which was every job. Same all-or-nothing rule as
+      # Check A, so no ALLOW_SKIP here either.
+      - name: Validate CEM Sync (prop-value drift)
+        if: steps.pro.outputs.available == 'true'
+        run: pnpm run validate:cem-sync
 
   test:
     name: Test

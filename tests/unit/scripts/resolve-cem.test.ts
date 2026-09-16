@@ -45,6 +45,40 @@ async function installCem(
   return file;
 }
 
+/**
+ * Write a Pro CEM into the pnpm store under `root`, as pnpm lays it out:
+ * `docs/node_modules/.pnpm/@awesome.me+webawesome-pro@<version>_<hash>/...`.
+ */
+async function installCemInStore(
+  root: string,
+  version: string,
+  count: number
+): Promise<string> {
+  const file = path.join(
+    root,
+    'docs',
+    'node_modules',
+    '.pnpm',
+    `@awesome.me+webawesome-pro@${version}_@floating-ui+utils@0.2.10`,
+    'node_modules',
+    '@awesome.me/webawesome-pro',
+    'dist',
+    'custom-elements.json'
+  );
+  await fs.outputJson(file, cemWithComponents(count));
+  return file;
+}
+
+/** Pin `version` in `root`'s docs/package.json, or write no pin at all. */
+async function pinProVersion(
+  root: string,
+  version: string | null
+): Promise<void> {
+  await fs.outputJson(path.join(root, 'docs', 'package.json'), {
+    dependencies: version ? { '@awesome.me/webawesome-pro': version } : {},
+  });
+}
+
 beforeEach(async () => {
   tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'resolve-cem-'));
 });
@@ -136,5 +170,48 @@ describe('resolveCem', () => {
 
     expect(result.found).toBe(false);
     expect(result.path).toBeNull();
+  });
+});
+
+/**
+ * Ported from the mock-based `find-cem.test.ts`, which tested the since-deleted
+ * `findCustomElementsJsonSync`. Real store trees replace the `fs-extra` spies:
+ * the behaviour is about which directory wins, so mocking `readdirSync` would
+ * assume the layout rather than exercise it.
+ */
+describe('resolveCem pnpm-store version selection (F-152)', () => {
+  it('prefers the pinned version over a higher one left in the store', async () => {
+    // A stale 3.9.0 beside the pinned 3.6.0. Sorting by version alone picks the
+    // stale one, so the CLI would validate against a manifest the project does
+    // not actually install.
+    await installCemInStore(tmp, '3.9.0', 99);
+    await installCemInStore(tmp, '3.6.0', 84);
+    await pinProVersion(tmp, '3.6.0');
+
+    const result = await resolveCem(tmp);
+
+    expect(result.path).toContain('@awesome.me+webawesome-pro@3.6.0');
+    expect(result.path).not.toContain('@awesome.me+webawesome-pro@3.9.0');
+    expect(result.componentCount).toBe(84);
+  });
+
+  it('falls back to highest-version-wins when no pin is resolvable', async () => {
+    await installCemInStore(tmp, '3.9.0', 99);
+    await installCemInStore(tmp, '3.6.0', 84);
+    // No docs/package.json at all.
+
+    const result = await resolveCem(tmp);
+
+    expect(result.path).toContain('@awesome.me+webawesome-pro@3.9.0');
+  });
+
+  it('falls back to highest-version-wins when the pin is absent from the store', async () => {
+    await installCemInStore(tmp, '3.9.0', 99);
+    await installCemInStore(tmp, '3.6.0', 84);
+    await pinProVersion(tmp, '3.7.0');
+
+    const result = await resolveCem(tmp);
+
+    expect(result.path).toContain('@awesome.me+webawesome-pro@3.9.0');
   });
 });

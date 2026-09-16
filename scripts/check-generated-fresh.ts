@@ -53,9 +53,22 @@ import {
   type CemVerdict,
 } from './find-cem.js';
 
+import {
+  summarizeGuard,
+  skipPermitted,
+  type GuardResult,
+  type GuardSummary,
+} from './guard-outcome.js';
+
 // Re-exported so the guard's own consumers and tests keep one import site.
 export { assessCemCompleteness } from './find-cem.js';
 export type { CemVerdict, CemOutcome } from './find-cem.js';
+export { summarizeGuard } from './guard-outcome.js';
+export type {
+  GuardResult,
+  GuardSummary,
+  SummarizeOptions,
+} from './guard-outcome.js';
 import { getAllComponents } from '../src/utils/registry.js';
 
 /** How many components the registry tracks, i.e. what a complete CEM covers. */
@@ -195,82 +208,24 @@ export function diffSubset(
 
 // ── Finding model ────────────────────────────────────────────────────────────
 
+/**
+ * A finding from one of this guard's five checks. Narrower than the shared
+ * `Finding`, so a typo'd check label fails to compile here.
+ */
 export interface Finding {
   check: 'A' | 'B' | 'C' | 'D' | 'E';
   component: string;
   message: string;
 }
 
-export interface GuardResult {
-  passed: boolean;
-  findings: Finding[];
-  /** Whether Check A had a manifest complete enough to run against. */
-  cem: CemVerdict;
-}
-
-export interface GuardSummary {
-  exitCode: number;
-  /** True only when Check A actually ran against a complete manifest. */
-  verified: boolean;
-  headline: string;
-  detail: string;
-}
-
-export interface SummarizeOptions {
-  /**
-   * Whether an unusable manifest may be tolerated. True only where the Pro
-   * package genuinely cannot be installed -- fork pull requests, which receive
-   * no secrets. Everywhere else an unusable manifest is a real failure.
-   */
-  allowSkip?: boolean;
-}
-
-/**
- * Turn a guard result into an exit code and a report.
- *
- * Keeps "did it pass" and "did it actually run" as separate facts. Before
- * issue #43 they were conflated: Check A printed "freshness check passed!"
- * directly beneath its own skip notice and exited 0, so a job that had never
- * verified anything looked exactly like one that had.
- */
-export function summarizeGuard(
-  result: GuardResult,
-  options: SummarizeOptions = {}
-): GuardSummary {
-  if (result.findings.length > 0) {
-    return {
-      exitCode: 1,
-      verified: result.cem.usable,
-      headline: `Drift found (${result.findings.length})`,
-      detail: result.findings
-        .map((f) => `  [${f.check}] ${f.component}: ${f.message}`)
-        .join('\n'),
-    };
-  }
-
-  if (!result.cem.usable) {
-    const skipAllowed = options.allowSkip ?? false;
-    return {
-      exitCode: skipAllowed ? 0 : 1,
-      verified: false,
-      headline: skipAllowed
-        ? `Check A skipped, NOT verified: ${result.cem.reason}`
-        : `Check A could not run: ${result.cem.reason}`,
-      detail: skipAllowed
-        ? 'Generator drift is unguarded on this run. Expected only where the\n' +
-          'Web Awesome Pro package cannot be installed (fork pull requests).'
-        : 'Install the Web Awesome Pro package so the guard can regenerate and\n' +
-          'diff every template (pnpm setup:npmrc, then install docs deps).',
-    };
-  }
-
-  return {
-    exitCode: 0,
-    verified: true,
-    headline: 'Generated-artifact freshness check passed!',
-    detail: `  Verified against the ${result.cem.reason}.`,
-  };
-}
+/** Options this guard passes to {@link summarizeGuard} on every call. */
+const SUMMARY_LABELLING = {
+  label: 'Check A',
+  passHeadline: 'Generated-artifact freshness check passed!',
+  fixHint:
+    'Install the Web Awesome Pro package so the guard can regenerate and\n' +
+    'diff every template (pnpm setup:npmrc, then install docs deps).',
+} as const;
 
 // ── Check B: docs-wrapper CSS (comment-normalized) ───────────────────────────
 
@@ -627,19 +582,6 @@ export async function runGuard(): Promise<GuardResult> {
   return { passed: findings.length === 0, findings, cem };
 }
 
-/**
- * Skipping is permitted only where the Web Awesome Pro package genuinely
- * cannot be installed: a fork pull request, which receives no repository
- * secrets. Everywhere else an unusable manifest is a real failure, because
- * tolerating it everywhere is what let Check A skip on every CI run.
- */
-function skipPermitted(): boolean {
-  if (process.env.KIGUMI_FRESHNESS_ALLOW_SKIP === '1') return true;
-  // Outside CI a developer may not have the Pro package; keep local runs
-  // usable, but still report them as unverified rather than as a pass.
-  return process.env.CI !== 'true';
-}
-
 function printSummary(summary: GuardSummary): void {
   console.log(pc.cyan('\nValidating generated-artifact freshness...\n'));
 
@@ -663,7 +605,10 @@ function printSummary(summary: GuardSummary): void {
 async function main(): Promise<void> {
   try {
     const result = await runGuard();
-    const summary = summarizeGuard(result, { allowSkip: skipPermitted() });
+    const summary = summarizeGuard(result, {
+      ...SUMMARY_LABELLING,
+      allowSkip: skipPermitted(),
+    });
     printSummary(summary);
     process.exit(summary.exitCode);
   } catch (error) {

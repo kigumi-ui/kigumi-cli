@@ -36,7 +36,22 @@ import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
-import { findCustomElementsJsonSync } from './find-cem.js';
+import path from 'path';
+import {
+  resolveCem,
+  assessCemCompleteness,
+  type CemVerdict,
+} from './find-cem.js';
+import {
+  summarizeGuard,
+  skipPermitted,
+  type GuardSummary,
+} from './guard-outcome.js';
+
+const PROJECT_ROOT = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..'
+);
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -78,8 +93,21 @@ const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
 interface SyncResult {
   passed: boolean;
   findings: SyncFinding[];
+  /**
+   * Whether the prop-value half could run. The presence half needs no manifest
+   * -- it compares the registry against the committed `COMPONENT_METADATA` --
+   * so the two halves are reported separately rather than under one verdict
+   * that would be true of only one of them.
+   */
+  cem: CemVerdict;
   stats: {
-    cemComponents: number;
+    /**
+     * Components described by the committed `COMPONENT_METADATA`, NOT by a CEM
+     * read from disk. The old label said "CEM components", which made the
+     * number look like evidence that a manifest had been read; it printed 84
+     * just the same when no manifest existed.
+     */
+    metadataComponents: number;
     registryComponents: number;
     onlyInCem: number;
     onlyInRegistry: number;
@@ -126,17 +154,19 @@ export function parseStringEnum(text: string | undefined): string[] | null {
 }
 
 /**
- * Build a `wa-<tag>` → { attrName → type.text } map from the raw CEM. Returns
- * an empty map when the CEM is unreachable (docs/ deps not installed), so the
- * prop-value check degrades to a no-op rather than failing.
+ * Build a `wa-<tag>` → { attrName → type.text } map from the CEM at `cemPath`.
+ *
+ * Takes a resolved path rather than finding one itself. It previously returned
+ * an empty map when the CEM was unreachable, which `checkPropValueDrift` then
+ * read as "nothing to compare" and the summary printed as
+ * `Prop-value drift: 0` -- identical output to a run that had checked all 84
+ * components. Whether a missing manifest is tolerable is now decided before
+ * this function is reached, so it can assume its input exists.
  */
-function getCemAttributeTypes(): Map<
-  string,
-  Record<string, string | undefined>
-> {
+function getCemAttributeTypes(
+  cemPath: string
+): Map<string, Record<string, string | undefined>> {
   const out = new Map<string, Record<string, string | undefined>>();
-  const cemPath = findCustomElementsJsonSync();
-  if (!cemPath) return out;
 
   const cem = JSON.parse(fs.readFileSync(cemPath, 'utf8')) as {
     modules?: Array<{
@@ -252,14 +282,30 @@ function checkPropValueDrift(
 
 // ── Main ────────────────────────────────────────────────────────────────────
 
-export function validateCemSync(): SyncResult {
+export async function validateCemSync(
+  root: string = PROJECT_ROOT
+): Promise<SyncResult> {
   const cemKeys = getCemKeys();
   const registryMap = getRegistryMap();
-  const cemAttrTypes = getCemAttributeTypes();
+
+  // All-or-nothing, matching Check A: a pass means every registry component was
+  // compared. The free manifest describes 66 of 84 components, and the 18 it
+  // omits are all enum-bearing (the nine charts, toast, combobox, file-input,
+  // sparkline, ...), so a free-manifest run would verify 49 of 67 enum-bearing
+  // components. Reporting that as a pass is the same trap at smaller scale.
+  const resolution = await resolveCem(root);
+  const cem = assessCemCompleteness(resolution, registryMap.size);
+
+  // `usable` implies a resolved path, but narrow on the path itself rather
+  // than asserting, so the two can never disagree silently.
+  const propValueFindings =
+    cem.usable && resolution.path !== null
+      ? checkPropValueDrift(registryMap, getCemAttributeTypes(resolution.path))
+      : [];
 
   const findings = [
     ...checkComponentPresence(cemKeys, registryMap),
-    ...checkPropValueDrift(registryMap, cemAttrTypes),
+    ...propValueFindings,
   ];
   const onlyInCem = findings.filter(
     (f) => f.category === 'missing-from-registry'
@@ -275,8 +321,9 @@ export function validateCemSync(): SyncResult {
   return {
     passed: !findings.some((f) => f.severity === 'error'),
     findings,
+    cem,
     stats: {
-      cemComponents: cemKeys.size,
+      metadataComponents: cemKeys.size,
       registryComponents: registryMap.size,
       onlyInCem,
       onlyInRegistry,
@@ -291,13 +338,33 @@ export function validateCemSync(): SyncResult {
 function printResults(result: SyncResult): void {
   console.log(pc.cyan('\nValidating CEM-to-Registry sync...\n'));
 
+  // Each half says whether it ran. Before this, every line below printed the
+  // same numbers whether or not a manifest had been read, so a run that
+  // compared nothing was indistinguishable from one that compared everything.
+  console.log(pc.bold('Coverage:'));
+  console.log(
+    `  Component presence:  ${pc.green('verified')} (committed component metadata, ${result.stats.metadataComponents} components)`
+  );
+  console.log(
+    `  Prop-value drift:    ${
+      result.cem.usable
+        ? `${pc.green('verified')} (${result.cem.reason})`
+        : pc.yellow(`NOT RUN - ${result.cem.reason}`)
+    }`
+  );
+  console.log('');
+
   console.log(pc.bold('Statistics:'));
-  console.log(`  CEM components:      ${result.stats.cemComponents}`);
+  console.log(`  Metadata components: ${result.stats.metadataComponents}`);
   console.log(`  Registry components: ${result.stats.registryComponents}`);
   console.log(`  Synced:              ${result.stats.synced}`);
-  console.log(`  Only in CEM:         ${result.stats.onlyInCem}`);
+  console.log(`  Only in metadata:    ${result.stats.onlyInCem}`);
   console.log(`  Only in Registry:    ${result.stats.onlyInRegistry}`);
-  console.log(`  Prop-value drift:    ${result.stats.propValueDrift}`);
+  console.log(
+    `  Prop-value drift:    ${
+      result.cem.usable ? result.stats.propValueDrift : pc.yellow('not checked')
+    }`
+  );
   console.log('');
 
   const errors = result.findings.filter((f) => f.severity === 'error');
@@ -322,22 +389,64 @@ function printResults(result: SyncResult): void {
     console.log('');
   }
 
-  if (result.passed) {
-    console.log(pc.green('CEM sync validation passed!\n'));
-  } else {
+  if (!result.passed) {
     console.log(
       pc.red(`CEM sync validation failed with ${errors.length} error(s)\n`)
     );
   }
 }
 
+/**
+ * Turn a sync result into an exit code and a verdict, via the shared guard
+ * vocabulary.
+ *
+ * Errors found by either half fail outright. Otherwise the verdict turns on
+ * whether the prop-value half ran: only a run where both halves were verified
+ * may print an unqualified pass.
+ */
+export function summarizeSync(
+  result: SyncResult,
+  options: { allowSkip?: boolean } = {}
+): GuardSummary {
+  const errors = result.findings.filter((f) => f.severity === 'error');
+
+  return summarizeGuard(
+    {
+      passed: result.passed,
+      findings: errors.map((f) => ({
+        check: f.category,
+        component: f.component,
+        message: f.message,
+      })),
+      cem: result.cem,
+    },
+    {
+      allowSkip: options.allowSkip ?? false,
+      label: 'Prop-value drift',
+      passHeadline: 'CEM sync validation passed!',
+      fixHint:
+        'Install the Web Awesome Pro package so the prop-value half can compare\n' +
+        'every registry enum against the manifest (pnpm setup:npmrc, then\n' +
+        'install docs deps).',
+    }
+  );
+}
+
 // ── CLI Entry ───────────────────────────────────────────────────────────────
 
 async function main() {
   try {
-    const result = validateCemSync();
+    const result = await validateCemSync();
     printResults(result);
-    process.exit(result.passed ? 0 : 1);
+
+    const summary = summarizeSync(result, { allowSkip: skipPermitted() });
+    const paint =
+      summary.exitCode !== 0 ? pc.red : summary.verified ? pc.green : pc.yellow;
+    console.log(paint(summary.headline));
+    if (summary.detail) console.log(summary.detail);
+    console.log('');
+
+    process.exit(summary.exitCode);
   } catch (error) {
     console.error(pc.red('Fatal error during CEM sync validation:'));
     console.error(error);
