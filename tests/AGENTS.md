@@ -145,7 +145,7 @@ tests/
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
 │   └── starter-snapshots/{react,vue,angular,next}/  # Per-starter `kigumi add` output (regen via `pnpm update:starter-snapshots`)
-└── .tmp-react-*/            # Temporary test projects (gitignored)
+└── .tmp-e2e-*/              # Temporary test projects (gitignored; see E2E Test Projects)
 ```
 
 ## Commands
@@ -654,11 +654,12 @@ callers — these are test-only seams.
 
 E2E tests create temporary projects in `tests/.tmp-*`:
 
-| Directory        | Purpose                  |
-| ---------------- | ------------------------ |
-| `.tmp-react-ts/` | TypeScript React project |
-| `.tmp-react-js/` | JavaScript React project |
-| `.tmp-smoke/`    | Smoke test artifacts     |
+| Directory                 | Used by                      | Purpose                                                    |
+| ------------------------- | ---------------------------- | ---------------------------------------------------------- |
+| `.tmp-e2e-smoke/`         | `smoke.test.ts`              | Real Vite project driven through the full CLI workflow     |
+| `.tmp-e2e-idempotent/`    | `smoke.test.ts`              | Second project, for the run-`init`-twice idempotency block |
+| `.tmp-e2e-diff/`          | `diff.test.ts`               | Component comparison against a modified working copy       |
+| `.tmp-e2e-source-layout/` | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48)  |
 
 These are gitignored and recreated on each run.
 
@@ -669,10 +670,12 @@ These are gitignored and recreated on each run.
 Component behavior is verified manually in browser:
 
 1. Build CLI: `pnpm build`
-2. Initialize project: `node dist/index.js init --framework=react --yes`
-3. Add component: `node dist/index.js add dialog`
-4. Run dev server: `cd tests/.tmp-react-ts && pnpm dev`
-5. Verify in browser
+2. Scaffold a throwaway project somewhere outside the repo:
+   `pnpm create vite my-kigumi-check --template react-ts && cd my-kigumi-check && pnpm install`
+3. Initialize: `node /path/to/kigumi-cli/dist/index.js init --framework=react --yes`
+4. Add component: `node /path/to/kigumi-cli/dist/index.js add dialog`
+5. Run dev server: `pnpm dev`
+6. Verify in browser
 
 **Check:**
 
@@ -751,4 +754,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-17 (added tests/e2e/init-source-layout.test.ts, the issue #48 regression that runs `init` across all four framework/layout combinations and asserts both the exit code and where the type declaration landed; 2026-09-16: guard-outcome moved to scripts/guard-outcome.ts and shared with validate:cem-sync; find-cem.test.ts removed, its F-152 pin cases ported to resolve-cem.test.ts on real store trees; added validate-cem-sync-coverage.test.ts; added resolve-cem, cem-completeness and guard-outcome unit tests plus tests/integration/generator-drift-guard.test.ts, the #43 regression that drifts a generator and asserts the freshness guard exits non-zero; it skips via ctx.skip() with a printed reason when no complete CEM is installed; added validate-doc-links.test.ts covering the markdown link matchers; registered the `validate-no-secrets.ts` credential matchers as test-only exports and added validate-no-secrets.test.ts covering the committed-credential guard; registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
+**Last Updated:** 2026-09-17 (corrected the stale .tmp-* references: the E2E Test Projects table listed three directories no e2e test has used since the suite moved to the .tmp-e2e-* scheme and omitted all four that are; the directory tree showed the same dead .tmp-react-* glob; and the Browser Testing steps told the reader to cd into a directory nothing creates; added tests/e2e/init-source-layout.test.ts, the issue #48 regression that runs `init` across all four framework/layout combinations and asserts both the exit code and where the type declaration landed; 2026-09-16: guard-outcome moved to scripts/guard-outcome.ts and shared with validate:cem-sync; find-cem.test.ts removed, its F-152 pin cases ported to resolve-cem.test.ts on real store trees; added validate-cem-sync-coverage.test.ts; added resolve-cem, cem-completeness and guard-outcome unit tests plus tests/integration/generator-drift-guard.test.ts, the #43 regression that drifts a generator and asserts the freshness guard exits non-zero; it skips via ctx.skip() with a printed reason when no complete CEM is installed; added validate-doc-links.test.ts covering the markdown link matchers; registered the `validate-no-secrets.ts` credential matchers as test-only exports and added validate-no-secrets.test.ts covering the committed-credential guard; registered `tidyBlankLines` as a test-only export and pinned its blank-line invariants exhaustively in scripts/post-changeset-version.test.ts; removed state-files.test.ts, state-staleness.test.ts and triage-finding.test.ts with the superpowers retirement; added validate-agents.test.ts, validate-gha-permissions.test.ts and check-commit-attribution.test.ts covering the count-claim, GHA job-permissions and commit-msg attribution matchers; added tests/unit/eslint-rules/harness.test.ts for the cluster-D eslint-plugin-kigumi scaffold; added pre-tool-guardrails.test.ts covering the default-branch guard; added validate-story-lanes.test.ts covering the interaction-lane list matchers; added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers; added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators)
