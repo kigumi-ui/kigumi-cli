@@ -293,15 +293,32 @@ export async function configureVueCustomElements(
  *
  * Adds the WA Vue types so TypeScript recognizes `<wa-*>` elements
  * in Vue templates with proper prop/event typing.
+ *
+ * `sourceLayout` decides where `env.d.ts` lands: `src/` for a src layout, the
+ * project root otherwise. This used to be hardcoded to `src`, which crashed
+ * with ENOENT on a root-layout project (issue #48). It defaults to `'src'` so
+ * the parameter stays optional for callers that predate the layout probe.
  */
 export async function configureVueTypes(
   cwd: string,
   _output: OutputInterface,
-  waPackage: string
+  waPackage: string,
+  sourceLayout: 'src' | 'root' = 'src'
 ): Promise<boolean> {
-  const envDtsPath = path.join(cwd, 'src', 'env.d.ts');
+  const srcDir = sourceLayout === 'src' ? 'src' : '';
+  const envDtsPath = path.join(cwd, srcDir, 'env.d.ts');
   const vueTypePath = `${waPackage}/dist/types/vue`;
   const referenceDirective = `/// <reference types="${vueTypePath}" />`;
+
+  // `init` writes into a directory it never creates. Both branches below end in
+  // a write to `envDtsPath`, so one ensureDir here covers them (issue #48).
+  //
+  // On a stock `src` layout this is currently a no-op: `init` creates
+  // `src/lib` for utilsDir before reaching here, so `src/` already exists. It
+  // stops mattering the moment the target is somewhere those defaults do not
+  // reach -- a custom `--utils-dir`/`--styles-dir` outside `src/`. Covered by
+  // unit test, not by the e2e suite, which cannot currently reach this branch.
+  await fs.ensureDir(path.dirname(envDtsPath));
 
   if (await fs.pathExists(envDtsPath)) {
     const content = await fs.readFile(envDtsPath, 'utf-8');

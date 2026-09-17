@@ -242,7 +242,9 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 - **`layers.css`** (auto-generated): Wraps all Web Awesome imports in `@layer` for cascade control. Base layer (Web Awesome CSS) < theme layer (user custom CSS). Regenerated on every theme/brand/palette change.
 - **`kigumi.ts`** (auto-generated): Imports layers.css and applies theme classes to `<html>`. Regenerated on every theme/brand/palette change. For Next.js projects (`isNextProject(cwd)` returns true), `regenerateKigumiSetup` prepends `'use client';` so the `customElements.define` patch runs on the client.
 - **`theme.css`** (user-editable): User's custom CSS overrides ONLY. Generated only on `init` if file doesn't exist, then preserved on subsequent inits.
-- **`vite-env.d.ts`** / **`web-awesome.d.ts`**: TypeScript declarations for React+TS projects. Written once by `init` via `generateViteEnvDts()` / `generateNextEnvDts()` in `utils/regenerate.ts` — both emit a string literal that imports `CustomElements` and `CustomCssProperties` from the official Web Awesome package and augments `JSX.IntrinsicElements` with `declare global`. `add` does not touch these files; per-component prop types come straight from the WA package. Vite projects get `vite-env.d.ts` (with the `/// <reference types="vite/client" />` directive); Next.js projects get `web-awesome.d.ts` (no vite reference, Next owns `next-env.d.ts`).
+- **`vite-env.d.ts`** / **`web-awesome.d.ts`**: TypeScript declarations for React+TS projects. Written once by `init` via `generateViteEnvDts()` / `generateNextEnvDts()` in `utils/regenerate.ts` — both emit a string literal that imports `CustomElements` and `CustomCssProperties` from the official Web Awesome package and augments `JSX.IntrinsicElements` with `declare global`. `add` does not touch these files; per-component prop types come straight from the WA package. Vite projects get `vite-env.d.ts` (with the `/// <reference types="vite/client" />` directive); Next.js projects get `web-awesome.d.ts` (no vite reference, Next owns `next-env.d.ts`). Vue+TS projects get `env.d.ts` via `configureVueTypes()` in `utils/project-config.ts`.
+
+  All three follow the layout `detectSourceLayout()` reports: `src` layout writes into `src/`, root layout writes into the project root. Each creates the target directory before writing — `init` writes into directories it does not otherwise create, and hardcoding `src` here crashed root-layout React and Vue projects with ENOENT (issue #48). `configureVueTypes()` takes `sourceLayout` as an optional fourth parameter defaulting to `'src'`.
 
 **When regenerated:**
 
@@ -454,4 +456,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-15 (output.log() renamed to output.debug(); its 22 misused call sites in init/doctor now use output.info())
+**Last Updated:** 2026-09-17 (the three type-declaration writers — `generateViteEnvDts`, `generateNextEnvDts`, `configureVueTypes` — now honour the detected source layout and create their target directory; `configureVueTypes` gained an optional `sourceLayout` parameter, issue #48)
