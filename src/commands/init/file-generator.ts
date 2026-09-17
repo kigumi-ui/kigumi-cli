@@ -180,7 +180,7 @@ export async function generateProjectFiles(
 
         if (config.typescript) {
           const waPackage = getWebAwesomePackage(tier);
-          await configureVueTypes(cwd, output, waPackage);
+          await configureVueTypes(cwd, output, waPackage, sourceLayout);
         }
       }
     }

@@ -54,8 +54,27 @@ export default function LoginForm() {
 Initialize Kigumi in your project. Sets up theming and installs dependencies.
 
 ```bash
-npx kigumi init
+npx kigumi init                          # Interactive setup
+npx kigumi init --yes                    # Skip all prompts, accept defaults
+npx kigumi init --framework vue          # react, vue, or angular (Next.js is auto-detected)
+npx kigumi init --typescript             # Force TypeScript (--no-typescript for JavaScript)
+npx kigumi init --no-install             # Set up files without installing dependencies
 ```
+
+Themes and output directories can be set up front, which is useful for scripted
+setups:
+
+```bash
+npx kigumi init --theme awesome --palette default --brand blue
+npx kigumi init --components-dir src/ui # Where components are written
+npx kigumi init --utils-dir src/lib     # Where kigumi.ts is written
+npx kigumi init --styles-dir src/styles # Where theme.css and layers.css are written
+```
+
+Kigumi follows your project's existing layout: in a project with a `src/`
+directory the defaults sit under `src/`, and in a project whose entry point
+lives beside `package.json` they sit at the root. The three directory flags
+override that per directory.
 
 **Own Web Awesome Pro license?**
 

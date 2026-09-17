@@ -621,6 +621,59 @@ describe('configureVueTypes', () => {
     );
     expect(content).toContain('/// <reference types="vite/client" />');
   });
+
+  // The `beforeEach` above creates `src/`, which is why none of the tests
+  // caught issue #48: they satisfy a precondition production does not. `init`
+  // writes env.d.ts into a directory it never creates.
+  it('creates the target directory when it does not exist', async () => {
+    await fs.remove(path.join(testDir, 'src'));
+
+    const result = await configureVueTypes(testDir, mockOutput, waPackage);
+
+    expect(result).toBe(true);
+    const content = await fs.readFile(
+      path.join(testDir, 'src', 'env.d.ts'),
+      'utf-8'
+    );
+    expect(content).toContain(
+      `/// <reference types="${waPackage}/dist/types/vue" />`
+    );
+  });
+
+  it('writes to the project root on a root layout', async () => {
+    // A root-layout project (App.vue beside package.json). Nothing belongs
+    // under src/, so the declaration goes next to package.json.
+    await fs.remove(path.join(testDir, 'src'));
+
+    const result = await configureVueTypes(
+      testDir,
+      mockOutput,
+      waPackage,
+      'root'
+    );
+
+    expect(result).toBe(true);
+    const content = await fs.readFile(path.join(testDir, 'env.d.ts'), 'utf-8');
+    expect(content).toContain(
+      `/// <reference types="${waPackage}/dist/types/vue" />`
+    );
+    expect(await fs.pathExists(path.join(testDir, 'src'))).toBe(false);
+  });
+
+  it('still writes to src/ on a src layout', async () => {
+    const result = await configureVueTypes(
+      testDir,
+      mockOutput,
+      waPackage,
+      'src'
+    );
+
+    expect(result).toBe(true);
+    expect(await fs.pathExists(path.join(testDir, 'src', 'env.d.ts'))).toBe(
+      true
+    );
+    expect(await fs.pathExists(path.join(testDir, 'env.d.ts'))).toBe(false);
+  });
 });
 
 describe('toKigumiAlias', () => {

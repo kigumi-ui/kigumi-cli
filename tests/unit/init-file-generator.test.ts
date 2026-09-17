@@ -172,6 +172,42 @@ describe('generateProjectFiles', () => {
 
       expect(projectConfig.configureVueCustomElements).toHaveBeenCalledTimes(1);
       expect(projectConfig.configureVueTypes).toHaveBeenCalledTimes(1);
+      // The layout has to reach configureVueTypes, or it falls back to its
+      // 'src' default and a root-layout project gets ENOENT (issue #48).
+      expect(projectConfig.configureVueTypes).toHaveBeenCalledWith(
+        tempDir,
+        expect.anything(),
+        expect.any(String),
+        'src'
+      );
+    });
+
+    it('threads a root layout through to configureVueTypes', async () => {
+      const config = createTestKigumiConfig({
+        framework: 'vue',
+        typescript: true,
+        utilsDir: 'lib',
+        stylesDir: 'styles',
+      });
+
+      await generateProjectFiles({
+        cwd: tempDir,
+        config,
+        tier: 'free',
+        proToken: undefined,
+        output,
+        projectInfo: makeProjectInfo({
+          framework: 'vue',
+          sourceLayout: 'root',
+        }),
+      });
+
+      expect(projectConfig.configureVueTypes).toHaveBeenCalledWith(
+        tempDir,
+        expect.anything(),
+        expect.any(String),
+        'root'
+      );
     });
   });
 
