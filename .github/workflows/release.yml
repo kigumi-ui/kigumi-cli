@@ -70,17 +70,30 @@ jobs:
           TARBALL=$(pnpm pack --pack-destination "${RUNNER_TEMP}" | tail -1)
           echo "Built tarball: ${TARBALL}"
           SMOKE_DIR="${RUNNER_TEMP}/kigumi-release-smoke"
-          mkdir -p "${SMOKE_DIR}/src"
+          mkdir -p "${SMOKE_DIR}"
           cd "${SMOKE_DIR}"
           npm init -y > /dev/null
           npm install --no-audit --no-fund "file:${TARBALL}"
-          # Explicit --components-dir pins the assertion path independent of
-          # kigumi's sourceLayout detection (which requires more than just an
-          # empty src/ dir to default to src/components/ui).
-          npx --no-install kigumi init --framework react --typescript --yes --no-install --components-dir src/components/ui
+          # Deliberately scaffold nothing: a bare npm project is a genuine
+          # root-layout project, so `init` has to run its own sourceLayout
+          # detection and write into directories it does not otherwise create.
+          # Pre-creating src/ and pinning --components-dir routed around exactly
+          # that code path, which is how #48 shipped green (#51).
+          npx --no-install kigumi init --framework react --typescript --yes --no-install
+          # The type declaration is the write that crashed with ENOENT in #48.
+          test -f vite-env.d.ts \
+            || (echo "ERROR: type declaration missing at vite-env.d.ts (root layout)"; ls -A; exit 1)
+          # Two separate assertions. First: detection reached the right verdict
+          # for a root-layout project. Second (below): `add` actually wrote where
+          # `init` said it would. Reading the path back out of the config is what
+          # keeps the second honest -- it is never pinned up front.
+          COMPONENTS_DIR=$(node -p "require('./kigumi.config.json').componentsDir")
+          echo "init detected componentsDir: ${COMPONENTS_DIR}"
+          test "${COMPONENTS_DIR}" = "components/ui" \
+            || (echo "ERROR: expected root-layout componentsDir 'components/ui', got '${COMPONENTS_DIR}'"; exit 1)
           npx --no-install kigumi add button --yes
-          test -f src/components/ui/Button/Button.tsx \
-            || (echo "ERROR: Button wrapper missing at src/components/ui/Button/Button.tsx"; ls -R src 2>/dev/null || true; exit 1)
+          test -f "${COMPONENTS_DIR}/Button/Button.tsx" \
+            || (echo "ERROR: Button wrapper missing at ${COMPONENTS_DIR}/Button/Button.tsx"; ls -R . 2>/dev/null | head -50; exit 1)
           echo "Release smoke OK"
 
       - name: Verify package contents

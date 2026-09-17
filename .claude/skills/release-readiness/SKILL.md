@@ -53,8 +53,12 @@ ls -t .claude/reports/release-readiness-*.md | head -1
 
 Read and summarize the decision:
 
-- **GO**: All gates passed, ≥1 changeset is pending, version > last tag. Tagging is safe.
-- **NO-GO**: Read the numbered reasons from the report. Suggest the next action for each (e.g., "no unreleased changesets" → "write a changeset for the pending work").
+- **GO**: All gates passed and the release state is sound. Two states are sound, because `pnpm run version` consumes the changesets to produce the bump:
+  - _pre-bump_: ≥1 changeset pending, version still equal to the last tag.
+  - _post-bump_: changesets consumed, version ahead of the last tag.
+- **NO-GO**: Read the numbered reasons from the report. Suggest the next action for each:
+  - "nothing to release" → write a changeset for the pending work.
+  - "version is behind last tag" → the bump was lost or the branch is stale; reconcile before tagging.
 
 ## What this skill does NOT do
 
