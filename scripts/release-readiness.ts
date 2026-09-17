@@ -16,6 +16,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execaSync } from 'execa';
 import pc from 'picocolors';
+import semver from 'semver';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.dirname(__dirname);
@@ -183,20 +184,68 @@ function gatherMeta(): MetaResult {
   };
 }
 
+/**
+ * Reasons the release *state* (changesets + version vs. last tag) is unsound.
+ *
+ * A release passes through two states, and `pnpm run version` is the
+ * transition between them: it consumes the pending changesets in order to
+ * produce the version bump. So both of these are sound:
+ *
+ * - pre-bump:  changesets pending, version still equal to the last tag
+ * - post-bump: changesets consumed, version ahead of the last tag
+ *
+ * Requiring pending changesets *and* a bumped version at once described no
+ * reachable state, which made GO unreachable for every release (#52).
+ *
+ * What is genuinely wrong is having nothing to release (no changesets and no
+ * bump since the last tag), or a version behind the tag it should lead.
+ */
+function releaseStateReasons(meta: MetaResult): string[] {
+  const { changesetCount, packageVersion, lastTag } = meta;
+
+  // No tags yet (first release): pending changesets are the only signal
+  // available, and there is no tag to be ahead of or behind.
+  if (!lastTag) {
+    return changesetCount > 0
+      ? []
+      : [
+          'nothing to release: no unreleased changesets in `.changeset/` and no previous tag',
+        ];
+  }
+
+  const comparable = semver.valid(packageVersion) && semver.valid(lastTag);
+  if (!comparable) {
+    // Refuse to guess. An unreadable version pair is not evidence of a sound
+    // release, so it must not pass silently.
+    return [
+      `cannot compare package.json version \`${packageVersion}\` with last tag \`${lastTag}\` (not valid semver)`,
+    ];
+  }
+
+  if (semver.lt(packageVersion, lastTag)) {
+    return [
+      `package.json version ${packageVersion} is behind last tag ${lastTag}`,
+    ];
+  }
+
+  // Version equals the tag: this is the pre-bump state, sound only if there is
+  // pending work for `pnpm run version` to turn into a bump.
+  if (semver.eq(packageVersion, lastTag) && changesetCount === 0) {
+    return [
+      `nothing to release: no unreleased changesets in \`.changeset/\` and version ${packageVersion} still equals last tag ${lastTag}`,
+    ];
+  }
+
+  return [];
+}
+
 export function decideGoNoGo(gates: GateResult[], meta: MetaResult): Decision {
   const reasons: string[] = [];
   for (const g of gates) {
     if (!g.pass)
       reasons.push(`gate "${g.name}" failed${g.detail ? `: ${g.detail}` : ''}`);
   }
-  if (meta.changesetCount === 0) {
-    reasons.push('no unreleased changesets present in `.changeset/`');
-  }
-  if (meta.lastTag && meta.packageVersion === meta.lastTag) {
-    reasons.push(
-      `package.json version ${meta.packageVersion} equals last tag (version bump required)`
-    );
-  }
+  reasons.push(...releaseStateReasons(meta));
   return { go: reasons.length === 0, reasons };
 }
 
