@@ -149,7 +149,19 @@ jobs:
       # All 15 validators already run in CI, but only when a pull request
       # touches a file. This is the same suite on a clock, so drift caused by
       # the outside world moving is visible without anyone editing anything.
+      #
+      # ALLOW_SKIP for the same reason as the token-free Quality Checks job in
+      # ci.yml: this lane installs no Pro package, so the prop-value half of
+      # validate:cem-sync has no manifest to compare against and reports itself
+      # NOT RUN rather than failing the job. The verifying run lives in ci.yml's
+      # `freshness` job, which does install Pro.
+      #
+      # Before the half was taught to refuse a manifest-less run it self-skipped
+      # in silence, so this job passed while doing nothing here. Removing this
+      # env var does not restore coverage; it only turns the weekly run red.
       - name: Run all validators
+        env:
+          KIGUMI_FRESHNESS_ALLOW_SKIP: '1'
         run: pnpm validate:all
 
   external-links:
