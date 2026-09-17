@@ -309,6 +309,34 @@ describe('regenerate utilities', () => {
       );
       expect(content).toContain(WEB_AWESOME_FREE_PACKAGE);
     });
+
+    // Every test above calls `ensureDir` first, which is why none of them
+    // caught issue #48: they satisfy the precondition that production does not.
+    // `init` writes this file into a directory it never creates, so a project
+    // whose target directory does not exist yet crashes with ENOENT.
+    it('creates the target directory when it does not exist', async () => {
+      // No ensureDir: this is the state a real project is in.
+      await generateViteEnvDts(testDir, 'src');
+
+      const content = await fs.readFile(
+        path.join(testDir, 'src', 'vite-env.d.ts'),
+        'utf-8'
+      );
+      expect(content).toContain('declare global');
+    });
+
+    it('writes to the project root when the layout has no src directory', async () => {
+      // A root-layout project (App.tsx beside package.json). `srcDir` is '',
+      // so the file belongs next to package.json, not under src/.
+      await generateViteEnvDts(testDir, '');
+
+      const content = await fs.readFile(
+        path.join(testDir, 'vite-env.d.ts'),
+        'utf-8'
+      );
+      expect(content).toContain('declare global');
+      expect(await fs.pathExists(path.join(testDir, 'src'))).toBe(false);
+    });
   });
 
   describe('generateThemeCSS', () => {

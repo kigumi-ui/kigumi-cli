@@ -403,6 +403,7 @@ export {};
 `;
 
   const viteEnvPath = path.join(cwd, srcDir, 'vite-env.d.ts');
+  await fs.ensureDir(path.dirname(viteEnvPath));
   await fs.writeFile(viteEnvPath, viteEnvContent);
 }
 
@@ -455,6 +456,7 @@ export {};
 `;
 
   const dtsPath = path.join(cwd, srcDir, 'web-awesome.d.ts');
+  await fs.ensureDir(path.dirname(dtsPath));
   await fs.writeFile(dtsPath, dtsContent);
 }
 

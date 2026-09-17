@@ -116,17 +116,19 @@ export async function generateProjectFiles(
     // 4. Generate JSX type declarations (TypeScript + React)
     if (config.typescript && config.framework === 'react') {
       const waPackage = getWebAwesomePackage(tier);
+      // Both flavours follow the project's own layout, so the declarations land
+      // where tsconfig `include` already looks. The Vite branch used to hardcode
+      // 'src' and crashed with ENOENT on a root-layout project, which is every
+      // React+TS project whose entry point sits beside package.json (issue #48).
+      const srcDir = sourceLayout === 'src' ? 'src' : '';
       if (isNext) {
         // Next.js owns next-env.d.ts; we emit a sibling `web-awesome.d.ts`
-        // that carries just the JSX/CSSProperties extensions. Location
-        // follows the project's layout so it's picked up by tsconfig
-        // `include` without config changes.
+        // that carries just the JSX/CSSProperties extensions.
         spinner.message('Generating web-awesome.d.ts...');
-        const srcDir = sourceLayout === 'src' ? 'src' : '';
         await generateNextEnvDts(cwd, srcDir, waPackage);
       } else {
         spinner.message('Generating vite-env.d.ts...');
-        await generateViteEnvDts(cwd, 'src', waPackage);
+        await generateViteEnvDts(cwd, srcDir, waPackage);
       }
     }
 
