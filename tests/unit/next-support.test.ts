@@ -433,5 +433,23 @@ describe('next.js support', () => {
         true
       );
     });
+
+    // Same gap as issue #48's: the write has no `ensureDir` behind it. The Next
+    // branch escapes the crash only because it threads `sourceLayout` through,
+    // so it rarely targets a missing directory -- but a `src` layout whose
+    // `src/` does not exist yet would fail exactly as the Vite branch did.
+    it('creates the target directory when it does not exist', async () => {
+      const { generateNextEnvDts } =
+        await import('../../src/utils/regenerate.js');
+
+      // No ensureDir.
+      await generateNextEnvDts(tempDir, 'src', '@awesome.me/webawesome');
+
+      const dts = await fs.readFile(
+        path.join(tempDir, 'src', 'web-awesome.d.ts'),
+        'utf-8'
+      );
+      expect(dts).toContain('declare global');
+    });
   });
 });
