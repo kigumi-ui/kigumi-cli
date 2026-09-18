@@ -66,7 +66,16 @@ function parseCategories(content: string): Map<string, string[]> {
   cleaned = cleaned.replace(/^- ###/gm, '###');
   cleaned = cleaned.replace(/^ {2}- /gm, '- ');
   cleaned = cleaned.replace(/^ {2}###/gm, '###');
-  cleaned = cleaned.replace(/^ {2}(\S)/gm, '$1');
+  // Strip the changeset's nesting level from body lines. Two shapes reach here,
+  // and they must NOT land in the same column:
+  //   `  prose`        -> `prose`   (a paragraph, belongs at the margin)
+  //   `    wrapped`    -> `  wrapped` (the continuation of a `- ` bullet whose
+  //                                    own indent was just removed above, so it
+  //                                    must stay at markdown's list-continuation
+  //                                    level of 2)
+  // Collapsing both to column 0 breaks the wrapped line out of its bullet;
+  // leaving the second at 4 is what `prettier --check` rejected in 1.0.3.
+  cleaned = cleaned.replace(/^ {2}( *)(\S)/gm, '$1$2');
 
   // Parse into categories. Content that appears before any ### header (e.g.
   // a changeset written as plain prose without a category) falls back to
