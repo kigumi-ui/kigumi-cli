@@ -24,6 +24,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { getAllComponents } from '../src/utils/registry.js';
+import { toKebabCase } from '../src/utils/naming.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -172,7 +173,7 @@ async function checkProComponents(): Promise<string[]> {
 
   // Check for actual pro components missing from doc
   for (const key of actualProKeys) {
-    const kebab = key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    const kebab = toKebabCase(key);
     if (!claimedPro.includes(key) && !claimedPro.includes(kebab)) {
       errors.push(`AGENTS.md pro list is missing pro component "${kebab}"`);
     }

@@ -25,7 +25,12 @@ import {
 } from '../src/utils/registry.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import { CSS_METADATA } from './css-metadata.js';
-import { toKebabCase } from '../src/utils/naming.js';
+import {
+  toKebabCase,
+  toCamelCase,
+  toPascalCase,
+  stripWaPrefix,
+} from '../src/utils/naming.js';
 import { mapEventType, writeFormatted } from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -95,12 +100,12 @@ interface MethodInfo {
  * wa-show -> show, wa-after-hide -> afterHide, blur -> blur
  */
 function toOutputName(eventName: string): string {
-  const stripped = eventName.startsWith('wa-') ? eventName.slice(3) : eventName;
+  const stripped = stripWaPrefix(eventName);
 
   // 'input' conflicts with @Input() decorator
   if (stripped === 'input') return 'inputEvent';
 
-  return stripped.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  return toCamelCase(stripped);
 }
 
 /**
@@ -411,7 +416,7 @@ export function generateComponentTS(
     lines.push('');
 
     for (const event of events) {
-      const handlerName = `handle${event.outputName.charAt(0).toUpperCase()}${event.outputName.slice(1)}`;
+      const handlerName = `handle${toPascalCase(event.outputName)}`;
       lines.push(
         `    const ${handlerName} = (e: Event) => this.${event.outputName}.emit(e as ${event.type});`
       );
