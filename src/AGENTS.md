@@ -322,7 +322,8 @@ Modular initialization with separate concerns:
 
 Dependency installation is **not** here: `utils/dependency-installer.ts` holds
 `installDependencies` and `cleanupOldPackage`, because `upgrade` needs them too.
-Commands are leaf nodes and never import from a sibling command's directory.
+Commands are leaf nodes and never import from a sibling command's directory;
+`kigumi/no-cross-command-import` enforces it.
 
 **Tier Migration Flow:**
 
@@ -471,4 +472,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-18 (the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
+**Last Updated:** 2026-09-18 (`kigumi/no-cross-command-import` enforces the leaf-node contract for commands, issue #4; the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
