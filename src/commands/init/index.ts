@@ -38,7 +38,10 @@ import {
   buildConfigInteractive,
   buildConfigNonInteractive,
 } from './config-builder.js';
-import { installDependencies, cleanupOldPackage } from './installer.js';
+import {
+  installDependencies,
+  cleanupOldPackage,
+} from '../../utils/dependency-installer.js';
 import { generateProjectFiles } from './file-generator.js';
 import { getProjectInfo } from '../../utils/detect-framework.js';
 import { loadConfig } from '../../utils/config.js';

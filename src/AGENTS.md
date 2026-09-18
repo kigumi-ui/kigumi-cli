@@ -45,6 +45,7 @@ src/
 │   ├── tier.ts           # Tier detection (package.json priority, token fallback)
 │   ├── tier-restrictions.ts
 │   ├── config.ts         # kigumi.config.json handling
+│   ├── dependency-installer.ts # npm/pnpm install + old-package cleanup (shared by init and upgrade)
 │   ├── template.ts       # Template materialization (read + tier-swap)
 │   ├── regenerate.ts     # Auto-generate kigumi.ts, theme.css
 │   ├── json.ts           # JSON with comments support
@@ -317,8 +318,11 @@ Modular initialization with separate concerns:
 | `index.ts`          | Orchestration, tier migration     |
 | `config-builder.ts` | Build config from options/prompts |
 | `file-generator.ts` | Generate project files            |
-| `installer.ts`      | npm/pnpm install, package cleanup |
 | `migration.ts`      | Free↔Pro package migration        |
+
+Dependency installation is **not** here: `utils/dependency-installer.ts` holds
+`installDependencies` and `cleanupOldPackage`, because `upgrade` needs them too.
+Commands are leaf nodes and never import from a sibling command's directory.
 
 **Tier Migration Flow:**
 
@@ -467,4 +471,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-18 (`utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
+**Last Updated:** 2026-09-18 (the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
