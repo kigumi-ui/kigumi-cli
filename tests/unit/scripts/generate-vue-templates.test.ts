@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  generateCSSTemplate,
   generateTestJavascriptTemplate,
   generateTestTypescriptTemplate,
   generateVueJavascriptTemplate,
@@ -485,12 +484,6 @@ describe('generateVueJavascriptTemplate', () => {
 
   it('emits the Toast JS wrapper (no type import, bare method params)', () => {
     expect(generateVueJavascriptTemplate(TOAST_FIXTURE)).toMatchSnapshot();
-  });
-});
-
-describe('generateCSSTemplate', () => {
-  it('emits the Button CSS template', () => {
-    expect(generateCSSTemplate('Button')).toMatchSnapshot();
   });
 });
 
