@@ -135,11 +135,12 @@ suppressed everywhere teaches people to suppress it.
 
 Read the list rather than the count. `validate-cem-sync.ts:239` is the _fixed_
 cem-sync guard, and the four `check-generated-fresh.ts` entries return empty
-when a path is absent — all indistinguishable, as text, from the defect.
+when a path is absent. All eleven are indistinguishable, as text, from the
+defect.
 
 The irony is sharpest in the most correct code in the repo.
 `checkGeneratorFreshness` returns `{ findings: [], cem }` when the manifest is
-unusable — an empty-accumulator early return that a syntactic rule would flag,
+unusable: an empty-accumulator early return that a syntactic rule would flag,
 written specifically to obey this ADR.
 
 **A type-aware rule is not available either.** Distinguishing the two cases
@@ -152,7 +153,7 @@ adjacent but target nullability, not this.
 
 **The narrower alternative is not worth its keep.** Issue #47 suggested
 requiring that a resolution type's `found` field be read before its payload.
-That is mechanical — but the repo contains exactly **one** such type
+That is mechanical, but the repo contains exactly **one** such type
 (`CemResolution`), with five consumers, and all five already discriminate:
 four on `resolution.path`, one on `resolution.found`, one further via
 `assessCemCompleteness(...).usable`. A rule policing one type with five correct
@@ -163,7 +164,7 @@ is the single way to locate a manifest and it reports what it found rather than
 deciding what absence means; `guard-outcome.ts` owns `verified` separately from
 `exitCode`. Both defects were possible because each caller made its own
 decision about absence. Neither can recur without deleting that seam, which is
-a visible change in review — unlike the silent pass, which was not.
+a visible change in review, unlike the silent pass, which was not.
 
 Reconsider this only if a second resolution type appears, or if `scripts/` gains
 a type-aware ESLint project. Until then, the review question in the previous
