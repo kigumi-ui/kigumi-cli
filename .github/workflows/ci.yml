@@ -1,8 +1,11 @@
 name: CI
 
 on:
+  # Every PR, not only those targeting main. A stacked PR whose base is another
+  # PR's branch got no CI at all, so a stack could only be verified by merging
+  # it. That is how two lint rules editing the same line of the plugin's rules
+  # map went unnoticed until the branches were merged by hand.
   pull_request:
-    branches: [main]
     types: [opened, synchronize, reopened, ready_for_review, labeled]
 
 permissions:
