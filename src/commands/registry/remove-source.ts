@@ -11,6 +11,7 @@ import {
   handleError,
   PreFlightCheckError,
   ConfigNotFoundError,
+  InternalInvariantError,
 } from '../../errors/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
 import type { KigumiConfig } from '../../schemas/config.js';
@@ -50,7 +51,9 @@ export async function registryRemoveSourceAction(
     }
 
     if (!config) {
-      throw new Error('Configuration not loaded despite passing checks');
+      throw new InternalInvariantError(
+        'Configuration not loaded despite passing checks'
+      );
     }
 
     // 3. Find and remove

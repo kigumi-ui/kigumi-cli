@@ -44,6 +44,7 @@ import type { NextRouter } from '../../utils/detect-framework.js';
 import type { OutputInterface, OutputSpinner } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
 import type { KigumiConfig } from '../../schemas/config.js';
+import { ValidationError } from '../../errors/index.js';
 
 export interface InstallResult {
   name: string;
@@ -98,7 +99,7 @@ export class ComponentInstaller {
       try {
         const component = getComponent(componentName);
         if (!component) {
-          throw new Error(`Component ${componentName} not found`);
+          throw new ValidationError('component', componentName);
         }
 
         const result = await this.installComponent(component, options, spinner);

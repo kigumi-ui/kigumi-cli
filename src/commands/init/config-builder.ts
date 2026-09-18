@@ -35,6 +35,7 @@ import { getVersionEntry } from '../../utils/version-map.js';
 import {
   ProThemeRequiredError,
   UserCancelledError,
+  InternalInvariantError,
 } from '../../errors/index.js';
 
 function resolveWebAwesomeVersion(): string {
@@ -92,7 +93,7 @@ function ensureString(value: unknown): string {
     throw new UserCancelledError();
   }
   if (typeof value !== 'string') {
-    throw new Error(`Expected string, got ${typeof value}`);
+    throw new InternalInvariantError(`Expected string, got ${typeof value}`);
   }
   return value;
 }
@@ -107,7 +108,7 @@ function ensureBoolean(value: unknown): boolean {
     throw new UserCancelledError();
   }
   if (typeof value !== 'boolean') {
-    throw new Error(`Expected boolean, got ${typeof value}`);
+    throw new InternalInvariantError(`Expected boolean, got ${typeof value}`);
   }
   return value;
 }

@@ -24,6 +24,7 @@ export {
   KigumiError,
   UserCancelledError,
   UnknownError,
+  InternalInvariantError,
   ErrorCode,
   type ErrorContext,
   type ErrorSuggestion,
@@ -52,6 +53,8 @@ export {
   FrameworkMismatchError,
   CircularDependencyError,
   PathTraversalError,
+  RegistrySourceInvalidError,
+  RegistryFetchError,
 } from './community-registry.js';
 
 // Pre-flight check errors

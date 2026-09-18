@@ -9,6 +9,7 @@ import * as p from '../../prompts/index.js';
 import type { CommunityRegistry } from '../../schemas/community-registry.js';
 import type { OutputInterface } from '../../output/types.js';
 import type { Framework } from '../../schemas/config.js';
+import { UserCancelledError, ValidationError } from '../../errors/index.js';
 
 /**
  * Select components from a remote registry
@@ -58,7 +59,14 @@ async function selectRemoteComponentsInteractive(
   registry: CommunityRegistry
 ): Promise<string[]> {
   if (available.length === 0) {
-    throw new Error(
+    // Nothing in this registry matches the project's framework. The caller
+    // already filtered by framework, so the framework itself is not in scope
+    // here and FrameworkMismatchError cannot be built.
+    throw new ValidationError(
+      'registry',
+      registry.name,
+      undefined,
+      undefined,
       'No components available for your framework in this registry'
     );
   }
@@ -79,7 +87,7 @@ async function selectRemoteComponentsInteractive(
   });
 
   if (p.isCancel(selected)) {
-    throw new Error('Operation cancelled');
+    throw new UserCancelledError('Operation cancelled');
   }
 
   return selected as string[];

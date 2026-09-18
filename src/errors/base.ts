@@ -40,6 +40,9 @@ export enum ErrorCode {
   // Version errors (exit code 7)
   VERSION_MISMATCH = 700,
 
+  // Internal invariant violations (exit code 1)
+  INTERNAL_INVARIANT = 900,
+
   // Unknown errors (exit code 1)
   UNKNOWN = 999,
 }
@@ -195,6 +198,30 @@ export abstract class KigumiError extends Error {
 export class UserCancelledError extends KigumiError {
   constructor(message: string = 'Operation cancelled by user') {
     super(ErrorCode.USER_CANCELLED, message);
+  }
+}
+
+/**
+ * An internal invariant was violated.
+ *
+ * Thrown where a condition is unreachable if the surrounding code is correct,
+ * such as a config being absent after the pre-flight checks that guarantee it.
+ * Distinct from UnknownError, which wraps a failure that came from outside.
+ * Reaching one of these is a bug in Kigumi, not a mistake by the user, and the
+ * suggestion says so.
+ */
+export class InternalInvariantError extends KigumiError {
+  constructor(message: string, details?: Record<string, unknown>) {
+    super(ErrorCode.INTERNAL_INVARIANT, message, details, [
+      {
+        title: 'This is a bug in Kigumi',
+        steps: [
+          'This condition should be unreachable.',
+          `Please report it at ${GITHUB_ISSUES_URL}`,
+          'Include the command you ran and this message.',
+        ],
+      },
+    ]);
   }
 }
 

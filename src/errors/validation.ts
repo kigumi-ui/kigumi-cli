@@ -11,11 +11,19 @@ import type { ZodError, ZodIssue } from 'zod';
  * Generic validation error
  */
 export class ValidationError extends KigumiError {
+  /**
+   * `message` overrides the generic "Validation failed for: <field>" summary.
+   * Pass it wherever the caller can say something more specific than the field
+   * name, such as naming the registry that was not found: the message is what
+   * the user reads first, so it should carry the detail rather than bury it in
+   * the suggestions.
+   */
   constructor(
     field: string,
     value: unknown,
     validValues?: unknown[],
-    zodError?: ZodError
+    zodError?: ZodError,
+    message?: string
   ) {
     const errorMessages =
       zodError?.issues.map((err: ZodIssue) => {
@@ -40,7 +48,7 @@ export class ValidationError extends KigumiError {
 
     super(
       ErrorCode.VALIDATION_FAILED,
-      `Validation failed for: ${field}`,
+      message ?? `Validation failed for: ${field}`,
       { field, value, validValues, zodErrors: errorMessages },
       suggestions
     );

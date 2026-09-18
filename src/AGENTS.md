@@ -394,36 +394,59 @@ Used by `commands/add/index.ts` and `commands/theme/install.ts`.
 
 ## Error Handling
 
-Use typed errors from `src/errors/`:
+Use typed errors from `src/errors/`. **Never `throw new Error(...)` in `src/`.**
+A raw Error reaches `handleError` as `UnknownError`, so it exits 1 whatever went
+wrong and loses its semantic code and suggestions.
 
 ```typescript
-import { ConfigError, TierError, ValidationError } from '@/errors';
+import {
+  ConfigNotFoundError,
+  ValidationError,
+  InternalInvariantError,
+} from '../errors/index.js';
 
 // Throwing
-throw new ConfigError('Config file not found', { path: configPath });
+throw new ConfigNotFoundError(cwd);
+
+// A condition that is unreachable if the surrounding code is correct.
+// This is a bug in Kigumi, not a mistake by the user, and says so.
+if (!config) {
+  throw new InternalInvariantError(
+    'Configuration not loaded despite passing checks'
+  );
+}
 
 // Catching
 try {
   await loadConfig();
 } catch (error) {
-  if (error instanceof ConfigError) {
+  if (error instanceof ConfigNotFoundError) {
     output.error(error.message);
-    process.exit(1);
+    process.exit(error.exitCode);
   }
   throw error;
 }
 ```
 
+`ValidationError` takes an optional 5th argument that overrides its generic
+`"Validation failed for: <field>"` summary. Pass it whenever the caller can be
+more specific — the message is the line the user reads first.
+
 **Community registry errors** (`src/errors/community-registry.ts`):
 
-| Error Class                       | When Thrown                                      |
-| --------------------------------- | ------------------------------------------------ |
-| `CommunityRegistryNotFoundError`  | Repo or registry.json not found                  |
-| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed           |
-| `CommunityComponentNotFoundError` | Component key not in registry                    |
-| `FrameworkMismatchError`          | Registry doesn't support user's framework        |
-| `CircularDependencyError`         | Dependency cycle detected in resolution          |
-| `PathTraversalError`              | Local-source file path escapes the registry root |
+| Error Class                       | When Thrown                                          |
+| --------------------------------- | ---------------------------------------------------- |
+| `CommunityRegistryNotFoundError`  | Repo or registry.json not found                      |
+| `CommunityRegistryInvalidError`   | Zod validation of registry.json failed               |
+| `CommunityComponentNotFoundError` | Component key not in registry                        |
+| `FrameworkMismatchError`          | Registry doesn't support user's framework            |
+| `CircularDependencyError`         | Dependency cycle detected in resolution              |
+| `PathTraversalError`              | Local-source file path escapes the registry root     |
+| `RegistrySourceInvalidError`      | Source URL unparseable, non-GitHub, or no owner/repo |
+| `RegistryFetchError`              | A registry file could not be read or fetched         |
+
+`CommunityComponentNotFoundError` takes a `kind` of `'component'` (default) or
+`'theme'`, since registries hold both.
 
 ---
 
@@ -472,4 +495,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-18 (`kigumi/no-cross-command-import` enforces the leaf-node contract for commands, issue #4; the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
+**Last Updated:** 2026-09-18 (all 32 raw `throw new Error(...)` in `src/` replaced with typed classes; new `InternalInvariantError`, `RegistrySourceInvalidError` and `RegistryFetchError`; `ValidationError` gained a message override and `CommunityComponentNotFoundError` a `kind`, issue #1; `kigumi/no-cross-command-import` enforces the leaf-node contract for commands, issue #4; the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)

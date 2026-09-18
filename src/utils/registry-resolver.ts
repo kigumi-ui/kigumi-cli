@@ -6,6 +6,7 @@
  */
 
 import type { KigumiConfig } from '../schemas/config.js';
+import { ValidationError } from '../errors/index.js';
 
 /**
  * Resolve a --from value to a GitHub URL.
@@ -31,15 +32,17 @@ export function resolveRegistrySource(
   );
 
   if (!match) {
-    const available = registries
-      .map((r) => r.name)
-      .filter(Boolean)
-      .join(', ');
-    throw new Error(
+    const names = registries.map((r) => r.name).filter(Boolean);
+    const available = names.join(', ');
+    throw new ValidationError(
+      'registry',
+      from,
+      names.length > 0 ? names : undefined,
+      undefined,
       `Registry "${from}" not found.` +
         (available
           ? ` Connected registries: ${available}`
-          : ' Run "kigumi registry connect <url>" to connect one.')
+          : ' No registries are connected. Add one with "kigumi registry connect <url>".')
     );
   }
 

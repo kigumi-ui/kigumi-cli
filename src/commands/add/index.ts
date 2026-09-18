@@ -17,6 +17,7 @@ import {
   CommunityRegistryNotFoundError,
   VersionMismatchError,
   ConfigNotFoundError,
+  InternalInvariantError,
 } from '../../errors/index.js';
 import { validators, type AddOptions } from '../../schemas/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
@@ -89,7 +90,9 @@ export async function addCommand(components: string[], options?: AddOptions) {
 
     // Config must be loaded at this point (checks passed)
     if (!config) {
-      throw new Error('Configuration not loaded despite passing checks');
+      throw new InternalInvariantError(
+        'Configuration not loaded despite passing checks'
+      );
     }
     // TypeScript type narrowing: config is now guaranteed to be defined
     const validConfig = config;

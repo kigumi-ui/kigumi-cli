@@ -14,6 +14,8 @@ import {
   PreFlightCheckError,
   CommunityRegistryNotFoundError,
   ConfigNotFoundError,
+  InternalInvariantError,
+  CommunityComponentNotFoundError,
 } from '../../errors/index.js';
 import { saveConfig, getConfig } from '../../utils/config.js';
 import {
@@ -62,7 +64,9 @@ export async function themeInstallAction(
     }
 
     if (!config) {
-      throw new Error('Configuration not loaded despite passing checks');
+      throw new InternalInvariantError(
+        'Configuration not loaded despite passing checks'
+      );
     }
 
     // 3. Fetch registry
@@ -93,11 +97,11 @@ export async function themeInstallAction(
     if (!theme) {
       spinner.error('Theme not found');
       const available = Object.keys(registry.themes);
-      throw new Error(
-        `Theme "${themeName}" not found in registry "${registry.name}". ` +
-          (available.length > 0
-            ? `Available: ${available.join(', ')}`
-            : 'This registry has no themes.')
+      throw new CommunityComponentNotFoundError(
+        themeName,
+        registry.name,
+        available,
+        'theme'
       );
     }
 

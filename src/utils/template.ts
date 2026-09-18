@@ -31,6 +31,7 @@ import { fileURLToPath } from 'url';
 import { WEB_AWESOME_FREE_PACKAGE } from '../constants.js';
 import type { ComponentDefinition } from './registry.js';
 import type { KigumiConfig } from './config.js';
+import { InternalInvariantError } from '../errors/index.js';
 import type { Tier } from './tier.js';
 import { toKebabCase } from './naming.js';
 import {
@@ -51,7 +52,7 @@ function findPackageRoot(startDir: string): string {
     }
     currentDir = path.dirname(currentDir);
   }
-  throw new Error('Could not find package.json');
+  throw new InternalInvariantError('Could not find package.json');
 }
 
 const PACKAGE_ROOT = findPackageRoot(__dirname);
@@ -318,8 +319,9 @@ export async function generateComponentCSSContent(
   if (await fs.pathExists(componentCSSTemplatePath)) {
     return fs.readFile(componentCSSTemplatePath, 'utf-8');
   }
-  throw new Error(
-    `Missing CSS template for ${config.framework}/${component.name} at ${componentCSSTemplatePath}`
+  throw new InternalInvariantError(
+    `Missing CSS template for ${config.framework}/${component.name} at ${componentCSSTemplatePath}`,
+    { framework: config.framework, component: component.name }
   );
 }
 

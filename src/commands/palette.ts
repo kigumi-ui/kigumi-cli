@@ -18,6 +18,7 @@ import {
   UserCancelledError,
   PreFlightCheckError,
   ConfigNotFoundError,
+  InternalInvariantError,
 } from '../errors/index.js';
 import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
@@ -61,7 +62,9 @@ async function paletteAction(
 
     // Config must be loaded at this point (checks passed)
     if (!config) {
-      throw new Error('Configuration not loaded despite passing checks');
+      throw new InternalInvariantError(
+        'Configuration not loaded despite passing checks'
+      );
     }
 
     // Detect tier from .env

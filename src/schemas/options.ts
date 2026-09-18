@@ -12,8 +12,8 @@
  */
 
 import { z } from 'zod';
-import type { ZodIssue } from 'zod';
 import { frameworkSchema } from './config.js';
+import { ValidationError } from '../errors/index.js';
 
 /**
  * Init command options schema
@@ -77,13 +77,18 @@ export function validateOptions<T extends z.ZodType>(
   const result = schema.safeParse(options);
 
   if (!result.success) {
-    // We'll throw proper InvalidOptionsError in integration phase
-    const errors = result.error.issues.map((err: ZodIssue) => {
+    const errors = result.error.issues.map((err) => {
       const path = err.path.join('.');
       return path ? `${path}: ${err.message}` : err.message;
     });
 
-    throw new Error(`Invalid options:\n${errors.join('\n')}`);
+    throw new ValidationError(
+      'options',
+      undefined,
+      undefined,
+      result.error,
+      `Invalid options:\n${errors.join('\n')}`
+    );
   }
 
   return result.data;
