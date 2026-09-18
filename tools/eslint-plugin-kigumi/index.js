@@ -32,6 +32,7 @@
  */
 
 import noCrossCommandImport from './rules/no-cross-command-import.js';
+import noRawThrow from './rules/no-raw-throw.js';
 
 /** @type {import('eslint').ESLint.Plugin} */
 const plugin = {
@@ -41,6 +42,7 @@ const plugin = {
   },
   rules: {
     'no-cross-command-import': noCrossCommandImport,
+    'no-raw-throw': noRawThrow,
   },
 };
 

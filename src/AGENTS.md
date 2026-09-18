@@ -394,9 +394,10 @@ Used by `commands/add/index.ts` and `commands/theme/install.ts`.
 
 ## Error Handling
 
-Use typed errors from `src/errors/`. **Never `throw new Error(...)` in `src/`.**
-A raw Error reaches `handleError` as `UnknownError`, so it exits 1 whatever went
-wrong and loses its semantic code and suggestions.
+Use typed errors from `src/errors/`. **Never `throw new Error(...)` in `src/`** -
+`kigumi/no-raw-throw` enforces this. A raw Error reaches `handleError` as
+`UnknownError`, so it exits 1 whatever went wrong and loses its semantic code
+and suggestions.
 
 ```typescript
 import {
@@ -495,4 +496,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-18 (all 32 raw `throw new Error(...)` in `src/` replaced with typed classes; new `InternalInvariantError`, `RegistrySourceInvalidError` and `RegistryFetchError`; `ValidationError` gained a message override and `CommunityComponentNotFoundError` a `kind`, issue #1; `kigumi/no-cross-command-import` enforces the leaf-node contract for commands, issue #4; the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
+**Last Updated:** 2026-09-18 (`kigumi/no-raw-throw` holds the raw-throw count at zero, issue #1; all 32 raw `throw new Error(...)` in `src/` replaced with typed classes; new `InternalInvariantError`, `RegistrySourceInvalidError` and `RegistryFetchError`; `ValidationError` gained a message override and `CommunityComponentNotFoundError` a `kind`, issue #1; `kigumi/no-cross-command-import` enforces the leaf-node contract for commands, issue #4; the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
