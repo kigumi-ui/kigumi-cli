@@ -92,7 +92,60 @@ When reviewing a guard, the question is not "does it pass" but "what did it
 compare, and would the output differ if it had compared nothing". If those two
 runs look the same, the guard is not a guard.
 
-An automated check for this shape, a lint rule for callers that map an empty
-result onto success, is tracked in issue #47. It is hard to express without
-false positives, because `[]` legitimately means "no findings" in every
-validator here, and was kept out of the change that established the rule.
+## Why there is no lint rule for this (issue #47)
+
+Issue #47 asked whether this rule could be enforced mechanically instead of by
+review. It cannot, and the reason is worth recording so it is not re-litigated.
+
+**The defect and the correct pattern are syntactically identical.** The
+`validate:cem-sync` defect, in full, was:
+
+```ts
+const out = new Map();
+const cemPath = findCustomElementsJsonSync();
+if (!cemPath) return out; // empty accumulator, early return
+```
+
+And here is correct code from the same directory:
+
+```ts
+const findings: Finding[] = [];
+if (nothingToCheck) return findings; // empty accumulator, early return
+```
+
+There are **52** early returns of an empty accumulator in `scripts/`. Exactly
+one of them was the bug. A syntactic rule keyed on this shape would produce 51
+false positives, and the noise would be worse than the defect: a rule that is
+suppressed everywhere teaches people to suppress it.
+
+The irony is sharpest in the most correct code in the repo.
+`checkGeneratorFreshness` returns `{ findings: [], cem }` when the manifest is
+unusable — an empty-accumulator early return that a syntactic rule would flag,
+written specifically to obey this ADR.
+
+**A type-aware rule is not available either.** Distinguishing the two cases
+needs to know that `out` is an _input_ the caller will treat as evidence, not a
+_result_. That is a dataflow question, and ESLint cannot answer it here:
+`eslint.config.js` wires no `parserOptions.project` for `scripts/`, so
+type-aware rules do not run there at all. `@typescript-eslint`'s
+`no-unnecessary-condition` and the `strict-boolean-expressions` family are
+adjacent but target nullability, not this.
+
+**The narrower alternative is not worth its keep.** Issue #47 suggested
+requiring that a resolution type's `found` field be read before its payload.
+That is mechanical — but the repo contains exactly **one** such type
+(`CemResolution`), with five consumers, and all five already discriminate:
+four on `resolution.path`, one on `resolution.found`, one further via
+`assessCemCompleteness(...).usable`. A rule policing one type with five correct
+call sites is overhead, not a guard.
+
+**What actually prevents recurrence** is the funnel, not a linter. `resolveCem`
+is the single way to locate a manifest and it reports what it found rather than
+deciding what absence means; `guard-outcome.ts` owns `verified` separately from
+`exitCode`. Both defects were possible because each caller made its own
+decision about absence. Neither can recur without deleting that seam, which is
+a visible change in review — unlike the silent pass, which was not.
+
+Reconsider this only if a second resolution type appears, or if `scripts/` gains
+a type-aware ESLint project. Until then, the review question in the previous
+section is the enforcement.
