@@ -1,27 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generateCSSTemplate > emits the Button CSS template 1`] = `
-"/**
- * Button Component Styles
- * Documentation: https://webawesome.com/docs/components/button
- *
- * CSS Custom Properties:
- * (No custom properties defined for this component)
- *
- * CSS Parts:
- * - base: The component's base wrapper.
- * - start: The container that wraps the \`start\` slot.
- * - label: The button's label.
- * - end: The container that wraps the \`end\` slot.
- * - caret: The button's caret icon, a \`<wa-icon>\` element.
- * - spinner: The spinner that shows when the button is in the loading state.
- */
-.Button {
-  /* Add your custom styles here */
-}
-"
-`;
-
 exports[`generateTestJavascriptTemplate > emits the Button JS test stub 1`] = `
 "import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
