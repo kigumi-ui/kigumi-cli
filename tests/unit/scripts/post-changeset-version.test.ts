@@ -151,6 +151,27 @@ const MULTILINE_BODY_FIXTURE = `# Changelog
 - Prior entry kept verbatim.
 `;
 
+// Regression: a changeset bullet whose body WRAPS onto further lines.
+// Changesets nests the whole changeset two spaces deeper, so a continuation
+// line written at 2 spaces arrives at 4. The de-indent step only matched a
+// non-whitespace character at column 3, so the bullet dropped to column 0
+// while its continuation stayed stranded at 4 -- which prettier rejects.
+// This shipped in 1.0.3 and failed CI on the release PR.
+const WRAPPED_BULLET_FIXTURE = `# Changelog
+
+## 1.0.3
+
+### Patch Changes
+
+- abc1234: ### Fixed
+
+  - \`release-readiness\` can now reach a GO verdict. The gate required pending
+    changesets and a version ahead of the last tag at the same time, but
+    \`pnpm run version\` consumes the changesets to produce the bump.
+  - A second wrapped bullet, so the join between two of them is covered
+    as well as a single one in isolation.
+`;
+
 describe('rewriteChangelog', () => {
   it('reformats a fresh changesets entry to Keep-a-Changelog', () => {
     expect(rewriteChangelog(CHANGELOG_FIXTURE, TODAY)).toMatchSnapshot();
@@ -219,6 +240,20 @@ describe('rewriteChangelog', () => {
     );
   });
 
+  it('de-indents a wrapped bullet body to the list level, not one nesting deeper', () => {
+    const result = rewriteChangelog(WRAPPED_BULLET_FIXTURE, TODAY);
+    const continuation = result
+      .split('\n')
+      .filter((line) => line.includes('changesets and a version ahead'));
+
+    // Exactly one such line, indented to markdown's list-continuation level.
+    // At 4 spaces prettier reformats it; at 0 it would read as a new paragraph
+    // and break out of the bullet.
+    expect(continuation).toEqual([
+      '  changesets and a version ahead of the last tag at the same time, but',
+    ]);
+  });
+
   it('falls back to Changed instead of dropping content with no category header', () => {
     const result = rewriteChangelog(NO_CATEGORY_HEADER_FIXTURE, '2026-08-18');
 
@@ -239,6 +274,7 @@ describe('generated changelog is prettier-clean', () => {
     ['hash-on-header-line changesets', MULTI_CHANGESET_HASH_FIXTURE],
     ['category-less prose changesets', NO_CATEGORY_HEADER_FIXTURE],
     ['multi-line bodies with a code fence', MULTILINE_BODY_FIXTURE],
+    ['bullets whose body wraps onto further lines', WRAPPED_BULLET_FIXTURE],
   ];
 
   for (const [name, fixture] of cases) {
