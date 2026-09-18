@@ -253,7 +253,18 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 
 ### `utils/naming.ts` - Naming Conventions
 
-Converts between PascalCase and kebab-case. Used for Angular's lowercase file naming convention and tag name construction (`ButtonGroup` -> `button-group`).
+Converts between PascalCase, kebab-case and camelCase. Used for Angular's lowercase file naming convention and tag name construction (`ButtonGroup` -> `button-group`), and by the three template generators to turn Web Awesome event names into per-framework handler names.
+
+| Export            | Direction                                              |
+| ----------------- | ------------------------------------------------------ |
+| `toKebabCase()`   | PascalCase -> kebab-case (`QRCode` -> `qr-code`)       |
+| `toPascalCase()`  | kebab-case -> PascalCase (`after-hide` -> `AfterHide`) |
+| `toCamelCase()`   | kebab-case -> camelCase (`after-hide` -> `afterHide`)  |
+| `stripWaPrefix()` | drops a leading `wa-` from an event name               |
+
+The two directions are not mirror images. `toKebabCase` has to decide where a run of capitals ends, so it carries a second replace: without it `QRCode` becomes `qrcode` rather than `qr-code` and silently misses every registry and metadata lookup keyed by the kebab name (issue #31). `toPascalCase` only joins parts already separated by hyphens, so it needs no such rule.
+
+Generators build their distinct handler names on these primitives rather than re-deriving them — React `onAfterHide`, Vue `WaAfterHide`, Angular `afterHide`, including Angular's `input` -> `inputEvent` collision rule. Do not add a fifth casing helper to a generator; extend this module.
 
 ### `utils/template.ts` - Materialization + Extension Utilities
 
@@ -456,4 +467,4 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-17 (the three type-declaration writers — `generateViteEnvDts`, `generateNextEnvDts`, `configureVueTypes` — now honour the detected source layout and create their target directory; `configureVueTypes` gained an optional `sourceLayout` parameter, issue #48)
+**Last Updated:** 2026-09-18 (`utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive; the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31)
