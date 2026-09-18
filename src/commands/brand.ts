@@ -18,6 +18,7 @@ import {
   UserCancelledError,
   PreFlightCheckError,
   ConfigNotFoundError,
+  InternalInvariantError,
 } from '../errors/index.js';
 import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
@@ -70,7 +71,9 @@ async function brandAction(colorName?: string, options: BrandOptions = {}) {
 
     // Config must be loaded at this point (checks passed)
     if (!config) {
-      throw new Error('Configuration not loaded despite passing checks');
+      throw new InternalInvariantError(
+        'Configuration not loaded despite passing checks'
+      );
     }
 
     // 3. Resolve the brand color. An explicit argument always wins. With

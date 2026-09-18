@@ -173,8 +173,9 @@ export async function installDependencies(
       createLockfileErrorMessage(packageManager, lockfileCheck.lockfilePath)
     );
 
-    throw new Error(
-      `Incompatible ${packageManager} lockfile - please delete and reinstall`
+    throw new DependencyInstallError(
+      `Incompatible ${packageManager} lockfile - please delete and reinstall`,
+      packageManager
     );
   }
 

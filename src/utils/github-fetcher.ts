@@ -14,7 +14,11 @@ import {
   validateCommunityRegistry,
 } from '../schemas/community-registry.js';
 import { CLI_VERSION, GITHUB_RAW_BASE_URL } from '../constants.js';
-import { PathTraversalError } from '../errors/community-registry.js';
+import {
+  PathTraversalError,
+  RegistrySourceInvalidError,
+  RegistryFetchError,
+} from '../errors/community-registry.js';
 import type { OutputInterface } from '../output/types.js';
 import { satisfiesMinimum } from './version-check.js';
 
@@ -163,17 +167,25 @@ export function parseGitHubUrl(url: string): GitHubRegistrySource {
   try {
     parsed = new URL(normalized);
   } catch (error) {
-    throw new Error(`Invalid URL: ${url}`, { cause: error });
+    throw new RegistrySourceInvalidError(
+      url,
+      `Invalid URL: ${url}`,
+      error instanceof Error ? error : undefined
+    );
   }
 
   if (parsed.hostname !== 'github.com') {
-    throw new Error(`Only GitHub URLs are supported. Got: ${parsed.hostname}`);
+    throw new RegistrySourceInvalidError(
+      url,
+      `Only GitHub URLs are supported. Got: ${parsed.hostname}`
+    );
   }
 
   const pathParts = parsed.pathname.split('/').filter(Boolean);
 
   if (pathParts.length < 2) {
-    throw new Error(
+    throw new RegistrySourceInvalidError(
+      url,
       `Invalid GitHub repository URL: ${url}. Expected format: https://github.com/owner/repo`
     );
   }
@@ -237,14 +249,18 @@ export async function fetchFile(
     } catch (error) {
       const errno = error as NodeJS.ErrnoException;
       if (errno.code === 'ENOENT') {
-        throw new Error(
+        throw new RegistryFetchError(
+          filePath,
+          source.absolutePath,
           `File not found: ${filePath} in ${source.absolutePath}`,
-          { cause: error }
+          { status: 404, cause: error instanceof Error ? error : undefined }
         );
       }
-      throw new Error(
+      throw new RegistryFetchError(
+        filePath,
+        source.absolutePath,
         `Failed to read ${filePath} from ${source.absolutePath}: ${errno.message}`,
-        { cause: error }
+        { cause: error instanceof Error ? error : undefined }
       );
     }
   }
@@ -262,16 +278,27 @@ export async function fetchFile(
 
   if (!response.ok) {
     if (response.status === 404) {
-      throw new Error(`File not found: ${filePath} in ${source.url}`);
-    }
-    if (response.status === 401 || response.status === 403) {
-      throw new Error(
-        `Authentication failed for ${source.url}. ` +
-          'Provide a GitHub token for private repositories.'
+      throw new RegistryFetchError(
+        filePath,
+        source.url,
+        `File not found: ${filePath} in ${source.url}`,
+        { status: 404 }
       );
     }
-    throw new Error(
-      `Failed to fetch ${filePath} from ${source.url}: ${response.status} ${response.statusText}`
+    if (response.status === 401 || response.status === 403) {
+      throw new RegistryFetchError(
+        filePath,
+        source.url,
+        `Authentication failed for ${source.url}. ` +
+          'Provide a GitHub token for private repositories.',
+        { status: response.status }
+      );
+    }
+    throw new RegistryFetchError(
+      filePath,
+      source.url,
+      `Failed to fetch ${filePath} from ${source.url}: ${response.status} ${response.statusText}`,
+      { status: response.status }
     );
   }
 
@@ -298,9 +325,12 @@ export async function fetchRegistryJson(
   try {
     data = JSON.parse(content);
   } catch (error) {
-    throw new Error(`Invalid JSON in registry.json from ${source.url}`, {
-      cause: error,
-    });
+    throw new RegistryFetchError(
+      'registry.json',
+      source.url,
+      `Invalid JSON in registry.json from ${source.url}`,
+      { cause: error instanceof Error ? error : undefined }
+    );
   }
 
   const registry = validateCommunityRegistry(data, source.url);

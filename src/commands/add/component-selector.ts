@@ -12,6 +12,7 @@ import {
 import { isComponentAvailable } from '../../utils/tier-restrictions.js';
 import type { OutputInterface } from '../../output/types.js';
 import type { AddOptions } from '../../schemas/index.js';
+import { UserCancelledError } from '../../errors/index.js';
 
 /**
  * Select components to add
@@ -89,7 +90,7 @@ async function selectComponentsInteractive(
   });
 
   if (p.isCancel(selected)) {
-    throw new Error('Operation cancelled');
+    throw new UserCancelledError('Operation cancelled');
   }
 
   return selected as string[];
