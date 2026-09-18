@@ -16,6 +16,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { resolveCem } from './find-cem.js';
+import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -277,15 +278,10 @@ async function parseCustomElements(): Promise<ParsedOutput> {
       const events = (declaration.events || [])
         .map((event) => {
           const name = event.name || '';
-          const stripped = name.startsWith('wa-') ? name.slice(3) : name;
-          const camel = stripped
-            .split('-')
-            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-            .join('');
           return {
             name,
             description: event.description || '',
-            reactName: `on${camel}`,
+            reactName: `on${toPascalCase(stripWaPrefix(name))}`,
             eventType: event.eventName || event.type?.text || 'Event',
           };
         })

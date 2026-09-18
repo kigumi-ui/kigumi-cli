@@ -23,6 +23,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+import { toPascalCase } from '../src/utils/naming.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,15 +59,8 @@ const PRO_COMPONENTS = [
   'video-playlist',
 ] as const;
 
-function kebabToPascal(kebab: string): string {
-  return kebab
-    .split('-')
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join('');
-}
-
 function classNameFor(comp: string): string {
-  return 'Wa' + kebabToPascal(comp);
+  return 'Wa' + toPascalCase(comp);
 }
 
 // Primitives and built-in types that don't need a local `export type` stub.

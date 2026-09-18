@@ -18,7 +18,11 @@ import { mkdir, writeFile, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
-import { toKebabCase } from '../src/utils/naming.js';
+import {
+  toKebabCase,
+  toPascalCase,
+  stripWaPrefix,
+} from '../src/utils/naming.js';
 import { resolveCem, assessCemCompleteness } from './find-cem.js';
 
 const PROJECT_ROOT = process.cwd();
@@ -121,25 +125,13 @@ const METHOD_OVERRIDES: Record<string, ComponentCEMetadata['methods']> = {
 /**
  * Convert kebab-case to PascalCase
  */
-function toPascalCase(str: string): string {
-  return str
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('');
-}
-
 /**
  * Derive a React handler name from a WA event name.
  * Always derives from the raw event name: strip "wa-" prefix, camelCase, prepend "on".
  * Never uses reactName from custom-elements.json (it says "onWaHide" but templates use "onHide").
  */
 function deriveReactName(eventName: string): string {
-  const stripped = eventName.startsWith('wa-') ? eventName.slice(3) : eventName;
-  const camel = stripped
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join('');
-  return `on${camel}`;
+  return `on${toPascalCase(stripWaPrefix(eventName))}`;
 }
 
 /**

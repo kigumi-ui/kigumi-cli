@@ -20,6 +20,7 @@ import {
   type ComponentDefinition,
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
+import { toKebabCase, toPascalCase } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   extractCustomTypeImports,
@@ -107,10 +108,7 @@ function convertToVuePropType(tsType: string): string {
  * Convert event name to PascalCase handler name
  */
 function pascalCase(str: string): string {
-  return str
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join('');
+  return toPascalCase(str);
 }
 
 /**
@@ -611,9 +609,7 @@ export function generateVueJavascriptTemplate(
 // =============================================================================
 
 export function generateCSSTemplate(componentName: string): string {
-  const kebabName = componentName
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .toLowerCase();
+  const kebabName = toKebabCase(componentName);
   const metadata = CSS_METADATA[kebabName];
   const docsUrl =
     metadata?.docsUrl || `https://webawesome.com/docs/components/${kebabName}`;
