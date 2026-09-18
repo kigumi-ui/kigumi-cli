@@ -34,6 +34,17 @@ export default tseslint.config(
       'kigumi/no-cross-command-import': 'error',
     },
   },
+  // Errors carry a semantic code, an exit code and suggestions. A raw Error
+  // reaches handleError as UnknownError and loses all three. See issue #1.
+  //
+  // Scoped to src/: scripts/ and tools/ are build-time code that never runs
+  // through the CLI's error handler, so a plain throw is right there.
+  {
+    files: ['src/**/*.ts'],
+    rules: {
+      'kigumi/no-raw-throw': 'error',
+    },
+  },
   {
     rules: {
       '@typescript-eslint/no-unused-vars': [
