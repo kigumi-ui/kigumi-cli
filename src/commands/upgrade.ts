@@ -21,7 +21,7 @@ import {
 } from '../utils/version-map.js';
 import { getProjectInfo } from '../utils/detect-framework.js';
 import { detectTier } from '../utils/tier.js';
-import { installDependencies } from './init/installer.js';
+import { installDependencies } from '../utils/dependency-installer.js';
 
 interface UpgradeOptions {
   cwd?: string;

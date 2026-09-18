@@ -115,7 +115,7 @@ describe('upgrade command', () => {
       .mockReturnValue([]);
     vi.spyOn(versionMap, 'getVersionsBetween').mockReturnValue([]);
 
-    const installer = await import('../../src/commands/init/installer.js');
+    const installer = await import('../../src/utils/dependency-installer.js');
     vi.spyOn(installer, 'installDependencies').mockResolvedValue(undefined);
 
     const detectFramework = await import('../../src/utils/detect-framework.js');
@@ -299,7 +299,7 @@ describe('upgrade command', () => {
 
     const { upgradeCommand } = await import('../../src/commands/upgrade.js');
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await upgradeCommand({ cwd: testDir, yes: true });
 
@@ -318,7 +318,7 @@ describe('upgrade command', () => {
 
     const { upgradeCommand } = await import('../../src/commands/upgrade.js');
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await upgradeCommand({ cwd: testDir, yes: true, install: false });
 
@@ -356,7 +356,7 @@ describe('upgrade command', () => {
 
     const { upgradeCommand } = await import('../../src/commands/upgrade.js');
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await upgradeCommand({ cwd: testDir, yes: true });
 

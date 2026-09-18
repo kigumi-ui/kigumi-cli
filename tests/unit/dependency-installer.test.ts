@@ -1,7 +1,7 @@
 /**
  * Init Installer Tests
  *
- * Tests for src/commands/init/installer.ts:
+ * Tests for src/utils/dependency-installer.ts:
  * - installDependencies() - Install Web Awesome and framework dependencies
  * - cleanupOldPackage() - Remove old package after tier migration
  * - createStoreErrorMessage() - pnpm store error message
@@ -92,7 +92,7 @@ describe('installDependencies', () => {
 
   it('should install free tier package with npm', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -120,7 +120,7 @@ describe('installDependencies', () => {
 
   it('should install pro tier package with pnpm', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -145,7 +145,7 @@ describe('installDependencies', () => {
 
   it('should use "add" command for pnpm and yarn', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     for (const pm of ['pnpm', 'yarn'] as const) {
       mockExeca.mockReset();
@@ -171,7 +171,7 @@ describe('installDependencies', () => {
 
   it('should use "install" command for npm', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -193,7 +193,7 @@ describe('installDependencies', () => {
 
   it('should pin Web Awesome exactly via --save-exact (npm)', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -216,7 +216,7 @@ describe('installDependencies', () => {
 
   it('should pin Web Awesome exactly via --save-exact (pnpm)', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -239,7 +239,7 @@ describe('installDependencies', () => {
 
   it('should include clsx for React framework', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -263,7 +263,7 @@ describe('installDependencies', () => {
 
   it('should not include clsx for Vue framework', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -287,7 +287,7 @@ describe('installDependencies', () => {
 
   it('should install React type definitions as devDependencies for React TS', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -312,7 +312,7 @@ describe('installDependencies', () => {
 
   it('should not install type definitions for non-TypeScript React', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -334,7 +334,7 @@ describe('installDependencies', () => {
 
   it('should not install type definitions for Vue framework', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -356,7 +356,7 @@ describe('installDependencies', () => {
 
   it('should stop spinner on success', async () => {
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await installDependencies({
       cwd: tempDir,
@@ -374,7 +374,7 @@ describe('installDependencies', () => {
   describe('error handling', () => {
     it('should throw DependencyInstallError on install failure', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const { DependencyInstallError } =
         await import('../../src/errors/index.js');
 
@@ -402,7 +402,7 @@ describe('installDependencies', () => {
 
     it('should retry with --legacy-peer-deps on npm ERESOLVE error', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
 
       mockExeca
         .mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 0 }) // lockfile check
@@ -439,7 +439,7 @@ describe('installDependencies', () => {
 
     it('should not retry with --legacy-peer-deps for non-npm package managers', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const { DependencyInstallError } =
         await import('../../src/errors/index.js');
 
@@ -466,7 +466,7 @@ describe('installDependencies', () => {
 
     it('should throw if npm ERESOLVE retry also fails', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const { DependencyInstallError } =
         await import('../../src/errors/index.js');
 
@@ -500,7 +500,7 @@ describe('installDependencies', () => {
 
     it('should detect pnpm store version mismatch and throw', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const { DependencyInstallError } =
         await import('../../src/errors/index.js');
 
@@ -535,7 +535,7 @@ describe('installDependencies', () => {
 
     it('should detect lockfile compatibility issue during install and throw', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const { DependencyInstallError } =
         await import('../../src/errors/index.js');
 
@@ -566,7 +566,7 @@ describe('installDependencies', () => {
 
     it('should detect 401 auth error for pro tier and show token guidance', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const { DependencyInstallError } =
         await import('../../src/errors/index.js');
 
@@ -601,7 +601,7 @@ describe('installDependencies', () => {
 
     it('should not show pro token guidance for 401 on free tier', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
 
       mockExeca
         .mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 0 }) // lockfile check
@@ -631,7 +631,7 @@ describe('installDependencies', () => {
 
     it('should show spinner error on install failure', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
 
       mockExeca
         .mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 0 }) // lockfile check
@@ -662,7 +662,7 @@ describe('installDependencies', () => {
 
     it('should handle non-execa errors gracefully', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const { DependencyInstallError } =
         await import('../../src/errors/index.js');
 
@@ -686,7 +686,7 @@ describe('installDependencies', () => {
   describe('lockfile compatibility pre-check', () => {
     it('should throw when pre-check detects incompatible lockfile', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
 
       // Create lockfile so the check runs
       await fs.writeFile(path.join(tempDir, 'pnpm-lock.yaml'), 'lockfile: 1');
@@ -715,7 +715,7 @@ describe('installDependencies', () => {
 
     it('should proceed when lockfile is compatible', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
 
       // Create lockfile
       await fs.writeFile(path.join(tempDir, 'pnpm-lock.yaml'), 'lockfile: 1');
@@ -737,7 +737,7 @@ describe('installDependencies', () => {
 
     it('should proceed when no lockfile exists', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
 
       // No lockfile created
       mockExeca.mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 });
@@ -757,7 +757,7 @@ describe('installDependencies', () => {
   describe('pro tier token handling', () => {
     it('should set env token when pro tier and token available', async () => {
       const { installDependencies } =
-        await import('../../src/commands/init/installer.js');
+        await import('../../src/utils/dependency-installer.js');
       const tokenModule = await import('../../src/utils/token.js');
       const detectProTokenSyncMock =
         tokenModule.detectProTokenSync as ReturnType<typeof vi.fn>;
@@ -815,7 +815,7 @@ describe('cleanupOldPackage', () => {
 
   it('should skip cleanup when package.json does not exist', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await cleanupOldPackage(
       tempDir,
@@ -830,7 +830,7 @@ describe('cleanupOldPackage', () => {
 
   it('should skip cleanup when old package is not in dependencies', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await fs.writeJSON(path.join(tempDir, 'package.json'), {
       dependencies: { react: '^18.0.0' },
@@ -848,7 +848,7 @@ describe('cleanupOldPackage', () => {
 
   it('should uninstall old free package when present in dependencies', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await fs.writeJSON(path.join(tempDir, 'package.json'), {
       dependencies: { '@awesome.me/webawesome': '^3.2.1' },
@@ -870,7 +870,7 @@ describe('cleanupOldPackage', () => {
 
   it('should uninstall old pro package when present', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await fs.writeJSON(path.join(tempDir, 'package.json'), {
       dependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
@@ -892,7 +892,7 @@ describe('cleanupOldPackage', () => {
 
   it('should use "uninstall" for npm and "remove" for pnpm/yarn', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     const packageJson = {
       dependencies: { '@awesome.me/webawesome': '^3.2.1' },
@@ -947,7 +947,7 @@ describe('cleanupOldPackage', () => {
 
   it('should show spinner during cleanup', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await fs.writeJSON(path.join(tempDir, 'package.json'), {
       dependencies: { '@awesome.me/webawesome': '^3.2.1' },
@@ -972,7 +972,7 @@ describe('cleanupOldPackage', () => {
 
   it('should warn but not throw when uninstall fails', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     await fs.writeJSON(path.join(tempDir, 'package.json'), {
       dependencies: { '@awesome.me/webawesome': '^3.2.1' },
@@ -1000,7 +1000,7 @@ describe('cleanupOldPackage', () => {
 
   it('should silently handle errors reading package.json', async () => {
     const { cleanupOldPackage } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     // Write invalid JSON
     await fs.writeFile(
@@ -1049,7 +1049,7 @@ describe('createStoreErrorMessage', () => {
       );
 
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     try {
       await installDependencies({
@@ -1101,7 +1101,7 @@ describe('createLockfileErrorMessage', () => {
       );
 
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     try {
       await installDependencies({
@@ -1150,7 +1150,7 @@ describe('createLockfileErrorMessage', () => {
       );
 
     const { installDependencies } =
-      await import('../../src/commands/init/installer.js');
+      await import('../../src/utils/dependency-installer.js');
 
     try {
       await installDependencies({

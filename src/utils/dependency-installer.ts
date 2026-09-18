@@ -3,6 +3,11 @@
  *
  * PURPOSE: Handles package installation for kigumi projects.
  *
+ * Lives in utils/ rather than under a command, because both `init` and
+ * `upgrade` install dependencies. It was previously commands/init/installer.ts,
+ * which made upgrade.ts reach across into another command's directory - the
+ * only cross-command import in the codebase. See issue #4.
+ *
  * EXPORTS:
  * - installDependencies() - Install Web Awesome and framework dependencies
  * - cleanupOldPackage() - Remove old package after tier migration
@@ -13,17 +18,17 @@
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
-import { ENV_TOKEN_KEY } from '../../constants.js';
-import type { OutputInterface } from '../../output/types.js';
-import type { KigumiConfig } from '../../schemas/index.js';
-import type { Tier } from '../../utils/tier.js';
-import { getWebAwesomePackage } from '../../utils/tier.js';
+import { ENV_TOKEN_KEY } from '../constants.js';
+import type { OutputInterface } from '../output/types.js';
+import type { KigumiConfig } from '../schemas/index.js';
+import type { Tier } from './tier.js';
+import { getWebAwesomePackage } from './tier.js';
 import {
   describeTokenSource,
   detectProTokenSync,
   getTokenSourceSync,
-} from '../../utils/token.js';
-import { DependencyInstallError } from '../../errors/index.js';
+} from './token.js';
+import { DependencyInstallError } from '../errors/index.js';
 
 export interface InstallOptions {
   cwd: string;
