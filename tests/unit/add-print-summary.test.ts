@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { printSummary } from '../../src/commands/add/index.js';
 import type { KigumiConfig } from '../../src/schemas/index.js';
-import type { OutputInterface } from '../../src/output/types.js';
 import type { InstallResult } from '../../src/commands/add/installer.js';
+import {
+  createRecordingOutput,
+  type RecordingOutput,
+} from './_helpers/output.js';
 
 /**
  * printSummary fans out into four independent reporting concerns: installed
@@ -12,41 +15,12 @@ import type { InstallResult } from '../../src/commands/add/installer.js';
  * Nothing covered this function before the split, so these tests were written
  * against the original 86-line version first and are what make the extraction
  * safe: every assertion here passed before the refactor and after it.
+ *
+ * `printSummary` is a test-only seam: exported from src/commands/add/index.ts
+ * solely so these assertions can reach it, kept at the bottom of that module,
+ * with no new public callers. The four helpers it delegates to stay private.
+ * See tests/AGENTS.md, "Internals Exported for Test Coverage".
  */
-
-type Call = [method: string, ...args: string[]];
-
-function recordingOutput(): { output: OutputInterface; calls: Call[] } {
-  const calls: Call[] = [];
-  const record =
-    (method: string) =>
-    (...args: unknown[]) => {
-      calls.push([method, ...args.map((a) => String(a))]);
-    };
-
-  const output = {
-    start: record('start'),
-    message: record('message'),
-    stop: record('stop'),
-    intro: record('intro'),
-    outro: record('outro'),
-    info: record('info'),
-    success: record('success'),
-    warning: record('warning'),
-    warn: record('warn'),
-    error: record('error'),
-    note: record('note'),
-    debug: record('debug'),
-    spinner: () => ({
-      start: record('spinner.start'),
-      message: record('spinner.message'),
-      stop: record('spinner.stop'),
-      error: record('spinner.error'),
-    }),
-  } as unknown as OutputInterface;
-
-  return { output, calls };
-}
 
 function config(framework: string): KigumiConfig {
   return {
@@ -65,18 +39,21 @@ function result(over: Partial<InstallResult>): InstallResult {
   } as InstallResult;
 }
 
-let calls: Call[];
-let output: OutputInterface;
+let output: RecordingOutput;
 
 beforeEach(() => {
-  ({ output, calls } = recordingOutput());
+  output = createRecordingOutput();
 });
 
-/** All arguments of every call to `method`, flattened for substring checks. */
+/**
+ * All arguments of every call to `method`, flattened for substring checks.
+ * printSummary's output is prose, so these assertions read it as text rather
+ * than matching exact `{ method, args }` shapes.
+ */
 function textOf(method: string): string {
-  return calls
-    .filter((c) => c[0] === method)
-    .map((c) => c.slice(1).join(' | '))
+  return output.calls
+    .filter((c) => c.method === method)
+    .map((c) => c.args.map((a) => String(a)).join(' | '))
     .join('\n');
 }
 

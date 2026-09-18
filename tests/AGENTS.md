@@ -6,9 +6,10 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (99 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (100 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
+│   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
 │   ├── add-validator.test.ts        # Component validation
 │   ├── brand-command.test.ts        # Brand color command
 │   ├── check-runner.test.ts         # Pre-flight check runner
@@ -643,6 +644,15 @@ helper's logic in isolation. Current cases:
   by `tests/unit/scripts/check-wa-upgrade.test.ts`. Exported so the
   added/removed/changed boundary can be pinned against hand-built manifests
   rather than downloading two real Web Awesome tarballs per assertion.
+
+- `printSummary` in `src/commands/add/index.ts` — the `add` command's whole
+  reporting surface, asserted directly by
+  `tests/unit/add-print-summary.test.ts`. Exported so the four reporting
+  concerns (installed, cross-framework staged, overwritten-modifications
+  warning, skipped/failed) can be pinned independently; the four helpers it
+  delegates to stay private, so callers still see one function. The
+  assertions were written against the pre-split 86-line version, which is
+  what makes the extraction in issue #33 provably behaviour-preserving.
 
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
