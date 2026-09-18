@@ -1,4 +1,5 @@
-import { RuleTester } from 'eslint';
+import { ESLint, RuleTester } from 'eslint';
+import { describe, it, expect } from 'vitest';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - plain .js rule, see tools/eslint-plugin-kigumi/index.js
 import rule from '../../../tools/eslint-plugin-kigumi/rules/no-cross-command-import.js';
@@ -82,4 +83,44 @@ ruleTester.run('no-cross-command-import', rule, {
       errors: [{ messageId: 'crossCommand' }],
     },
   ],
+});
+
+/**
+ * A rule file that exists but is never registered is dead code, and its
+ * RuleTester cases keep passing because they import the rule directly. This
+ * asserts the wiring instead: the plugin registers it, and `pnpm lint` would
+ * actually reach a real file through it.
+ *
+ * The plugin's rules map and eslint.config.js are both one-line edits that
+ * every new rule makes in the same place, so they are exactly where a merge
+ * resolution silently drops one.
+ */
+describe('no-cross-command-import is wired up, not just written', () => {
+  it('is registered in the plugin under its own name', async () => {
+    const plugin = (
+      await import('../../../tools/eslint-plugin-kigumi/index.js')
+    ).default;
+    expect(Object.keys(plugin.rules ?? {})).toContain(
+      'no-cross-command-import'
+    );
+  });
+
+  it('reports through a real ESLint run over src/commands/', async () => {
+    const eslint = new ESLint({
+      overrideConfigFile: new URL('../../../eslint.config.js', import.meta.url)
+        .pathname,
+    });
+    const [result] = await eslint.lintText(
+      "import { x } from './init/installer.js';\nexport const y = x;\n",
+      {
+        filePath: new URL(
+          '../../../src/commands/__wiring-probe.ts',
+          import.meta.url
+        ).pathname,
+      }
+    );
+    expect(result.messages.map((m) => m.ruleId)).toContain(
+      'kigumi/no-cross-command-import'
+    );
+  });
 });
