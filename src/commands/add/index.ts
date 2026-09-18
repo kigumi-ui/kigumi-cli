@@ -1,4 +1,6 @@
 import type { KigumiConfig } from '../../schemas/config.js';
+import type { OutputInterface } from '../../output/types.js';
+import type { InstallResult } from './installer.js';
 /**
  * Add Command - Main Orchestrator
  *
@@ -326,80 +328,102 @@ function resolveImportBase(config: KigumiConfig): string {
 }
 
 /**
- * Print installation summary
+ * The import statement a user needs after installing components.
+ *
+ * Vue components are single-file components imported one per file by default
+ * export; every other framework re-exports from one barrel. This lives next to
+ * resolveImportBase because that is where the framework branching belongs.
  */
-function printSummary(
-  results: import('./installer.js').InstallResult[],
+function formatImportStatement(
+  componentNames: string[],
+  config: KigumiConfig
+): string {
+  const importBase = resolveImportBase(config);
+
+  if (config.framework === 'vue') {
+    return componentNames
+      .map((name) => `import ${name} from '${importBase}/${name}/${name}.vue';`)
+      .join('\n');
+  }
+
+  return `import { ${componentNames.join(', ')} } from '${importBase}';`;
+}
+
+/** Components that were written to disk, with the import hint. */
+function reportInstalled(
+  installed: InstallResult[],
   config: KigumiConfig,
-  output: import('../../output/types.js').OutputInterface,
+  output: OutputInterface,
   registryName?: string
 ): void {
-  const installed = results.filter((r) => r.success && !r.skipped && !r.staged);
-  const staged = results.filter((r) => r.success && r.staged);
-  const skipped = results.filter((r) => r.success && r.skipped);
-  const failed = results.filter((r) => !r.success);
+  if (installed.length === 0) return;
 
-  if (installed.length > 0) {
-    const source = registryName ? ` from ${registryName}` : '';
-    output.success(`Added ${installed.length} component(s)${source}`);
+  const source = registryName ? ` from ${registryName}` : '';
+  output.success(`Added ${installed.length} component(s)${source}`);
+  output.note(
+    'Import them',
+    formatImportStatement(
+      installed.map((r) => r.name),
+      config
+    )
+  );
+}
 
-    const importBase = resolveImportBase(config);
-    if (config.framework === 'vue') {
-      const importList = installed
-        .map(
-          (r) =>
-            `import ${r.name} from '${importBase}/${r.name}/${r.name}.vue';`
-        )
-        .join('\n');
-      output.note('Import them', importList);
-    } else {
-      const componentNames = installed.map((r) => r.name).join(', ');
-      output.note(
-        'Import them',
-        `import { ${componentNames} } from '${importBase}';`
-      );
+/** Components staged under .kigumi/foreign/ for agent-driven conversion. */
+function reportStaged(
+  staged: InstallResult[],
+  config: KigumiConfig,
+  output: OutputInterface,
+  registryName?: string
+): void {
+  if (staged.length === 0) return;
+
+  const sourcePart = registryName ? ` from ${registryName}` : '';
+  output.success(
+    `Staged ${staged.length} component(s)${sourcePart} for cross-framework conversion`
+  );
+
+  const handoffLines: string[] = [];
+  for (const r of staged) {
+    handoffLines.push(`${r.name} (${r.sourceFramework} → ${config.framework})`);
+    handoffLines.push(`  Files at: ${r.stagedPath}`);
+    if (r.handoffPrompt) {
+      handoffLines.push(`  Ask Claude: "${r.handoffPrompt}"`);
     }
+    handoffLines.push('');
   }
-
-  // Cross-framework: components staged for agent-driven conversion
-  if (staged.length > 0) {
-    const sourcePart = registryName ? ` from ${registryName}` : '';
-    output.success(
-      `Staged ${staged.length} component(s)${sourcePart} for cross-framework conversion`
-    );
-
-    const handoffLines: string[] = [];
-    for (const r of staged) {
-      handoffLines.push(
-        `${r.name} (${r.sourceFramework} → ${config.framework})`
-      );
-      handoffLines.push(`  Files at: ${r.stagedPath}`);
-      if (r.handoffPrompt) {
-        handoffLines.push(`  Ask Claude: "${r.handoffPrompt}"`);
-      }
-      handoffLines.push('');
-    }
-    // Trailing empty line is just a separator inside the note body
-    if (handoffLines[handoffLines.length - 1] === '') {
-      handoffLines.pop();
-    }
-    output.note('Convert with kigumi-cross-framework', handoffLines.join('\n'));
+  // Trailing empty line is just a separator inside the note body
+  if (handoffLines[handoffLines.length - 1] === '') {
+    handoffLines.pop();
   }
+  output.note('Convert with kigumi-cross-framework', handoffLines.join('\n'));
+}
 
-  // Show which components had local modifications that were overwritten
-  const overwrittenWithMods = installed.filter(
+/** Components whose local edits were overwritten by the install. */
+function reportOverwrittenModifications(
+  installed: InstallResult[],
+  output: OutputInterface
+): void {
+  const overwritten = installed.filter(
     (r) => r.modifiedFiles && r.modifiedFiles.length > 0
   );
-  if (overwrittenWithMods.length > 0) {
-    output.warning(
-      'The following components had local modifications that were overwritten:'
-    );
-    for (const r of overwrittenWithMods) {
-      output.warn(`  ${r.name}: ${r.modifiedFiles!.join(', ')}`);
-    }
-    output.info('Review the changes with git diff to verify nothing was lost.');
-  }
+  if (overwritten.length === 0) return;
 
+  output.warning(
+    'The following components had local modifications that were overwritten:'
+  );
+  for (const r of overwritten) {
+    output.warn(`  ${r.name}: ${r.modifiedFiles!.join(', ')}`);
+  }
+  output.info('Review the changes with git diff to verify nothing was lost.');
+}
+
+/** Components that were already present, and ones that could not be added. */
+function reportSkippedAndFailed(
+  skipped: InstallResult[],
+  failed: InstallResult[],
+  output: OutputInterface
+): void {
   if (skipped.length > 0) {
     output.info(`Skipped ${skipped.length} existing component(s)`);
   }
@@ -410,6 +434,32 @@ function printSummary(
       output.error(`${r.name}: ${r.error}`);
     });
   }
+}
+
+/**
+ * Print installation summary
+ *
+ * Stays the single entry point: callers report on a run, and do not need to
+ * know which of the four outcomes it produced. Each branch is a named helper
+ * so it can be read and tested on its own.
+ *
+ * Exported for tests.
+ */
+export function printSummary(
+  results: InstallResult[],
+  config: KigumiConfig,
+  output: OutputInterface,
+  registryName?: string
+): void {
+  const installed = results.filter((r) => r.success && !r.skipped && !r.staged);
+  const staged = results.filter((r) => r.success && r.staged);
+  const skipped = results.filter((r) => r.success && r.skipped);
+  const failed = results.filter((r) => !r.success);
+
+  reportInstalled(installed, config, output, registryName);
+  reportStaged(staged, config, output, registryName);
+  reportOverwrittenModifications(installed, output);
+  reportSkippedAndFailed(skipped, failed, output);
 
   const anySuccess = installed.length + staged.length > 0;
   output.outro(anySuccess ? '✓ Done' : 'No new components added');
