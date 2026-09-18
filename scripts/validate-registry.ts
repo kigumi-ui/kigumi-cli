@@ -281,9 +281,7 @@ export function validateTagName(
   }
 
   // Normalize key: 'ButtonGroup' -> 'button-group' (camelCase to kebab-case)
-  const normalizedKey = key
-    .replace(/([a-z])([A-Z])/g, '$1-$2') // Insert hyphen between lowercase and uppercase
-    .toLowerCase();
+  const normalizedKey = toKebabCase(key);
 
   // Extract tag without 'wa-' prefix for comparison
   const tagWithoutPrefix = component.tagName.replace(/^wa-/, '');

@@ -15,6 +15,11 @@ import {
   type ComponentDefinition,
 } from '../src/utils/registry.js';
 import { CSS_METADATA } from './css-metadata.js';
+import {
+  toKebabCase,
+  toPascalCase,
+  stripWaPrefix,
+} from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   extractCustomTypeImports,
@@ -32,15 +37,15 @@ const TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates', 'react');
  * Strips the 'wa-' prefix since Kigumi wrappers expose simplified handler names.
  */
 function toReactEventName(eventName: string): string {
-  const stripped = eventName.startsWith('wa-') ? eventName.slice(3) : eventName;
-  const parts = stripped.split('-');
-  const camelCase = parts
-    .map((part, index) =>
-      index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)
-    )
-    .join('');
+  return 'on' + toPascalCase(stripWaPrefix(eventName));
+}
 
-  return 'on' + camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+/**
+ * Internal handler variable name, derived from the raw event name.
+ * Keeps the 'wa' segment: 'wa-after-hide' -> 'handleWaAfterHide'.
+ */
+function toHandlerName(eventName: string): string {
+  return `handle${toPascalCase(eventName)}`;
 }
 
 /**
@@ -174,10 +179,7 @@ export function generateReactTypescriptTemplate(
     .map((event) => {
       const reactName = toReactEventName(event.name);
       const eventType = mapEventType(event.name);
-      return `      const handle${event.name
-        .split('-')
-        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-        .join('')} = (e: Event) => {
+      return `      const ${toHandlerName(event.name)} = (e: Event) => {
         if (${reactName}) ${reactName}(e as ${eventType});
       };`;
     })
@@ -185,20 +187,14 @@ export function generateReactTypescriptTemplate(
 
   const addEventListeners = metadata.events
     .map((event) => {
-      const handlerName = `handle${event.name
-        .split('-')
-        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-        .join('')}`;
+      const handlerName = toHandlerName(event.name);
       return `      el.addEventListener('${event.name}', ${handlerName});`;
     })
     .join('\n');
 
   const removeEventListeners = metadata.events
     .map((event) => {
-      const handlerName = `handle${event.name
-        .split('-')
-        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-        .join('')}`;
+      const handlerName = toHandlerName(event.name);
       return `        el.removeEventListener('${event.name}', ${handlerName});`;
     })
     .join('\n');
@@ -325,9 +321,7 @@ ${component.name}.displayName = '${component.name}';
  * Generate CSS template
  */
 export function generateCSSTemplate(componentName: string): string {
-  const kebabName = componentName
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .toLowerCase();
+  const kebabName = toKebabCase(componentName);
   const metadata = CSS_METADATA[kebabName];
   const docsUrl =
     metadata?.docsUrl || `https://webawesome.com/docs/components/${kebabName}`;
