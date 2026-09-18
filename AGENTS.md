@@ -363,7 +363,7 @@ User projects get `.npmrc` with registry URL only via `kigumi init`. The docs ap
 | free     | pro  | Migrate imports to `-pro`, update `.npmrc` |
 | pro      | free | Reverse migrate imports, update `.npmrc`   |
 
-**Critical files:** `src/commands/init/migration.ts`, `src/commands/init/installer.ts`
+**Critical files:** `src/commands/init/migration.ts`, `src/utils/dependency-installer.ts`
 
 ---
 
@@ -405,7 +405,7 @@ flowchart TD
     end
 
     subgraph Commands["commands/"]
-        init["init/\nconfig-builder, file-generator\nmigration, installer"]
+        init["init/\nconfig-builder, file-generator\nmigration"]
         add["add/\ncomponent-selector, validator\ninstaller, remote-installer"]
         theme["theme/\nset, install"]
         doctor["doctor.ts"]
@@ -1091,4 +1091,4 @@ pnpm release-readiness:quick         # skip e2e
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-16 (validate:cem-sync no longer reports success for work it did not do: the prop-value half requires a complete CEM and runs in the `freshness` job, guard reporting shared via scripts/guard-outcome.ts, see docs/adr/0003; CEM resolution unified in scripts/find-cem.ts as resolveCem(), scoped to one root -- the skill-reference generator's own copy, which walked up to the main worktree, is gone; validate:generated-fresh Check A now requires a complete CEM, never reports an unverified run as a pass, and runs in CI's own ungated `freshness` job; scripts/** path filter added, issue #43; validators, external links and upstream versions now run on the weekly maintenance cron, so drift caused by the outside world moving is visible without anyone editing a file; the two upstream checks report via an issue and never fail the build; committed credentials blocked via validate:no-secrets, and the Chromatic project token moved out of docs/package.json into CHROMATIC_PROJECT_TOKEN; local eslint-plugin-kigumi scaffold added under tools/; validate:agents now covers templates/AGENTS.md count claims; GHA job permissions enforced via validate:gha-permissions; commit attribution enforced via a husky commit-msg hook; story interaction lanes derive from one shared list; fixture exclusions enforced across the three ignore lists; 84 components; superpowers state-files and the Second Brain protocol retired in favour of the mattpocock-skills workflow; event handler types now resolve through one shared mapEventType keyed on the DOM event name, see docs/adr/0001)
+**Maintained by:** AI Assistants | **Last Updated:** 2026-09-18 (the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4; validate:cem-sync no longer reports success for work it did not do: the prop-value half requires a complete CEM and runs in the `freshness` job, guard reporting shared via scripts/guard-outcome.ts, see docs/adr/0003; CEM resolution unified in scripts/find-cem.ts as resolveCem(), scoped to one root -- the skill-reference generator's own copy, which walked up to the main worktree, is gone; validate:generated-fresh Check A now requires a complete CEM, never reports an unverified run as a pass, and runs in CI's own ungated `freshness` job; scripts/** path filter added, issue #43; validators, external links and upstream versions now run on the weekly maintenance cron, so drift caused by the outside world moving is visible without anyone editing a file; the two upstream checks report via an issue and never fail the build; committed credentials blocked via validate:no-secrets, and the Chromatic project token moved out of docs/package.json into CHROMATIC_PROJECT_TOKEN; local eslint-plugin-kigumi scaffold added under tools/; validate:agents now covers templates/AGENTS.md count claims; GHA job permissions enforced via validate:gha-permissions; commit attribution enforced via a husky commit-msg hook; story interaction lanes derive from one shared list; fixture exclusions enforced across the three ignore lists; 84 components; superpowers state-files and the Second Brain protocol retired in favour of the mattpocock-skills workflow; event handler types now resolve through one shared mapEventType keyed on the DOM event name, see docs/adr/0001)
