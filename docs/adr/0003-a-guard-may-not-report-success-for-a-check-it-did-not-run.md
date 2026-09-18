@@ -113,10 +113,29 @@ const findings: Finding[] = [];
 if (nothingToCheck) return findings; // empty accumulator, early return
 ```
 
-There are **52** early returns of an empty accumulator in `scripts/`. Exactly
-one of them was the bug. A syntactic rule keyed on this shape would produce 51
+`scripts/` contains **11** guarded early returns of an empty accumulator:
+
+```
+validate-cem-sync.ts:239          if (cemAttrTypes.size === 0) return findings;
+generate-angular-templates.ts:111 if (!metadata?.events) return [];
+generate-angular-templates.ts:125 if (!metadata?.methods) return [];
+validate-fixture-exclusions.ts:106 if (!match) return [];
+check-generated-fresh.ts:235      if (!(await fs.pathExists(docsUiDir))) return findings;
+check-generated-fresh.ts:275      if (!(await fs.pathExists(reactDir))) return findings;
+check-generated-fresh.ts:316      if (!(await fs.pathExists(fixturesRoot))) return findings;
+check-generated-fresh.ts:362      if (!(await fs.pathExists(llmsPath))) return findings;
+post-changeset-version.ts:157     if (next === undefined) return out;
+validate-story-lanes.ts:67        if (!block) return [];
+validate-registry.ts:95           if (!Array.isArray(component.props)) return errors;
+```
+
+Exactly one was the bug. A syntactic rule keyed on this shape would produce ten
 false positives, and the noise would be worse than the defect: a rule that is
 suppressed everywhere teaches people to suppress it.
+
+Read the list rather than the count. `validate-cem-sync.ts:239` is the _fixed_
+cem-sync guard, and the four `check-generated-fresh.ts` entries return empty
+when a path is absent — all indistinguishable, as text, from the defect.
 
 The irony is sharpest in the most correct code in the repo.
 `checkGeneratorFreshness` returns `{ findings: [], cem }` when the manifest is
@@ -126,7 +145,7 @@ written specifically to obey this ADR.
 **A type-aware rule is not available either.** Distinguishing the two cases
 needs to know that `out` is an _input_ the caller will treat as evidence, not a
 _result_. That is a dataflow question, and ESLint cannot answer it here:
-`eslint.config.js` wires no `parserOptions.project` for `scripts/`, so
+`eslint.config.js` wires no `parserOptions.project` anywhere in the repo, so
 type-aware rules do not run there at all. `@typescript-eslint`'s
 `no-unnecessary-condition` and the `strict-boolean-expressions` family are
 adjacent but target nullability, not this.
