@@ -26,6 +26,14 @@ export default tseslint.config(
   {
     plugins: { kigumi: kigumiPlugin },
   },
+  // Commands are leaf nodes: shared code belongs in utils/, never in a sibling
+  // command's directory. See issue #4.
+  {
+    files: ['src/commands/**/*.ts'],
+    rules: {
+      'kigumi/no-cross-command-import': 'error',
+    },
+  },
   {
     rules: {
       '@typescript-eslint/no-unused-vars': [

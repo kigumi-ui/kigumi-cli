@@ -25,7 +25,13 @@
  *
  * Rules must be AST-based. A regex over source text is what let the
  * `className` anti-pattern check sit dead for months (see cluster A).
+ * no-cross-command-import is a worked example of why: it resolves each import
+ * against the importing file's own path, because `commands/add.ts` importing
+ * `./add/index.js` (legitimate) and `commands/upgrade.ts` importing
+ * `./init/installer.js` (a violation) are indistinguishable as strings.
  */
+
+import noCrossCommandImport from './rules/no-cross-command-import.js';
 
 /** @type {import('eslint').ESLint.Plugin} */
 const plugin = {
@@ -34,8 +40,7 @@ const plugin = {
     version: '0.0.0',
   },
   rules: {
-    // No rules yet. Cluster D ships the harness only; clusters E, F and K
-    // add the first real rules on top of it.
+    'no-cross-command-import': noCrossCommandImport,
   },
 };
 
