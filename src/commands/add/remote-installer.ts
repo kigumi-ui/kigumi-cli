@@ -35,6 +35,10 @@ import {
   CircularDependencyError,
 } from '../../errors/community-registry.js';
 import type { InstallResult } from './installer.js';
+import {
+  FrameworkMismatchError,
+  InternalInvariantError,
+} from '../../errors/index.js';
 
 export class RemoteComponentInstaller {
   private cache = getRegistryCache();
@@ -86,9 +90,10 @@ export class RemoteComponentInstaller {
       }
 
       if (!options.crossFramework) {
-        throw new Error(
-          `Component "${name}" does not support ${framework}. ` +
-            `Available: ${Object.keys(comp.files).join(', ')}`
+        throw new FrameworkMismatchError(
+          name,
+          Object.keys(comp.files),
+          framework
         );
       }
 
@@ -235,9 +240,10 @@ export class RemoteComponentInstaller {
     const files = component.files[sourceFramework];
     if (!files) {
       // Should never happen — strategies map guarantees this key exists.
-      throw new Error(
-        `Internal error: source framework ${sourceFramework} not found in ` +
-          `comp.files for "${componentKey}"`
+      throw new InternalInvariantError(
+        `Source framework ${sourceFramework} not found in ` +
+          `comp.files for "${componentKey}"`,
+        { componentKey, sourceFramework }
       );
     }
 
@@ -271,7 +277,10 @@ export class RemoteComponentInstaller {
   ): Promise<boolean> {
     const files = component.files[framework];
     if (!files) {
-      throw new Error(`No files for framework ${framework}`);
+      throw new InternalInvariantError(`No files for framework ${framework}`, {
+        componentKey: component.name,
+        framework,
+      });
     }
 
     const componentDir = path.join(
