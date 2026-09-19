@@ -8,7 +8,8 @@
  * - --symbol-spacing: The spacing to use around symbols.
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `rating` part instead.
+ * - rating: The component's outer wrapper.
  */
 :host {
   display: contents;

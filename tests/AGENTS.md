@@ -118,6 +118,7 @@ tests/
 │   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
 │   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
 │   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
+│   │   ├── generator-utils.test.ts             # Custom method-param type imports (sibling Wa* vs named self)
 │   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 │   ├── eslint-rules/
 │   │   └── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
@@ -773,6 +774,8 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 **Parent:** [AGENTS.md](../AGENTS.md)
 
 **Last Updated:** 2026-09-19
+
+- added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
 
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
 - corrected the stale .tmp-* references: the E2E Test Projects table listed three directories no e2e test has used since the suite moved to the .tmp-e2e-* scheme and omitted all four that are

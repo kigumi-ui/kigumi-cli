@@ -196,13 +196,17 @@ describe('CSS_METADATA regressions — WA 3.x names, not Shoelace-era names', ()
     expect(partNames).not.toContain('suffix');
   });
 
-  it('input uses WA 3.x part names (label, hint, base, input) without the legacy form-control-* wrappers', () => {
+  it('input uses WA 3.13 part names (form-control-label, hint, input-wrapper, input)', () => {
     const partNames = CSS_METADATA['input'].parts.map((p) => p.name);
     expect(partNames).toEqual(
-      expect.arrayContaining(['label', 'hint', 'base', 'input'])
+      expect.arrayContaining([
+        'form-control-label',
+        'hint',
+        'input-wrapper',
+        'input',
+      ])
     );
     expect(partNames).not.toContain('form-control');
-    expect(partNames).not.toContain('form-control-label');
     expect(partNames).not.toContain('form-control-input');
     expect(partNames).not.toContain('form-control-help-text');
   });

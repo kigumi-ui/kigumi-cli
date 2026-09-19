@@ -736,7 +736,9 @@ const headerStyle = {
 
 Table with page navigation, page size selector, and "Showing X-Y of Z" summary.
 
-**Components:** `npx kigumi add badge button icon select`
+**Components:** `npx kigumi add badge button icon select pagination`
+
+Prefer `<Pagination total={users.length} page-size={pageSize} page={page} with-summary />` for page navigation instead of custom previous/next buttons.
 
 ### React
 

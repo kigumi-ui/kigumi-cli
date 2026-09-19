@@ -8,7 +8,8 @@
  * - --slide-gap: The space between each slide. (default: var(--wa-space-m))
  *
  * CSS Parts:
- * - base: The carousel's internal wrapper.
+ * - base: Deprecated. Use the `carousel` part instead.
+ * - carousel: The component's outer wrapper.
  * - scroll-container: The scroll container that wraps the slides.
  * - pagination: The pagination indicators wrapper.
  * - pagination-item: The pagination indicator.

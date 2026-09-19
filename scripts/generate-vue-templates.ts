@@ -22,7 +22,7 @@ import {
 import { toPascalCase } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
-  extractCustomTypeImports,
+  formatCustomTypeImports,
   generateCssTemplate,
   mapEventType,
   writeFormatted,
@@ -40,6 +40,8 @@ const VALUE_MODEL_COMPONENTS = new Set([
   'select',
   'combobox',
   'number-input',
+  'otp-input',
+  'tag-input',
   'slider',
   'rating',
   'radio-group',
@@ -502,14 +504,11 @@ onMounted(() => {
 `;
 
   // Component-specific type imports for non-primitive parameter types (TS only).
-  // Mirrors the React generator's heuristic: walk method parameter types,
-  // pull PascalCase identifiers, drop DOM/JS globals, import the rest from
-  // the component's own module (e.g. ToastCreateOptions from Toast).
-  const customTypes = typed ? extractCustomTypeImports(metadata.methods) : [];
-  const typeImport =
-    customTypes.length > 0
-      ? `import type { ${customTypes.join(', ')} } from '${component.importPath}';\n`
-      : '';
+  // Sibling `Wa*` element types default-import from their own module; other
+  // names named-import from this component's importPath.
+  const typeImport = typed
+    ? formatCustomTypeImports(metadata.methods, component.importPath)
+    : '';
 
   // The props block: a TS interface plus a type-argument defineProps, or an
   // Options-API defineProps object.

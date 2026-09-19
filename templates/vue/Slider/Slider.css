@@ -23,7 +23,7 @@
  * - thumb-max: The max value thumb in a range slider.
  * - tooltip: The tooltip, a `<wa-tooltip>` element.
  * - tooltip__tooltip: The tooltip's `tooltip` part.
- * - tooltip__content: The tooltip's `content` part.
+ * - tooltip__body: The tooltip's `body` part.
  * - tooltip__arrow: The tooltip's `arrow` part.
  */
 .Slider {

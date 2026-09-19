@@ -1,0 +1,25 @@
+/**
+ * Pagination Component Styles
+ * Documentation: https://webawesome.com/docs/components/pagination
+ *
+ * CSS Custom Properties:
+ * (No custom properties defined for this component)
+ *
+ * CSS Parts:
+ * - base: Deprecated. Use the `pagination` part instead.
+ * - pagination: The component's outer wrapper, a `<nav>` element.
+ * - button: Every button or link, including page numbers and navigation controls.
+ * - previous-button: The previous button.
+ * - next-button: The next button.
+ * - first-button: The first button.
+ * - last-button: The last button.
+ * - pages: The list that wraps the page number items.
+ * - page: A page number button or link.
+ * - page-current: The current page number button or link.
+ * - ellipsis: An ellipsis for collapsed pages. Acts as a button that jumps several pages toward that side.
+ * - summary: The summary of items on the current page, shown with the `with-summary` attribute.
+ * - label: The "1 of 5" label shown between the navigation buttons in the `compact` layout.
+ */
+:host {
+  display: contents;
+}

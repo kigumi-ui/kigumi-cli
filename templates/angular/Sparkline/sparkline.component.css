@@ -8,7 +8,8 @@
  * - --line-width: The width of the sparkline stroke.
  *
  * CSS Parts:
- * - base: The SVG container element.
+ * - base: Deprecated. Use the `sparkline` part instead.
+ * - sparkline: The component's outer wrapper.
  * - line: The sparkline stroke path.
  * - fill: The filled area under the line (visible with gradient or solid appearance).
  */

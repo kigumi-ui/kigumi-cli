@@ -196,7 +196,7 @@ export class MyForm {
 
 ### CVA Components
 
-These support `[(ngModel)]` and `[formControl]`: Input, Textarea, Select, Switch, Checkbox, Radio, RadioGroup, ColorPicker, Rating, Range, NumberInput, Combobox.
+These support `[(ngModel)]` and `[formControl]`: Input, Textarea, Select, Switch, Checkbox, Radio, RadioGroup, ColorPicker, Rating, Slider, NumberInput, Combobox, FileInput, OtpInput, TagInput.
 
 Do NOT manually wire `(change)` or `(inputEvent)` for value tracking. CVA handles it. Only use event bindings for side effects.
 

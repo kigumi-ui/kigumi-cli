@@ -110,7 +110,7 @@ describe('generateCssTemplate', () => {
     it('renders each part as "- name: description"', () => {
       const out = generateCssTemplate('Button', REACT);
       expect(out).toContain(' * CSS Parts:');
-      expect(out).toContain(" * - base: The component's base wrapper.");
+      expect(out).toContain(" * - button: The component's outer wrapper.");
     });
 
     it('omits the CSS Parts heading when the component has none', () => {
@@ -144,7 +144,7 @@ describe('generateCssTemplate', () => {
 
   describe('consecutive-capital component names resolve to the right metadata', () => {
     it('finds the qr-code entry from either spelling', () => {
-      const parts = " * - base: The component's base wrapper.";
+      const parts = " * - qr-code: The component's outer wrapper.";
       expect(generateCssTemplate('QrCode', REACT)).toContain(parts);
       expect(generateCssTemplate('QRCode', REACT)).toContain(parts);
     });

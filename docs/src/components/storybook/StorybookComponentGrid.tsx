@@ -25,6 +25,7 @@ import progressRingImage from '@/assets/components/progress-ring.png';
 import skeletonImage from '@/assets/components/skeleton.png';
 import spinnerImage from '@/assets/components/spinner.png';
 import tagImage from '@/assets/components/tag.png';
+import tagInputImage from '@/assets/components/tag-input.png';
 import toastImage from '@/assets/components/toast.png';
 import toastItemImage from '@/assets/components/toast-item.png';
 import tooltipImage from '@/assets/components/tooltip.png';
@@ -34,6 +35,7 @@ import comboboxImage from '@/assets/components/combobox.png';
 import fileInputImage from '@/assets/components/file-input.png';
 import inputImage from '@/assets/components/input.png';
 import numberInputImage from '@/assets/components/number-input.png';
+import otpInputImage from '@/assets/components/otp-input.png';
 import optionImage from '@/assets/components/option.png';
 import radioImage from '@/assets/components/radio.png';
 import radioGroupImage from '@/assets/components/radio-group.png';
@@ -51,6 +53,7 @@ import iconImage from '@/assets/components/icon.png';
 import zoomableFrameImage from '@/assets/components/zoomable-frame.png';
 import breadcrumbImage from '@/assets/components/breadcrumb.png';
 import breadcrumbItemImage from '@/assets/components/breadcrumb-item.png';
+import paginationImage from '@/assets/components/pagination.png';
 import tabImage from '@/assets/components/tab.png';
 import tabGroupImage from '@/assets/components/tab-group.png';
 import tabPanelImage from '@/assets/components/tab-panel.png';
@@ -252,6 +255,13 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       imageUrl: numberInputImage,
     },
     {
+      name: 'OTP Input',
+      description:
+        'Fixed-length code field for one-time passcodes, PINs, and invite codes.',
+      kind: 'Components/OTP Input',
+      imageUrl: otpInputImage,
+    },
+    {
       name: 'Option',
       description:
         'Selectable item used inside Select, Combobox, and similar controls.',
@@ -295,6 +305,12 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       description: 'Toggle that represents an immediate on/off boolean state.',
       kind: 'Components/Switch',
       imageUrl: switchImage,
+    },
+    {
+      name: 'Tag Input',
+      description: 'Collects keywords or labels as a list of removable tags.',
+      kind: 'Components/Tag Input',
+      imageUrl: tagInputImage,
     },
     {
       name: 'Textarea',
@@ -371,6 +387,13 @@ const componentsByCategory: Record<string, ComponentEntry[]> = {
       description: 'Individual link or label within a Breadcrumb component.',
       kind: 'Components/Breadcrumb Item',
       imageUrl: breadcrumbItemImage,
+    },
+    {
+      name: 'Pagination',
+      description:
+        'Splits long lists into pages with numbered navigation controls.',
+      kind: 'Components/Pagination',
+      imageUrl: paginationImage,
     },
     {
       name: 'Tab',

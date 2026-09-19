@@ -88,6 +88,9 @@ const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
   // full date-picker/date-input wrappers are a separate scoped effort.
   'date-picker',
   'date-input',
+  // WA 3.11 Pro data grid: 15 events, JS-driven `data`/`columns` API, not a
+  // thin attribute wrapper. Scoped effort of its own, not this bump.
+  'data-grid',
 ]);
 
 interface SyncResult {

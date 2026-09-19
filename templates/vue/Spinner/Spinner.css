@@ -9,7 +9,8 @@
  * - --speed: The time it takes for the spinner to complete one animation cycle.
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `spinner` part instead.
+ * - spinner: The component's outer wrapper.
  */
 .Spinner {
   /* Add your custom styles here */

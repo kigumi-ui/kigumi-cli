@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaCarousel from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
+import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
 import './Carousel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -76,6 +77,12 @@ export interface CarouselRef {
   /** Move the carousel forward by `slides-per-move` slides. */
   next: (behavior: ScrollBehavior) => void;
 
+  /** Adds a carousel item as the last real slide. */
+  addSlide: (slide: WaCarouselItem) => void;
+
+  /** Removes the real slide at the specified index. */
+  removeSlide: (index: number) => void;
+
   /** Scrolls the carousel to the slide specified by `index`. */
   goToSlide: (index: number, behavior: ScrollBehavior) => void;
   /** Reference to the underlying HTML element */
@@ -106,6 +113,22 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
             typeof carouselRef.current.next === 'function'
           ) {
             carouselRef.current.next(behavior);
+          }
+        },
+        addSlide: (slide: WaCarouselItem) => {
+          if (
+            carouselRef.current &&
+            typeof carouselRef.current.addSlide === 'function'
+          ) {
+            carouselRef.current.addSlide(slide);
+          }
+        },
+        removeSlide: (index: number) => {
+          if (
+            carouselRef.current &&
+            typeof carouselRef.current.removeSlide === 'function'
+          ) {
+            carouselRef.current.removeSlide(index);
           }
         },
         goToSlide: (index: number, behavior: ScrollBehavior) => {

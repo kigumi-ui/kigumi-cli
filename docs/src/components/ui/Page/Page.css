@@ -3,38 +3,36 @@
  * Documentation: https://webawesome.com/docs/components/page
  *
  * CSS Custom Properties:
- * --menu-width: Width of the navigation menu sidebar
- * --main-width: Max width of the main content area
- * --aside-width: Width of the aside panel
- * --banner-height: Height of the top banner area
- * --header-height: Height of the main header
- * --subheader-height: Height of the subheader row
+ * - --menu-width: The width of the page's "menu" section. (default: auto)
+ * - --main-width: The width of the page's "main" section. (default: 1fr)
+ * - --aside-width: The wide of the page's "aside" section. (default: auto)
+ * - --banner-height: The height of the banner. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads. (default: 0px)
+ * - --header-height: The height of the header. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads. (default: 0px)
+ * - --subheader-height: The height of the subheader. This gets calculated when the page initializes. If the height is known, you can set it here to prevent shifting when the page loads. (default: 0px)
  *
  * CSS Parts:
- * base — Root page layout wrapper
- * banner — Top banner area
- * header — Main header section
- * subheader — Subheader row below the main header
- * body — Page body containing menu, main, and aside
- * menu — Navigation menu sidebar
- * navigation — Navigation content inside the menu
- * navigation-header — Header area inside the navigation
- * navigation-footer — Footer area inside the navigation
- * navigation-toggle — Button to toggle the navigation open/closed
- * navigation-toggle-icon — Icon inside the navigation toggle button
- * main-header — Header above the main content
- * main-content — Primary page content area
- * main-footer — Footer below the main content
- * aside — Aside panel for supplementary content
- * skip-links — Skip-to-content link container
- * skip-link — Individual skip-to-content link
- * footer — Page footer section
- * dialog-wrapper — Overlay container for dialogs
+ * - base: Deprecated. Use the `page` part instead.
+ * - page: The component's outer wrapper.
+ * - banner: The banner to show above header.
+ * - header: The header, usually for top level navigation / branding.
+ * - subheader: Shown below the header, usually intended for things like breadcrumbs and other page level navigation.
+ * - body: The wrapper around menu, main, and aside.
+ * - menu: The left hand side of the page. Generally intended for navigation.
+ * - navigation: The `<nav>` that wraps the navigation slots on desktop viewports.
+ * - navigation-desktop: The `<nav>` for navigation on desktop viewports.
+ * - navigation-header: The header for a navigation area. On mobile this will be the header for `<wa-drawer>`.
+ * - navigation-footer: The footer for a navigation area. On mobile this will be the footer for `<wa-drawer>`.
+ * - navigation-toggle: The default `<wa-button>` that will toggle the `<wa-drawer>` for mobile viewports.
+ * - navigation-toggle-icon: The default `<wa-icon>` displayed inside of the navigation-toggle button.
+ * - drawer: The `<wa-drawer>` that contains the navigation on mobile viewports.
+ * - main: The wrapper around the main header, content, and footer.
+ * - main-header: The header above main content.
+ * - main-content: The main content.
+ * - main-footer: The footer below main content.
+ * - aside: The right hand side of the page. Used for things like table of contents, ads, etc.
+ * - skip-to-content: The "skip to content" link that lets keyboard users bypass navigation.
+ * - footer: The footer of the page. This is always below the initial viewport size.
  */
 .Page {
   /* Add your custom styles here */
-}
-
-.Page::part(navigation-toggle) {
-  display: none;
 }
