@@ -6,22 +6,13 @@
 // Not used at runtime. Data is derived from Web Awesome's custom-elements.json
 // (cssParts + cssProperties fields per component declaration).
 
-export interface CSSPart {
-  name: string;
-  description: string;
-}
+import type {
+  CSSPart,
+  CSSCustomProperty,
+  ComponentCSSMetadata,
+} from '../src/utils/metadata-types.js';
 
-export interface CSSCustomProperty {
-  name: string;
-  description: string;
-  default?: string;
-}
-
-export interface ComponentCSSMetadata {
-  parts: CSSPart[];
-  customProperties: CSSCustomProperty[];
-  docsUrl: string;
-}
+export type { CSSPart, CSSCustomProperty, ComponentCSSMetadata };
 
 export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
   'accordion-item': {

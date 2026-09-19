@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (100 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (101 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -99,6 +99,7 @@ tests/
 │   ├── post-changeset-version.test.ts  # Release version markers (AGENTS.md + llms.txt)
 │   ├── validate-registry.test.ts    # Registry validator (fields, props, tags)
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
+│   ├── parse-custom-elements-types.test.ts # Shared metadata types: generated modules import+re-export, never re-declare (issue #34)
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
@@ -654,6 +655,13 @@ helper's logic in isolation. Current cases:
   assertions were written against the pre-split 86-line version, which is
   what makes the extraction in issue #33 provably behaviour-preserving.
 
+- `generateTypeScriptSource` and `generateCssMetadataSource` in
+  `scripts/parse-custom-elements.ts` — the metadata emitters' output contract,
+  asserted directly by `tests/unit/parse-custom-elements-types.test.ts`.
+  Exported so a regenerated module that re-declares `ComponentMetadata` (or
+  the CSS types) instead of importing `src/utils/metadata-types.ts` fails
+  without requiring a live CEM (issue #34).
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
@@ -787,3 +795,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers
 - added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
+- added parse-custom-elements-types.test.ts covering the single-declaration contract for ComponentMetadata and the CSS-metadata types, issue #34
