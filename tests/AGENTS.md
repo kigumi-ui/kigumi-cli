@@ -801,3 +801,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
 - added parse-custom-elements-types.test.ts covering the single-declaration contract for ComponentMetadata and the CSS-metadata types, issue #34
 - added docs-wrapper-callback-refs.test.ts covering the WA 3.13 JSX object-ref ban on docs UI wrappers
+- generator-drift-guard.test.ts now drifts scripts/generator-utils.ts (shared CSS emitter), not generate-vue-templates.ts
