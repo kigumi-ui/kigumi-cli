@@ -10,26 +10,9 @@
 // types and signatures are kept: they are the interface this CLI generates
 // against. Pro licensees see the real descriptions from the package itself.
 
-export interface ComponentMetadata {
-  tagName: string;
-  className: string;
-  events: Array<{
-    name: string;
-    /** Absent for Pro components; see the note at the top of this file. */
-    description?: string;
-    reactName?: string;
-    eventType: string;
-  }>;
-  slots: Array<{
-    name: string;
-    description?: string;
-  }>;
-  methods: Array<{
-    name: string;
-    description?: string;
-    parameters?: Array<{ name: string; type: string }>;
-  }>;
-}
+import type { ComponentMetadata } from './metadata-types.js';
+
+export type { ComponentMetadata };
 
 export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   icon: {

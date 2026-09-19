@@ -17,6 +17,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { resolveCem } from './find-cem.js';
 import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
+import type {
+  ComponentMetadata,
+  CSSPart,
+  CSSCustomProperty,
+  ComponentCSSMetadata,
+} from '../src/utils/metadata-types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,43 +67,6 @@ interface CustomElementsJSON {
   modules: Array<{
     declarations?: Array<CustomElementDeclaration>;
   }>;
-}
-
-interface ComponentMetadata {
-  tagName: string;
-  className: string;
-  events: Array<{
-    name: string;
-    description?: string;
-    reactName?: string;
-    eventType: string;
-  }>;
-  slots: Array<{
-    name: string;
-    description?: string;
-  }>;
-  methods: Array<{
-    name: string;
-    description?: string;
-    parameters?: Array<{ name: string; type: string }>;
-  }>;
-}
-
-interface CSSPart {
-  name: string;
-  description: string;
-}
-
-interface CSSCustomProperty {
-  name: string;
-  description: string;
-  default?: string;
-}
-
-interface ComponentCSSMetadata {
-  parts: CSSPart[];
-  customProperties: CSSCustomProperty[];
-  docsUrl: string;
 }
 
 interface ParsedOutput {
@@ -343,7 +312,7 @@ async function parseCustomElements(): Promise<ParsedOutput> {
 }
 
 /**
- * Generate TypeScript source file
+ * Generate TypeScript source file.
  */
 function generateTypeScriptSource(
   metadata: Record<string, ComponentMetadata>
@@ -361,26 +330,9 @@ function generateTypeScriptSource(
 // types and signatures are kept: they are the interface this CLI generates
 // against. Pro licensees see the real descriptions from the package itself.
 
-export interface ComponentMetadata {
-  tagName: string;
-  className: string;
-  events: Array<{
-    name: string;
-    /** Absent for Pro components; see the note at the top of this file. */
-    description?: string;
-    reactName?: string;
-    eventType: string;
-  }>;
-  slots: Array<{
-    name: string;
-    description?: string;
-  }>;
-  methods: Array<{
-    name: string;
-    description?: string;
-    parameters?: Array<{ name: string; type: string }>;
-  }>;
-}
+import type { ComponentMetadata } from './metadata-types.js';
+
+export type { ComponentMetadata };
 
 export const COMPONENT_METADATA: Record<string, ComponentMetadata> = ${JSON.stringify(withoutProProse, null, 2)};
 `;
@@ -409,22 +361,13 @@ function generateCssMetadataSource(
 // Not used at runtime. Data is derived from Web Awesome's custom-elements.json
 // (cssParts + cssProperties fields per component declaration).
 
-export interface CSSPart {
-  name: string;
-  description: string;
-}
+import type {
+  CSSPart,
+  CSSCustomProperty,
+  ComponentCSSMetadata,
+} from '../src/utils/metadata-types.js';
 
-export interface CSSCustomProperty {
-  name: string;
-  description: string;
-  default?: string;
-}
-
-export interface ComponentCSSMetadata {
-  parts: CSSPart[];
-  customProperties: CSSCustomProperty[];
-  docsUrl: string;
-}
+export type { CSSPart, CSSCustomProperty, ComponentCSSMetadata };
 
 export const CSS_METADATA: Record<string, ComponentCSSMetadata> = ${JSON.stringify(sorted, null, 2)};
 `;
@@ -525,3 +468,5 @@ async function main() {
 }
 
 main().catch(console.error);
+
+export { generateTypeScriptSource, generateCssMetadataSource };
