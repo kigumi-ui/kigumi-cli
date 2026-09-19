@@ -396,4 +396,6 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-26 (component-count claims in this file are now enforced by validate:agents)
+**Last Updated:** 2026-08-26
+
+- component-count claims in this file are now enforced by validate:agents
