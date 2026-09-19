@@ -14,15 +14,11 @@ import {
   getAllComponents,
   type ComponentDefinition,
 } from '../src/utils/registry.js';
-import { CSS_METADATA } from './css-metadata.js';
-import {
-  toKebabCase,
-  toPascalCase,
-  stripWaPrefix,
-} from '../src/utils/naming.js';
+import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   extractCustomTypeImports,
+  generateCssTemplate,
   mapEventType,
   writeFormatted,
 } from './generator-utils.js';
@@ -321,39 +317,10 @@ ${component.name}.displayName = '${component.name}';
  * Generate CSS template
  */
 export function generateCSSTemplate(componentName: string): string {
-  const kebabName = toKebabCase(componentName);
-  const metadata = CSS_METADATA[kebabName];
-  const docsUrl =
-    metadata?.docsUrl || `https://webawesome.com/docs/components/${kebabName}`;
-
-  let content = `/**
- * ${componentName} Component Styles
- * Documentation: ${docsUrl}
- *
-`;
-
-  if (metadata?.customProperties && metadata.customProperties.length > 0) {
-    content += ` * CSS Custom Properties:\n`;
-    metadata.customProperties.forEach((prop) => {
-      const suffix = prop.default ? ` (default: ${prop.default})` : '';
-      content += ` * - ${prop.name}: ${prop.description}${suffix}\n`;
-    });
-  } else {
-    content += ` * CSS Custom Properties:\n * (No custom properties defined for this component)\n`;
-  }
-
-  content += ` *\n`;
-
-  if (metadata?.parts && metadata.parts.length > 0) {
-    content += ` * CSS Parts:\n`;
-    metadata.parts.forEach((part) => {
-      content += ` * - ${part.name}: ${part.description}\n`;
-    });
-  }
-
-  content += ` */\n.${componentName} {\n  /* Add your custom styles here */\n}\n`;
-
-  return content;
+  return generateCssTemplate(componentName, {
+    selector: `.${componentName}`,
+    body: '  /* Add your custom styles here */',
+  });
 }
 
 /**

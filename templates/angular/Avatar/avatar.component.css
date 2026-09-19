@@ -3,12 +3,12 @@
  * Documentation: https://webawesome.com/docs/components/avatar
  *
  * CSS Custom Properties:
- * --size - The size of the avatar.
+ * - --size: The size of the avatar.
  *
  * CSS Parts:
- * icon - The container that wraps the avatar's icon.
- * initials - The container that wraps the avatar's initials.
- * image - The avatar image. Only shown when the `image` attribute is set.
+ * - icon: The container that wraps the avatar's icon.
+ * - initials: The container that wraps the avatar's initials.
+ * - image: The avatar image. Only shown when the `image` attribute is set.
  */
 :host {
   display: contents;

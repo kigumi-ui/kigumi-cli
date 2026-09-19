@@ -8,6 +8,9 @@
  * picked up by both generators consistently.
  */
 
+import { CSS_METADATA } from './css-metadata.js';
+import { toKebabCase } from '../src/utils/naming.js';
+
 export const DOM_GLOBALS = new Set([
   // Element / event types
   'HTMLElement',
@@ -153,4 +156,57 @@ const NATIVE_EVENT_TYPES: Record<string, string> = {
 export function mapEventType(eventName: string): string {
   if (eventName.startsWith('wa-')) return 'CustomEvent';
   return NATIVE_EVENT_TYPES[eventName] ?? 'CustomEvent';
+}
+
+/**
+ * Emit a component's CSS template.
+ *
+ * The header comment (documentation link, custom properties, CSS parts) is
+ * identical across all three frameworks. Only the selector block genuinely
+ * differs: Angular scopes styles to the host element and sets
+ * `display: contents` so the wrapper does not introduce a box, while React and
+ * Vue scope to a class named after the component and leave the body empty.
+ *
+ * This lived three times over. The Angular copy had drifted: it hardcoded the
+ * documentation URL rather than reading `docsUrl` from the metadata, so a
+ * component needing a non-standard link was silently given the derived one.
+ * See issue #30.
+ */
+export function generateCssTemplate(
+  componentName: string,
+  options: { selector: string; body: string }
+): string {
+  const kebabName = toKebabCase(componentName);
+  const metadata = CSS_METADATA[kebabName];
+  const docsUrl =
+    metadata?.docsUrl || `https://webawesome.com/docs/components/${kebabName}`;
+
+  let content = `/**
+ * ${componentName} Component Styles
+ * Documentation: ${docsUrl}
+ *
+`;
+
+  if (metadata?.customProperties && metadata.customProperties.length > 0) {
+    content += ` * CSS Custom Properties:\n`;
+    metadata.customProperties.forEach((prop) => {
+      const suffix = prop.default ? ` (default: ${prop.default})` : '';
+      content += ` * - ${prop.name}: ${prop.description}${suffix}\n`;
+    });
+  } else {
+    content += ` * CSS Custom Properties:\n * (No custom properties defined for this component)\n`;
+  }
+
+  content += ` *\n`;
+
+  if (metadata?.parts && metadata.parts.length > 0) {
+    content += ` * CSS Parts:\n`;
+    metadata.parts.forEach((part) => {
+      content += ` * - ${part.name}: ${part.description}\n`;
+    });
+  }
+
+  content += ` */\n${options.selector} {\n${options.body}\n}\n`;
+
+  return content;
 }
