@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -54,6 +55,13 @@ export const CheckboxGroup = forwardRef<CheckboxGroupRef, CheckboxGroupProps>(
   ({ children, className, ...props }, ref) => {
     const checkboxgroupRef = useRef<HTMLElement>(null);
 
+    const setCheckboxgroupRef = useCallback(
+      (el: typeof checkboxgroupRef.current) => {
+        checkboxgroupRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -66,7 +74,7 @@ export const CheckboxGroup = forwardRef<CheckboxGroupRef, CheckboxGroupProps>(
 
     return (
       <wa-checkbox-group
-        ref={checkboxgroupRef}
+        ref={setCheckboxgroupRef}
         class={clsx('CheckboxGroup', className)}
         {...(props as Record<string, unknown>)}
       >

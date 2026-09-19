@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -121,6 +122,10 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
       }
     >(null);
 
+    const setButtonRef = useCallback((el: typeof buttonRef.current) => {
+      buttonRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -184,7 +189,7 @@ export const Button = forwardRef<ButtonRef, ButtonProps>(
 
     return (
       <wa-button
-        ref={buttonRef}
+        ref={setButtonRef}
         class={clsx('Button', className)}
         {...(props as Record<string, unknown>)}
       >

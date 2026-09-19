@@ -10,6 +10,7 @@
  * - header: The container that wraps the card's header.
  * - body: The container that wraps the card's main content.
  * - footer: The container that wraps the card's footer.
+ * - actions: The container that wraps the card's actions.
  */
 :host {
   display: contents;

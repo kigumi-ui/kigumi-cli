@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -41,6 +42,13 @@ export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
   ({ children, className, ...props }, ref) => {
     const buttongroupRef = useRef<HTMLElement & {}>(null);
 
+    const setButtongroupRef = useCallback(
+      (el: typeof buttongroupRef.current) => {
+        buttongroupRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -53,7 +61,7 @@ export const ButtonGroup = forwardRef<ButtonGroupRef, ButtonGroupProps>(
 
     return (
       <wa-button-group
-        ref={buttongroupRef}
+        ref={setButtongroupRef}
         class={clsx('ButtonGroup', className)}
         {...(props as Record<string, unknown>)}
       >

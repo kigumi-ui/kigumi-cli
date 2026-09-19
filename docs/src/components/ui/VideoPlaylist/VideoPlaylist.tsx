@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -57,6 +58,13 @@ export const VideoPlaylist = forwardRef<VideoPlaylistRef, VideoPlaylistProps>(
       }
     >(null);
 
+    const setVideoplaylistRef = useCallback(
+      (el: typeof videoplaylistRef.current) => {
+        videoplaylistRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -108,7 +116,7 @@ export const VideoPlaylist = forwardRef<VideoPlaylistRef, VideoPlaylistProps>(
 
     return (
       <wa-video-playlist
-        ref={videoplaylistRef}
+        ref={setVideoplaylistRef}
         class={clsx('VideoPlaylist', className)}
         {...(props as Record<string, unknown>)}
       >

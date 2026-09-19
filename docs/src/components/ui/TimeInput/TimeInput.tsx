@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -94,12 +95,7 @@ export interface TimeInputProps extends Omit<
 
   /** The preferred placement of the dropdown */
   placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end';
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
   /** Emitted as the user types into a segment or interacts with the popup columns. */
   onInput?: (event: CustomEvent) => void;
@@ -192,6 +188,10 @@ export const TimeInput = forwardRef<TimeInputRef, TimeInputProps>(
         resetValidity?: () => void;
       }
     >(null);
+
+    const setTimeinputRef = useCallback((el: typeof timeinputRef.current) => {
+      timeinputRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -341,7 +341,7 @@ export const TimeInput = forwardRef<TimeInputRef, TimeInputProps>(
 
     return (
       <wa-time-input
-        ref={timeinputRef}
+        ref={setTimeinputRef}
         class={clsx('TimeInput', className)}
         {...(props as Record<string, unknown>)}
       >

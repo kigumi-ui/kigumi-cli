@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -43,6 +44,10 @@ export const Tree = forwardRef<TreeRef, TreeProps>(
   ({ children, className, onSelectionChange, ...props }, ref) => {
     const treeRef = useRef<HTMLElement & {}>(null);
 
+    const setTreeRef = useCallback((el: typeof treeRef.current) => {
+      treeRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -70,7 +75,7 @@ export const Tree = forwardRef<TreeRef, TreeProps>(
 
     return (
       <wa-tree
-        ref={treeRef}
+        ref={setTreeRef}
         class={clsx('Tree', className)}
         {...(props as Record<string, unknown>)}
       >

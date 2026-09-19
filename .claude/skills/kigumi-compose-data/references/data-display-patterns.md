@@ -744,7 +744,7 @@ Prefer `<Pagination total={users.length} page-size={pageSize} page={page} with-s
 
 ```tsx
 import { useState, useMemo } from 'react';
-import { Badge, Button, Icon, Select } from '@/components/ui';
+import { Badge, Pagination, Select } from '@/components/ui';
 
 interface User {
   id: number;
@@ -764,7 +764,6 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const totalPages = Math.ceil(users.length / pageSize);
   const start = (page - 1) * pageSize;
   const end = Math.min(start + pageSize, users.length);
 
@@ -831,51 +830,30 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
 
       {/* Pagination controls */}
       <div className="wa-split wa-align-items-center">
-        <span
-          style={{
-            color: 'var(--wa-color-text-quiet)',
-            fontSize: 'var(--wa-font-size-s)',
-          }}
+        <Select
+          value={String(pageSize)}
+          onChange={(e: CustomEvent) =>
+            handlePageSizeChange(Number((e.target as HTMLSelectElement).value))
+          }
+          size="small"
+          style={{ width: '80px' }}
         >
-          Showing {start + 1}-{end} of {users.length}
-        </span>
-        <div className="wa-cluster wa-gap-s wa-align-items-center">
-          <Select
-            value={String(pageSize)}
-            onChange={(e: CustomEvent) =>
-              handlePageSizeChange(
-                Number((e.target as HTMLSelectElement).value)
-              )
-            }
-            size="small"
-            style={{ width: '80px' }}
-          >
-            {PAGE_SIZE_OPTIONS.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </Select>
-          <Button
-            variant="neutral"
-            size="small"
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-          >
-            <Icon name="chevron-left" label="Previous page" />
-          </Button>
-          <span style={{ fontSize: 'var(--wa-font-size-s)' }}>
-            Page {page} of {totalPages}
-          </span>
-          <Button
-            variant="neutral"
-            size="small"
-            disabled={page >= totalPages}
-            onClick={() => setPage(page + 1)}
-          >
-            <Icon name="chevron-right" label="Next page" />
-          </Button>
-        </div>
+          {PAGE_SIZE_OPTIONS.map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </Select>
+        <Pagination
+          total={users.length}
+          page-size={pageSize}
+          page={page}
+          with-summary
+          onPageChange={(e: CustomEvent) => {
+            const next = (e.target as HTMLElement & { page?: number }).page;
+            if (typeof next === 'number') setPage(next);
+          }}
+        />
       </div>
     </div>
   );
@@ -887,7 +865,7 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
 ```vue
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Badge, Button, Icon, Select } from '@/components/ui';
+import { Badge, Pagination, Select } from '@/components/ui';
 
 interface User {
   id: number;
@@ -908,9 +886,6 @@ const props = defineProps<{ users: User[] }>();
 const page = ref(1);
 const pageSize = ref(10);
 
-const totalPages = computed(() =>
-  Math.ceil(props.users.length / pageSize.value)
-);
 const start = computed(() => (page.value - 1) * pageSize.value);
 const end = computed(() =>
   Math.min(start.value + pageSize.value, props.users.length)
@@ -923,6 +898,11 @@ const paginatedUsers = computed(() =>
 function handlePageSizeChange(event: CustomEvent) {
   pageSize.value = Number((event.target as HTMLSelectElement).value);
   page.value = 1;
+}
+
+function handlePageChange(event: CustomEvent) {
+  const next = (event.target as HTMLElement & { page?: number }).page;
+  if (typeof next === 'number') page.value = next;
 }
 
 const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
@@ -970,42 +950,23 @@ const headerStyle = {
 
     <!-- Pagination controls -->
     <div class="wa-split wa-align-items-center">
-      <span
-        style="color: var(--wa-color-text-quiet); font-size: var(--wa-font-size-s)"
+      <Select
+        :value="String(pageSize)"
+        size="small"
+        style="width: 80px"
+        @wa-change="handlePageSizeChange"
       >
-        Showing {{ start + 1 }}-{{ end }} of {{ users.length }}
-      </span>
-      <div class="wa-cluster wa-gap-s wa-align-items-center">
-        <Select
-          :value="String(pageSize)"
-          size="small"
-          style="width: 80px"
-          @wa-change="handlePageSizeChange"
-        >
-          <option v-for="size in PAGE_SIZE_OPTIONS" :key="size" :value="size">
-            {{ size }}
-          </option>
-        </Select>
-        <Button
-          variant="neutral"
-          size="small"
-          :disabled="page <= 1"
-          @click="page--"
-        >
-          <Icon name="chevron-left" label="Previous page" />
-        </Button>
-        <span style="font-size: var(--wa-font-size-s)">
-          Page {{ page }} of {{ totalPages }}
-        </span>
-        <Button
-          variant="neutral"
-          size="small"
-          :disabled="page >= totalPages"
-          @click="page++"
-        >
-          <Icon name="chevron-right" label="Next page" />
-        </Button>
-      </div>
+        <option v-for="size in PAGE_SIZE_OPTIONS" :key="size" :value="size">
+          {{ size }}
+        </option>
+      </Select>
+      <Pagination
+        :total="users.length"
+        :page-size="pageSize"
+        :page="page"
+        with-summary
+        @wa-page-change="handlePageChange"
+      />
     </div>
   </div>
 </template>

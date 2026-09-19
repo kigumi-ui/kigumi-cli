@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -55,6 +56,13 @@ export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
   ({ children, className, ...props }, ref) => {
     const doughnutChartRef = useRef<HTMLElement>(null);
 
+    const setDoughnutChartRef = useCallback(
+      (el: typeof doughnutChartRef.current) => {
+        doughnutChartRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -67,7 +75,7 @@ export const DoughnutChart = forwardRef<DoughnutChartRef, DoughnutChartProps>(
 
     return (
       <wa-doughnut-chart
-        ref={doughnutChartRef}
+        ref={setDoughnutChartRef}
         class={clsx('DoughnutChart', className)}
         {...(props as Record<string, unknown>)}
       >

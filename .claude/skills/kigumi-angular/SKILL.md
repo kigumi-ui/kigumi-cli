@@ -196,7 +196,7 @@ export class MyForm {
 
 ### CVA Components
 
-These support `[(ngModel)]` and `[formControl]`: Input, Textarea, Select, Switch, Checkbox, Radio, RadioGroup, ColorPicker, Rating, Slider, NumberInput, Combobox, FileInput, OtpInput, TagInput.
+Form controls that implement `ControlValueAccessor` are marked **Form:** ControlValueAccessor on each component in [angular-api-surface.md](../shared/angular-api-surface.md). That list is generated from `NG_VALUE_ACCESSOR` in the Angular templates — do not maintain a second copy here.
 
 Do NOT manually wire `(change)` or `(inputEvent)` for value tracking. CVA handles it. Only use event bindings for side effects.
 
@@ -318,7 +318,7 @@ Before outputting the converted component, verify:
 
 ## Component API Reference
 
-For the complete list of all 80 components with their Inputs, Outputs, Slots, Methods, and CSS Parts:
+For the complete list of all 87 components with their Inputs, Outputs, Slots, Methods, and CSS Parts:
 
 [Angular API Surface](../shared/angular-api-surface.md)
 

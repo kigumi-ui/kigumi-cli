@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -84,6 +85,10 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
       }
     >(null);
 
+    const setDetailsRef = useCallback((el: typeof detailsRef.current) => {
+      detailsRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -145,7 +150,7 @@ export const Details = forwardRef<DetailsRef, DetailsProps>(
 
     return (
       <wa-details
-        ref={detailsRef}
+        ref={setDetailsRef}
         class={clsx('Details', className)}
         {...(props as Record<string, unknown>)}
       >

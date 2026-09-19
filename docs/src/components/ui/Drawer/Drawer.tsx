@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -97,6 +98,10 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
   ) => {
     const drawerRef = useRef<HTMLElement & { open?: boolean }>(null);
 
+    const setDrawerRef = useCallback((el: typeof drawerRef.current) => {
+      drawerRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -148,7 +153,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
     return createPortal(
       <wa-drawer
-        ref={drawerRef}
+        ref={setDrawerRef}
         class={clsx('Drawer', className)}
         {...(props as Record<string, unknown>)}
       >

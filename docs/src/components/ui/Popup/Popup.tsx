@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -116,6 +117,10 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
       }
     >(null);
 
+    const setPopupRef = useCallback((el: typeof popupRef.current) => {
+      popupRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -151,7 +156,7 @@ export const Popup = forwardRef<PopupRef, PopupProps>(
 
     return (
       <wa-popup
-        ref={popupRef}
+        ref={setPopupRef}
         class={clsx('Popup', className)}
         {...(props as Record<string, unknown>)}
       >

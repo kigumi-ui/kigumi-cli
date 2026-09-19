@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -118,6 +119,10 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
       }
     >(null);
 
+    const setPopoverRef = useCallback((el: typeof popoverRef.current) => {
+      popoverRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -179,7 +184,7 @@ export const Popover = forwardRef<PopoverRef, PopoverProps>(
 
     return (
       <wa-popover
-        ref={popoverRef}
+        ref={setPopoverRef}
         class={clsx('Popover', className)}
         {...(passThrough as Record<string, unknown>)}
       >

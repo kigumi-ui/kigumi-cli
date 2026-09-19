@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -70,6 +71,10 @@ export const Page = forwardRef<PageRef, PageProps>(
       }
     >(null);
 
+    const setPageRef = useCallback((el: typeof pageRef.current) => {
+      pageRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -114,7 +119,7 @@ export const Page = forwardRef<PageRef, PageProps>(
 
     return (
       <wa-page
-        ref={pageRef}
+        ref={setPageRef}
         class={clsx('Page', className)}
         {...(props as Record<string, unknown>)}
       >

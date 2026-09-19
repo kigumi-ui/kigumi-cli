@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -54,6 +55,10 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
   ({ children, className, ...props }, ref) => {
     const sparklineRef = useRef<HTMLElement & {}>(null);
 
+    const setSparklineRef = useCallback((el: typeof sparklineRef.current) => {
+      sparklineRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -66,7 +71,7 @@ export const Sparkline = forwardRef<SparklineRef, SparklineProps>(
 
     return (
       <wa-sparkline
-        ref={sparklineRef}
+        ref={setSparklineRef}
         class={clsx('Sparkline', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -103,6 +104,10 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       }
     >(null);
 
+    const setSwitchRef = useCallback((el: typeof switchRef.current) => {
+      switchRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -178,7 +183,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
 
     return (
       <wa-switch
-        ref={switchRef}
+        ref={setSwitchRef}
         class={clsx('Switch', className)}
         {...(props as Record<string, unknown>)}
       >

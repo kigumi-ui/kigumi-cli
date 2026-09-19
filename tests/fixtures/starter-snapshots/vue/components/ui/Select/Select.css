@@ -9,7 +9,8 @@
  *
  * CSS Parts:
  * - form-control: The form control that wraps the label, input, and hint.
- * - form-control-label: The label's wrapper.
+ * - form-control-label: The label.
+ * - label: Deprecated. Use the `form-control-label` part instead.
  * - form-control-input: The select's wrapper.
  * - hint: The hint's wrapper.
  * - combobox: The container the wraps the start, end, value, clear icon, and expand button.

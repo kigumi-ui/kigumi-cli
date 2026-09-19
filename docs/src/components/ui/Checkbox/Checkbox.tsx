@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -106,6 +107,10 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
       }
     >(null);
 
+    const setCheckboxRef = useCallback((el: typeof checkboxRef.current) => {
+      checkboxRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -181,7 +186,7 @@ export const Checkbox = forwardRef<CheckboxRef, CheckboxProps>(
 
     return (
       <wa-checkbox
-        ref={checkboxRef}
+        ref={setCheckboxRef}
         class={clsx('Checkbox', className)}
         {...(props as Record<string, unknown>)}
       >

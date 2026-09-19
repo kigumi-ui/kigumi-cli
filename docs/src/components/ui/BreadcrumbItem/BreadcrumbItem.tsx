@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -46,6 +47,13 @@ export const BreadcrumbItem = forwardRef<
 >(({ children, className, ...props }, ref) => {
   const breadcrumbitemRef = useRef<HTMLElement & {}>(null);
 
+  const setBreadcrumbitemRef = useCallback(
+    (el: typeof breadcrumbitemRef.current) => {
+      breadcrumbitemRef.current = el;
+    },
+    []
+  );
+
   useImperativeHandle(
     ref,
     () => ({
@@ -58,7 +66,7 @@ export const BreadcrumbItem = forwardRef<
 
   return (
     <wa-breadcrumb-item
-      ref={breadcrumbitemRef}
+      ref={setBreadcrumbitemRef}
       class={clsx('BreadcrumbItem', className)}
       {...(props as Record<string, unknown>)}
     >

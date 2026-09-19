@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -86,6 +87,10 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       }
     >(null);
 
+    const setRadiogroupRef = useCallback((el: typeof radiogroupRef.current) => {
+      radiogroupRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -133,7 +138,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
 
     return (
       <wa-radio-group
-        ref={radiogroupRef}
+        ref={setRadiogroupRef}
         class={clsx('RadioGroup', className)}
         {...(props as Record<string, unknown>)}
       >

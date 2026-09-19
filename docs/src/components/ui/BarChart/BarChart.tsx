@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -82,6 +83,10 @@ export const BarChart = forwardRef<BarChartRef, BarChartProps>(
   ({ children, className, ...props }, ref) => {
     const barChartRef = useRef<HTMLElement>(null);
 
+    const setBarChartRef = useCallback((el: typeof barChartRef.current) => {
+      barChartRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -94,7 +99,7 @@ export const BarChart = forwardRef<BarChartRef, BarChartProps>(
 
     return (
       <wa-bar-chart
-        ref={barChartRef}
+        ref={setBarChartRef}
         class={clsx('BarChart', className)}
         {...(props as Record<string, unknown>)}
       >

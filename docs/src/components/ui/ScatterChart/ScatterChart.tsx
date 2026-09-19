@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -69,6 +70,13 @@ export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
   ({ children, className, ...props }, ref) => {
     const scatterChartRef = useRef<HTMLElement>(null);
 
+    const setScatterChartRef = useCallback(
+      (el: typeof scatterChartRef.current) => {
+        scatterChartRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -81,7 +89,7 @@ export const ScatterChart = forwardRef<ScatterChartRef, ScatterChartProps>(
 
     return (
       <wa-scatter-chart
-        ref={scatterChartRef}
+        ref={setScatterChartRef}
         class={clsx('ScatterChart', className)}
         {...(props as Record<string, unknown>)}
       >

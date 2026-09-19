@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -41,6 +42,13 @@ export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
   ({ children, className, ...props }, ref) => {
     const progressringRef = useRef<HTMLElement & {}>(null);
 
+    const setProgressringRef = useCallback(
+      (el: typeof progressringRef.current) => {
+        progressringRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -53,7 +61,7 @@ export const ProgressRing = forwardRef<ProgressRingRef, ProgressRingProps>(
 
     return (
       <wa-progress-ring
-        ref={progressringRef}
+        ref={setProgressringRef}
         class={clsx('ProgressRing', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -55,6 +56,13 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
     };
     const relativetimeRef = useRef<HTMLElement & {}>(null);
 
+    const setRelativetimeRef = useCallback(
+      (el: typeof relativetimeRef.current) => {
+        relativetimeRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -67,7 +75,7 @@ export const RelativeTime = forwardRef<RelativeTimeRef, RelativeTimeProps>(
 
     return (
       <wa-relative-time
-        ref={relativetimeRef}
+        ref={setRelativetimeRef}
         class={clsx('RelativeTime', className)}
         {...(passThrough as Record<string, unknown>)}
       >

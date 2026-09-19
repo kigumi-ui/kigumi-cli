@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -62,13 +63,7 @@ export interface ComboboxProps extends Omit<
 
   /** Customizes the keyboard's Enter key label */
   enterkeyhint?:
-    | 'enter'
-    | 'done'
-    | 'go'
-    | 'next'
-    | 'previous'
-    | 'search'
-    | 'send';
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
 
   /** Hint text */
   hint?: string;
@@ -202,6 +197,10 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
         blur?: () => void;
       }
     >(null);
+
+    const setComboboxRef = useCallback((el: typeof comboboxRef.current) => {
+      comboboxRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -359,7 +358,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
 
     return (
       <wa-combobox
-        ref={comboboxRef}
+        ref={setComboboxRef}
         class={clsx('Combobox', className)}
         {...(props as Record<string, unknown>)}
       >
