@@ -817,7 +817,7 @@ The code/registry side is guarded by validators (`validate:cem-sync`, `validate:
 - [ ] **Removed CSS custom properties / parts**: grep repo-wide for the removed name; also confirm it is absent from `kigumi-theme` references
 - [ ] **Theme token docs**: re-validate `.claude/skills/kigumi-theme/references/css-variables.md` and `available-themes.md` against the new `dist/styles/themes/default.css` and palette/theme file listing; bump the "Source:" footer version
 - [ ] **Skill tables**: new components reflected in the relevant `kigumi-compose-*` skills; regenerated `.claude/skills/shared/*-api-surface.md` committed
-- [ ] **AGENTS.md sync**: component counts + "Last Updated" in root, `src/`, `templates/`, `tests/` AGENTS.md — `templates/AGENTS.md` is the one that historically gets missed
+- [ ] **AGENTS.md sync**: component counts + "Last Updated" date and a new footer bullet in root, `src/`, `templates/`, `tests/` AGENTS.md — `templates/AGENTS.md` is the one that historically gets missed
 - [ ] **Storybook grid**: new components added to `StorybookComponentGrid.tsx` + thumbnail PNGs
 - [ ] **Zero-warning gate**: `pnpm validate:cem-sync` must pass with 0 warnings (new unwrapped components must be consciously triaged, not left warning)
 
@@ -1091,7 +1091,7 @@ pnpm release-readiness:quick         # skip e2e
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-18
+**Maintained by:** AI Assistants | **Last Updated:** 2026-09-19
 
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
 - validate:cem-sync no longer reports success for work it did not do: the prop-value half requires a complete CEM and runs in the `freshness` job, guard reporting shared via scripts/guard-outcome.ts, see docs/adr/0003
@@ -1110,3 +1110,4 @@ pnpm release-readiness:quick         # skip e2e
 - 84 components
 - superpowers state-files and the Second Brain protocol retired in favour of the mattpocock-skills workflow
 - event handler types now resolve through one shared mapEventType keyed on the DOM event name, see docs/adr/0001
+- the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line

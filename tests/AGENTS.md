@@ -764,7 +764,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-18
+**Last Updated:** 2026-09-19
 
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
 - corrected the stale .tmp-* references: the E2E Test Projects table listed three directories no e2e test has used since the suite moved to the .tmp-e2e-* scheme and omitted all four that are
@@ -786,3 +786,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added validate-story-lanes.test.ts covering the interaction-lane list matchers
 - added validate-fixture-exclusions.test.ts covering the three-way ignore-list matchers
 - added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators
+- the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line

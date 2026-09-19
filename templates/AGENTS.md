@@ -396,6 +396,7 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-08-26
+**Last Updated:** 2026-09-19
 
 - component-count claims in this file are now enforced by validate:agents
+- the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
