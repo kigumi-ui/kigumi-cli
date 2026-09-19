@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-09-19
+
+### Added
+
+- **Errors**: `InternalInvariantError` for conditions that are unreachable if the surrounding code is correct (these report as a Kigumi bug, not user error), plus `RegistrySourceInvalidError` and `RegistryFetchError` for the registry paths. `ValidationError` takes an optional message override and `CommunityComponentNotFoundError` a `kind`, so themes no longer report as "Component ... not found". All existing error messages are preserved.
+- **Lint**: `kigumi/no-cross-command-import`. Commands are leaf nodes: shared code belongs in `src/utils/`, never in a sibling command's directory. Internal tooling only, no change to CLI behaviour.
+- **Lint**: `kigumi/no-raw-throw`, scoped to `src/`. A raw `Error` reaches `handleError` as `UnknownError` and loses its semantic code, exit code and suggestions. Internal tooling only, no change to CLI behaviour.
+- **Naming**: `toPascalCase`, `toCamelCase` and `stripWaPrefix` in `src/utils/naming.ts`, so the six scripts that hand-rolled the kebab-to-Pascal direction share one primitive. The per-framework handler-name adapters keep their distinct outputs, including Angular's `input` to `inputEvent` collision rule. No generated output changes.
+
+### Changed
+
+- **Internal**: moved `installDependencies` and `cleanupOldPackage` from `src/commands/init/installer.ts` to `src/utils/dependency-installer.ts`. Both `init` and `upgrade` install dependencies, but the code lived under `init/`, so `upgrade.ts` had to reach into another command's directory. That was the only cross-command import in the codebase. Internal refactor with no change to CLI behaviour.
+- **Errors**: replaced all 32 raw `throw new Error(...)` in `src/` with typed error classes. Raw errors reached `handleError` as `UnknownError`: exit code 1 regardless of what failed, no semantic error code, and a generic "this is an unexpected error" suggestion instead of an actionable one.
+
+### Fixed
+
+- The changelog post-processor no longer strands a wrapped bullet body at four
+  spaces. Changesets nests each entry one level deeper, so a continuation line
+  written at two spaces arrives at four; the de-indent step only matched a
+  non-whitespace character, so the bullet dropped to the margin while its
+  continuation stayed behind. `prettier --check` rejected the result and failed
+  CI on the 1.0.3 release PR. Continuation lines now land at markdown's
+  list-continuation level.
+
+- **CI**: run the workflow on every pull request, not only those targeting `main`. A stacked PR whose base is another PR's branch received no CI at all, so a stack could only be verified by merging it.
+- **Cancellation**: cancelling an interactive component picker exited 1 instead of 0. It threw a raw `Error`, so the CLI reported a failure status to any calling script. It now throws `UserCancelledError` and exits 0, as cancelling always should.
+- `release-readiness` can now reach a GO verdict. The gate required pending
+  changesets and a version ahead of the last tag at the same time, but
+  `pnpm run version` consumes the changesets to produce the bump, so no state
+  in a normal release satisfied both. It now recognises the pre-bump and
+  post-bump states as sound, and reports NO-GO only when there is genuinely
+  nothing to release or the version is behind the tag (compared by semver
+  precedence rather than string equality).
+- The Pack Test smoke job no longer pre-creates `src/` or pins `--components-dir`,
+  so `kigumi init` runs its own source-layout detection as a real user's project
+  would. The job now asserts the type declaration was written and follows the
+  layout `init` detected. Previously it satisfied a precondition production does
+  not, and stayed green throughout the releases that shipped the root-layout
+  ENOENT crash.
+
+- **Naming**: PascalCase component names with consecutive capitals resolved to the wrong kebab-case key. Four call sites hand-rolled the PascalCase-to-kebab conversion and omitted the consecutive-capitals rule that `toKebabCase` already had, so a component named `QRCode` resolved to `qrcode` instead of `qr-code`, missing its CSS metadata entry and silently emitting a stylesheet with no CSS parts and a broken documentation URL. All four now call the shared `toKebabCase`.
+
 ## [1.0.2] - 2026-09-17
 
 ### Added
