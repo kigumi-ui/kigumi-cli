@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (101 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (102 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -28,6 +28,7 @@ tests/
 │   ├── diff-roundtrip.test.ts       # Diff renderer round-trip fidelity
 │   ├── display-options.test.ts      # Theme/palette/brand display data
 │   ├── doctor.test.ts               # Doctor command (import fixes)
+│   ├── docs-wrapper-callback-refs.test.ts # Docs UI wrappers must use callback refs on wa-* hosts (WA 3.13 JSX)
 │   ├── edge-cases.test.ts           # Edge case handling
 │   ├── error-classes.test.ts        # Error class hierarchy
 │   ├── errors.test.ts               # Error formatting
@@ -799,3 +800,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
 - added parse-custom-elements-types.test.ts covering the single-declaration contract for ComponentMetadata and the CSS-metadata types, issue #34
+- added docs-wrapper-callback-refs.test.ts covering the WA 3.13 JSX object-ref ban on docs UI wrappers
