@@ -496,7 +496,7 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-18
+**Last Updated:** 2026-09-19
 
 - `kigumi/no-raw-throw` holds the raw-throw count at zero, issue #1
 - all 32 raw `throw new Error(...)` in `src/` replaced with typed classes
@@ -506,3 +506,4 @@ output.error('Failed to install');
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
 - `utils/naming.ts` gained the kebab-to-Pascal direction — `toPascalCase`, `toCamelCase`, `stripWaPrefix` — so the six scripts that hand-rolled it share one primitive
 - the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31
+- the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line

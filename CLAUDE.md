@@ -36,7 +36,19 @@ When you modify commands, utils, schemas, or project structure, you MUST also up
 - **Test structure changes** → Update `tests/AGENTS.md`
 - **Workflow/checklist changes** → Update `AGENTS.md` (Checklists section)
 
-Update the "Last Updated" date at the bottom of any AGENTS.md you modify.
+Update the "Last Updated" footer at the bottom of any AGENTS.md you modify: set
+the date, and **append your change as a new bullet** to the list under it.
+
+```markdown
+**Last Updated:** 2026-09-19
+
+- what you changed, and why it matters, issue #NN
+```
+
+One bullet per change, newest at the bottom. Never fold the list back into a
+single line: git merges line by line, so a one-line footer makes every pair of
+PRs touching the same AGENTS.md conflict on it. Resolve a footer conflict by
+keeping **both** sides' bullets, never `--ours`/`--theirs`.
 
 ## Development Workflow
 
