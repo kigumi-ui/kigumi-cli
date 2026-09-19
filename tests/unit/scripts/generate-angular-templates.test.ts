@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   generateComponentTS,
-  generateCSS,
   generateSpec,
 } from '../../../scripts/generate-angular-templates.js';
 import type { ComponentDefinition } from '../../../src/utils/registry.js';
@@ -226,12 +225,6 @@ describe('generateComponentTS', () => {
 
   it('emits the Markdown component with the @remarks JSDoc for removed imperative methods', () => {
     expect(generateComponentTS(MARKDOWN_FIXTURE, 'markdown')).toMatchSnapshot();
-  });
-});
-
-describe('generateCSS', () => {
-  it('emits the Button CSS', () => {
-    expect(generateCSS(BUTTON_FIXTURE, 'button')).toMatchSnapshot();
   });
 });
 

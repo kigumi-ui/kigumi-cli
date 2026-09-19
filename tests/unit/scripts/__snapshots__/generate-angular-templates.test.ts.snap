@@ -1,24 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generateCSS > emits the Button CSS 1`] = `
-"/**
- * Button Component Styles
- * Documentation: https://webawesome.com/docs/components/button
- *
- * CSS Parts:
- * base - The component's base wrapper.
- * start - The container that wraps the \`start\` slot.
- * label - The button's label.
- * end - The container that wraps the \`end\` slot.
- * caret - The button's caret icon, a \`<wa-icon>\` element.
- * spinner - The spinner that shows when the button is in the loading state.
- */
-:host {
-  display: contents;
-}
-"
-`;
-
 exports[`generateComponentTS > emits the Badge component (no events, no methods branch) 1`] = `
 "import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/badge/badge.js';

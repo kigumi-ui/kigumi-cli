@@ -24,14 +24,17 @@ import {
   type ComponentDefinition,
 } from '../src/utils/registry.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
-import { CSS_METADATA } from './css-metadata.js';
 import {
   toKebabCase,
   toCamelCase,
   toPascalCase,
   stripWaPrefix,
 } from '../src/utils/naming.js';
-import { mapEventType, writeFormatted } from './generator-utils.js';
+import {
+  generateCssTemplate,
+  mapEventType,
+  writeFormatted,
+} from './generator-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -547,40 +550,10 @@ export function generateCSS(
   component: ComponentDefinition,
   _componentKey: string
 ): string {
-  const kebabName = toKebabCase(component.name);
-  const cssInfo = CSS_METADATA[kebabName];
-  const lines: string[] = [];
-
-  lines.push('/**');
-  lines.push(` * ${component.name} Component Styles`);
-  lines.push(
-    ` * Documentation: https://webawesome.com/docs/components/${kebabName}`
-  );
-
-  if (cssInfo?.customProperties && cssInfo.customProperties.length > 0) {
-    lines.push(' *');
-    lines.push(' * CSS Custom Properties:');
-    for (const prop of cssInfo.customProperties) {
-      const suffix = prop.default ? ` (default: ${prop.default})` : '';
-      lines.push(` * ${prop.name} - ${prop.description}${suffix}`);
-    }
-  }
-
-  if (cssInfo?.parts && cssInfo.parts.length > 0) {
-    lines.push(' *');
-    lines.push(' * CSS Parts:');
-    for (const part of cssInfo.parts) {
-      lines.push(` * ${part.name} - ${part.description}`);
-    }
-  }
-
-  lines.push(' */');
-  lines.push(':host {');
-  lines.push('  display: contents;');
-  lines.push('}');
-  lines.push('');
-
-  return lines.join('\n');
+  return generateCssTemplate(component.name, {
+    selector: ':host',
+    body: '  display: contents;',
+  });
 }
 
 /**

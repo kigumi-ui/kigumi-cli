@@ -2,8 +2,11 @@
  * QrCode Component Styles
  * Documentation: https://webawesome.com/docs/components/qr-code
  *
+ * CSS Custom Properties:
+ * (No custom properties defined for this component)
+ *
  * CSS Parts:
- * base - The component's base wrapper.
+ * - base: The component's base wrapper.
  */
 :host {
   display: contents;

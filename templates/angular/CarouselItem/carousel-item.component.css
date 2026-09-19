@@ -3,7 +3,8 @@
  * Documentation: https://webawesome.com/docs/components/carousel-item
  *
  * CSS Custom Properties:
- * --aspect-ratio - The slide's aspect ratio. Inherited from the carousel by default.
+ * - --aspect-ratio: The slide's aspect ratio. Inherited from the carousel by default.
+ *
  */
 :host {
   display: contents;

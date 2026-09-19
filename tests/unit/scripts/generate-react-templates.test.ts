@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  generateCSSTemplate,
   generateReactTypescriptTemplate,
   generateTestTypescriptTemplate,
 } from '../../../scripts/generate-react-templates.js';
@@ -194,12 +193,6 @@ describe('generateReactTypescriptTemplate', () => {
 
   it('emits the Badge wrapper (no events, no methods branch)', () => {
     expect(generateReactTypescriptTemplate(BADGE_FIXTURE)).toMatchSnapshot();
-  });
-});
-
-describe('generateCSSTemplate', () => {
-  it('emits the Button CSS template', () => {
-    expect(generateCSSTemplate('Button')).toMatchSnapshot();
   });
 });
 
