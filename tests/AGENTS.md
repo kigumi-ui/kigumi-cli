@@ -658,9 +658,9 @@ helper's logic in isolation. Current cases:
 - `generateTypeScriptSource` and `generateCssMetadataSource` in
   `scripts/parse-custom-elements.ts` — the metadata emitters' output contract,
   asserted directly by `tests/unit/parse-custom-elements-types.test.ts`.
-  Exported so a regenerated module that re-declares `ComponentMetadata` (or
-  the CSS types) instead of importing `src/utils/metadata-types.ts` fails
-  without requiring a live CEM (issue #34).
+  Test-only seam: re-exported at the bottom of that module so a regenerated
+  file that re-declares `ComponentMetadata` (or the CSS types) instead of
+  importing `src/utils/metadata-types.ts` fails without a live CEM (issue #34).
 
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public

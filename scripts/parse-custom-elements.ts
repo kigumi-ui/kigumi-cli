@@ -313,11 +313,8 @@ async function parseCustomElements(): Promise<ParsedOutput> {
 
 /**
  * Generate TypeScript source file.
- *
- * Exported for unit testing the emit contract (issue #34): the generated
- * module re-exports `ComponentMetadata` and must not re-declare it.
  */
-export function generateTypeScriptSource(
+function generateTypeScriptSource(
   metadata: Record<string, ComponentMetadata>
 ): string {
   const withoutProProse = stripProDescriptions(metadata);
@@ -348,11 +345,8 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = ${JSON.stri
  * parts / custom-property comment blocks into the generated CSS templates.
  * Keys are the WA tag name stripped of the `wa-` prefix (kebab-case, matching
  * how consumers look it up).
- *
- * Exported for unit testing the emit contract (issue #34): the generated
- * module re-exports the CSS types and must not re-declare them.
  */
-export function generateCssMetadataSource(
+function generateCssMetadataSource(
   cssMetadata: Record<string, ComponentCSSMetadata>
 ): string {
   const sortedKeys = Object.keys(cssMetadata).sort();
@@ -474,3 +468,5 @@ async function main() {
 }
 
 main().catch(console.error);
+
+export { generateTypeScriptSource, generateCssMetadataSource };

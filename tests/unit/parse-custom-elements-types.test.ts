@@ -2,6 +2,11 @@
  * Issue #34: ComponentMetadata (and the CSS-metadata types) must exist as
  * one TypeScript declaration. Generated modules import and re-export that
  * type; they must not re-declare it.
+ *
+ * `generateTypeScriptSource` and `generateCssMetadataSource` are a test-only
+ * seam: re-exported from the bottom of scripts/parse-custom-elements.ts solely
+ * so these assertions can reach the emit contract, with no new public callers.
+ * See tests/AGENTS.md, "Internals Exported for Test Coverage".
  */
 import { describe, it, expect } from 'vitest';
 import fs from 'fs-extra';
@@ -20,12 +25,30 @@ const ROOT = path.join(
   '..'
 );
 
+const SKIP_DIRS = new Set([
+  'node_modules',
+  'dist',
+  '.git',
+  'coverage',
+  '.claude',
+]);
+
 function readRepoFile(relativePath: string): string {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf-8');
 }
 
+/** Matches an interface anywhere, including inside template strings. */
 function declarationPattern(name: string): RegExp {
   return new RegExp(`(?:export\\s+)?interface\\s+${name}\\b`);
+}
+
+/**
+ * Matches a real TypeScript declaration at the start of a line. String
+ * literals in this test (`expect(...interface ComponentMetadata)`) do not
+ * match, so uniqueness can be asserted repo-wide.
+ */
+function declarationAtLineStart(name: string): RegExp {
+  return new RegExp(`^\\s*(?:export\\s+)?interface\\s+${name}\\b`, 'm');
 }
 
 describe('generateTypeScriptSource / generateCssMetadataSource (issue #34)', () => {
@@ -58,7 +81,7 @@ describe('generateTypeScriptSource / generateCssMetadataSource (issue #34)', () 
     expect(source).toMatch(/from ['"]\.\.\/src\/utils\/metadata-types\.js['"]/);
   });
 
-  it('declares each metadata interface exactly once in src/ and scripts/', () => {
+  it('declares each metadata interface exactly once in the repo', () => {
     const types = readRepoFile('src/utils/metadata-types.ts');
     expect(types).toMatch(/^export interface ComponentMetadata/m);
     expect(types).toMatch(/^export interface CSSPart/m);
@@ -73,9 +96,7 @@ describe('generateTypeScriptSource / generateCssMetadataSource (issue #34)', () 
       ComponentCSSMetadata: [] as string[],
     };
 
-    for (const dir of ['src', 'scripts']) {
-      collectDeclarations(path.join(ROOT, dir), hits);
-    }
+    collectDeclarations(ROOT, hits);
 
     expect(hits.ComponentMetadata).toEqual(['src/utils/metadata-types.ts']);
     expect(hits.CSSPart).toEqual(['src/utils/metadata-types.ts']);
@@ -144,17 +165,20 @@ function collectDeclarations(
 ): void {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name === 'dist') continue;
+    if (SKIP_DIRS.has(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
+      if (entry.name === 'fixtures' && path.basename(dir) === 'tests') {
+        continue;
+      }
       collectDeclarations(full, hits);
       continue;
     }
-    if (!entry.name.endsWith('.ts')) continue;
+    if (!/\.(ts|tsx)$/.test(entry.name)) continue;
     const text = fs.readFileSync(full, 'utf-8');
     const relative = path.relative(ROOT, full);
     for (const name of Object.keys(hits)) {
-      if (declarationPattern(name).test(text)) {
+      if (declarationAtLineStart(name).test(text)) {
         hits[name].push(relative);
       }
     }
