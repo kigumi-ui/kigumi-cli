@@ -44,7 +44,8 @@ is a fixed integration contract, not a catalogue of Templates.
 _Avoid_: test app
 
 **Starter fixture**:
-Committed `kigumi add` output against that fixed set.
+Committed `kigumi add` output against that fixed set. Adding a Template does
+not add a fixture.
 _Avoid_: snapshot (that is `.kigumi/snapshots/` for three-way merge)
 
 ### Events

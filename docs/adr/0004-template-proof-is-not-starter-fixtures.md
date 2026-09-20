@@ -33,4 +33,4 @@ list. Generated-fresh Check D (Starter fixture CSS vs Template CSS) remains a
 CSS drift guard, not function or type proof.
 
 A later change that "fixes" missing catalogue coverage by adding every
-component to the starters is reversing this decision.
+Template to the starters is reversing this decision.
