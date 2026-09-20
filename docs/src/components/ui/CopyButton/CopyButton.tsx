@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -67,6 +68,10 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
   ({ children, className, onCopy, onError, ...props }, ref) => {
     const copybuttonRef = useRef<HTMLElement & {}>(null);
 
+    const setCopybuttonRef = useCallback((el: typeof copybuttonRef.current) => {
+      copybuttonRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -100,7 +105,7 @@ export const CopyButton = forwardRef<CopyButtonRef, CopyButtonProps>(
 
     return (
       <wa-copy-button
-        ref={copybuttonRef}
+        ref={setCopybuttonRef}
         class={clsx('CopyButton', className)}
         {...(props as Record<string, unknown>)}
       >

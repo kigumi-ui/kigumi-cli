@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -190,20 +191,20 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
         blur?: () => void;
         getFormattedValue?: (
           format:
-            | 'hex'
-            | 'hexa'
-            | 'rgb'
-            | 'rgba'
-            | 'hsl'
-            | 'hsla'
-            | 'hsv'
-            | 'hsva'
+            'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
         ) => void;
         reportValidity?: () => void;
         show?: () => void;
         hide?: () => void;
       }
     >(null);
+
+    const setColorpickerRef = useCallback(
+      (el: typeof colorpickerRef.current) => {
+        colorpickerRef.current = el;
+      },
+      []
+    );
 
     useImperativeHandle(
       ref,
@@ -244,14 +245,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
         },
         getFormattedValue: (
           format:
-            | 'hex'
-            | 'hexa'
-            | 'rgb'
-            | 'rgba'
-            | 'hsl'
-            | 'hsla'
-            | 'hsv'
-            | 'hsva'
+            'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
         ) => {
           if (
             colorpickerRef.current &&
@@ -366,7 +360,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
 
     return (
       <wa-color-picker
-        ref={colorpickerRef}
+        ref={setColorpickerRef}
         class={clsx('ColorPicker', className)}
         {...(passThrough as Record<string, unknown>)}
       >

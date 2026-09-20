@@ -62,6 +62,8 @@ onUnmounted(() => {
 defineExpose({
   previous: (behavior) => elementRef.value?.previous?.(behavior),
   next: (behavior) => elementRef.value?.next?.(behavior),
+  addSlide: (slide) => elementRef.value?.addSlide?.(slide),
+  removeSlide: (index) => elementRef.value?.removeSlide?.(index),
   goToSlide: (index, behavior) =>
     elementRef.value?.goToSlide?.(index, behavior),
   element: elementRef,

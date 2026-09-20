@@ -8,6 +8,8 @@
  *
  * CSS Parts:
  * - content: The container that wraps the slotted content.
+ * - start-shadow: The scroll shadow shown at the start edge when more content is available, unless `without-shadow` is set.
+ * - end-shadow: The scroll shadow shown at the end edge when more content is available, unless `without-shadow` is set.
  */
 .Scroller {
   /* Add your custom styles here */

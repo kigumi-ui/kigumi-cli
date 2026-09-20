@@ -7,7 +7,7 @@
  *
  * CSS Parts:
  * - form-control: The form control that wraps the label, group, and hint.
- * - form-control-label: The label's wrapper.
+ * - form-control-label: The label.
  * - form-control-input: The element that wraps the grouped checkboxes, exposed as a `role="group"`.
  * - hint: The hint's wrapper.
  */

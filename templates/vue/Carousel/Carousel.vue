@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
 import './Carousel.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -69,6 +70,10 @@ defineExpose({
     (elementRef.value as any)?.previous?.(behavior),
   next: (behavior: ScrollBehavior) =>
     (elementRef.value as any)?.next?.(behavior),
+  addSlide: (slide: WaCarouselItem) =>
+    (elementRef.value as any)?.addSlide?.(slide),
+  removeSlide: (index: number) =>
+    (elementRef.value as any)?.removeSlide?.(index),
   goToSlide: (index: number, behavior: ScrollBehavior) =>
     (elementRef.value as any)?.goToSlide?.(index, behavior),
   element: elementRef,

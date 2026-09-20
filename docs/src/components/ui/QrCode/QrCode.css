@@ -2,8 +2,12 @@
  * QrCode Component Styles
  * Documentation: https://webawesome.com/docs/components/qr-code
  *
+ * CSS Custom Properties:
+ * (No custom properties defined for this component)
+ *
  * CSS Parts:
- * base — Root wrapper element containing the QR code SVG
+ * - base: Deprecated. Use the `qr-code` part instead.
+ * - qr-code: The component's outer wrapper.
  */
 .QrCode {
   /* Add your custom styles here */

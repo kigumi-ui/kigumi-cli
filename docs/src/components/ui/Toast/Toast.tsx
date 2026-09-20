@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -51,6 +52,10 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
       }
     >(null);
 
+    const setToastRef = useCallback((el: typeof toastRef.current) => {
+      toastRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -66,7 +71,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(
 
     return createPortal(
       <wa-toast
-        ref={toastRef}
+        ref={setToastRef}
         class={clsx('Toast', className)}
         {...(props as Record<string, unknown>)}
       >

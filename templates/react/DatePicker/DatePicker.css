@@ -6,7 +6,8 @@
  * (No custom properties defined for this component)
  *
  * CSS Parts:
- * - base: The component's outer wrapper.
+ * - base: Deprecated. Use the `date-picker` part instead.
+ * - date-picker: The component's outer wrapper.
  * - header: The header row containing the title and navigation buttons.
  * - title: The clickable month/year title button that steps the view up (days → months → years).
  * - nav: The container around the previous and next buttons.

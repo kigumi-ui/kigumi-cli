@@ -8,10 +8,12 @@
  *
  * CSS Parts:
  * - form-control: The form control that wraps the label, input, and hint.
- * - form-control-label: The label's wrapper.
+ * - form-control-label: The label.
+ * - label: Deprecated. Use the `form-control-label` part instead.
  * - form-control-input: The input's wrapper.
  * - hint: The hint's wrapper.
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `date-input` part instead.
+ * - date-input: The component's outer wrapper.
  * - input-wrapper: The container that wraps the start slot, segmented input, clear button, and expand button.
  * - start: The container that wraps the `start` slot.
  * - end: The container that wraps the `end` slot.

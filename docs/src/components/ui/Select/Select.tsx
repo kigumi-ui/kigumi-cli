@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -171,6 +172,10 @@ export const Select = forwardRef<SelectRef, SelectProps>(
       }
     >(null);
 
+    const setSelectRef = useCallback((el: typeof selectRef.current) => {
+      selectRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -322,7 +327,7 @@ export const Select = forwardRef<SelectRef, SelectProps>(
 
     return (
       <wa-select
-        ref={selectRef}
+        ref={setSelectRef}
         class={clsx('Select', className)}
         {...(props as Record<string, unknown>)}
       >

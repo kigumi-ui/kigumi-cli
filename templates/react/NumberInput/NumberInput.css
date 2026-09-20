@@ -6,10 +6,11 @@
  * (No custom properties defined for this component)
  *
  * CSS Parts:
- * - label: The label element.
- * - form-control-label: Alias for the label element.
+ * - form-control-label: The label.
+ * - label: Deprecated. Use the `form-control-label` part instead.
  * - hint: The hint element.
- * - base: The wrapper containing the input and steppers.
+ * - base: Deprecated. Use the `number-input` part instead.
+ * - number-input: The component's outer wrapper.
  * - input: The internal `<input>` control.
  * - start: The container that wraps the `start` slot.
  * - end: The container that wraps the `end` slot.

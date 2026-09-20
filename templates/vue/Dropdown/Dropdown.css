@@ -7,7 +7,7 @@
  * - --hide-duration: The duration of the hide animation.
  *
  * CSS Parts:
- * - base: The component's host element.
+ * - base: Deprecated. Style the host element instead.
  * - menu: The dropdown menu container.
  */
 .Dropdown {

@@ -31,6 +31,7 @@ import {
   stripWaPrefix,
 } from '../src/utils/naming.js';
 import {
+  formatCustomTypeImports,
   generateCssTemplate,
   mapEventType,
   writeFormatted,
@@ -48,6 +49,8 @@ const CVA_VALUE_COMPONENTS = new Set([
   'select',
   'combobox',
   'number-input',
+  'otp-input',
+  'tag-input',
   'slider',
   'rating',
   'radio-group',
@@ -141,75 +144,6 @@ function getMethods(componentKey: string): MethodInfo[] {
   }));
 }
 
-// TypeScript primitives + DOM/web-platform types that don't need to be imported
-const BUILTIN_TYPE_NAMES = new Set([
-  'string',
-  'number',
-  'boolean',
-  'unknown',
-  'void',
-  'null',
-  'undefined',
-  'any',
-  'object',
-  'never',
-  'true',
-  'false',
-  'Element',
-  'HTMLElement',
-  'Node',
-  'NodeList',
-  'Event',
-  'CustomEvent',
-  'FocusEvent',
-  'MouseEvent',
-  'KeyboardEvent',
-  'PointerEvent',
-  'TouchEvent',
-  'FocusOptions',
-  'ScrollBehavior',
-  'ScrollIntoViewOptions',
-  'File',
-  'FileList',
-  'FormData',
-  'Blob',
-  'Date',
-  'RegExp',
-  'Promise',
-  'Array',
-  'Map',
-  'Set',
-  'Record',
-  // Capitalized JS wrapper types that occasionally surface as bare-identifier
-  // type annotations. Including them keeps `String[]` / `Number | undefined`
-  // out of the named-type-import set.
-  'Boolean',
-  'Number',
-  'String',
-]);
-
-function collectNamedTypeImports(methods: MethodInfo[]): string[] {
-  const names = new Set<string>();
-  for (const method of methods) {
-    for (const param of method.parameters) {
-      // Word-boundary extraction so `MyType[]` and `MyType | OtherType` both
-      // pull `MyType` (and `OtherType`) as named-type imports. Mirrors
-      // `extractCustomTypeImports` in scripts/generator-utils.ts to keep the
-      // two helpers consistent. Inline object literals like
-      // `{ includeDisabled?: boolean }` would still produce false positives
-      // here (matching `Disabled`), but the Angular CEM has no such param
-      // shape that's also a real type — and BUILTIN_TYPE_NAMES catches the
-      // commonly-seen ones (HTMLElement, FocusOptions, etc.) that DO appear
-      // inside object literals as property types.
-      const matches = param.type.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? [];
-      for (const id of matches) {
-        if (!BUILTIN_TYPE_NAMES.has(id)) names.add(id);
-      }
-    }
-  }
-  return [...names].sort();
-}
-
 /**
  * Generate the Angular component TypeScript template
  */
@@ -267,12 +201,9 @@ export function generateComponentTS(
 
   lines.push(`import type WaElement from '${component.importPath}';`);
 
-  // Collect non-builtin type names referenced in method parameters and import them
-  const namedTypeImports = collectNamedTypeImports(methods);
-  if (namedTypeImports.length > 0) {
-    lines.push(
-      `import type { ${namedTypeImports.join(', ')} } from '${component.importPath}';`
-    );
+  const typeImport = formatCustomTypeImports(methods, component.importPath);
+  if (typeImport) {
+    lines.push(typeImport.trimEnd());
   }
   lines.push('');
   lines.push(`let loadPromise: Promise<unknown> | null = null;`);

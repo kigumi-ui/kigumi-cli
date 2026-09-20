@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -99,6 +100,10 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       }
     >(null);
 
+    const setFileinputRef = useCallback((el: typeof fileinputRef.current) => {
+      fileinputRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -166,7 +171,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
 
     return (
       <wa-file-input
-        ref={fileinputRef}
+        ref={setFileinputRef}
         class={clsx('FileInput', className)}
         {...(props as Record<string, unknown>)}
       >

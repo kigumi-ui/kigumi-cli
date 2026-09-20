@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -45,6 +46,13 @@ export const ResizeObserver = forwardRef<
 >(({ children, className, onResize, ...props }, ref) => {
   const resizeobserverRef = useRef<HTMLElement & {}>(null);
 
+  const setResizeobserverRef = useCallback(
+    (el: typeof resizeobserverRef.current) => {
+      resizeobserverRef.current = el;
+    },
+    []
+  );
+
   useImperativeHandle(
     ref,
     () => ({
@@ -72,7 +80,7 @@ export const ResizeObserver = forwardRef<
 
   return (
     <wa-resize-observer
-      ref={resizeobserverRef}
+      ref={setResizeobserverRef}
       class={clsx('ResizeObserver', className)}
       {...(props as Record<string, unknown>)}
     >

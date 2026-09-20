@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -54,6 +55,13 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
     };
     const formatbytesRef = useRef<HTMLElement & {}>(null);
 
+    const setFormatbytesRef = useCallback(
+      (el: typeof formatbytesRef.current) => {
+        formatbytesRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -66,7 +74,7 @@ export const FormatBytes = forwardRef<FormatBytesRef, FormatBytesProps>(
 
     return (
       <wa-format-bytes
-        ref={formatbytesRef}
+        ref={setFormatbytesRef}
         class={clsx('FormatBytes', className)}
         {...(passThrough as Record<string, unknown>)}
       >

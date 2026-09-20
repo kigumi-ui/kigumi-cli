@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -55,6 +56,10 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
   ({ children, className, onTabShow, onTabHide, ...props }, ref) => {
     const tabgroupRef = useRef<HTMLElement & {}>(null);
 
+    const setTabgroupRef = useCallback((el: typeof tabgroupRef.current) => {
+      tabgroupRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -88,7 +93,7 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
 
     return (
       <wa-tab-group
-        ref={tabgroupRef}
+        ref={setTabgroupRef}
         class={clsx('TabGroup', className)}
         {...(props as Record<string, unknown>)}
       >

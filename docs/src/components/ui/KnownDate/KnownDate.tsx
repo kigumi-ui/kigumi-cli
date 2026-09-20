@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -134,6 +135,10 @@ export const KnownDate = forwardRef<KnownDateRef, KnownDateProps>(
       }
     >(null);
 
+    const setKnowndateRef = useCallback((el: typeof knowndateRef.current) => {
+      knowndateRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -225,7 +230,7 @@ export const KnownDate = forwardRef<KnownDateRef, KnownDateProps>(
 
     return (
       <wa-known-date
-        ref={knowndateRef}
+        ref={setKnowndateRef}
         class={clsx('KnownDate', className)}
         {...(props as Record<string, unknown>)}
       >

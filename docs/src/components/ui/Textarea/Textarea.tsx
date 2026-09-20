@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -160,6 +161,10 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       }
     >(null);
 
+    const setTextareaRef = useCallback((el: typeof textareaRef.current) => {
+      textareaRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -277,7 +282,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
 
     return (
       <wa-textarea
-        ref={textareaRef}
+        ref={setTextareaRef}
         class={clsx('Textarea', className)}
         {...(props as Record<string, unknown>)}
       >

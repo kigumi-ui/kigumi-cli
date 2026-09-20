@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -32,6 +33,10 @@ export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
   ({ children, className, ...props }, ref) => {
     const spinnerRef = useRef<HTMLElement & {}>(null);
 
+    const setSpinnerRef = useCallback((el: typeof spinnerRef.current) => {
+      spinnerRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -44,7 +49,7 @@ export const Spinner = forwardRef<SpinnerRef, SpinnerProps>(
 
     return (
       <wa-spinner
-        ref={spinnerRef}
+        ref={setSpinnerRef}
         class={clsx('Spinner', className)}
         {...(props as Record<string, unknown>)}
       >

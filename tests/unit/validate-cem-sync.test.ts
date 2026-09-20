@@ -12,6 +12,7 @@ import { describe, it, expect } from 'vitest';
 import {
   validateCemSync,
   parseStringEnum,
+  allowlistedKeysInRegistry,
 } from '../../scripts/validate-cem-sync.js';
 
 describe('validate:cem-sync', () => {
@@ -48,6 +49,7 @@ describe('validate:cem-sync', () => {
         'missing-from-registry',
         'missing-from-cem',
         'prop-value-drift',
+        'allowlisted-but-wrapped',
       ]).toContain(finding.category);
     }
   });
@@ -137,5 +139,25 @@ describe('parseStringEnum (prop-value drift discriminator)', () => {
 
   it('handles double-quoted literals', () => {
     expect(parseStringEnum('"a" | "b"')).toEqual(['a', 'b']);
+  });
+});
+
+describe('allowlistedKeysInRegistry', () => {
+  it('returns allowlist keys that also appear in the registry', () => {
+    expect(
+      allowlistedKeysInRegistry(
+        ['video', 'button', 'data-grid'],
+        new Set(['video', 'date-picker'])
+      )
+    ).toEqual(['video']);
+  });
+
+  it('returns empty when the allowlist and registry are disjoint', () => {
+    expect(
+      allowlistedKeysInRegistry(
+        ['button', 'input'],
+        new Set(['data-grid', 'date-picker'])
+      )
+    ).toEqual([]);
   });
 });

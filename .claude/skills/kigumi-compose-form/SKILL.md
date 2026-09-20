@@ -111,6 +111,8 @@ User needs a form
 | Rating            | `Rating`                                            | free  | max, precision               |
 | Time of day       | `TimeInput`                                         | free  | label, hour-format, with-now |
 | Known date (DOB)  | `KnownDate`                                         | free  | label, min, max, locale      |
+| One-time code     | `OtpInput`                                          | free  | length, type, format, mask   |
+| Keyword tags      | `TagInput`                                          | free  | delimiter, max-tags, value   |
 
 ## Layout
 

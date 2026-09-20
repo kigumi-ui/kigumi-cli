@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -57,6 +58,13 @@ export const IntersectionObserver = forwardRef<
 >(({ children, className, onIntersect, ...props }, ref) => {
   const intersectionobserverRef = useRef<HTMLElement & {}>(null);
 
+  const setIntersectionobserverRef = useCallback(
+    (el: typeof intersectionobserverRef.current) => {
+      intersectionobserverRef.current = el;
+    },
+    []
+  );
+
   useImperativeHandle(
     ref,
     () => ({
@@ -84,7 +92,7 @@ export const IntersectionObserver = forwardRef<
 
   return (
     <wa-intersection-observer
-      ref={intersectionobserverRef}
+      ref={setIntersectionobserverRef}
       class={clsx('IntersectionObserver', className)}
       {...(props as Record<string, unknown>)}
     >

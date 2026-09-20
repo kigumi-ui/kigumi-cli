@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -136,6 +137,13 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       }
     >(null);
 
+    const setNumberinputRef = useCallback(
+      (el: typeof numberinputRef.current) => {
+        numberinputRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -233,7 +241,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
 
     return (
       <wa-number-input
-        ref={numberinputRef}
+        ref={setNumberinputRef}
         class={clsx('NumberInput', className)}
         {...(props as Record<string, unknown>)}
       >

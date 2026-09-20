@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -75,6 +76,13 @@ export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
   ({ children, className, ...props }, ref) => {
     const bubbleChartRef = useRef<HTMLElement>(null);
 
+    const setBubbleChartRef = useCallback(
+      (el: typeof bubbleChartRef.current) => {
+        bubbleChartRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -87,7 +95,7 @@ export const BubbleChart = forwardRef<BubbleChartRef, BubbleChartProps>(
 
     return (
       <wa-bubble-chart
-        ref={bubbleChartRef}
+        ref={setBubbleChartRef}
         class={clsx('BubbleChart', className)}
         {...(props as Record<string, unknown>)}
       >

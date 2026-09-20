@@ -6,11 +6,13 @@
  * (No custom properties defined for this component)
  *
  * CSS Parts:
- * - label: The label
- * - form-control-input: The input's wrapper.
+ * - form-control-label: The label.
+ * - label: Deprecated. Use the `form-control-label` part instead.
  * - hint: The hint's wrapper.
  * - textarea: The internal `<textarea>` control.
- * - base: The wrapper around the `<textarea>` control.
+ * - base: Deprecated. Use the `textarea-wrapper` part instead.
+ * - textarea-wrapper: The component's outer wrapper.
+ * - textarea-adjuster: The invisible sizer that grows the control to fit its content when `resize` is `auto`.
  * - count: The character count element, rendered when the `with-count` attribute is present.
  */
 :host {

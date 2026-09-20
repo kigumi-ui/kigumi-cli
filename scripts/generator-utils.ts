@@ -2,10 +2,10 @@
  * Shared helpers for template generators.
  *
  * Both generate-react-templates.ts and generate-vue-templates.ts call into
- * extractCustomTypeImports to decide which non-primitive parameter types
- * need a `import type { ... }` line in the emitted template. Keeping this
- * single-source means a new Pro DOM-like type used as a parameter is
- * picked up by both generators consistently.
+ * extractCustomTypeImports / formatCustomTypeImports to decide which
+ * non-primitive parameter types need an `import type` line. Sibling `Wa*`
+ * element types (WaCarouselItem) default-import from their own module;
+ * other names named-import from the component's importPath.
  */
 
 import { CSS_METADATA } from './css-metadata.js';
@@ -78,6 +78,42 @@ export function extractCustomTypeImports(
     }
   }
   return [...found].sort();
+}
+
+/**
+ * `WaCarouselItem` is a default export from `carousel-item.js`, not a named
+ * export of `carousel.js`. Types that match `Wa` + a component PascalCase
+ * name are imported from that sibling module; everything else stays a named
+ * import from the component's own `importPath` (e.g. `ToastCreateOptions`).
+ */
+export function formatCustomTypeImports(
+  methods: { parameters?: Array<{ name: string; type: string }> }[],
+  selfImportPath: string
+): string {
+  const siblingLines: string[] = [];
+  const namedFromSelf: string[] = [];
+
+  for (const typeName of extractCustomTypeImports(methods)) {
+    const kebab = waElementTypeToKebab(typeName);
+    if (kebab) {
+      siblingLines.push(
+        `import type ${typeName} from '@awesome.me/webawesome/dist/components/${kebab}/${kebab}.js';\n`
+      );
+    } else {
+      namedFromSelf.push(typeName);
+    }
+  }
+
+  let source = siblingLines.join('');
+  if (namedFromSelf.length > 0) {
+    source += `import type { ${namedFromSelf.join(', ')} } from '${selfImportPath}';\n`;
+  }
+  return source;
+}
+
+function waElementTypeToKebab(typeName: string): string | null {
+  if (!/^Wa[A-Z]/.test(typeName)) return null;
+  return toKebabCase(typeName.slice(2));
 }
 
 import fs from 'fs-extra';

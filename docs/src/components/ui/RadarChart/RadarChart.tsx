@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -70,6 +71,10 @@ export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
   ({ children, className, ...props }, ref) => {
     const radarChartRef = useRef<HTMLElement>(null);
 
+    const setRadarChartRef = useCallback((el: typeof radarChartRef.current) => {
+      radarChartRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -82,7 +87,7 @@ export const RadarChart = forwardRef<RadarChartRef, RadarChartProps>(
 
     return (
       <wa-radar-chart
-        ref={radarChartRef}
+        ref={setRadarChartRef}
         class={clsx('RadarChart', className)}
         {...(props as Record<string, unknown>)}
       >

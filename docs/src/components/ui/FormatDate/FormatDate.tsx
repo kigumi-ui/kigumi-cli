@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -83,6 +84,10 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
     };
     const formatdateRef = useRef<HTMLElement & {}>(null);
 
+    const setFormatdateRef = useCallback((el: typeof formatdateRef.current) => {
+      formatdateRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -95,7 +100,7 @@ export const FormatDate = forwardRef<FormatDateRef, FormatDateProps>(
 
     return (
       <wa-format-date
-        ref={formatdateRef}
+        ref={setFormatdateRef}
         class={clsx('FormatDate', className)}
         {...(passThrough as Record<string, unknown>)}
       >

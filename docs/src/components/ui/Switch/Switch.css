@@ -3,16 +3,17 @@
  * Documentation: https://webawesome.com/docs/components/switch
  *
  * CSS Custom Properties:
- * --width: Width of the switch track
- * --height: Height of the switch track
- * --thumb-size: Size of the circular thumb
+ * - --width: The width of the switch.
+ * - --height: The height of the switch.
+ * - --thumb-size: The size of the thumb.
  *
  * CSS Parts:
- * base — Root wrapper element
- * control — Switch track element
- * thumb — Circular thumb that slides along the track
- * label — Switch label text
- * hint — Hint text below the switch
+ * - base: Deprecated. Use the `switch` part instead.
+ * - switch: The component's outer wrapper.
+ * - control: The control that houses the switch's thumb.
+ * - thumb: The switch's thumb.
+ * - label: The switch's label.
+ * - hint: The hint's wrapper.
  */
 .Switch {
   /* Add your custom styles here */

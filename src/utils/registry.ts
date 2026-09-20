@@ -785,6 +785,111 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/breadcrumb-item/breadcrumb-item.js`,
     tier: 'free',
   },
+  pagination: {
+    name: 'Pagination',
+    tagName: 'wa-pagination',
+    category: 'Navigation',
+    description:
+      'Pagination splits long lists of content into pages, letting users navigate between them',
+    dependencies: ['icon'],
+    files: {
+      react: ['components/Pagination.tsx', 'types/pagination.d.ts'],
+      vue: ['components/Pagination.vue'],
+      angular: ['components/Pagination/pagination.component.ts'],
+    },
+    props: [
+      {
+        name: 'total',
+        type: 'number',
+        default: '0',
+        description: 'The total number of items to paginate',
+      },
+      {
+        name: 'page-size',
+        type: 'number',
+        default: '10',
+        description: 'The number of items shown per page',
+      },
+      {
+        name: 'page',
+        type: 'number',
+        default: '1',
+        description: 'The current page, starting at 1',
+      },
+      {
+        name: 'sibling-count',
+        type: 'number',
+        default: '2',
+        description:
+          'The number of pages to show on each side of the current page',
+      },
+      {
+        name: 'boundary-count',
+        type: 'number',
+        default: '1',
+        description: 'The number of pages to always show at the start and end',
+      },
+      {
+        name: 'without-nav',
+        type: 'boolean',
+        default: 'false',
+        description: 'Hides the previous and next buttons',
+      },
+      {
+        name: 'with-edges',
+        type: 'boolean',
+        default: 'false',
+        description: 'Shows buttons that jump to the first and last pages',
+      },
+      {
+        name: 'with-summary',
+        type: 'boolean',
+        default: 'false',
+        description: 'Shows a summary of the items on the current page',
+      },
+      {
+        name: 'format',
+        type: 'string',
+        values: ['standard', 'compact'],
+        default: 'standard',
+        description: 'The pagination layout',
+      },
+      {
+        name: 'href-template',
+        type: 'string',
+        default: "''",
+        description:
+          'URL template with {page} placeholder to render page items as links',
+      },
+      {
+        name: 'hide-single-page',
+        type: 'boolean',
+        default: 'false',
+        description: 'Renders nothing when there is only one page',
+      },
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: 'Accessible name announced by screen readers',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['outlined', 'filled', 'plain'],
+        default: 'outlined',
+        description: 'Visual appearance',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Disables the pagination',
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/pagination/pagination.js`,
+    tier: 'free',
+  },
   icon: {
     name: 'Icon',
     tagName: 'wa-icon',
@@ -3433,6 +3538,122 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/tag/tag.js`,
     tier: 'free',
   },
+  'tag-input': {
+    name: 'TagInput',
+    tagName: 'wa-tag-input',
+    category: 'Form Controls',
+    description:
+      'Tag inputs collect a list of short values, such as keywords or labels, as removable tags',
+    dependencies: ['icon', 'tag'],
+    files: {
+      react: ['components/TagInput.tsx', 'types/tag-input.d.ts'],
+      vue: ['components/TagInput.vue'],
+      angular: ['components/TagInput/tag-input.component.ts'],
+    },
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: "The tag input's label",
+      },
+      {
+        name: 'hint',
+        type: 'string',
+        default: "''",
+        description: "The tag input's hint",
+      },
+      {
+        name: 'value',
+        type: 'string',
+        description: 'Default value as a delimiter-separated string',
+        required: false,
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+        default: "''",
+        description: 'Placeholder text shown in the text box',
+      },
+      {
+        name: 'delimiter',
+        type: 'string',
+        default: ',',
+        description: 'Characters that turn typed text into a tag',
+      },
+      {
+        name: 'max-tags',
+        type: 'number',
+        description: 'The maximum number of tags that can be added',
+        required: false,
+      },
+      {
+        name: 'min-tags',
+        type: 'number',
+        description:
+          'The minimum number of tags required for the control to be valid',
+        required: false,
+      },
+      {
+        name: 'allow-duplicates',
+        type: 'boolean',
+        default: 'false',
+        description: 'Allows the same tag to be added more than once',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+        default: 'false',
+        description: 'Adds a clear button that removes all tags',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['filled', 'outlined', 'filled-outlined'],
+        default: 'outlined',
+        description: 'Visual appearance',
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
+        default: 'medium',
+        description: "The tag input's size",
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+        default: 'false',
+        description: 'Draws a pill-style tag input with rounded edges',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        default: 'false',
+        description: 'Requires at least one tag',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+        default: 'false',
+        description: 'Makes the tag input readonly',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Disables the form control',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        description: 'The name of the input, submitted with form data',
+        required: false,
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/tag-input/tag-input.js`,
+    tier: 'free',
+  },
   textarea: {
     name: 'Textarea',
     tagName: 'wa-textarea',
@@ -3960,6 +4181,135 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/number-input/number-input.js`,
     tier: 'pro',
+  },
+  'otp-input': {
+    name: 'OtpInput',
+    tagName: 'wa-otp-input',
+    category: 'Form Controls',
+    description:
+      'OTP inputs collect one-time passcodes, PINs, and other fixed-length codes, one character per segment',
+    dependencies: [],
+    files: {
+      react: ['components/OtpInput.tsx', 'types/otp-input.d.ts'],
+      vue: ['components/OtpInput.vue'],
+      angular: ['components/OtpInput/otp-input.component.ts'],
+    },
+    props: [
+      {
+        name: 'label',
+        type: 'string',
+        default: "''",
+        description: 'A label shown above the segments',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+        default: "''",
+        description: 'Hint text shown below the segments',
+      },
+      {
+        name: 'value',
+        type: 'string',
+        description: 'The current value of the OTP field',
+        required: false,
+      },
+      {
+        name: 'length',
+        type: 'number',
+        default: '6',
+        description:
+          'Number of character segments to display. Overridden by format when set',
+      },
+      {
+        name: 'format',
+        type: 'string',
+        default: "''",
+        description:
+          'Segment format using # as a placeholder; other characters are literal separators',
+      },
+      {
+        name: 'type',
+        type: 'string',
+        values: ['numeric', 'alpha', 'alphanumeric'],
+        default: 'numeric',
+        description: 'Allowed character class',
+      },
+      {
+        name: 'case',
+        type: 'string',
+        values: ['preserve', 'upper', 'lower'],
+        default: 'preserve',
+        description: 'Case transformation applied to entered characters',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+        values: ['outlined', 'filled', 'filled-outlined', 'contained'],
+        default: 'outlined',
+        description: 'Visual appearance of the segments',
+      },
+      {
+        name: 'size',
+        type: 'string',
+        values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
+        default: 'medium',
+        description: 'The size of each segment',
+      },
+      {
+        name: 'mask',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Displays entered characters as a mask instead of their real value',
+      },
+      {
+        name: 'with-mask',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Shows a mask character in empty segments as a length hint',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+        default: 'one-time-code',
+        description:
+          'The autocomplete attribute forwarded to the underlying input',
+      },
+      {
+        name: 'autosubmit',
+        type: 'boolean',
+        default: 'false',
+        description:
+          'Submits the form automatically once all segments are filled',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+        default: 'false',
+        description: 'Makes the field required',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+        default: 'false',
+        description: 'Makes the field readonly',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+        default: 'false',
+        description: 'Disables the form control',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        description: 'The name of the input, submitted with form data',
+        required: false,
+      },
+    ],
+    importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/otp-input/otp-input.js`,
+    tier: 'free',
   },
   sparkline: {
     name: 'Sparkline',

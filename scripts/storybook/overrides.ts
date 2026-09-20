@@ -79,6 +79,12 @@ export const STORY_OVERRIDES: Record<string, StoryOverride> = {
   'number-input': {
     title: 'Components/Number Input',
   },
+  'otp-input': {
+    title: 'Components/OTP Input',
+  },
+  pagination: {
+    title: 'Components/Pagination',
+  },
   'progress-bar': {
     title: 'Components/Progress Bar',
   },
@@ -105,6 +111,9 @@ export const STORY_OVERRIDES: Record<string, StoryOverride> = {
   },
   'tab-panel': {
     title: 'Components/Tab Panel',
+  },
+  'tag-input': {
+    title: 'Components/Tag Input',
   },
   'tree-item': {
     title: 'Components/Tree Item',

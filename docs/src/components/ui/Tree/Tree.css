@@ -3,14 +3,15 @@
  * Documentation: https://webawesome.com/docs/components/tree
  *
  * CSS Custom Properties:
- * --indent-size: Horizontal indentation per nesting level
- * --indent-guide-color: Color of the vertical indent guides
- * --indent-guide-offset: Vertical offset for indent guide alignment
- * --indent-guide-style: Border style for indent guides
- * --indent-guide-width: Stroke width of indent guides
+ * - --indent-size: The size of the indentation for nested items. (default: var(--wa-space-m))
+ * - --indent-guide-color: The color of the indentation line. (default: var(--wa-color-surface-border))
+ * - --indent-guide-offset: The amount of vertical spacing to leave between the top and bottom of the indentation line's starting position. (default: 0)
+ * - --indent-guide-style: The style of the indentation line, e.g. solid, dotted, dashed. (default: solid)
+ * - --indent-guide-width: The width of the indentation line. (default: 0)
  *
  * CSS Parts:
- * base — Root wrapper element
+ * - base: Deprecated. Use the `tree` part instead.
+ * - tree: The component's outer wrapper.
  */
 .Tree {
   /* Add your custom styles here */

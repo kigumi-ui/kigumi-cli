@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -76,6 +77,10 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
       }
     >(null);
 
+    const setToastItemRef = useCallback((el: typeof toastItemRef.current) => {
+      toastItemRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -111,7 +116,7 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
 
     return (
       <wa-toast-item
-        ref={toastItemRef}
+        ref={setToastItemRef}
         class={clsx('ToastItem', className)}
         {...(props as Record<string, unknown>)}
       >

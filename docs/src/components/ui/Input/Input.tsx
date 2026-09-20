@@ -137,13 +137,7 @@ export interface InputProps extends Omit<
 
   /** Hint for Enter key label on virtual keyboards */
   enterkeyhint?:
-    | 'enter'
-    | 'done'
-    | 'go'
-    | 'next'
-    | 'previous'
-    | 'search'
-    | 'send';
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
 
   /** Emitted when the control receives input (native input event). */
   onInput?: (event: Event) => void;

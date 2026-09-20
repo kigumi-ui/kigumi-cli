@@ -6,7 +6,7 @@
  * - --padding: The tab panel's padding.
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Style the host element instead.
  */
 :host {
   display: contents;

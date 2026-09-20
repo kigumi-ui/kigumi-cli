@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -53,6 +54,10 @@ export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
   ({ children, className, ...props }, ref) => {
     const qrcodeRef = useRef<HTMLElement & {}>(null);
 
+    const setQrcodeRef = useCallback((el: typeof qrcodeRef.current) => {
+      qrcodeRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -65,7 +70,7 @@ export const QrCode = forwardRef<QrCodeRef, QrCodeProps>(
 
     return (
       <wa-qr-code
-        ref={qrcodeRef}
+        ref={setQrcodeRef}
         class={clsx('QrCode', className)}
         {...(props as Record<string, unknown>)}
       >

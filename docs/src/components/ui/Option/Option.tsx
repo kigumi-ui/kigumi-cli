@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -44,6 +45,10 @@ export const Option = forwardRef<OptionRef, OptionProps>(
   ({ children, className, ...props }, ref) => {
     const optionRef = useRef<HTMLElement & {}>(null);
 
+    const setOptionRef = useCallback((el: typeof optionRef.current) => {
+      optionRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -56,7 +61,7 @@ export const Option = forwardRef<OptionRef, OptionProps>(
 
     return (
       <wa-option
-        ref={optionRef}
+        ref={setOptionRef}
         class={clsx('Option', className)}
         {...(props as Record<string, unknown>)}
       >

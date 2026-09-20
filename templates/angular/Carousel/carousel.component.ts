@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
+import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -113,6 +114,20 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
         next: (behavior?: ScrollBehavior) => void;
       }
     ).next(behavior);
+  }
+  addSlide(slide?: WaCarouselItem): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        addSlide: (slide?: WaCarouselItem) => void;
+      }
+    ).addSlide(slide);
+  }
+  removeSlide(index?: number): void {
+    (
+      this.elementRef.nativeElement as unknown as {
+        removeSlide: (index?: number) => void;
+      }
+    ).removeSlide(index);
   }
   goToSlide(index?: number, behavior?: ScrollBehavior): void {
     (

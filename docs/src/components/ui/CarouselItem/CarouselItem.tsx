@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -32,6 +33,13 @@ export const CarouselItem = forwardRef<CarouselItemRef, CarouselItemProps>(
   ({ children, className, ...props }, ref) => {
     const carouselitemRef = useRef<HTMLElement & {}>(null);
 
+    const setCarouselitemRef = useCallback(
+      (el: typeof carouselitemRef.current) => {
+        carouselitemRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -44,7 +52,7 @@ export const CarouselItem = forwardRef<CarouselItemRef, CarouselItemProps>(
 
     return (
       <wa-carousel-item
-        ref={carouselitemRef}
+        ref={setCarouselitemRef}
         class={clsx('CarouselItem', className)}
         {...(props as Record<string, unknown>)}
       >

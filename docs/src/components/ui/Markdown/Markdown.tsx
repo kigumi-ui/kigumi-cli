@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -53,6 +54,10 @@ export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
       }
     >(null);
 
+    const setMarkdownRef = useCallback((el: HTMLElement | null) => {
+      markdownRef.current = el as typeof markdownRef.current;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -86,7 +91,7 @@ export const Markdown = forwardRef<MarkdownRef, MarkdownProps>(
 
     return (
       <wa-markdown
-        ref={markdownRef}
+        ref={setMarkdownRef}
         class={clsx('Markdown', className)}
         {...(props as Record<string, unknown>)}
       >

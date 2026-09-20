@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -55,6 +56,10 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
   ({ children, className, onError, ...props }, ref) => {
     const avatarRef = useRef<HTMLElement & {}>(null);
 
+    const setAvatarRef = useCallback((el: typeof avatarRef.current) => {
+      avatarRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -82,7 +87,7 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
 
     return (
       <wa-avatar
-        ref={avatarRef}
+        ref={setAvatarRef}
         class={clsx('Avatar', className)}
         {...(props as Record<string, unknown>)}
       >

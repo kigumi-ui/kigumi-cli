@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -106,6 +107,10 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       }
     >(null);
 
+    const setDialogRef = useCallback((el: HTMLElement | null) => {
+      dialogRef.current = el as typeof dialogRef.current;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -157,7 +162,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return createPortal(
       <wa-dialog
-        ref={dialogRef}
+        ref={setDialogRef}
         class={clsx('Dialog', className)}
         {...(props as Record<string, unknown>)}
       >

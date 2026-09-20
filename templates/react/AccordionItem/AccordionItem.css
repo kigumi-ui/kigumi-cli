@@ -9,7 +9,8 @@
  * - --easing: The easing of the expand/collapse animation. (default: var(--wa-transition-easing))
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `accordion-item` part instead.
+ * - accordion-item: The component's outer wrapper.
  * - heading: The heading element wrapping the trigger button. Omitted when `heading-level="none"`.
  * - button: The trigger button that toggles the panel.
  * - label: The container that wraps the label.

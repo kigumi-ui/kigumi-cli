@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -43,6 +44,10 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
   ({ children, className, onChange, ...props }, ref) => {
     const comparisonRef = useRef<HTMLElement & {}>(null);
 
+    const setComparisonRef = useCallback((el: typeof comparisonRef.current) => {
+      comparisonRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -70,7 +75,7 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
 
     return (
       <wa-comparison
-        ref={comparisonRef}
+        ref={setComparisonRef}
         class={clsx('Comparison', className)}
         {...(props as Record<string, unknown>)}
       >

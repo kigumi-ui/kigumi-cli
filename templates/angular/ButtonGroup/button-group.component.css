@@ -6,7 +6,7 @@
  * (No custom properties defined for this component)
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Style the host element instead.
  */
 :host {
   display: contents;

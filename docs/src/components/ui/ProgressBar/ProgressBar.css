@@ -3,14 +3,15 @@
  * Documentation: https://webawesome.com/docs/components/progress-bar
  *
  * CSS Custom Properties:
- * --track-height: Height of the progress track
- * --track-color: Background color of the track
- * --indicator-color: Fill color of the progress indicator
+ * - --track-height: The height of the track. (default: 1rem)
+ * - --track-color: The color of the track. (default: var(--wa-color-neutral-fill-normal))
+ * - --indicator-color: The color of the indicator. (default: var(--wa-color-brand-fill-loud))
  *
  * CSS Parts:
- * base — Root wrapper element
- * indicator — Progress fill element
- * label — Label text centered on the bar
+ * - base: Deprecated. Use the `progress-bar` part instead.
+ * - progress-bar: The component's outer wrapper.
+ * - indicator: The progress bar's indicator.
+ * - label: The progress bar's label.
  */
 .ProgressBar {
   /* Add your custom styles here */

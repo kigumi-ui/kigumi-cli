@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -41,6 +42,10 @@ export const TabPanel = forwardRef<TabPanelRef, TabPanelProps>(
   ({ children, className, ...props }, ref) => {
     const tabpanelRef = useRef<HTMLElement & {}>(null);
 
+    const setTabpanelRef = useCallback((el: typeof tabpanelRef.current) => {
+      tabpanelRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -53,7 +58,7 @@ export const TabPanel = forwardRef<TabPanelRef, TabPanelProps>(
 
     return (
       <wa-tab-panel
-        ref={tabpanelRef}
+        ref={setTabpanelRef}
         class={clsx('TabPanel', className)}
         {...(props as Record<string, unknown>)}
       >

@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -41,6 +42,10 @@ export const Callout = forwardRef<CalloutRef, CalloutProps>(
   ({ children, className, ...props }, ref) => {
     const calloutRef = useRef<HTMLElement & {}>(null);
 
+    const setCalloutRef = useCallback((el: typeof calloutRef.current) => {
+      calloutRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -53,7 +58,7 @@ export const Callout = forwardRef<CalloutRef, CalloutProps>(
 
     return (
       <wa-callout
-        ref={calloutRef}
+        ref={setCalloutRef}
         class={clsx('Callout', className)}
         {...(props as Record<string, unknown>)}
       >

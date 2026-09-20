@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (101 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (102 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -28,6 +28,7 @@ tests/
 │   ├── diff-roundtrip.test.ts       # Diff renderer round-trip fidelity
 │   ├── display-options.test.ts      # Theme/palette/brand display data
 │   ├── doctor.test.ts               # Doctor command (import fixes)
+│   ├── docs-wrapper-callback-refs.test.ts # Docs UI wrappers must use callback refs on wa-* hosts (WA 3.13 JSX)
 │   ├── edge-cases.test.ts           # Edge case handling
 │   ├── error-classes.test.ts        # Error class hierarchy
 │   ├── errors.test.ts               # Error formatting
@@ -118,6 +119,7 @@ tests/
 │   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
 │   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
 │   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
+│   │   ├── generator-utils.test.ts             # Custom method-param type imports (sibling Wa* vs named self)
 │   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 │   ├── eslint-rules/
 │   │   └── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
@@ -774,6 +776,8 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Last Updated:** 2026-09-19
 
+- added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
+
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
 - corrected the stale .tmp-* references: the E2E Test Projects table listed three directories no e2e test has used since the suite moved to the .tmp-e2e-* scheme and omitted all four that are
 - the directory tree showed the same dead .tmp-react-* glob
@@ -796,3 +800,5 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added scripts/map-event-type.test.ts and scripts/event-type-parity.test.ts pinning the shared event handler-type rule across all three generators
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
 - added parse-custom-elements-types.test.ts covering the single-declaration contract for ComponentMetadata and the CSS-metadata types, issue #34
+- added docs-wrapper-callback-refs.test.ts covering the WA 3.13 JSX object-ref ban on docs UI wrappers
+- generator-drift-guard.test.ts now drifts scripts/generator-utils.ts (shared CSS emitter), not generate-vue-templates.ts

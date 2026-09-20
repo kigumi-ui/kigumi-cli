@@ -10,7 +10,8 @@
  * - --indent-guide-width: The width of the indentation line. (default: 0)
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `tree` part instead.
+ * - tree: The component's outer wrapper.
  */
 :host {
   display: contents;

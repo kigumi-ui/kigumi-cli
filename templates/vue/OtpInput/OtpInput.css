@@ -1,0 +1,20 @@
+/**
+ * OtpInput Component Styles
+ * Documentation: https://webawesome.com/docs/components/otp-input
+ *
+ * CSS Custom Properties:
+ * - --segment-size: Width and height of each segment cell. (default: 2.5em)
+ * - --segment-gap: Gap between segments (not used in `contained` appearance). (default: var(--wa-space-xs))
+ * - --segment-border-radius: Corner radius of each segment. (default: var(--wa-form-control-border-radius))
+ * - --mask-char: Character shown in place of entered values when `mask` is set, and as a hint in empty segments when `with-mask` is set. (default: '•')
+ *
+ * CSS Parts:
+ * - label: The label element.
+ * - hint: The hint element.
+ * - segments: The wrapper around all segment cells and separators.
+ * - segment: An individual character segment cell.
+ * - segment-literal: Inert literal text between segment groups (e.g. space or dash).
+ */
+.OtpInput {
+  /* Add your custom styles here */
+}

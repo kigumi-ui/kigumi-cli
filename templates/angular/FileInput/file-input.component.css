@@ -6,9 +6,11 @@
  * (No custom properties defined for this component)
  *
  * CSS Parts:
- * - label: The label element.
+ * - form-control-label: The label.
+ * - label: Deprecated. Use the `form-control-label` part instead.
  * - hint: The hint element.
- * - base: The main component wrapper.
+ * - base: Deprecated. Use the `file-input` part instead.
+ * - file-input: The component's outer wrapper.
  * - dropzone: The drag-and-drop area.
  * - dropzone-icon: The upload icon in the dropzone.
  * - dropzone-text: The instruction text in the dropzone.

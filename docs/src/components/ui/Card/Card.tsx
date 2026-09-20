@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -47,6 +48,10 @@ export const Card = forwardRef<CardRef, CardProps>(
   ({ children, className, ...props }, ref) => {
     const cardRef = useRef<HTMLElement & {}>(null);
 
+    const setCardRef = useCallback((el: typeof cardRef.current) => {
+      cardRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -59,7 +64,7 @@ export const Card = forwardRef<CardRef, CardProps>(
 
     return (
       <wa-card
-        ref={cardRef}
+        ref={setCardRef}
         class={clsx('Card', className)}
         {...(props as Record<string, unknown>)}
       >

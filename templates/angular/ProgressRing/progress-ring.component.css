@@ -11,7 +11,8 @@
  * - --indicator-transition-duration: The duration of the indicator's transition when the value changes.
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `progress-ring` part instead.
+ * - progress-ring: The component's outer wrapper.
  * - label: The progress ring label.
  * - track: The progress ring's track.
  * - indicator: The progress ring's indicator.

@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -88,6 +89,10 @@ export const Chart = forwardRef<ChartRef, ChartProps>(
   ({ children, className, ...props }, ref) => {
     const chartRef = useRef<HTMLElement>(null);
 
+    const setChartRef = useCallback((el: typeof chartRef.current) => {
+      chartRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -100,7 +105,7 @@ export const Chart = forwardRef<ChartRef, ChartProps>(
 
     return (
       <wa-chart
-        ref={chartRef}
+        ref={setChartRef}
         class={clsx('Chart', className)}
         {...(props as Record<string, unknown>)}
       >

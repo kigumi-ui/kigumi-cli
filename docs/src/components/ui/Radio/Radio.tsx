@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -55,6 +56,10 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
   ({ children, className, onBlur, onFocus, ...props }, ref) => {
     const radioRef = useRef<HTMLElement & {}>(null);
 
+    const setRadioRef = useCallback((el: typeof radioRef.current) => {
+      radioRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -88,7 +93,7 @@ export const Radio = forwardRef<RadioRef, RadioProps>(
 
     return (
       <wa-radio
-        ref={radioRef}
+        ref={setRadioRef}
         class={clsx('Radio', className)}
         {...(props as Record<string, unknown>)}
       >

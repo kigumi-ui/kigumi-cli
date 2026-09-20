@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -161,6 +162,10 @@ export const Video = forwardRef<VideoRef, VideoProps>(
       }
     >(null);
 
+    const setVideoRef = useCallback((el: typeof videoRef.current) => {
+      videoRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -314,7 +319,7 @@ export const Video = forwardRef<VideoRef, VideoProps>(
 
     return (
       <wa-video
-        ref={videoRef}
+        ref={setVideoRef}
         class={clsx('Video', className)}
         {...(props as Record<string, unknown>)}
       >

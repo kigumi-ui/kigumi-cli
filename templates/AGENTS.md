@@ -289,7 +289,7 @@ export interface DialogProps extends Omit<HTMLAttributes<HTMLElement>, 'onLoad' 
 
 ### 7. No `'use client'` in React Templates
 
-React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx` / `.jsx` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 84 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
+React templates stay framework-agnostic: do **not** put `'use client';` at the top of any `.tsx` / `.jsx` file. The directive is injected at generation time by `src/utils/template.ts#generateComponent` when `isNextProject(cwd)` returns true. This keeps a single set of 87 React templates working for Vite-React, Next App Router, and Next Pages Router without duplicating the tree.
 
 ### 8. `suppressHydrationWarning` on the `<wa-*>` Host
 
@@ -397,6 +397,8 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 **Parent:** [AGENTS.md](../AGENTS.md)
 
 **Last Updated:** 2026-09-19
+
+- 87 templates per framework after WA 3.13.0 (OtpInput, Pagination, TagInput)
 
 - component-count claims in this file are now enforced by validate:agents
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line

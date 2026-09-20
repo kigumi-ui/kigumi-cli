@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -44,12 +45,7 @@ export interface RandomContentProps extends Omit<
 
   /** The animation to apply when displayed items change */
   animation?:
-    | 'none'
-    | 'fade'
-    | 'fade-up'
-    | 'fade-down'
-    | 'fade-left'
-    | 'fade-right';
+    'none' | 'fade' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right';
 
   /** Emitted when the displayed content changes. */
   onContentChange?: (event: CustomEvent) => void;
@@ -69,6 +65,13 @@ export const RandomContent = forwardRef<RandomContentRef, RandomContentProps>(
         randomize?: () => void;
       }
     >(null);
+
+    const setRandomcontentRef = useCallback(
+      (el: typeof randomcontentRef.current) => {
+        randomcontentRef.current = el;
+      },
+      []
+    );
 
     useImperativeHandle(
       ref,
@@ -105,7 +108,7 @@ export const RandomContent = forwardRef<RandomContentRef, RandomContentProps>(
 
     return (
       <wa-random-content
-        ref={randomcontentRef}
+        ref={setRandomcontentRef}
         class={clsx('RandomContent', className)}
         {...(props as Record<string, unknown>)}
       >

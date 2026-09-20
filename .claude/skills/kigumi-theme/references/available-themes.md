@@ -243,5 +243,5 @@ Pro themes require a Web Awesome Pro license. To use them:
 
 ---
 
-**Source:** Web Awesome 3.10.0 theme and palette CSS files
+**Source:** Web Awesome 3.13.0 theme and palette CSS files
 **Documentation:** [kigumi.style](https://kigumi.style) | [webawesome.com/themes](https://webawesome.com/themes)

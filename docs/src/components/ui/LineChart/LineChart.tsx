@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -79,6 +80,10 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
   ({ children, className, ...props }, ref) => {
     const lineChartRef = useRef<HTMLElement>(null);
 
+    const setLineChartRef = useCallback((el: typeof lineChartRef.current) => {
+      lineChartRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -91,7 +96,7 @@ export const LineChart = forwardRef<LineChartRef, LineChartProps>(
 
     return (
       <wa-line-chart
-        ref={lineChartRef}
+        ref={setLineChartRef}
         class={clsx('LineChart', className)}
         {...(props as Record<string, unknown>)}
       >

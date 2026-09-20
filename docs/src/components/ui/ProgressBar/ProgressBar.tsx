@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -44,6 +45,13 @@ export const ProgressBar = forwardRef<ProgressBarRef, ProgressBarProps>(
   ({ children, className, ...props }, ref) => {
     const progressbarRef = useRef<HTMLElement & {}>(null);
 
+    const setProgressbarRef = useCallback(
+      (el: typeof progressbarRef.current) => {
+        progressbarRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -56,7 +64,7 @@ export const ProgressBar = forwardRef<ProgressBarRef, ProgressBarProps>(
 
     return (
       <wa-progress-bar
-        ref={progressbarRef}
+        ref={setProgressbarRef}
         class={clsx('ProgressBar', className)}
         {...(props as Record<string, unknown>)}
       >

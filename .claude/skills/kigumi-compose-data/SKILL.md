@@ -25,7 +25,7 @@ Build data-heavy UIs: tables, stats, lists, detail views, loading/empty states.
 
 ## Critical Rules
 
-1. **No `<wa-table>` exists.** Use native HTML `<table>` with WA CSS variables for styling. A DataGrid component is planned by Web Awesome but not yet available.
+1. **No `<wa-table>` exists.** Use native HTML `<table>` with WA CSS variables for styling. Web Awesome Pro ships `wa-data-grid`; Kigumi does not wrap it yet — do not emit raw `<wa-data-grid>` tags. Use `Pagination` for page navigation.
 2. **Use formatting components** for data values: FormatNumber, FormatDate, FormatBytes, RelativeTime.
 3. **Use Skeleton** for loading states that match the expected layout shape.
 4. **Use Badge** for status indicators with semantic variants (success, warning, danger).
@@ -44,6 +44,7 @@ Build data-heavy UIs: tables, stats, lists, detail views, loading/empty states.
 | File sizes                 | `FormatBytes`                  | free |
 | Status indicator           | `Badge`                        | free |
 | Progress                   | `ProgressBar` / `ProgressRing` | free |
+| Page navigation            | `Pagination`                   | free |
 | Loading placeholder        | `Skeleton`                     | free |
 | Inline chart               | `Sparkline`                    | pro  |
 

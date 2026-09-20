@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -63,6 +64,13 @@ export const MutationObserver = forwardRef<
 >(({ children, className, onMutation, ...props }, ref) => {
   const mutationobserverRef = useRef<HTMLElement & {}>(null);
 
+  const setMutationobserverRef = useCallback(
+    (el: typeof mutationobserverRef.current) => {
+      mutationobserverRef.current = el;
+    },
+    []
+  );
+
   useImperativeHandle(
     ref,
     () => ({
@@ -90,7 +98,7 @@ export const MutationObserver = forwardRef<
 
   return (
     <wa-mutation-observer
-      ref={mutationobserverRef}
+      ref={setMutationobserverRef}
       class={clsx('MutationObserver', className)}
       {...(props as Record<string, unknown>)}
     >
