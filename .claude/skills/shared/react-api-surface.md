@@ -284,7 +284,7 @@ wa-dropdown -> <Dropdown>
 Overlays | free | Dropdown items are used inside dropdowns to represent individual menu items
 wa-dropdown-item -> <DropdownItem>
 
-**Props:** type(normal|checkbox=normal), checked(boolean=false), value(string=''), disabled(boolean=false), loading(boolean=false), variant(default|danger=default)
+**Props:** type(normal|checkbox=normal), checked(boolean=false), value(string=''), disabled(boolean=false), loading(boolean=false), variant(default|danger=default), href(string), target(_blank|_parent|_self|_top), rel(string), download(string)
 **Events:** onBlur, onFocus
 **Slots:** default, icon, details, submenu
 **Methods:** openSubmenu(), closeSubmenu()

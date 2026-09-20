@@ -18,6 +18,10 @@ export interface DropdownItemProps {
   disabled?: boolean;
   loading?: boolean;
   variant?: 'default' | 'danger';
+  href?: string;
+  target?: '_blank' | '_parent' | '_self' | '_top';
+  rel?: string;
+  download?: string;
 }
 
 const props = defineProps<DropdownItemProps>();

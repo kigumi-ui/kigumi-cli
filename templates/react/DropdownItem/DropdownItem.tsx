@@ -56,6 +56,18 @@ export interface DropdownItemProps extends Omit<
   /** The dropdown item variant */
   variant?: 'default' | 'danger';
 
+  /** When set, selecting the item navigates to this URL */
+  href?: string;
+
+  /** Tells the browser where to open the link (when href is set) */
+  target?: '_blank' | '_parent' | '_self' | '_top';
+
+  /** The rel attribute on the underlying link (when href is set) */
+  rel?: string;
+
+  /** Download filename (when href is set) */
+  download?: string;
+
   /** Emitted when the dropdown item loses focus. */
   onBlur?: (event: FocusEvent) => void;
 

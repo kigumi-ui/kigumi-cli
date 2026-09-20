@@ -18,6 +18,10 @@ const props = defineProps({
   disabled: { type: Boolean, required: false, default: false },
   loading: { type: Boolean, required: false, default: false },
   variant: { type: String, required: false, default: 'default' },
+  href: { type: String, required: false },
+  target: { type: String, required: false },
+  rel: { type: String, required: false },
+  download: { type: String, required: false },
 });
 
 // Strip undefined and false props before forwarding to the web component.

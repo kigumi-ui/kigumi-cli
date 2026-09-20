@@ -36,6 +36,10 @@ function ensureLoaded() {
       [attr.disabled]="disabled || null"
       [attr.loading]="loading || null"
       [attr.variant]="variant"
+      [attr.href]="href"
+      [attr.target]="target"
+      [attr.rel]="rel"
+      [attr.download]="download"
     >
       <ng-content />
     </wa-dropdown-item>
@@ -58,6 +62,14 @@ export class DropdownItemComponent implements AfterViewInit, OnDestroy {
   @Input() loading?: boolean;
   /** The dropdown item variant */
   @Input() variant?: 'default' | 'danger';
+  /** When set, selecting the item navigates to this URL */
+  @Input() href?: string;
+  /** Tells the browser where to open the link (when href is set) */
+  @Input() target?: '_blank' | '_parent' | '_self' | '_top';
+  /** The rel attribute on the underlying link (when href is set) */
+  @Input() rel?: string;
+  /** Download filename (when href is set) */
+  @Input() download?: string;
 
   @Output() blur = new EventEmitter<FocusEvent>();
   @Output() focus = new EventEmitter<FocusEvent>();

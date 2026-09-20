@@ -1866,6 +1866,29 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: 'default',
         description: 'The dropdown item variant',
       },
+      {
+        name: 'href',
+        type: 'string',
+        description: 'When set, selecting the item navigates to this URL',
+      },
+      {
+        name: 'target',
+        type: 'string',
+        values: ['_blank', '_parent', '_self', '_top'],
+        description:
+          'Tells the browser where to open the link (when href is set)',
+      },
+      {
+        name: 'rel',
+        type: 'string',
+        description:
+          'The rel attribute on the underlying link (when href is set)',
+      },
+      {
+        name: 'download',
+        type: 'string',
+        description: 'Download filename (when href is set)',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/dropdown-item/dropdown-item.js`,
     tier: 'free',
