@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -82,14 +83,7 @@ export interface DateInputProps extends Omit<
 
   /** The first day of the week in the popup calendar */
   'first-day-of-week'?:
-    | 'auto'
-    | 'sun'
-    | 'mon'
-    | 'tue'
-    | 'wed'
-    | 'thu'
-    | 'fri'
-    | 'sat';
+    'auto' | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 
   /** Whitespace-separated ISO dates to disable */
   'disabled-dates'?: string;
@@ -129,12 +123,7 @@ export interface DateInputProps extends Omit<
 
   /** The preferred popup placement */
   placement?:
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end';
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
   /** The distance in pixels between the popup and input */
   distance?: number;
@@ -225,6 +214,10 @@ export const DateInput = forwardRef<DateInputRef, DateInputProps>(
         resetValidity?: () => void;
       }
     >(null);
+
+    const setDateinputRef = useCallback((el: typeof dateinputRef.current) => {
+      dateinputRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -374,7 +367,7 @@ export const DateInput = forwardRef<DateInputRef, DateInputProps>(
 
     return (
       <wa-date-input
-        ref={dateinputRef}
+        ref={setDateinputRef}
         class={clsx('DateInput', className)}
         {...(props as Record<string, unknown>)}
       >

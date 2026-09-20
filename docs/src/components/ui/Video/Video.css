@@ -8,12 +8,12 @@
  * - --poster-play-button-background: The background of the play button shown over the poster image. Also used to derive the hover state via color-mix(). (default: var(--wa-color-surface-default))
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `video-wrapper` part instead.
+ * - video-wrapper: The component's outer wrapper.
  * - video: The video element.
  * - controls: The controls container.
  * - controls-overlay: The overlay wrapping timeline and controls bar.
  * - timeline: The timeline/scrubber container.
- * - progress: The progress bar.
  * - thumbnail: The thumbnail preview.
  * - poster-overlay: The poster image overlay.
  * - poster-play-button: The play button on the poster overlay.

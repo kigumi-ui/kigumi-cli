@@ -3,9 +3,10 @@
  * Documentation: https://webawesome.com/docs/components/divider
  *
  * CSS Custom Properties:
- * --color: Color of the dividing line
- * --width: Thickness of the dividing line
- * --spacing: Margin around the divider
+ * - --color: The color of the divider.
+ * - --width: The width of the divider.
+ * - --spacing: The spacing of the divider.
+ *
  */
 .Divider {
   /* Add your custom styles here */

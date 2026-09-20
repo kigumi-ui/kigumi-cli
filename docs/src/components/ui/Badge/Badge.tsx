@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -49,6 +50,10 @@ export const Badge = forwardRef<BadgeRef, BadgeProps>(
   ({ children, className, ...props }, ref) => {
     const badgeRef = useRef<HTMLElement & {}>(null);
 
+    const setBadgeRef = useCallback((el: typeof badgeRef.current) => {
+      badgeRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -61,7 +66,7 @@ export const Badge = forwardRef<BadgeRef, BadgeProps>(
 
     return (
       <wa-badge
-        ref={badgeRef}
+        ref={setBadgeRef}
         class={clsx('Badge', className)}
         {...(props as Record<string, unknown>)}
       >

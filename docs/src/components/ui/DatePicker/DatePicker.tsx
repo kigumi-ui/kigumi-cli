@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -51,14 +52,7 @@ export interface DatePickerProps extends Omit<
 
   /** The first day of the week */
   'first-day-of-week'?:
-    | 'auto'
-    | 'sun'
-    | 'mon'
-    | 'tue'
-    | 'wed'
-    | 'thu'
-    | 'fri'
-    | 'sat';
+    'auto' | 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 
   /** Show leading/trailing days from adjacent months */
   'with-outside-days'?: boolean;
@@ -150,6 +144,10 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
       }
     >(null);
 
+    const setDatepickerRef = useCallback((el: typeof datepickerRef.current) => {
+      datepickerRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -227,7 +225,7 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
 
     return (
       <wa-date-picker
-        ref={datepickerRef}
+        ref={setDatepickerRef}
         class={clsx('DatePicker', className)}
         {...(props as Record<string, unknown>)}
       >

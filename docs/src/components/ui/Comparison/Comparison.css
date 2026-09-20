@@ -3,15 +3,16 @@
  * Documentation: https://webawesome.com/docs/components/comparison
  *
  * CSS Custom Properties:
- * --divider-width: Width of the dividing line
- * --handle-size: Size of the drag handle
+ * - --divider-width: The width of the dividing line.
+ * - --handle-size: The size of the compare handle.
  *
  * CSS Parts:
- * base — Root wrapper element
- * before — Before (left or top) panel
- * after — After (right or bottom) panel
- * divider — Dividing line between panels
- * handle — Draggable handle on the divider
+ * - base: Deprecated. Use the `comparison` part instead.
+ * - comparison: The component's outer wrapper.
+ * - before: The container that wraps the before content.
+ * - after: The container that wraps the after content.
+ * - divider: The divider that separates the before and after content.
+ * - handle: The handle that the user drags to expose the after content.
  */
 .Comparison {
   /* Add your custom styles here */

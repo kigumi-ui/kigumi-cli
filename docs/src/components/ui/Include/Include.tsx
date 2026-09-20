@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -52,6 +53,10 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
   ({ children, className, onLoad, onIncludeError, ...props }, ref) => {
     const includeRef = useRef<HTMLElement & {}>(null);
 
+    const setIncludeRef = useCallback((el: typeof includeRef.current) => {
+      includeRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -85,7 +90,7 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
 
     return (
       <wa-include
-        ref={includeRef}
+        ref={setIncludeRef}
         class={clsx('Include', className)}
         {...(props as Record<string, unknown>)}
       >

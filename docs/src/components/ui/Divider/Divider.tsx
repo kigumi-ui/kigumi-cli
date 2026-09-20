@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -44,6 +45,10 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
     };
     const dividerRef = useRef<HTMLElement & {}>(null);
 
+    const setDividerRef = useCallback((el: typeof dividerRef.current) => {
+      dividerRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -56,7 +61,7 @@ export const Divider = forwardRef<DividerRef, DividerProps>(
 
     return (
       <wa-divider
-        ref={dividerRef}
+        ref={setDividerRef}
         class={clsx('Divider', className)}
         {...(passThrough as Record<string, unknown>)}
       >

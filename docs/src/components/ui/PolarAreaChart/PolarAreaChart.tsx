@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -57,6 +58,13 @@ export const PolarAreaChart = forwardRef<
 >(({ children, className, ...props }, ref) => {
   const polarAreaChartRef = useRef<HTMLElement>(null);
 
+  const setPolarAreaChartRef = useCallback(
+    (el: typeof polarAreaChartRef.current) => {
+      polarAreaChartRef.current = el;
+    },
+    []
+  );
+
   useImperativeHandle(
     ref,
     () => ({
@@ -69,7 +77,7 @@ export const PolarAreaChart = forwardRef<
 
   return (
     <wa-polar-area-chart
-      ref={polarAreaChartRef}
+      ref={setPolarAreaChartRef}
       class={clsx('PolarAreaChart', className)}
       {...(props as Record<string, unknown>)}
     >

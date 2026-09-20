@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -82,6 +83,10 @@ export const Icon = forwardRef<IconRef, IconProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
     const iconRef = useRef<HTMLElement & {}>(null);
 
+    const setIconRef = useCallback((el: typeof iconRef.current) => {
+      iconRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -115,7 +120,7 @@ export const Icon = forwardRef<IconRef, IconProps>(
 
     return (
       <wa-icon
-        ref={iconRef}
+        ref={setIconRef}
         class={clsx('Icon', className)}
         {...(props as Record<string, unknown>)}
       >

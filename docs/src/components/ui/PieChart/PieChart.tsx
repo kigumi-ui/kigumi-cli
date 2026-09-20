@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -55,6 +56,10 @@ export const PieChart = forwardRef<PieChartRef, PieChartProps>(
   ({ children, className, ...props }, ref) => {
     const pieChartRef = useRef<HTMLElement>(null);
 
+    const setPieChartRef = useCallback((el: typeof pieChartRef.current) => {
+      pieChartRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -67,7 +72,7 @@ export const PieChart = forwardRef<PieChartRef, PieChartProps>(
 
     return (
       <wa-pie-chart
-        ref={pieChartRef}
+        ref={setPieChartRef}
         class={clsx('PieChart', className)}
         {...(props as Record<string, unknown>)}
       >

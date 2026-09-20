@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -47,6 +48,10 @@ export const Scroller = forwardRef<ScrollerRef, ScrollerProps>(
   ({ children, className, ...props }, ref) => {
     const scrollerRef = useRef<HTMLElement & {}>(null);
 
+    const setScrollerRef = useCallback((el: typeof scrollerRef.current) => {
+      scrollerRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -59,7 +64,7 @@ export const Scroller = forwardRef<ScrollerRef, ScrollerProps>(
 
     return (
       <wa-scroller
-        ref={scrollerRef}
+        ref={setScrollerRef}
         class={clsx('Scroller', className)}
         {...(props as Record<string, unknown>)}
       >

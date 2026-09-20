@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -75,6 +76,13 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
       }
     >(null);
 
+    const setDropdownitemRef = useCallback(
+      (el: typeof dropdownitemRef.current) => {
+        dropdownitemRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -124,7 +132,7 @@ export const DropdownItem = forwardRef<DropdownItemRef, DropdownItemProps>(
 
     return (
       <wa-dropdown-item
-        ref={dropdownitemRef}
+        ref={setDropdownitemRef}
         class={clsx('DropdownItem', className)}
         {...(props as Record<string, unknown>)}
       >

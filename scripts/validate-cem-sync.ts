@@ -57,7 +57,11 @@ const PROJECT_ROOT = path.join(
 
 interface SyncFinding {
   component: string;
-  category: 'missing-from-registry' | 'missing-from-cem' | 'prop-value-drift';
+  category:
+    | 'missing-from-registry'
+    | 'missing-from-cem'
+    | 'prop-value-drift'
+    | 'allowlisted-but-wrapped';
   severity: 'error' | 'warning';
   message: string;
 }
@@ -80,15 +84,23 @@ const REGISTRY_VALUE_ALLOWLIST: Record<string, readonly string[]> = {
  * warnings; any NEW unwrapped CEM component still warns. Adding a wrapper for
  * one of these is a separate scoped effort — remove its entry here when doing so.
  */
-const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
-  // WA 3.7.0 additions; wrappers triaged wontfix-unless-recurring (PR #208).
-  'video',
-  'video-playlist',
-  // Superseded for Kigumi's purposes by known-date/time-input wrappers;
-  // full date-picker/date-input wrappers are a separate scoped effort.
-  'date-picker',
-  'date-input',
+export const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
+  // WA 3.11 Pro data grid: 15 events, JS-driven `data`/`columns` API, not a
+  // thin attribute wrapper. Scoped effort of its own, not this bump.
+  'data-grid',
 ]);
+
+/**
+ * Allowlist keys that already have a registry entry. Those wrappers exist, so
+ * the allowlist entry is a lie — remove it when adding the wrapper.
+ */
+export function allowlistedKeysInRegistry(
+  registryKeys: Iterable<string>,
+  allowlist: ReadonlySet<string> = INTENTIONALLY_UNWRAPPED
+): string[] {
+  const registry = new Set(registryKeys);
+  return [...allowlist].filter((key) => registry.has(key)).sort();
+}
 
 interface SyncResult {
   passed: boolean;
@@ -221,6 +233,15 @@ function checkComponentPresence(
         message: `${regKey} is in registry but not found in CEM metadata (possibly removed upstream)`,
       });
     }
+  }
+
+  for (const key of allowlistedKeysInRegistry(registryMap.keys())) {
+    findings.push({
+      component: key,
+      category: 'allowlisted-but-wrapped',
+      severity: 'error',
+      message: `${key} is in INTENTIONALLY_UNWRAPPED but also has a registry entry; remove it from the allowlist`,
+    });
   }
 
   return findings;

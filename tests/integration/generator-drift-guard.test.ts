@@ -28,7 +28,7 @@ const PROJECT_ROOT = path.resolve(
   '../..'
 );
 
-const GENERATOR = path.join(PROJECT_ROOT, 'scripts/generate-vue-templates.ts');
+const GENERATOR = path.join(PROJECT_ROOT, 'scripts/generator-utils.ts');
 
 /**
  * The guard needs a manifest describing every registry component, which only
@@ -95,9 +95,9 @@ describe('generator drift cannot pass the freshness guard (#43)', () => {
     // failing would "prove" the point without the drift.
     expect(runFreshnessGuard()).toBe(0);
 
-    // Drift the CSS emitter's custom-property branch. Deliberately not the
-    // Button path: the only Vue CSS snapshot covers Button, which has zero
-    // custom properties, so this branch is unreachable from the unit suite --
+    // Drift the shared CSS emitter's custom-property branch (issue #30 moved
+    // it out of generate-vue-templates.ts). Button still has zero custom
+    // properties, so this branch stays unreachable from the unit snapshots --
     // which is why the original drift went unnoticed.
     const drifted = pristine.replace(
       ' * - ${prop.name}',

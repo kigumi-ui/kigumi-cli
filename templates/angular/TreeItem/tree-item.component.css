@@ -7,7 +7,8 @@
  * - --hide-duration: The animation duration when collapsing tree items. (default: var(--wa-transition-normal))
  *
  * CSS Parts:
- * - base: The component's base wrapper.
+ * - base: Deprecated. Use the `tree-item` part instead.
+ * - tree-item: The component's outer wrapper.
  * - item: The tree item's container. This element wraps everything except slotted tree item children.
  * - indentation: The tree item's indentation container.
  * - expand-button: The container that wraps the tree item's expand button and spinner.

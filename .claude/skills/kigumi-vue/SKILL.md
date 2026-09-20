@@ -290,7 +290,7 @@ onBeforeUnmount(() => {
 
 ## References
 
-- [Vue API Surface](../shared/vue-api-surface.md) -- all 73 components (props, events, slots, methods, CSS parts)
+- [Vue API Surface](../shared/vue-api-surface.md) -- all 87 components (props, events, slots, methods, CSS parts)
 - [Vue State Patterns](references/vue-state-patterns.md) -- ref, reactive, event handling
 
 ## Related Skills

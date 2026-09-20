@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -87,6 +88,10 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       }
     >(null);
 
+    const setRatingRef = useCallback((el: typeof ratingRef.current) => {
+      ratingRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -142,7 +147,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
 
     return (
       <wa-rating
-        ref={ratingRef}
+        ref={setRatingRef}
         class={clsx('Rating', className)}
         {...(props as Record<string, unknown>)}
       >

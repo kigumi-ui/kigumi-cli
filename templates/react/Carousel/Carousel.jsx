@@ -49,6 +49,12 @@ export const Carousel = React.forwardRef(
         previous: (behavior) => {
           carouselRef.current?.previous?.(behavior);
         },
+        addSlide: (slide) => {
+          carouselRef.current?.addSlide?.(slide);
+        },
+        removeSlide: (index) => {
+          carouselRef.current?.removeSlide?.(index);
+        },
         get element() {
           return carouselRef.current;
         },

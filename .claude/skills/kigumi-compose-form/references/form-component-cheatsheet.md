@@ -29,6 +29,8 @@ Quick reference: which Kigumi component for which input type.
 | Star rating                | `<Rating>`                                | free    | `npx kigumi add rating`                  |
 | Time of day                | `<TimeInput>`                             | free    | `npx kigumi add time-input`              |
 | Known date (e.g. birthday) | `<KnownDate>`                             | free    | `npx kigumi add known-date`              |
+| One-time code / PIN        | `<OtpInput>`                              | free    | `npx kigumi add otp-input`               |
+| Keywords / labels          | `<TagInput>`                              | free    | `npx kigumi add tag-input`               |
 
 ## Key Props Per Component
 
@@ -92,6 +94,14 @@ Quick reference: which Kigumi component for which input type.
 
 `label` `hint` `placeholder` `value` `multiple` `allow-custom-value` `required` `disabled` `size` `appearance`
 
+### OtpInput
+
+`label` `hint` `value` `length` `type` (numeric|alpha|alphanumeric) `format` `mask` `autosubmit` `required` `disabled` `readonly` `name` `size` `appearance`
+
+### TagInput
+
+`label` `hint` `value` `placeholder` `delimiter` `max-tags` `min-tags` `allow-duplicates` `with-clear` `required` `disabled` `readonly` `name` `size` `appearance` `pill`
+
 ## Key Slots
 
 Slots let you place icons or custom content inside form controls. Use `slot="name"` on child elements.
@@ -103,6 +113,8 @@ Slots let you place icons or custom content inside form controls. Use `slot="nam
 | **Textarea**       | `label`, `hint`                                                                           |
 | **TimeInput**      | `start`, `end`, `label`, `hint`, `clear-icon`, `expand-icon`, `footer`                    |
 | **KnownDate**      | `label`, `hint`                                                                           |
+| **OtpInput**       | `label`, `hint`                                                                           |
+| **TagInput**       | `start`, `end`, `label`, `hint`, `clear-icon`                                             |
 | **Combobox** (pro) | `start`, `end`, `label`, `hint`, `clear-icon`, `expand-icon`                              |
 
 Most-used pattern -- prefix/suffix icons in Input:

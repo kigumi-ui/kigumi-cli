@@ -3,18 +3,19 @@
  * Documentation: https://webawesome.com/docs/components/progress-ring
  *
  * CSS Custom Properties:
- * --size: Diameter of the progress ring
- * --track-width: Stroke width of the background track
- * --track-color: Stroke color of the background track
- * --indicator-width: Stroke width of the progress indicator arc
- * --indicator-color: Stroke color of the progress indicator arc
- * --indicator-transition-duration: Transition duration for indicator changes
+ * - --size: The diameter of the progress ring (cannot be a percentage).
+ * - --track-width: The width of the track.
+ * - --track-color: The color of the track.
+ * - --indicator-width: The width of the indicator. Defaults to the track width.
+ * - --indicator-color: The color of the indicator.
+ * - --indicator-transition-duration: The duration of the indicator's transition when the value changes.
  *
  * CSS Parts:
- * base — Root wrapper element
- * label — Label text centered in the ring
- * track — Background circle track
- * indicator — Progress arc indicator
+ * - base: Deprecated. Use the `progress-ring` part instead.
+ * - progress-ring: The component's outer wrapper.
+ * - label: The progress ring label.
+ * - track: The progress ring's track.
+ * - indicator: The progress ring's indicator.
  */
 .ProgressRing {
   /* Add your custom styles here */

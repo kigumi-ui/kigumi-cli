@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -93,6 +94,10 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
       }
     >(null);
 
+    const setAnimationRef = useCallback((el: typeof animationRef.current) => {
+      animationRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -148,7 +153,7 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
 
     return (
       <wa-animation
-        ref={animationRef}
+        ref={setAnimationRef}
         class={clsx('Animation', className)}
         {...(props as Record<string, unknown>)}
       >

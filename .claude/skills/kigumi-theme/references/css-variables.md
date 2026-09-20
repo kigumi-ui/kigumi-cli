@@ -1,6 +1,6 @@
 # CSS Variables Reference
 
-Complete reference of CSS custom properties (design tokens) defined in Web Awesome themes. All values sourced from `default.css` in Web Awesome 3.10.0.
+Complete reference of CSS custom properties (design tokens) defined in Web Awesome themes. All values sourced from `default.css` in Web Awesome 3.13.0.
 
 ## Naming Convention
 
@@ -377,5 +377,5 @@ Use browser DevTools to inspect active CSS variables:
 
 ---
 
-**Source:** Web Awesome 3.10.0 `dist/styles/themes/default.css`
+**Source:** Web Awesome 3.13.0 `dist/styles/themes/default.css`
 **Documentation:** [kigumi.style](https://kigumi.style) | [webawesome.com/docs/theming](https://webawesome.com/docs/theming)

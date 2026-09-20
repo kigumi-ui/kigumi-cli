@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -75,6 +76,13 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
     };
     const formatnumberRef = useRef<HTMLElement & {}>(null);
 
+    const setFormatnumberRef = useCallback(
+      (el: typeof formatnumberRef.current) => {
+        formatnumberRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -87,7 +95,7 @@ export const FormatNumber = forwardRef<FormatNumberRef, FormatNumberProps>(
 
     return (
       <wa-format-number
-        ref={formatnumberRef}
+        ref={setFormatnumberRef}
         class={clsx('FormatNumber', className)}
         {...(passThrough as Record<string, unknown>)}
       >

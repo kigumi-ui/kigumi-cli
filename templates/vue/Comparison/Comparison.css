@@ -7,7 +7,8 @@
  * - --handle-size: The size of the compare handle.
  *
  * CSS Parts:
- * - base: The container that wraps the before and after content.
+ * - base: Deprecated. Use the `comparison` part instead.
+ * - comparison: The component's outer wrapper.
  * - before: The container that wraps the before content.
  * - after: The container that wraps the after content.
  * - divider: The divider that separates the before and after content.

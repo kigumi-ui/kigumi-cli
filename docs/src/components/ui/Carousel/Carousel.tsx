@@ -1,11 +1,13 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
 } from 'react';
 import clsx from 'clsx';
+import type WaCarouselItem from '@awesome.me/webawesome-pro/dist/components/carousel-item/carousel-item.js';
 import '@awesome.me/webawesome-pro/dist/components/carousel/carousel.js';
 import './Carousel.css';
 
@@ -69,6 +71,12 @@ export interface CarouselRef {
   /** Move the carousel forward by `slides-per-move` slides. */
   next: (behavior: ScrollBehavior) => void;
 
+  /** Adds a carousel item as the last real slide. */
+  addSlide: (slide: WaCarouselItem) => void;
+
+  /** Removes the real slide at the specified index. */
+  removeSlide: (index: number) => void;
+
   /** Scrolls the carousel to the slide specified by `index`. */
   goToSlide: (index: number, behavior: ScrollBehavior) => void;
   /** Reference to the underlying HTML element */
@@ -81,9 +89,15 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
       HTMLElement & {
         previous?: (behavior: ScrollBehavior) => void;
         next?: (behavior: ScrollBehavior) => void;
+        addSlide?: (slide: WaCarouselItem) => void;
+        removeSlide?: (index: number) => void;
         goToSlide?: (index: number, behavior: ScrollBehavior) => void;
       }
     >(null);
+
+    const setCarouselRef = useCallback((el: typeof carouselRef.current) => {
+      carouselRef.current = el;
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -102,6 +116,22 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
             typeof carouselRef.current.next === 'function'
           ) {
             carouselRef.current.next(behavior);
+          }
+        },
+        addSlide: (slide: WaCarouselItem) => {
+          if (
+            carouselRef.current &&
+            typeof carouselRef.current.addSlide === 'function'
+          ) {
+            carouselRef.current.addSlide(slide);
+          }
+        },
+        removeSlide: (index: number) => {
+          if (
+            carouselRef.current &&
+            typeof carouselRef.current.removeSlide === 'function'
+          ) {
+            carouselRef.current.removeSlide(index);
           }
         },
         goToSlide: (index: number, behavior: ScrollBehavior) => {
@@ -136,7 +166,7 @@ export const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     return (
       <wa-carousel
-        ref={carouselRef}
+        ref={setCarouselRef}
         class={clsx('Carousel', className)}
         {...(props as Record<string, unknown>)}
       >

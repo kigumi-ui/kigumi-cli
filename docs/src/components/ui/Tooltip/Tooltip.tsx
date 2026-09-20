@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -108,6 +109,10 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
       }
     >(null);
 
+    const setTooltipRef = useCallback((el: typeof tooltipRef.current) => {
+      tooltipRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -169,7 +174,7 @@ export const Tooltip = forwardRef<TooltipRef, TooltipProps>(
 
     return (
       <wa-tooltip
-        ref={tooltipRef}
+        ref={setTooltipRef}
         class={clsx('Tooltip', className)}
         {...(props as Record<string, unknown>)}
       >

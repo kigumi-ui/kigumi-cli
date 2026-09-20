@@ -4,6 +4,7 @@
  *
  * CSS Custom Properties:
  * - --accent-width: The width of the accent line. Defaults to 4px.
+ * - --padding: The internal spacing of the toast item. Scales with the `size` attribute.
  * - --show-duration: The animation duration when showing. (default: var(--wa-transition-normal))
  * - --hide-duration: The animation duration when hiding. (default: var(--wa-transition-normal))
  *

@@ -3,29 +3,45 @@
  * Documentation: https://webawesome.com/docs/components/color-picker
  *
  * CSS Custom Properties:
- * --grid-width: Width of the color gradient grid
- * --grid-height: Height of the color gradient grid
- * --grid-handle-size: Size of the grid's draggable handle
- * --slider-height: Height of the hue and opacity sliders
- * --slider-handle-size: Size of the slider handles
+ * - --grid-width: The width of the color grid.
+ * - --grid-height: The height of the color grid.
+ * - --grid-handle-size: The size of the color grid's handle.
+ * - --slider-height: The height of the hue and alpha sliders.
+ * - --slider-handle-size: The diameter of the slider's handle.
  *
  * CSS Parts:
- * base — Root wrapper element
- * trigger — Trigger button that opens the color picker dropdown
- * swatches — Swatches container
- * swatch — Individual swatch element
- * grid — Color gradient selection grid
- * grid-handle — Draggable handle on the color grid
- * slider — Generic slider track
- * slider-handle — Generic slider handle
- * hue-slider — Hue selection slider track
- * hue-slider-handle — Hue slider's draggable handle
- * opacity-slider — Opacity selection slider track
- * opacity-slider-handle — Opacity slider's draggable handle
- * preview — Color preview swatch
- * input — Hex/color value text input
- * eyedropper-button — Eyedropper color sampling button
- * format-button — Button for toggling the color format
+ * - base: Deprecated. Use the `color-picker` part instead.
+ * - color-picker: The dropdown panel that holds the grid, sliders, and swatches.
+ * - trigger: The color picker's dropdown trigger.
+ * - trigger-container: The container that wraps the color picker's trigger.
+ * - form-control: The form control that wraps the label, input, and hint.
+ * - form-control-label: The label.
+ * - form-control-input: The color picker's trigger button.
+ * - hint: The hint's wrapper.
+ * - swatches: The container that holds the swatches.
+ * - swatch: Each individual swatch.
+ * - grid: The color grid.
+ * - grid-handle: The color grid's handle.
+ * - slider: Hue and opacity sliders.
+ * - slider-handle: Hue and opacity slider handles.
+ * - hue-slider: The hue slider.
+ * - hue-slider-handle: The hue slider's handle.
+ * - opacity-slider: The opacity slider.
+ * - opacity-slider-handle: The opacity slider's handle.
+ * - preview: The preview color.
+ * - input: The text input.
+ * - eyedropper-button: The eye dropper button.
+ * - eyedropper-button__base: The eye dropper button's exported `button` part.
+ * - eyedropper-button__start: The eye dropper button's exported `start` part.
+ * - eyedropper-button__label: The eye dropper button's exported `label` part.
+ * - eyedropper-button__end: The eye dropper button's exported `end` part.
+ * - eyedropper-button__caret: The eye dropper button's exported `caret` part.
+ * - format-button: The format button.
+ * - format-button__base: The format button's exported `button` part.
+ * - format-button__start: The format button's exported `start` part.
+ * - format-button__label: The format button's exported `label` part.
+ * - format-button__end: The format button's exported `end` part.
+ * - format-button__caret: The format button's exported `caret` part.
  */
 .ColorPicker {
   /* Add your custom styles here */

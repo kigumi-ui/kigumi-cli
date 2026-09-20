@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -62,6 +63,10 @@ export const Tag = forwardRef<TagRef, TagProps>(
     };
     const tagRef = useRef<HTMLElement & {}>(null);
 
+    const setTagRef = useCallback((el: typeof tagRef.current) => {
+      tagRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -89,7 +94,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
 
     return (
       <wa-tag
-        ref={tagRef}
+        ref={setTagRef}
         class={clsx('Tag', className)}
         {...(passThrough as Record<string, unknown>)}
       >

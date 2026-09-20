@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -118,6 +119,13 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
       }
     >(null);
 
+    const setZoomableframeRef = useCallback(
+      (el: typeof zoomableframeRef.current) => {
+        zoomableframeRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -167,7 +175,7 @@ export const ZoomableFrame = forwardRef<ZoomableFrameRef, ZoomableFrameProps>(
 
     return (
       <wa-zoomable-frame
-        ref={zoomableframeRef}
+        ref={setZoomableframeRef}
         class={clsx('ZoomableFrame', className)}
         {...(passThrough as Record<string, unknown>)}
       >

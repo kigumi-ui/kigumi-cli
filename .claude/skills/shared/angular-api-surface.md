@@ -27,7 +27,7 @@ wa-button -> <Button> (selector: k-button)
 **Outputs:** (focusEvent), (invalid), (blurEvent)
 **Slots:** default, start, end
 **Methods:** click(), focus(), blur()
-**Parts:** base, start, label, end, caret, spinner
+**Parts:** base, button, start, label, end, caret, spinner
 
 ## ButtonGroup
 Actions | free | Groups related buttons into organized sections, supporting both horizontal and vertical layouts
@@ -46,7 +46,7 @@ wa-input -> <Input> (selector: k-input)
 **Outputs:** (change), (blurEvent), (focusEvent), (clear), (invalid), (inputEvent)
 **Slots:** label, start, end, clear-icon, show-password-icon, hide-password-icon, hint
 **Methods:** focus(), blur(), select(), setSelectionRange(), setRangeText(), showPicker(), stepUp(), stepDown()
-**Parts:** label, hint, base, input, start, clear-button, password-toggle-button, end
+**Parts:** form-control-label, label, hint, base, input-wrapper, input, start, clear-button, password-toggle-button, end
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 
 ## Card
@@ -55,7 +55,7 @@ wa-card -> <Card> (selector: k-card)
 
 **Props:** appearance(outlined|filled-outlined|plain|filled|accent=outlined), orientation(vertical|horizontal=vertical), with-header(boolean=false), with-footer(boolean=false), with-media(boolean=false)
 **Slots:** default, header, footer, media, actions, header-actions, footer-actions
-**Parts:** media, header, body, footer
+**Parts:** media, header, body, footer, actions
 **CSS:** --spacing(var(--wa-space-l))
 
 ## Dialog
@@ -106,7 +106,7 @@ wa-badge -> <Badge> (selector: k-badge)
 
 **Props:** variant(brand|neutral|success|warning|danger=brand), appearance(accent|filled|outlined|filled-outlined=accent), pill(boolean=false), attention(none|pulse|bounce=none)
 **Slots:** default, start, end
-**Parts:** base, start, end
+**Parts:** base, badge, start, end
 **CSS:** --pulse-color
 
 ## Breadcrumb
@@ -115,7 +115,7 @@ wa-breadcrumb -> <Breadcrumb> (selector: k-breadcrumb)
 
 **Props:** label(string='')
 **Slots:** default, separator
-**Parts:** base
+**Parts:** base, breadcrumb
 **Requires:** Icon
 
 ## BreadcrumbItem
@@ -125,6 +125,16 @@ wa-breadcrumb-item -> <BreadcrumbItem> (selector: k-breadcrumb-item)
 **Props:** href(string), target(_blank|_parent|_self|_top), rel(string=noreferrer noopener)
 **Slots:** default, start, end, separator
 **Parts:** label, start, end, separator
+
+## Pagination
+Navigation | free | Pagination splits long lists of content into pages, letting users navigate between them
+wa-pagination -> <Pagination> (selector: k-pagination)
+
+**Props:** total(number=0), page-size(number=10), page(number=1), sibling-count(number=2), boundary-count(number=1), without-nav(boolean=false), with-edges(boolean=false), with-summary(boolean=false), format(standard|compact=standard), href-template(string=''), hide-single-page(boolean=false), label(string=''), appearance(outlined|filled|plain=outlined), disabled(boolean=false)
+**Outputs:** (pageChange), (beforePageChange)
+**Slots:** previous-icon, next-icon, first-icon, last-icon
+**Parts:** base, pagination, button, previous-button, next-button, first-button, last-button, pages, page, page-current, ellipsis, summary, label
+**Requires:** Icon
 
 ## Icon
 Display | free | Icons are symbols that can be used to represent various options within an application
@@ -142,8 +152,8 @@ wa-carousel -> <Carousel> (selector: k-carousel)
 **Props:** autoplay(boolean=false), autoplay-interval(number=3000), loop(boolean=false), mouse-dragging(boolean=false), navigation(boolean=false), orientation(horizontal|vertical=horizontal), pagination(boolean=false), slides-per-move(number=1), slides-per-page(number=1)
 **Outputs:** (slideChange)
 **Slots:** default, next-icon, previous-icon
-**Methods:** previous(), next(), goToSlide()
-**Parts:** base, scroll-container, pagination, pagination-item, pagination-item-active, navigation, navigation-button, navigation-button-previous, navigation-button-next
+**Methods:** previous(), next(), addSlide(), removeSlide(), goToSlide()
+**Parts:** base, carousel, scroll-container, pagination, pagination-item, pagination-item-active, navigation, navigation-button, navigation-button-previous, navigation-button-next
 **CSS:** --aspect-ratio(16/9), --scroll-hint, --slide-gap(var(--wa-space-m))
 **Requires:** CarouselItem
 
@@ -163,7 +173,7 @@ wa-checkbox -> <Checkbox> (selector: k-checkbox)
 **Outputs:** (blurEvent), (focusEvent), (inputEvent), (invalid), (change)
 **Slots:** default, hint
 **Methods:** click(), focus(), blur()
-**Parts:** base, control, checked-icon, indeterminate-icon, label, hint
+**Parts:** base, checkbox, control, checked-icon, indeterminate-icon, label, hint
 **CSS:** --checked-icon-color, --checked-icon-scale
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 **Requires:** Icon
@@ -185,7 +195,7 @@ wa-color-picker -> <ColorPicker> (selector: k-color-picker)
 **Outputs:** (inputEvent), (showEvent), (afterShow), (hideEvent), (afterHide), (blurEvent), (focusEvent), (invalid), (change)
 **Slots:** label, hint
 **Methods:** getHexString(), focus(), blur(), getFormattedValue(), show(), hide()
-**Parts:** base, trigger, swatches, swatch, grid, grid-handle, slider, slider-handle, hue-slider, hue-slider-handle, opacity-slider, opacity-slider-handle, preview, input, eyedropper-button, eyedropper-button__base, eyedropper-button__start, eyedropper-button__label, eyedropper-button__end, eyedropper-button__caret, format-button, format-button__base, format-button__start, format-button__label, format-button__end, format-button__caret
+**Parts:** base, color-picker, trigger, trigger-container, form-control, form-control-label, form-control-input, hint, swatches, swatch, grid, grid-handle, slider, slider-handle, hue-slider, hue-slider-handle, opacity-slider, opacity-slider-handle, preview, input, eyedropper-button, eyedropper-button__base, eyedropper-button__start, eyedropper-button__label, eyedropper-button__end, eyedropper-button__caret, format-button, format-button__base, format-button__start, format-button__label, format-button__end, format-button__caret
 **CSS:** --grid-width, --grid-height, --grid-handle-size, --slider-height, --slider-handle-size
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 **Requires:** Button, Icon, Input, Popup
@@ -198,7 +208,7 @@ wa-combobox -> <Combobox> (selector: k-combobox)
 **Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (create), (invalid), (inputEvent)
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
-**Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
+**Parts:** form-control, form-control-label, label, form-control-input, hint, combobox, start, end, combobox-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --tag-max-size(10ch)
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 **Requires:** Button, Icon, Option, Popup, Tag
@@ -210,7 +220,7 @@ wa-comparison -> <Comparison> (selector: k-comparison)
 **Props:** position(number=50)
 **Outputs:** (change)
 **Slots:** before, after, handle
-**Parts:** base, before, after, divider, handle
+**Parts:** base, comparison, before, after, divider, handle
 **CSS:** --divider-width, --handle-size
 **Requires:** Icon
 
@@ -221,7 +231,7 @@ wa-page -> <Page> (selector: k-page)
 **Props:** disable-navigation-toggle(boolean=false), mobile-breakpoint(string=768px), navigation-placement(start|end=start), nav-open(boolean=false), view(mobile|desktop=desktop)
 **Slots:** default, banner, header, subheader, menu, navigation-header, navigation, navigation-footer, navigation-toggle, navigation-toggle-icon, main-header, main-footer, aside, skip-to-content, footer
 **Methods:** visiblePixelsInViewport(), showNavigation(), hideNavigation(), toggleNavigation()
-**Parts:** base, banner, header, subheader, body, menu, navigation, navigation-header, navigation-footer, navigation-toggle, navigation-toggle-icon, main-header, main-content, main-footer, aside, skip-links, skip-link, footer, dialog-wrapper
+**Parts:** base, page, banner, header, subheader, body, menu, navigation, navigation-desktop, navigation-header, navigation-footer, navigation-toggle, navigation-toggle-icon, drawer, main, main-header, main-content, main-footer, aside, skip-to-content, footer
 **CSS:** --menu-width(auto), --main-width(1fr), --aside-width(auto), --banner-height(0px), --header-height(0px), --subheader-height(0px)
 
 ## CopyButton
@@ -242,7 +252,7 @@ wa-details -> <Details> (selector: k-details)
 **Outputs:** (afterShow), (hideEvent), (afterHide), (showEvent)
 **Slots:** default, summary, expand-icon, collapse-icon
 **Methods:** show(), hide()
-**Parts:** base, header, summary, icon, content
+**Parts:** base, details, header, summary, icon, content
 **CSS:** --spacing, --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 **Requires:** Icon
 
@@ -372,7 +382,7 @@ wa-progress-bar -> <ProgressBar> (selector: k-progress-bar)
 
 **Props:** value(number=0), indeterminate(boolean=false), label(string='')
 **Slots:** default
-**Parts:** base, indicator, label
+**Parts:** base, progress-bar, indicator, label
 **CSS:** --track-height(1rem), --track-color(var(--wa-color-neutral-fill-normal)), --indicator-color(var(--wa-color-brand-fill-loud))
 
 ## ProgressRing
@@ -381,7 +391,7 @@ wa-progress-ring -> <ProgressRing> (selector: k-progress-ring)
 
 **Props:** value(number=0), label(string='')
 **Slots:** default
-**Parts:** base, label, track, indicator
+**Parts:** base, progress-ring, label, track, indicator
 **CSS:** --size, --track-width, --track-color, --indicator-width, --indicator-color, --indicator-transition-duration
 
 ## QrCode
@@ -389,7 +399,7 @@ Display | free | Generates QR codes for encoding text, URLs, or data
 wa-qr-code -> <QrCode> (selector: k-qr-code)
 
 **Props:** value(string=''), label(string=''), size(number=128), fill(string=black), background(string=white), radius(number=0), error-correction(L|M|Q|H=H)
-**Parts:** base
+**Parts:** base, qr-code
 
 ## RadioGroup
 Form Controls | free | Radio groups are used to group multiple radios so only one can be selected
@@ -399,7 +409,7 @@ wa-radio-group -> <RadioGroup> (selector: k-radio-group)
 **Outputs:** (change), (invalidEvent), (inputEvent)
 **Slots:** default, label, hint
 **Methods:** focus()
-**Parts:** form-control, form-control-label, form-control-input, radios, hint
+**Parts:** form-control, form-control-label, form-control-input, hint
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 **Requires:** ButtonGroup
 
@@ -430,7 +440,7 @@ wa-rating -> <Rating> (selector: k-rating)
 
 **Props:** label(string=''), value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string=''), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium)
 **Outputs:** (hover), (invalid), (change)
-**Parts:** base
+**Parts:** base, rating
 **CSS:** --symbol-color, --symbol-color-active, --symbol-spacing
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 **Requires:** Icon
@@ -447,7 +457,7 @@ wa-scroller -> <Scroller> (selector: k-scroller)
 
 **Props:** orientation(horizontal|vertical=horizontal), with-scroll-indicator(boolean=false), without-scrollbar(boolean=false), without-shadow(boolean=false)
 **Slots:** default
-**Parts:** content
+**Parts:** content, start-shadow, end-shadow
 **CSS:** --shadow-color(var(--wa-color-surface-default)), --shadow-size(2rem)
 
 ## Select
@@ -458,7 +468,7 @@ wa-select -> <Select> (selector: k-select)
 **Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (invalidEvent), (inputEvent)
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
-**Parts:** form-control, form-control-label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
+**Parts:** form-control, form-control-label, label, form-control-input, hint, combobox, start, end, display-input, listbox, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, clear-button, expand-icon
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --tag-max-size(10ch)
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 **Requires:** Icon, Option, Popup, Tag
@@ -489,7 +499,7 @@ wa-slider -> <Slider> (selector: k-slider)
 **Outputs:** (blurEvent), (focusEvent), (inputEvent), (invalid), (change)
 **Slots:** label, hint, reference
 **Methods:** focus(), blur(), stepDown(), stepUp()
-**Parts:** label, hint, slider, track, indicator, markers, marker, references, thumb, thumb-min, thumb-max, tooltip, tooltip__tooltip, tooltip__content, tooltip__arrow
+**Parts:** label, hint, slider, track, indicator, markers, marker, references, thumb, thumb-min, thumb-max, tooltip, tooltip__tooltip, tooltip__body, tooltip__arrow
 **CSS:** --track-size(0.75em), --marker-width(0.1875em), --marker-height(0.1875em), --thumb-width(1.25em), --thumb-height(1.25em)
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 
@@ -498,7 +508,7 @@ Progress | free | Spinners are used to show the progress of an indeterminate ope
 wa-spinner -> <Spinner> (selector: k-spinner)
 
 **Props:** none
-**Parts:** base
+**Parts:** base, spinner
 **CSS:** --track-width, --track-color, --indicator-color, --speed
 
 ## SplitPanel
@@ -520,7 +530,7 @@ wa-switch -> <Switch> (selector: k-switch)
 **Outputs:** (inputEvent), (blurEvent), (focusEvent), (invalid), (change)
 **Slots:** default, hint
 **Methods:** click(), focus(), blur()
-**Parts:** base, control, thumb, label, hint
+**Parts:** base, switch, control, thumb, label, hint
 **CSS:** --width, --height, --thumb-size
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 
@@ -531,7 +541,7 @@ wa-tab-group -> <TabGroup> (selector: k-tab-group)
 **Props:** placement(top|bottom|start|end=top), activation(auto|manual=auto), without-scroll-controls(boolean=false), active(string)
 **Outputs:** (tabHide), (tabShow)
 **Slots:** default, nav
-**Parts:** base, nav, tabs, body, scroll-button, scroll-button-start, scroll-button-end, scroll-button__base
+**Parts:** base, tab-group, nav, tabs, body, scroll-button, scroll-button-start, scroll-button-end, scroll-button__base
 **CSS:** --indicator-color, --track-color, --track-width
 **Requires:** Icon
 
@@ -541,7 +551,7 @@ wa-tab -> <Tab> (selector: k-tab)
 
 **Props:** panel(string), disabled(boolean=false)
 **Slots:** default
-**Parts:** base
+**Parts:** base, tab
 **Requires:** Icon
 
 ## TabPanel
@@ -563,6 +573,18 @@ wa-tag -> <Tag> (selector: k-tag)
 **Parts:** base, content, remove-button, remove-button__base
 **Requires:** Icon
 
+## TagInput
+Form Controls | free | Tag inputs collect a list of short values, such as keywords or labels, as removable tags
+wa-tag-input -> <TagInput> (selector: k-tag-input)
+
+**Props:** label(string=''), hint(string=''), value(string), placeholder(string=''), delimiter(string=,), max-tags(number), min-tags(number), allow-duplicates(boolean=false), with-clear(boolean=false), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string)
+**Outputs:** (change), (blurEvent), (focusEvent), (create), (clear), (invalid), (inputEvent)
+**Slots:** label, start, end, clear-icon, hint
+**Methods:** focus(), blur()
+**Parts:** form-control-label, tag-input, start, tags, tag, tag__content, tag__remove-button, tag__remove-button__base, input, clear-button, end, hint
+**Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
+**Requires:** Icon, Tag
+
 ## Textarea
 Form Controls | free | Textareas collect multi-line text data from the user
 wa-textarea -> <Textarea> (selector: k-textarea)
@@ -571,7 +593,7 @@ wa-textarea -> <Textarea> (selector: k-textarea)
 **Outputs:** (change), (focusEvent), (inputEvent), (invalid), (blurEvent)
 **Slots:** label, hint
 **Methods:** focus(), blur(), select(), scrollPosition(), setSelectionRange(), setRangeText()
-**Parts:** label, form-control-input, hint, textarea, base, count
+**Parts:** form-control-label, label, hint, textarea, base, textarea-wrapper, textarea-adjuster, count
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 
 ## Tooltip
@@ -582,7 +604,7 @@ wa-tooltip -> <Tooltip> (selector: k-tooltip)
 **Outputs:** (afterShow), (hideEvent), (afterHide), (showEvent)
 **Slots:** default
 **Methods:** show(), hide()
-**Parts:** base, base__popup, base__arrow, body
+**Parts:** base, tooltip, base__popup, base__arrow, body
 **CSS:** --max-width
 **Requires:** Popup
 
@@ -593,7 +615,7 @@ wa-tree -> <Tree> (selector: k-tree)
 **Props:** selection(single|multiple|leaf|leaf-multiple=single)
 **Outputs:** (selectionChange)
 **Slots:** default, expand-icon, collapse-icon
-**Parts:** base
+**Parts:** base, tree
 **CSS:** --indent-size(var(--wa-space-m)), --indent-guide-color(var(--wa-color-surface-border)), --indent-guide-offset(0), --indent-guide-style(solid), --indent-guide-width(0)
 
 ## TreeItem
@@ -604,7 +626,7 @@ wa-tree-item -> <TreeItem> (selector: k-tree-item)
 **Outputs:** (afterExpand), (collapse), (afterCollapse), (lazyChange), (lazyLoad), (expand)
 **Slots:** default, expand-icon, collapse-icon
 **Methods:** getChildrenItems()
-**Parts:** base, item, indentation, expand-button, spinner, spinner__base, label, children, checkbox, checkbox__base, checkbox__control, checkbox__checked-icon, checkbox__indeterminate-icon, checkbox__label
+**Parts:** base, tree-item, item, indentation, expand-button, spinner, spinner__base, label, children, checkbox, checkbox__base, checkbox__control, checkbox__checked-icon, checkbox__indeterminate-icon, checkbox__label
 **CSS:** --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 **Requires:** Icon, Checkbox, Spinner
 
@@ -635,7 +657,7 @@ wa-file-input -> <FileInput> (selector: k-file-input)
 **Outputs:** (change), (focusEvent), (blurEvent), (invalid), (inputEvent)
 **Slots:** label, hint, dropzone
 **Methods:** focus(), blur()
-**Parts:** label, hint, base, dropzone, dropzone-icon, dropzone-text, file-list, file, file-thumbnail, file-image, file-icon, file-details, file-name, file-size, remove-button
+**Parts:** form-control-label, label, hint, base, file-input, dropzone, dropzone-icon, dropzone-text, file-list, file, file-thumbnail, file-image, file-icon, file-details, file-name, file-size, remove-button
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 
 ## NumberInput
@@ -646,7 +668,19 @@ wa-number-input -> <NumberInput> (selector: k-number-input)
 **Outputs:** (change), (blurEvent), (focusEvent), (beforeinput), (invalid), (inputEvent)
 **Slots:** label, start, end, increment-icon, decrement-icon, hint
 **Methods:** focus(), blur(), select(), stepUp(), stepDown()
-**Parts:** label, form-control-label, hint, base, input, start, end, stepper, stepper-increment, stepper-decrement
+**Parts:** form-control-label, label, hint, base, number-input, input, start, end, stepper, stepper-increment, stepper-decrement
+**Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
+
+## OtpInput
+Form Controls | free | OTP inputs collect one-time passcodes, PINs, and other fixed-length codes, one character per segment
+wa-otp-input -> <OtpInput> (selector: k-otp-input)
+
+**Props:** label(string=''), hint(string=''), value(string), length(number=6), format(string=''), type(numeric|alpha|alphanumeric=numeric), case(preserve|upper|lower=preserve), appearance(outlined|filled|filled-outlined|contained=outlined), size(small|medium|large|xs|s|m|l|xl=medium), mask(boolean=false), with-mask(boolean=false), autocomplete(string=one-time-code), autosubmit(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string)
+**Outputs:** (change), (focusEvent), (blurEvent), (complete), (clearEvent), (invalid), (inputEvent)
+**Slots:** label, hint
+**Methods:** clear(), focus(), blur(), select()
+**Parts:** label, hint, segments, segment, segment-literal
+**CSS:** --segment-size(2.5em), --segment-gap(var(--wa-space-xs)), --segment-border-radius(var(--wa-form-control-border-radius)), --mask-char('•')
 **Form:** ControlValueAccessor -- `[(ngModel)]="value"` (FormsModule) or `[formControl]="ctrl"` (ReactiveFormsModule)
 
 ## Sparkline
@@ -654,7 +688,7 @@ Display | pro | Sparklines are small inline data visualizations for showing tren
 wa-sparkline -> <Sparkline> (selector: k-sparkline)
 
 **Props:** data(string), label(string), appearance(gradient|line|solid=line), trend(positive|negative|neutral), curve(linear|natural|step=natural)
-**Parts:** base, line, fill
+**Parts:** base, sparkline, line, fill
 **CSS:** --fill-color, --line-color, --line-width
 
 ## Chart
@@ -749,7 +783,7 @@ wa-toast-item -> <ToastItem> (selector: k-toast-item)
 **Slots:** default, icon
 **Methods:** hide()
 **Parts:** toast-item, accent, icon, content, close-button, progress-ring, progress-ring__base, progress-ring__label, progress-ring__track, progress-ring__indicator, close-icon, close-icon__svg
-**CSS:** --accent-width, --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
+**CSS:** --accent-width, --padding, --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal))
 
 ## Accordion
 Organization | free | Accordions group related disclosure panels and control how many can be open at once
@@ -768,7 +802,7 @@ wa-accordion-item -> <AccordionItem> (selector: k-accordion-item)
 **Props:** label(string=''), expanded(boolean=false), disabled(boolean=false)
 **Slots:** default, label, icon
 **Methods:** expand(), collapse(), toggle(), focus()
-**Parts:** base, heading, button, label, icon, panel, content
+**Parts:** base, accordion-item, heading, button, label, icon, panel, content
 **CSS:** --spacing(var(--wa-space-m)), --show-duration(var(--wa-transition-normal)), --hide-duration(var(--wa-transition-normal)), --easing(var(--wa-transition-easing))
 
 ## TimeInput
@@ -779,7 +813,7 @@ wa-time-input -> <TimeInput> (selector: k-time-input)
 **Outputs:** (change), (focusEvent), (blurEvent), (clear), (showEvent), (afterShow), (hideEvent), (afterHide), (invalid), (inputEvent)
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer
 **Methods:** focus(), blur(), show(), hide()
-**Parts:** form-control, form-control-label, form-control-input, hint, base, input-wrapper, start, end, input, segment, segment-literal, clear-button, expand-button, expand-icon, popup, columns, column, column-item, column-item-selected, now-button
+**Parts:** form-control, form-control-label, label, form-control-input, hint, base, time-input, input-wrapper, start, end, input, segment, segment-literal, clear-button, expand-button, expand-icon, popup, columns, column, column-item, column-item-selected, now-button
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast)), --column-item-height(2.25em), --column-width(3em)
 
 ## KnownDate
@@ -790,7 +824,7 @@ wa-known-date -> <KnownDate> (selector: k-known-date)
 **Outputs:** (change), (blurEvent), (focusEvent), (invalid), (inputEvent)
 **Slots:** label, hint
 **Methods:** focus(), blur()
-**Parts:** form-control, form-control-label, form-control-input, hint, label, base, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input
+**Parts:** form-control, form-control-label, form-control-input, hint, label, base, known-date, fieldset, legend, fields, field, field-day, field-month, field-year, field-label, field-input
 
 ## Video
 Media | pro | Displays a video player with customizable controls, captions, and thumbnails
@@ -800,7 +834,7 @@ wa-video -> <Video> (selector: k-video)
 **Outputs:** (playEvent), (pauseEvent), (volumechange), (error), (ended), (loadedmetadata), (timeupdate)
 **Slots:** default, controls-start, controls-after-play, poster-icon, play-icon, pause-icon, volume-icon, mute-icon, fullscreen-icon, exit-fullscreen-icon
 **Methods:** play(), pause(), togglePlay(), toggleMute(), seek(), setVolume(), setPlaybackRate(), requestFullscreen(), exitFullscreen(), getVideoElement(), getState()
-**Parts:** base, video, controls, controls-overlay, timeline, progress, thumbnail, poster-overlay, poster-play-button, video-title-overlay, caption-overlay, caption, timeline-track, timeline-indicator, timeline-thumb
+**Parts:** base, video-wrapper, video, controls, controls-overlay, timeline, thumbnail, poster-overlay, poster-play-button, video-title-overlay, caption-overlay, caption, timeline-track, timeline-indicator, timeline-thumb
 **CSS:** --controls-color(white), --controls-background(var(--wa-color-surface-default)), --poster-play-button-background(var(--wa-color-surface-default))
 **Requires:** Dropdown, DropdownItem, Popover, Slider, Button, Icon
 
@@ -812,7 +846,7 @@ wa-video-playlist -> <VideoPlaylist> (selector: k-video-playlist)
 **Outputs:** (videoChange)
 **Slots:** default
 **Methods:** next(), previous(), goTo()
-**Parts:** base, playlist, playlist-item, playlist-thumbnail, playlist-title, playlist-duration
+**Parts:** base, video-playlist, playlist, playlist-item, playlist-thumbnail, playlist-title, playlist-duration
 **Requires:** Video, Icon
 
 ## DatePicker
@@ -823,7 +857,7 @@ wa-date-picker -> <DatePicker> (selector: k-date-picker)
 **Outputs:** (change), (focusDay), (viewChange), (inputEvent)
 **Slots:** previous-icon, next-icon, header, footer
 **Methods:** focus(), goToDate(), goToToday(), clear()
-**Parts:** base, header, title, nav, previous, next, months, month, month-label, weekdays, weekday, weeknumbers, weeknumber, grid, day, day-today, day-outside, day-weekend, day-disabled, day-selected, day-range-start, day-range-end, day-range-inner, day-range-preview, day-label, day-placeholder, view-grid, view-row, view-cell, view-item, view-item-today, view-item-selected, view-item-disabled, footer
+**Parts:** base, date-picker, header, title, nav, previous, next, months, month, month-label, weekdays, weekday, weeknumbers, weeknumber, grid, day, day-today, day-outside, day-weekend, day-disabled, day-selected, day-range-start, day-range-end, day-range-inner, day-range-preview, day-label, day-placeholder, view-grid, view-row, view-cell, view-item, view-item-today, view-item-selected, view-item-disabled, footer
 **Requires:** Icon
 
 ## DateInput
@@ -834,7 +868,7 @@ wa-date-input -> <DateInput> (selector: k-date-input)
 **Outputs:** (change), (focusEvent), (blurEvent), (clearEvent), (showEvent), (afterShow), (hideEvent), (afterHide), (invalid), (inputEvent)
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer, previous-icon, next-icon, day-YYYY-MM-DD
 **Methods:** focus(), blur(), show(), hide(), clear()
-**Parts:** form-control, form-control-label, form-control-input, hint, base, input-wrapper, start, end, input, segment, segment-literal, range-separator, clear-button, expand-button, expand-icon, popup, date-picker
+**Parts:** form-control, form-control-label, label, form-control-input, hint, base, date-input, input-wrapper, start, end, input, segment, segment-literal, range-separator, clear-button, expand-button, expand-icon, popup, date-picker
 **CSS:** --show-duration(var(--wa-transition-fast)), --hide-duration(var(--wa-transition-fast))
 **Requires:** DatePicker, Icon, Popup
 

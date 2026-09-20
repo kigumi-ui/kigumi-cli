@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   useEffect,
   type HTMLAttributes,
@@ -52,6 +53,13 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
   ({ children, className, onLoad, onError, ...props }, ref) => {
     const animatedimageRef = useRef<HTMLElement & {}>(null);
 
+    const setAnimatedimageRef = useCallback(
+      (el: typeof animatedimageRef.current) => {
+        animatedimageRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -85,7 +93,7 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
 
     return (
       <wa-animated-image
-        ref={animatedimageRef}
+        ref={setAnimatedimageRef}
         class={clsx('AnimatedImage', className)}
         {...(props as Record<string, unknown>)}
       >

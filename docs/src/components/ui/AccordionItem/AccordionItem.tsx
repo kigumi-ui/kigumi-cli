@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -66,6 +67,13 @@ export const AccordionItem = forwardRef<AccordionItemRef, AccordionItemProps>(
       }
     >(null);
 
+    const setAccordionitemRef = useCallback(
+      (el: typeof accordionitemRef.current) => {
+        accordionitemRef.current = el;
+      },
+      []
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -110,7 +118,7 @@ export const AccordionItem = forwardRef<AccordionItemRef, AccordionItemProps>(
 
     return (
       <wa-accordion-item
-        ref={accordionitemRef}
+        ref={setAccordionitemRef}
         class={clsx('AccordionItem', className)}
         {...(props as Record<string, unknown>)}
       >

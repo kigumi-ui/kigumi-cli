@@ -17,7 +17,7 @@ import {
 import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
-  extractCustomTypeImports,
+  formatCustomTypeImports,
   generateCssTemplate,
   mapEventType,
   writeFormatted,
@@ -208,14 +208,12 @@ export function generateReactTypescriptTemplate(
       : '';
 
   // 9. Component-specific type imports for non-primitive parameter types.
-  // Walks all method parameter types, extracts PascalCase identifiers,
-  // filters out DOM globals, and imports the rest from the component's
-  // own module (e.g. ToastCreateOptions from Toast).
-  const customTypes = extractCustomTypeImports(metadata.methods);
-  const typeImport =
-    customTypes.length > 0
-      ? `import type { ${customTypes.join(', ')} } from '${component.importPath}';\n`
-      : '';
+  // Sibling `Wa*` element types (WaCarouselItem) default-import from their
+  // own module; other names named-import from this component's importPath.
+  const typeImport = formatCustomTypeImports(
+    metadata.methods,
+    component.importPath
+  );
 
   // Convert "AnimatedImage" → "animated-image" for the WA Free path.
   const kebabName = component.tagName.replace(/^wa-/, '');

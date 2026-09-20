@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useRef,
+  useCallback,
   useImperativeHandle,
   type HTMLAttributes,
 } from 'react';
@@ -38,6 +39,10 @@ export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
   ({ children, className, ...props }, ref) => {
     const skeletonRef = useRef<HTMLElement & {}>(null);
 
+    const setSkeletonRef = useCallback((el: typeof skeletonRef.current) => {
+      skeletonRef.current = el;
+    }, []);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -50,7 +55,7 @@ export const Skeleton = forwardRef<SkeletonRef, SkeletonProps>(
 
     return (
       <wa-skeleton
-        ref={skeletonRef}
+        ref={setSkeletonRef}
         class={clsx('Skeleton', className)}
         {...(props as Record<string, unknown>)}
       >

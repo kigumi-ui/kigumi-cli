@@ -19,7 +19,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `accordion-item` part instead.',
+      },
+      {
+        name: 'accordion-item',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'heading',
@@ -120,7 +124,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `badge` part instead.',
+      },
+      {
+        name: 'badge',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'start',
@@ -244,7 +252,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `breadcrumb` part instead.',
+      },
+      {
+        name: 'breadcrumb',
+        description: "The component's outer wrapper.",
       },
     ],
     customProperties: [],
@@ -376,7 +388,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `button` part instead.',
+      },
+      {
+        name: 'button',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'start',
@@ -407,7 +423,7 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Style the host element instead.',
       },
     ],
     customProperties: [],
@@ -445,6 +461,10 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         name: 'footer',
         description: "The container that wraps the card's footer.",
       },
+      {
+        name: 'actions',
+        description: "The container that wraps the card's actions.",
+      },
     ],
     customProperties: [
       {
@@ -460,7 +480,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The carousel's internal wrapper.",
+        description: 'Deprecated. Use the `carousel` part instead.',
+      },
+      {
+        name: 'carousel',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'scroll-container',
@@ -629,7 +653,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's label .",
+        description: 'Deprecated. Use the `checkbox` part instead.',
+      },
+      {
+        name: 'checkbox',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'control',
@@ -674,7 +702,7 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'form-control-label',
-        description: "The label's wrapper.",
+        description: 'The label.',
       },
       {
         name: 'form-control-input',
@@ -699,11 +727,36 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `color-picker` part instead.',
+      },
+      {
+        name: 'color-picker',
+        description:
+          'The dropdown panel that holds the grid, sliders, and swatches.',
       },
       {
         name: 'trigger',
         description: "The color picker's dropdown trigger.",
+      },
+      {
+        name: 'trigger-container',
+        description: "The container that wraps the color picker's trigger.",
+      },
+      {
+        name: 'form-control',
+        description: 'The form control that wraps the label, input, and hint.',
+      },
+      {
+        name: 'form-control-label',
+        description: 'The label.',
+      },
+      {
+        name: 'form-control-input',
+        description: "The color picker's trigger button.",
+      },
+      {
+        name: 'hint',
+        description: "The hint's wrapper.",
       },
       {
         name: 'swatches',
@@ -834,7 +887,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'form-control-label',
-        description: "The label's wrapper.",
+        description: 'The label.',
+      },
+      {
+        name: 'label',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'form-control-input',
@@ -920,7 +977,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: 'The container that wraps the before and after content.',
+        description: 'Deprecated. Use the `comparison` part instead.',
+      },
+      {
+        name: 'comparison',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'before',
@@ -978,6 +1039,285 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     customProperties: [],
     docsUrl: 'https://webawesome.com/docs/components/copy-button',
   },
+  'data-grid': {
+    parts: [
+      {
+        name: 'data-grid',
+        description: "The component's outer wrapper.",
+      },
+      {
+        name: 'toolbar',
+        description:
+          'The toolbar that contains the search box and columns menu.',
+      },
+      {
+        name: 'search',
+        description: 'The global search input.',
+      },
+      {
+        name: 'select-all-checkbox',
+        description: 'The header checkbox that selects the current page.',
+      },
+      {
+        name: 'columns-menu',
+        description: 'The column visibility menu.',
+      },
+      {
+        name: 'table',
+        description: 'The grid table element.',
+      },
+      {
+        name: 'header',
+        description: 'The header row container.',
+      },
+      {
+        name: 'header-cell',
+        description: 'A column header cell.',
+      },
+      {
+        name: 'sort-indicator',
+        description: 'The sort direction arrow icon in a header cell.',
+      },
+      {
+        name: 'sort-number',
+        description:
+          'The numbered priority badge shown next to each column in a multi-column sort.',
+      },
+      {
+        name: 'resize-handle',
+        description: 'The drag handle for resizing a column.',
+      },
+      {
+        name: 'column-menu',
+        description: 'The per-column header options dropdown.',
+      },
+      {
+        name: 'column-menu-button',
+        description: "The kebab button that opens a column's options menu.",
+      },
+      {
+        name: 'filter-button',
+        description:
+          "The funnel button in a filterable column's header that opens its filter panel.",
+      },
+      {
+        name: 'filter-panel',
+        description:
+          "The popover panel that contains a column's filter controls.",
+      },
+      {
+        name: 'pin-indicator',
+        description:
+          "The pin button shown in a pinned column's header (click to unpin).",
+      },
+      {
+        name: 'drag-ghost',
+        description:
+          'The floating label that follows the pointer while reordering a column (rendered in the top layer).',
+      },
+      {
+        name: 'body',
+        description: 'The scrollable body container.',
+      },
+      {
+        name: 'empty',
+        description:
+          'The empty-state container shown when there are no rows (wraps the `empty` slot).',
+      },
+      {
+        name: 'no-results',
+        description:
+          'The container shown when a search or filter matches no rows (wraps the `no-results` slot).',
+      },
+      {
+        name: 'row',
+        description: 'A data row.',
+      },
+      {
+        name: 'cell',
+        description: 'A data cell.',
+      },
+      {
+        name: 'expand-button',
+        description: 'The expand/collapse toggle button on a row.',
+      },
+      {
+        name: 'row-detail',
+        description: 'The expandable detail panel for a row.',
+      },
+      {
+        name: 'loading-overlay',
+        description: 'The overlay shown while a server request is in flight.',
+      },
+      {
+        name: 'live-region',
+        description:
+          'The visually-hidden polite live region for screen-reader announcements.',
+      },
+      {
+        name: 'group-row',
+        description:
+          'A group row (also carries `row`), when `group-by` is set.',
+      },
+      {
+        name: 'group-value',
+        description: "The group's value in a group row's grouping cell.",
+      },
+      {
+        name: 'group-count',
+        description: "The member count shown next to a group's value.",
+      },
+      {
+        name: 'footer-row',
+        description:
+          'The column footer row pinned to the bottom of the scroll area.',
+      },
+      {
+        name: 'footer-cell',
+        description: 'A column footer cell.',
+      },
+      {
+        name: 'footer',
+        description: 'The footer that contains the pager.',
+      },
+      {
+        name: 'pager',
+        description: 'The pagination control (a `<wa-pagination>` element).',
+      },
+      {
+        name: 'pager-button',
+        description:
+          "Every button in the pager, including page numbers (exported from `wa-pagination`'s `button` part).",
+      },
+      {
+        name: 'page',
+        description: 'A page-number button in the pager.',
+      },
+      {
+        name: 'page-current',
+        description: 'The current page-number button in the pager.',
+      },
+      {
+        name: 'ellipsis',
+        description: 'The collapsed-pages ellipsis in the pager.',
+      },
+      {
+        name: 'first-button',
+        description: 'The "first page" pager button.',
+      },
+      {
+        name: 'previous-button',
+        description: 'The "previous page" pager button.',
+      },
+      {
+        name: 'next-button',
+        description: 'The "next page" pager button.',
+      },
+      {
+        name: 'last-button',
+        description: 'The "last page" pager button.',
+      },
+      {
+        name: 'page-size',
+        description: 'The page-size `<wa-select>` in the footer.',
+      },
+    ],
+    customProperties: [
+      {
+        name: '--accent-color',
+        description: 'The checkbox accent and pinned-column highlight.',
+        default: 'var(--wa-color-brand-fill-loud)',
+      },
+      {
+        name: '--background-color',
+        description: 'The grid body background.',
+        default: 'var(--wa-color-surface-default)',
+      },
+      {
+        name: '--text-color',
+        description: 'The cell text color.',
+        default: 'var(--wa-color-text-normal)',
+      },
+      {
+        name: '--border-color',
+        description: 'The gridline and outer border color.',
+        default: 'var(--wa-color-surface-border)',
+      },
+      {
+        name: '--border-width',
+        description: 'The gridline thickness.',
+        default: 'var(--wa-border-width-s)',
+      },
+      {
+        name: '--border-radius',
+        description: 'The outer corner radius (outlined appearance).',
+        default: 'var(--wa-border-radius-m)',
+      },
+      {
+        name: '--max-height',
+        description:
+          'The maximum height of the scrollable body. Set `none` for natural height.',
+        default: '30rem',
+      },
+      {
+        name: '--row-height',
+        description: 'The height of each row (also set by `size`).',
+        default: '3.5rem',
+      },
+      {
+        name: '--header-row-height',
+        description: 'The height of the header row.',
+        default: 'var(--row-height)',
+      },
+      {
+        name: '--cell-padding',
+        description: 'The cell inline padding (also set by `size`).',
+        default: 'var(--wa-space-m)',
+      },
+      {
+        name: '--header-background',
+        description: 'The header row background.',
+        default: 'var(--wa-color-surface-lowered)',
+      },
+      {
+        name: '--header-text-color',
+        description: 'The header text color.',
+        default: 'var(--wa-color-text-normal)',
+      },
+      {
+        name: '--row-hover-background',
+        description: 'The hovered row background.',
+        default: 'var(--wa-color-neutral-fill-normal)',
+      },
+      {
+        name: '--stripe-background',
+        description: 'The zebra (odd row) background.',
+        default: 'var(--wa-color-neutral-fill-quiet)',
+      },
+      {
+        name: '--selected-background',
+        description: 'The selected row background.',
+        default: 'var(--wa-color-brand-fill-quiet)',
+      },
+      {
+        name: '--focus-ring',
+        description: 'The active-cell focus ring.',
+        default: 'var(--wa-focus-ring)',
+      },
+      {
+        name: '--transition-duration',
+        description: 'The reorder/resize transition duration.',
+        default: 'var(--wa-transition-normal)',
+      },
+      {
+        name: '--indent-size',
+        description:
+          'The indentation applied per depth level to child rows in tree data.',
+        default: '1.25em',
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/data-grid',
+  },
   'date-input': {
     parts: [
       {
@@ -986,7 +1326,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'form-control-label',
-        description: "The label's wrapper.",
+        description: 'The label.',
+      },
+      {
+        name: 'label',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'form-control-input',
@@ -998,7 +1342,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `date-input` part instead.',
+      },
+      {
+        name: 'date-input',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'input-wrapper',
@@ -1069,6 +1417,10 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
+        description: 'Deprecated. Use the `date-picker` part instead.',
+      },
+      {
+        name: 'date-picker',
         description: "The component's outer wrapper.",
       },
       {
@@ -1226,8 +1578,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
+        description: 'Deprecated. Use the `details` part instead.',
+      },
+      {
+        name: 'details',
         description:
-          "The inner `<details>` element used to render the component. Styles you apply to the component are automatically applied to this part, so you usually don't need to deal with it unless you need to set the `display` property.",
+          "The component's outer wrapper. Styles you apply to the component are automatically applied to this part, so you usually don't need to deal with it unless you need to set the `display` property.",
       },
       {
         name: 'header',
@@ -1522,7 +1878,7 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's host element.",
+        description: 'Deprecated. Style the host element instead.',
       },
       {
         name: 'menu',
@@ -1575,8 +1931,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
   'file-input': {
     parts: [
       {
+        name: 'form-control-label',
+        description: 'The label.',
+      },
+      {
         name: 'label',
-        description: 'The label element.',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'hint',
@@ -1584,7 +1944,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'base',
-        description: 'The main component wrapper.',
+        description: 'Deprecated. Use the `file-input` part instead.',
+      },
+      {
+        name: 'file-input',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'dropzone',
@@ -1856,8 +2220,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
   input: {
     parts: [
       {
+        name: 'form-control-label',
+        description: 'The label.',
+      },
+      {
         name: 'label',
-        description: 'The label',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'hint',
@@ -1865,7 +2233,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'base',
-        description: 'The wrapper being rendered as an input',
+        description: 'Deprecated. Use the `input-wrapper` part instead.',
+      },
+      {
+        name: 'input-wrapper',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'input',
@@ -1912,11 +2284,15 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'label',
-        description: "Alias on the legend's inner label wrapper.",
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'base',
-        description: "The component's outer wrapper (alias of the fields row).",
+        description: 'Deprecated. Use the `known-date` part instead.',
+      },
+      {
+        name: 'known-date',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'fieldset',
@@ -2062,12 +2438,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
   'number-input': {
     parts: [
       {
-        name: 'label',
-        description: 'The label element.',
+        name: 'form-control-label',
+        description: 'The label.',
       },
       {
-        name: 'form-control-label',
-        description: 'Alias for the label element.',
+        name: 'label',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'hint',
@@ -2075,7 +2451,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'base',
-        description: 'The wrapper containing the input and steppers.',
+        description: 'Deprecated. Use the `number-input` part instead.',
+      },
+      {
+        name: 'number-input',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'input',
@@ -2133,11 +2513,65 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     ],
     docsUrl: 'https://webawesome.com/docs/components/option',
   },
+  'otp-input': {
+    parts: [
+      {
+        name: 'label',
+        description: 'The label element.',
+      },
+      {
+        name: 'hint',
+        description: 'The hint element.',
+      },
+      {
+        name: 'segments',
+        description: 'The wrapper around all segment cells and separators.',
+      },
+      {
+        name: 'segment',
+        description: 'An individual character segment cell.',
+      },
+      {
+        name: 'segment-literal',
+        description:
+          'Inert literal text between segment groups (e.g. space or dash).',
+      },
+    ],
+    customProperties: [
+      {
+        name: '--segment-size',
+        description: 'Width and height of each segment cell.',
+        default: '2.5em',
+      },
+      {
+        name: '--segment-gap',
+        description:
+          'Gap between segments (not used in `contained` appearance).',
+        default: 'var(--wa-space-xs)',
+      },
+      {
+        name: '--segment-border-radius',
+        description: 'Corner radius of each segment.',
+        default: 'var(--wa-form-control-border-radius)',
+      },
+      {
+        name: '--mask-char',
+        description:
+          'Character shown in place of entered values when `mask` is set, and as a hint in empty segments when `with-mask` is set.',
+        default: "'•'",
+      },
+    ],
+    docsUrl: 'https://webawesome.com/docs/components/otp-input',
+  },
   page: {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `page` part instead.',
+      },
+      {
+        name: 'page',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'banner',
@@ -2167,6 +2601,10 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
           'The `<nav>` that wraps the navigation slots on desktop viewports.',
       },
       {
+        name: 'navigation-desktop',
+        description: 'The `<nav>` for navigation on desktop viewports.',
+      },
+      {
         name: 'navigation-header',
         description:
           'The header for a navigation area. On mobile this will be the header for `<wa-drawer>`.',
@@ -2187,6 +2625,15 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
           'The default `<wa-icon>` displayed inside of the navigation-toggle button.',
       },
       {
+        name: 'drawer',
+        description:
+          'The `<wa-drawer>` that contains the navigation on mobile viewports.',
+      },
+      {
+        name: 'main',
+        description: 'The wrapper around the main header, content, and footer.',
+      },
+      {
         name: 'main-header',
         description: 'The header above main content.',
       },
@@ -2204,22 +2651,14 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
           'The right hand side of the page. Used for things like table of contents, ads, etc.',
       },
       {
-        name: 'skip-links',
-        description: 'Wrapper around skip-link',
-      },
-      {
-        name: 'skip-link',
-        description: 'The "skip to main content" link',
+        name: 'skip-to-content',
+        description:
+          'The "skip to content" link that lets keyboard users bypass navigation.',
       },
       {
         name: 'footer',
         description:
           'The footer of the page. This is always below the initial viewport size.',
-      },
-      {
-        name: 'dialog-wrapper',
-        description:
-          'A wrapper around elements such as dialogs or other modal-like elements.',
       },
     ],
     customProperties: [
@@ -2258,6 +2697,68 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
     ],
     docsUrl: 'https://webawesome.com/docs/components/page',
+  },
+  pagination: {
+    parts: [
+      {
+        name: 'base',
+        description: 'Deprecated. Use the `pagination` part instead.',
+      },
+      {
+        name: 'pagination',
+        description: "The component's outer wrapper, a `<nav>` element.",
+      },
+      {
+        name: 'button',
+        description:
+          'Every button or link, including page numbers and navigation controls.',
+      },
+      {
+        name: 'previous-button',
+        description: 'The previous button.',
+      },
+      {
+        name: 'next-button',
+        description: 'The next button.',
+      },
+      {
+        name: 'first-button',
+        description: 'The first button.',
+      },
+      {
+        name: 'last-button',
+        description: 'The last button.',
+      },
+      {
+        name: 'pages',
+        description: 'The list that wraps the page number items.',
+      },
+      {
+        name: 'page',
+        description: 'A page number button or link.',
+      },
+      {
+        name: 'page-current',
+        description: 'The current page number button or link.',
+      },
+      {
+        name: 'ellipsis',
+        description:
+          'An ellipsis for collapsed pages. Acts as a button that jumps several pages toward that side.',
+      },
+      {
+        name: 'summary',
+        description:
+          'The summary of items on the current page, shown with the `with-summary` attribute.',
+      },
+      {
+        name: 'label',
+        description:
+          'The "1 of 5" label shown between the navigation buttons in the `compact` layout.',
+      },
+    ],
+    customProperties: [],
+    docsUrl: 'https://webawesome.com/docs/components/pagination',
   },
   'pie-chart': {
     parts: [],
@@ -2575,7 +3076,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `progress-bar` part instead.',
+      },
+      {
+        name: 'progress-bar',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'indicator',
@@ -2589,7 +3094,7 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     customProperties: [
       {
         name: '--track-height',
-        description: 'The color of the track.',
+        description: 'The height of the track.',
         default: '1rem',
       },
       {
@@ -2609,7 +3114,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `progress-ring` part instead.',
+      },
+      {
+        name: 'progress-ring',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'label',
@@ -2658,7 +3167,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `qr-code` part instead.',
+      },
+      {
+        name: 'qr-code',
+        description: "The component's outer wrapper.",
       },
     ],
     customProperties: [],
@@ -2800,16 +3313,12 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'form-control-label',
-        description: "The label's wrapper.",
+        description: 'The label.',
       },
       {
         name: 'form-control-input',
-        description: "The input's wrapper.",
-      },
-      {
-        name: 'radios',
         description:
-          'The wrapper than surrounds radio items, styled as a flex container by default.',
+          'The element that wraps the grouped radios, styled as a flex container by default.',
       },
       {
         name: 'hint',
@@ -2843,7 +3352,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `rating` part instead.',
+      },
+      {
+        name: 'rating',
+        description: "The component's outer wrapper.",
       },
     ],
     customProperties: [
@@ -2968,6 +3481,16 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         name: 'content',
         description: 'The container that wraps the slotted content.',
       },
+      {
+        name: 'start-shadow',
+        description:
+          'The scroll shadow shown at the start edge when more content is available, unless `without-shadow` is set.',
+      },
+      {
+        name: 'end-shadow',
+        description:
+          'The scroll shadow shown at the end edge when more content is available, unless `without-shadow` is set.',
+      },
     ],
     customProperties: [
       {
@@ -2991,7 +3514,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'form-control-label',
-        description: "The label's wrapper.",
+        description: 'The label.',
+      },
+      {
+        name: 'label',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'form-control-input',
@@ -3154,8 +3681,8 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         description: "The tooltip's `tooltip` part.",
       },
       {
-        name: 'tooltip__content',
-        description: "The tooltip's `content` part.",
+        name: 'tooltip__body',
+        description: "The tooltip's `body` part.",
       },
       {
         name: 'tooltip__arrow',
@@ -3195,7 +3722,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: 'The SVG container element.',
+        description: 'Deprecated. Use the `sparkline` part instead.',
+      },
+      {
+        name: 'sparkline',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'line',
@@ -3227,7 +3758,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `spinner` part instead.',
+      },
+      {
+        name: 'spinner',
+        description: "The component's outer wrapper.",
       },
     ],
     customProperties: [
@@ -3299,7 +3834,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `switch` part instead.',
+      },
+      {
+        name: 'switch',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'control',
@@ -3338,7 +3877,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `tab` part instead.',
+      },
+      {
+        name: 'tab',
+        description: "The component's outer wrapper.",
       },
     ],
     customProperties: [],
@@ -3348,7 +3891,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `tab-group` part instead.',
+      },
+      {
+        name: 'tab-group',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'nav',
@@ -3403,7 +3950,7 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Style the host element instead.',
       },
     ],
     customProperties: [
@@ -3418,7 +3965,7 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Style the host element instead.',
       },
       {
         name: 'content',
@@ -3436,15 +3983,70 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     customProperties: [],
     docsUrl: 'https://webawesome.com/docs/components/tag',
   },
+  'tag-input': {
+    parts: [
+      {
+        name: 'form-control-label',
+        description: 'The label.',
+      },
+      {
+        name: 'tag-input',
+        description:
+          "The component's outer wrapper, the bordered box that holds the tags and text box.",
+      },
+      {
+        name: 'start',
+        description: 'The container that wraps the `start` slot.',
+      },
+      {
+        name: 'tags',
+        description: 'The list that holds the tags.',
+      },
+      {
+        name: 'tag',
+        description: 'Each tag, a `<wa-tag>`.',
+      },
+      {
+        name: 'tag__content',
+        description: "The tag's content part.",
+      },
+      {
+        name: 'tag__remove-button',
+        description: "The tag's remove button.",
+      },
+      {
+        name: 'tag__remove-button__base',
+        description: "The tag's remove button base part.",
+      },
+      {
+        name: 'input',
+        description: 'The internal text box, an `<input>` element.',
+      },
+      {
+        name: 'clear-button',
+        description: 'The clear button.',
+      },
+      {
+        name: 'end',
+        description: 'The container that wraps the `end` slot.',
+      },
+      {
+        name: 'hint',
+        description: "The hint's wrapper.",
+      },
+    ],
+    customProperties: [],
+    docsUrl: 'https://webawesome.com/docs/components/tag-input',
+  },
   textarea: {
     parts: [
       {
-        name: 'label',
-        description: 'The label',
+        name: 'form-control-label',
+        description: 'The label.',
       },
       {
-        name: 'form-control-input',
-        description: "The input's wrapper.",
+        name: 'label',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'hint',
@@ -3456,7 +4058,16 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'base',
-        description: 'The wrapper around the `<textarea>` control.',
+        description: 'Deprecated. Use the `textarea-wrapper` part instead.',
+      },
+      {
+        name: 'textarea-wrapper',
+        description: "The component's outer wrapper.",
+      },
+      {
+        name: 'textarea-adjuster',
+        description:
+          'The invisible sizer that grows the control to fit its content when `resize` is `auto`.',
       },
       {
         name: 'count',
@@ -3475,7 +4086,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'form-control-label',
-        description: "The label's wrapper.",
+        description: 'The label.',
+      },
+      {
+        name: 'label',
+        description: 'Deprecated. Use the `form-control-label` part instead.',
       },
       {
         name: 'form-control-input',
@@ -3487,7 +4102,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       },
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `time-input` part instead.',
+      },
+      {
+        name: 'time-input',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'input-wrapper',
@@ -3655,6 +4274,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
         description: 'The width of the accent line. Defaults to 4px.',
       },
       {
+        name: '--padding',
+        description:
+          'The internal spacing of the toast item. Scales with the `size` attribute.',
+      },
+      {
         name: '--show-duration',
         description: 'The animation duration when showing.',
         default: 'var(--wa-transition-normal)',
@@ -3671,7 +4295,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper, an `<wa-popup>` element.",
+        description: 'Deprecated. Use the `tooltip` part instead.',
+      },
+      {
+        name: 'tooltip',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'base__popup',
@@ -3701,7 +4329,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `tree` part instead.',
+      },
+      {
+        name: 'tree',
+        description: "The component's outer wrapper.",
       },
     ],
     customProperties: [
@@ -3739,7 +4371,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `tree-item` part instead.',
+      },
+      {
+        name: 'tree-item',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'item',
@@ -3816,7 +4452,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `video-wrapper` part instead.',
+      },
+      {
+        name: 'video-wrapper',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'video',
@@ -3833,10 +4473,6 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
       {
         name: 'timeline',
         description: 'The timeline/scrubber container.',
-      },
-      {
-        name: 'progress',
-        description: 'The progress bar.',
       },
       {
         name: 'thumbnail',
@@ -3901,7 +4537,11 @@ export const CSS_METADATA: Record<string, ComponentCSSMetadata> = {
     parts: [
       {
         name: 'base',
-        description: "The component's base wrapper.",
+        description: 'Deprecated. Use the `video-playlist` part instead.',
+      },
+      {
+        name: 'video-playlist',
+        description: "The component's outer wrapper.",
       },
       {
         name: 'playlist',
