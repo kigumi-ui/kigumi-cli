@@ -36,6 +36,25 @@ const meta = {
       description: 'The dropdown item variant',
       table: { defaultValue: { summary: 'default' } },
     },
+    href: {
+      control: 'text',
+      description: 'When set, selecting the item navigates to this URL',
+    },
+    target: {
+      control: 'select',
+      options: ['_blank', '_parent', '_self', '_top'],
+      description:
+        'Tells the browser where to open the link (when href is set)',
+    },
+    rel: {
+      control: 'text',
+      description:
+        'The rel attribute on the underlying link (when href is set)',
+    },
+    download: {
+      control: 'text',
+      description: 'Download filename (when href is set)',
+    },
     onBlur: {
       action: 'blur',
       description: 'Emitted when the dropdown item loses focus.',
@@ -117,6 +136,27 @@ export const Checkbox: Story = {
       <Divider />
       <DropdownItem type="checkbox" disabled value="experimental">
         Experimental features
+      </DropdownItem>
+    </Dropdown>
+  ),
+};
+
+/** Navigates when selected. The item stays a menu item for assistive devices. */
+export const AsLink: Story = {
+  render: () => (
+    <Dropdown>
+      <Button slot="trigger" with-caret>
+        Links
+      </Button>
+      <DropdownItem
+        href="https://webawesome.com/docs"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        Web Awesome docs
+      </DropdownItem>
+      <DropdownItem href="https://kigumi.style" target="_blank">
+        Kigumi
       </DropdownItem>
     </Dropdown>
   ),
