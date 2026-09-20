@@ -2,7 +2,7 @@
 
 Adding a Template looks as if it might be proven by growing the Starter
 fixture set: those fixtures already typecheck and build in a real consumer.
-That would make Starter fixtures the catalogue of adapter correctness, which
+That would make Starter fixtures the catalogue of Template correctness, which
 they are not. They are install smoke against a fixed nine-component contract
 with the starter repositories.
 
@@ -18,12 +18,12 @@ token or typechecks shims instead of user files.
 **Catalogue-in-starters** (rejected): add every new Template to the Starter
 list and regenerate Starter fixtures. That grows an integration contract into
 a second Registry, blocks Template work on starter clones, and still does not
-prove adapter events, listener cleanup, or CVA. The Starter job typechecks
-and builds; it does not assert CEM wiring.
+prove Template event wiring, listener cleanup, or CVA. The Starter job
+typechecks and builds; it does not assert CEM wiring.
 
 **Function and types on Starter fixtures** (rejected for the same reason): the
 fixtures cover nine components and record installer byte-stability, not
-adapter behaviour.
+Template behaviour.
 
 ## Consequences
 
