@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-20
+
+### Added
+
+- **OtpInput, Pagination, TagInput**: Free wrappers for Web Awesome 3.13.0, with React/Vue/Angular templates, docs stories, and compose-skill coverage.
+
+### Changed
+
+- **Web Awesome**: Pin and VERSION_MAP entry now target 3.13.0. Carousel exposes `addSlide` / `removeSlide`. Pro `data-grid` remains unwrapped on purpose.
+
+### Fixed
+
+- **DropdownItem**: Expose Web Awesome 3.12 `href`, `target`, `rel`, and `download` so menu items can navigate as links.
+
 ## [1.0.4] - 2026-09-19
 
 ### Changed
