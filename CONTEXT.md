@@ -1,8 +1,8 @@
 # Kigumi
 
-A CLI that generates React, Vue and Angular wrapper components around Web
-Awesome web components. It copies source code into the user's project rather
-than shipping a runtime library, so the generated files are the product.
+A CLI that generates React, Vue and Angular Templates around Web Awesome web
+components. It copies source code into the user's project rather than shipping
+a runtime library, so the generated files are the product.
 
 ## Language
 
@@ -28,13 +28,25 @@ A script that turns component metadata into template files for one framework.
 There is one per framework, because output shape genuinely differs.
 
 **Template**:
-A generated, committed wrapper file that the CLI later copies into a user's
-project. Templates are generated output, never hand-edited.
-_Avoid_: component (ambiguous with Web Awesome's own components)
+A generated, committed file that the CLI later copies into a user's project.
+Templates are generated output, never hand-edited.
+_Avoid_: wrapper, component (ambiguous with Web Awesome's own components)
 
 **Adapter**:
 The per-framework part of a shared process. Three adapters is the correct shape
 where framework output genuinely differs; three copies of the same logic is not.
+
+### Starters
+
+**Starter**:
+A real consumer application repository used as install smoke. Its component set
+is a fixed integration contract, not a catalogue of Templates.
+_Avoid_: test app
+
+**Starter fixture**:
+Committed `kigumi add` output against that fixed set. Adding a Template does
+not add a fixture.
+_Avoid_: snapshot (that is `.kigumi/snapshots/` for three-way merge)
 
 ### Events
 
@@ -45,7 +57,7 @@ never Kigumi's to invent.
 
 **Custom event**:
 An event Web Awesome defines itself, always prefixed `wa-`. Carries a payload
-in `detail` and is typed `CustomEvent` in generated wrappers.
+in `detail` and is typed `CustomEvent` in generated Templates.
 
 **Event name transformation**:
 Turning an event's DOM name into the identifier a framework uses for its
