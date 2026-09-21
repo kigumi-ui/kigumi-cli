@@ -109,9 +109,10 @@ export function extractUrls(text: string): string[] {
 
 /**
  * Probe one URL. HEAD first because it is cheaper, falling back to GET: a
- * HEAD status is a statement about the method, not the page. Web Awesome's
- * apex answers HEAD with 404 and GET with 200 (issue #37). Only GET's
- * result decides whether the page is missing.
+ * HEAD failure is a statement about the method, not the page. Web Awesome's
+ * apex answers HEAD with 404 and GET with 200 (issue #37). A successful HEAD
+ * is enough; an unsuccessful HEAD is inconclusive and GET decides whether
+ * the page is missing.
  *
  * `request` is a test-only seam so the HEAD-vs-GET fallback can be pinned
  * without reaching the network.

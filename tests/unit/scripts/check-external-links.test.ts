@@ -185,6 +185,9 @@ function scriptedFetch(
     if (step === undefined) {
       throw new Error(`Unexpected ${method} after scripted responses ended`);
     }
+    if (step.method !== method) {
+      throw new Error(`Expected ${step.method}, got ${method}`);
+    }
     return new Response(null, { status: step.status });
   };
   return { request, methods };
