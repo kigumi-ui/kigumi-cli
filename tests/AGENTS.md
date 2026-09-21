@@ -629,12 +629,14 @@ helper's logic in isolation. Current cases:
   `exists` probe as an argument, so the checker is exercised without laying
   files on disk.
 
-- `isPlaceholder`, `normalizeUrl` and `extractUrls` in
-  `scripts/check-external-links.ts` — the URL matchers, asserted directly by
-  `tests/unit/scripts/check-external-links.test.ts`. Exported so the
-  placeholder-and-punctuation boundary can be pinned case by case without
-  making a single network request, which is the whole reason the reporter is
-  weekly rather than part of `validate:all`.
+- `isPlaceholder`, `normalizeUrl`, `extractUrls` and `probe` in
+  `scripts/check-external-links.ts` — the URL matchers and the HTTP check,
+  asserted directly by `tests/unit/scripts/check-external-links.test.ts`.
+  Exported so the placeholder-and-punctuation boundary and the HEAD-vs-GET
+  fallback can be pinned without making a network request, which is the whole
+  reason the reporter is weekly rather than part of `validate:all`. `probe`
+  takes its `request` function as an argument so issue #37 (HEAD 404, GET 200)
+  cannot regress without a live page.
 
 - `parsePinned`, `majorOf`, `isMajorBump` and `readWebAwesomePin` in
   `scripts/check-upstream-versions.ts` — the version matchers, asserted
@@ -774,7 +776,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-19
+**Last Updated:** 2026-09-21
 
 - added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
 
@@ -802,3 +804,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added parse-custom-elements-types.test.ts covering the single-declaration contract for ComponentMetadata and the CSS-metadata types, issue #34
 - added docs-wrapper-callback-refs.test.ts covering the WA 3.13 JSX object-ref ban on docs UI wrappers
 - generator-drift-guard.test.ts now drifts scripts/generator-utils.ts (shared CSS emitter), not generate-vue-templates.ts
+- `probe` is a test-only export of check-external-links.ts so HEAD-vs-GET fallback can be pinned without the network, issue #37
