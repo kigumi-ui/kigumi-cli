@@ -3,6 +3,7 @@ import {
   extractUrls,
   isPlaceholder,
   normalizeUrl,
+  probe,
 } from '../../../scripts/check-external-links.js';
 
 /**
@@ -108,3 +109,86 @@ describe('check-external-links matchers (test-only seams)', () => {
     });
   });
 });
+
+/**
+ * Internals exported for test coverage: `probe` is the reporter's HTTP check,
+ * pulled out so HEAD-vs-GET fallback can be pinned without reaching the
+ * network. Issue #37 was a weekly false 404 on https://webawesome.com: the
+ * server answers HEAD with 404 and GET with 200. Registered in tests/AGENTS.md.
+ */
+describe('check-external-links probe (test-only seam)', () => {
+  it('treats a HEAD 404 as inconclusive when GET succeeds', async () => {
+    const { request, methods } = scriptedFetch([
+      { method: 'HEAD', status: 404 },
+      { method: 'GET', status: 200 },
+    ]);
+
+    const result = await probe('https://webawesome.com', request);
+
+    expect(result).toEqual({
+      url: 'https://webawesome.com',
+      status: 200,
+      detail: 'ok',
+    });
+    expect(methods).toEqual(['HEAD', 'GET']);
+  });
+
+  it('does not issue GET when HEAD succeeds', async () => {
+    const { request, methods } = scriptedFetch([
+      { method: 'HEAD', status: 200 },
+    ]);
+
+    const result = await probe('https://webawesome.com/docs', request);
+
+    expect(result.detail).toBe('ok');
+    expect(methods).toEqual(['HEAD']);
+  });
+
+  it('reports GET 404 after an inconclusive HEAD as a missing page', async () => {
+    const { request } = scriptedFetch([
+      { method: 'HEAD', status: 404 },
+      { method: 'GET', status: 404 },
+    ]);
+
+    const result = await probe('https://example.com/missing', request);
+
+    expect(result).toEqual({
+      url: 'https://example.com/missing',
+      status: 404,
+      detail: 'HTTP 404',
+    });
+  });
+
+  it('falls back from HEAD 405 the same way as any other HEAD failure', async () => {
+    const { request, methods } = scriptedFetch([
+      { method: 'HEAD', status: 405 },
+      { method: 'GET', status: 200 },
+    ]);
+
+    const result = await probe('https://webawesome.com', request);
+
+    expect(result.detail).toBe('ok');
+    expect(methods).toEqual(['HEAD', 'GET']);
+  });
+});
+
+function scriptedFetch(
+  steps: ReadonlyArray<{ method: string; status: number }>
+): { request: typeof fetch; methods: string[] } {
+  const methods: string[] = [];
+  let index = 0;
+  const request: typeof fetch = async (_input, init) => {
+    const method = init?.method ?? 'GET';
+    methods.push(method);
+    const step = steps[index];
+    index += 1;
+    if (step === undefined) {
+      throw new Error(`Unexpected ${method} after scripted responses ended`);
+    }
+    if (step.method !== method) {
+      throw new Error(`Expected ${step.method}, got ${method}`);
+    }
+    return new Response(null, { status: step.status });
+  };
+  return { request, methods };
+}
