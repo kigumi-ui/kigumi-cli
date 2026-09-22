@@ -268,11 +268,15 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v5
 
+      # Cache only when the Pro token is present. Fork and Dependabot pulls
+      # receive no secrets, so install is skipped below. setup-node still tries
+      # to save the pnpm store in post and fails the job when that path was
+      # never created.
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: pnpm
+          cache: ${{ secrets.WEBAWESOME_NPM_TOKEN != '' && 'pnpm' || '' }}
           cache-dependency-path: pnpm-lock.yaml
 
       # Check A regenerates every template and diffs it against what is
