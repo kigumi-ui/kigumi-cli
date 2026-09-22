@@ -170,10 +170,26 @@ describe('check-external-links probe (test-only seam)', () => {
     expect(result.detail).toBe('ok');
     expect(methods).toEqual(['HEAD', 'GET']);
   });
+
+  it('treats a thrown HEAD as inconclusive when GET succeeds', async () => {
+    const { request, methods } = scriptedFetch([
+      { method: 'HEAD', error: 'socket hang up' },
+      { method: 'GET', status: 200 },
+    ]);
+
+    const result = await probe('https://webawesome.com', request);
+
+    expect(result).toEqual({
+      url: 'https://webawesome.com',
+      status: 200,
+      detail: 'ok',
+    });
+    expect(methods).toEqual(['HEAD', 'GET']);
+  });
 });
 
 function scriptedFetch(
-  steps: ReadonlyArray<{ method: string; status: number }>
+  steps: ReadonlyArray<{ method: string; status?: number; error?: string }>
 ): { request: typeof fetch; methods: string[] } {
   const methods: string[] = [];
   let index = 0;
@@ -187,6 +203,12 @@ function scriptedFetch(
     }
     if (step.method !== method) {
       throw new Error(`Expected ${step.method}, got ${method}`);
+    }
+    if (step.error !== undefined) {
+      throw new Error(step.error);
+    }
+    if (step.status === undefined) {
+      throw new Error(`Scripted ${step.method} has neither status nor error`);
     }
     return new Response(null, { status: step.status });
   };
