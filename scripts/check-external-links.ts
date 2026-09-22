@@ -108,13 +108,22 @@ export function extractUrls(text: string): string[] {
 }
 
 /**
- * Probe one URL. HEAD first because it is cheaper, falling back to GET: some
- * servers answer HEAD with 405 while serving the page perfectly well.
+ * Probe one URL. HEAD first because it is cheaper, falling back to GET: a
+ * HEAD failure is a statement about the method, not the page. Web Awesome's
+ * apex answers HEAD with 404 and GET with 200 (issue #37). A successful HEAD
+ * is enough; an unsuccessful HEAD is inconclusive and GET decides whether
+ * the page is missing.
+ *
+ * `request` is a test-only seam so the HEAD-vs-GET fallback can be pinned
+ * without reaching the network.
  */
-async function probe(url: string): Promise<LinkResult> {
+export async function probe(
+  url: string,
+  request: typeof fetch = fetch
+): Promise<LinkResult> {
   for (const method of ['HEAD', 'GET'] as const) {
     try {
-      const response = await fetch(url, {
+      const response = await request(url, {
         method,
         redirect: 'follow',
         signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -122,8 +131,7 @@ async function probe(url: string): Promise<LinkResult> {
       if (response.ok) {
         return { url, status: response.status, detail: 'ok' };
       }
-      // A 405 on HEAD is a statement about the method, not the page.
-      if (method === 'HEAD' && response.status === 405) {
+      if (method === 'HEAD') {
         continue;
       }
       return {
