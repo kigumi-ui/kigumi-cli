@@ -145,6 +145,7 @@ export async function probe(
           error instanceof Error ? error.message : 'request failed';
         return { url, status: null, detail };
       }
+      // HEAD threw. That is inconclusive, same as a non-ok status. GET decides.
     }
   }
   return { url, status: null, detail: 'request failed' };
