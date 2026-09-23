@@ -145,6 +145,7 @@ tests/
 ├── e2e/                     # Full CLI integration
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
+│   ├── free-consumer-tsc.test.ts # Vite-React init + add --all + strict consumer tsc (issue #73)
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
@@ -676,12 +677,13 @@ callers — these are test-only seams.
 
 E2E tests create temporary projects in `tests/.tmp-*`:
 
-| Directory                 | Used by                      | Purpose                                                    |
-| ------------------------- | ---------------------------- | ---------------------------------------------------------- |
-| `.tmp-e2e-smoke/`         | `smoke.test.ts`              | Real Vite project driven through the full CLI workflow     |
-| `.tmp-e2e-idempotent/`    | `smoke.test.ts`              | Second project, for the run-`init`-twice idempotency block |
-| `.tmp-e2e-diff/`          | `diff.test.ts`               | Component comparison against a modified working copy       |
-| `.tmp-e2e-source-layout/` | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48)  |
+| Directory                     | Used by                      | Purpose                                                             |
+| ----------------------------- | ---------------------------- | ------------------------------------------------------------------- |
+| `.tmp-e2e-smoke/`             | `smoke.test.ts`              | Real Vite project driven through the full CLI workflow              |
+| `.tmp-e2e-idempotent/`        | `smoke.test.ts`              | Second project, for the run-`init`-twice idempotency block          |
+| `.tmp-e2e-diff/`              | `diff.test.ts`               | Component comparison against a modified working copy                |
+| `.tmp-e2e-source-layout/`     | `init-source-layout.test.ts` | One scaffold per framework/layout combination (issue #48)           |
+| `.tmp-e2e-free-consumer-tsc/` | `free-consumer-tsc.test.ts`  | Vite-React `init` + `add --all` + strict consumer `tsc` (issue #73) |
 
 These are gitignored and recreated on each run.
 
