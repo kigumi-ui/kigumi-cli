@@ -16,9 +16,11 @@ export default {
   // workable alternative (`coverageAnalysis: 'all'`) cannot use ignoreStatic
   // — kigumi's util modules carry enough module-level data (registry tables,
   // default-config constants) that static mutants then dominate the runtime.
-  // tier.ts is small, behaviour-only, and verified at 89.13 % kill rate. The
-  // mutate list widens in subsequent V cluster work as covering tests land
-  // for additional files.
+  // tier.ts is small and behaviour-only. The weekly mutation job failed at
+  // 73.33 % (threshold 80) because tierSchema, the free-package-over-token
+  // branch, and non-JSON read failures were untested. With those covered the
+  // kill rate is 100 %. The mutate list widens in subsequent V cluster work
+  // as covering tests land for additional files.
   mutate: ['src/utils/tier.ts'],
   // Sandbox excludes — none are needed to run the unit suite. `templates/`
   // IS kept (addCommand reads template files at runtime); vitest discovery

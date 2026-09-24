@@ -16,6 +16,7 @@ import {
   detectTier,
   detectTierSync,
   getWebAwesomePackage,
+  tierSchema,
 } from '../../src/utils/tier.js';
 import { detectProToken } from '../../src/utils/token.js';
 import {
@@ -354,5 +355,71 @@ describe('tier detection', () => {
       const tier = detectTierSync(testDir);
       expect(tier).toBe('pro');
     });
+  });
+
+  describe('package.json wins over a pro token', () => {
+    async function installFreePackage(): Promise<void> {
+      await fs.writeJSON(path.join(testDir, 'package.json'), {
+        dependencies: { '@awesome.me/webawesome': '^3.2.1' },
+      });
+      process.env.WEBAWESOME_NPM_TOKEN = 'x'.repeat(MIN_TOKEN_LENGTH);
+    }
+
+    it('detectTier returns free when the free package is installed and a token is set', async () => {
+      await installFreePackage();
+      expect(await detectTier(testDir)).toBe('free');
+    });
+
+    it('detectTierSync returns free when the free package is installed and a token is set', async () => {
+      await installFreePackage();
+      expect(detectTierSync(testDir)).toBe('free');
+    });
+  });
+
+  describe('package.json read failures', () => {
+    const validToken = 'x'.repeat(MIN_TOKEN_LENGTH);
+
+    it('detectTier falls through to the token when package.json is not valid JSON', async () => {
+      await fs.writeFile(path.join(testDir, 'package.json'), '{');
+      process.env.WEBAWESOME_NPM_TOKEN = validToken;
+      expect(await detectTier(testDir)).toBe('pro');
+    });
+
+    it('detectTierSync falls through to the token when package.json is not valid JSON', async () => {
+      await fs.writeFile(path.join(testDir, 'package.json'), '{');
+      process.env.WEBAWESOME_NPM_TOKEN = validToken;
+      expect(detectTierSync(testDir)).toBe('pro');
+    });
+
+    it('detectTier propagates a non-parse error when package.json is a directory', async () => {
+      await fs.mkdir(path.join(testDir, 'package.json'));
+      await expect(detectTier(testDir)).rejects.toMatchObject({
+        code: 'EISDIR',
+      });
+    });
+
+    it('detectTierSync propagates a non-parse error when package.json is a directory', () => {
+      fs.mkdirSync(path.join(testDir, 'package.json'));
+      expect(() => detectTierSync(testDir)).toThrow(
+        expect.objectContaining({ code: 'EISDIR' })
+      );
+    });
+  });
+});
+
+describe('tierSchema', () => {
+  it('accepts free and pro', () => {
+    expect(tierSchema.parse('free')).toBe('free');
+    expect(tierSchema.parse('pro')).toBe('pro');
+  });
+
+  it('rejects any other value with the declared message', () => {
+    const result = tierSchema.safeParse('enterprise');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.message)).toEqual([
+        'Must be either "free" or "pro"',
+      ]);
+    }
   });
 });
