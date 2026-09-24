@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (102 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (103 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -59,6 +59,7 @@ tests/
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── prompts-wrapper.test.ts      # Prompts wrapper (setPromptsForTesting routing)
 │   ├── regenerate.test.ts           # File regeneration utilities
+│   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed (issue #73)
 │   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
 │   ├── remote-installer.test.ts     # Remote (community) component installer
 │   ├── remote-installer-cross-framework.test.ts # Cross-framework staging branch
@@ -146,7 +147,6 @@ tests/
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
 │   ├── free-consumer-tsc.test.ts # Vite-React init + add --all + strict consumer tsc (issue #73)
-│   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests
@@ -779,8 +779,10 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-21
+**Last Updated:** 2026-09-24
 
+- added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
+- added tests/unit/relaxed-compile-check.test.ts, which pins the relaxed generate-then-tsc check (strict: false) until a later ticket removes it
 - added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
 
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
