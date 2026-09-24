@@ -788,7 +788,6 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Last Updated:** 2026-09-24
 
-- added tests/unit/react-function-harness.test.ts, the issue #74 tracer: one committed React Template (Dialog) against CEM metadata in jsdom, with Web Awesome stubbed
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
 - added tests/unit/relaxed-compile-check.test.ts, which pins the relaxed generate-then-tsc check (strict: false) until a later ticket removes it
 - added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
@@ -819,3 +818,5 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - generator-drift-guard.test.ts now drifts scripts/generator-utils.ts (shared CSS emitter), not generate-vue-templates.ts
 - `probe` is a test-only export of check-external-links.ts so HEAD-vs-GET fallback can be pinned without the network, issue #37
 - tier tests now kill every `tier.ts` mutant: `tierSchema` messages, free package over a Pro token, and non-JSON `package.json` read failures (mutation score 100 %, was 73.33 % in the weekly job)
+- added tests/unit/react-function-harness.test.ts, the issue #74 tracer: one committed React Template (Dialog) against CEM metadata in jsdom, with Web Awesome stubbed
+- boolean CEM attributes are probed as false as well as true, and wa-dialog attribute names including did-ssr come from the pinned Free CEM, issue #74

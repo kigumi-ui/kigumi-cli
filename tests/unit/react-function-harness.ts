@@ -42,13 +42,8 @@ export async function proveReactTemplate(
     };
   }
 
-  const attributes: Record<string, string | boolean> = {};
-  for (const attribute of probe.attributes) {
-    attributes[attribute.name] = attribute.value;
-  }
-
   const mounted = probe.mount({
-    attributes,
+    attributes: attributeRecord(probe.attributes),
     className: probe.className,
     handlers,
   });
@@ -98,7 +93,9 @@ export async function proveReactTemplate(
     }
   }
 
-  await flushMountImports();
+  violations.push(...reflectBooleansWhenOff(probe));
+
+  await yieldOneMacrotask();
   if (customElements.get(probe.metadata.tagName)) {
     violations.push(`Web Awesome registered ${probe.metadata.tagName}`);
   }
@@ -117,7 +114,53 @@ function attributeReflected(
   return host.getAttribute(name) === value;
 }
 
-async function flushMountImports(): Promise<void> {
+function attributeRecord(
+  attributes: ReactTemplateProbe['attributes']
+): Record<string, string | boolean> {
+  const record: Record<string, string | boolean> = {};
+  for (const attribute of attributes) {
+    record[attribute.name] = attribute.value;
+  }
+  return record;
+}
+
+/**
+ * A host that always emits a boolean attribute still passes a presence check.
+ * Passing the prop as false must remove it.
+ */
+function reflectBooleansWhenOff(probe: ReactTemplateProbe): string[] {
+  const booleansOn = probe.attributes.filter(
+    (attribute) => attribute.value === true
+  );
+  if (booleansOn.length === 0) return [];
+
+  const off = probe.attributes.map((attribute) =>
+    attribute.value === true ? { ...attribute, value: false } : attribute
+  );
+  const mounted = probe.mount({
+    attributes: attributeRecord(off),
+    className: probe.className,
+    handlers: {},
+  });
+  const host = mounted.container.querySelector(probe.metadata.tagName);
+  const violations: string[] = [];
+  if (!host) {
+    violations.push(`host tag ${probe.metadata.tagName} is missing`);
+  } else {
+    for (const attribute of booleansOn) {
+      if (host.hasAttribute(attribute.name)) {
+        violations.push(
+          `attribute ${attribute.name} stayed on the host when the prop was false`
+        );
+      }
+    }
+  }
+  mounted.unmount();
+  return violations;
+}
+
+/** One macrotask, so a dynamic import started in useEffect can finish. */
+async function yieldOneMacrotask(): Promise<void> {
   await new Promise((resolve) => {
     setTimeout(resolve, 0);
   });
