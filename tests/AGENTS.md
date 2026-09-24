@@ -146,6 +146,7 @@ tests/
 │   ├── smoke.test.ts            # End-to-end workflows
 │   ├── init-source-layout.test.ts # `init` across all 4 framework/layout combos (issue #48)
 │   ├── free-consumer-tsc.test.ts # Vite-React init + add --all + strict consumer tsc (issue #73)
+│   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed
 │   └── starter-snapshots.test.ts # Byte-level diff of `kigumi add` output against frozen fixtures (env-gated; see Cluster R)
 ├── fixtures/                # Frozen golden output for regression tests
 │   ├── migration/               # Pre-0.20 config shapes for migration tests

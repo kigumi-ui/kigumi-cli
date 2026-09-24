@@ -9,9 +9,8 @@
  * `add --all` is the only install filter; this file reads the registry
  * afterwards to observe which Templates landed.
  *
- * A failing typecheck reports the consumer compiler's stdout and stderr.
- * It does not parse them into a summary. The relaxed generate-then-tsc
- * check (strict off) stays until a later ticket removes it.
+ * A failing command reports its own stdout and stderr. It does not parse
+ * them into a summary.
  *
  * Run with: pnpm test:e2e
  */
@@ -20,14 +19,11 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
+import { readJSONWithComments } from '../../src/utils/json.js';
 import { getAllComponents } from '../../src/utils/registry.js';
 
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-free-consumer-tsc');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
-const RELAXED_COMPILE_CHECK = path.resolve(
-  __dirname,
-  '../integration/compile-check.test.ts'
-);
 const PLANTED_ERROR = path.join(TEST_DIR, 'src/planted-consumer-error.tsx');
 
 const FREE_PACKAGE = '@awesome.me/webawesome';
@@ -49,40 +45,46 @@ interface CommandOutput {
   stderr: string;
 }
 
-function compilerOutput(result: CommandOutput): string {
+interface ExecaLike {
+  exitCode?: number | null;
+  stdout: string;
+  stderr: string;
+}
+
+function toCommandOutput(result: ExecaLike): CommandOutput {
+  return {
+    exitCode: result.exitCode ?? 1,
+    stdout: result.stdout,
+    stderr: result.stderr,
+  };
+}
+
+function commandText(result: CommandOutput): string {
   return [result.stdout, result.stderr]
     .filter((part) => part.length > 0)
     .join('\n');
 }
 
 async function runCli(args: string[]): Promise<CommandOutput> {
-  const result = await execa('node', [CLI_PATH, ...args], {
-    cwd: TEST_DIR,
-    reject: false,
-    env: {
-      ...process.env,
-      ...FREE_TIER_ENV,
-    },
-  });
-
-  return {
-    exitCode: result.exitCode ?? 1,
-    stdout: result.stdout,
-    stderr: result.stderr,
-  };
+  return toCommandOutput(
+    await execa('node', [CLI_PATH, ...args], {
+      cwd: TEST_DIR,
+      reject: false,
+      env: {
+        ...process.env,
+        ...FREE_TIER_ENV,
+      },
+    })
+  );
 }
 
 async function runConsumerTsc(): Promise<CommandOutput> {
-  const result = await execa('pnpm', ['exec', 'tsc', '-b'], {
-    cwd: TEST_DIR,
-    reject: false,
-  });
-
-  return {
-    exitCode: result.exitCode ?? 1,
-    stdout: result.stdout,
-    stderr: result.stderr,
-  };
+  return toCommandOutput(
+    await execa('pnpm', ['exec', 'tsc', '-b'], {
+      cwd: TEST_DIR,
+      reject: false,
+    })
+  );
 }
 
 function registryNamesByTier(): { free: string[]; pro: string[] } {
@@ -102,13 +104,6 @@ function registryNamesByTier(): { free: string[]; pro: string[] } {
   return { free, pro };
 }
 
-describe('relaxed integration compile check', () => {
-  it('is still present, with strict mode off', async () => {
-    const source = await fs.readFile(RELAXED_COMPILE_CHECK, 'utf8');
-    expect(source).toContain('strict: false');
-  });
-});
-
 describe('Free consumer tsc tracer', () => {
   beforeAll(async () => {
     await fs.remove(TEST_DIR);
@@ -126,17 +121,17 @@ describe('Free consumer tsc tracer', () => {
       '--typescript',
       '--yes',
     ]);
-    expect(init.exitCode, compilerOutput(init)).toBe(0);
+    expect(init.exitCode, commandText(init)).toBe(0);
 
     const add = await runCli(['add', '--all', '--yes']);
-    expect(add.exitCode, compilerOutput(add)).toBe(0);
+    expect(add.exitCode, commandText(add)).toBe(0);
 
-    // The relaxed compile check sets `strict: false`. This tracer must not.
-    // The scaffold also leaves `strict` unset, which TypeScript treats as
-    // off, so the consumer build would not be the strict proof. Enable it
-    // on the config `tsc -b` actually reads.
+    // The scaffold leaves `strict` unset, which TypeScript treats as off,
+    // so the consumer build would not be the strict proof. `tsc -b` rejects
+    // a `--strict` flag, so enable it on the config that build reads.
+    // Vite ships this file as JSONC; init may or may not have rewritten it.
     const tsconfigPath = path.join(TEST_DIR, 'tsconfig.app.json');
-    const tsconfig = (await fs.readJSON(tsconfigPath)) as {
+    const tsconfig = (await readJSONWithComments(tsconfigPath)) as {
       compilerOptions?: { strict?: boolean };
     };
     expect(tsconfig.compilerOptions?.strict).not.toBe(false);
@@ -207,7 +202,7 @@ describe('Free consumer tsc tracer', () => {
     async () => {
       await fs.remove(PLANTED_ERROR);
       const result = await runConsumerTsc();
-      expect(result.exitCode, compilerOutput(result)).toBe(0);
+      expect(result.exitCode, commandText(result)).toBe(0);
     },
     TSC_TIMEOUT_MS
   );
@@ -230,7 +225,7 @@ describe('Free consumer tsc tracer', () => {
       );
 
       const result = await runConsumerTsc();
-      const output = compilerOutput(result);
+      const output = commandText(result);
 
       expect(result.exitCode, output).not.toBe(0);
       expect(output).toContain('planted-consumer-error.tsx');
