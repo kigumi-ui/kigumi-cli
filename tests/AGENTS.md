@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (103 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (104 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -58,6 +58,7 @@ tests/
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── prompts-wrapper.test.ts      # Prompts wrapper (setPromptsForTesting routing)
+│   ├── react-function-harness.test.ts # jsdom CEM function harness for the committed Dialog Template (issue #74)
 │   ├── regenerate.test.ts           # File regeneration utilities
 │   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed (issue #73)
 │   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
@@ -179,6 +180,8 @@ pnpm test:watch        # Watch mode
 
 `tests/**` is included in `tsconfig.tests.json` and gated by `pnpm check:tests`.
 The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error.
+The function harness renders a committed React Template, so this tsconfig sets
+`jsx` and the DOM lib and includes the CSS and React JSX shims.
 The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137
 once the existing 133 errors were fixed; the gate is now strict.
 
@@ -583,7 +586,7 @@ describe('smoke test', () => {
 
 - Third-party libraries (Commander, Zod)
 - File system mocking (use real temp dirs)
-- Generated component output (test in browser)
+- Per-Template generated tests as the function oracle. The CEM function harness renders one committed Template in jsdom; visual checks stay in the browser
 
 ### JSON with Comments
 
@@ -785,6 +788,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Last Updated:** 2026-09-24
 
+- added tests/unit/react-function-harness.test.ts, the issue #74 tracer: one committed React Template (Dialog) against CEM metadata in jsdom, with Web Awesome stubbed
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
 - added tests/unit/relaxed-compile-check.test.ts, which pins the relaxed generate-then-tsc check (strict: false) until a later ticket removes it
 - added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
