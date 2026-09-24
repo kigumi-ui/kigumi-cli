@@ -437,7 +437,11 @@ Run locally with `pnpm test:mutation`. Output:
 `.github/workflows/mutation.yml` runs weekly (Sun 02:00 UTC) plus on manual
 `workflow_dispatch`, with a 30-day artifact retention.
 
-V1 baseline scope: `src/utils/tier.ts` only (89.13 % kill rate). Wider
+V1 baseline scope: `src/utils/tier.ts` only. The first two scheduled runs
+scored 73.33 % and failed the 80 % break threshold; the gaps were an
+unparsed `tierSchema`, the free package not asserted against a Pro token,
+and non-JSON `package.json` read failures swallowed by a catch-all. Those
+are covered now (100 % kill rate on `tier.ts`). Wider
 scopes hit two upstream blockers and are tracked as follow-up: see
 `stryker.conf.mjs` for the full investigation. The mutate list is
 intentionally a literal array of paths so future PRs widen it explicitly.
@@ -776,7 +780,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-21
+**Last Updated:** 2026-09-24
 
 - added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
 
@@ -805,3 +809,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added docs-wrapper-callback-refs.test.ts covering the WA 3.13 JSX object-ref ban on docs UI wrappers
 - generator-drift-guard.test.ts now drifts scripts/generator-utils.ts (shared CSS emitter), not generate-vue-templates.ts
 - `probe` is a test-only export of check-external-links.ts so HEAD-vs-GET fallback can be pinned without the network, issue #37
+- tier tests now kill every `tier.ts` mutant: `tierSchema` messages, free package over a Pro token, and non-JSON `package.json` read failures (mutation score 100 %, was 73.33 % in the weekly job)

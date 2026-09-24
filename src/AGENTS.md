@@ -147,6 +147,12 @@ export async function detectTier(cwd: string): Promise<Tier> {
 }
 ```
 
+A missing `package.json`, invalid JSON, or a file that lists neither Web Awesome
+package falls through to token detection. Any other failure while reading it
+(permissions, a directory at that path) propagates. The installed package wins
+over a token: the free package stays `'free'` even when `WEBAWESOME_NPM_TOKEN`
+is set.
+
 ### Pro Authentication
 
 **Design Decision:** Pro tokens are stored in global `~/.npmrc`, not per-project.
@@ -497,7 +503,7 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-19
+**Last Updated:** 2026-09-24
 
 - Web Awesome 3.13.0: registry now 87 wrappers; Pro `data-grid` stays in `INTENTIONALLY_UNWRAPPED`
 - `validate:cem-sync` errors when an `INTENTIONALLY_UNWRAPPED` key is also in the registry; `src/AGENTS.md` no longer names the set
@@ -512,3 +518,4 @@ output.error('Failed to install');
 - the four hand-rolled PascalCase-to-kebab copies now call `toKebabCase` and no longer drop its consecutive-capitals rule, issue #31
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
 - `ComponentMetadata` and the CSS-metadata interfaces live in `src/utils/metadata-types.ts`; generated modules import and re-export them rather than re-declaring the shape, issue #34
+- `detectTier` / `detectTierSync` only ignore invalid JSON from `package.json`; other read failures propagate, and the installed free package wins over a Pro token
