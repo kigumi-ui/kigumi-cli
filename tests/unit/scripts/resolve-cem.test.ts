@@ -132,6 +132,25 @@ describe('resolveCem', () => {
     expect(result.tier).toBe('pro');
   });
 
+  it('returns the free CEM when asked for the free tier, even with Pro installed', async () => {
+    const free = await installCem(tmp, '@awesome.me/webawesome', 66);
+    await installCem(path.join(tmp, 'docs'), '@awesome.me/webawesome-pro', 84);
+
+    const result = await resolveCem(tmp, { tier: 'free' });
+
+    expect(result.path).toBe(free);
+    expect(result.tier).toBe('free');
+    expect(result.componentCount).toBe(66);
+  });
+
+  it('reports not-found for the free tier when only Pro is installed', async () => {
+    await installCem(path.join(tmp, 'docs'), '@awesome.me/webawesome-pro', 84);
+
+    const result = await resolveCem(tmp, { tier: 'free' });
+
+    expect(result.found).toBe(false);
+  });
+
   it('reports not-found when nothing is installed', async () => {
     const result = await resolveCem(tmp);
 
