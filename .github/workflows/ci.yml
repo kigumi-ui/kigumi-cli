@@ -252,6 +252,43 @@ jobs:
         # looks identical to the cache step not existing.
         run: pnpm run validate:cache-keys
 
+  attribution:
+    name: No AI attribution
+    # A squash merge copies the PR body or every branch commit message into the
+    # new commit on main. GitHub writes that commit server-side, so the local
+    # commit-msg hook never sees it; two Cursor Agent trailers reached main
+    # that way (issue #97). This checks both sources before the merge.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check PR body and commits
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm run validate:attribution
+
   freshness:
     name: Generated freshness (Check A)
     runs-on: ubuntu-latest

@@ -8,7 +8,10 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { findAttribution } from '../../scripts/check-commit-attribution.js';
+import {
+  findAttribution,
+  findPullRequestAttribution,
+} from '../../scripts/check-commit-attribution.js';
 
 describe('findAttribution: rejects attribution trailers', () => {
   it('rejects a Claude co-author trailer', () => {
@@ -96,5 +99,61 @@ describe('findAttribution: leaves legitimate messages alone', () => {
 
   it('accepts an empty message', () => {
     expect(findAttribution('')).toEqual([]);
+  });
+});
+
+describe('findAttribution: other agents', () => {
+  it('rejects the Cursor Agent co-author trailer that reached main via squash merges', () => {
+    const findings = findAttribution(
+      'fix: x\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>'
+    );
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe('AI co-author trailer');
+  });
+
+  it('rejects "Made/Created/Generated with Cursor" footers', () => {
+    expect(findAttribution('Made with Cursor')).toHaveLength(1);
+    expect(findAttribution('Created with Cursor')).toHaveLength(1);
+    expect(findAttribution('Generated with Cursor')).toHaveLength(1);
+  });
+
+  it('accepts prose mentioning Cursor', () => {
+    expect(
+      findAttribution(
+        'docs: note the .cursor/hooks directory\n\nMade the cursor visible.'
+      )
+    ).toEqual([]);
+  });
+});
+
+describe('findPullRequestAttribution', () => {
+  const clean = { sha: 'aaaaaaa1', message: 'feat: x' };
+  const dirty = {
+    sha: 'bbbbbbb2',
+    message: 'fix: y\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>',
+  };
+
+  it('passes a clean PR', () => {
+    expect(
+      findPullRequestAttribution({ body: 'Adds x.', commits: [clean] })
+    ).toEqual([]);
+  });
+
+  it('names the commit that carries a trailer', () => {
+    const findings = findPullRequestAttribution({
+      body: 'Adds x.',
+      commits: [clean, dirty],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].source).toBe('commit bbbbbbb2');
+  });
+
+  it('flags a PR body footer', () => {
+    const findings = findPullRequestAttribution({
+      body: 'Adds x.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)',
+      commits: [clean],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].source).toBe('PR body');
   });
 });
