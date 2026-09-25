@@ -786,7 +786,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-24
+**Last Updated:** 2026-09-25
 
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
 - added tests/unit/relaxed-compile-check.test.ts, which pins the relaxed generate-then-tsc check (strict: false) until a later ticket removes it
@@ -820,3 +820,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - tier tests now kill every `tier.ts` mutant: `tierSchema` messages, free package over a Pro token, and non-JSON `package.json` read failures (mutation score 100 %, was 73.33 % in the weekly job)
 - added tests/unit/react-function-harness.test.ts, the issue #74 tracer: one committed React Template (Dialog) against CEM metadata in jsdom, with Web Awesome stubbed
 - boolean CEM attributes are probed as false as well as true, and wa-dialog attribute names including did-ssr come from the pinned Free CEM, issue #74
+- react-function-harness.test.ts resolves the Free CEM via resolveCem(root, { tier: 'free' }); resolve-cem.test.ts pins the tier option, issue #74

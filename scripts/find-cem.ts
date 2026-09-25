@@ -169,8 +169,17 @@ async function findInPnpmStore(
  * Probes, in order: the Pro package (docs tree, then root tree, then either
  * pnpm store), then the free package in the same order. Only paths under
  * `root` are considered.
+ *
+ * `tier` narrows the probe to one package. A caller that must read the same
+ * manifest locally and in CI, where only the free package is installed, asks
+ * for `free` so a local Pro install cannot make its run richer (issue #43).
  */
-export async function resolveCem(root: string): Promise<CemResolution> {
+export async function resolveCem(
+  root: string,
+  options: { tier?: CemTier } = {}
+): Promise<CemResolution> {
+  const wanted = (tier: CemTier) =>
+    options.tier === undefined || options.tier === tier;
   const pinnedVersion = resolvePinnedProVersionAt(root);
 
   const describe = async (
@@ -183,7 +192,7 @@ export async function resolveCem(root: string): Promise<CemResolution> {
     componentCount: countComponents(await fs.readJson(jsonPath)),
   });
 
-  for (const candidate of candidatePaths(root)) {
+  for (const candidate of candidatePaths(root).filter((c) => wanted(c.tier))) {
     if (await fs.pathExists(candidate.path)) {
       return describe(candidate.path, candidate.tier);
     }
@@ -198,7 +207,7 @@ export async function resolveCem(root: string): Promise<CemResolution> {
     { prefix: FREE_STORE_PREFIX, pkg: FREE_PACKAGE, tier: 'free' },
   ];
 
-  for (const { prefix, pkg, tier } of tiers) {
+  for (const { prefix, pkg, tier } of tiers.filter((t) => wanted(t.tier))) {
     for (const store of stores) {
       const hit = await findInPnpmStore(store, prefix, pkg, pinnedVersion);
       if (hit) return describe(hit, tier);

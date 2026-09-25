@@ -14,11 +14,11 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import fs from 'fs-extra';
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { resolveCem } from '../../scripts/find-cem.js';
 import { COMPONENT_METADATA } from '../../src/utils/component-metadata.js';
 import { Dialog } from '../../templates/react/Dialog/Dialog.js';
 import { proveReactTemplate } from './react-function-harness.js';
@@ -33,6 +33,7 @@ afterEach(() => {
 });
 
 const PROBE_CLASS = 'probe-class';
+const REPO_ROOT = path.resolve(__dirname, '../..');
 
 function prove(
   mount: ReactTemplateProbe['mount'],
@@ -141,7 +142,7 @@ describe('proveReactTemplate', () => {
   });
 
   it('accepts the committed Dialog template against dialog metadata', async () => {
-    const attributes = dialogAttributesFromFreeCem();
+    const attributes = await dialogAttributesFromFreeCem();
     const violations = await prove(
       ({ attributes: props, className, handlers }) =>
         render(
@@ -170,14 +171,19 @@ interface CemAttribute {
  * inherited ones such as did-ssr. Boolean props are probed as true; the
  * harness also remounts them as false. Other attributes get a sentinel
  * string so a hardcoded value cannot pass.
+ *
+ * The manifest comes from resolveCem scoped to this repository and the free
+ * tier (ADR 0003), so a local Pro install cannot change what CI compares.
+ * Issue #105 moves these names into COMPONENT_METADATA.
  */
-function dialogAttributesFromFreeCem(): ReactTemplateProbe['attributes'] {
-  const pkgJson = createRequire(import.meta.url).resolve(
-    '@awesome.me/webawesome/package.json'
-  );
-  const cem = fs.readJsonSync(
-    path.join(path.dirname(pkgJson), 'dist/custom-elements.json')
-  ) as {
+async function dialogAttributesFromFreeCem(): Promise<
+  ReactTemplateProbe['attributes']
+> {
+  const resolution = await resolveCem(REPO_ROOT, { tier: 'free' });
+  if (!resolution.path) {
+    throw new Error('Free Custom Elements Manifest not found under the repo');
+  }
+  const cem = (await fs.readJson(resolution.path)) as {
     modules?: Array<{
       declarations?: Array<{ tagName?: string; attributes?: CemAttribute[] }>;
     }>;
