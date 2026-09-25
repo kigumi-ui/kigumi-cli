@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Commit Attribution Checker
  *
@@ -24,8 +25,11 @@
  *
  * USAGE:
  *   tsx scripts/check-commit-attribution.ts .git/COMMIT_EDITMSG
+ *   tsx scripts/check-commit-attribution.ts --pr   (CI; reads PR_BODY,
+ *     BASE_SHA and HEAD_SHA from the environment, issue #97)
  */
 
+import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
@@ -42,7 +46,7 @@ export interface AttributionFinding {
 }
 
 /** Names that must not appear as an AI co-author or generator. */
-const AI_NAMES = /\b(claude|anthropic)\b/i;
+const AI_NAMES = /\b(claude|anthropic|cursor)\b/i;
 
 /**
  * A git trailer: "Token: value" at the start of a line. Git itself only
@@ -51,8 +55,11 @@ const AI_NAMES = /\b(claude|anthropic)\b/i;
  */
 const CO_AUTHOR_TRAILER = /^\s*co-authored-by\s*:/i;
 
-/** "Generated with [Claude Code](...)" and its plain-text variants. */
-const GENERATED_WITH = /^\s*(?:🤖\s*)?generated with\b/i;
+/**
+ * "Generated with [Claude Code](...)", "Made with Cursor", "Created with
+ * Cursor" and their plain-text variants.
+ */
+const GENERATED_WITH = /^\s*(?:🤖\s*)?(?:generated|made|created) with\b/i;
 
 /**
  * Finds AI attribution in a commit message.
@@ -91,9 +98,116 @@ export function findAttribution(message: string): AttributionFinding[] {
   return findings;
 }
 
+export interface PullRequestAttributionFinding extends AttributionFinding {
+  /** Where the line was found: "PR body" or "commit <sha>". */
+  source: string;
+}
+
+export interface PullRequestInput {
+  body: string;
+  commits: Array<{ sha: string; message: string }>;
+}
+
+/**
+ * Finds AI attribution anywhere a squash merge can copy it onto main: the PR
+ * body and every commit message on the branch. The commit-msg hook cannot
+ * cover these, because GitHub writes the squash commit server-side (issue #97).
+ */
+export function findPullRequestAttribution(
+  pr: PullRequestInput
+): PullRequestAttributionFinding[] {
+  const bodyFindings = findAttribution(pr.body).map((f) => ({
+    ...f,
+    source: 'PR body',
+  }));
+  const commitFindings = pr.commits.flatMap((c) =>
+    findAttribution(c.message).map((f) => ({
+      ...f,
+      source: `commit ${c.sha.slice(0, 8)}`,
+    }))
+  );
+  return [...bodyFindings, ...commitFindings];
+}
+
 // ── CLI Entry ───────────────────────────────────────────────────────────────
 
+/** Reads every commit message in BASE_SHA..HEAD_SHA, NUL-separated. */
+function readRangeCommits(
+  base: string,
+  head: string
+): PullRequestInput['commits'] {
+  const out = execFileSync(
+    'git',
+    ['log', '--format=%H%n%B%x00', `${base}..${head}`],
+    { encoding: 'utf8' }
+  );
+  return out
+    .split('\0')
+    .map((chunk) => chunk.replace(/^\n/, ''))
+    .filter((chunk) => chunk.trim() !== '')
+    .map((chunk) => {
+      const [sha, ...rest] = chunk.split('\n');
+      return { sha, message: rest.join('\n') };
+    });
+}
+
+function mainPullRequest(): void {
+  const base = process.env.BASE_SHA;
+  const head = process.env.HEAD_SHA;
+  if (!base || !head) {
+    console.error(
+      pc.red(
+        'check-commit-attribution --pr: BASE_SHA and HEAD_SHA are required'
+      )
+    );
+    process.exit(1);
+  }
+
+  const commits = readRangeCommits(base, head);
+  // Zero commits means the range or the checkout depth is wrong, not a
+  // clean PR. Passing here would make the guard decorative.
+  if (commits.length === 0) {
+    console.error(
+      pc.red(`check-commit-attribution --pr: no commits in ${base}..${head}`)
+    );
+    process.exit(1);
+  }
+
+  const findings = findPullRequestAttribution({
+    body: process.env.PR_BODY ?? '',
+    commits,
+  });
+
+  if (findings.length === 0) {
+    console.log(
+      pc.green(
+        `No AI attribution in the PR body or ${commits.length} commit(s).`
+      )
+    );
+    process.exit(0);
+  }
+
+  console.error(pc.red('\nAI attribution found in this pull request.\n'));
+  for (const f of findings) {
+    console.error(
+      pc.red(`  ${f.source}, line ${f.line} (${f.reason}): ${f.text}`)
+    );
+  }
+  console.error(
+    pc.yellow(
+      '\nA squash merge copies these lines onto main. Remove them from the PR\n' +
+        'body, or reword the commits, and push again.\n'
+    )
+  );
+  process.exit(1);
+}
+
 function main(): void {
+  if (process.argv[2] === '--pr') {
+    mainPullRequest();
+    return;
+  }
+
   const messagePath = process.argv[2];
 
   if (!messagePath) {
