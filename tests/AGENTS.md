@@ -59,6 +59,7 @@ tests/
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── prompts-wrapper.test.ts      # Prompts wrapper (setPromptsForTesting routing)
 │   ├── react-function-harness.test.ts # jsdom CEM function harness for the committed Dialog Template (issue #74)
+│   ├── react-function-harness.ts    # proveReactTemplate, the harness the test above drives (not a test file)
 │   ├── regenerate.test.ts           # File regeneration utilities
 │   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed (issue #73)
 │   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
@@ -821,3 +822,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added tests/unit/react-function-harness.test.ts, the issue #74 tracer: one committed React Template (Dialog) against CEM metadata in jsdom, with Web Awesome stubbed
 - boolean CEM attributes are probed as false as well as true, and wa-dialog attribute names including did-ssr come from the pinned Free CEM, issue #74
 - react-function-harness.test.ts resolves the Free CEM via resolveCem(root, { tier: 'free' }); resolve-cem.test.ts pins the tier option, issue #74
+- the Dialog harness asserts the stubbed dialog module was imported, so a mock path that stops matching goes red instead of passing on timing, issue #74

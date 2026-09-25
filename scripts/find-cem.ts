@@ -172,7 +172,7 @@ async function findInPnpmStore(
  *
  * `tier` narrows the probe to one package. A caller that must read the same
  * manifest locally and in CI, where only the free package is installed, asks
- * for `free` so a local Pro install cannot make its run richer (issue #43).
+ * for `free` so a local Pro install cannot make its run richer (issue #74).
  */
 export async function resolveCem(
   root: string,

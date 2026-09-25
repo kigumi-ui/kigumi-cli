@@ -86,7 +86,7 @@ export async function proveReactTemplate(
     }
   }
 
-  violations.push(...reflectBooleansWhenOff(probe));
+  violations.push(...booleansThatStickWhenFalse(probe));
 
   await yieldOneMacrotask();
   if (customElements.get(probe.metadata.tagName)) {
@@ -142,7 +142,7 @@ function attributeRecord(
  * A host that always emits a boolean attribute still passes a presence check.
  * Passing the prop as false must remove it.
  */
-function reflectBooleansWhenOff(probe: ReactTemplateProbe): string[] {
+function booleansThatStickWhenFalse(probe: ReactTemplateProbe): string[] {
   const booleansOn = probe.attributes.filter(
     (attribute) => attribute.value === true
   );

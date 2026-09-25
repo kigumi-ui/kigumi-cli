@@ -24,9 +24,12 @@ import { Dialog } from '../../templates/react/Dialog/Dialog.js';
 import { proveReactTemplate } from './react-function-harness.js';
 import type { ReactTemplateProbe } from './react-function-harness.js';
 
-vi.mock('@awesome.me/webawesome/dist/components/dialog/dialog.js', () => ({
-  default: class WaDialogStub {},
-}));
+const dialogStub = vi.hoisted(() => ({ imported: false }));
+
+vi.mock('@awesome.me/webawesome/dist/components/dialog/dialog.js', () => {
+  dialogStub.imported = true;
+  return { default: class WaDialogStub {} };
+});
 
 afterEach(() => {
   cleanup();
@@ -146,6 +149,8 @@ describe('proveReactTemplate', () => {
     const violations = await prove(
       ({ attributes: props, className, handlers }) =>
         render(
+          // The function seam checks that CEM attributes reach the host.
+          // Whether DialogProps declares them is the types seam (ADR 0004).
           React.createElement(Dialog, {
             ...props,
             className,
@@ -157,6 +162,11 @@ describe('proveReactTemplate', () => {
 
     expect(attributes.map((attribute) => attribute.name)).toContain('did-ssr');
     expect(violations).toEqual([]);
+    // Premise: the Template imported the stub. A mock path that stops
+    // matching would otherwise load the real module and pass on timing.
+    await vi.waitFor(() => {
+      expect(dialogStub.imported).toBe(true);
+    });
     expect(customElements.get('wa-dialog')).toBeUndefined();
   });
 });
@@ -205,6 +215,7 @@ async function dialogAttributesFromFreeCem(): Promise<
   });
 }
 
+/** Omits the useEffect cleanup on purpose, so the harness has a leak to report. */
 function LeakyShow(props: {
   className?: string;
   onShow?: (event: Event) => void;
