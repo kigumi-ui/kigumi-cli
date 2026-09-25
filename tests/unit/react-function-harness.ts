@@ -42,16 +42,10 @@ export async function proveReactTemplate(
     };
   }
 
-  const mounted = probe.mount({
-    attributes: attributeRecord(probe.attributes),
-    className: probe.className,
-    handlers,
-  });
-
-  const host = mounted.container.querySelector(probe.metadata.tagName);
+  const { host, unmount } = mountHost(probe, probe.attributes, handlers);
   if (!host) {
-    mounted.unmount();
-    return [`host tag ${probe.metadata.tagName} is missing`];
+    unmount();
+    return [missingHost(probe)];
   }
 
   const violations: string[] = [];
@@ -82,12 +76,11 @@ export async function proveReactTemplate(
     }
   }
 
-  const hostElement = host;
-  mounted.unmount();
+  unmount();
 
   for (const event of probe.metadata.events) {
     if (!firedOnce.has(event.name)) continue;
-    hostElement.dispatchEvent(new CustomEvent(event.name));
+    host.dispatchEvent(new CustomEvent(event.name));
     if ((calls.get(event.name) ?? 0) !== 1) {
       violations.push(`listener for ${event.name} was not removed`);
     }
@@ -101,6 +94,27 @@ export async function proveReactTemplate(
   }
 
   return violations;
+}
+
+/** Mount the Template and find its host element, if it rendered one. */
+function mountHost(
+  probe: ReactTemplateProbe,
+  attributes: ReactTemplateProbe['attributes'],
+  handlers: Record<string, (event: Event) => void>
+): { host: Element | null; unmount: () => void } {
+  const mounted = probe.mount({
+    attributes: attributeRecord(attributes),
+    className: probe.className,
+    handlers,
+  });
+  return {
+    host: mounted.container.querySelector(probe.metadata.tagName),
+    unmount: mounted.unmount,
+  };
+}
+
+function missingHost(probe: ReactTemplateProbe): string {
+  return `host tag ${probe.metadata.tagName} is missing`;
 }
 
 function attributeReflected(
@@ -134,18 +148,13 @@ function reflectBooleansWhenOff(probe: ReactTemplateProbe): string[] {
   );
   if (booleansOn.length === 0) return [];
 
-  const off = probe.attributes.map((attribute) =>
+  const booleansOff = probe.attributes.map((attribute) =>
     attribute.value === true ? { ...attribute, value: false } : attribute
   );
-  const mounted = probe.mount({
-    attributes: attributeRecord(off),
-    className: probe.className,
-    handlers: {},
-  });
-  const host = mounted.container.querySelector(probe.metadata.tagName);
+  const { host, unmount } = mountHost(probe, booleansOff, {});
   const violations: string[] = [];
   if (!host) {
-    violations.push(`host tag ${probe.metadata.tagName} is missing`);
+    violations.push(missingHost(probe));
   } else {
     for (const attribute of booleansOn) {
       if (host.hasAttribute(attribute.name)) {
@@ -155,7 +164,7 @@ function reflectBooleansWhenOff(probe: ReactTemplateProbe): string[] {
       }
     }
   }
-  mounted.unmount();
+  unmount();
   return violations;
 }
 
