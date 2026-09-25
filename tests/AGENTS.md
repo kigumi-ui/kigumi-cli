@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (103 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (104 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -58,6 +58,8 @@ tests/
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── prompts-wrapper.test.ts      # Prompts wrapper (setPromptsForTesting routing)
+│   ├── react-function-harness.test.ts # jsdom CEM function harness for the committed Dialog Template (issue #74)
+│   ├── react-function-harness.ts    # proveReactTemplate, the harness the test above drives (not a test file)
 │   ├── regenerate.test.ts           # File regeneration utilities
 │   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed (issue #73)
 │   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
@@ -179,6 +181,8 @@ pnpm test:watch        # Watch mode
 
 `tests/**` is included in `tsconfig.tests.json` and gated by `pnpm check:tests`.
 The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error.
+The function harness renders a committed React Template, so this tsconfig sets
+`jsx` and the DOM lib and includes the CSS and React JSX shims.
 The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137
 once the existing 133 errors were fixed; the gate is now strict.
 
@@ -583,7 +587,7 @@ describe('smoke test', () => {
 
 - Third-party libraries (Commander, Zod)
 - File system mocking (use real temp dirs)
-- Generated component output (test in browser)
+- Per-Template generated tests as the function oracle. The CEM function harness renders one committed Template in jsdom; visual checks stay in the browser
 
 ### JSON with Comments
 
@@ -783,7 +787,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-24
+**Last Updated:** 2026-09-25
 
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
 - added tests/unit/relaxed-compile-check.test.ts, which pins the relaxed generate-then-tsc check (strict: false) until a later ticket removes it
@@ -815,3 +819,8 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - generator-drift-guard.test.ts now drifts scripts/generator-utils.ts (shared CSS emitter), not generate-vue-templates.ts
 - `probe` is a test-only export of check-external-links.ts so HEAD-vs-GET fallback can be pinned without the network, issue #37
 - tier tests now kill every `tier.ts` mutant: `tierSchema` messages, free package over a Pro token, and non-JSON `package.json` read failures (mutation score 100 %, was 73.33 % in the weekly job)
+- added tests/unit/react-function-harness.test.ts, the issue #74 tracer: one committed React Template (Dialog) against CEM metadata in jsdom, with Web Awesome stubbed
+- boolean CEM attributes are probed as false as well as true, and wa-dialog attribute names including did-ssr come from the pinned Free CEM, issue #74
+- react-function-harness.test.ts resolves the Free CEM via resolveCem(root, { tier: 'free' }); resolve-cem.test.ts pins the tier option, issue #74
+- the Dialog harness asserts the stubbed dialog module was imported, so a mock path that stops matching goes red instead of passing on timing, issue #74
+- the Dialog harness checks each callback receives the dispatched event, and was bug-injected against the real Dialog template (dropped cleanup, misspelled event, wrong callback, new event object, lost className, unforwarded props, wrong tag), issue #74
