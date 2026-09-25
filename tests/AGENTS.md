@@ -823,3 +823,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - boolean CEM attributes are probed as false as well as true, and wa-dialog attribute names including did-ssr come from the pinned Free CEM, issue #74
 - react-function-harness.test.ts resolves the Free CEM via resolveCem(root, { tier: 'free' }); resolve-cem.test.ts pins the tier option, issue #74
 - the Dialog harness asserts the stubbed dialog module was imported, so a mock path that stops matching goes red instead of passing on timing, issue #74
+- the Dialog harness checks each callback receives the dispatched event, and was bug-injected against the real Dialog template (dropped cleanup, misspelled event, wrong callback, new event object, lost className, unforwarded props, wrong tag), issue #74

@@ -105,6 +105,25 @@ describe('proveReactTemplate', () => {
     ]);
   });
 
+  it('reports a callback that does not receive the dispatched event', async () => {
+    const violations = await prove(
+      ({ className, handlers }) =>
+        render(
+          React.createElement(ArgumentlessShow, { className, ...handlers })
+        ),
+      {
+        metadata: {
+          tagName: 'wa-dialog',
+          events: [{ name: 'wa-show', eventType: 'WaShowEvent' }],
+        },
+      }
+    );
+
+    expect(violations).toEqual([
+      'onShow did not receive the dispatched wa-show event',
+    ]);
+  });
+
   it('reports a listener that survives unmount', async () => {
     const violations = await prove(
       ({ className, handlers }) =>
@@ -229,6 +248,27 @@ function LeakyShow(props: {
       onShow?.(event);
     };
     el.addEventListener('wa-show', handler);
+  }, [props.onShow]);
+  return React.createElement('wa-dialog', { ref, class: props.className });
+}
+
+/** Calls onShow without the event, so the harness has a lost payload to report. */
+function ArgumentlessShow(props: {
+  className?: string;
+  onShow?: (event?: Event) => void;
+}) {
+  const ref = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onShow = props.onShow;
+    const handler = () => {
+      onShow?.();
+    };
+    el.addEventListener('wa-show', handler);
+    return () => {
+      el.removeEventListener('wa-show', handler);
+    };
   }, [props.onShow]);
   return React.createElement('wa-dialog', { ref, class: props.className });
 }

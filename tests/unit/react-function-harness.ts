@@ -35,10 +35,12 @@ export async function proveReactTemplate(
 ): Promise<readonly string[]> {
   const handlers: Record<string, (event: Event) => void> = {};
   const calls = new Map<string, number>();
+  const received = new Map<string, unknown>();
   for (const event of probe.metadata.events) {
     calls.set(event.name, 0);
-    handlers[reactCallbackName(event.name)] = () => {
+    handlers[reactCallbackName(event.name)] = (argument: unknown) => {
       calls.set(event.name, (calls.get(event.name) ?? 0) + 1);
+      received.set(event.name, argument);
     };
   }
 
@@ -66,9 +68,15 @@ export async function proveReactTemplate(
 
   const firedOnce = new Set<string>();
   for (const event of probe.metadata.events) {
-    host.dispatchEvent(new CustomEvent(event.name));
+    const dispatched = new CustomEvent(event.name);
+    host.dispatchEvent(dispatched);
     if ((calls.get(event.name) ?? 0) === 1) {
       firedOnce.add(event.name);
+      if (received.get(event.name) !== dispatched) {
+        violations.push(
+          `${reactCallbackName(event.name)} did not receive the dispatched ${event.name} event`
+        );
+      }
     } else {
       violations.push(
         `dispatching ${event.name} did not invoke ${reactCallbackName(event.name)}`
