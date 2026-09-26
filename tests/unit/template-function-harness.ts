@@ -37,23 +37,34 @@ export interface TemplateAdapter {
   callbackName: (eventName: string) => string;
   /** How violation messages name the exposed handle, e.g. `ref`. */
   handleName: string;
-  /**
-   * Whether the consumer's class must land on the host. React (`className`)
-   * and Vue (`class`) forward it. An Angular consumer's `class` stays on the
-   * Template's own `k-*` element, so the Angular adapter proves the seam its
-   * Templates do implement (`style` moved onto the host) instead.
-   */
-  forwardsClass: boolean;
 }
 
-export interface TemplateProbe {
+/**
+ * The host property a form value maps to: the CEM `checked` attribute for a
+ * checkbox or switch, `value` for every other form control.
+ */
+export type FormValueProperty = 'value' | 'checked';
+
+/**
+ * `ClassName` is `string` for an adapter that forwards the consumer's class
+ * (React, Vue) and `null` for one with no class seam to prove yet (Angular).
+ */
+export interface TemplateProbe<
+  ClassName extends string | null = string | null,
+> {
   adapter: TemplateAdapter;
   metadata: Pick<ComponentMetadata, 'tagName' | 'events' | 'methods'>;
   attributes: readonly { name: string; value: string | boolean }[];
-  className: string;
+  /**
+   * The consumer's class, which must land on the host class. React
+   * (`className`) and Vue (`class`) forward it. `null` means the adapter has
+   * no class seam to prove, and the check does not run: an Angular
+   * consumer's `class` stays on the Template's own `k-*` element (#125).
+   */
+  className: ClassName;
   mount: (input: {
     attributes: Record<string, string | boolean>;
-    className: string;
+    className: ClassName;
     handlers: Record<string, (event: Event) => void>;
   }) => MountedTemplate;
 }
@@ -91,8 +102,8 @@ export interface TemplateProof {
   proved: ProofCoverage;
 }
 
-export async function proveTemplate(
-  probe: TemplateProbe
+export async function proveTemplate<ClassName extends string | null>(
+  probe: TemplateProbe<ClassName>
 ): Promise<TemplateProof> {
   const listeners = recordHostListeners(probe.metadata.tagName);
   try {
@@ -102,8 +113,8 @@ export async function proveTemplate(
   }
 }
 
-async function proveWithListeners(
-  probe: TemplateProbe,
+async function proveWithListeners<ClassName extends string | null>(
+  probe: TemplateProbe<ClassName>,
   listeners: HostListenerLog
 ): Promise<TemplateProof> {
   const handlers: Record<string, (event: Event) => void> = {};
@@ -141,7 +152,7 @@ async function proveWithListeners(
     }
   }
 
-  if (probe.adapter.forwardsClass) {
+  if (probe.className !== null) {
     const classAttr = host.getAttribute('class') ?? '';
     const classes = classAttr.split(/\s+/).filter((token) => token.length > 0);
     if (!classes.includes(probe.className)) {
@@ -274,8 +285,8 @@ function recordHostListeners(tagName: string): HostListenerLog {
 }
 
 /** Mount the Template and find its host element, if it rendered one. */
-function mountHost(
-  probe: TemplateProbe,
+function mountHost<ClassName extends string | null>(
+  probe: TemplateProbe<ClassName>,
   attributes: TemplateProbe['attributes'],
   handlers: Record<string, (event: Event) => void>
 ): {
@@ -305,7 +316,7 @@ function mountHost(
  * host". Zero is the only failure this can express.
  */
 function proveMethods(
-  probe: TemplateProbe,
+  probe: Pick<TemplateProbe, 'adapter' | 'metadata'>,
   host: Element,
   refHandle: MountedTemplate['refHandle'],
   proved: ProofCoverage
@@ -376,7 +387,7 @@ function describeThrown(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function missingHost(probe: TemplateProbe): string {
+function missingHost(probe: Pick<TemplateProbe, 'metadata'>): string {
   return `host tag ${probe.metadata.tagName} is missing`;
 }
 
@@ -405,7 +416,9 @@ function attributeRecord(
  * A host that always emits a boolean attribute still passes a presence check.
  * Passing the prop as false must remove it.
  */
-function booleansThatStickWhenFalse(probe: TemplateProbe): string[] {
+function booleansThatStickWhenFalse<ClassName extends string | null>(
+  probe: TemplateProbe<ClassName>
+): string[] {
   const booleansOn = probe.attributes.filter(
     (attribute) => attribute.value === true
   );

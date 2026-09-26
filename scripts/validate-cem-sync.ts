@@ -833,34 +833,6 @@ export interface AttributePolicy {
   >;
 }
 
-/** The allowlists this repo ships, as one policy. */
-export const SHIPPED_ATTRIBUTE_POLICY: AttributePolicy = {
-  global: GLOBAL_ATTRIBUTE_ALLOWLIST,
-  perComponent: COMPONENT_ATTRIBUTE_ALLOWLIST,
-};
-
-/**
- * True when a CEM attribute (kebab-cased) needs no registry prop: allowlisted
- * globally, a `with-*` SSR slot hint, or triaged for this component.
- *
- * `checkAttributeDrift` warns on every unsurfaced attribute this rejects. The
- * Angular function harness uses the same rule to decide which CEM attributes
- * a Template may leave without an `@Input()`: Angular has no rest spread, so
- * an attribute that is not a registry prop cannot reach the host there at
- * all (issue #77).
- */
-export function isAllowlistedAttribute(
-  regKey: string,
-  attr: string,
-  policy: AttributePolicy = SHIPPED_ATTRIBUTE_POLICY
-): boolean {
-  return (
-    policy.global.has(attr) ||
-    isSsrSlotHint(attr) ||
-    Object.hasOwn(policy.perComponent[regKey] ?? {}, attr)
-  );
-}
-
 /**
  * Compare each wrapped component's full CEM attribute list against its
  * registry props, in both directions:
@@ -906,7 +878,12 @@ export function checkAttributeDrift(
     const allowlist = policy.perComponent[regKey] ?? {};
 
     for (const [attr, cemName] of cemAttrs) {
-      if (propAttrs.has(attr) || isAllowlistedAttribute(regKey, attr, policy)) {
+      if (
+        propAttrs.has(attr) ||
+        policy.global.has(attr) ||
+        isSsrSlotHint(attr) ||
+        Object.hasOwn(allowlist, attr)
+      ) {
         continue;
       }
       findings.push({
@@ -970,7 +947,10 @@ export async function validateCemSync(
     ? checkPropValueDrift(registryMap, cemAttrTypes)
     : [];
   const attributeDriftFindings = cemAttrTypes
-    ? checkAttributeDrift(registryMap, cemAttrTypes, SHIPPED_ATTRIBUTE_POLICY)
+    ? checkAttributeDrift(registryMap, cemAttrTypes, {
+        global: GLOBAL_ATTRIBUTE_ALLOWLIST,
+        perComponent: COMPONENT_ATTRIBUTE_ALLOWLIST,
+      })
     : [];
 
   const findings = [

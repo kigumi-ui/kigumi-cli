@@ -14,13 +14,15 @@
  * - The Template compiles. A compile error is reported, not thrown, so one
  *   broken Template names itself instead of aborting the loop.
  * - The selector is `k-` plus the CEM tag without `wa-`.
- * - Every CEM attribute is a declared `@Input()` unless `mayOmitInput`
- *   allows it. Angular has no rest spread, so an attribute that is not an
- *   input cannot reach the host at all.
+ * - Every CEM attribute is a declared `@Input()` unless the probe pins it as
+ *   omitted, and every pinned attribute really is omitted. Angular has no
+ *   rest spread, so an attribute that is not an input cannot reach the host
+ *   at all.
  * - Every CEM event is a declared `@Output()` named by `toAngularOutputName`.
- * - The consumer's `class` stays on the `k-*` element, which Angular
- *   renders with `display: contents`; the seam the Templates implement is
- *   `style`, moved from the `k-*` element onto the host.
+ * - `style` on the consumer's `k-*` element moves onto the host. The
+ *   consumer's `class` stays on the `k-*` element, which Angular renders
+ *   with `display: contents`, so the shared class check does not run for
+ *   Angular: that seam is unproven until #125 decides it.
  * - A form control implements ControlValueAccessor, proven through a real
  *   `[formControl]` binding.
  */
@@ -58,9 +60,12 @@ import {
   probeAttributes,
   proveTemplate,
   type MountedTemplate,
+  type FormValueProperty,
   type ProofCoverage,
   type TemplateAdapter,
 } from './template-function-harness.js';
+
+export type { FormValueProperty } from './template-function-harness.js';
 
 export interface AngularTemplateProbe {
   /** The component class the Template exports. */
@@ -70,11 +75,18 @@ export interface AngularTemplateProbe {
     'tagName' | 'attributes' | 'events' | 'methods'
   >;
   /**
-   * Whether a CEM attribute (kebab-cased) may have no `@Input()`. The
-   * registry loop passes validate:cem-sync's `isAllowlistedAttribute`: an
-   * attribute triaged as "no registry prop" has no input in any Template.
+   * The kebab-cased CEM attributes this Template has no `@Input()` for,
+   * exactly: an unlisted attribute without an input is a violation, and so
+   * is a listed one that has an input or is not in the CEM. The registry
+   * loop passes the committed `ANGULAR_OMITTED_INPUTS` pin.
    */
-  mayOmitInput: (attribute: string) => boolean;
+  omittedInputs: readonly string[];
+  /**
+   * Attributes any Template may omit wherever the CEM declares them, such as
+   * the ones every Web Awesome element inherits. Not checked for staleness,
+   * since the CEM does not declare them on every component.
+   */
+  inheritedOmissions?: ReadonlySet<string>;
   /**
    * Reads a `styleUrl` the Template names, which Angular resolves before it
    * compiles, as a build does. Only needed for Templates that have one.
@@ -85,7 +97,7 @@ export interface AngularTemplateProbe {
    * the form value to. Absent for a Template that is not a form control,
    * which must then not provide NG_VALUE_ACCESSOR either.
    */
-  formControl?: 'value' | 'checked';
+  formControl?: FormValueProperty;
 }
 
 /**
@@ -110,11 +122,13 @@ export interface AngularProofCoverage extends ProofCoverage {
 export interface AngularTemplateProof {
   violations: readonly string[];
   proved: AngularProofCoverage;
-  /** CEM attributes skipped because `mayOmitInput` allowed no `@Input()`. */
-  omittedInputs: readonly string[];
+  /**
+   * CEM attributes skipped because the probe pins them as omitted, inherited
+   * ones included. `proved.attributes` covers every other CEM attribute.
+   */
+  omitted: readonly string[];
 }
 
-const PROBE_CLASS = 'probe-class';
 const PROBE_STYLE = 'outline: 1px solid rgb(1, 2, 3)';
 
 export async function proveAngularTemplate(
@@ -135,14 +149,14 @@ export async function proveAngularTemplate(
     return {
       violations: [`template does not compile: ${firstLine(error)}`],
       proved: nothing,
-      omittedInputs: [],
+      omitted: [],
     };
   }
   if (!mirror) {
     return {
       violations: ['the Template export is not an Angular component'],
       proved: nothing,
-      omittedInputs: [],
+      omitted: [],
     };
   }
 
@@ -171,22 +185,38 @@ async function proveCompiled(
   const inputs = new Set(mirror.inputs.map((input) => input.templateName));
   const outputs = new Set(mirror.outputs.map((output) => output.templateName));
 
+  const pinned = new Set(probe.omittedInputs);
+  const inherited = probe.inheritedOmissions ?? new Set<string>();
   const inputFor = new Map<string, string>();
   const probed: ComponentMetadata['attributes'] = [];
-  const omittedInputs: string[] = [];
+  const omitted: string[] = [];
+  const declared = new Set<string>();
   for (const attribute of probe.metadata.attributes) {
     const kebab = toKebabCase(attribute.name);
     const input = toCamelCase(kebab);
+    declared.add(kebab);
     if (inputs.has(input)) {
       inputFor.set(attribute.name, input);
       probed.push(attribute);
-    } else if (probe.mayOmitInput(kebab)) {
-      omittedInputs.push(attribute.name);
+      if (pinned.has(kebab)) {
+        violations.push(
+          `attribute ${kebab} is pinned as omitted, but @Input() ${input} is declared`
+        );
+      }
+    } else if (pinned.has(kebab) || inherited.has(kebab)) {
+      omitted.push(attribute.name);
     } else {
       violations.push(
         `@Input() ${input} for attribute ${attribute.name} is not declared`
       );
       probed.push(attribute);
+    }
+  }
+  for (const kebab of pinned) {
+    if (!declared.has(kebab)) {
+      violations.push(
+        `attribute ${kebab} is pinned as omitted, but the CEM declares no such attribute`
+      );
     }
   }
 
@@ -198,7 +228,6 @@ async function proveCompiled(
   const adapter: TemplateAdapter = {
     callbackName: (eventName) => toAngularOutputName(eventName, taken),
     handleName: 'component instance',
-    forwardsClass: false,
   };
   for (const event of probe.metadata.events) {
     const output = adapter.callbackName(event.name);
@@ -211,17 +240,20 @@ async function proveCompiled(
     adapter,
     metadata: probe.metadata,
     attributes: probeAttributes(probed),
-    className: PROBE_CLASS,
-    mount: ({ attributes, className, handlers }) =>
+    // No class seam to prove yet (#125): a class set on the `k-*` element
+    // would stay there, and nothing would read it.
+    className: null,
+    mount: ({ attributes, handlers }) =>
       mountAngular(app, probe.Template, {
-        inputs: Object.entries(attributes).flatMap(([name, value]) => {
-          const input = inputFor.get(name);
-          return input ? [inputBinding(input, () => value)] : [];
-        }),
-        outputs: Object.entries(handlers).flatMap(([name, handler]) =>
-          outputs.has(name) ? [outputBinding(name, handler)] : []
-        ),
-        element: { class: className },
+        bindings: [
+          ...Object.entries(attributes).flatMap(([name, value]) => {
+            const input = inputFor.get(name);
+            return input ? [inputBinding(input, () => value)] : [];
+          }),
+          ...Object.entries(handlers).flatMap(([name, handler]) =>
+            outputs.has(name) ? [outputBinding(name, handler)] : []
+          ),
+        ],
       }),
   });
   violations.push(...shared.violations);
@@ -246,42 +278,45 @@ async function proveCompiled(
   return {
     violations,
     proved: { ...shared.proved, formControl },
-    omittedInputs,
+    omitted,
   };
 }
 
 /**
- * Create the component the way a consumer's template does: Angular renders
- * the `k-*` element, `element` sets attributes on it before the first change
- * detection (as static markup would), then the bindings apply.
+ * Create a component the way a consumer's template does: Angular renders its
+ * element, `element` sets attributes on it before the first change detection
+ * (as static markup would), then the bindings apply. A first change detection
+ * that throws tears the mount down before rethrowing.
  */
 function mountAngular(
   app: ApplicationRef,
-  Template: Type<unknown>,
-  options: {
-    inputs: Binding[];
-    outputs: Binding[];
-    element: Record<string, string>;
-  }
+  Component: Type<unknown>,
+  options: { bindings?: Binding[]; element?: Record<string, string> } = {}
 ): MountedTemplate {
   const container = document.createElement('div');
   document.body.append(container);
-  const ref = createComponent(Template, {
+  const ref = createComponent(Component, {
     environmentInjector: app.injector,
-    bindings: [...options.inputs, ...options.outputs],
+    bindings: options.bindings ?? [],
   });
   const element = ref.location.nativeElement as HTMLElement;
-  for (const [name, value] of Object.entries(options.element)) {
+  for (const [name, value] of Object.entries(options.element ?? {})) {
     element.setAttribute(name, value);
   }
   container.append(element);
-  ref.changeDetectorRef.detectChanges();
+  const unmount = () => {
+    ref.destroy();
+    container.remove();
+  };
+  try {
+    ref.changeDetectorRef.detectChanges();
+  } catch (error) {
+    unmount();
+    throw error;
+  }
   return {
     container,
-    unmount: () => {
-      ref.destroy();
-      container.remove();
-    },
+    unmount,
     refHandle: {
       get current() {
         return ref.instance as Record<string, unknown>;
@@ -302,15 +337,16 @@ function styleForwarding(
   tagName: string
 ): string[] {
   const { container, unmount } = mountAngular(app, Template, {
-    inputs: [],
-    outputs: [],
     element: { style: PROBE_STYLE },
   });
   try {
     const element = container.firstElementChild;
     const host = container.querySelector(tagName);
-    // A missing host is already reported by the shared contract.
-    if (!element || !host) return [];
+    // Reported rather than skipped, so a run that could not look at the
+    // style seam never reads as one that proved it.
+    if (!element || !host) {
+      return [`style forwarding was not checked: no ${tagName} rendered`];
+    }
 
     const violations: string[] = [];
     if (host.getAttribute('style') !== PROBE_STYLE) {
@@ -344,10 +380,12 @@ function providesValueAccessor(
 }
 
 /** Probe values per model property: initial, then written, then read. */
-const FORM_VALUES = {
+const FORM_VALUES: Readonly<
+  Record<FormValueProperty, readonly [unknown, unknown, unknown]>
+> = {
   value: ['probe-initial', 'probe-written', 'probe-read'],
   checked: [true, false, true],
-} as const;
+};
 
 let formHosts = 0;
 
@@ -363,7 +401,7 @@ function proveFormControl(
   app: ApplicationRef,
   probe: AngularTemplateProbe,
   mirror: ComponentMirror<unknown>,
-  property: 'value' | 'checked'
+  property: FormValueProperty
 ): { violations: string[]; facets: number } {
   const [initial, written, read] = FORM_VALUES[property];
   const control = new FormControl<unknown>({ value: initial, disabled: true });
@@ -378,25 +416,27 @@ function proveFormControl(
     }
   );
 
-  const container = document.createElement('div');
-  document.body.append(container);
-  const ref = createComponent(FormHost, {
-    environmentInjector: app.injector,
-  });
-  container.append(ref.location.nativeElement as HTMLElement);
+  let mounted: MountedTemplate;
   try {
-    try {
-      ref.changeDetectorRef.detectChanges();
-    } catch (error) {
+    mounted = mountAngular(app, FormHost);
+  } catch (error) {
+    return {
+      violations: [`binding [formControl] threw: ${firstLine(error)}`],
+      facets: 0,
+    };
+  }
+  const { container, unmount } = mounted;
+  try {
+    const host = container.querySelector(probe.metadata.tagName) as
+      (Element & Record<string, unknown>) | null;
+    if (!host) {
       return {
-        violations: [`binding [formControl] threw: ${firstLine(error)}`],
+        violations: [
+          `the form control was not checked: no ${probe.metadata.tagName} rendered`,
+        ],
         facets: 0,
       };
     }
-    const host = container.querySelector(probe.metadata.tagName) as
-      (Element & Record<string, unknown>) | null;
-    // A missing host is already reported by the shared contract.
-    if (!host) return { violations: [], facets: 0 };
 
     const violations: string[] = [];
     let facets = 0;
@@ -447,8 +487,7 @@ function proveFormControl(
 
     return { violations, facets };
   } finally {
-    ref.destroy();
-    container.remove();
+    unmount();
   }
 }
 

@@ -29,7 +29,11 @@ export {
   type ProofCoverage,
 } from './template-function-harness.js';
 
-export interface VueTemplateProbe extends Omit<TemplateProbe, 'adapter'> {
+/** Vue forwards `class`, so a Vue probe always carries one. */
+export interface VueTemplateProbe extends Omit<
+  TemplateProbe<string>,
+  'adapter'
+> {
   /** The compiled component's `emits` option, as Vue normalises it. */
   emits: readonly string[] | Record<string, unknown> | undefined;
 }
@@ -39,7 +43,6 @@ export type VueTemplateProof = TemplateProof;
 export const VUE_ADAPTER: TemplateAdapter = {
   callbackName: (eventName) => `on${toPascalCase(eventName)}`,
   handleName: 'defineExpose',
-  forwardsClass: true,
 };
 
 /**

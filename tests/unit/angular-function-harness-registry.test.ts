@@ -11,17 +11,18 @@
  *
  * Templates compile through Angular's JIT compiler with their real
  * `styleUrl`, and Web Awesome deep-imports resolve to a stub
- * (`vitest.wa-stub-alias.ts`), so no Pro token is needed. Metadata presence
- * and the eventless / methodless pins are asserted by the React loop's
- * coverage block; here each run must also report what it proved, so an
- * emptied CEM field cannot read as a pass (ADR 0003).
+ * (`vitest.wa-stub-alias.ts`), so no Pro token is needed. The shared coverage
+ * block (`_helpers/registry-coverage.ts`) rejects missing or emptied metadata
+ * and stale eventless / methodless pins, and each run must also report what
+ * it proved, so an emptied CEM field cannot read as a pass (ADR 0003).
  *
- * A CEM attribute may have no `@Input()` only where validate:cem-sync
- * already triaged it as needing no registry prop (`isAllowlistedAttribute`).
- * React and Vue pass such attributes through their rest spread; Angular has
- * none, so they cannot reach the host there at all. Any other CEM attribute,
- * such as one a Web Awesome bump adds, fails here until it is surfaced or
- * triaged.
+ * A CEM attribute may have no `@Input()` only where
+ * `_helpers/angular-omitted-inputs.ts` pins it, and every pinned attribute
+ * must really be omitted. React and Vue pass such attributes through their
+ * rest spread; Angular has none, so they cannot reach the host there at all.
+ * Any other CEM attribute, such as one a Web Awesome bump adds, fails here
+ * until it gets an `@Input()` or a pin. The class seam is not proven for
+ * Angular yet (#125).
  */
 // @vitest-environment jsdom
 
@@ -33,13 +34,18 @@ import { describe, expect, it } from 'vitest';
 import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
 import { COMPONENT_METADATA } from '../../src/utils/component-metadata.js';
 import { toKebabCase } from '../../src/utils/naming.js';
-import { isAllowlistedAttribute } from '../../scripts/validate-cem-sync.js';
 import {
   FORM_CONTROL_FACETS,
   proveAngularTemplate,
+  type FormValueProperty,
 } from './angular-function-harness.js';
+import {
+  ANGULAR_INHERITED_OMISSIONS,
+  ANGULAR_OMITTED_INPUTS,
+} from './_helpers/angular-omitted-inputs.js';
 import { METHODLESS_COMPONENTS } from './_helpers/methodless-components.js';
 import { EVENTLESS_COMPONENTS } from './_helpers/eventless-components.js';
+import { describeRegistryCoverage } from './_helpers/registry-coverage.js';
 
 const METHODLESS = new Set(METHODLESS_COMPONENTS);
 const EVENTLESS = new Set(EVENTLESS_COMPONENTS);
@@ -57,7 +63,7 @@ const TEMPLATES_DIR = path.resolve(
  * checks both directions, since a pinned Template must provide
  * NG_VALUE_ACCESSOR and an unpinned one must not.
  */
-const ANGULAR_FORM_CONTROLS: Readonly<Record<string, 'value' | 'checked'>> = {
+const ANGULAR_FORM_CONTROLS: Readonly<Record<string, FormValueProperty>> = {
   checkbox: 'checked',
   'color-picker': 'value',
   combobox: 'value',
@@ -73,6 +79,33 @@ const ANGULAR_FORM_CONTROLS: Readonly<Record<string, 'value' | 'checked'>> = {
   'tag-input': 'value',
   textarea: 'value',
 };
+
+describeRegistryCoverage();
+
+describe('omitted-input pin (fail closed)', () => {
+  it('pins only registry components', () => {
+    const unknown = Object.keys(ANGULAR_OMITTED_INPUTS).filter(
+      (slug) => !(slug in LOCAL_REGISTRY)
+    );
+    expect(unknown).toEqual([]);
+  });
+
+  // A registry prop gets an @Input() from the generator, so pinning one as
+  // omitted can only hide a generator that dropped it.
+  it('pins no registry prop as omitted', () => {
+    const props = Object.entries(ANGULAR_OMITTED_INPUTS).flatMap(
+      ([slug, attributes]) => {
+        const names = new Set(
+          LOCAL_REGISTRY[slug]?.props.map((prop) => prop.name) ?? []
+        );
+        return attributes
+          .filter((attribute) => names.has(attribute))
+          .map((attribute) => `${slug}.${attribute}`);
+      }
+    );
+    expect(props).toEqual([]);
+  });
+});
 
 describe('form-control catalogue (fail closed)', () => {
   it('pins only registry components', () => {
@@ -114,10 +147,11 @@ describe('every Angular Template against CEM metadata', () => {
       ).toBeDefined();
       if (!Template) return;
 
-      const { violations, proved, omittedInputs } = await proveAngularTemplate({
+      const { violations, proved, omitted } = await proveAngularTemplate({
         Template,
         metadata,
-        mayOmitInput: (attribute) => isAllowlistedAttribute(slug, attribute),
+        omittedInputs: ANGULAR_OMITTED_INPUTS[slug] ?? [],
+        inheritedOmissions: ANGULAR_INHERITED_OMISSIONS,
         formControl: ANGULAR_FORM_CONTROLS[slug],
         readResource: (url) =>
           readFile(path.resolve(TEMPLATES_DIR, definition.name, url), 'utf8'),
@@ -126,11 +160,13 @@ describe('every Angular Template against CEM metadata', () => {
       expect(violations).toEqual([]);
 
       // A clean run must also be a run that checked something: every CEM
-      // member was observed on the host, except attributes the triage lets
-      // Angular omit, and only the pinned eventless / methodless components
-      // may prove zero events / methods (ADR 0003).
+      // member was observed on the host, except the pinned omissions, and
+      // only the pinned eventless / methodless components may prove zero
+      // events / methods (ADR 0003). No attribute floor here: CarouselItem
+      // and Spinner declare only the inherited attributes, so Angular probes
+      // none; the coverage block holds the non-empty attribute floor.
       expect(proved.attributes).toBe(
-        metadata.attributes.length - omittedInputs.length
+        metadata.attributes.length - omitted.length
       );
       expect(proved.events).toBe(metadata.events.length);
       if (!EVENTLESS.has(slug)) {

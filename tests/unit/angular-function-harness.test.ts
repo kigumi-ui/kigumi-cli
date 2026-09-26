@@ -30,7 +30,10 @@ import {
   FORM_CONTROL_FACETS,
   proveAngularTemplate,
 } from './angular-function-harness.js';
-import type { AngularTemplateProbe } from './angular-function-harness.js';
+import type {
+  AngularTemplateProbe,
+  FormValueProperty,
+} from './angular-function-harness.js';
 
 const SHOW = { name: 'wa-after-show', eventType: 'CustomEvent' };
 
@@ -55,7 +58,7 @@ interface InlineOptions {
 
 interface InlineAccessor {
   /** The host property the form value maps to. */
-  property: 'value' | 'checked';
+  property: FormValueProperty;
   /** The host event the accessor reads the value on. */
   readOn: string;
   /** Find the host only in ngAfterViewInit, dropping earlier writes. */
@@ -212,7 +215,7 @@ async function prove(
   const { violations } = await proveAngularTemplate({
     Template,
     metadata: { tagName: 'wa-probe', attributes: [], events: [], methods: [] },
-    mayOmitInput: () => false,
+    omittedInputs: [],
     ...overrides,
   });
   return violations;
@@ -231,10 +234,9 @@ describe('proveAngularTemplate', () => {
         events: [SHOW],
         methods: [],
       },
-      mayOmitInput: () => false,
+      omittedInputs: [],
     });
 
-    // The consumer's class stays on <k-probe>: Angular has no host-class seam.
     expect(violations).toEqual([]);
     expect(proved).toEqual({
       attributes: 1,
@@ -301,21 +303,53 @@ describe('proveAngularTemplate', () => {
     );
   });
 
-  it('skips a CEM attribute without an @Input() when it may be omitted', async () => {
-    const { violations, proved, omittedInputs } = await proveAngularTemplate({
+  it('skips a CEM attribute without an @Input() when it is pinned as omitted', async () => {
+    const { violations, proved, omitted } = await proveAngularTemplate({
       Template: inlineTemplate({ inputs: ['label'] }),
       metadata: {
         tagName: 'wa-probe',
-        attributes: [{ name: 'label', type: 'string' }, { name: 'did-ssr' }],
+        attributes: [
+          { name: 'label', type: 'string' },
+          { name: 'with-footer', type: 'boolean' },
+          { name: 'did-ssr' },
+        ],
         events: [],
         methods: [],
       },
-      mayOmitInput: (attribute) => attribute === 'did-ssr',
+      omittedInputs: ['with-footer'],
+      inheritedOmissions: new Set(['did-ssr', 'lang']),
     });
 
+    // `lang` is inherited but absent from this CEM entry: not a violation.
     expect(violations).toEqual([]);
-    expect(omittedInputs).toEqual(['did-ssr']);
+    expect(omitted).toEqual(['with-footer', 'did-ssr']);
     expect(proved.attributes).toBe(1);
+  });
+
+  it('reports an attribute pinned as omitted that has an @Input()', async () => {
+    const violations = await prove(inlineTemplate({ inputs: ['label'] }), {
+      metadata: {
+        tagName: 'wa-probe',
+        attributes: [{ name: 'label', type: 'string' }],
+        events: [],
+        methods: [],
+      },
+      omittedInputs: ['label'],
+    });
+
+    expect(violations).toEqual([
+      'attribute label is pinned as omitted, but @Input() label is declared',
+    ]);
+  });
+
+  it('reports an attribute pinned as omitted that the CEM does not declare', async () => {
+    const violations = await prove(inlineTemplate(), {
+      omittedInputs: ['with-footer'],
+    });
+
+    expect(violations).toEqual([
+      'attribute with-footer is pinned as omitted, but the CEM declares no such attribute',
+    ]);
   });
 
   it('binds the Event-suffixed @Output() when an @Input() has the plain name', async () => {
@@ -400,6 +434,17 @@ describe('proveAngularTemplate', () => {
 
     expect(violations).toEqual(['style stayed on k-probe']);
   });
+
+  it('reports the style seam as unchecked when no host renders', async () => {
+    const violations = await prove(
+      inlineTemplate({ style: 'drop', template: '<span></span>' })
+    );
+
+    expect(violations).toEqual([
+      'host tag wa-probe is missing',
+      'style forwarding was not checked: no wa-probe rendered',
+    ]);
+  });
 });
 
 /**
@@ -426,7 +471,7 @@ describe('proveAngularTemplate on a form control', () => {
     return proveAngularTemplate({
       Template: inlineTemplate({ accessor, outputs }),
       metadata: { tagName: 'wa-probe', attributes: [], events, methods: [] },
-      mayOmitInput: () => false,
+      omittedInputs: [],
       formControl: accessor.property,
     });
   }
