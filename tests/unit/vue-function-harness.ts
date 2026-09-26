@@ -39,6 +39,7 @@ export type VueTemplateProof = TemplateProof;
 export const VUE_ADAPTER: TemplateAdapter = {
   callbackName: (eventName) => `on${toPascalCase(eventName)}`,
   handleName: 'defineExpose',
+  forwardsClass: true,
 };
 
 /**

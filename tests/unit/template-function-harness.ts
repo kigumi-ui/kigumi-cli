@@ -1,6 +1,7 @@
 /**
  * Framework-neutral jsdom function harness for one committed Template
- * (issue #74 for React, generalised for Vue in issue #76).
+ * (issue #74 for React, generalised for Vue in issue #76 and Angular in
+ * issue #77).
  *
  * Renders through the caller-supplied mount, then compares the host element
  * to committed component metadata. The returned violations are the observable
@@ -21,8 +22,8 @@ export interface MountedTemplate {
   unmount: () => void;
   /**
    * The Template's exposed handle: React's `useImperativeHandle` ref, Vue's
-   * `defineExpose` proxy. Absent when the probe isn't proving public CEM
-   * methods.
+   * `defineExpose` proxy, the Angular component instance. Absent when the
+   * probe isn't proving public CEM methods.
    */
   refHandle?: { readonly current: Record<string, unknown> | null };
 }
@@ -36,6 +37,13 @@ export interface TemplateAdapter {
   callbackName: (eventName: string) => string;
   /** How violation messages name the exposed handle, e.g. `ref`. */
   handleName: string;
+  /**
+   * Whether the consumer's class must land on the host. React (`className`)
+   * and Vue (`class`) forward it. An Angular consumer's `class` stays on the
+   * Template's own `k-*` element, so the Angular adapter proves the seam its
+   * Templates do implement (`style` moved onto the host) instead.
+   */
+  forwardsClass: boolean;
 }
 
 export interface TemplateProbe {
@@ -133,12 +141,14 @@ async function proveWithListeners(
     }
   }
 
-  const classAttr = host.getAttribute('class') ?? '';
-  const classes = classAttr.split(/\s+/).filter((token) => token.length > 0);
-  if (!classes.includes(probe.className)) {
-    violations.push(
-      `className ${probe.className} was not forwarded to the host class`
-    );
+  if (probe.adapter.forwardsClass) {
+    const classAttr = host.getAttribute('class') ?? '';
+    const classes = classAttr.split(/\s+/).filter((token) => token.length > 0);
+    if (!classes.includes(probe.className)) {
+      violations.push(
+        `className ${probe.className} was not forwarded to the host class`
+      );
+    }
   }
 
   const firedOnce = new Set<string>();

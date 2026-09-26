@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (111 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (112 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -86,7 +86,7 @@ tests/
 │   ├── storybook-generator.test.ts  # Storybook story generation
 │   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
 │   ├── template.test.ts             # Template materialization + tier swap
-│   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract both adapters share, incl. the host add/removeEventListener log (not a test file)
+│   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract all three adapters share, incl. the host add/removeEventListener log; `forwardsClass` is per adapter (not a test file)
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
@@ -121,6 +121,8 @@ tests/
 │   ├── validate-fixture-exclusions.test.ts # Matchers for the three ignore lists that must all skip tests/fixtures/starter-snapshots (cluster X)
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
+│   ├── angular-function-harness.ts  # proveAngularTemplate: the Angular adapter (JIT compile, `k-` selector, declared @Input()/@Output() via toAngularOutputName, component instance, `style` seam, ControlValueAccessor through a real [formControl]) over template-function-harness.ts (not a test file)
+│   ├── angular-function-harness.test.ts # The Angular adapter alone, on inline JIT components: compile errors reported not thrown, selector, undeclared inputs/outputs, omittable inputs, style seam, each ControlValueAccessor facet (issue #77)
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
 │   ├── vue-function-harness.ts      # proveVueTemplate: the Vue adapter (`onWaAfterHide`, defineExpose, declared emits) over template-function-harness.ts (not a test file)
 │   ├── vue-function-harness.test.ts # The Vue adapter alone, on inline components: callback naming, undeclared emits, a leak Vue's post-unmount emit would hide (issue #76)
@@ -197,6 +199,11 @@ pnpm test:watch        # Watch mode
 The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error.
 The function harness renders committed React and Vue Templates, so this tsconfig sets
 `jsx` and the DOM lib and includes the CSS and React JSX shims.
+Angular Templates are imported by computed path, so `tsc` does not follow them here: their
+decorators need `experimentalDecorators`, which only `templates/angular/tsconfig.json`
+(`pnpm typecheck:templates`) sets. For the same reason the Angular adapter's inline test
+components use `Component({...})(class ...)` instead of decorator syntax: Vite compiles
+test files under the root tsconfig, and esbuild would emit standard decorators.
 The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137
 once the existing 133 errors were fixed; the gate is now strict.
 
@@ -615,7 +622,7 @@ describe('smoke test', () => {
 
 - Third-party libraries (Commander, Zod)
 - File system mocking (use real temp dirs)
-- Per-Template generated tests as the function oracle. The CEM function harness renders every committed React and Vue TypeScript Template in jsdom (issues #75, #76); visual checks stay in the browser
+- Per-Template generated tests as the function oracle. The CEM function harness renders every committed React, Vue and Angular TypeScript Template in jsdom (issues #75, #76, #77); visual checks stay in the browser
 
 ### JSON with Comments
 
@@ -819,7 +826,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-26
+**Last Updated:** 2026-09-27
 
 - added tests/unit/parse-custom-elements-attributes.test.ts covering extractAttributes (boolean-vs-string classification, untyped attributes kept) and regression-pinning COMPONENT_METADATA.dialog's did-ssr plus otp-input/pagination/tag-input attribute coverage, issue #105
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
@@ -874,3 +881,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added package-json.test.ts for the `readDependencies` contract and each caller's handling (detectFramework surfaces invalid JSON, tier detection falls through on `null`, isNextProject falls back to next.config.*); package-json-read-error.test.ts pins `kigumi init` on invalid JSON; every property bug-injected on its own, issue #99
 - issue #121: package-json-read-error.test.ts checks that `brand`, `upgrade` and `theme install` leave kigumi.config.json (and theme files) untouched when package.json is broken, and pins `diff` naming the file instead of reporting missing files; upgrade-command.test.ts pins install-before-save, theme-install-local-source.test.ts pins fetch-before-write; the Negative-Path Inventory gained the matching rows. Each ordering was bug-injected back to write-first and turns its test red
 - package-json-read-error.test.ts pins the full rendered error block and fix note for EISDIR, EACCES and invalid JSON (only Node's parser message is matched by prefix), adds `palette` and `theme set` to the detect-before-write checks, and compares kigumi.config.json as bytes written compact, so even a same-value rewrite by saveConfig fails; detectTierSync tests were dropped with the function, their async twins stay
+- added the Angular adapter, issue #77: angular-function-harness.ts JIT-compiles a Template (a compile error is a violation, not a throw), mounts it with createComponent and inputBinding/outputBinding under a zoneless app, and checks the `k-` selector, declared @Input()/@Output() names (toAngularOutputName), the `style` seam and ControlValueAccessor through a real [formControl]. template-function-harness.ts gained a per-adapter `forwardsClass`: an Angular consumer's class stays on the `k-*` element. Each check in angular-function-harness.test.ts was bug-injected in the adapter; two sabotages first stayed green (enable never reaching the host, writeValue ignored) and got their own cases

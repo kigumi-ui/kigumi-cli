@@ -27,6 +27,7 @@ export type ReactTemplateProof = TemplateProof;
 export const REACT_ADAPTER: TemplateAdapter = {
   callbackName: (eventName) => `on${toPascalCase(stripWaPrefix(eventName))}`,
   handleName: 'ref',
+  forwardsClass: true,
 };
 
 export function proveReactTemplate(
