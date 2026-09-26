@@ -44,7 +44,7 @@ function ensureLoaded() {
   styleUrl: './split-panel.component.css',
 })
 export class SplitPanelComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Divider position (%) */

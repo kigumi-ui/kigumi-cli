@@ -32,7 +32,7 @@ function ensureLoaded() {
   styleUrl: './breadcrumb.component.css',
 })
 export class BreadcrumbComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The label to use for the breadcrumb control for assistive devices */

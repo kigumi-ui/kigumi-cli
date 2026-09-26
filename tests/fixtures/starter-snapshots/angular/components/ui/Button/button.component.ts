@@ -56,7 +56,7 @@ function ensureLoaded() {
   styleUrl: './button.component.css',
 })
 export class ButtonComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Semantic variant of the button */

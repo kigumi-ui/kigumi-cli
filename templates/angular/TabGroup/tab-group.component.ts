@@ -41,7 +41,7 @@ function ensureLoaded() {
   styleUrl: './tab-group.component.css',
 })
 export class TabGroupComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Tab position */

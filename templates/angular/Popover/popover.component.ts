@@ -46,7 +46,7 @@ function ensureLoaded() {
   styleUrl: './popover.component.css',
 })
 export class PopoverComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Indicates whether the popover is open */

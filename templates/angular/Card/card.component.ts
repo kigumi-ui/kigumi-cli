@@ -39,7 +39,7 @@ function ensureLoaded() {
   styleUrl: './card.component.css',
 })
 export class CardComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Visual appearance style */

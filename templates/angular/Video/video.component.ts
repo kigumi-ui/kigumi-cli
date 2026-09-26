@@ -51,7 +51,7 @@ function ensureLoaded() {
   styleUrl: './video.component.css',
 })
 export class VideoComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The set of controls to display */

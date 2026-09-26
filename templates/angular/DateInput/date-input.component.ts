@@ -68,7 +68,7 @@ function ensureLoaded() {
   styleUrl: './date-input.component.css',
 })
 export class DateInputComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The name of the form control, submitted with form data */

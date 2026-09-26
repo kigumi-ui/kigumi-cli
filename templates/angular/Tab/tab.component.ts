@@ -32,7 +32,7 @@ function ensureLoaded() {
   styleUrl: './tab.component.css',
 })
 export class TabComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Associated panel name */

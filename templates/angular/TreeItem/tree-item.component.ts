@@ -41,7 +41,7 @@ function ensureLoaded() {
   styleUrl: './tree-item.component.css',
 })
 export class TreeItemComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Expands the item */

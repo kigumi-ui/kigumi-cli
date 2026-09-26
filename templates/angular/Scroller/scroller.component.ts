@@ -38,7 +38,7 @@ function ensureLoaded() {
   styleUrl: './scroller.component.css',
 })
 export class ScrollerComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Scroll direction */

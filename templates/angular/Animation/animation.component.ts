@@ -48,7 +48,7 @@ function ensureLoaded() {
   styleUrl: './animation.component.css',
 })
 export class AnimationComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The name of the built-in animation to use */

@@ -39,7 +39,7 @@ function ensureLoaded() {
   styleUrl: './page.component.css',
 })
 export class PageComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Hide default hamburger button; auto-sets true if custom toggle element present */

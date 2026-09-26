@@ -39,7 +39,7 @@ function ensureLoaded() {
   styleUrl: './video-playlist.component.css',
 })
 export class VideoPlaylistComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The set of controls forwarded to each child video */

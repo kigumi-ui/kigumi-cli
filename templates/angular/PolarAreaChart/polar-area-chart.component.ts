@@ -40,7 +40,7 @@ function ensureLoaded() {
   styleUrl: './polar-area-chart.component.css',
 })
 export class PolarAreaChartComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Accessible name announced by assistive technology */

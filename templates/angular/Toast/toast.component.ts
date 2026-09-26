@@ -33,7 +33,7 @@ function ensureLoaded() {
   styleUrl: './toast.component.css',
 })
 export class ToastComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Screen corner or edge where notifications are anchored */

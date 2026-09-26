@@ -42,7 +42,7 @@ function ensureLoaded() {
   styleUrl: './avatar.component.css',
 })
 export class AvatarComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The image source to use for the avatar */

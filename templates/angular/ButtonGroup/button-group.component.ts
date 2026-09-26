@@ -36,7 +36,7 @@ function ensureLoaded() {
   styleUrl: './button-group.component.css',
 })
 export class ButtonGroupComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** A label to use for the button group. This won't be displayed on the screen, but it will be announced by assistive devices */

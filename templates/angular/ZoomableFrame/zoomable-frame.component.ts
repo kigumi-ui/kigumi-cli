@@ -47,7 +47,7 @@ function ensureLoaded() {
   styleUrl: './zoomable-frame.component.css',
 })
 export class ZoomableFrameComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** URL of content to display */

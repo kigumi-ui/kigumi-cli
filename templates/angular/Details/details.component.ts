@@ -43,7 +43,7 @@ function ensureLoaded() {
   styleUrl: './details.component.css',
 })
 export class DetailsComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Whether the details are expanded */

@@ -38,7 +38,7 @@ function ensureLoaded() {
   styleUrl: './option.component.css',
 })
 export class OptionComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The option value */

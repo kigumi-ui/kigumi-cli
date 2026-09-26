@@ -42,7 +42,7 @@ function ensureLoaded() {
   styleUrl: './random-content.component.css',
 })
 export class RandomContentComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The number of items to display at once */
