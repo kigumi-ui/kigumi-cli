@@ -139,6 +139,24 @@ export const INSTALL_TIMEOUT_MS = 300_000;
 export const DEFAULT_WEBAWESOME_VERSION = '3.13.0';
 
 // =============================================================================
+// Test Fixtures
+// =============================================================================
+
+/**
+ * Exact `create-vite` version used to scaffold the ephemeral consumer project
+ * in `tests/e2e/free-consumer-tsc.test.ts`.
+ *
+ * Pinned (no floating `pnpm create vite` with no version): the test asserts
+ * on what the react-ts template produces (a `tsconfig.app.json`, `strict`
+ * left unset). An unpinned scaffold takes the newest create-vite on every
+ * run, so a template restructuring upstream could turn this e2e lane red
+ * with no change in this repo. Not covered by Dependabot (invoked via `pnpm
+ * create`, not a `package.json` dependency) — tracked instead by the weekly
+ * upstream report (see `scripts/check-upstream-versions.ts`, issue #18).
+ */
+export const CREATE_VITE_VERSION = '9.2.1';
+
+// =============================================================================
 // Community Registry
 // =============================================================================
 

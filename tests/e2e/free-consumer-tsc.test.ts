@@ -21,6 +21,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { readJSONWithComments } from '../../src/utils/json.js';
 import { getAllComponents } from '../../src/utils/registry.js';
+import { CREATE_VITE_VERSION } from '../../src/constants.js';
 
 const TEST_DIR = path.resolve(__dirname, '../.tmp-e2e-free-consumer-tsc');
 const CLI_PATH = path.resolve(__dirname, '../../dist/index.js');
@@ -109,10 +110,14 @@ describe('Free consumer tsc tracer', () => {
     await fs.remove(TEST_DIR);
     await fs.ensureDir(TEST_DIR);
 
-    await execa('pnpm', ['create', 'vite', '.', '--template', 'react-ts'], {
-      cwd: TEST_DIR,
-      env: { ...process.env },
-    });
+    await execa(
+      'pnpm',
+      ['create', `vite@${CREATE_VITE_VERSION}`, '.', '--template', 'react-ts'],
+      {
+        cwd: TEST_DIR,
+        env: { ...process.env },
+      }
+    );
 
     const init = await runCli([
       'init',
