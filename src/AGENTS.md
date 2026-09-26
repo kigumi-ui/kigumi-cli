@@ -272,16 +272,17 @@ Generates `kigumi.ts`, `layers.css`, `theme.css`, `vite-env.d.ts`, and — for N
 
 Converts between PascalCase, kebab-case and camelCase. Used for Angular's lowercase file naming convention and tag name construction (`ButtonGroup` -> `button-group`), and by the three template generators to turn Web Awesome event names into per-framework handler names.
 
-| Export            | Direction                                              |
-| ----------------- | ------------------------------------------------------ |
-| `toKebabCase()`   | PascalCase -> kebab-case (`QRCode` -> `qr-code`)       |
-| `toPascalCase()`  | kebab-case -> PascalCase (`after-hide` -> `AfterHide`) |
-| `toCamelCase()`   | kebab-case -> camelCase (`after-hide` -> `afterHide`)  |
-| `stripWaPrefix()` | drops a leading `wa-` from an event name               |
+| Export                  | Direction                                                                        |
+| ----------------------- | -------------------------------------------------------------------------------- |
+| `toKebabCase()`         | PascalCase -> kebab-case (`QRCode` -> `qr-code`)                                 |
+| `toPascalCase()`        | kebab-case -> PascalCase (`after-hide` -> `AfterHide`)                           |
+| `toCamelCase()`         | kebab-case -> camelCase (`after-hide` -> `afterHide`)                            |
+| `stripWaPrefix()`       | drops a leading `wa-` from an event name                                         |
+| `toAngularOutputName()` | event -> Angular `@Output()` name (`blur` with a `blur()` method -> `blurEvent`) |
 
 The two directions are not mirror images. `toKebabCase` has to decide where a run of capitals ends, so it carries a second replace: without it `QRCode` becomes `qrcode` rather than `qr-code` and silently misses every registry and metadata lookup keyed by the kebab name (issue #31). `toPascalCase` only joins parts already separated by hyphens, so it needs no such rule.
 
-Generators build their distinct handler names on these primitives rather than re-deriving them — React `onAfterHide`, Vue `WaAfterHide`, Angular `afterHide`, including Angular's `input` -> `inputEvent` collision rule. Do not add a fifth casing helper to a generator; extend this module.
+Generators build their distinct handler names on these primitives rather than re-deriving them — React `onAfterHide`, Vue `WaAfterHide`, Angular `afterHide`. Angular's whole `@Output()` rule lives here as `toAngularOutputName(event, taken)`: `input` always becomes `inputEvent`, and a name already taken by a public method or `@Input()` gets an `Event` suffix, since outputs share the class namespace. The Angular generator and the Angular function harness both call it, so the name a Template declares and the name the harness binds cannot drift apart (issue #77). Do not add a fifth casing helper to a generator; extend this module.
 
 ### `utils/template.ts` - Materialization + Extension Utilities
 
@@ -512,7 +513,7 @@ output.error('Failed to install');
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-26
+**Last Updated:** 2026-09-27
 
 - `validate:cem-sync` gained attribute-name drift detection (`checkAttributeDrift`), a `GLOBAL_ATTRIBUTE_ALLOWLIST` + `COMPONENT_ATTRIBUTE_ALLOWLIST`, and a `stale-allowlist-entry` error so an allowlist entry can't go stale (surfaced prop, attribute removed upstream, or component gone); names are kebab-cased on both sides via `toKebabCase`, since the CEM lists some attributes under camelCase names; `Attribute drift` is now reported separately from `Prop-value drift` in the summary, issue #100
 - `ComponentMetadata` gained `attributes` (boolean-vs-string `type`, omitted when the CEM has none, e.g. `did-ssr`); the Dialog function harness reads them from `COMPONENT_METADATA.dialog` instead of a live CEM read at test time, issue #105
@@ -530,3 +531,4 @@ output.error('Failed to install');
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
 - `ComponentMetadata` and the CSS-metadata interfaces live in `src/utils/metadata-types.ts`; generated modules import and re-export them rather than re-declaring the shape, issue #34
 - `detectTier` / `detectTierSync` only ignore invalid JSON from `package.json`; other read failures propagate, and the installed free package wins over a Pro token
+- `utils/naming.ts` gained `toAngularOutputName`, the Angular `@Output()` name including both `Event`-suffix rules, moved out of the Angular generator so the Angular function harness binds the same names the Templates declare, issue #77

@@ -233,16 +233,17 @@ All Kigumi Angular components use `k-` prefix (e.g., `<k-button>`, `<k-dialog>`)
 
 ### 10. Angular: Event Collision Suffixes
 
-Native DOM events collide with Angular lifecycle methods. The `@Output()` names use suffixes:
+An `@Output()` shares the component class namespace with its public methods and `@Input()`s, so a name already taken there gets an `Event` suffix. `input` always does, since it reads as the `@Input()` decorator. The rule is `toAngularOutputName()` in `src/utils/naming.ts`, shared by the generator and the Angular function harness:
 
-| WA Event | Angular @Output() |
-| -------- | ----------------- |
-| `blur`   | `blurEvent`       |
-| `focus`  | `focusEvent`      |
-| `show`   | `showEvent`       |
-| `input`  | `inputEvent`      |
+| WA Event     | Angular @Output() | Why                                                    |
+| ------------ | ----------------- | ------------------------------------------------------ |
+| `input`      | `inputEvent`      | always                                                 |
+| `blur`       | `blurEvent`       | form controls have a public `blur()` method            |
+| `focus`      | `focusEvent`      | form controls have a public `focus()` method           |
+| `wa-show`    | `showEvent`       | only with a public `show()` (e.g. Tooltip, Select)     |
+| `wa-invalid` | `invalidEvent`    | only with an `invalid` input (e.g. Select, RadioGroup) |
 
-Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` -> `afterShow`.
+Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` -> `afterShow`, and Dialog's `wa-show` -> `show` (its `show()` is private since WA 3.5.0).
 
 ### 11. Angular: CVA for Form Controls
 
@@ -1093,7 +1094,7 @@ pnpm release-readiness:quick         # skip e2e
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-26
+**Maintained by:** AI Assistants | **Last Updated:** 2026-09-27
 
 - the CSS-template emitter is one shared generateCssTemplate in scripts/generator-utils.ts rather than three copies; the Angular copy had drifted and silently ignored cssInfo.docsUrl, see issue #30
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
@@ -1121,3 +1122,4 @@ pnpm release-readiness:quick         # skip e2e
 - scripts/is-entry-point.ts: parse-custom-elements and the React/Angular generators decide "run main()" on real paths; the plain argv[1] compare skipped main() and exited 0 when invoked through a symlink, issue #106
 - validate:cem-sync checks attribute names, not just enum values: `checkAttributeDrift()` warns on a CEM attribute with no registry prop, and a stale `COMPONENT_ATTRIBUTE_ALLOWLIST` entry is an error; names are kebab-cased on both sides via `toKebabCase`, so camelCase CEM names like `submenuOpen` stay matchable, issue #100
 - `scripts/check-upstream-versions.ts` no longer reports Web Awesome (that's `wa-upgrade`'s job, avoiding a duplicate weekly comment) and reads `scripts/upstream-holds.json` so an already-triaged toolchain major (TypeScript 7, Vitest 5) stops re-firing the weekly comment every week; a hold covers its whole major, not just the exact patch on npm when it was written
+- the Angular `@Output()` naming rule moved from the generator into `toAngularOutputName()` in `src/utils/naming.ts`, shared with the Angular function harness; rule 10 now states it as a class-namespace collision (methods and `@Input()`s) rather than a lifecycle-method one, issue #77

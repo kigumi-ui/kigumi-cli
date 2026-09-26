@@ -11,6 +11,7 @@
  * - toPascalCase() - kebab-case to PascalCase (e.g., after-hide -> AfterHide)
  * - toCamelCase() - kebab-case to camelCase (e.g., after-hide -> afterHide)
  * - stripWaPrefix() - drops the leading 'wa-' from an event name
+ * - toAngularOutputName() - the Angular @Output() name for an event
  *
  * The two directions are not mirror images. toKebabCase has to decide where a
  * run of capitals ends (QRCode -> qr-code); toPascalCase only ever joins parts
@@ -77,4 +78,29 @@ export function toCamelCase(name: string): string {
  */
 export function stripWaPrefix(eventName: string): string {
   return eventName.startsWith('wa-') ? eventName.slice(3) : eventName;
+}
+
+/**
+ * The Angular @Output() name for a Web Awesome event.
+ *
+ * Strips 'wa-' and camelCases, then suffixes 'Event' where the plain name
+ * cannot be used: 'input' always (it reads as the @Input() decorator), and any
+ * name in `taken`, the component's public methods and @Input() names. Outputs
+ * share one class namespace with both, so `blur()` forces `blurEvent`.
+ *
+ * Shared by the Angular generator and the Angular function harness, so the
+ * name a Template declares and the name the harness binds cannot drift apart.
+ *
+ * Examples:
+ * - wa-after-hide -> afterHide
+ * - input -> inputEvent
+ * - blur, with a blur() method -> blurEvent
+ */
+export function toAngularOutputName(
+  eventName: string,
+  taken: ReadonlySet<string>
+): string {
+  const camel = toCamelCase(stripWaPrefix(eventName));
+  const name = camel === 'input' ? 'inputEvent' : camel;
+  return taken.has(name) ? `${name}Event` : name;
 }
