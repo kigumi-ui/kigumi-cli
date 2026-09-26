@@ -53,7 +53,7 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import ts from 'typescript';
-import { parse as parseSfc } from 'vue/compiler-sfc';
+import { parse as parseSfc, type SFCScriptBlock } from 'vue/compiler-sfc';
 import {
   resolveCem,
   assessCemCompleteness,
@@ -213,7 +213,7 @@ export function diffSubset(
   return [...subset].filter((member) => !superset.has(member)).sort();
 }
 
-export interface VueSurface {
+interface VueSurface {
   /** Event names declared in `defineEmits`. */
   emits: Set<string>;
   /** Event names passed to `addEventListener`, i.e. the host listeners. */
@@ -296,16 +296,19 @@ function eventLiterals(type: ts.TypeNode | undefined): string[] | undefined {
     : undefined;
 }
 
+/** The two macros whose arguments declare names this reader enumerates. */
+type DeclaringMacro = 'defineEmits' | 'defineProps';
+
 /**
  * The names one member of a macro's type argument declares: a property or
- * method name, or the events an event call signature admits. `undefined`
- * when the member has no literal name to read.
+ * method name, or, for `defineEmits` only, the events a call signature
+ * admits. `undefined` when the member has no literal name to read.
  */
 function typeMemberNames(
   member: ts.TypeElement,
-  { callSignatures }: { callSignatures: boolean }
+  macro: DeclaringMacro
 ): string[] | undefined {
-  if (callSignatures && ts.isCallSignatureDeclaration(member)) {
+  if (macro === 'defineEmits' && ts.isCallSignatureDeclaration(member)) {
     return eventLiterals(member.parameters[0]?.type);
   }
   if (ts.isPropertySignature(member) || ts.isMethodSignature(member)) {
@@ -322,8 +325,8 @@ function typeMemberNames(
  */
 function declaredNames(
   call: ts.CallExpression,
+  macro: DeclaringMacro,
   script: ts.SourceFile,
-  { callSignatures }: { callSignatures: boolean },
   report: (problem: string) => void
 ): string[] {
   const names: string[] = [];
@@ -349,7 +352,7 @@ function declaredNames(
   const [type] = call.typeArguments ?? [];
   if (type) {
     for (const member of typeMembers(type, script, report)) {
-      const memberNames = typeMemberNames(member, { callSignatures });
+      const memberNames = typeMemberNames(member, macro);
       if (memberNames) names.push(...memberNames);
       else report(`${snippet(member)} has no literal name`);
     }
@@ -372,11 +375,71 @@ function modelName(
   return undefined;
 }
 
-/** The `<script setup lang>` values this reader parses: the two generated. */
+/** The `<script lang>` values this reader parses: the two generated. */
 const SCRIPT_KINDS = new Map<string, ts.ScriptKind>([
   ['js', ts.ScriptKind.JS],
   ['ts', ts.ScriptKind.TS],
 ]);
+
+/**
+ * Options a plain `<script>` may set beside `<script setup>` that declare no
+ * surface. `props`, `emits` and `model` do declare it, and any other option
+ * is not known not to, so both are reported rather than skipped.
+ */
+const SURFACELESS_OPTIONS = new Set(['name', 'inheritAttrs']);
+
+/**
+ * Check that a plain `<script>` block declares no surface. Vue merges its
+ * default export into the component, so an `emits` or `props` there is
+ * surface the `<script setup>` reading never sees. Imports, type
+ * declarations and an `export default` whose keys are all in
+ * {@link SURFACELESS_OPTIONS} (`export default { name: 'Button' }`) declare
+ * nothing. Anything else goes to `report`.
+ */
+function readPlainScript(
+  block: SFCScriptBlock,
+  report: (problem: string) => void
+): void {
+  const scriptKind = SCRIPT_KINDS.get(block.lang ?? 'js');
+  if (scriptKind === undefined) {
+    report(`lang="${block.lang}" is not JavaScript or TypeScript`);
+    return;
+  }
+  const script = ts.createSourceFile(
+    'script.ts',
+    block.content,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKind
+  );
+  for (const statement of script.statements) {
+    if (
+      ts.isImportDeclaration(statement) ||
+      ts.isInterfaceDeclaration(statement) ||
+      ts.isTypeAliasDeclaration(statement)
+    ) {
+      continue;
+    }
+    if (
+      ts.isExportAssignment(statement) &&
+      !statement.isExportEquals &&
+      ts.isObjectLiteralExpression(statement.expression)
+    ) {
+      for (const property of statement.expression.properties) {
+        const name =
+          ts.isPropertyAssignment(property) ||
+          ts.isShorthandPropertyAssignment(property)
+            ? staticName(property.name)
+            : undefined;
+        if (name === undefined || !SURFACELESS_OPTIONS.has(name)) {
+          report(`${snippet(property)} is not read`);
+        }
+      }
+      continue;
+    }
+    report(`${snippet(statement)} is not read`);
+  }
+}
 
 /**
  * Extract the declared surface of a Vue Template, either dialect: the
@@ -392,11 +455,11 @@ const SCRIPT_KINDS = new Map<string, ts.ScriptKind>([
  * Only literal declarations are enumerable: string arrays, object keys, type
  * literals, and interfaces or type-literal aliases declared in the same
  * block. Anything else (a variable, a spread, an imported type, a parse
- * error, a plain `<script>` block) lands in `unreadable` with the code at
- * fault. It is never read as "declares nothing", which Check C would take
- * for a subset of anything.
+ * error, a plain `<script>` option other than `name` or `inheritAttrs`)
+ * lands in `unreadable` with the code at fault. It is never read as
+ * "declares nothing", which Check C would take for a subset of anything.
  */
-export function extractVueSurface(source: string): VueSurface {
+function extractVueSurface(source: string): VueSurface {
   const surface: VueSurface = {
     emits: new Set(),
     listeners: new Set(),
@@ -417,10 +480,9 @@ export function extractVueSurface(source: string): VueSurface {
     return surface;
   }
   if (descriptor.script) {
-    surface.unreadable.push(
-      'a plain <script> block, whose options are not read'
-    );
-    return surface;
+    readPlainScript(descriptor.script, (problem) => {
+      surface.unreadable.push(`plain <script>: ${problem}`);
+    });
   }
   const scriptKind = SCRIPT_KINDS.get(block.lang ?? 'js');
   if (scriptKind === undefined) {
@@ -450,21 +512,13 @@ export function extractVueSurface(source: string): VueSurface {
       surface.unreadable.push(`${name}: ${problem}`);
     };
     if (name === 'defineEmits') {
-      const events = declaredNames(
-        call,
-        script,
-        { callSignatures: true },
-        report
-      );
-      for (const event of events) surface.emits.add(event);
+      for (const event of declaredNames(call, name, script, report)) {
+        surface.emits.add(event);
+      }
     } else if (name === 'defineProps') {
-      const props = declaredNames(
-        call,
-        script,
-        { callSignatures: false },
-        report
-      );
-      for (const prop of props) surface.props.add(prop);
+      for (const prop of declaredNames(call, name, script, report)) {
+        surface.props.add(prop);
+      }
     } else if (name === 'defineModel') {
       const prop = modelName(call, report);
       if (prop) surface.props.add(prop);
@@ -549,12 +603,12 @@ async function checkDocsWrapperCss(): Promise<Finding[]> {
 // ── Check C: JS-variant subset parity ────────────────────────────────────────
 
 /**
- * Check C for one Vue Template: every event the `.js.vue` emits or listens
- * for, and every prop it declares, must exist in the `.vue`. A variant the
+ * Check C for one component's two Vue Templates: every event the `.js.vue`
+ * emits or listens for, and every prop it declares, must exist in the `.vue`. A variant the
  * reader cannot enumerate is reported instead of compared, because its sets
  * would be incomplete and an empty set is a subset of anything.
  */
-export function compareVueVariants(
+function compareVueVariants(
   component: string,
   tsSource: string,
   jsSource: string
@@ -588,7 +642,7 @@ export function compareVueVariants(
   return findings;
 }
 
-/** One Template directory's two variants, both read. */
+/** One component directory's two Templates, both read. */
 interface VariantPair {
   name: string;
   tsSource: string;
@@ -596,9 +650,9 @@ interface VariantPair {
 }
 
 /**
- * Every Template directory under `dir` that holds both `<Name><tsExt>` and
- * `<Name><jsExt>`, with both files read. A directory missing either variant
- * is skipped: that is `validate:templates`' finding, not Check C's.
+ * Every component directory under `dir` that holds both `<Name><tsExt>` and
+ * `<Name><jsExt>`, with both Templates read. A directory missing either
+ * variant is skipped: that is `validate:templates`' finding, not Check C's.
  */
 async function readVariantPairs(
   dir: string,
@@ -625,11 +679,13 @@ async function readVariantPairs(
 }
 
 /**
- * What one arm of Check C found, and how many Templates it compared, so the
- * caller can tell "nothing drifted" from "nothing was compared" (ADR 0003).
+ * What one arm of Check C found, and how many TypeScript/JavaScript Template
+ * pairs it compared, so the caller can tell "nothing drifted" from "nothing
+ * was compared" (ADR 0003).
  */
-export interface VariantSubsetResult {
+interface VariantSubsetResult {
   findings: Finding[];
+  /** Pairs compared: one per component directory holding both variants. */
   pairs: number;
 }
 
@@ -637,7 +693,7 @@ export interface VariantSubsetResult {
  * Check C across a React templates directory: every event a `.jsx` wires
  * must also be wired by its `.tsx`.
  */
-export async function checkReactJsVariantSubset(
+async function checkReactJsVariantSubset(
   templatesDir: string
 ): Promise<VariantSubsetResult> {
   const findings: Finding[] = [];
@@ -662,7 +718,7 @@ export async function checkReactJsVariantSubset(
  * Check C across a Vue templates directory: every event a `.js.vue` emits or
  * listens for, and every prop it declares, must exist in its `.vue`.
  */
-export async function checkVueJsVariantSubset(
+async function checkVueJsVariantSubset(
   templatesDir: string
 ): Promise<VariantSubsetResult> {
   const pairs = await readVariantPairs(templatesDir, '.vue', '.js.vue');
@@ -695,7 +751,7 @@ async function checkJsVariantSubset(): Promise<Finding[]> {
       findings.push({
         check: 'C',
         component: dir,
-        message: `no Template holds both ${variants}, so nothing was compared`,
+        message: `no component directory holds both ${variants} Templates, so nothing was compared`,
       });
     }
   }
@@ -1029,3 +1085,14 @@ const invokedDirectly = process.argv[1]
 if (invokedDirectly) {
   void main();
 }
+
+// Test-only seams: Check C's Vue reader and both arms' walks, asserted
+// directly by tests/unit/scripts/check-generated-fresh.test.ts so each
+// refusal and each walk can be pinned without running the whole guard.
+export {
+  extractVueSurface,
+  compareVueVariants,
+  checkReactJsVariantSubset,
+  checkVueJsVariantSubset,
+};
+export type { VueSurface, VariantSubsetResult };

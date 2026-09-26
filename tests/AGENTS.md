@@ -708,6 +708,15 @@ helper's logic in isolation. Current cases:
   file that re-declares `ComponentMetadata` (or the CSS types) instead of
   importing `src/utils/metadata-types.ts` fails without a live CEM (issue #34).
 
+- `extractVueSurface`, `compareVueVariants`, `checkReactJsVariantSubset` and
+  `checkVueJsVariantSubset` in `scripts/check-generated-fresh.ts` — Check C's
+  Vue SFC reader, its per-component comparer, and both arms' walks, asserted
+  directly by `tests/unit/scripts/check-generated-fresh.test.ts`. Re-exported
+  at the bottom of the module so each declaration the reader refuses, and each
+  walk's pair count, can be pinned without running the whole guard (issue
+  #122). The older helpers in that file (`extractReactSurface`, `diffSubset`,
+  the CSS matchers) are still exported inline.
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
@@ -876,3 +885,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - package-json-read-error.test.ts pins the full rendered error block and fix note for EISDIR, EACCES and invalid JSON (only Node's parser message is matched by prefix), adds `palette` and `theme set` to the detect-before-write checks, and compares kigumi.config.json as bytes written compact, so even a same-value rewrite by saveConfig fails; detectTierSync tests were dropped with the function, their async twins stay
 - check-generated-fresh.test.ts covers Check C's Vue arm, issue #122: `extractVueSurface` on literal SFCs of both dialects and on each form it refuses to read, `compareVueVariants`, and `checkVueJsVariantSubset` on a temp tree and on the committed Templates, which must yield one pair per registry component. Each committed `.vue` and `.js.vue` is also compiled by Vue and its props and emits compared with the reader's, so the reader is proven on real input, not only on snippets. Listener extraction has no compiler to check against and is pinned by the literal tests alone
 - check-generated-fresh.test.ts also walks templates/react through `checkReactJsVariantSubset` on a temp tree and on the committed Templates, so a React arm that compared nothing fails the suite as well as the guard, issue #122
+- registered Check C's four test-only exports (`extractVueSurface`, `compareVueVariants`, and both arms' walks) in the "Internals Exported for Test Coverage" list and moved them to the bottom of check-generated-fresh.ts. The React and Vue walk tests are one `it.each` over both arms, and a plain `<script>` that only sets `name` or `inheritAttrs` is now read as declaring nothing; bug-injected: call signatures read for `defineProps`, a React arm reporting zero pairs, and `emits` allowlisted each go red, issue #122

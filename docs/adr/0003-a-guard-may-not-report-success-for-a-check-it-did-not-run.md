@@ -133,6 +133,12 @@ Exactly one was the bug. A syntactic rule keyed on this shape would produce ten
 false positives, and the noise would be worse than the defect: a rule that is
 suppressed everywhere teaches people to suppress it.
 
+Line numbers are as of commit `21511e2b`, when the list was taken. One entry
+has since gone: `check-generated-fresh.ts:275` became `readVariantPairs`, which
+still returns `[]` for an absent directory, but since issue #122 its caller
+counts the pairs compared and fails on zero. That is this ADR applied, not the
+shape removed.
+
 Read the list rather than the count. `validate-cem-sync.ts:239` is the _fixed_
 cem-sync guard, and the four `check-generated-fresh.ts` entries return empty
 when a path is absent. All eleven are indistinguishable, as text, from the

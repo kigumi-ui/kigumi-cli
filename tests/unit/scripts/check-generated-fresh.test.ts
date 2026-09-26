@@ -346,6 +346,19 @@ describe('extractVueSurface (declarations it cannot enumerate)', () => {
     }
   });
 
+  it('reads a plain <script> that only names the component as declaring nothing', () => {
+    // The usual SFC naming idiom, which Check C must not fail on (PR #124).
+    const surface = extractVueSurface(
+      '<script lang="ts">\n' +
+        "import type { WaButton } from '@awesome.me/webawesome';\n" +
+        "export default { name: 'Button', inheritAttrs: false };\n" +
+        '</script>\n' +
+        tsSfc('defineEmits<{ blur: [event: FocusEvent] }>();')
+    );
+    expect(surface.unreadable).toEqual([]);
+    expect(surface.emits).toEqual(new Set(['blur']));
+  });
+
   it.each([
     [
       'a runtime declaration held in a variable',
@@ -414,10 +427,28 @@ describe('extractVueSurface (declarations it cannot enumerate)', () => {
       'no <script setup> block',
     ],
     [
-      'a plain <script> block beside <script setup>',
+      'a surface option in a plain <script> block',
       "<script>\nexport default { emits: ['wa-ghost'] };\n</script>\n" +
         jsSfc("defineEmits(['blur']);"),
-      'a plain <script> block, whose options are not read',
+      "plain <script>: emits: ['wa-ghost'] is not read",
+    ],
+    [
+      'a plain <script> option not known to declare nothing',
+      '<script>\nexport default { mixins: [shared] };\n</script>\n' +
+        jsSfc("defineEmits(['blur']);"),
+      'plain <script>: mixins: [shared] is not read',
+    ],
+    [
+      'a plain <script> default export that is not an object literal',
+      "<script>\nexport default defineComponent({ name: 'Button' });\n</script>\n" +
+        jsSfc("defineEmits(['blur']);"),
+      "plain <script>: export default defineComponent({ name: 'Button' }); is not read",
+    ],
+    [
+      'a plain <script> statement other than an import or type',
+      '<script>\nconst EMITS = [];\n</script>\n' +
+        jsSfc("defineEmits(['blur']);"),
+      'plain <script>: const EMITS = []; is not read',
     ],
     [
       'a script language that is not JavaScript or TypeScript',
@@ -544,57 +575,6 @@ describe('compareVueVariants', () => {
   });
 });
 
-describe('checkVueJsVariantSubset', () => {
-  let templatesDir: string;
-
-  beforeEach(async () => {
-    templatesDir = await fs.mkdtemp(path.join(os.tmpdir(), 'check-c-vue-'));
-  });
-
-  afterEach(async () => {
-    await fs.remove(templatesDir);
-  });
-
-  it('compares every directory holding both variants and names the Template', async () => {
-    await fs.outputFile(
-      path.join(templatesDir, 'Button', 'Button.vue'),
-      tsSfc('defineEmits<{ blur: [event: FocusEvent] }>();')
-    );
-    await fs.outputFile(
-      path.join(templatesDir, 'Button', 'Button.js.vue'),
-      jsSfc("defineEmits(['blur', 'wa-ghost']);")
-    );
-    // Missing variants are validate:templates' finding, not this check's.
-    await fs.outputFile(
-      path.join(templatesDir, 'Badge', 'Badge.vue'),
-      tsSfc('defineEmits<{ blur: [event: FocusEvent] }>();')
-    );
-    await fs.outputFile(path.join(templatesDir, 'tsconfig.json'), '{}');
-
-    expect(await checkVueJsVariantSubset(templatesDir)).toEqual({
-      findings: [
-        {
-          check: 'C',
-          component: 'Button',
-          message: '.js.vue emits events absent from .vue: wa-ghost',
-        },
-      ],
-      pairs: 1,
-    });
-  });
-});
-
-describe('Check C on the committed Vue Templates', () => {
-  it('compares one pair per registry component and finds no drift', async () => {
-    const { findings, pairs } = await checkVueJsVariantSubset(
-      path.join(REPO_ROOT, 'templates', 'vue')
-    );
-    expect(findings).toEqual([]);
-    // The premise: a walk that compared nothing would also find nothing.
-    expect(pairs).toBe(Object.keys(LOCAL_REGISTRY).length);
-  });
-});
-
 describe('extractVueSurface on the committed Templates, against the Vue compiler', () => {
   interface CompiledSfc {
     props?: Record<string, unknown> | string[];
@@ -646,49 +626,72 @@ describe('extractVueSurface on the committed Templates, against the Vue compiler
   }
 });
 
-describe('checkReactJsVariantSubset', () => {
+/** Check C's two arms, each with a Template pair that drifts by one event. */
+const CHECK_C_ARMS = [
+  {
+    arm: 'Vue',
+    dir: 'vue',
+    check: checkVueJsVariantSubset,
+    tsFile: 'Button.vue',
+    tsSource: tsSfc('defineEmits<{ blur: [event: FocusEvent] }>();'),
+    jsFile: 'Button.js.vue',
+    jsSource: jsSfc("defineEmits(['blur', 'wa-ghost']);"),
+    message: '.js.vue emits events absent from .vue: wa-ghost',
+  },
+  {
+    arm: 'React',
+    dir: 'react',
+    check: checkReactJsVariantSubset,
+    tsFile: 'Button.tsx',
+    tsSource: "el.addEventListener('blur', handleBlur);",
+    jsFile: 'Button.jsx',
+    jsSource:
+      "el.addEventListener('blur', handleBlur);\nel.addEventListener('wa-ghost', handleGhost);",
+    message: '.jsx wires events absent from .tsx: wa-ghost',
+  },
+];
+
+describe('Check C walks on a temp tree', () => {
   let templatesDir: string;
 
   beforeEach(async () => {
-    templatesDir = await fs.mkdtemp(path.join(os.tmpdir(), 'check-c-react-'));
+    templatesDir = await fs.mkdtemp(path.join(os.tmpdir(), 'check-c-'));
   });
 
   afterEach(async () => {
     await fs.remove(templatesDir);
   });
 
-  it('compares every directory holding both variants and names the Template', async () => {
-    await fs.outputFile(
-      path.join(templatesDir, 'Button', 'Button.tsx'),
-      "el.addEventListener('blur', handleBlur);"
-    );
-    await fs.outputFile(
-      path.join(templatesDir, 'Button', 'Button.jsx'),
-      "el.addEventListener('blur', handleBlur);\nel.addEventListener('wa-ghost', handleGhost);"
-    );
-    // Missing variants are validate:templates' finding, not this check's.
-    await fs.outputFile(path.join(templatesDir, 'Badge', 'Badge.tsx'), '');
+  it.each(CHECK_C_ARMS)(
+    '$arm: compares every directory holding both variants and names the component',
+    async ({ check, tsFile, tsSource, jsFile, jsSource, message }) => {
+      await fs.outputFile(path.join(templatesDir, 'Button', tsFile), tsSource);
+      await fs.outputFile(path.join(templatesDir, 'Button', jsFile), jsSource);
+      // Missing variants are validate:templates' finding, not this check's.
+      await fs.outputFile(
+        path.join(templatesDir, 'Badge', tsFile.replace('Button', 'Badge')),
+        tsSource
+      );
+      await fs.outputFile(path.join(templatesDir, 'tsconfig.json'), '{}');
 
-    expect(await checkReactJsVariantSubset(templatesDir)).toEqual({
-      findings: [
-        {
-          check: 'C',
-          component: 'Button',
-          message: '.jsx wires events absent from .tsx: wa-ghost',
-        },
-      ],
-      pairs: 1,
-    });
-  });
+      expect(await check(templatesDir)).toEqual({
+        findings: [{ check: 'C', component: 'Button', message }],
+        pairs: 1,
+      });
+    }
+  );
 });
 
-describe('Check C on the committed React Templates', () => {
-  it('compares one pair per registry component and finds no drift', async () => {
-    const { findings, pairs } = await checkReactJsVariantSubset(
-      path.join(REPO_ROOT, 'templates', 'react')
-    );
-    expect(findings).toEqual([]);
-    // The premise: a walk that compared nothing would also find nothing.
-    expect(pairs).toBe(Object.keys(LOCAL_REGISTRY).length);
-  });
+describe('Check C on the committed Templates', () => {
+  it.each(CHECK_C_ARMS)(
+    '$arm: compares one pair per registry component and finds no drift',
+    async ({ check, dir }) => {
+      const { findings, pairs } = await check(
+        path.join(REPO_ROOT, 'templates', dir)
+      );
+      expect(findings).toEqual([]);
+      // The premise: a walk that compared nothing would also find nothing.
+      expect(pairs).toBe(Object.keys(LOCAL_REGISTRY).length);
+    }
+  );
 });
