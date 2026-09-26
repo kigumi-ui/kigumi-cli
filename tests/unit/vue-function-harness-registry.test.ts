@@ -7,7 +7,8 @@
  * methods on `defineExpose`, and class forwarding. JavaScript `.js.vue`
  * variants stay out of this loop. Unlike React's `.jsx`, they have no
  * JS-is-a-subset-of-TS check yet (Check C in `check-generated-fresh.ts` is
- * React-only); until one exists, `vue-templates.test.ts` is their only gate.
+ * React-only, #122); until one exists, `vue-templates.test.ts` is their only
+ * gate.
  *
  * The SFCs compile through `vitest.vue-plugin.ts` with the same
  * `isCustomElement` rule `kigumi init` writes for consumers, and Web Awesome
