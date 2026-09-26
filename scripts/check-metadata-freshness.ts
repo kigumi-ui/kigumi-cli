@@ -18,6 +18,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { resolveCem } from './find-cem.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,9 +84,6 @@ async function main(): Promise<void> {
 }
 
 // Run only when invoked directly, not when imported by tests
-const invokedDirectly = process.argv[1]
-  ? path.resolve(process.argv[1]) === __filename
-  : false;
-if (invokedDirectly) {
+if (isEntryPoint(import.meta.url)) {
   void main();
 }

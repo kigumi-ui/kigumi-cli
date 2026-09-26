@@ -31,8 +31,8 @@
 
 import { execFileSync } from 'child_process';
 import fs from 'fs-extra';
-import { fileURLToPath } from 'url';
 import pc from 'picocolors';
+import { isEntryPoint } from './is-entry-point.js';
 
 // ── Pure matcher ────────────────────────────────────────────────────────────
 
@@ -247,6 +247,6 @@ function main(): void {
 }
 
 // Only run when executed directly, not when imported (keeps the script testable)
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isEntryPoint(import.meta.url)) {
   main();
 }

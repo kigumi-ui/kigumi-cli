@@ -32,6 +32,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pc from 'picocolors';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -253,7 +254,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  console.error(pc.red(String(err)));
-  process.exit(1);
-});
+if (isEntryPoint(import.meta.url)) {
+  main().catch((err) => {
+    console.error(pc.red(String(err)));
+    process.exit(1);
+  });
+}

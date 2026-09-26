@@ -14,6 +14,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import pc from 'picocolors';
 import { fileURLToPath } from 'url';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -134,7 +135,9 @@ async function main() {
   console.log(pc.green(pc.bold('\n✓ All verification checks passed!\n')));
 }
 
-main().catch((error) => {
-  console.error(pc.red('Verification failed:'), error);
-  process.exit(1);
-});
+if (isEntryPoint(import.meta.url)) {
+  main().catch((error) => {
+    console.error(pc.red('Verification failed:'), error);
+    process.exit(1);
+  });
+}

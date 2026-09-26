@@ -15,9 +15,8 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { isEntryPoint } from './is-entry-point.js';
 
-const __filename = fileURLToPath(import.meta.url);
 const CHANGELOG_PATH = resolve(import.meta.dirname, '..', 'CHANGELOG.md');
 const AGENTS_PATH = resolve(import.meta.dirname, '..', 'AGENTS.md');
 const LLMS_PATH = resolve(import.meta.dirname, '..', 'llms.txt');
@@ -316,6 +315,6 @@ function run(): void {
   }
 }
 
-if (process.argv[1] === __filename) {
+if (isEntryPoint(import.meta.url)) {
   run();
 }

@@ -40,6 +40,7 @@ import path from 'path';
 import pc from 'picocolors';
 import { collectPins } from './validate-wa-pins.js';
 import { DEFAULT_WEBAWESOME_VERSION } from '../src/constants.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const PACKAGE = '@awesome.me/webawesome';
 const CEM_SUBPATH = 'package/dist/custom-elements.json';
@@ -375,6 +376,6 @@ function main(): void {
   process.exit(0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isEntryPoint(import.meta.url)) {
   main();
 }

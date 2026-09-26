@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { execaSync } from 'execa';
 import pc from 'picocolors';
 import semver from 'semver';
+import { isEntryPoint } from './is-entry-point.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.dirname(__dirname);
@@ -418,9 +419,6 @@ function main(): void {
   process.exit(decision.go ? 0 : 1);
 }
 
-const isMain =
-  process.argv[1] &&
-  fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
-if (isMain) {
+if (isEntryPoint(import.meta.url)) {
   main();
 }
