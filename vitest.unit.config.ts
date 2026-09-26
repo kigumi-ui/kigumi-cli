@@ -1,6 +1,10 @@
 import { defineConfig } from 'vitest/config';
+import { WA_COMPONENT_STUB_ALIAS } from './vitest.wa-stub-alias.js';
 
 export default defineConfig({
+  resolve: {
+    alias: [WA_COMPONENT_STUB_ALIAS],
+  },
   test: {
     testTimeout: 30000,
     hookTimeout: 30000,
