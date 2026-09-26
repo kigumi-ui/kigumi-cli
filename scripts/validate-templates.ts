@@ -24,6 +24,7 @@ import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { getAllComponents } from '../src/utils/registry.js';
 import { toKebabCase } from '../src/utils/naming.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 type SupportedFramework = 'react' | 'vue' | 'angular';
 
@@ -366,4 +367,6 @@ async function main() {
   }
 }
 
-main();
+if (isEntryPoint(import.meta.url)) {
+  main();
+}

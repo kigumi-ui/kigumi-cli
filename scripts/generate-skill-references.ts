@@ -24,6 +24,7 @@ import {
   stripWaPrefix,
 } from '../src/utils/naming.js';
 import { resolveCem, assessCemCompleteness } from './find-cem.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const PROJECT_ROOT = process.cwd();
 
@@ -825,7 +826,9 @@ async function main() {
 // `catch(console.error)` printed the failure and still exited 0, so a caller
 // could only tell this generator had failed by reading its log. That is the
 // same shape as issue #43: visible to a human, invisible to CI.
-main().catch((error: unknown) => {
-  console.error(error);
-  process.exit(1);
-});
+if (isEntryPoint(import.meta.url)) {
+  main().catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
