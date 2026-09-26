@@ -27,6 +27,11 @@
  *     (14/78 components). We enforce that the `.jsx` surface is a SUBSET of the
  *     `.tsx` surface — the `.jsx` may do less, but must never reference an
  *     event/prop/method the `.tsx` doesn't have (a real typo/drift).
+ *     The Vue arm holds every `.js.vue` to the same rule against its `.vue`:
+ *     its `defineEmits` names, host listeners and props (issue #122). Both
+ *     variants come from one generator, so a finding means a dialect branch
+ *     in the generator or a hand edit. A declaration the reader cannot
+ *     enumerate is a finding, and so is a run that compared no Vue Template.
  *
  *   D (starter fixtures, comment-normalized): each fixture `.css` under
  *     `tests/fixtures/starter-snapshots/` must match its source template by
@@ -47,6 +52,8 @@ import os from 'os';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
+import ts from 'typescript';
+import { parse as parseSfc } from 'vue/compiler-sfc';
 import {
   resolveCem,
   assessCemCompleteness,
@@ -206,6 +213,278 @@ export function diffSubset(
   return [...subset].filter((member) => !superset.has(member)).sort();
 }
 
+export interface VueSurface {
+  /** Event names declared in `defineEmits`. */
+  emits: Set<string>;
+  /** Event names passed to `addEventListener`, i.e. the host listeners. */
+  listeners: Set<string>;
+  /** Prop names declared in `defineProps`, plus one per `defineModel`. */
+  props: Set<string>;
+  /**
+   * Declarations found but not enumerable, each naming the code at fault.
+   * Non-empty means the sets above are incomplete and must not be compared.
+   */
+  unreadable: string[];
+}
+
+/** The literal name of a property, or `undefined` for a computed one. */
+function staticName(name: ts.PropertyName): string | undefined {
+  return ts.isIdentifier(name) || ts.isStringLiteral(name)
+    ? name.text
+    : undefined;
+}
+
+/** A node's source on one line, cut short, to name it in a finding. */
+function snippet(node: ts.Node): string {
+  const text = node.getText().replace(/\s+/g, ' ');
+  return text.length > 60 ? `${text.slice(0, 57)}...` : text;
+}
+
+/**
+ * The members of a macro's type argument: an inline type literal, or an
+ * interface or type-literal alias declared in the same `<script setup>`.
+ * Any other type goes to `report`: its members cannot be listed from here.
+ */
+function typeMembers(
+  type: ts.TypeNode,
+  script: ts.SourceFile,
+  report: (problem: string) => void
+): ts.TypeElement[] {
+  if (ts.isTypeLiteralNode(type)) return [...type.members];
+  const typeName =
+    ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName)
+      ? type.typeName.text
+      : undefined;
+  for (const statement of script.statements) {
+    if (
+      ts.isInterfaceDeclaration(statement) &&
+      statement.name.text === typeName
+    ) {
+      for (const clause of statement.heritageClauses ?? []) {
+        report(`${snippet(clause)} is not read`);
+      }
+      return [...statement.members];
+    }
+    if (
+      ts.isTypeAliasDeclaration(statement) &&
+      statement.name.text === typeName
+    ) {
+      if (ts.isTypeLiteralNode(statement.type)) {
+        return [...statement.type.members];
+      }
+      report(`${snippet(statement.type)} is not a type literal`);
+      return [];
+    }
+  }
+  report(
+    `${snippet(type)} is not a type literal or a type declared in this <script setup>`
+  );
+  return [];
+}
+
+/**
+ * The event names a call signature's first parameter admits (`'a' | 'b'`),
+ * or `undefined` when any part of that type is not a string literal.
+ */
+function eventLiterals(type: ts.TypeNode | undefined): string[] | undefined {
+  if (type && ts.isUnionTypeNode(type)) {
+    const names = type.types.map(eventLiterals);
+    return names.every((name) => name !== undefined) ? names.flat() : undefined;
+  }
+  return type && ts.isLiteralTypeNode(type) && ts.isStringLiteral(type.literal)
+    ? [type.literal.text]
+    : undefined;
+}
+
+/**
+ * The names one member of a macro's type argument declares: a property or
+ * method name, or the events an event call signature admits. `undefined`
+ * when the member has no literal name to read.
+ */
+function typeMemberNames(
+  member: ts.TypeElement,
+  { callSignatures }: { callSignatures: boolean }
+): string[] | undefined {
+  if (callSignatures && ts.isCallSignatureDeclaration(member)) {
+    return eventLiterals(member.parameters[0]?.type);
+  }
+  if (ts.isPropertySignature(member) || ts.isMethodSignature(member)) {
+    const name = staticName(member.name);
+    return name === undefined ? undefined : [name];
+  }
+  return undefined;
+}
+
+/**
+ * Names a `defineProps` / `defineEmits` call declares, in either dialect.
+ * Call signatures (`(e: 'change'): void`) declare events only, as in Vue.
+ * Anything that is not a literal name goes to `report`, never into the list.
+ */
+function declaredNames(
+  call: ts.CallExpression,
+  script: ts.SourceFile,
+  { callSignatures }: { callSignatures: boolean },
+  report: (problem: string) => void
+): string[] {
+  const names: string[] = [];
+  const [runtime] = call.arguments;
+  if (runtime && ts.isArrayLiteralExpression(runtime)) {
+    for (const element of runtime.elements) {
+      if (ts.isStringLiteralLike(element)) names.push(element.text);
+      else report(`${snippet(element)} is not a string literal`);
+    }
+  } else if (runtime && ts.isObjectLiteralExpression(runtime)) {
+    for (const property of runtime.properties) {
+      const name =
+        (ts.isPropertyAssignment(property) ||
+          ts.isShorthandPropertyAssignment(property) ||
+          ts.isMethodDeclaration(property)) &&
+        staticName(property.name);
+      if (name) names.push(name);
+      else report(`${snippet(property)} has no literal name`);
+    }
+  } else if (runtime) {
+    report(`${snippet(runtime)} is not an array or object literal`);
+  }
+  const [type] = call.typeArguments ?? [];
+  if (type) {
+    for (const member of typeMembers(type, script, report)) {
+      const memberNames = typeMemberNames(member, { callSignatures });
+      if (memberNames) names.push(...memberNames);
+      else report(`${snippet(member)} has no literal name`);
+    }
+  }
+  return names;
+}
+
+/**
+ * The prop a `defineModel` call declares: its name argument, or Vue's default
+ * `modelValue` when the call passes only options.
+ */
+function modelName(
+  call: ts.CallExpression,
+  report: (problem: string) => void
+): string | undefined {
+  const [name] = call.arguments;
+  if (!name || ts.isObjectLiteralExpression(name)) return 'modelValue';
+  if (ts.isStringLiteralLike(name)) return name.text;
+  report(`${snippet(name)} is not a string literal`);
+  return undefined;
+}
+
+/** The `<script setup lang>` values this reader parses: the two generated. */
+const SCRIPT_KINDS = new Map<string, ts.ScriptKind>([
+  ['js', ts.ScriptKind.JS],
+  ['ts', ts.ScriptKind.TS],
+]);
+
+/**
+ * Extract the declared surface of a Vue Template, either dialect: the
+ * `defineEmits` names, the `defineProps` names plus one prop per
+ * `defineModel`, and the `addEventListener` names (the host listeners).
+ *
+ * `.vue` and `.js.vue` spell the same declaration differently (an interface
+ * and a typed tuple list against an options object and a string array), and
+ * Prettier re-wraps both, so the `<script setup>` block is parsed rather than
+ * pattern-matched. Vue's own SFC parser splits the file; the TypeScript
+ * parser reads the script.
+ *
+ * Only literal declarations are enumerable: string arrays, object keys, type
+ * literals, and interfaces or type-literal aliases declared in the same
+ * block. Anything else (a variable, a spread, an imported type, a parse
+ * error, a plain `<script>` block) lands in `unreadable` with the code at
+ * fault. It is never read as "declares nothing", which Check C would take
+ * for a subset of anything.
+ */
+export function extractVueSurface(source: string): VueSurface {
+  const surface: VueSurface = {
+    emits: new Set(),
+    listeners: new Set(),
+    props: new Set(),
+    unreadable: [],
+  };
+  // Each early return leaves a reason: an SFC this reader cannot take apart
+  // must never read as one that declares nothing.
+  const { descriptor, errors } = parseSfc(source);
+  const [error] = errors;
+  if (error) {
+    surface.unreadable.push(`the SFC does not parse: ${error.message}`);
+    return surface;
+  }
+  const block = descriptor.scriptSetup;
+  if (!block) {
+    surface.unreadable.push('no <script setup> block');
+    return surface;
+  }
+  if (descriptor.script) {
+    surface.unreadable.push(
+      'a plain <script> block, whose options are not read'
+    );
+    return surface;
+  }
+  const scriptKind = SCRIPT_KINDS.get(block.lang ?? 'js');
+  if (scriptKind === undefined) {
+    surface.unreadable.push(
+      `<script setup lang="${block.lang}"> is not JavaScript or TypeScript`
+    );
+    return surface;
+  }
+
+  const script = ts.createSourceFile(
+    'script-setup.ts',
+    block.content,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKind
+  );
+  const readCall = (call: ts.CallExpression): void => {
+    const callee = call.expression;
+    // Vue compiles a macro only when it is called by its bare name.
+    const name = ts.isIdentifier(callee)
+      ? callee.text
+      : ts.isPropertyAccessExpression(callee) &&
+          callee.name.text === 'addEventListener'
+        ? 'addEventListener'
+        : undefined;
+    const report = (problem: string): void => {
+      surface.unreadable.push(`${name}: ${problem}`);
+    };
+    if (name === 'defineEmits') {
+      const events = declaredNames(
+        call,
+        script,
+        { callSignatures: true },
+        report
+      );
+      for (const event of events) surface.emits.add(event);
+    } else if (name === 'defineProps') {
+      const props = declaredNames(
+        call,
+        script,
+        { callSignatures: false },
+        report
+      );
+      for (const prop of props) surface.props.add(prop);
+    } else if (name === 'defineModel') {
+      const prop = modelName(call, report);
+      if (prop) surface.props.add(prop);
+    } else if (name === 'addEventListener') {
+      const [eventName] = call.arguments;
+      if (eventName && ts.isStringLiteralLike(eventName)) {
+        surface.listeners.add(eventName.text);
+      } else if (eventName) {
+        report(`${snippet(eventName)} is not a string literal`);
+      }
+    }
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) readCall(node);
+    ts.forEachChild(node, visit);
+  };
+  visit(script);
+  return surface;
+}
+
 // ── Finding model ────────────────────────────────────────────────────────────
 
 /**
@@ -269,22 +548,89 @@ async function checkDocsWrapperCss(): Promise<Finding[]> {
 
 // ── Check C: JS-variant subset parity ────────────────────────────────────────
 
-async function checkJsVariantSubset(): Promise<Finding[]> {
-  const findings: Finding[] = [];
-  const reactDir = path.join(PROJECT_ROOT, 'templates/react');
-  if (!(await fs.pathExists(reactDir))) return findings;
+/**
+ * Check C for one Vue Template: every event the `.js.vue` emits or listens
+ * for, and every prop it declares, must exist in the `.vue`. A variant the
+ * reader cannot enumerate is reported instead of compared, because its sets
+ * would be incomplete and an empty set is a subset of anything.
+ */
+export function compareVueVariants(
+  component: string,
+  tsSource: string,
+  jsSource: string
+): Finding[] {
+  const tsSurface = extractVueSurface(tsSource);
+  const jsSurface = extractVueSurface(jsSource);
+  const unreadable = [
+    ...tsSurface.unreadable.map((problem) => `cannot read .vue: ${problem}`),
+    ...jsSurface.unreadable.map((problem) => `cannot read .js.vue: ${problem}`),
+  ];
+  if (unreadable.length > 0) {
+    return unreadable.map((message) => ({ check: 'C', component, message }));
+  }
 
-  const entries = await fs.readdir(reactDir, { withFileTypes: true });
-  for (const entry of entries) {
+  const findings: Finding[] = [];
+  const surfaces: Array<[string, Set<string>, Set<string>]> = [
+    ['emits events', jsSurface.emits, tsSurface.emits],
+    ['listens for events', jsSurface.listeners, tsSurface.listeners],
+    ['declares props', jsSurface.props, tsSurface.props],
+  ];
+  for (const [verb, jsNames, tsNames] of surfaces) {
+    const violations = diffSubset(jsNames, tsNames);
+    if (violations.length > 0) {
+      findings.push({
+        check: 'C',
+        component,
+        message: `.js.vue ${verb} absent from .vue: ${violations.join(', ')}`,
+      });
+    }
+  }
+  return findings;
+}
+
+/** One Template directory's two variants, both read. */
+interface VariantPair {
+  name: string;
+  tsSource: string;
+  jsSource: string;
+}
+
+/**
+ * Every Template directory under `dir` that holds both `<Name><tsExt>` and
+ * `<Name><jsExt>`, with both files read. A directory missing either variant
+ * is skipped: that is `validate:templates`' finding, not Check C's.
+ */
+async function readVariantPairs(
+  dir: string,
+  tsExt: string,
+  jsExt: string
+): Promise<VariantPair[]> {
+  if (!(await fs.pathExists(dir))) return [];
+  const pairs: VariantPair[] = [];
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     const name = entry.name;
-    const tsxPath = path.join(reactDir, name, `${name}.tsx`);
-    const jsxPath = path.join(reactDir, name, `${name}.jsx`);
-    if (!(await fs.pathExists(tsxPath)) || !(await fs.pathExists(jsxPath))) {
+    const tsPath = path.join(dir, name, `${name}${tsExt}`);
+    const jsPath = path.join(dir, name, `${name}${jsExt}`);
+    if (!(await fs.pathExists(tsPath)) || !(await fs.pathExists(jsPath))) {
       continue;
     }
-    const tsx = extractReactSurface(await fs.readFile(tsxPath, 'utf-8'));
-    const jsx = extractReactSurface(await fs.readFile(jsxPath, 'utf-8'));
+    pairs.push({
+      name,
+      tsSource: await fs.readFile(tsPath, 'utf-8'),
+      jsSource: await fs.readFile(jsPath, 'utf-8'),
+    });
+  }
+  return pairs;
+}
+
+async function checkReactJsVariantSubset(): Promise<Finding[]> {
+  const findings: Finding[] = [];
+  const reactDir = path.join(PROJECT_ROOT, 'templates/react');
+  const pairs = await readVariantPairs(reactDir, '.tsx', '.jsx');
+  for (const { name, tsSource, jsSource } of pairs) {
+    const tsx = extractReactSurface(tsSource);
+    const jsx = extractReactSurface(jsSource);
 
     const eventViolations = diffSubset(jsx.events, tsx.events);
     if (eventViolations.length) {
@@ -294,6 +640,40 @@ async function checkJsVariantSubset(): Promise<Finding[]> {
         message: `.jsx wires events absent from .tsx: ${eventViolations.join(', ')}`,
       });
     }
+  }
+  return findings;
+}
+
+/**
+ * Check C across a Vue templates directory: compares every Template holding
+ * both `<Name>.vue` and `<Name>.js.vue`. `pairs` counts what was compared, so
+ * the caller can tell "nothing drifted" from "nothing was compared"
+ * (ADR 0003).
+ */
+export async function checkVueJsVariantSubset(
+  templatesDir: string
+): Promise<{ findings: Finding[]; pairs: number }> {
+  const pairs = await readVariantPairs(templatesDir, '.vue', '.js.vue');
+  return {
+    findings: pairs.flatMap(({ name, tsSource, jsSource }) =>
+      compareVueVariants(name, tsSource, jsSource)
+    ),
+    pairs: pairs.length,
+  };
+}
+
+async function checkJsVariantSubset(): Promise<Finding[]> {
+  const vue = await checkVueJsVariantSubset(
+    path.join(PROJECT_ROOT, 'templates/vue')
+  );
+  const findings = [...(await checkReactJsVariantSubset()), ...vue.findings];
+  if (vue.pairs === 0) {
+    findings.push({
+      check: 'C',
+      component: 'templates/vue',
+      message:
+        'no Template holds both .vue and .js.vue, so nothing was compared',
+    });
   }
   return findings;
 }
@@ -596,7 +976,8 @@ function printSummary(summary: GuardSummary): void {
     console.log(
       pc.yellow(
         'Fix: regenerate the affected artifacts (pnpm generate:* / update:starter-snapshots)\n' +
-          'or reconcile the hand-maintained docs wrapper / .jsx variant.\n'
+          'or reconcile the hand-maintained docs wrapper / .jsx variant. A .js.vue\n' +
+          'finding comes from the Vue generator (scripts/generate-vue-templates.ts).\n'
       )
     );
   }
