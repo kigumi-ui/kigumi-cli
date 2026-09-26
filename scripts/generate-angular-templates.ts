@@ -159,8 +159,8 @@ export function generateComponentTS(
     CVA_CHECKED_COMPONENTS.has(componentKey);
   const _isOverlay = OVERLAY_COMPONENTS.has(componentKey);
 
-  // Angular treats any `on*` binding as an event handler and refuses to
-  // compile it, `[attr.once]` included, so such attributes are written from
+  // Since 21.2.13 Angular treats any `on*` binding as an event handler and
+  // refuses to compile it (NG5002), `[attr.once]` included, so such attributes are written from
   // the class in ngOnChanges instead of bound in the template (issue #77).
   const classWrittenProps = component.props.filter((p) =>
     p.name.toLowerCase().startsWith('on')
