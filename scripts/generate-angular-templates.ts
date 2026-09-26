@@ -36,6 +36,7 @@ import {
   mapEventType,
   writeFormatted,
 } from './generator-utils.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -563,6 +564,6 @@ async function main() {
   console.log(`\nGenerated ${count} Angular component templates.`);
 }
 
-if (process.argv[1] === __filename) {
+if (isEntryPoint(import.meta.url)) {
   main().catch(console.error);
 }

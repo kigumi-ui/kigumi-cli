@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (104 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (105 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -36,6 +36,8 @@ tests/
 │   ├── scripts/resolve-cem.test.ts  # resolveCem: tier preference, root-scoping, no worktree escape (#43), pinned-version selection (F-152)
 │   ├── scripts/cem-completeness.test.ts # Check A's all-or-nothing CEM gate (#43)
 │   ├── scripts/guard-outcome.test.ts    # Shared guard reporting: skip is never a pass (#43)
+│   ├── scripts/is-entry-point.test.ts   # Entry-point check matches through a symlinked directory (#106)
+│   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)
 │   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
@@ -787,7 +789,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-25
+**Last Updated:** 2026-09-26
 
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
 - added tests/unit/relaxed-compile-check.test.ts, which pins the relaxed generate-then-tsc check (strict: false) until a later ticket removes it
@@ -824,3 +826,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - react-function-harness.test.ts resolves the Free CEM via resolveCem(root, { tier: 'free' }); resolve-cem.test.ts pins the tier option, issue #74
 - the Dialog harness asserts the stubbed dialog module was imported, so a mock path that stops matching goes red instead of passing on timing, issue #74
 - the Dialog harness checks each callback receives the dispatched event, and was bug-injected against the real Dialog template (dropped cleanup, misspelled event, wrong callback, new event object, lost className, unforwarded props, wrong tag), issue #74
+- added scripts/is-entry-point.test.ts (real tmp symlink) and parse-custom-elements-import.test.ts, both bug-injected: plain string compare and an unguarded main() each go red, issue #106
