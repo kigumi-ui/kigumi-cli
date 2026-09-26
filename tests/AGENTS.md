@@ -655,12 +655,15 @@ helper's logic in isolation. Current cases:
   takes its `request` function as an argument so issue #37 (HEAD 404, GET 200)
   cannot regress without a live page.
 
-- `parsePinned`, `majorOf`, `isMajorBump`, `readWebAwesomePin` and
-  `readCreateVitePin` in `scripts/check-upstream-versions.ts` — the version
+- `parsePinned`, `majorOf`, `isMajorBump`, `readCreateVitePin`, `readHolds`
+  and `isHeld` in `scripts/check-upstream-versions.ts` — the version and hold
   matchers, asserted directly by
   `tests/unit/scripts/check-upstream-versions.test.ts`. Exported so the
-  major-boundary rule, including the downgrade and unparseable cases,
-  can be asserted without reaching the npm registry.
+  major-boundary rule (including the downgrade and unparseable cases) and the
+  hold-suppression rule (a hold covers its major, never a newer one) can be
+  asserted without reaching the npm registry. Web Awesome is not read by this
+  script at all — `wa-upgrade` (`scripts/check-wa-upgrade.ts`) owns that
+  report — so `readWebAwesomePin` was removed rather than kept unused.
 
 - `tagNames`, `attributeTypes` and `diffManifests` in
   `scripts/check-wa-upgrade.ts` — the manifest comparators, asserted directly
