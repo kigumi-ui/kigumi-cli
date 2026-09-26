@@ -9,6 +9,16 @@
 export interface ComponentMetadata {
   tagName: string;
   className: string;
+  attributes: Array<{
+    name: string;
+    /**
+     * Boolean versus string is the only distinction the function harness
+     * needs to pick a probe value. Absent when the CEM lists no type (e.g.
+     * `did-ssr`, inherited from `WebAwesomeElement`) — the attribute stays in
+     * the list and is probed as a string.
+     */
+    type?: 'boolean' | 'string';
+  }>;
   events: Array<{
     name: string;
     /**

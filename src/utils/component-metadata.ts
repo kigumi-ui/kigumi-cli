@@ -18,6 +18,67 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   icon: {
     tagName: 'wa-icon',
     className: 'WaIcon',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'family',
+        type: 'string',
+      },
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'canvas',
+        type: 'string',
+      },
+      {
+        name: 'auto-width',
+        type: 'boolean',
+      },
+      {
+        name: 'swap-opacity',
+        type: 'boolean',
+      },
+      {
+        name: 'src',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'library',
+        type: 'string',
+      },
+      {
+        name: 'rotate',
+        type: 'string',
+      },
+      {
+        name: 'flip',
+        type: 'string',
+      },
+      {
+        name: 'animation',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-load',
@@ -40,6 +101,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'accordion-item': {
     tagName: 'wa-accordion-item',
     className: 'WaAccordionItem',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'expanded',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -85,6 +171,59 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   checkbox: {
     tagName: 'wa-checkbox',
     className: 'WaCheckbox',
+    attributes: [
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'indeterminate',
+        type: 'boolean',
+      },
+      {
+        name: 'checked',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'change',
@@ -184,6 +323,19 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   spinner: {
     tagName: 'wa-spinner',
     className: 'WaSpinner',
+    attributes: [
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -191,6 +343,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'tree-item': {
     tagName: 'wa-tree-item',
     className: 'WaTreeItem',
+    attributes: [
+      {
+        name: 'expanded',
+        type: 'boolean',
+      },
+      {
+        name: 'selected',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'lazy',
+        type: 'boolean',
+      },
+      {
+        name: 'tabindex',
+        type: 'string',
+      },
+      {
+        name: 'role',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-expand',
@@ -262,6 +451,19 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'carousel-item': {
     tagName: 'wa-carousel-item',
     className: 'WaCarouselItem',
+    attributes: [
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -274,6 +476,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   accordion: {
     tagName: 'wa-accordion',
     className: 'WaAccordion',
+    attributes: [
+      {
+        name: 'mode',
+        type: 'string',
+      },
+      {
+        name: 'icon-placement',
+        type: 'string',
+      },
+      {
+        name: 'heading-level',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-expand',
@@ -321,6 +552,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'animated-image': {
     tagName: 'wa-animated-image',
     className: 'WaAnimatedImage',
+    attributes: [
+      {
+        name: 'src',
+        type: 'string',
+      },
+      {
+        name: 'alt',
+        type: 'string',
+      },
+      {
+        name: 'play',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-load',
@@ -352,6 +608,63 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   animation: {
     tagName: 'wa-animation',
     className: 'WaAnimation',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'play',
+        type: 'boolean',
+      },
+      {
+        name: 'delay',
+        type: 'string',
+      },
+      {
+        name: 'direction',
+        type: 'string',
+      },
+      {
+        name: 'duration',
+        type: 'string',
+      },
+      {
+        name: 'easing',
+        type: 'string',
+      },
+      {
+        name: 'end-delay',
+        type: 'string',
+      },
+      {
+        name: 'fill',
+        type: 'string',
+      },
+      {
+        name: 'iterations',
+        type: 'string',
+      },
+      {
+        name: 'iteration-start',
+        type: 'string',
+      },
+      {
+        name: 'playback-rate',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-cancel',
@@ -395,6 +708,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   avatar: {
     tagName: 'wa-avatar',
     className: 'WaAvatar',
+    attributes: [
+      {
+        name: 'image',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'initials',
+        type: 'string',
+      },
+      {
+        name: 'loading',
+        type: 'string',
+      },
+      {
+        name: 'shape',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-error',
@@ -416,6 +762,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   badge: {
     tagName: 'wa-badge',
     className: 'WaBadge',
+    attributes: [
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'attention',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -437,6 +812,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   chart: {
     tagName: 'wa-chart',
     className: 'WaChart',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -448,6 +896,83 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'bar-chart': {
     tagName: 'wa-bar-chart',
     className: 'WaBarChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -459,6 +984,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'breadcrumb-item': {
     tagName: 'wa-breadcrumb-item',
     className: 'WaBreadcrumbItem',
+    attributes: [
+      {
+        name: 'href',
+        type: 'string',
+      },
+      {
+        name: 'target',
+        type: 'string',
+      },
+      {
+        name: 'rel',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -485,6 +1035,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   breadcrumb: {
     tagName: 'wa-breadcrumb',
     className: 'WaBreadcrumb',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -502,6 +1069,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'bubble-chart': {
     tagName: 'wa-bubble-chart',
     className: 'WaBubbleChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -513,6 +1153,111 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   button: {
     tagName: 'wa-button',
     className: 'WaButton',
+    attributes: [
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'with-caret',
+        type: 'boolean',
+      },
+      {
+        name: 'with-start',
+        type: 'boolean',
+      },
+      {
+        name: 'with-end',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'href',
+        type: 'string',
+      },
+      {
+        name: 'target',
+        type: 'string',
+      },
+      {
+        name: 'rel',
+        type: 'string',
+      },
+      {
+        name: 'download',
+        type: 'string',
+      },
+      {
+        name: 'formaction',
+        type: 'string',
+      },
+      {
+        name: 'formenctype',
+        type: 'string',
+      },
+      {
+        name: 'formmethod',
+        type: 'string',
+      },
+      {
+        name: 'formnovalidate',
+        type: 'boolean',
+      },
+      {
+        name: 'formtarget',
+        type: 'string',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'blur',
@@ -604,6 +1349,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'button-group': {
     tagName: 'wa-button-group',
     className: 'WaButtonGroup',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -617,6 +1383,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   callout: {
     tagName: 'wa-callout',
     className: 'WaCallout',
+    attributes: [
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -634,6 +1425,47 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   card: {
     tagName: 'wa-card',
     className: 'WaCard',
+    attributes: [
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'with-header',
+        type: 'boolean',
+      },
+      {
+        name: 'with-media',
+        type: 'boolean',
+      },
+      {
+        name: 'with-footer',
+        type: 'boolean',
+      },
+      {
+        name: 'with-header-actions',
+        type: 'boolean',
+      },
+      {
+        name: 'with-footer-actions',
+        type: 'boolean',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -674,6 +1506,63 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   carousel: {
     tagName: 'wa-carousel',
     className: 'WaCarousel',
+    attributes: [
+      {
+        name: 'loop',
+        type: 'boolean',
+      },
+      {
+        name: 'slides',
+        type: 'string',
+      },
+      {
+        name: 'currentSlide',
+        type: 'string',
+      },
+      {
+        name: 'navigation',
+        type: 'boolean',
+      },
+      {
+        name: 'pagination',
+        type: 'boolean',
+      },
+      {
+        name: 'autoplay',
+        type: 'boolean',
+      },
+      {
+        name: 'autoplay-interval',
+        type: 'string',
+      },
+      {
+        name: 'slides-per-page',
+        type: 'string',
+      },
+      {
+        name: 'slides-per-move',
+        type: 'string',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'mouse-dragging',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-slide-change',
@@ -759,6 +1648,47 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'checkbox-group': {
     tagName: 'wa-checkbox-group',
     className: 'WaCheckboxGroup',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -782,6 +1712,151 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   input: {
     tagName: 'wa-input',
     className: 'WaInput',
+    attributes: [
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'password-toggle',
+        type: 'boolean',
+      },
+      {
+        name: 'password-visible',
+        type: 'boolean',
+      },
+      {
+        name: 'without-spin-buttons',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'pattern',
+        type: 'string',
+      },
+      {
+        name: 'minlength',
+        type: 'string',
+      },
+      {
+        name: 'maxlength',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'step',
+        type: 'string',
+      },
+      {
+        name: 'autocapitalize',
+        type: 'string',
+      },
+      {
+        name: 'autocorrect',
+        type: 'boolean',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+      },
+      {
+        name: 'spellcheck',
+        type: 'boolean',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -969,6 +2044,107 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   popup: {
     tagName: 'wa-popup',
     className: 'WaPopup',
+    attributes: [
+      {
+        name: 'anchor',
+        type: 'string',
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'boundary',
+        type: 'string',
+      },
+      {
+        name: 'distance',
+        type: 'string',
+      },
+      {
+        name: 'skidding',
+        type: 'string',
+      },
+      {
+        name: 'arrow',
+        type: 'boolean',
+      },
+      {
+        name: 'arrow-placement',
+        type: 'string',
+      },
+      {
+        name: 'arrow-padding',
+        type: 'string',
+      },
+      {
+        name: 'flip',
+        type: 'boolean',
+      },
+      {
+        name: 'flip-fallback-placements',
+        type: 'string',
+      },
+      {
+        name: 'flip-fallback-strategy',
+        type: 'string',
+      },
+      {
+        name: 'flipBoundary',
+        type: 'string',
+      },
+      {
+        name: 'flip-padding',
+        type: 'string',
+      },
+      {
+        name: 'shift',
+        type: 'boolean',
+      },
+      {
+        name: 'shiftBoundary',
+        type: 'string',
+      },
+      {
+        name: 'shift-padding',
+        type: 'string',
+      },
+      {
+        name: 'auto-size',
+        type: 'string',
+      },
+      {
+        name: 'sync',
+        type: 'string',
+      },
+      {
+        name: 'autoSizeBoundary',
+        type: 'string',
+      },
+      {
+        name: 'auto-size-padding',
+        type: 'string',
+      },
+      {
+        name: 'hover-bridge',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-reposition',
@@ -999,6 +2175,87 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'color-picker': {
     tagName: 'wa-color-picker',
     className: 'WaColorPicker',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'format',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'without-format-toggle',
+        type: 'boolean',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'opacity',
+        type: 'boolean',
+      },
+      {
+        name: 'uppercase',
+        type: 'boolean',
+      },
+      {
+        name: 'swatches',
+        type: 'string',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'change',
@@ -1166,6 +2423,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tag: {
     tagName: 'wa-tag',
     className: 'WaTag',
+    attributes: [
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'with-remove',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-remove',
@@ -1185,6 +2475,90 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   select: {
     tagName: 'wa-select',
     className: 'WaSelect',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+      },
+      {
+        name: 'multiple',
+        type: 'boolean',
+      },
+      {
+        name: 'max-options-visible',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -1345,6 +2719,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   option: {
     tagName: 'wa-option',
     className: 'WaOption',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'selected',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -1366,6 +2769,118 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   combobox: {
     tagName: 'wa-combobox',
     className: 'WaCombobox',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+      },
+      {
+        name: 'multiple',
+        type: 'boolean',
+      },
+      {
+        name: 'max-options-visible',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'allow-custom-value',
+        type: 'boolean',
+      },
+      {
+        name: 'allow-create',
+        type: 'boolean',
+      },
+      {
+        name: 'autocapitalize',
+        type: 'string',
+      },
+      {
+        name: 'autocorrect',
+        type: 'boolean',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+      },
+      {
+        name: 'spellcheck',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -1495,6 +3010,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   comparison: {
     tagName: 'wa-comparison',
     className: 'WaComparison',
+    attributes: [
+      {
+        name: 'position',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'change',
@@ -1522,6 +3054,59 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tooltip: {
     tagName: 'wa-tooltip',
     className: 'WaTooltip',
+    attributes: [
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'distance',
+        type: 'string',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'skidding',
+        type: 'string',
+      },
+      {
+        name: 'show-delay',
+        type: 'string',
+      },
+      {
+        name: 'hide-delay',
+        type: 'string',
+      },
+      {
+        name: 'trigger',
+        type: 'string',
+      },
+      {
+        name: 'without-arrow',
+        type: 'boolean',
+      },
+      {
+        name: 'for',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-show',
@@ -1571,6 +3156,55 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'copy-button': {
     tagName: 'wa-copy-button',
     className: 'WaCopyButton',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'from',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'copy-label',
+        type: 'string',
+      },
+      {
+        name: 'success-label',
+        type: 'string',
+      },
+      {
+        name: 'error-label',
+        type: 'string',
+      },
+      {
+        name: 'feedback-duration',
+        type: 'string',
+      },
+      {
+        name: 'tooltip-placement',
+        type: 'string',
+      },
+      {
+        name: 'tooltip',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-copy',
@@ -1612,6 +3246,111 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'date-picker': {
     tagName: 'wa-date-picker',
     className: 'WaDatePicker',
+    attributes: [
+      {
+        name: 'mode',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'today',
+        type: 'string',
+      },
+      {
+        name: 'focused-date',
+        type: 'string',
+      },
+      {
+        name: 'view',
+        type: 'string',
+      },
+      {
+        name: 'months',
+        type: 'string',
+      },
+      {
+        name: 'page-by',
+        type: 'string',
+      },
+      {
+        name: 'first-day-of-week',
+        type: 'string',
+      },
+      {
+        name: 'with-outside-days',
+        type: 'boolean',
+      },
+      {
+        name: 'with-week-numbers',
+        type: 'boolean',
+      },
+      {
+        name: 'weekday-format',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled-dates',
+        type: 'string',
+      },
+      {
+        name: 'disabled-days-of-week',
+        type: 'string',
+      },
+      {
+        name: 'disable-past',
+        type: 'boolean',
+      },
+      {
+        name: 'disable-future',
+        type: 'boolean',
+      },
+      {
+        name: 'min-range',
+        type: 'string',
+      },
+      {
+        name: 'max-range',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'locale',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -1678,6 +3417,155 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'date-input': {
     tagName: 'wa-date-input',
     className: 'WaDateInput',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'mode',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'today',
+        type: 'string',
+      },
+      {
+        name: 'first-day-of-week',
+        type: 'string',
+      },
+      {
+        name: 'disabled-dates',
+        type: 'string',
+      },
+      {
+        name: 'disabled-days-of-week',
+        type: 'string',
+      },
+      {
+        name: 'disable-past',
+        type: 'boolean',
+      },
+      {
+        name: 'disable-future',
+        type: 'boolean',
+      },
+      {
+        name: 'min-range',
+        type: 'string',
+      },
+      {
+        name: 'max-range',
+        type: 'string',
+      },
+      {
+        name: 'months',
+        type: 'string',
+      },
+      {
+        name: 'page-by',
+        type: 'string',
+      },
+      {
+        name: 'with-outside-days',
+        type: 'boolean',
+      },
+      {
+        name: 'with-week-numbers',
+        type: 'boolean',
+      },
+      {
+        name: 'weekday-format',
+        type: 'string',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'distance',
+        type: 'string',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -1810,6 +3698,119 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'data-grid': {
     tagName: 'wa-data-grid',
     className: 'WaDataGrid',
+    attributes: [
+      {
+        name: 'row-key',
+        type: 'string',
+      },
+      {
+        name: 'selectable',
+        type: 'string',
+      },
+      {
+        name: 'paginate',
+        type: 'boolean',
+      },
+      {
+        name: 'page-size',
+        type: 'string',
+      },
+      {
+        name: 'page',
+        type: 'string',
+      },
+      {
+        name: 'without-sort-removal',
+        type: 'boolean',
+      },
+      {
+        name: 'sort-desc-first',
+        type: 'boolean',
+      },
+      {
+        name: 'max-multi-sort',
+        type: 'string',
+      },
+      {
+        name: 'with-search',
+        type: 'boolean',
+      },
+      {
+        name: 'resizable',
+        type: 'boolean',
+      },
+      {
+        name: 'reorderable',
+        type: 'boolean',
+      },
+      {
+        name: 'pinnable',
+        type: 'boolean',
+      },
+      {
+        name: 'with-column-menu',
+        type: 'boolean',
+      },
+      {
+        name: 'with-columns-menu',
+        type: 'boolean',
+      },
+      {
+        name: 'striped',
+        type: 'boolean',
+      },
+      {
+        name: 'child-rows',
+        type: 'string',
+      },
+      {
+        name: 'filter-from-leaf-rows',
+        type: 'boolean',
+      },
+      {
+        name: 'group-by',
+        type: 'string',
+      },
+      {
+        name: 'server',
+        type: 'boolean',
+      },
+      {
+        name: 'filter-debounce',
+        type: 'string',
+      },
+      {
+        name: 'total',
+        type: 'string',
+      },
+      {
+        name: 'loading',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'request',
@@ -2151,6 +4152,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   details: {
     tagName: 'wa-details',
     className: 'WaDetails',
+    attributes: [
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'summary',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'icon-placement',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-show',
@@ -2214,6 +4252,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   dialog: {
     tagName: 'wa-dialog',
     className: 'WaDialog',
+    attributes: [
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'without-header',
+        type: 'boolean',
+      },
+      {
+        name: 'light-dismiss',
+        type: 'boolean',
+      },
+      {
+        name: 'with-footer',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-show',
@@ -2269,6 +4340,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   divider: {
     tagName: 'wa-divider',
     className: 'WaDivider',
+    attributes: [
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -2276,6 +4364,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'doughnut-chart': {
     tagName: 'wa-doughnut-chart',
     className: 'WaDoughnutChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -2287,6 +4448,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   drawer: {
     tagName: 'wa-drawer',
     className: 'WaDrawer',
+    attributes: [
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'without-header',
+        type: 'boolean',
+      },
+      {
+        name: 'light-dismiss',
+        type: 'boolean',
+      },
+      {
+        name: 'with-footer',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-show',
@@ -2342,6 +4540,59 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'dropdown-item': {
     tagName: 'wa-dropdown-item',
     className: 'WaDropdownItem',
+    attributes: [
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'checked',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'submenuOpen',
+        type: 'boolean',
+      },
+      {
+        name: 'href',
+        type: 'string',
+      },
+      {
+        name: 'target',
+        type: 'string',
+      },
+      {
+        name: 'rel',
+        type: 'string',
+      },
+      {
+        name: 'download',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'blur',
@@ -2390,6 +4641,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   dropdown: {
     tagName: 'wa-dropdown',
     className: 'WaDropdown',
+    attributes: [
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'distance',
+        type: 'string',
+      },
+      {
+        name: 'skidding',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-show',
@@ -2439,6 +4723,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'format-bytes': {
     tagName: 'wa-format-bytes',
     className: 'WaFormatBytes',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'unit',
+        type: 'string',
+      },
+      {
+        name: 'display',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -2446,6 +4755,67 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'file-input': {
     tagName: 'wa-file-input',
     className: 'WaFileInput',
+    attributes: [
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'multiple',
+        type: 'boolean',
+      },
+      {
+        name: 'accept',
+        type: 'string',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'capture',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -2527,6 +4897,67 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'format-date': {
     tagName: 'wa-format-date',
     className: 'WaFormatDate',
+    attributes: [
+      {
+        name: 'date',
+        type: 'string',
+      },
+      {
+        name: 'weekday',
+        type: 'string',
+      },
+      {
+        name: 'era',
+        type: 'string',
+      },
+      {
+        name: 'year',
+        type: 'string',
+      },
+      {
+        name: 'month',
+        type: 'string',
+      },
+      {
+        name: 'day',
+        type: 'string',
+      },
+      {
+        name: 'hour',
+        type: 'string',
+      },
+      {
+        name: 'minute',
+        type: 'string',
+      },
+      {
+        name: 'second',
+        type: 'string',
+      },
+      {
+        name: 'time-zone-name',
+        type: 'string',
+      },
+      {
+        name: 'time-zone',
+        type: 'string',
+      },
+      {
+        name: 'hour-format',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -2534,6 +4965,59 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'format-number': {
     tagName: 'wa-format-number',
     className: 'WaFormatNumber',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'without-grouping',
+        type: 'boolean',
+      },
+      {
+        name: 'currency',
+        type: 'string',
+      },
+      {
+        name: 'currency-display',
+        type: 'string',
+      },
+      {
+        name: 'minimum-integer-digits',
+        type: 'string',
+      },
+      {
+        name: 'minimum-fraction-digits',
+        type: 'string',
+      },
+      {
+        name: 'maximum-fraction-digits',
+        type: 'string',
+      },
+      {
+        name: 'minimum-significant-digits',
+        type: 'string',
+      },
+      {
+        name: 'maximum-significant-digits',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -2541,6 +5025,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   include: {
     tagName: 'wa-include',
     className: 'WaInclude',
+    attributes: [
+      {
+        name: 'src',
+        type: 'string',
+      },
+      {
+        name: 'mode',
+        type: 'string',
+      },
+      {
+        name: 'allow-scripts',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-load',
@@ -2562,6 +5071,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'intersection-observer': {
     tagName: 'wa-intersection-observer',
     className: 'WaIntersectionObserver',
+    attributes: [
+      {
+        name: 'root',
+        type: 'string',
+      },
+      {
+        name: 'root-margin',
+        type: 'string',
+      },
+      {
+        name: 'threshold',
+        type: 'string',
+      },
+      {
+        name: 'intersect-class',
+        type: 'string',
+      },
+      {
+        name: 'once',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-intersect',
@@ -2583,6 +5129,87 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'known-date': {
     tagName: 'wa-known-date',
     className: 'WaKnownDate',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'locale',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -2677,6 +5304,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'line-chart': {
     tagName: 'wa-line-chart',
     className: 'WaLineChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -2688,6 +5388,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   markdown: {
     tagName: 'wa-markdown',
     className: 'WaMarkdown',
+    attributes: [
+      {
+        name: 'tab-size',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [
@@ -2701,6 +5418,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'mutation-observer': {
     tagName: 'wa-mutation-observer',
     className: 'WaMutationObserver',
+    attributes: [
+      {
+        name: 'attr',
+        type: 'string',
+      },
+      {
+        name: 'attr-old-value',
+        type: 'boolean',
+      },
+      {
+        name: 'char-data',
+        type: 'boolean',
+      },
+      {
+        name: 'char-data-old-value',
+        type: 'boolean',
+      },
+      {
+        name: 'child-list',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-mutation',
@@ -2720,6 +5474,111 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'number-input': {
     tagName: 'wa-number-input',
     className: 'WaNumberInput',
+    attributes: [
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'step',
+        type: 'string',
+      },
+      {
+        name: 'without-steppers',
+        type: 'boolean',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -2824,6 +5683,95 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'otp-input': {
     tagName: 'wa-otp-input',
     className: 'WaOtpInput',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'length',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'mask',
+        type: 'boolean',
+      },
+      {
+        name: 'case',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'format',
+        type: 'string',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'autosubmit',
+        type: 'boolean',
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+      },
+      {
+        name: 'with-mask',
+        type: 'boolean',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -2942,6 +5890,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   page: {
     tagName: 'wa-page',
     className: 'WaPage',
+    attributes: [
+      {
+        name: 'view',
+        type: 'string',
+      },
+      {
+        name: 'nav-open',
+        type: 'boolean',
+      },
+      {
+        name: 'mobile-breakpoint',
+        type: 'string',
+      },
+      {
+        name: 'navigation-placement',
+        type: 'string',
+      },
+      {
+        name: 'disable-navigation-toggle',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3046,6 +6027,75 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   pagination: {
     tagName: 'wa-pagination',
     className: 'WaPagination',
+    attributes: [
+      {
+        name: 'total',
+        type: 'string',
+      },
+      {
+        name: 'page-size',
+        type: 'string',
+      },
+      {
+        name: 'page',
+        type: 'string',
+      },
+      {
+        name: 'sibling-count',
+        type: 'string',
+      },
+      {
+        name: 'boundary-count',
+        type: 'string',
+      },
+      {
+        name: 'without-nav',
+        type: 'boolean',
+      },
+      {
+        name: 'with-edges',
+        type: 'boolean',
+      },
+      {
+        name: 'with-summary',
+        type: 'boolean',
+      },
+      {
+        name: 'format',
+        type: 'string',
+      },
+      {
+        name: 'href-template',
+        type: 'string',
+      },
+      {
+        name: 'hide-single-page',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-before-page-change',
@@ -3084,6 +6134,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'pie-chart': {
     tagName: 'wa-pie-chart',
     className: 'WaPieChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3095,6 +6218,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'polar-area-chart': {
     tagName: 'wa-polar-area-chart',
     className: 'WaPolarAreaChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3106,6 +6302,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   popover: {
     tagName: 'wa-popover',
     className: 'WaPopover',
+    attributes: [
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'distance',
+        type: 'string',
+      },
+      {
+        name: 'skidding',
+        type: 'string',
+      },
+      {
+        name: 'for',
+        type: 'string',
+      },
+      {
+        name: 'without-arrow',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-show',
@@ -3157,6 +6390,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'progress-bar': {
     tagName: 'wa-progress-bar',
     className: 'WaProgressBar',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'indeterminate',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3169,6 +6427,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'progress-ring': {
     tagName: 'wa-progress-ring',
     className: 'WaProgressRing',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3181,6 +6460,63 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'qr-code': {
     tagName: 'wa-qr-code',
     className: 'WaQrCode',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'fill',
+        type: 'string',
+      },
+      {
+        name: 'background',
+        type: 'string',
+      },
+      {
+        name: 'radius',
+        type: 'string',
+      },
+      {
+        name: 'error-correction',
+        type: 'string',
+      },
+      {
+        name: 'image',
+        type: 'string',
+      },
+      {
+        name: 'image-background',
+        type: 'string',
+      },
+      {
+        name: 'image-coverage',
+        type: 'string',
+      },
+      {
+        name: 'image-padding',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -3188,6 +6524,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'radar-chart': {
     tagName: 'wa-radar-chart',
     className: 'WaRadarChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3199,6 +6608,43 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   radio: {
     tagName: 'wa-radio',
     className: 'WaRadio',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'blur',
@@ -3256,6 +6702,63 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'radio-group': {
     tagName: 'wa-radio-group',
     className: 'WaRadioGroup',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -3340,6 +6843,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'random-content': {
     tagName: 'wa-random-content',
     className: 'WaRandomContent',
+    attributes: [
+      {
+        name: 'items',
+        type: 'string',
+      },
+      {
+        name: 'mode',
+        type: 'string',
+      },
+      {
+        name: 'autoplay',
+        type: 'boolean',
+      },
+      {
+        name: 'autoplay-interval',
+        type: 'string',
+      },
+      {
+        name: 'animation',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-content-change',
@@ -3367,6 +6903,71 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   rating: {
     tagName: 'wa-rating',
     className: 'WaRating',
+    attributes: [
+      {
+        name: 'role',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'default-value',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'precision',
+        type: 'string',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'getSymbol',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'change',
@@ -3427,6 +7028,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'relative-time': {
     tagName: 'wa-relative-time',
     className: 'WaRelativeTime',
+    attributes: [
+      {
+        name: 'date',
+        type: 'string',
+      },
+      {
+        name: 'format',
+        type: 'string',
+      },
+      {
+        name: 'numeric',
+        type: 'string',
+      },
+      {
+        name: 'sync',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -3434,6 +7064,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'resize-observer': {
     tagName: 'wa-resize-observer',
     className: 'WaResizeObserver',
+    attributes: [
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-resize',
@@ -3453,6 +7100,79 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'scatter-chart': {
     tagName: 'wa-scatter-chart',
     className: 'WaScatterChart',
+    attributes: [
+      {
+        name: 'type',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'description',
+        type: 'string',
+      },
+      {
+        name: 'x-label',
+        type: 'string',
+      },
+      {
+        name: 'y-label',
+        type: 'string',
+      },
+      {
+        name: 'legend-position',
+        type: 'string',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+      },
+      {
+        name: 'grid',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'without-animation',
+        type: 'boolean',
+      },
+      {
+        name: 'without-legend',
+        type: 'boolean',
+      },
+      {
+        name: 'without-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'plugins',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3464,6 +7184,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   scroller: {
     tagName: 'wa-scroller',
     className: 'WaScroller',
+    attributes: [
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'without-scrollbar',
+        type: 'boolean',
+      },
+      {
+        name: 'without-shadow',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3476,6 +7221,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   skeleton: {
     tagName: 'wa-skeleton',
     className: 'WaSkeleton',
+    attributes: [
+      {
+        name: 'effect',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -3483,6 +7245,111 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   slider: {
     tagName: 'wa-slider',
     className: 'WaSlider',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'min-value',
+        type: 'string',
+      },
+      {
+        name: 'max-value',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'range',
+        type: 'boolean',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'indicator-offset',
+        type: 'string',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'step',
+        type: 'string',
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+      },
+      {
+        name: 'tooltip-distance',
+        type: 'string',
+      },
+      {
+        name: 'tooltip-placement',
+        type: 'string',
+      },
+      {
+        name: 'with-markers',
+        type: 'boolean',
+      },
+      {
+        name: 'with-tooltip',
+        type: 'boolean',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'change',
@@ -3589,6 +7456,39 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   sparkline: {
     tagName: 'wa-sparkline',
     className: 'WaSparkline',
+    attributes: [
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'data',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'trend',
+        type: 'string',
+      },
+      {
+        name: 'curve',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [],
     methods: [],
@@ -3596,6 +7496,47 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'split-panel': {
     tagName: 'wa-split-panel',
     className: 'WaSplitPanel',
+    attributes: [
+      {
+        name: 'position',
+        type: 'string',
+      },
+      {
+        name: 'position-in-pixels',
+        type: 'string',
+      },
+      {
+        name: 'orientation',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'primary',
+        type: 'string',
+      },
+      {
+        name: 'snap',
+        type: 'string',
+      },
+      {
+        name: 'snap-threshold',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-reposition',
@@ -3624,6 +7565,59 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   switch: {
     tagName: 'wa-switch',
     className: 'WaSwitch',
+    attributes: [
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'checked',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'change',
@@ -3723,6 +7717,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'tab-panel': {
     tagName: 'wa-tab-panel',
     className: 'WaTabPanel',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+      },
+      {
+        name: 'role',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3735,6 +7754,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tab: {
     tagName: 'wa-tab',
     className: 'WaTab',
+    attributes: [
+      {
+        name: 'panel',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'role',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -3747,6 +7791,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'tab-group': {
     tagName: 'wa-tab-group',
     className: 'WaTabGroup',
+    attributes: [
+      {
+        name: 'active',
+        type: 'string',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'activation',
+        type: 'string',
+      },
+      {
+        name: 'without-scroll-controls',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-tab-show',
@@ -3778,6 +7851,119 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'tag-input': {
     tagName: 'wa-tag-input',
     className: 'WaTagInput',
+    attributes: [
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'delimiter',
+        type: 'string',
+      },
+      {
+        name: 'max-tags',
+        type: 'string',
+      },
+      {
+        name: 'min-tags',
+        type: 'string',
+      },
+      {
+        name: 'allow-duplicates',
+        type: 'boolean',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'autocapitalize',
+        type: 'string',
+      },
+      {
+        name: 'autocorrect',
+        type: 'boolean',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+      },
+      {
+        name: 'spellcheck',
+        type: 'boolean',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -3903,6 +8089,123 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   textarea: {
     tagName: 'wa-textarea',
     className: 'WaTextarea',
+    attributes: [
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'placeholder',
+        type: 'string',
+      },
+      {
+        name: 'rows',
+        type: 'string',
+      },
+      {
+        name: 'resize',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'minlength',
+        type: 'string',
+      },
+      {
+        name: 'maxlength',
+        type: 'string',
+      },
+      {
+        name: 'autocapitalize',
+        type: 'string',
+      },
+      {
+        name: 'autocorrect',
+        type: 'boolean',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+      },
+      {
+        name: 'spellcheck',
+        type: 'boolean',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'with-count',
+        type: 'boolean',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'blur',
@@ -4055,6 +8358,111 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'time-input': {
     tagName: 'wa-time-input',
     className: 'WaTimeInput',
+    attributes: [
+      {
+        name: 'name',
+        type: 'string',
+      },
+      {
+        name: 'value',
+        type: 'string',
+      },
+      {
+        name: 'disabled',
+        type: 'boolean',
+      },
+      {
+        name: 'required',
+        type: 'boolean',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'appearance',
+        type: 'string',
+      },
+      {
+        name: 'pill',
+        type: 'boolean',
+      },
+      {
+        name: 'label',
+        type: 'string',
+      },
+      {
+        name: 'hint',
+        type: 'string',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+      },
+      {
+        name: 'with-clear',
+        type: 'boolean',
+      },
+      {
+        name: 'with-now',
+        type: 'boolean',
+      },
+      {
+        name: 'with-label',
+        type: 'boolean',
+      },
+      {
+        name: 'with-hint',
+        type: 'boolean',
+      },
+      {
+        name: 'min',
+        type: 'string',
+      },
+      {
+        name: 'max',
+        type: 'string',
+      },
+      {
+        name: 'step',
+        type: 'string',
+      },
+      {
+        name: 'hour-format',
+        type: 'string',
+      },
+      {
+        name: 'open',
+        type: 'boolean',
+      },
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'distance',
+        type: 'string',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'input',
@@ -4208,6 +8616,35 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'toast-item': {
     tagName: 'wa-toast-item',
     className: 'WaToastItem',
+    attributes: [
+      {
+        name: 'variant',
+        type: 'string',
+      },
+      {
+        name: 'size',
+        type: 'string',
+      },
+      {
+        name: 'duration',
+        type: 'string',
+      },
+      {
+        name: 'with-icon',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-show',
@@ -4247,6 +8684,23 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   toast: {
     tagName: 'wa-toast',
     className: 'WaToast',
+    attributes: [
+      {
+        name: 'placement',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [],
     slots: [
       {
@@ -4272,6 +8726,31 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   tree: {
     tagName: 'wa-tree',
     className: 'WaTree',
+    attributes: [
+      {
+        name: 'selection',
+        type: 'string',
+      },
+      {
+        name: 'tabindex',
+        type: 'string',
+      },
+      {
+        name: 'role',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-selection-change',
@@ -4301,6 +8780,83 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   video: {
     tagName: 'wa-video',
     className: 'WaVideo',
+    attributes: [
+      {
+        name: 'controls',
+        type: 'string',
+      },
+      {
+        name: 'thumbnails',
+        type: 'string',
+      },
+      {
+        name: 'src',
+        type: 'string',
+      },
+      {
+        name: 'poster',
+        type: 'string',
+      },
+      {
+        name: 'title',
+        type: 'string',
+      },
+      {
+        name: 'playing',
+        type: 'boolean',
+      },
+      {
+        name: 'muted',
+        type: 'boolean',
+      },
+      {
+        name: 'volume',
+        type: 'string',
+      },
+      {
+        name: 'duration',
+        type: 'string',
+      },
+      {
+        name: 'currentTime',
+        type: 'string',
+      },
+      {
+        name: 'autoplay',
+        type: 'boolean',
+      },
+      {
+        name: 'loop',
+        type: 'boolean',
+      },
+      {
+        name: 'autoplay-muted',
+        type: 'boolean',
+      },
+      {
+        name: 'autoplay-on-visible',
+        type: 'boolean',
+      },
+      {
+        name: 'preload',
+        type: 'string',
+      },
+      {
+        name: 'icon-library',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'timeupdate',
@@ -4427,6 +8983,27 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'video-playlist': {
     tagName: 'wa-video-playlist',
     className: 'WaVideoPlaylist',
+    attributes: [
+      {
+        name: 'controls',
+        type: 'string',
+      },
+      {
+        name: 'icon-library',
+        type: 'string',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'wa-video-change',
@@ -4460,6 +9037,63 @@ export const COMPONENT_METADATA: Record<string, ComponentMetadata> = {
   'zoomable-frame': {
     tagName: 'wa-zoomable-frame',
     className: 'WaZoomableFrame',
+    attributes: [
+      {
+        name: 'src',
+        type: 'string',
+      },
+      {
+        name: 'srcdoc',
+        type: 'string',
+      },
+      {
+        name: 'allowfullscreen',
+        type: 'boolean',
+      },
+      {
+        name: 'loading',
+        type: 'string',
+      },
+      {
+        name: 'referrerpolicy',
+        type: 'string',
+      },
+      {
+        name: 'sandbox',
+        type: 'string',
+      },
+      {
+        name: 'zoom',
+        type: 'string',
+      },
+      {
+        name: 'zoom-levels',
+        type: 'string',
+      },
+      {
+        name: 'without-controls',
+        type: 'boolean',
+      },
+      {
+        name: 'without-interaction',
+        type: 'boolean',
+      },
+      {
+        name: 'with-theme-sync',
+        type: 'boolean',
+      },
+      {
+        name: 'dir',
+        type: 'string',
+      },
+      {
+        name: 'lang',
+        type: 'string',
+      },
+      {
+        name: 'did-ssr',
+      },
+    ],
     events: [
       {
         name: 'load',
