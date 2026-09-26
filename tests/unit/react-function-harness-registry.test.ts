@@ -9,8 +9,9 @@
  * coverage assertions below rather than being silently skipped by the loop.
  *
  * Fail-closed means more than a present key: each run also asserts what it
- * exercised (`proved`), so emptying a component's `attributes` or `methods`
- * array cannot be mistaken for a component that never had any (ADR 0003).
+ * proved (`proved`), so emptying a component's `attributes`, `events` or
+ * `methods` array cannot be mistaken for a component that never had any
+ * (ADR 0003).
  */
 // @vitest-environment jsdom
 
@@ -24,12 +25,14 @@ import {
   proveReactTemplate,
 } from './react-function-harness.js';
 import { METHODLESS_COMPONENTS } from './_helpers/methodless-components.js';
+import { EVENTLESS_COMPONENTS } from './_helpers/eventless-components.js';
 
 afterEach(() => {
   cleanup();
 });
 
 const METHODLESS = new Set(METHODLESS_COMPONENTS);
+const EVENTLESS = new Set(EVENTLESS_COMPONENTS);
 
 describe('registry coverage (fail closed)', () => {
   it('has a COMPONENT_METADATA entry for every registry component', () => {
@@ -56,6 +59,20 @@ describe('registry coverage (fail closed)', () => {
   it('pins only components that really have no public CEM methods', () => {
     const stale = METHODLESS_COMPONENTS.filter(
       (slug) => (COMPONENT_METADATA[slug]?.methods.length ?? 0) > 0
+    );
+    expect(stale).toEqual([]);
+  });
+
+  it('keeps CEM events for every component not pinned as eventless', () => {
+    const gutted = Object.keys(LOCAL_REGISTRY)
+      .filter((slug) => !EVENTLESS.has(slug))
+      .filter((slug) => (COMPONENT_METADATA[slug]?.events.length ?? 0) === 0);
+    expect(gutted).toEqual([]);
+  });
+
+  it('pins only components that really have no CEM events', () => {
+    const stale = EVENTLESS_COMPONENTS.filter(
+      (slug) => (COMPONENT_METADATA[slug]?.events.length ?? 0) > 0
     );
     expect(stale).toEqual([]);
   });
@@ -111,12 +128,16 @@ describe('every React Template against CEM metadata', () => {
 
       expect(violations).toEqual([]);
 
-      // A clean run must also be a run that checked something: every registry
-      // component has attributes, and only the pinned methodless ones may
-      // prove zero methods (ADR 0003).
+      // A clean run must also be a run that checked something: every CEM
+      // member was observed on the host, every registry component has
+      // attributes, and only the pinned eventless / methodless ones may prove
+      // zero events / methods (ADR 0003).
       expect(proved.attributes).toBe(metadata.attributes.length);
       expect(proved.attributes).toBeGreaterThan(0);
       expect(proved.events).toBe(metadata.events.length);
+      if (!EVENTLESS.has(slug)) {
+        expect(proved.events).toBeGreaterThan(0);
+      }
       expect(proved.methods).toBe(metadata.methods.length);
       if (!METHODLESS.has(slug)) {
         expect(proved.methods).toBeGreaterThan(0);

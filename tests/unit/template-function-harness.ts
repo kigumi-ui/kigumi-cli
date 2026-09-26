@@ -66,9 +66,11 @@ export function probeAttributes(
 }
 
 /**
- * What the run actually exercised, so a caller can tell a clean proof from a
+ * What the run actually proved, so a caller can tell a clean proof from a
  * proof that had nothing to check (ADR 0003: "did it pass" and "did it run"
- * are separate fields). Counts are of CEM members reached, not assertions.
+ * are separate fields). A member counts only once its check has observed the
+ * expected host behaviour, so a check that is skipped or never reached leaves
+ * the count short of the metadata even when it pushes no violation.
  */
 export interface ProofCoverage {
   attributes: number;
@@ -124,8 +126,9 @@ async function proveWithListeners(
   violations.push(...proveMethods(probe, host, refHandle, proved));
 
   for (const attribute of probe.attributes) {
-    proved.attributes += 1;
-    if (!attributeReflected(host, attribute.name, attribute.value)) {
+    if (attributeReflected(host, attribute.name, attribute.value)) {
+      proved.attributes += 1;
+    } else {
       violations.push(`attribute ${attribute.name} was not forwarded`);
     }
   }
@@ -139,13 +142,15 @@ async function proveWithListeners(
   }
 
   const firedOnce = new Set<string>();
+  const delivered = new Set<string>();
   for (const event of probe.metadata.events) {
-    proved.events += 1;
     const dispatched = new CustomEvent(event.name);
     host.dispatchEvent(dispatched);
     if ((calls.get(event.name) ?? 0) === 1) {
       firedOnce.add(event.name);
-      if (received.get(event.name) !== dispatched) {
+      if (received.get(event.name) === dispatched) {
+        delivered.add(event.name);
+      } else {
         violations.push(
           `${probe.adapter.callbackName(event.name)} did not receive the dispatched ${event.name} event`
         );
@@ -172,6 +177,8 @@ async function proveWithListeners(
     }
     if (leaked) {
       violations.push(`listener for ${event.name} was not removed`);
+    } else if (delivered.has(event.name)) {
+      proved.events += 1;
     }
   }
 
@@ -299,7 +306,6 @@ function proveMethods(
   const violations: string[] = [];
   const handle = refHandle?.current;
   if (!handle) {
-    proved.methods += methods.length;
     return methods.map(
       (method) =>
         `${probe.adapter.handleName} does not expose a method named ${method.name}`
@@ -307,7 +313,6 @@ function proveMethods(
   }
 
   for (const method of methods) {
-    proved.methods += 1;
     const member = handle[method.name];
     if (typeof member !== 'function') {
       violations.push(
@@ -349,6 +354,8 @@ function proveMethods(
       violations.push(
         `calling ${method.name} on the ${probe.adapter.handleName} did not invoke the host's ${method.name}`
       );
+    } else {
+      proved.methods += 1;
     }
   }
 
