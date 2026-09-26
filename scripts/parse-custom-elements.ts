@@ -42,6 +42,10 @@ export interface CustomElementDeclaration {
     type?: { text?: string };
     parameters?: Array<{ name?: string; type?: { text?: string } }>;
   }>;
+  attributes?: Array<{
+    name?: string;
+    type?: { text?: string };
+  }>;
   events?: Array<{
     name?: string;
     description?: string;
@@ -127,6 +131,26 @@ export function extractCssMetadata(
     customProperties,
     docsUrl: `https://webawesome.com/docs/components/${componentKey}`,
   };
+}
+
+/**
+ * Extract CEM attributes down to the boolean-vs-string distinction the
+ * function harness needs to pick a probe value. An attribute with no `type`
+ * at all (e.g. `did-ssr`, inherited from `WebAwesomeElement`) stays in the
+ * list with `type` omitted rather than being dropped.
+ *
+ * Exported for unit testing.
+ */
+export function extractAttributes(
+  declaration: CustomElementDeclaration
+): ComponentMetadata['attributes'] {
+  return (declaration.attributes || [])
+    .filter((a): a is { name: string; type?: { text?: string } } => !!a.name)
+    .map((a) => {
+      if (a.type?.text === undefined) return { name: a.name };
+      const type = a.type.text === 'boolean' ? 'boolean' : 'string';
+      return { name: a.name, type } as const;
+    });
 }
 
 /**
@@ -296,6 +320,7 @@ async function parseCustomElements(): Promise<ParsedOutput> {
       metadata[componentKey] = {
         tagName,
         className,
+        attributes: extractAttributes(declaration),
         events,
         slots,
         methods,

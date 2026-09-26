@@ -2,11 +2,10 @@
  * Function harness tracer for one committed React Template (issue #74).
  *
  * Seam: proveReactTemplate mounts a Template and reports CEM contract
- * violations. Tag and events come from committed component metadata. Callback
- * names come from stripWaPrefix / toPascalCase, not from metadata.reactName.
- * Attribute names come from the pinned Free CEM declaration for wa-dialog:
- * component metadata does not carry attributes, and a handwritten list can
- * drift from that declaration without going red.
+ * violations. Tag, events, and attributes come from committed component
+ * metadata (issue #105 moved attribute names off the pinned Free CEM and
+ * onto `COMPONENT_METADATA.dialog`). Callback names come from
+ * stripWaPrefix / toPascalCase, not from metadata.reactName.
  *
  * Web Awesome's dialog module is stubbed at the package boundary so the
  * proof does not load the component runtime and does not need a Pro token.
@@ -14,15 +13,13 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import path from 'node:path';
-import fs from 'fs-extra';
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { resolveCem } from '../../scripts/find-cem.js';
 import { COMPONENT_METADATA } from '../../src/utils/component-metadata.js';
 import { Dialog } from '../../templates/react/Dialog/Dialog.js';
 import { proveReactTemplate } from './react-function-harness.js';
 import type { ReactTemplateProbe } from './react-function-harness.js';
+import type { ComponentMetadata } from '../../src/utils/metadata-types.js';
 
 const dialogStub = vi.hoisted(() => ({ imported: false }));
 
@@ -36,7 +33,6 @@ afterEach(() => {
 });
 
 const PROBE_CLASS = 'probe-class';
-const REPO_ROOT = path.resolve(__dirname, '../..');
 
 function prove(
   mount: ReactTemplateProbe['mount'],
@@ -164,7 +160,7 @@ describe('proveReactTemplate', () => {
   });
 
   it('accepts the committed Dialog template against dialog metadata', async () => {
-    const attributes = await dialogAttributesFromFreeCem();
+    const attributes = probeAttributes(COMPONENT_METADATA.dialog.attributes);
     const violations = await prove(
       ({ attributes: props, className, handlers }) =>
         render(
@@ -190,48 +186,19 @@ describe('proveReactTemplate', () => {
   });
 });
 
-interface CemAttribute {
-  name?: string;
-  type?: { text?: string };
-}
-
 /**
- * Every attribute on wa-dialog in the pinned Free package CEM, including
- * inherited ones such as did-ssr. Boolean props are probed as true; the
- * harness also remounts them as false. Other attributes get a sentinel
- * string so a hardcoded value cannot pass.
- *
- * The manifest comes from resolveCem scoped to this repository and the free
- * tier (ADR 0003), so a local Pro install cannot change what CI compares.
- * Issue #105 moves these names into COMPONENT_METADATA.
+ * Turn committed CEM attributes into probe values: boolean attributes are
+ * probed as true (the harness also remounts them as false), everything else
+ * — string-typed or untyped, e.g. did-ssr — gets a sentinel string so a
+ * hardcoded value in the Template cannot pass.
  */
-async function dialogAttributesFromFreeCem(): Promise<
-  ReactTemplateProbe['attributes']
-> {
-  const resolution = await resolveCem(REPO_ROOT, { tier: 'free' });
-  if (!resolution.path) {
-    throw new Error('Free Custom Elements Manifest not found under the repo');
-  }
-  const cem = (await fs.readJson(resolution.path)) as {
-    modules?: Array<{
-      declarations?: Array<{ tagName?: string; attributes?: CemAttribute[] }>;
-    }>;
-  };
-
-  const attributes = cem.modules
-    ?.flatMap((mod) => mod.declarations ?? [])
-    .find((declaration) => declaration.tagName === 'wa-dialog')?.attributes;
-
-  if (!attributes || attributes.length === 0) {
-    throw new Error('wa-dialog attributes missing from the Free CEM');
-  }
-
-  return attributes.flatMap((attribute) => {
-    if (!attribute.name) return [];
-    const value =
-      attribute.type?.text === 'boolean' ? true : `probe-${attribute.name}`;
-    return [{ name: attribute.name, value }];
-  });
+function probeAttributes(
+  attributes: ComponentMetadata['attributes']
+): ReactTemplateProbe['attributes'] {
+  return attributes.map((attribute) => ({
+    name: attribute.name,
+    value: attribute.type === 'boolean' ? true : `probe-${attribute.name}`,
+  }));
 }
 
 /** Omits the useEffect cleanup on purpose, so the harness has a leak to report. */

@@ -141,6 +141,7 @@ describe('generateTypeScriptSource / generateCssMetadataSource (issue #34)', () 
     const sample: ComponentMetadata = {
       tagName: 'wa-button',
       className: 'WaButton',
+      attributes: [],
       events: [],
       slots: [],
       methods: [],

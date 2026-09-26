@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (105 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (106 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -106,6 +106,7 @@ tests/
 │   ├── validate-registry.test.ts    # Registry validator (fields, props, tags)
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── parse-custom-elements-types.test.ts # Shared metadata types: generated modules import+re-export, never re-declare (issue #34)
+│   ├── parse-custom-elements-attributes.test.ts # extractAttributes: boolean-vs-string classification, untyped attributes kept (did-ssr), otp-input/pagination/tag-input coverage (issue #105)
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
@@ -792,6 +793,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Last Updated:** 2026-09-26
 
+- added tests/unit/parse-custom-elements-attributes.test.ts covering extractAttributes (boolean-vs-string classification, untyped attributes kept) and regression-pinning COMPONENT_METADATA.dialog's did-ssr plus otp-input/pagination/tag-input attribute coverage, issue #105
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
 - added tests/unit/relaxed-compile-check.test.ts, which pins the relaxed generate-then-tsc check (strict: false) until a later ticket removes it
 - added tests/unit/scripts/generator-utils.test.ts covering sibling Wa* type imports vs named self-module types
