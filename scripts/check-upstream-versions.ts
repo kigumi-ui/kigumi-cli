@@ -10,21 +10,37 @@
  * this repo changing, and no change-triggered check could have seen it coming.
  *
  * REPORTS (never fails the build):
- * - The pinned Web Awesome version against the latest published release.
  * - The pinned create-vite version (test scaffold fixture, issue #98)
  *   against the latest published release. Not in package.json — invoked
  *   via `pnpm create`, not installed — so Dependabot cannot see it.
  * - The declared range for tracked toolchain packages against the latest
- *   published major, which is where the breaking changes live.
+ *   published major, which is where the breaking changes live, EXCLUDING
+ *   majors already recorded in `scripts/upstream-holds.json` — a major that
+ *   was evaluated and is being deliberately held (e.g. TypeScript 7 removing
+ *   `baseUrl`, Vitest 5 collapsing mutation score) is a decision already
+ *   made, not new information, and re-reporting it every week trains the
+ *   reader to stop opening the report.
+ *
+ * Web Awesome is NOT reported here. `wa-upgrade` (in the same workflow)
+ * already tracks it precisely — comparing the published CEM against the pin
+ * and describing what an upgrade would touch — and only comments when the
+ * version actually changes. Counting WA drift in this script's `drift`
+ * output too would post the same release twice, once per job, every week
+ * WA has shipped a minor/patch nobody has taken yet.
  *
  * This script always exits 0. An upstream release is information, not a break.
- * A new major landing is exactly the thing worth a weekly heads-up, and
- * exactly the thing that must never turn the repo red on its own.
+ * A new, not-yet-held major landing is exactly the thing worth a weekly
+ * heads-up, and exactly the thing that must never turn the repo red on its
+ * own.
  *
  * WHAT IS DELIBERATELY NOT DONE:
  * - Updating anything. Dependabot already opens dependency PRs; Web Awesome is
  *   deliberately excluded from it because a bump there is a coordinated effort
  *   touching registry, templates, docs and fixtures at once.
+ * - Expiring a hold automatically. `scripts/upstream-holds.json` is edited by
+ *   hand when the held package is upgraded or a newer major appears above the
+ *   held version; there is no TTL, because "still holding" is a fact about
+ *   this repo, not about how much time has passed.
  *
  * USAGE:
  *   pnpm check:upstream-versions
@@ -38,6 +54,7 @@ import pc from 'picocolors';
 
 const __filename = fileURLToPath(import.meta.url);
 const PROJECT_ROOT = path.dirname(path.dirname(__filename));
+const HOLDS_PATH = path.join(path.dirname(__filename), 'upstream-holds.json');
 
 /**
  * Toolchain packages whose major bumps have historically broken this repo.
@@ -59,6 +76,48 @@ export interface VersionDrift {
   current: string;
   latest: string;
   majorBump: boolean;
+}
+
+export interface UpstreamHold {
+  upTo: string;
+  reason: string;
+}
+
+export type UpstreamHolds = Record<string, UpstreamHold>;
+
+/**
+ * Read `scripts/upstream-holds.json`. An absent file means nothing is held —
+ * every package reports normally.
+ */
+export function readHolds(holdsPath = HOLDS_PATH): UpstreamHolds {
+  if (!fs.existsSync(holdsPath)) {
+    return {};
+  }
+  return fs.readJsonSync(holdsPath) as UpstreamHolds;
+}
+
+/**
+ * True when `latest` is a version this repo already knows about and is
+ * deliberately not taking yet. Compares by major only: a hold recorded
+ * against 7.0.2 still covers 7.1.0, since the reason for holding (baseUrl
+ * removed, mutation score collapsed) is a property of the major, not the
+ * exact patch that was on npm the week the hold was written. A newer major
+ * than the held one (8.x when the hold says 7.0.2) is NOT covered — that is
+ * new information the hold has never seen.
+ */
+export function isHeld(
+  latest: string,
+  hold: UpstreamHold | undefined
+): boolean {
+  if (!hold) {
+    return false;
+  }
+  const heldMajor = majorOf(hold.upTo);
+  const latestMajor = majorOf(latest);
+  if (heldMajor === null || latestMajor === null) {
+    return false;
+  }
+  return latestMajor === heldMajor;
 }
 
 /**
@@ -104,12 +163,6 @@ async function latestVersion(name: string): Promise<string | null> {
   }
 }
 
-/** Read the Web Awesome pin out of the constant that owns it. */
-export function readWebAwesomePin(source: string): string | null {
-  const match = /DEFAULT_WEBAWESOME_VERSION\s*=\s*'([^']+)'/.exec(source);
-  return match ? match[1]! : null;
-}
-
 /**
  * Read the create-vite pin out of the constant that owns it (issue #98).
  * Not in package.json — `create-vite` is invoked via `pnpm create`, not
@@ -122,35 +175,19 @@ export function readCreateVitePin(source: string): string | null {
 }
 
 export interface DriftReport {
-  webAwesome: VersionDrift | null;
   createVite: VersionDrift | null;
   toolchain: VersionDrift[];
+  /** Toolchain majors that exist upstream but are suppressed by a hold. */
+  held: VersionDrift[];
   unreachable: string[];
 }
 
-export async function checkUpstreamVersions(): Promise<DriftReport> {
+export async function checkUpstreamVersions(
+  holds: UpstreamHolds = readHolds()
+): Promise<DriftReport> {
   const unreachable: string[] = [];
 
   const constantsPath = path.join(PROJECT_ROOT, 'src', 'constants.ts');
-  const pinnedWa = fs.existsSync(constantsPath)
-    ? readWebAwesomePin(fs.readFileSync(constantsPath, 'utf8'))
-    : null;
-
-  let webAwesome: VersionDrift | null = null;
-  if (pinnedWa) {
-    const latest = await latestVersion('@awesome.me/webawesome');
-    if (latest === null) {
-      unreachable.push('@awesome.me/webawesome');
-    } else if (latest !== pinnedWa) {
-      webAwesome = {
-        name: '@awesome.me/webawesome',
-        current: pinnedWa,
-        latest,
-        majorBump: isMajorBump(pinnedWa, latest),
-      };
-    }
-  }
-
   const pinnedCreateVite = fs.existsSync(constantsPath)
     ? readCreateVitePin(fs.readFileSync(constantsPath, 'utf8'))
     : null;
@@ -177,6 +214,7 @@ export async function checkUpstreamVersions(): Promise<DriftReport> {
   const declared = { ...pkg.dependencies, ...pkg.devDependencies };
 
   const toolchain: VersionDrift[] = [];
+  const held: VersionDrift[] = [];
   for (const name of TRACKED_PACKAGES) {
     const range = declared[name];
     if (!range) {
@@ -188,26 +226,22 @@ export async function checkUpstreamVersions(): Promise<DriftReport> {
       unreachable.push(name);
       continue;
     }
-    if (isMajorBump(current, latest)) {
-      toolchain.push({ name, current, latest, majorBump: true });
+    if (!isMajorBump(current, latest)) {
+      continue;
+    }
+    const drift: VersionDrift = { name, current, latest, majorBump: true };
+    if (isHeld(latest, holds[name])) {
+      held.push(drift);
+    } else {
+      toolchain.push(drift);
     }
   }
 
-  return { webAwesome, createVite, toolchain, unreachable };
+  return { createVite, toolchain, held, unreachable };
 }
 
 function printReport(report: DriftReport): void {
   console.log(pc.cyan('\nComparing pinned versions against the registry...\n'));
-
-  if (report.webAwesome) {
-    const { current, latest, majorBump } = report.webAwesome;
-    const label = majorBump ? pc.yellow('major') : pc.dim('minor/patch');
-    console.log(
-      `  ${pc.yellow('Web Awesome')}  ${current} -> ${latest}  (${label})`
-    );
-  } else {
-    console.log(pc.green('  Web Awesome is on the latest published version.'));
-  }
 
   if (report.createVite) {
     const { current, latest, majorBump } = report.createVite;
@@ -225,7 +259,16 @@ function printReport(report: DriftReport): void {
       console.log(`    ${drift.name}: ${drift.current} -> ${drift.latest}`);
     }
   } else {
-    console.log(pc.green('  No toolchain major bumps pending.'));
+    console.log(pc.green('  No new toolchain major bumps pending.'));
+  }
+
+  if (report.held.length > 0) {
+    console.log(pc.dim('\n  Held (already triaged, not re-reported):'));
+    for (const drift of report.held) {
+      console.log(
+        pc.dim(`    ${drift.name}: ${drift.current} -> ${drift.latest}`)
+      );
+    }
   }
 
   if (report.unreachable.length > 0) {
@@ -247,20 +290,11 @@ async function main(): Promise<void> {
     printReport(report);
 
     if (process.env.GITHUB_OUTPUT) {
-      const driftCount =
-        (report.webAwesome ? 1 : 0) +
-        (report.createVite ? 1 : 0) +
-        report.toolchain.length;
+      const driftCount = (report.createVite ? 1 : 0) + report.toolchain.length;
       fs.appendFileSync(
         process.env.GITHUB_OUTPUT,
         `drift=${driftCount > 0 ? '1' : '0'}\n`
       );
-      if (report.webAwesome) {
-        fs.appendFileSync(
-          process.env.GITHUB_OUTPUT,
-          `wa_current=${report.webAwesome.current}\nwa_latest=${report.webAwesome.latest}\n`
-        );
-      }
     }
   } catch (error) {
     console.error(

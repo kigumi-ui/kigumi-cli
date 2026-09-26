@@ -1,17 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isHeld,
   isMajorBump,
   majorOf,
   parsePinned,
   readCreateVitePin,
-  readWebAwesomePin,
+  readHolds,
+  type UpstreamHold,
 } from '../../../scripts/check-upstream-versions.js';
 
 /**
  * Internals exported for test coverage: `parsePinned`, `majorOf`,
- * `isMajorBump`, `readWebAwesomePin` and `readCreateVitePin` are the version
- * matchers, pulled out of the reporter so the major-boundary rule can be
- * asserted without reaching the npm registry. Registered in tests/AGENTS.md.
+ * `isMajorBump`, `readCreateVitePin`, `readHolds` and `isHeld` are the
+ * version matchers, pulled out of the reporter so the major-boundary and
+ * hold rules can be asserted without reaching the npm registry. Registered
+ * in tests/AGENTS.md.
  */
 describe('check-upstream-versions matchers (test-only seams)', () => {
   describe('parsePinned', () => {
@@ -78,26 +81,6 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
     });
   });
 
-  describe('readWebAwesomePin', () => {
-    it('reads the version out of the constant that owns it', () => {
-      const source = "export const DEFAULT_WEBAWESOME_VERSION = '3.10.0';";
-      expect(readWebAwesomePin(source)).toBe('3.10.0');
-    });
-
-    it('tolerates whitespace around the assignment', () => {
-      const source = "export const DEFAULT_WEBAWESOME_VERSION   =   '3.12.0';";
-      expect(readWebAwesomePin(source)).toBe('3.12.0');
-    });
-
-    it('returns null when the constant is absent', () => {
-      // Renaming the constant must surface as "cannot read", never as a
-      // silent comparison against the wrong value.
-      expect(readWebAwesomePin('export const SOMETHING_ELSE = "3.10.0";')).toBe(
-        null
-      );
-    });
-  });
-
   describe('readCreateVitePin', () => {
     it('reads the version out of the constant that owns it', () => {
       const source = "export const CREATE_VITE_VERSION = '9.2.1';";
@@ -115,6 +98,48 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
       expect(readCreateVitePin('export const SOMETHING_ELSE = "9.2.1";')).toBe(
         null
       );
+    });
+  });
+
+  describe('readHolds', () => {
+    it('returns an empty object when the holds file does not exist', () => {
+      expect(readHolds('/nonexistent/upstream-holds.json')).toEqual({});
+    });
+  });
+
+  describe('isHeld', () => {
+    const held: UpstreamHold = {
+      upTo: '7.0.2',
+      reason: 'TS7 removes baseUrl and breaks kigumi init',
+    };
+
+    it('covers the exact held version', () => {
+      expect(isHeld('7.0.2', held)).toBe(true);
+    });
+
+    it('covers a later patch or minor within the same held major', () => {
+      // The hold is a decision about the major, not the exact patch that was
+      // on npm the week it was written.
+      expect(isHeld('7.1.0', held)).toBe(true);
+      expect(isHeld('7.0.9', held)).toBe(true);
+    });
+
+    it('does not cover a major newer than the one held', () => {
+      // A hold against 7.0.2 has never seen 8.x; that is new information.
+      expect(isHeld('8.0.0', held)).toBe(false);
+    });
+
+    it('does not cover a major older than the one held', () => {
+      expect(isHeld('6.9.0', held)).toBe(false);
+    });
+
+    it('is false when there is no hold for the package', () => {
+      expect(isHeld('7.0.2', undefined)).toBe(false);
+    });
+
+    it('stays quiet when either side is unparseable', () => {
+      expect(isHeld('latest', held)).toBe(false);
+      expect(isHeld('7.0.2', { upTo: 'next', reason: 'n/a' })).toBe(false);
     });
   });
 });
