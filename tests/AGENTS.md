@@ -650,10 +650,11 @@ helper's logic in isolation. Current cases:
   takes its `request` function as an argument so issue #37 (HEAD 404, GET 200)
   cannot regress without a live page.
 
-- `parsePinned`, `majorOf`, `isMajorBump` and `readWebAwesomePin` in
-  `scripts/check-upstream-versions.ts` — the version matchers, asserted
-  directly by `tests/unit/scripts/check-upstream-versions.test.ts`. Exported
-  so the major-boundary rule, including the downgrade and unparseable cases,
+- `parsePinned`, `majorOf`, `isMajorBump`, `readWebAwesomePin` and
+  `readCreateVitePin` in `scripts/check-upstream-versions.ts` — the version
+  matchers, asserted directly by
+  `tests/unit/scripts/check-upstream-versions.test.ts`. Exported so the
+  major-boundary rule, including the downgrade and unparseable cases,
   can be asserted without reaching the npm registry.
 
 - `tagNames`, `attributeTypes` and `diffManifests` in
@@ -827,3 +828,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - the Dialog harness asserts the stubbed dialog module was imported, so a mock path that stops matching goes red instead of passing on timing, issue #74
 - the Dialog harness checks each callback receives the dispatched event, and was bug-injected against the real Dialog template (dropped cleanup, misspelled event, wrong callback, new event object, lost className, unforwarded props, wrong tag), issue #74
 - added scripts/is-entry-point.test.ts (real tmp symlink) and parse-custom-elements-import.test.ts, both bug-injected: plain string compare and an unguarded main() each go red, issue #106
+- free-consumer-tsc.test.ts's scaffold now names an exact create-vite version (`CREATE_VITE_VERSION` in src/constants.ts); tracked by the weekly upstream report, not Dependabot, since it's invoked via `pnpm create` rather than installed as a dependency, issue #98

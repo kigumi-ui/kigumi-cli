@@ -3,14 +3,15 @@ import {
   isMajorBump,
   majorOf,
   parsePinned,
+  readCreateVitePin,
   readWebAwesomePin,
 } from '../../../scripts/check-upstream-versions.js';
 
 /**
  * Internals exported for test coverage: `parsePinned`, `majorOf`,
- * `isMajorBump` and `readWebAwesomePin` are the version matchers, pulled out
- * of the reporter so the major-boundary rule can be asserted without reaching
- * the npm registry. Registered in tests/AGENTS.md.
+ * `isMajorBump`, `readWebAwesomePin` and `readCreateVitePin` are the version
+ * matchers, pulled out of the reporter so the major-boundary rule can be
+ * asserted without reaching the npm registry. Registered in tests/AGENTS.md.
  */
 describe('check-upstream-versions matchers (test-only seams)', () => {
   describe('parsePinned', () => {
@@ -92,6 +93,26 @@ describe('check-upstream-versions matchers (test-only seams)', () => {
       // Renaming the constant must surface as "cannot read", never as a
       // silent comparison against the wrong value.
       expect(readWebAwesomePin('export const SOMETHING_ELSE = "3.10.0";')).toBe(
+        null
+      );
+    });
+  });
+
+  describe('readCreateVitePin', () => {
+    it('reads the version out of the constant that owns it', () => {
+      const source = "export const CREATE_VITE_VERSION = '9.2.1';";
+      expect(readCreateVitePin(source)).toBe('9.2.1');
+    });
+
+    it('tolerates whitespace around the assignment', () => {
+      const source = "export const CREATE_VITE_VERSION   =   '9.2.1';";
+      expect(readCreateVitePin(source)).toBe('9.2.1');
+    });
+
+    it('returns null when the constant is absent', () => {
+      // Renaming the constant must surface as "cannot read", never as a
+      // silent comparison against the wrong value.
+      expect(readCreateVitePin('export const SOMETHING_ELSE = "9.2.1";')).toBe(
         null
       );
     });

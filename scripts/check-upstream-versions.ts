@@ -11,6 +11,9 @@
  *
  * REPORTS (never fails the build):
  * - The pinned Web Awesome version against the latest published release.
+ * - The pinned create-vite version (test scaffold fixture, issue #98)
+ *   against the latest published release. Not in package.json — invoked
+ *   via `pnpm create`, not installed — so Dependabot cannot see it.
  * - The declared range for tracked toolchain packages against the latest
  *   published major, which is where the breaking changes live.
  *
@@ -107,8 +110,20 @@ export function readWebAwesomePin(source: string): string | null {
   return match ? match[1]! : null;
 }
 
+/**
+ * Read the create-vite pin out of the constant that owns it (issue #98).
+ * Not in package.json — `create-vite` is invoked via `pnpm create`, not
+ * installed as a dependency — so Dependabot cannot see it; this weekly
+ * report is the only drift signal for it.
+ */
+export function readCreateVitePin(source: string): string | null {
+  const match = /CREATE_VITE_VERSION\s*=\s*'([^']+)'/.exec(source);
+  return match ? match[1]! : null;
+}
+
 export interface DriftReport {
   webAwesome: VersionDrift | null;
+  createVite: VersionDrift | null;
   toolchain: VersionDrift[];
   unreachable: string[];
 }
@@ -136,6 +151,25 @@ export async function checkUpstreamVersions(): Promise<DriftReport> {
     }
   }
 
+  const pinnedCreateVite = fs.existsSync(constantsPath)
+    ? readCreateVitePin(fs.readFileSync(constantsPath, 'utf8'))
+    : null;
+
+  let createVite: VersionDrift | null = null;
+  if (pinnedCreateVite) {
+    const latest = await latestVersion('create-vite');
+    if (latest === null) {
+      unreachable.push('create-vite');
+    } else if (latest !== pinnedCreateVite) {
+      createVite = {
+        name: 'create-vite',
+        current: pinnedCreateVite,
+        latest,
+        majorBump: isMajorBump(pinnedCreateVite, latest),
+      };
+    }
+  }
+
   const pkg = fs.readJsonSync(path.join(PROJECT_ROOT, 'package.json')) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
@@ -159,7 +193,7 @@ export async function checkUpstreamVersions(): Promise<DriftReport> {
     }
   }
 
-  return { webAwesome, toolchain, unreachable };
+  return { webAwesome, createVite, toolchain, unreachable };
 }
 
 function printReport(report: DriftReport): void {
@@ -173,6 +207,16 @@ function printReport(report: DriftReport): void {
     );
   } else {
     console.log(pc.green('  Web Awesome is on the latest published version.'));
+  }
+
+  if (report.createVite) {
+    const { current, latest, majorBump } = report.createVite;
+    const label = majorBump ? pc.yellow('major') : pc.dim('minor/patch');
+    console.log(
+      `  ${pc.yellow('create-vite')}  ${current} -> ${latest}  (${label})`
+    );
+  } else {
+    console.log(pc.green('  create-vite is on the latest published version.'));
   }
 
   if (report.toolchain.length > 0) {
@@ -203,7 +247,10 @@ async function main(): Promise<void> {
     printReport(report);
 
     if (process.env.GITHUB_OUTPUT) {
-      const driftCount = (report.webAwesome ? 1 : 0) + report.toolchain.length;
+      const driftCount =
+        (report.webAwesome ? 1 : 0) +
+        (report.createVite ? 1 : 0) +
+        report.toolchain.length;
       fs.appendFileSync(
         process.env.GITHUB_OUTPUT,
         `drift=${driftCount > 0 ? '1' : '0'}\n`
