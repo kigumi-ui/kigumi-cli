@@ -388,15 +388,23 @@ export function generateComponentTS(
       );
     }
 
-    // CVA: listen for value changes
+    // CVA: listen for value changes on the event the component emits when a
+    // user edits it: `input` where the CEM declares one, else `change`.
+    // wa-rating only dispatches change, so listening on input never updated
+    // the form (issue #77).
     if (CVA_VALUE_COMPONENTS.has(componentKey)) {
+      const valueEvent = events.some((e) => e.name === 'input')
+        ? 'input'
+        : 'change';
       lines.push('');
       lines.push(
         '    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);'
       );
-      lines.push("    el.addEventListener('input', handleValueChange);");
       lines.push(
-        "    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));"
+        `    el.addEventListener('${valueEvent}', handleValueChange);`
+      );
+      lines.push(
+        `    this.cleanups.push(() => el.removeEventListener('${valueEvent}', handleValueChange));`
       );
       lines.push('    const handleBlurTouch = () => this.onTouchedCallback();');
       lines.push("    el.addEventListener('blur', handleBlurTouch);");

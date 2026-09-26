@@ -248,6 +248,29 @@ const INTERSECTION_OBSERVER_FIXTURE: ComponentDefinition = {
   tier: 'free',
 };
 
+// Rating is a value form control whose CEM declares `change` but no `input`,
+// so its ControlValueAccessor must read the value on `change` (issue #77).
+const RATING_FIXTURE: ComponentDefinition = {
+  name: 'Rating',
+  tagName: 'wa-rating',
+  category: 'Forms',
+  description: 'Ratings give users a way to quickly view and provide feedback',
+  dependencies: [],
+  files: {
+    angular: ['components/Rating/rating.component.ts'],
+  },
+  props: [
+    {
+      name: 'value',
+      type: 'number',
+      default: '0',
+      description: 'The current rating',
+    },
+  ],
+  importPath: '@awesome.me/webawesome/dist/components/rating/rating.js',
+  tier: 'free',
+};
+
 describe('generateComponentTS', () => {
   it('emits the Button component', () => {
     expect(generateComponentTS(BUTTON_FIXTURE, 'button')).toMatchSnapshot();
@@ -268,6 +291,10 @@ describe('generateComponentTS', () => {
         'intersection-observer'
       )
     ).toMatchSnapshot();
+  });
+
+  it('reads a form value on change where the CEM declares no input', () => {
+    expect(generateComponentTS(RATING_FIXTURE, 'rating')).toMatchSnapshot();
   });
 
   it('refuses an on* prop it cannot write from the class', () => {
