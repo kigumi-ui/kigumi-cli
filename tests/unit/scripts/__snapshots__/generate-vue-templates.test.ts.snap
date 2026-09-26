@@ -30,7 +30,7 @@ describe('Button', () => {
 
 exports[`generateVueJavascriptTemplate > emits the Badge JS wrapper (no events, no methods branch) 1`] = `
 "<script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, useAttrs } from 'vue';
 import './Badge.css';
 
 let loadPromise = null;
@@ -48,17 +48,34 @@ const props = defineProps({
     attention: { type: String, required: false, default: 'none' }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits([]);
 
@@ -76,7 +93,7 @@ defineExpose({
 <template>
   <wa-badge
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />
@@ -87,7 +104,7 @@ defineExpose({
 
 exports[`generateVueJavascriptTemplate > emits the Button JS wrapper 1`] = `
 "<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import './Button.css';
 
 let loadPromise = null;
@@ -120,17 +137,34 @@ const props = defineProps({
     formtarget: { type: String, required: false }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits(['blur', 'focus', 'wa-invalid']);
 
@@ -153,7 +187,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -176,7 +210,7 @@ defineExpose({
 <template>
   <wa-button
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />
@@ -187,7 +221,7 @@ defineExpose({
 
 exports[`generateVueJavascriptTemplate > emits the Dialog JS wrapper (open v-model branch) 1`] = `
 "<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './Dialog.css';
 
 let loadPromise = null;
@@ -205,17 +239,34 @@ const props = defineProps({
     'without-header': { type: Boolean, required: false, default: false }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits(['wa-show', 'wa-after-show', 'wa-hide', 'wa-after-hide']);
 
@@ -247,7 +298,7 @@ onMounted(() => {
   el.addEventListener('wa-after-hide', handleWaAfterHide);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -265,9 +316,9 @@ defineExpose({
 <template>
   <wa-dialog
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
-    :open="open"
+    :open="open || undefined"
   >
     <slot />
   </wa-dialog>
@@ -277,7 +328,7 @@ defineExpose({
 
 exports[`generateVueJavascriptTemplate > emits the Input JS wrapper (value v-model branch) 1`] = `
 "<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './Input.css';
 
 let loadPromise = null;
@@ -294,17 +345,34 @@ const props = defineProps({
     'with-clear': { type: Boolean, required: false, default: false }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits(['input', 'change', 'blur', 'focus', 'wa-clear', 'wa-invalid']);
 
@@ -340,7 +408,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -371,7 +439,7 @@ defineExpose({
 <template>
   <wa-input
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
     :value="model"
   >
@@ -383,7 +451,7 @@ defineExpose({
 
 exports[`generateVueJavascriptTemplate > emits the Markdown JS wrapper with the @remarks JSDoc for removed imperative methods 1`] = `
 "<script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, useAttrs } from 'vue';
 import './Markdown.css';
 
 let loadPromise = null;
@@ -400,17 +468,34 @@ const props = defineProps({
     'tab-size': { type: Number, required: false, default: 4 }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits([]);
 
@@ -429,7 +514,7 @@ defineExpose({
 <template>
   <wa-markdown
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />
@@ -440,7 +525,7 @@ defineExpose({
 
 exports[`generateVueJavascriptTemplate > emits the NumberInput JS wrapper (untyped value model) 1`] = `
 "<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './NumberInput.css';
 
 let loadPromise = null;
@@ -455,17 +540,34 @@ const props = defineProps({
     disabled: { type: Boolean, required: false, default: false }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits(['input', 'change', 'blur', 'focus', 'beforeinput', 'wa-invalid']);
 
@@ -501,7 +603,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -529,7 +631,7 @@ defineExpose({
 <template>
   <wa-number-input
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
     :value="model"
   >
@@ -541,7 +643,7 @@ defineExpose({
 
 exports[`generateVueJavascriptTemplate > emits the Switch JS wrapper (checked v-model branch) 1`] = `
 "<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './Switch.css';
 
 let loadPromise = null;
@@ -561,17 +663,34 @@ const props = defineProps({
     hint: { type: String, required: false, default: '' }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits(['change', 'input', 'blur', 'focus', 'wa-invalid']);
 
@@ -605,7 +724,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -630,9 +749,9 @@ defineExpose({
 <template>
   <wa-switch
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
-    :checked="model"
+    :checked="model || undefined"
   >
     <slot />
   </wa-switch>
@@ -642,7 +761,7 @@ defineExpose({
 
 exports[`generateVueJavascriptTemplate > emits the Toast JS wrapper (no type import, bare method params) 1`] = `
 "<script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, useAttrs } from 'vue';
 import './Toast.css';
 
 let loadPromise = null;
@@ -657,17 +776,34 @@ const props = defineProps({
     variant: { type: String, required: false, default: 'brand' }
 });
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits([]);
 
@@ -686,7 +822,7 @@ defineExpose({
 <template>
   <wa-toast
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />
@@ -697,7 +833,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the Badge wrapper (no events, no methods branch) 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, useAttrs } from 'vue';
 import './Badge.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -717,17 +853,34 @@ export interface BadgeProps {
 
 const props = defineProps<BadgeProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   // No events for this component
@@ -747,7 +900,7 @@ defineExpose({
 <template>
   <wa-badge
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />
@@ -758,7 +911,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the Button wrapper 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import './Button.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -793,17 +946,34 @@ export interface ButtonProps {
 
 const props = defineProps<ButtonProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   'blur': [event: FocusEvent];
@@ -830,7 +1000,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -853,7 +1023,7 @@ defineExpose({
 <template>
   <wa-button
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />
@@ -864,7 +1034,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the Dialog wrapper (open v-model branch) 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -884,17 +1054,34 @@ export interface DialogProps {
 
 const props = defineProps<DialogProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   'wa-show': [event: CustomEvent];
@@ -931,7 +1118,7 @@ onMounted(() => {
   el.addEventListener('wa-after-hide', handleWaAfterHide);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -949,9 +1136,9 @@ defineExpose({
 <template>
   <wa-dialog
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
-    :open="open"
+    :open="open || undefined"
   >
     <slot />
   </wa-dialog>
@@ -961,7 +1148,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the Input wrapper (value v-model branch) 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './Input.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -980,17 +1167,34 @@ export interface InputProps {
 
 const props = defineProps<InputProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   'input': [event: InputEvent];
@@ -1033,7 +1237,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -1064,7 +1268,7 @@ defineExpose({
 <template>
   <wa-input
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
     :value="model"
   >
@@ -1076,7 +1280,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the Markdown wrapper with the @remarks JSDoc for removed imperative methods 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, useAttrs } from 'vue';
 import './Markdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1095,17 +1299,34 @@ export interface MarkdownProps {
 
 const props = defineProps<MarkdownProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   // No events for this component
@@ -1126,7 +1347,7 @@ defineExpose({
 <template>
   <wa-markdown
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />
@@ -1137,7 +1358,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the NumberInput wrapper (number-typed value model) 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './NumberInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1154,17 +1375,34 @@ export interface NumberInputProps {
 
 const props = defineProps<NumberInputProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   'input': [event: InputEvent];
@@ -1207,7 +1445,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -1235,7 +1473,7 @@ defineExpose({
 <template>
   <wa-number-input
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
     :value="model"
   >
@@ -1247,7 +1485,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the Switch wrapper (checked v-model branch) 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './Switch.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1269,17 +1507,34 @@ export interface SwitchProps {
 
 const props = defineProps<SwitchProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   'change': [event: Event];
@@ -1319,7 +1574,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -1344,9 +1599,9 @@ defineExpose({
 <template>
   <wa-switch
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
-    :checked="model"
+    :checked="model || undefined"
   >
     <slot />
   </wa-switch>
@@ -1356,7 +1611,7 @@ defineExpose({
 
 exports[`generateVueTypescriptTemplate > emits the Toast wrapper (custom type import, parameterised method) 1`] = `
 "<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, useAttrs } from 'vue';
 import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import './Toast.css';
 
@@ -1374,17 +1629,34 @@ export interface ToastProps {
 
 const props = defineProps<ToastProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   // No events for this component
@@ -1405,7 +1677,7 @@ defineExpose({
 <template>
   <wa-toast
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
   >
     <slot />

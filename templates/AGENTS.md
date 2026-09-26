@@ -319,6 +319,33 @@ branch.
 This is generator-side; never edit the emitted ref pattern by hand. Edit
 `scripts/generate-react-templates.ts` instead.
 
+### 10. Vue host forwarding and listener cleanup (issue #76)
+
+Every Vue template sets `defineOptions({ inheritAttrs: false })` and binds
+`v-bind="hostAttributes()"` on the `<wa-X>` host, with `class` bound
+separately. `hostAttributes()` merges fallthrough `$attrs` and declared props:
+
+- **`false` never reaches the host.** WA reads attribute presence as true.
+  Vue gives every absent optional Boolean prop the value `false`, and would
+  render a fallthrough `false` as `attr="false"`. `aria-*` / `data-*` keep
+  `false`, since `"false"` is a real value there. Boolean models bind as
+  `:open="open || undefined"` / `:checked="model || undefined"` for the same
+  reason.
+- **Props go back to kebab-case.** Vue camelizes declared prop keys
+  (`with-caret` -> `withCaret`). Until the element upgrades (WA loads lazily
+  on mount), Vue writes that key as the attribute `withcaret`, which WA never
+  reads.
+- **A plain function, not `computed`.** `attrs` is tracked per property read,
+  so a `computed` over an empty `attrs` would miss an attribute added later.
+
+Listener cleanup runs in `onBeforeUnmount`, not `onUnmounted`: Vue nulls
+template refs before `onUnmounted` hooks run, so `elementRef.value` is `null`
+there and `removeEventListener` never ran.
+
+All three were found by the Vue function harness
+(`tests/unit/vue-function-harness-registry.test.ts`). Edit
+`scripts/generate-vue-templates.ts`, never the emitted templates.
+
 ---
 
 ## Adding New Components
@@ -396,9 +423,10 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-19
+**Last Updated:** 2026-09-26
 
 - 87 templates per framework after WA 3.13.0 (OtpInput, Pagination, TagInput)
 
 - component-count claims in this file are now enforced by validate:agents
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
+- Vue templates forward through `hostAttributes()` with `inheritAttrs: false` and clean up listeners in `onBeforeUnmount`. Found by the Vue function harness: multi-word props rendered as camelCase attributes, a `false` boolean rendered as `attr="false"`, and listeners never removed, issue #76

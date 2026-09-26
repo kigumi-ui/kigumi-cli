@@ -1,7 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import { WA_COMPONENT_STUB_ALIAS } from './vitest.wa-stub-alias.js';
+import { VUE_SFC_PLUGIN } from './vitest.vue-plugin.js';
 
 export default defineConfig({
+  plugins: [VUE_SFC_PLUGIN],
   resolve: {
     alias: [WA_COMPONENT_STUB_ALIAS],
   },
