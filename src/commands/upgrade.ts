@@ -155,7 +155,18 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
       return;
     }
 
-    // 9. Confirm and apply upgrade
+    // 9. Resolve what the install needs before confirming or writing
+    // anything: a broken package.json then fails here, with
+    // kigumi.config.json untouched (issue #121).
+    const install =
+      waVersionChanged && options.install !== false
+        ? {
+            projectInfo: await getProjectInfo(cwd),
+            tier: await detectTier(cwd),
+          }
+        : undefined;
+
+    // 10. Confirm and apply upgrade
     output.info('');
     const shouldUpgrade = options.yes
       ? true
@@ -166,36 +177,39 @@ export async function upgradeCommand(options: UpgradeOptions = {}) {
       return;
     }
 
-    // 9a. Update config. The patch primitive deep-merges `webAwesome`, so
-    // sibling keys on disk are preserved without spreading `config.webAwesome`
-    // here (which would be `undefined` for projects that never set it).
+    // 10a. Apply the upgrade to the in-memory config: installDependencies
+    // reads the Web Awesome version from it. The patch primitive deep-merges
+    // `webAwesome`, so sibling keys on disk are preserved without spreading
+    // `config.webAwesome` here (which would be `undefined` for projects that
+    // never set it).
     const upgradePatch: ConfigPatch = { kigumiVersion: CLI_VERSION };
     if (toEntry) {
       upgradePatch.webAwesome = { version: toEntry.webAwesomeVersion };
     }
-    await saveConfig(upgradePatch, cwd);
     config.kigumiVersion = CLI_VERSION;
     if (toEntry) {
       config.webAwesome = config.webAwesome || {};
       config.webAwesome.version = toEntry.webAwesomeVersion;
     }
-    output.success(`Updated kigumiVersion to ${CLI_VERSION}`);
 
-    // 9b. Install updated Web Awesome package
-    if (waVersionChanged && options.install !== false) {
-      const projectInfo = await getProjectInfo(cwd);
-      const tier = await detectTier(cwd);
-
+    // 10b. Install the updated Web Awesome package, then save the config.
+    // In this order a failed install leaves kigumi.config.json on the old
+    // version, so the next `kigumi upgrade` retries the install instead of
+    // reporting "Already up to date" (issue #121).
+    if (install) {
       await installDependencies({
         cwd,
         config,
-        tier,
-        packageManager: projectInfo.packageManager,
+        tier: install.tier,
+        packageManager: install.projectInfo.packageManager,
         output,
       });
     }
 
-    // 10. Show next steps
+    await saveConfig(upgradePatch, cwd);
+    output.success(`Updated kigumiVersion to ${CLI_VERSION}`);
+
+    // 11. Show next steps
     output.info('');
     output.note(
       'Next steps',

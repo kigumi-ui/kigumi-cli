@@ -304,13 +304,48 @@ describe('upgrade command', () => {
     await upgradeCommand({ cwd: testDir, yes: true });
 
     // WA version changes from ^3.2.1 to ^3.4.0, so install should be called
+    // with the new version already applied to the config it reads.
     expect(installDependencies).toHaveBeenCalledWith(
       expect.objectContaining({
         cwd: testDir,
         tier: 'free',
         packageManager: 'pnpm',
+        config: expect.objectContaining({
+          webAwesome: expect.objectContaining({ version: '^3.4.0' }),
+        }),
       })
     );
+
+    // The config is saved once the install succeeded.
+    const savedConfig = await fs.readJSON(
+      path.join(testDir, 'kigumi.config.json')
+    );
+    expect(savedConfig.kigumiVersion).toBe('0.13.0');
+    expect(savedConfig.webAwesome.version).toBe('^3.4.0');
+  });
+
+  // Issue #121: saving before the install meant a failed install left the
+  // config on the new version, and the next run said "Already up to date"
+  // without ever retrying the install.
+  it('keeps the old version in kigumi.config.json when the install fails', async () => {
+    await createConfig({ kigumiVersion: '0.10.0' });
+    const configPath = path.join(testDir, 'kigumi.config.json');
+    // Compared as text: a reformatted rewrite would still parse equal.
+    const configBefore = await fs.readFile(configPath, 'utf8');
+
+    const { upgradeCommand } = await import('../../src/commands/upgrade.js');
+    const installer = await import('../../src/utils/dependency-installer.js');
+    const { DependencyInstallError } =
+      await import('../../src/errors/index.js');
+    vi.mocked(installer.installDependencies).mockRejectedValueOnce(
+      new DependencyInstallError('@awesome.me/webawesome', 'pnpm')
+    );
+
+    await upgradeCommand({ cwd: testDir, yes: true });
+
+    expect(installer.installDependencies).toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalledWith(5);
+    expect(await fs.readFile(configPath, 'utf8')).toBe(configBefore);
   });
 
   it('should skip install when --no-install is passed', async () => {

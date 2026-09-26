@@ -197,7 +197,8 @@ describe('paletteCommand', () => {
         expect.objectContaining({
           theme: expect.objectContaining({ palette: 'bright' }),
         }),
-        'src/lib'
+        'src/lib',
+        'free'
       );
     });
 
@@ -212,7 +213,8 @@ describe('paletteCommand', () => {
         expect.objectContaining({
           theme: expect.objectContaining({ palette: 'shoelace' }),
         }),
-        'lib/utils'
+        'lib/utils',
+        'free'
       );
     });
 

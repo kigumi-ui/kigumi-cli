@@ -3,14 +3,11 @@
  *
  * Tests for src/utils/regenerate.ts
  *
- * Cluster S, F-126: drops the tier module-level mock entirely. Most tests
- * pass tierOverride to regenerateKigumiSetup so detection is bypassed;
- * the one test that exercised detection-driven dispatch (tierOverride=pro)
- * also passes tierOverride explicitly. getWebAwesomePackage is a pure
- * function returning the WA constants the tests already assert against,
- * so the previous mockImplementation was redundant. detectTierSync falls
- * back to token detection in the empty temp dirs (no package.json, no
- * token), returning 'free' which matches the original mock default.
+ * Cluster S, F-126: drops the tier module-level mock entirely.
+ * regenerateKigumiSetup takes the tier as a required argument (issue #121:
+ * commands detect it before their first write), so every test passes it.
+ * getWebAwesomePackage is a pure function returning the WA constants the
+ * tests already assert against, so no mock is needed.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -48,9 +45,7 @@ describe('regenerate utilities', () => {
     testDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'kigumi-regenerate-test-')
     );
-    // Without a package.json, detectTierSync falls back to token detection
-    // which reads the user's global ~/.npmrc / env vars and leaks state
-    // into tests. Write a free fixture so detection is deterministic.
+    // A free package.json keeps the project realistic; isNextProject reads it.
     await writeTierFixture(testDir, 'free');
   });
 
@@ -65,7 +60,7 @@ describe('regenerate utilities', () => {
       await fs.ensureDir(path.join(testDir, utilsDir));
       await fs.ensureDir(path.join(testDir, stylesDir));
 
-      await regenerateKigumiSetup(testDir, config, utilsDir);
+      await regenerateKigumiSetup(testDir, config, utilsDir, 'free');
 
       const kigumiPath = path.join(testDir, utilsDir, 'kigumi.ts');
       const layersPath = path.join(testDir, stylesDir, 'layers.css');
@@ -89,7 +84,7 @@ describe('regenerate utilities', () => {
         testDir,
         config,
         utilsDir,
-        undefined,
+        'free',
         { preserveLayersCSS: true }
       );
 
@@ -109,7 +104,7 @@ describe('regenerate utilities', () => {
         testDir,
         config,
         utilsDir,
-        undefined,
+        'free',
         { preserveLayersCSS: true }
       );
 
@@ -136,7 +131,7 @@ describe('regenerate utilities', () => {
         },
       };
 
-      await regenerateKigumiSetup(testDir, communityConfig, utilsDir);
+      await regenerateKigumiSetup(testDir, communityConfig, utilsDir, 'free');
 
       const layersPath = path.join(testDir, stylesDir, 'layers.css');
       const layersContent = await fs.readFile(layersPath, 'utf-8');
@@ -155,7 +150,7 @@ describe('regenerate utilities', () => {
       await fs.ensureDir(path.join(testDir, utilsDir));
       await fs.ensureDir(path.join(testDir, stylesDir));
 
-      await regenerateKigumiSetup(testDir, config, utilsDir);
+      await regenerateKigumiSetup(testDir, config, utilsDir, 'free');
 
       const layersPath = path.join(testDir, stylesDir, 'layers.css');
       const layersContent = await fs.readFile(layersPath, 'utf-8');
@@ -170,7 +165,7 @@ describe('regenerate utilities', () => {
       await fs.ensureDir(path.join(testDir, utilsDir));
       await fs.ensureDir(path.join(testDir, stylesDir));
 
-      await regenerateKigumiSetup(testDir, config, utilsDir);
+      await regenerateKigumiSetup(testDir, config, utilsDir, 'free');
 
       const kigumiPath = path.join(testDir, utilsDir, 'kigumi.ts');
       const content = await fs.readFile(kigumiPath, 'utf-8');
@@ -194,7 +189,7 @@ describe('regenerate utilities', () => {
         },
       };
 
-      await regenerateKigumiSetup(testDir, noneConfig, utilsDir);
+      await regenerateKigumiSetup(testDir, noneConfig, utilsDir, 'free');
 
       const kigumiPath = path.join(testDir, utilsDir, 'kigumi.ts');
       const content = await fs.readFile(kigumiPath, 'utf-8');

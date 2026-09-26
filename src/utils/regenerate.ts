@@ -24,7 +24,7 @@ import {
 } from '../constants.js';
 import type { KigumiConfig } from '../schemas/config.js';
 import type { Tier } from './tier.js';
-import { detectTierSync, getWebAwesomePackage } from './tier.js';
+import { getWebAwesomePackage } from './tier.js';
 import {
   isNextProject,
   detectNextRouter,
@@ -47,7 +47,9 @@ export interface RegenerateOptions {
  * @param cwd - Current working directory
  * @param config - Kigumi configuration
  * @param utilsDir - Path to utils directory (e.g., 'src/lib')
- * @param tierOverride - Optional tier override (uses .env detection if not provided)
+ * @param tier - The project's tier. Required: the command detects it before
+ *   its first write and passes it here, so a broken package.json fails the
+ *   command before it has changed anything (issue #121).
  * @param options - Optional regeneration options
  * @param isNextOverride - Pre-resolved Next-project flag. Callers that
  *   already detected this at the command entry should pass it through so
@@ -59,13 +61,11 @@ export async function regenerateKigumiSetup(
   cwd: string,
   config: KigumiConfig,
   utilsDir: string,
-  tierOverride?: Tier,
+  tier: Tier,
   options?: RegenerateOptions,
   isNextOverride?: boolean,
   nextRouterOverride?: NextRouter
 ): Promise<{ layersPreserved: boolean }> {
-  // Detect tier from .env, or use override
-  const tier = tierOverride || detectTierSync(cwd);
   const packageName = getWebAwesomePackage(tier);
   const stylesDir = config.stylesDir;
   const stylesAlias = toKigumiAlias(stylesDir);

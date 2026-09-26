@@ -189,7 +189,8 @@ describe('theme command (parent + default set)', () => {
         expect.objectContaining({
           theme: expect.objectContaining({ selected: 'awesome' }),
         }),
-        'src/lib'
+        'src/lib',
+        'free'
       );
     });
 

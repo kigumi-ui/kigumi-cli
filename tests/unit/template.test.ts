@@ -166,7 +166,13 @@ describe('template utilities', () => {
         },
       };
 
-      const component = await generateComponent(button, config, true);
+      const component = await generateComponent(
+        button,
+        config,
+        true,
+        testDir,
+        'free'
+      );
 
       expect(component).toBeDefined();
       expect(component.length).toBeGreaterThan(0);
@@ -191,7 +197,13 @@ describe('template utilities', () => {
         },
       };
 
-      const component = await generateComponent(button, config, false);
+      const component = await generateComponent(
+        button,
+        config,
+        false,
+        testDir,
+        'free'
+      );
 
       expect(component).toBeDefined();
       expect(component.length).toBeGreaterThan(0);
@@ -216,7 +228,13 @@ describe('template utilities', () => {
         },
       };
 
-      const component = await generateComponent(button, config, true);
+      const component = await generateComponent(
+        button,
+        config,
+        true,
+        testDir,
+        'free'
+      );
 
       expect(component).toBeDefined();
       expect(component.length).toBeGreaterThan(0);
@@ -240,7 +258,13 @@ describe('template utilities', () => {
         },
       };
 
-      const component = await generateComponent(button, config, false);
+      const component = await generateComponent(
+        button,
+        config,
+        false,
+        testDir,
+        'free'
+      );
 
       // String defaults must be quoted — otherwise they emit as bare identifiers
       // and crash at module load ("neutral is not defined").
@@ -656,8 +680,20 @@ describe('template utilities', () => {
         },
       };
 
-      const reactComponent = await generateComponent(button, reactConfig);
-      const vueComponent = await generateComponent(button, vueConfig);
+      const reactComponent = await generateComponent(
+        button,
+        reactConfig,
+        true,
+        testDir,
+        'free'
+      );
+      const vueComponent = await generateComponent(
+        button,
+        vueConfig,
+        true,
+        testDir,
+        'free'
+      );
 
       // React and Vue should generate different code
       expect(reactComponent).not.toBe(vueComponent);
@@ -682,8 +718,20 @@ describe('template utilities', () => {
         },
       };
 
-      const tsComponent = await generateComponent(button, config, true);
-      const jsComponent = await generateComponent(button, config, false);
+      const tsComponent = await generateComponent(
+        button,
+        config,
+        true,
+        testDir,
+        'free'
+      );
+      const jsComponent = await generateComponent(
+        button,
+        config,
+        false,
+        testDir,
+        'free'
+      );
 
       // TypeScript and JavaScript should generate different code
       expect(tsComponent).not.toBe(jsComponent);

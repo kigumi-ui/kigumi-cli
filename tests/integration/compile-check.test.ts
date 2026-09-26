@@ -284,7 +284,8 @@ describe('TypeScript Compile-Check', () => {
           component,
           config,
           true,
-          testDir
+          testDir,
+          'free'
         );
 
         const filePath = path.join(componentDir, `${component.name}.tsx`);
@@ -361,7 +362,8 @@ describe('TypeScript Compile-Check', () => {
           component,
           config,
           false,
-          testDir
+          testDir,
+          'free'
         );
 
         const filePath = path.join(componentDir, `${component.name}.jsx`);
@@ -439,7 +441,8 @@ export {};
           component,
           config,
           true,
-          testDir
+          testDir,
+          'free'
         );
 
         const filePath = path.join(componentDir, `${component.name}.vue`);
@@ -492,7 +495,8 @@ export {};
           component,
           config,
           true,
-          testDir
+          testDir,
+          'free'
         );
 
         const kebab = component.name
@@ -558,7 +562,8 @@ export {};
           complexComponent,
           config,
           true,
-          testDir
+          testDir,
+          'free'
         );
 
         const filePath = path.join(

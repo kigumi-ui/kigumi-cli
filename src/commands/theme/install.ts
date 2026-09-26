@@ -26,6 +26,7 @@ import {
 import { getGitHubToken } from '../../utils/github-token.js';
 import { resolveRegistrySource } from '../../utils/registry-resolver.js';
 import { regenerateKigumiSetup } from '../../utils/regenerate.js';
+import { detectTier } from '../../utils/tier.js';
 import type { KigumiConfig } from '../../schemas/config.js';
 
 interface ThemeInstallOptions {
@@ -69,6 +70,11 @@ export async function themeInstallAction(
       );
     }
 
+    // Detect the tier before fetching or writing anything, and pass it to
+    // regenerateKigumiSetup: a broken package.json then fails here, with no
+    // theme files written and kigumi.config.json untouched (issue #121).
+    const tier = await detectTier(cwd);
+
     // 3. Fetch registry
     const spinner = output.spinner('Fetching registry...');
     const resolvedUrl = resolveRegistrySource(options.from, config);
@@ -107,19 +113,22 @@ export async function themeInstallAction(
 
     spinner.stop(`Found theme: ${theme.name}`);
 
-    // 5. Download CSS files
+    // 5. Download CSS files. Both are fetched before either is written, so a
+    // failed download leaves no half-installed theme behind.
     const installSpinner = output.spinner('Installing theme...');
     const stylesDir = config.stylesDir;
     const themeDir = path.join(cwd, stylesDir, 'community-themes');
-    await fs.ensureDir(themeDir);
+    const themePath = path.join(themeDir, `${themeName}.css`);
+    const varsPath = path.join(themeDir, `${themeName}-variables.css`);
 
     const cssContent = await fetchFile(source, theme.files.css);
-    const themePath = path.join(themeDir, `${themeName}.css`);
-    await fs.writeFile(themePath, cssContent);
+    const varsContent = theme.files.variables
+      ? await fetchFile(source, theme.files.variables)
+      : undefined;
 
-    if (theme.files.variables) {
-      const varsContent = await fetchFile(source, theme.files.variables);
-      const varsPath = path.join(themeDir, `${themeName}-variables.css`);
+    await fs.ensureDir(themeDir);
+    await fs.writeFile(themePath, cssContent);
+    if (varsContent !== undefined) {
       await fs.writeFile(varsPath, varsContent);
     }
 
@@ -138,7 +147,7 @@ export async function themeInstallAction(
 
     // 7. Regenerate setup files
     const utilsDir = config.utilsDir;
-    await regenerateKigumiSetup(cwd, config, utilsDir);
+    await regenerateKigumiSetup(cwd, config, utilsDir, tier);
 
     installSpinner.stop('Theme installed');
 
@@ -146,8 +155,8 @@ export async function themeInstallAction(
       'Theme files',
       [
         `CSS: ${path.relative(cwd, themePath)}`,
-        theme.files.variables
-          ? `Variables: ${path.relative(cwd, path.join(themeDir, `${themeName}-variables.css`))}`
+        varsContent !== undefined
+          ? `Variables: ${path.relative(cwd, varsPath)}`
           : '',
       ]
         .filter(Boolean)

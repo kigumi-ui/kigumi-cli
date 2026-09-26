@@ -100,7 +100,7 @@ async function themeAction(themeName?: string) {
     await saveConfig({ theme: { selected: selectedTheme } }, cwd);
 
     const utilsDir = config.utilsDir;
-    await regenerateKigumiSetup(cwd, config, utilsDir);
+    await regenerateKigumiSetup(cwd, config, utilsDir, tier);
 
     spinner.stop('Theme updated');
 
