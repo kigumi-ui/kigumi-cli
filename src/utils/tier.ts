@@ -23,7 +23,7 @@ import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
-import { PackageJsonReadError } from '../errors/filesystem.js';
+import { readPackageJson, readPackageJsonSync } from './package-json.js';
 import { detectProToken, detectProTokenSync } from './token.js';
 
 export const tierSchema = z.enum(['free', 'pro'], {
@@ -31,15 +31,6 @@ export const tierSchema = z.enum(['free', 'pro'], {
 });
 
 export type Tier = z.infer<typeof tierSchema>;
-
-/**
- * `readJson` throws `SyntaxError` when package.json is not valid JSON.
- * That case falls through to token detection. Every other read failure
- * (permissions, a directory at that path) is thrown as PackageJsonReadError.
- */
-function isPackageJsonParseError(error: unknown): boolean {
-  return error instanceof SyntaxError;
-}
 
 /**
  * Detect tier based on installed package
@@ -58,7 +49,7 @@ export async function detectTier(cwd: string): Promise<Tier> {
   const packageJsonPath = path.join(cwd, 'package.json');
   if (await fs.pathExists(packageJsonPath)) {
     try {
-      const packageJson = await fs.readJson(packageJsonPath);
+      const packageJson = await readPackageJson(packageJsonPath);
       const deps = {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
@@ -75,9 +66,8 @@ export async function detectTier(cwd: string): Promise<Tier> {
       }
     } catch (error) {
       // Invalid JSON is not a tier signal; fall through to the token.
-      if (!isPackageJsonParseError(error)) {
-        throw new PackageJsonReadError(packageJsonPath, error);
-      }
+      // readPackageJson throws every other read failure as PackageJsonReadError.
+      if (!(error instanceof SyntaxError)) throw error;
     }
   }
 
@@ -97,7 +87,7 @@ export function detectTierSync(cwd: string): Tier {
   const packageJsonPath = path.join(cwd, 'package.json');
   if (fs.pathExistsSync(packageJsonPath)) {
     try {
-      const packageJson = fs.readJsonSync(packageJsonPath);
+      const packageJson = readPackageJsonSync(packageJsonPath);
       const deps = {
         ...packageJson.dependencies,
         ...packageJson.devDependencies,
@@ -114,9 +104,8 @@ export function detectTierSync(cwd: string): Tier {
       }
     } catch (error) {
       // Invalid JSON is not a tier signal; fall through to the token.
-      if (!isPackageJsonParseError(error)) {
-        throw new PackageJsonReadError(packageJsonPath, error);
-      }
+      // readPackageJsonSync throws every other read failure as PackageJsonReadError.
+      if (!(error instanceof SyntaxError)) throw error;
     }
   }
 

@@ -66,6 +66,7 @@ src/
 │   ├── metadata-types.ts # Shared CEM-metadata interfaces (`ComponentMetadata`, `CSSPart`, `CSSCustomProperty`, `ComponentCSSMetadata`) owned by the parser; generated data files import and re-export them (issue #34)
 │   ├── component-metadata.ts # Auto-generated component metadata (attributes, events, slots, methods) — data only; types live in metadata-types.ts
 │   ├── detect-framework.ts # Framework, TypeScript, package manager, Next router, source-layout detection
+│   ├── package-json.ts   # readPackageJson / readPackageJsonSync: the one reader for the user's package.json (unreadable -> PackageJsonReadError, invalid JSON -> SyntaxError)
 │   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
 │   ├── update-check.ts   # CLI update notification
 │   └── registry/
@@ -165,6 +166,14 @@ matched to the errno code, instead of reaching `handleError` as an
 `UnknownError` that tells the user to report a Kigumi bug. The installed package wins
 over a token: the free package stays `'free'` even when `WEBAWESOME_NPM_TOKEN`
 is set.
+
+The read goes through `readPackageJson` / `readPackageJsonSync`
+(`src/utils/package-json.ts`), which project detection in
+`detect-framework.ts` uses too. That matters because `init` reads
+`package.json` in `getProjectInfo` before it calls `detectTier`, and a reader
+of its own there let the raw fs error through. The helper rethrows invalid
+JSON as the original `SyntaxError`, so each caller still decides what invalid
+JSON means. `isNextProject` swallows every read error on purpose.
 
 ### Pro Authentication
 
@@ -471,9 +480,9 @@ more specific — the message is the line the user reads first.
 
 **File system errors** (`src/errors/filesystem.ts`):
 
-| Error Class            | When Thrown                                                                                                    |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `PackageJsonReadError` | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `detectTier` / `detectTierSync` only |
+| Error Class            | When Thrown                                                                                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PackageJsonReadError` | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `readPackageJson` / `readPackageJsonSync` in `utils/package-json.ts` |
 
 ---
 
@@ -541,3 +550,4 @@ output.error('Failed to install');
 - `ComponentMetadata` and the CSS-metadata interfaces live in `src/utils/metadata-types.ts`; generated modules import and re-export them rather than re-declaring the shape, issue #34
 - `detectTier` / `detectTierSync` only ignore invalid JSON from `package.json`; other read failures propagate, and the installed free package wins over a Pro token
 - a `package.json` that exists but cannot be read now throws `PackageJsonReadError` (exit code 4, names the file, errno-matched fix) instead of a raw fs error that surfaced as "unexpected error, please report", issue #99
+- `utils/package-json.ts` is the one reader for the user's `package.json`; tier detection and `detect-framework.ts` both use it, so `kigumi init` (which reads it in `getProjectInfo` before `detectTier`) reports `PackageJsonReadError` too instead of the raw fs error, issue #99

@@ -13,6 +13,8 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { listCommand } from '../../src/commands/list.js';
+import { initCommand } from '../../src/commands/init/index.js';
+import { brandCommand } from '../../src/commands/brand.js';
 import { PackageJsonReadError } from '../../src/errors/index.js';
 import {
   setOutputForTesting,
@@ -125,4 +127,50 @@ describe('user-facing output when package.json is unreadable', () => {
       expect(process.exit).toHaveBeenCalledWith(4);
     }
   );
+
+  // init reads package.json in project detection (detectFramework), before
+  // it ever reaches detectTier.
+  it('kigumi init reports a directory at package.json with exit code 4', async () => {
+    const packageJsonPath = path.join(testDir, 'package.json');
+    await fs.mkdir(packageJsonPath);
+
+    await initCommand({ cwd: testDir, yes: true });
+
+    const text = printed();
+    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
+    expect(text).toContain('package.json is a directory, not a file');
+    expect(text).not.toContain('An unexpected error occurred');
+    expect(text).not.toMatch(/report this issue/i);
+    expect(process.exit).toHaveBeenCalledWith(4);
+  });
+
+  // brand reaches tier detection through regenerateKigumiSetup, which calls
+  // detectTierSync. brand reads process.cwd(), not a cwd option.
+  it('kigumi brand reports a directory at package.json with exit code 4', async () => {
+    const originalCwd = process.cwd();
+    const projectDir = fs.realpathSync(testDir);
+    const packageJsonPath = path.join(projectDir, 'package.json');
+    await fs.writeJSON(path.join(projectDir, 'kigumi.config.json'), {
+      framework: 'react',
+      typescript: true,
+      componentsDir: 'src/components/ui',
+      utilsDir: 'src/lib',
+      theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
+    });
+    await fs.mkdir(packageJsonPath);
+
+    process.chdir(projectDir);
+    try {
+      await brandCommand.parseAsync(['node', 'brand', 'red']);
+    } finally {
+      process.chdir(originalCwd);
+    }
+
+    const text = printed();
+    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
+    expect(text).toContain('package.json is a directory, not a file');
+    expect(text).not.toContain('An unexpected error occurred');
+    expect(text).not.toMatch(/report this issue/i);
+    expect(process.exit).toHaveBeenCalledWith(4);
+  });
 });

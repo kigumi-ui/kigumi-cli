@@ -55,7 +55,7 @@ tests/
 │   ├── next-support.test.ts         # Next.js detection + 'use client' + suppressHydrationWarning + layers.css emission (App + Pages)
 │   ├── no-handlebars-tokens.test.ts # Regression guard: no `{{...}}` tokens in any template
 │   ├── options-schema.test.ts       # Command options schemas
-│   ├── package-json-read-error.test.ts # PackageJsonReadError + what `kigumi list` prints for an unreadable package.json (issue #99)
+│   ├── package-json-read-error.test.ts # PackageJsonReadError + what `kigumi list`, `init` and `brand` print for an unreadable package.json (issue #99)
 │   ├── output-di.test.ts            # Output DI hook (setOutputForTesting / resetOutputForTesting)
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
@@ -856,3 +856,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - vue-function-harness-registry.test.ts mounts every Vue Template with `aria-expanded` / `data-probe` / `probe-flag` set to `false` and asserts the first two reach the host as `"false"` and the third is dropped. Bug-injected on Button.vue: removing the aria/data exception or the attrs-loop `false` filter goes red, while vue-templates.test.ts's source-text check stays green for the latter, issue #76
 - `mountVueTemplate` (vue-function-harness.ts) is the one Vue mount for the harness unit test, the registry loop and the consumer-attribute loop, replacing three copies of the createApp/shallowRef/refHandle closure. Re-bug-injected through it: Dialog back to onUnmounted, Badge without `:class`, AccordionItem without `expand` all go red, issue #76
 - added package-json-read-error.test.ts, pinning what `kigumi list` prints when package.json is a directory or unreadable (typed error, exit 4, no "report this issue"); bug-injected by restoring the raw rethrow in tier.ts, issue #99
+- package-json-read-error.test.ts also pins `kigumi init` (project detection reads package.json before tier detection) and `kigumi brand` (the `detectTierSync` path via regenerateKigumiSetup); each bug-injected separately against the reader it goes through, issue #99

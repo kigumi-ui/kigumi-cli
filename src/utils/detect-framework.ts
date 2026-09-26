@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import { readPackageJson } from './package-json.js';
 
 export type Framework = 'react' | 'vue' | 'angular' | 'unknown';
 
@@ -56,7 +57,7 @@ export async function detectFramework(
     return 'unknown';
   }
 
-  const packageJson = await fs.readJson(packageJsonPath);
+  const packageJson = await readPackageJson(packageJsonPath);
   const deps = {
     ...packageJson.dependencies,
     ...packageJson.devDependencies,
@@ -96,7 +97,7 @@ export async function detectTypeScript(
 
   // Check package.json dependencies
   if (await fs.pathExists(packageJsonPath)) {
-    const packageJson = await fs.readJson(packageJsonPath);
+    const packageJson = await readPackageJson(packageJsonPath);
     const deps = {
       ...packageJson.dependencies,
       ...packageJson.devDependencies,
@@ -250,7 +251,7 @@ export async function getProjectInfo(
   let hasVite = false;
 
   if (await fs.pathExists(packageJsonPath)) {
-    const packageJson = await fs.readJson(packageJsonPath);
+    const packageJson = await readPackageJson(packageJsonPath);
     const deps = {
       ...packageJson.dependencies,
       ...packageJson.devDependencies,

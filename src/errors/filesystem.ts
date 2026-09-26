@@ -41,11 +41,11 @@ function readFixSteps(code: string | undefined): string[] {
 /**
  * Thrown when `package.json` exists but cannot be read.
  *
- * Tier detection reads `package.json` to find the installed Web Awesome
- * package. A missing file or invalid JSON falls through to token detection,
- * but any other read failure (permissions, a directory at that path) is a
- * problem in the user's project, not a bug in Kigumi, so it gets its own
- * error instead of the generic "unexpected error, please report" one.
+ * Thrown by `readPackageJson` / `readPackageJsonSync` (`src/utils/package-json.ts`),
+ * which tier and project detection both read through. A read failure
+ * (permissions, a directory at that path) is a problem in the user's project,
+ * not a bug in Kigumi, so it gets its own error instead of the generic
+ * "unexpected error, please report" one.
  */
 export class PackageJsonReadError extends KigumiError {
   constructor(filePath: string, cause: unknown) {
