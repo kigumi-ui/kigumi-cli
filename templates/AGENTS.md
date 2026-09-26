@@ -37,6 +37,7 @@ templates/
 - **Standalone components:** No NgModule, uses `CUSTOM_ELEMENTS_SCHEMA`
 - **Selector prefix:** `k-` (e.g. `k-button`, `k-input`)
 - **ControlValueAccessor:** Form controls (Input, Select, Checkbox, Switch, etc.) implement CVA for `ngModel` + Reactive Forms
+- **Host query:** `@ViewChild('element', { static: true })`. Reactive forms call `writeValue` / `setDisabledState` before the first view check, so a non-static query dropped a `FormControl`'s initial value and disabled state (issue #77). `#element` is never inside a structural directive, so resolving it at creation is always valid
 - **Event naming:** Strip `wa-` prefix, camelCase (`wa-after-hide` -> `afterHide`). Native event types (`FocusEvent`, `MouseEvent`, `KeyboardEvent`, `Event`) flow through to `EventEmitter<T>`; everything else (incl. WA-specific types like `BlurEvent`, `WaInvalidEvent`) currently falls back to `EventEmitter<CustomEvent>`. Tracked as F-141 — extend `mapEventType` in the generator to pass through WA-specific identifiers and emit the corresponding `import type` from the WA module.
 - **Method parameters:** Real types from the CEM flow through (`FocusOptions`, `string | File | FormData | null`, etc.) instead of `unknown`. Bare-identifier non-builtin types (currently only `ToastCreateOptions`) get a named `import type` next to the `import type WaElement` line via `collectNamedTypeImports()` in the generator.
 - **Public methods:** Only methods that the CEM marks as **non-private** are emitted. WA 3.5.0 marks `wa-dialog` / `wa-drawer` `show()`+`requestClose()` and `wa-markdown` `getMarked()`+`updateAll()` as `private` — those wrappers therefore expose **no** imperative methods. See Rule 5 below for the user-facing pattern (`[open]` attribute).
@@ -423,10 +424,11 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-26
+**Last Updated:** 2026-09-27
 
 - 87 templates per framework after WA 3.13.0 (OtpInput, Pagination, TagInput)
 
 - component-count claims in this file are now enforced by validate:agents
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
 - Vue templates forward through `hostAttributes()` with `inheritAttrs: false` and clean up listeners in `onBeforeUnmount`. Found by the Vue function harness: multi-word props rendered as camelCase attributes, a `false` boolean rendered as `attr="false"`, and listeners never removed, issue #76
+- every Angular Template resolves `#element` with `{ static: true }`: reactive forms write the initial value and disabled state before the first view check, which the non-static query dropped. Found by the Angular function harness, issue #77

@@ -42,7 +42,7 @@ function ensureLoaded() {
   styleUrl: './tag.component.css',
 })
 export class TagComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Visual appearance */

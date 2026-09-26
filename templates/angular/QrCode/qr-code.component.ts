@@ -41,7 +41,7 @@ function ensureLoaded() {
   styleUrl: './qr-code.component.css',
 })
 export class QrCodeComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The data to encode */

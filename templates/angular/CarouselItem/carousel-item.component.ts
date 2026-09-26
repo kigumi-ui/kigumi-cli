@@ -31,7 +31,7 @@ function ensureLoaded() {
   styleUrl: './carousel-item.component.css',
 })
 export class CarouselItemComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   ngAfterViewInit(): void {

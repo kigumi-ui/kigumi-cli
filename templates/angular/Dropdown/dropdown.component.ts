@@ -45,7 +45,7 @@ function ensureLoaded() {
   styleUrl: './dropdown.component.css',
 })
 export class DropdownComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Indicates whether the dropdown is open */

@@ -55,7 +55,7 @@ function ensureLoaded() {
 export class SwitchComponent
   implements AfterViewInit, OnDestroy, ControlValueAccessor
 {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Form field name */

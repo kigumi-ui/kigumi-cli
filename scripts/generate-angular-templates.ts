@@ -262,7 +262,13 @@ export function generateComponentTS(
   const implementsStr = ` implements ${interfaces.join(', ')}`;
 
   lines.push(`export class ${component.name}Component${implementsStr} {`);
-  lines.push("  @ViewChild('element') elementRef!: ElementRef<WaElement>;");
+  // `static: true` resolves the host at creation rather than after the first
+  // view check. `[formControl]` calls writeValue / setDisabledState before
+  // that check, so a non-static query dropped a reactive form's initial value
+  // and disabled state (issue #77). `#element` is never conditional.
+  lines.push(
+    "  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;"
+  );
   lines.push('  private hostRef = inject(ElementRef<HTMLElement>);');
   lines.push('');
 

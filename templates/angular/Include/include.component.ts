@@ -40,7 +40,7 @@ function ensureLoaded() {
   styleUrl: './include.component.css',
 })
 export class IncludeComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The location of the HTML file to include */

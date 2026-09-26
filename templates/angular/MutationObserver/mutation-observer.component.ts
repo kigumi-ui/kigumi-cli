@@ -44,7 +44,7 @@ function ensureLoaded() {
   styleUrl: './mutation-observer.component.css',
 })
 export class MutationObserverComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Space-separated list of attributes to observe */

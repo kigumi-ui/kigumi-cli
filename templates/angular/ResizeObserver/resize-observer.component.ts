@@ -35,7 +35,7 @@ function ensureLoaded() {
   styleUrl: './resize-observer.component.css',
 })
 export class ResizeObserverComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Disables the observer */

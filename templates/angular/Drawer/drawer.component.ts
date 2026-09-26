@@ -44,7 +44,7 @@ function ensureLoaded() {
   styleUrl: './drawer.component.css',
 })
 export class DrawerComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Indicates whether the drawer is open */

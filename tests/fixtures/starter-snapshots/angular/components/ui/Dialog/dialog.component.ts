@@ -43,7 +43,7 @@ function ensureLoaded() {
   styleUrl: './dialog.component.css',
 })
 export class DialogComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Indicates whether or not the dialog is open */

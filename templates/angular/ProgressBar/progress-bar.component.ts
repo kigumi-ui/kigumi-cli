@@ -37,7 +37,7 @@ function ensureLoaded() {
   styleUrl: './progress-bar.component.css',
 })
 export class ProgressBarComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Current progress (0-100) */

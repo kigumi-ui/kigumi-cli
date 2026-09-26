@@ -56,7 +56,7 @@ function ensureLoaded() {
 export class CheckboxComponent
   implements AfterViewInit, OnDestroy, ControlValueAccessor
 {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Draws checkbox in checked state */

@@ -31,7 +31,7 @@ function ensureLoaded() {
   styleUrl: './badge.component.css',
 })
 export class BadgeComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The badge's theme variant */
@@ -109,7 +109,7 @@ function ensureLoaded() {
   styleUrl: './button.component.css',
 })
 export class ButtonComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Semantic variant of the button */
@@ -240,7 +240,7 @@ function ensureLoaded() {
   styleUrl: './markdown.component.css',
 })
 export class MarkdownComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Tab stop width for whitespace normalization */

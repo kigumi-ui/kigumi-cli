@@ -42,7 +42,7 @@ function ensureLoaded() {
   styleUrl: './intersection-observer.component.css',
 })
 export class IntersectionObserverComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Disables the observer */

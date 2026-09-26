@@ -55,7 +55,7 @@ function ensureLoaded() {
   styleUrl: './popup.component.css',
 })
 export class PopupComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Activates the positioning logic */
