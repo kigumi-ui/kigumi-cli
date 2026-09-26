@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (112 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (113 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -122,6 +122,7 @@ tests/
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
 │   ├── angular-function-harness.ts  # proveAngularTemplate: the Angular adapter (JIT compile, `k-` selector, declared @Input()/@Output() via toAngularOutputName, component instance, `style` seam, ControlValueAccessor through a real [formControl]) over template-function-harness.ts (not a test file)
+│   ├── angular-function-harness-registry.test.ts # Loops proveAngularTemplate over every LOCAL_REGISTRY component's `.component.ts` Template (issue #77); pins the form-control catalogue (ControlValueAccessor) and the host property each maps to, both directions; an attribute may lack an @Input() only where validate:cem-sync allowlists it
 │   ├── angular-function-harness.test.ts # The Angular adapter alone, on inline JIT components: compile errors reported not thrown, selector, undeclared inputs/outputs, omittable inputs, style seam, each ControlValueAccessor facet (issue #77)
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
 │   ├── vue-function-harness.ts      # proveVueTemplate: the Vue adapter (`onWaAfterHide`, defineExpose, declared emits) over template-function-harness.ts (not a test file)
@@ -154,8 +155,8 @@ tests/
 │   │   ├── resolve-components-tolowercase.test.ts       # Multi-word components survive kebab/Pascal
 │   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   ├── _helpers/                               # Shared test helpers (see Test Helpers below); not test files
-│   │   ├── eventless-components.ts             # EVENTLESS_COMPONENTS: registry components with no CEM events, pinned data shared by the React and Vue registry harnesses
-│   │   ├── methodless-components.ts            # METHODLESS_COMPONENTS: registry components with no public CEM methods, pinned data shared by the React and Vue registry harnesses
+│   │   ├── eventless-components.ts             # EVENTLESS_COMPONENTS: registry components with no CEM events, pinned data shared by the React, Vue and Angular registry harnesses
+│   │   ├── methodless-components.ts            # METHODLESS_COMPONENTS: registry components with no public CEM methods, pinned data shared by the React, Vue and Angular registry harnesses
 │   │   └── wa-component-stub.ts                # Stub every `@awesome.me/webawesome(-pro)/dist/components/**` import resolves to, aliased from both vitest configs via vitest.wa-stub-alias.ts
 │   └── _setup/
 │       └── fast-check.ts                        # Cluster T: fast-check global config (pinned seed=1; FC_SEED env override)
@@ -882,3 +883,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - issue #121: package-json-read-error.test.ts checks that `brand`, `upgrade` and `theme install` leave kigumi.config.json (and theme files) untouched when package.json is broken, and pins `diff` naming the file instead of reporting missing files; upgrade-command.test.ts pins install-before-save, theme-install-local-source.test.ts pins fetch-before-write; the Negative-Path Inventory gained the matching rows. Each ordering was bug-injected back to write-first and turns its test red
 - package-json-read-error.test.ts pins the full rendered error block and fix note for EISDIR, EACCES and invalid JSON (only Node's parser message is matched by prefix), adds `palette` and `theme set` to the detect-before-write checks, and compares kigumi.config.json as bytes written compact, so even a same-value rewrite by saveConfig fails; detectTierSync tests were dropped with the function, their async twins stay
 - added the Angular adapter, issue #77: angular-function-harness.ts JIT-compiles a Template (a compile error is a violation, not a throw), mounts it with createComponent and inputBinding/outputBinding under a zoneless app, and checks the `k-` selector, declared @Input()/@Output() names (toAngularOutputName), the `style` seam and ControlValueAccessor through a real [formControl]. template-function-harness.ts gained a per-adapter `forwardsClass`: an Angular consumer's class stays on the `k-*` element. Each check in angular-function-harness.test.ts was bug-injected in the adapter; two sabotages first stayed green (enable never reaching the host, writeValue ignored) and got their own cases
+- added angular-function-harness-registry.test.ts, issue #77: every Angular Template JIT-compiled and proven against COMPONENT_METADATA, with the form-control catalogue pinned both ways (ANGULAR_FORM_CONTROLS). It was red on three real Template bugs, fixed generator-side in the same PR: all 14 form controls dropped a FormControl's initial value and disabled state (non-static @ViewChild), IntersectionObserver did not compile (`[attr.once]`), Rating's accessor read on `input`, which wa-rating never dispatches. Bug-injected on committed Templates (dropped Dialog `label` input, Dialog cleanup, Badge style forwarding), the catalogue pin in both directions, and an emptied `dialog.events` (premise asserted)
