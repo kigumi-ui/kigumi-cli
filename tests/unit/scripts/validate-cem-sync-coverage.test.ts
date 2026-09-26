@@ -29,6 +29,7 @@ function syncResult(over: Partial<SyncResultArg> = {}): SyncResultArg {
       onlyInRegistry: 0,
       synced: 84,
       propValueDrift: 0,
+      attributeDrift: 0,
     },
     ...over,
   };

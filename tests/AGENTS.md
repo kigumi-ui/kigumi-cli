@@ -38,7 +38,7 @@ tests/
 │   ├── scripts/guard-outcome.test.ts    # Shared guard reporting: skip is never a pass (#43)
 │   ├── scripts/is-entry-point.test.ts   # Entry-point check matches through a symlinked directory (#106)
 │   ├── parse-custom-elements-import.test.ts # Importing the parser never starts main() (#106)
-│   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting
+│   ├── scripts/validate-cem-sync-coverage.test.ts # cem-sync two-half coverage reporting (presence, and the manifest half: prop-value + attribute drift)
 │   ├── framework-detection.test.ts  # Extended framework detection
 │   ├── github-token.test.ts         # GitHub PAT resolution chain
 │   ├── helpers.test.ts              # Cluster S helpers (createRecordingOutput, createTestPrompts, writeTierFixture)
@@ -99,7 +99,7 @@ tests/
 │   ├── update-command.test.ts       # Update command (three-way merge)
 │   ├── upgrade-command.test.ts      # Upgrade command (version management)
 │   ├── validate-changes.test.ts     # AI guard-rail checks + anti-pattern matcher
-│   ├── validate-cem-sync.test.ts    # CEM sync validation
+│   ├── validate-cem-sync.test.ts    # CEM sync validation; checkAttributeDrift table tests: missing, allowlisted, with-* hints, camelCase CEM names, every stale-entry direction (#100)
 │   ├── validate-parity.test.ts      # Template parity validation
 │   ├── validate-parity-detection.test.ts  # Parity detection proven on a synthetic registry
 │   ├── validate-wa-pins.test.ts     # Web Awesome pin consistency across all six locations
@@ -838,3 +838,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added tests/unit/react-function-harness-registry.test.ts, the issue #75 loop: every LOCAL_REGISTRY component's committed React Template proven against its own COMPONENT_METADATA entry, plus coverage tests that fail (not skip) when a registry component has no metadata entry, an empty attribute list, or an emptied `methods` array
 - proveReactTemplate (react-function-harness.ts) now returns `{ violations, proved }`: a clean run must also report what it exercised, so an emptied CEM field can't read as a pass (ADR 0003). It gained a method-on-ref assertion — each public CEM method is stubbed on the host and called through the exposed ref, so a ref method that never reaches the host fails closed, issue #75
 - vitest.config.ts and vitest.unit.config.ts both alias every `@awesome.me/webawesome(-pro)/dist/components/**` import to a shared stub (vitest.wa-stub-alias.ts / tests/unit/_helpers/wa-component-stub.ts): the Pro package isn't installed, and loading Free's real runtime buys nothing for a contract proof, while `vi.mock` hoisting can't cover 87 dynamically resolved specifiers — bug-injected against AccordionItem's `expand()`, Badge's className forwarding, a deleted `COMPONENT_METADATA.dialog` entry, and an emptied `accordion-item.methods` array, issue #75
+- validate-cem-sync.test.ts covers checkAttributeDrift against the shipped `GLOBAL_ATTRIBUTE_ALLOWLIST`, including the `with-*` branch, camelCase CEM names (`submenuOpen`) and stale entries in every direction; each case was mutation-checked against the validator, issue #100
