@@ -53,6 +53,8 @@ describe('validate:cem-sync', () => {
         'missing-from-cem',
         'prop-value-drift',
         'allowlisted-but-wrapped',
+        'attribute-missing-from-registry',
+        'stale-allowlist-entry',
       ]).toContain(finding.category);
     }
   });

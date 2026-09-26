@@ -455,7 +455,7 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     },
   },
   'file-input': {
-    capture: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    capture: { kind: 'backfill', reason: 'native input attribute, see #116' },
     name: { kind: 'backfill', reason: 'form field name, see #101' },
     'custom-error': {
       kind: 'backfill',
@@ -522,13 +522,13 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'Chart.js internal discriminator the wrapper element sets, not user-configurable',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
-    grid: { kind: 'backfill', reason: 'axis grid toggle, see #102' },
-    min: { kind: 'backfill', reason: 'axis bound, see #102' },
-    max: { kind: 'backfill', reason: 'axis bound, see #102' },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
+    min: { kind: 'backfill', reason: 'axis bound, see #116' },
+    max: { kind: 'backfill', reason: 'axis bound, see #116' },
     plugins: {
       kind: 'intentional',
       reason:
@@ -541,13 +541,13 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'Chart.js internal discriminator the wrapper element sets, not user-configurable',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
-    grid: { kind: 'backfill', reason: 'axis grid toggle, see #102' },
-    min: { kind: 'backfill', reason: 'axis bound, see #102' },
-    max: { kind: 'backfill', reason: 'axis bound, see #102' },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
+    min: { kind: 'backfill', reason: 'axis bound, see #116' },
+    max: { kind: 'backfill', reason: 'axis bound, see #116' },
     plugins: {
       kind: 'intentional',
       reason:
@@ -560,13 +560,13 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'Chart.js internal discriminator the wrapper element sets, not user-configurable',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
-    grid: { kind: 'backfill', reason: 'axis grid toggle, see #102' },
-    min: { kind: 'backfill', reason: 'axis bound, see #102' },
-    max: { kind: 'backfill', reason: 'axis bound, see #102' },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
+    min: { kind: 'backfill', reason: 'axis bound, see #116' },
+    max: { kind: 'backfill', reason: 'axis bound, see #116' },
     plugins: {
       kind: 'intentional',
       reason:
@@ -579,9 +579,9 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'Chart.js internal discriminator the wrapper element sets, not user-configurable',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
     plugins: {
       kind: 'intentional',
       reason:
@@ -594,8 +594,8 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'Chart.js internal discriminator the wrapper element sets, not user-configurable',
     },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
     plugins: {
       kind: 'intentional',
       reason:
