@@ -1,0 +1,10 @@
+{
+  "typescript": {
+    "upTo": "7.0.2",
+    "reason": "TS7 is a native port that breaks lint/build/vue-tsc; held pending upstream fixes"
+  },
+  "vitest": {
+    "upTo": "5.0.2",
+    "reason": "Vitest 5 drops mutation score from 86.67% to 4.44%; held pending upstream fix"
+  }
+}
