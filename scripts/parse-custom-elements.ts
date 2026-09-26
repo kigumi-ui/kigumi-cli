@@ -7,7 +7,7 @@
  * for use in template generators.
  *
  * Outputs:
- * - src/utils/component-metadata.ts — runtime component metadata (events, slots, methods)
+ * - src/utils/component-metadata.ts — runtime component metadata (attributes, events, slots, methods)
  * - scripts/css-metadata.ts — build-time CSS parts / custom-properties data
  */
 
