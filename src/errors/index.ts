@@ -39,6 +39,9 @@ export { ValidationError } from './validation.js';
 // Tier restriction errors
 export { TierRestrictionError, ProThemeRequiredError } from './tier.js';
 
+// File system errors
+export { PackageJsonReadError, PackageJsonInvalidError } from './filesystem.js';
+
 // layers.css rewrite errors
 export { LayersCssRewriteError } from './layers-css.js';
 

@@ -146,11 +146,9 @@ export function getFileBaseName(
  * @param component - Component definition from registry
  * @param config - Kigumi configuration
  * @param typescript - Whether to generate TypeScript (.tsx) or JavaScript (.jsx)
- * @param cwd - Working directory (used for the tier / Next fallbacks)
- * @param tier - Pre-resolved tier. Callers that already know the tier should
- *   pass it through to avoid redundant disk I/O. Callers without
- *   a tier in context (framework plugins) may omit it; detection
- *   falls back to `detectTierSync(cwd)`.
+ * @param cwd - Working directory (used for the Next fallback)
+ * @param tier - The project's tier. Required: commands detect it once,
+ *   before generating or writing anything, and pass it down (issue #121).
  * @param isNext - Pre-resolved Next-project flag. Same contract as `tier`:
  *   pass through when known, fall back to `isNextProject(cwd)` otherwise.
  * @param nextRouter - Pre-resolved Next router. Ignored unless `isNext` is
@@ -161,15 +159,14 @@ export function getFileBaseName(
 export async function generateComponent(
   component: ComponentDefinition,
   config: KigumiConfig,
-  typescript: boolean = true,
-  cwd: string = process.cwd(),
-  tier?: Tier,
+  typescript: boolean,
+  cwd: string,
+  tier: Tier,
   isNext?: boolean,
   nextRouter?: NextRouter
 ): Promise<string> {
-  const { detectTierSync, getWebAwesomePackage } = await import('./tier.js');
-  const resolvedTier = tier ?? detectTierSync(cwd);
-  const packageName = getWebAwesomePackage(resolvedTier);
+  const { getWebAwesomePackage } = await import('./tier.js');
+  const packageName = getWebAwesomePackage(tier);
 
   // Use component-specific template if it exists
   const fileExtension = getComponentExtension(config.framework, typescript);

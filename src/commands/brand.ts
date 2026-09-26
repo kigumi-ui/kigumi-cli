@@ -23,6 +23,7 @@ import {
 import { ValidationError } from '../errors/validation.js';
 import { saveConfig, getConfig } from '../utils/config.js';
 import { regenerateKigumiSetup } from '../utils/regenerate.js';
+import { detectTier } from '../utils/tier.js';
 
 const BRAND_COLORS = [
   'blue',
@@ -76,6 +77,11 @@ async function brandAction(colorName?: string, options: BrandOptions = {}) {
       );
     }
 
+    // Detect the tier before prompting or writing anything, and pass it to
+    // regenerateKigumiSetup: a broken package.json then fails here, with
+    // kigumi.config.json untouched (issue #121).
+    const tier = await detectTier(cwd);
+
     // 3. Resolve the brand color. An explicit argument always wins. With
     // --yes (and no argument) keep the current color non-interactively,
     // matching init/add/update/upgrade. Otherwise prompt.
@@ -112,7 +118,7 @@ async function brandAction(colorName?: string, options: BrandOptions = {}) {
     await saveConfig({ theme: { brandColor: selectedColor } }, cwd);
 
     const utilsDir = config.utilsDir;
-    await regenerateKigumiSetup(cwd, config, utilsDir);
+    await regenerateKigumiSetup(cwd, config, utilsDir, tier);
 
     spinner.stop('Brand color updated');
 

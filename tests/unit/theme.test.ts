@@ -311,7 +311,7 @@ describe('theme commands', () => {
       // Generate kigumi.ts
       const { regenerateKigumiSetup } =
         await import('../../src/utils/regenerate.js');
-      await regenerateKigumiSetup(testDir, config, 'src/lib');
+      await regenerateKigumiSetup(testDir, config, 'src/lib', 'free');
 
       // Check file exists
       const kigumiPath = path.join(testDir, 'src/lib/kigumi.ts');
@@ -348,7 +348,7 @@ describe('theme commands', () => {
       // Generate kigumi.ts
       const { regenerateKigumiSetup } =
         await import('../../src/utils/regenerate.js');
-      await regenerateKigumiSetup(testDir, config, 'src/lib');
+      await regenerateKigumiSetup(testDir, config, 'src/lib', 'free');
 
       // Check file exists
       const kigumiPath = path.join(testDir, 'src/lib/kigumi.ts');
