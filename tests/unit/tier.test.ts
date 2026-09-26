@@ -19,6 +19,7 @@ import {
   tierSchema,
 } from '../../src/utils/tier.js';
 import { detectProToken } from '../../src/utils/token.js';
+import { PackageJsonReadError } from '../../src/errors/index.js';
 import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
@@ -391,18 +392,29 @@ describe('tier detection', () => {
       expect(detectTierSync(testDir)).toBe('pro');
     });
 
-    it('detectTier propagates a non-parse error when package.json is a directory', async () => {
-      await fs.mkdir(path.join(testDir, 'package.json'));
-      await expect(detectTier(testDir)).rejects.toMatchObject({
-        code: 'EISDIR',
+    it('detectTier throws PackageJsonReadError when package.json is a directory', async () => {
+      const packageJsonPath = path.join(testDir, 'package.json');
+      await fs.mkdir(packageJsonPath);
+      const error = await detectTier(testDir).catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(PackageJsonReadError);
+      expect(error).toMatchObject({
+        context: { details: { filePath: packageJsonPath, code: 'EISDIR' } },
       });
     });
 
-    it('detectTierSync propagates a non-parse error when package.json is a directory', () => {
-      fs.mkdirSync(path.join(testDir, 'package.json'));
-      expect(() => detectTierSync(testDir)).toThrow(
-        expect.objectContaining({ code: 'EISDIR' })
-      );
+    it('detectTierSync throws PackageJsonReadError when package.json is a directory', () => {
+      const packageJsonPath = path.join(testDir, 'package.json');
+      fs.mkdirSync(packageJsonPath);
+      let error: unknown;
+      try {
+        detectTierSync(testDir);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeInstanceOf(PackageJsonReadError);
+      expect(error).toMatchObject({
+        context: { details: { filePath: packageJsonPath, code: 'EISDIR' } },
+      });
     });
   });
 });

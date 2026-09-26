@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (109 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (110 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -55,6 +55,7 @@ tests/
 │   ├── next-support.test.ts         # Next.js detection + 'use client' + suppressHydrationWarning + layers.css emission (App + Pages)
 │   ├── no-handlebars-tokens.test.ts # Regression guard: no `{{...}}` tokens in any template
 │   ├── options-schema.test.ts       # Command options schemas
+│   ├── package-json-read-error.test.ts # PackageJsonReadError + what `kigumi list` prints for an unreadable package.json (issue #99)
 │   ├── output-di.test.ts            # Output DI hook (setOutputForTesting / resetOutputForTesting)
 │   ├── palette-command.test.ts      # Palette command
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
@@ -854,3 +855,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - `proved` in template-function-harness.ts now counts a CEM member only once its check observed the host behaviour (attribute reflected, event delivered and cleaned up, method reached the host). It used to count members iterated, so `proved.X === metadata.X.length` held by construction: a harness that silently skipped dispatch passed all 269 registry tests, and now fails 102. Added `_helpers/eventless-components.ts` with a both-directions pin and a `proved.events > 0` floor in both loops (bug-injected: emptied `dialog.events` goes red in the pin and both loops), issue #76
 - vue-function-harness-registry.test.ts mounts every Vue Template with `aria-expanded` / `data-probe` / `probe-flag` set to `false` and asserts the first two reach the host as `"false"` and the third is dropped. Bug-injected on Button.vue: removing the aria/data exception or the attrs-loop `false` filter goes red, while vue-templates.test.ts's source-text check stays green for the latter, issue #76
 - `mountVueTemplate` (vue-function-harness.ts) is the one Vue mount for the harness unit test, the registry loop and the consumer-attribute loop, replacing three copies of the createApp/shallowRef/refHandle closure. Re-bug-injected through it: Dialog back to onUnmounted, Badge without `:class`, AccordionItem without `expand` all go red, issue #76
+- added package-json-read-error.test.ts, pinning what `kigumi list` prints when package.json is a directory or unreadable (typed error, exit 4, no "report this issue"); bug-injected by restoring the raw rethrow in tier.ts, issue #99

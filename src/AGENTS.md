@@ -77,6 +77,7 @@ src/
 │   └── ...
 ├── errors/               # Typed error classes
 │   ├── community-registry.ts  # Registry-specific errors
+│   ├── filesystem.ts     # PackageJsonReadError (exit code 4)
 │   ├── version.ts        # VersionMismatchError (exit code 7)
 │   └── ...
 ├── output/               # Console formatting (delegates to prompts wrapper)
@@ -158,7 +159,10 @@ export async function detectTier(cwd: string): Promise<Tier> {
 
 A missing `package.json`, invalid JSON, or a file that lists neither Web Awesome
 package falls through to token detection. Any other failure while reading it
-(permissions, a directory at that path) propagates. The installed package wins
+(permissions, a directory at that path) is thrown as `PackageJsonReadError`
+(`src/errors/filesystem.ts`, exit code 4): it names the file and suggests a fix
+matched to the errno code, instead of reaching `handleError` as an
+`UnknownError` that tells the user to report a Kigumi bug. The installed package wins
 over a token: the free package stays `'free'` even when `WEBAWESOME_NPM_TOKEN`
 is set.
 
@@ -465,6 +469,12 @@ more specific — the message is the line the user reads first.
 `CommunityComponentNotFoundError` takes a `kind` of `'component'` (default) or
 `'theme'`, since registries hold both.
 
+**File system errors** (`src/errors/filesystem.ts`):
+
+| Error Class            | When Thrown                                                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `PackageJsonReadError` | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `detectTier` / `detectTierSync` only |
+
 ---
 
 ## Schemas (Zod)
@@ -530,3 +540,4 @@ output.error('Failed to install');
 - the footer changelog is a bullet list, not one line: a single line made every pair of PRs touching the same AGENTS.md conflict on it, since git merges line by line
 - `ComponentMetadata` and the CSS-metadata interfaces live in `src/utils/metadata-types.ts`; generated modules import and re-export them rather than re-declaring the shape, issue #34
 - `detectTier` / `detectTierSync` only ignore invalid JSON from `package.json`; other read failures propagate, and the installed free package wins over a Pro token
+- a `package.json` that exists but cannot be read now throws `PackageJsonReadError` (exit code 4, names the file, errno-matched fix) instead of a raw fs error that surfaced as "unexpected error, please report", issue #99

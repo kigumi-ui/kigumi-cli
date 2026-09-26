@@ -23,6 +23,7 @@ import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
+import { PackageJsonReadError } from '../errors/filesystem.js';
 import { detectProToken, detectProTokenSync } from './token.js';
 
 export const tierSchema = z.enum(['free', 'pro'], {
@@ -34,7 +35,7 @@ export type Tier = z.infer<typeof tierSchema>;
 /**
  * `readJson` throws `SyntaxError` when package.json is not valid JSON.
  * That case falls through to token detection. Every other read failure
- * (permissions, a directory at that path) propagates.
+ * (permissions, a directory at that path) is thrown as PackageJsonReadError.
  */
 function isPackageJsonParseError(error: unknown): boolean {
   return error instanceof SyntaxError;
@@ -45,7 +46,8 @@ function isPackageJsonParseError(error: unknown): boolean {
  *
  * Checks package.json to see if @awesome.me/webawesome-pro is installed.
  * Falls back to token detection when package.json is missing, is not valid
- * JSON, or lists neither Web Awesome package. Other read errors propagate.
+ * JSON, or lists neither Web Awesome package. Other read errors are thrown
+ * as PackageJsonReadError.
  * An installed package wins over a token.
  *
  * @param cwd - Current working directory
@@ -74,7 +76,7 @@ export async function detectTier(cwd: string): Promise<Tier> {
     } catch (error) {
       // Invalid JSON is not a tier signal; fall through to the token.
       if (!isPackageJsonParseError(error)) {
-        throw error;
+        throw new PackageJsonReadError(packageJsonPath, error);
       }
     }
   }
@@ -113,7 +115,7 @@ export function detectTierSync(cwd: string): Tier {
     } catch (error) {
       // Invalid JSON is not a tier signal; fall through to the token.
       if (!isPackageJsonParseError(error)) {
-        throw error;
+        throw new PackageJsonReadError(packageJsonPath, error);
       }
     }
   }

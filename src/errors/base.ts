@@ -29,6 +29,7 @@ export enum ErrorCode {
 
   // File system errors (exit code 4)
   MIGRATION_PARSE_ERROR = 405,
+  PACKAGE_JSON_UNREADABLE = 406,
 
   // Network/Dependency errors (exit code 5)
   DEPENDENCY_INSTALL_FAILED = 500,
