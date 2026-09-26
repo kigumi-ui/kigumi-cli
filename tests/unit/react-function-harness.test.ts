@@ -19,6 +19,7 @@ import { COMPONENT_METADATA } from '../../src/utils/component-metadata.js';
 import { Dialog } from '../../templates/react/Dialog/Dialog.js';
 import { proveReactTemplate } from './react-function-harness.js';
 import type { ReactTemplateProbe } from './react-function-harness.js';
+import type { ComponentMetadata } from '../../src/utils/metadata-types.js';
 
 const dialogStub = vi.hoisted(() => ({ imported: false }));
 
@@ -192,7 +193,7 @@ describe('proveReactTemplate', () => {
  * hardcoded value in the Template cannot pass.
  */
 function probeAttributes(
-  attributes: (typeof COMPONENT_METADATA)[string]['attributes']
+  attributes: ComponentMetadata['attributes']
 ): ReactTemplateProbe['attributes'] {
   return attributes.map((attribute) => ({
     name: attribute.name,
