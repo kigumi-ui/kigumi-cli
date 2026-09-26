@@ -53,7 +53,7 @@ export interface TemplateProbe {
 /**
  * Turn committed CEM attributes into probe values: boolean attributes are
  * probed as true (the harness also remounts them as false), everything else
- * — string-typed or untyped, e.g. did-ssr — gets a sentinel string so a
+ * (string-typed or untyped, e.g. did-ssr) gets a sentinel string so a
  * hardcoded value in the Template cannot pass.
  */
 export function probeAttributes(

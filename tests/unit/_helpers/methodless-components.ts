@@ -1,6 +1,6 @@
 /**
  * Registry components whose CEM genuinely exposes no public methods, pinned
- * as committed data rather than derived from `COMPONENT_METADATA` — a derived
+ * as committed data rather than derived from `COMPONENT_METADATA`: a derived
  * list would move with an emptied `methods` array and re-open the hole it
  * exists to close (ADR 0003). A WA bump that adds or removes a public method
  * edits this list in the same commit as the regenerated metadata.
