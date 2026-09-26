@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-09-26
+
+### Fixed
+
+- **Unreadable `package.json`**: When `package.json` exists but cannot be read (for example a permissions error, or a directory at that path), commands including `kigumi init` and `kigumi upgrade` now say which file is the problem and how to fix it, and exit with code 4. Previously they printed "An unexpected error occurred" and asked you to report a Kigumi bug.
+- **Invalid `package.json`**: `kigumi init` and `kigumi upgrade` now report a `package.json` that is not valid JSON (or not a JSON object, such as `null`) as "Invalid package.json at ..." with exit code 4, instead of "An unexpected error occurred". Other commands still fall back to token-based tier detection for such a file, as before.
+- **Failed commands no longer leave the project half-changed**: `kigumi brand` and `kigumi theme install` check `package.json` before they write, so a run that fails on it leaves `kigumi.config.json` and your theme files as they were. `kigumi upgrade` saves the new version only after Web Awesome installed, so a failed install is retried on the next run instead of reported as "Already up to date". `kigumi theme install` downloads every theme file before writing any of them.
+- **`kigumi diff`**: a broken `package.json` is now reported as such, instead of every component file being listed as missing.
+- **Tier detection**: Tier detection only ignores a `package.json` that is invalid (not valid JSON, or valid JSON that is not an object, such as `null`) and falls back to the Pro token for it. Other read failures, such as a permissions error or a directory at that path, are reported instead of being treated as "no package installed".
+- **Vue**: multi-word boolean props such as `with-caret`, `with-clear` or `light-dismiss` now reach the Web Awesome element. Vue camelized them, so the first render wrote an attribute (`withcaret`) that Web Awesome never reads. Run `kigumi update` to pick up the fix in installed Vue components.
+- **Vue**: a `false` value no longer turns a Web Awesome boolean on. Attributes passed through without a declared prop (for example `:with-hint="false"`), and the `v-model:open` / checked models, rendered as `attr="false"`, which Web Awesome treats as present.
+- **Vue**: event listeners on the Web Awesome element are now removed on unmount. The cleanup ran after Vue had cleared the element ref, so it never removed anything.
+
 ## [1.1.0] - 2026-09-20
 
 ### Added
