@@ -15,6 +15,7 @@ import {
   extractVueSurface,
   compareVueVariants,
   checkVueJsVariantSubset,
+  checkReactJsVariantSubset,
 } from '../../../scripts/check-generated-fresh.js';
 
 const REPO_ROOT = path.resolve(
@@ -643,4 +644,51 @@ describe('extractVueSurface on the committed Templates, against the Vue compiler
       });
     }
   }
+});
+
+describe('checkReactJsVariantSubset', () => {
+  let templatesDir: string;
+
+  beforeEach(async () => {
+    templatesDir = await fs.mkdtemp(path.join(os.tmpdir(), 'check-c-react-'));
+  });
+
+  afterEach(async () => {
+    await fs.remove(templatesDir);
+  });
+
+  it('compares every directory holding both variants and names the Template', async () => {
+    await fs.outputFile(
+      path.join(templatesDir, 'Button', 'Button.tsx'),
+      "el.addEventListener('blur', handleBlur);"
+    );
+    await fs.outputFile(
+      path.join(templatesDir, 'Button', 'Button.jsx'),
+      "el.addEventListener('blur', handleBlur);\nel.addEventListener('wa-ghost', handleGhost);"
+    );
+    // Missing variants are validate:templates' finding, not this check's.
+    await fs.outputFile(path.join(templatesDir, 'Badge', 'Badge.tsx'), '');
+
+    expect(await checkReactJsVariantSubset(templatesDir)).toEqual({
+      findings: [
+        {
+          check: 'C',
+          component: 'Button',
+          message: '.jsx wires events absent from .tsx: wa-ghost',
+        },
+      ],
+      pairs: 1,
+    });
+  });
+});
+
+describe('Check C on the committed React Templates', () => {
+  it('compares one pair per registry component and finds no drift', async () => {
+    const { findings, pairs } = await checkReactJsVariantSubset(
+      path.join(REPO_ROOT, 'templates', 'react')
+    );
+    expect(findings).toEqual([]);
+    // The premise: a walk that compared nothing would also find nothing.
+    expect(pairs).toBe(Object.keys(LOCAL_REGISTRY).length);
+  });
 });

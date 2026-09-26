@@ -31,7 +31,7 @@
  *     its `defineEmits` names, host listeners and props (issue #122). Both
  *     variants come from one generator, so a finding means a dialect branch
  *     in the generator or a hand edit. A declaration the reader cannot
- *     enumerate is a finding, and so is a run that compared no Vue Template.
+ *     enumerate is a finding. Either arm comparing no Template is a finding.
  *
  *   D (starter fixtures, comment-normalized): each fixture `.css` under
  *     `tests/fixtures/starter-snapshots/` must match its source template by
@@ -624,10 +624,24 @@ async function readVariantPairs(
   return pairs;
 }
 
-async function checkReactJsVariantSubset(): Promise<Finding[]> {
+/**
+ * What one arm of Check C found, and how many Templates it compared, so the
+ * caller can tell "nothing drifted" from "nothing was compared" (ADR 0003).
+ */
+export interface VariantSubsetResult {
+  findings: Finding[];
+  pairs: number;
+}
+
+/**
+ * Check C across a React templates directory: every event a `.jsx` wires
+ * must also be wired by its `.tsx`.
+ */
+export async function checkReactJsVariantSubset(
+  templatesDir: string
+): Promise<VariantSubsetResult> {
   const findings: Finding[] = [];
-  const reactDir = path.join(PROJECT_ROOT, 'templates/react');
-  const pairs = await readVariantPairs(reactDir, '.tsx', '.jsx');
+  const pairs = await readVariantPairs(templatesDir, '.tsx', '.jsx');
   for (const { name, tsSource, jsSource } of pairs) {
     const tsx = extractReactSurface(tsSource);
     const jsx = extractReactSurface(jsSource);
@@ -641,18 +655,16 @@ async function checkReactJsVariantSubset(): Promise<Finding[]> {
       });
     }
   }
-  return findings;
+  return { findings, pairs: pairs.length };
 }
 
 /**
- * Check C across a Vue templates directory: compares every Template holding
- * both `<Name>.vue` and `<Name>.js.vue`. `pairs` counts what was compared, so
- * the caller can tell "nothing drifted" from "nothing was compared"
- * (ADR 0003).
+ * Check C across a Vue templates directory: every event a `.js.vue` emits or
+ * listens for, and every prop it declares, must exist in its `.vue`.
  */
 export async function checkVueJsVariantSubset(
   templatesDir: string
-): Promise<{ findings: Finding[]; pairs: number }> {
+): Promise<VariantSubsetResult> {
   const pairs = await readVariantPairs(templatesDir, '.vue', '.js.vue');
   return {
     findings: pairs.flatMap(({ name, tsSource, jsSource }) =>
@@ -663,17 +675,29 @@ export async function checkVueJsVariantSubset(
 }
 
 async function checkJsVariantSubset(): Promise<Finding[]> {
-  const vue = await checkVueJsVariantSubset(
-    path.join(PROJECT_ROOT, 'templates/vue')
-  );
-  const findings = [...(await checkReactJsVariantSubset()), ...vue.findings];
-  if (vue.pairs === 0) {
-    findings.push({
-      check: 'C',
-      component: 'templates/vue',
-      message:
-        'no Template holds both .vue and .js.vue, so nothing was compared',
-    });
+  const arms = [
+    {
+      dir: 'templates/react',
+      variants: '.tsx and .jsx',
+      check: checkReactJsVariantSubset,
+    },
+    {
+      dir: 'templates/vue',
+      variants: '.vue and .js.vue',
+      check: checkVueJsVariantSubset,
+    },
+  ];
+  const findings: Finding[] = [];
+  for (const { dir, variants, check } of arms) {
+    const result = await check(path.join(PROJECT_ROOT, dir));
+    findings.push(...result.findings);
+    if (result.pairs === 0) {
+      findings.push({
+        check: 'C',
+        component: dir,
+        message: `no Template holds both ${variants}, so nothing was compared`,
+      });
+    }
   }
   return findings;
 }
