@@ -16,6 +16,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { resolveCem } from './find-cem.js';
+import { isEntryPoint } from './is-entry-point.js';
 import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 import type {
   ComponentMetadata,
@@ -470,7 +471,7 @@ async function main() {
 // Only run when executed directly, not when imported: two unit tests import
 // the pure emitters, and an unguarded call rewrote the committed metadata on
 // every `pnpm test` (issue #106).
-if (process.argv[1] === __filename) {
+if (isEntryPoint(import.meta.url)) {
   main().catch(console.error);
 }
 
