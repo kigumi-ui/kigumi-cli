@@ -12,10 +12,16 @@ import type { ComponentMetadata } from '../../src/utils/metadata-types.js';
 export interface MountedTemplate {
   container: HTMLElement;
   unmount: () => void;
+  /**
+   * The Template's exposed ref handle, e.g. from `useImperativeHandle`.
+   * Absent when the probe isn't proving public CEM methods.
+   */
+  refHandle?: { current: Record<string, unknown> | null };
 }
 
 export interface ReactTemplateProbe {
-  metadata: Pick<ComponentMetadata, 'tagName' | 'events'>;
+  metadata: Pick<ComponentMetadata, 'tagName' | 'events'> &
+    Partial<Pick<ComponentMetadata, 'methods'>>;
   attributes: readonly { name: string; value: string | boolean }[];
   className: string;
   mount: (input: {
@@ -44,13 +50,19 @@ export async function proveReactTemplate(
     };
   }
 
-  const { host, unmount } = mountHost(probe, probe.attributes, handlers);
+  const { host, unmount, refHandle } = mountHost(
+    probe,
+    probe.attributes,
+    handlers
+  );
   if (!host) {
     unmount();
     return [missingHost(probe)];
   }
 
   const violations: string[] = [];
+
+  violations.push(...proveMethods(probe, host, refHandle));
 
   for (const attribute of probe.attributes) {
     if (!attributeReflected(host, attribute.name, attribute.value)) {
@@ -109,7 +121,11 @@ function mountHost(
   probe: ReactTemplateProbe,
   attributes: ReactTemplateProbe['attributes'],
   handlers: Record<string, (event: Event) => void>
-): { host: Element | null; unmount: () => void } {
+): {
+  host: Element | null;
+  unmount: () => void;
+  refHandle?: MountedTemplate['refHandle'];
+} {
   const mounted = probe.mount({
     attributes: attributeRecord(attributes),
     className: probe.className,
@@ -118,7 +134,61 @@ function mountHost(
   return {
     host: mounted.container.querySelector(probe.metadata.tagName),
     unmount: mounted.unmount,
+    refHandle: mounted.refHandle,
   };
+}
+
+/**
+ * Each public CEM method must be reachable by name on the exposed ref and
+ * reach the real host element: stub the method on the host, call it via the
+ * ref, and require the stub to have been invoked exactly once.
+ */
+function proveMethods(
+  probe: ReactTemplateProbe,
+  host: Element,
+  refHandle: MountedTemplate['refHandle']
+): string[] {
+  const methods = probe.metadata.methods ?? [];
+  if (methods.length === 0) return [];
+
+  const violations: string[] = [];
+  const handle = refHandle?.current;
+  if (!handle) {
+    return methods.map(
+      (method) => `ref does not expose a method named ${method.name}`
+    );
+  }
+
+  for (const method of methods) {
+    const member = handle[method.name];
+    if (typeof member !== 'function') {
+      violations.push(`ref does not expose a method named ${method.name}`);
+      continue;
+    }
+
+    let calls = 0;
+    const original = (host as unknown as Record<string, unknown>)[method.name];
+    (host as unknown as Record<string, unknown>)[method.name] = (
+      ...args: unknown[]
+    ) => {
+      calls += 1;
+      return args;
+    };
+
+    try {
+      (member as (...args: unknown[]) => unknown).call(handle);
+    } finally {
+      (host as unknown as Record<string, unknown>)[method.name] = original;
+    }
+
+    if (calls !== 1) {
+      violations.push(
+        `calling ${method.name} on the ref did not invoke the host's ${method.name}`
+      );
+    }
+  }
+
+  return violations;
 }
 
 function missingHost(probe: ReactTemplateProbe): string {

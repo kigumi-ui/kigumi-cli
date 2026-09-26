@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (106 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (107 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -60,8 +60,10 @@ tests/
 │   ├── preflight-errors.test.ts     # Pre-flight error classes
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── prompts-wrapper.test.ts      # Prompts wrapper (setPromptsForTesting routing)
-│   ├── react-function-harness.test.ts # jsdom CEM function harness for the committed Dialog Template (issue #74)
-│   ├── react-function-harness.ts    # proveReactTemplate, the harness the test above drives (not a test file)
+│   ├── react-function-harness.test.ts # jsdom CEM function harness tracer for the committed Dialog Template (issue #74)
+│   ├── react-function-harness.ts    # proveReactTemplate, the harness both test files above drive (not a test file)
+│   ├── react-function-harness-registry.test.ts # Loops proveReactTemplate over every LOCAL_REGISTRY component (issue #75); fails closed on a missing COMPONENT_METADATA entry and asserts public CEM methods reach the host via the exposed ref
+│   ├── _helpers/wa-component-stub.ts # Stub module every `@awesome.me/webawesome(-pro)/dist/components/**` import resolves to (aliased in vitest.config.ts / vitest.unit.config.ts via vitest.wa-stub-alias.ts) — not a test file
 │   ├── regenerate.test.ts           # File regeneration utilities
 │   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed (issue #73)
 │   ├── remote-component-selector.test.ts # getAvailableRemoteComponents + cancel path
@@ -791,7 +793,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-26
+**Last Updated:** 2026-09-27
 
 - added tests/unit/parse-custom-elements-attributes.test.ts covering extractAttributes (boolean-vs-string classification, untyped attributes kept) and regression-pinning COMPONENT_METADATA.dialog's did-ssr plus otp-input/pagination/tag-input attribute coverage, issue #105
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
@@ -831,3 +833,6 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - the Dialog harness checks each callback receives the dispatched event, and was bug-injected against the real Dialog template (dropped cleanup, misspelled event, wrong callback, new event object, lost className, unforwarded props, wrong tag), issue #74
 - added scripts/is-entry-point.test.ts (real tmp symlink) and parse-custom-elements-import.test.ts, both bug-injected: plain string compare and an unguarded main() each go red, issue #106
 - free-consumer-tsc.test.ts's scaffold now names an exact create-vite version (`CREATE_VITE_VERSION` in src/constants.ts); tracked by the weekly upstream report, not Dependabot, since it's invoked via `pnpm create` rather than installed as a dependency, issue #98
+- added tests/unit/react-function-harness-registry.test.ts, the issue #75 loop: every LOCAL_REGISTRY component's committed React Template proven against its own COMPONENT_METADATA entry, plus a coverage test that fails (not skips) when a registry component has no metadata entry
+- proveReactTemplate (react-function-harness.ts) gained a method-on-ref assertion: each public CEM method is stubbed on the host element and called through the exposed ref, so a ref method that never reaches the host fails closed, issue #75
+- vitest.config.ts and vitest.unit.config.ts both alias every `@awesome.me/webawesome(-pro)/dist/components/**` import to a shared stub (vitest.wa-stub-alias.ts / tests/unit/_helpers/wa-component-stub.ts), since neither WA package is a real dependency and Vite's import analysis needs a resolvable specifier before a per-test mock factory can intercept it — bug-injected against AccordionItem's `expand()`, Badge's className forwarding, and a deleted `COMPONENT_METADATA.dialog` entry, issue #75
