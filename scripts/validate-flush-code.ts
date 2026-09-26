@@ -29,6 +29,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { glob } from 'tinyglobby';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -298,6 +299,6 @@ async function main(): Promise<void> {
 }
 
 // Only run when executed directly, not when imported (keeps the script testable)
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isEntryPoint(import.meta.url)) {
   void main();
 }

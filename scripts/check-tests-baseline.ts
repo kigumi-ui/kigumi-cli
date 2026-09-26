@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pc from 'picocolors';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -217,11 +218,6 @@ function main(): void {
   process.exit(0);
 }
 
-const invokedDirectly =
-  import.meta.url === `file://${process.argv[1]}` ||
-  process.argv[1]?.endsWith('check-tests-baseline.ts') ||
-  process.argv[1]?.endsWith('check-tests-baseline.js');
-
-if (invokedDirectly) {
+if (isEntryPoint(import.meta.url)) {
   main();
 }

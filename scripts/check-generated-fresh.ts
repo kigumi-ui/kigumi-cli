@@ -70,6 +70,7 @@ export type {
   SummarizeOptions,
 } from './guard-outcome.js';
 import { getAllComponents } from '../src/utils/registry.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 /** How many components the registry tracks, i.e. what a complete CEM covers. */
 function countRegistryComponents(): number {
@@ -618,9 +619,6 @@ async function main(): Promise<void> {
   }
 }
 
-const invokedDirectly = process.argv[1]
-  ? path.resolve(process.argv[1]) === __filename
-  : false;
-if (invokedDirectly) {
+if (isEntryPoint(import.meta.url)) {
   void main();
 }

@@ -47,6 +47,7 @@ import {
   skipPermitted,
   type GuardSummary,
 } from './guard-outcome.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const PROJECT_ROOT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -475,6 +476,6 @@ async function main() {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (isEntryPoint(import.meta.url)) {
   main();
 }

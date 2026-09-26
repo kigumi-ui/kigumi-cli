@@ -32,6 +32,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
+import { isEntryPoint } from './is-entry-point.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const PROJECT_ROOT = path.dirname(path.dirname(__filename));
@@ -227,6 +228,6 @@ async function main(): Promise<void> {
   process.exit(0);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isEntryPoint(import.meta.url)) {
   void main();
 }
