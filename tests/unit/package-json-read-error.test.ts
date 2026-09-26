@@ -9,8 +9,8 @@
  * exit code 4, never the generic "An unexpected error occurred ... please report".
  *
  * Commands that write to the project detect first (issue #121), so the tests
- * for them also check that a failed run left kigumi.config.json and the
- * project's files as they were.
+ * for them also check that a failed run left kigumi.config.json byte for byte
+ * and wrote no files.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -20,6 +20,8 @@ import os from 'os';
 import { listCommand } from '../../src/commands/list.js';
 import { initCommand } from '../../src/commands/init/index.js';
 import { brandCommand } from '../../src/commands/brand.js';
+import { paletteCommand } from '../../src/commands/palette.js';
+import { themeCommand } from '../../src/commands/theme.js';
 import { upgradeCommand } from '../../src/commands/upgrade.js';
 import { diffCommand } from '../../src/commands/diff.js';
 import { themeInstallAction } from '../../src/commands/theme/install.js';
@@ -118,12 +120,19 @@ describe('PackageJsonInvalidError', () => {
 });
 
 describe('user-facing output when package.json is unreadable or invalid', () => {
+  // realpath, so paths match what process.cwd() reports after a chdir.
   let testDir: string;
+  let packageJsonPath: string;
+  let configPath: string;
   let originalExit: typeof process.exit;
   let output: ReturnType<typeof createRecordingOutput>;
 
   beforeEach(async () => {
-    testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-pkg-read-'));
+    testDir = fs.realpathSync(
+      await fs.mkdtemp(path.join(os.tmpdir(), 'kigumi-pkg-read-'))
+    );
+    packageJsonPath = path.join(testDir, 'package.json');
+    configPath = path.join(testDir, 'kigumi.config.json');
     output = createRecordingOutput();
     setOutputForTesting(output);
     originalExit = process.exit;
@@ -133,7 +142,7 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
   afterEach(async () => {
     process.exit = originalExit;
     resetOutputForTesting();
-    await fs.chmod(path.join(testDir, 'package.json'), 0o644).catch(() => {
+    await fs.chmod(packageJsonPath, 0o644).catch((_error: unknown) => {
       // Only the EACCES case changes the mode; the others have nothing to undo.
     });
     await fs.remove(testDir);
@@ -145,33 +154,108 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
       .join('\n');
   }
 
-  it('kigumi list reports a directory at package.json with exit code 4', async () => {
-    const packageJsonPath = path.join(testDir, 'package.json');
-    await fs.mkdir(packageJsonPath);
+  /** The error block and the "How to fix" note, exactly as handleError emits them. */
+  function reported(): { error: string; fix: string } {
+    const error = output.calls.find((c) => c.method === 'error');
+    const note = output.calls.find(
+      (c) => c.method === 'note' && c.args[0] === 'How to fix'
+    );
+    return {
+      error: String(error?.args[0] ?? ''),
+      fix: String(note?.args[1] ?? ''),
+    };
+  }
 
-    await listCommand({ cwd: testDir });
+  /**
+   * Writes kigumi.config.json and returns its bytes. A command that fails on
+   * package.json must leave exactly these bytes (issue #121), so the tests
+   * compare text, not parsed JSON. The file is written compact, unlike
+   * saveConfig's two-space output, so even a rewrite with unchanged values
+   * changes the bytes.
+   */
+  async function writeConfig(extra: Record<string, unknown> = {}) {
+    const text = JSON.stringify({ ...CONFIG, ...extra });
+    await fs.writeFile(configPath, text);
+    return text;
+  }
 
+  function configText(): Promise<string> {
+    return fs.readFile(configPath, 'utf8');
+  }
+
+  /** brand, palette and theme set read process.cwd(), not a cwd option. */
+  async function inProject(run: () => Promise<unknown>): Promise<void> {
+    const originalCwd = process.cwd();
+    process.chdir(testDir);
+    try {
+      await run();
+    } finally {
+      process.chdir(originalCwd);
+    }
+  }
+
+  function expectDirectoryError(): void {
     const text = printed();
     expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
     expect(text).toContain('package.json is a directory, not a file');
     expect(text).not.toContain('An unexpected error occurred');
     expect(text).not.toMatch(/report this issue/i);
     expect(process.exit).toHaveBeenCalledWith(4);
+  }
+
+  // The full rendering is pinned once per error class here; every command
+  // reaches it through the same handleError, so the per-command tests below
+  // check the message, the fix and the exit code.
+  it('kigumi list renders the full error and fix for a directory at package.json', async () => {
+    await fs.mkdir(packageJsonPath);
+
+    await listCommand({ cwd: testDir });
+
+    expect(reported()).toEqual({
+      error: [
+        `Cannot read package.json at ${packageJsonPath}`,
+        '',
+        'Details:',
+        `  filePath: ${JSON.stringify(packageJsonPath)}`,
+        '  code: "EISDIR"',
+        '',
+        'Caused by: EISDIR: illegal operation on a directory, read',
+      ].join('\n'),
+      fix: [
+        'Make package.json readable:',
+        '  1. package.json is a directory, not a file',
+        '  2. Move or rename that directory',
+        '  3. Restore your package.json file, then run the command again',
+      ].join('\n'),
+    });
+    expect(process.exit).toHaveBeenCalledWith(4);
   });
 
   it.skipIf(process.getuid?.() === 0 || process.platform === 'win32')(
-    'kigumi list reports an unreadable package.json with a permissions fix',
+    'kigumi list renders the full error and permissions fix for an unreadable package.json',
     async () => {
-      const packageJsonPath = path.join(testDir, 'package.json');
       await fs.writeJSON(packageJsonPath, { name: 'locked' });
       await fs.chmod(packageJsonPath, 0o000);
 
       await listCommand({ cwd: testDir });
 
-      const text = printed();
-      expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
-      expect(text).toContain('chmod u+r package.json');
-      expect(text).not.toContain('An unexpected error occurred');
+      expect(reported()).toEqual({
+        error: [
+          `Cannot read package.json at ${packageJsonPath}`,
+          '',
+          'Details:',
+          `  filePath: ${JSON.stringify(packageJsonPath)}`,
+          '  code: "EACCES"',
+          '',
+          `Caused by: EACCES: permission denied, open '${packageJsonPath}'`,
+        ].join('\n'),
+        fix: [
+          'Make package.json readable:',
+          '  1. Check who can read it: ls -l package.json',
+          '  2. Give your user read access, e.g.: chmod u+r package.json',
+          '  3. Then run the command again',
+        ].join('\n'),
+      });
       expect(process.exit).toHaveBeenCalledWith(4);
     }
   );
@@ -179,39 +263,49 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
   // init reads package.json in project detection (detectFramework), before
   // it ever reaches detectTier.
   it('kigumi init reports a directory at package.json with exit code 4', async () => {
-    const packageJsonPath = path.join(testDir, 'package.json');
     await fs.mkdir(packageJsonPath);
 
     await initCommand({ cwd: testDir, yes: true });
 
-    const text = printed();
-    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
-    expect(text).toContain('package.json is a directory, not a file');
-    expect(text).not.toContain('An unexpected error occurred');
-    expect(text).not.toMatch(/report this issue/i);
-    expect(process.exit).toHaveBeenCalledWith(4);
+    expectDirectoryError();
   });
 
   // Tier detection treats invalid JSON as "no tier signal", but init cannot
   // detect the project without it, so the invalid file reaches the user.
-  it('kigumi init reports invalid JSON in package.json with exit code 4', async () => {
-    const packageJsonPath = path.join(testDir, 'package.json');
+  it('kigumi init renders the full error and fix for invalid JSON in package.json', async () => {
     await fs.writeFile(packageJsonPath, '{ "name": "broken", }');
 
     await initCommand({ cwd: testDir, yes: true });
 
-    const text = printed();
-    expect(text).toContain(`Invalid package.json at ${packageJsonPath}`);
-    expect(text).toContain('package.json must hold a single JSON object');
-    expect(text).not.toContain('An unexpected error occurred');
-    expect(text).not.toMatch(/report this issue/i);
+    const { error, fix } = reported();
+    const [head, cause] = error.split('\n\nCaused by: ');
+    expect(head).toBe(
+      [
+        `Invalid package.json at ${packageJsonPath}`,
+        '',
+        'Details:',
+        `  filePath: ${JSON.stringify(packageJsonPath)}`,
+      ].join('\n')
+    );
+    // fs-extra prefixes the parser's message with the path; the message
+    // itself is Node's and its wording changes between Node versions.
+    expect(cause?.startsWith(`${packageJsonPath}: `)).toBe(true);
+    expect(fix).toBe(
+      [
+        'Fix package.json:',
+        '  1. Fix the problem named under "Caused by" above',
+        '  2. package.json must hold a single JSON object',
+        '  3. Then run the command again',
+      ].join('\n')
+    );
+    expect(printed()).not.toContain('An unexpected error occurred');
     expect(process.exit).toHaveBeenCalledWith(4);
   });
 
   // upgrade reads package.json in getProjectInfo, before detectTier, but only
   // when the Web Awesome version changes. Pick a project version from the real
   // version map whose Web Awesome version differs from the running CLI's.
-  it('kigumi upgrade reports a directory at package.json with exit code 4', async () => {
+  it('kigumi upgrade reports a directory at package.json and saves nothing', async () => {
     const current = getVersionEntry(CLI_VERSION);
     const older = VERSION_MAP.find(
       (entry) => entry.webAwesomeVersion !== current?.webAwesomeVersion
@@ -222,49 +316,33 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
     ).toBeDefined();
     expect(older).toBeDefined();
 
-    const packageJsonPath = path.join(testDir, 'package.json');
-    const configPath = path.join(testDir, 'kigumi.config.json');
-    const config = { ...CONFIG, kigumiVersion: older?.kigumiVersion };
-    await fs.writeJSON(configPath, config);
+    const before = await writeConfig({ kigumiVersion: older?.kigumiVersion });
     await fs.mkdir(packageJsonPath);
 
     await upgradeCommand({ cwd: testDir, yes: true });
 
-    const text = printed();
-    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
-    expect(text).toContain('package.json is a directory, not a file');
-    expect(text).not.toContain('An unexpected error occurred');
-    expect(text).not.toMatch(/report this issue/i);
-    expect(process.exit).toHaveBeenCalledWith(4);
+    expectDirectoryError();
     // Issue #121: the version was not bumped before detection failed.
-    expect(await fs.readJSON(configPath)).toEqual(config);
+    expect(await configText()).toBe(before);
   });
 
-  // brand detects the tier before it saves the new color (issue #121). It
-  // reads process.cwd(), not a cwd option.
-  it('kigumi brand reports a directory at package.json and saves nothing', async () => {
-    const originalCwd = process.cwd();
-    const projectDir = fs.realpathSync(testDir);
-    const packageJsonPath = path.join(projectDir, 'package.json');
-    const configPath = path.join(projectDir, 'kigumi.config.json');
-    await fs.writeJSON(configPath, CONFIG);
-    await fs.mkdir(packageJsonPath);
+  // The commands below detect the tier before they save (issue #121).
+  it.each([
+    ['brand', ['node', 'brand', 'red'], () => brandCommand],
+    ['palette', ['node', 'palette', 'bright'], () => paletteCommand],
+    ['theme set', ['node', 'theme', 'set', 'awesome'], () => themeCommand],
+  ] as const)(
+    'kigumi %s reports a directory at package.json and saves nothing',
+    async (_name, argv, command) => {
+      const before = await writeConfig();
+      await fs.mkdir(packageJsonPath);
 
-    process.chdir(projectDir);
-    try {
-      await brandCommand.parseAsync(['node', 'brand', 'red']);
-    } finally {
-      process.chdir(originalCwd);
+      await inProject(() => command().parseAsync([...argv]));
+
+      expectDirectoryError();
+      expect(await configText()).toBe(before);
     }
-
-    const text = printed();
-    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
-    expect(text).toContain('package.json is a directory, not a file');
-    expect(text).not.toContain('An unexpected error occurred');
-    expect(text).not.toMatch(/report this issue/i);
-    expect(process.exit).toHaveBeenCalledWith(4);
-    expect(await fs.readJSON(configPath)).toEqual(CONFIG);
-  });
+  );
 
   // theme install detects the tier before fetching or writing (issue #121).
   it('kigumi theme install reports a directory at package.json and writes nothing', async () => {
@@ -289,21 +367,16 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
           },
         },
       });
-      const packageJsonPath = path.join(testDir, 'package.json');
-      const configPath = path.join(testDir, 'kigumi.config.json');
-      await fs.writeJSON(configPath, CONFIG);
+      const before = await writeConfig();
       await fs.mkdir(packageJsonPath);
 
       await themeInstallAction('midnight', { from: registryDir, cwd: testDir });
 
-      const text = printed();
-      expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
-      expect(text).not.toContain('An unexpected error occurred');
-      expect(process.exit).toHaveBeenCalledWith(4);
+      expectDirectoryError();
       expect(
         await fs.pathExists(path.join(testDir, 'src/styles/community-themes'))
       ).toBe(false);
-      expect(await fs.readJSON(configPath)).toEqual(CONFIG);
+      expect(await configText()).toBe(before);
     } finally {
       await fs.remove(registryDir);
     }
@@ -313,15 +386,12 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
   // be detected before the per-component loop for the broken package.json to
   // be named at all.
   it('kigumi diff reports a directory at package.json instead of missing files', async () => {
-    const packageJsonPath = path.join(testDir, 'package.json');
-    await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), CONFIG);
+    await writeConfig();
     await fs.mkdir(packageJsonPath);
 
     await diffCommand(['button'], { cwd: testDir });
 
-    const text = printed();
-    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
-    expect(text).not.toMatch(/missing/i);
-    expect(process.exit).toHaveBeenCalledWith(4);
+    expectDirectoryError();
+    expect(printed()).not.toMatch(/missing/i);
   });
 });

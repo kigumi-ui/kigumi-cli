@@ -13,7 +13,6 @@
  *
  * EXPORTS:
  * - readDependencies() - `dependencies` and `devDependencies`, merged
- * - readDependenciesSync() - Sync version, for detectTierSync
  */
 
 import fs from 'fs-extra';
@@ -47,15 +46,6 @@ function toDependencies(filePath: string, value: unknown): Dependencies {
   return { ...value.dependencies, ...value.devDependencies };
 }
 
-function toReadError(
-  filePath: string,
-  error: unknown
-): PackageJsonInvalidError | PackageJsonReadError {
-  return error instanceof SyntaxError
-    ? new PackageJsonInvalidError(filePath, error)
-    : new PackageJsonReadError(filePath, error);
-}
-
 export async function readDependencies(cwd: string): Promise<Dependencies> {
   const filePath = path.join(cwd, 'package.json');
   if (!(await fs.pathExists(filePath))) return {};
@@ -64,20 +54,11 @@ export async function readDependencies(cwd: string): Promise<Dependencies> {
   try {
     value = await fs.readJson(filePath);
   } catch (error) {
-    throw toReadError(filePath, error);
-  }
-  return toDependencies(filePath, value);
-}
-
-export function readDependenciesSync(cwd: string): Dependencies {
-  const filePath = path.join(cwd, 'package.json');
-  if (!fs.pathExistsSync(filePath)) return {};
-
-  let value: unknown;
-  try {
-    value = fs.readJsonSync(filePath);
-  } catch (error) {
-    throw toReadError(filePath, error);
+    // readJson throws SyntaxError for a file that is not valid JSON; any
+    // other error means the file could not be read at all.
+    throw error instanceof SyntaxError
+      ? new PackageJsonInvalidError(filePath, error)
+      : new PackageJsonReadError(filePath, error);
   }
   return toDependencies(filePath, value);
 }

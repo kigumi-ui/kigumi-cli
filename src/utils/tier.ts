@@ -9,8 +9,9 @@
  * 3. Project .env file (backwards compatible)
  *
  * EXPORTS:
- * - detectTier() - Async tier detection (PREFERRED)
- * - detectTierSync() - Sync version (use only when absolutely necessary)
+ * - detectTier() - Tier detection. Commands call it once, before their first
+ *   write, and pass the tier on (there is no sync variant, so no helper can
+ *   detect behind a command's back after it has written; issue #121)
  * - getWebAwesomePackage() - Get npm package name for tier
  *
  * @see AGENTS.md Rule #8 for tier system architecture
@@ -22,12 +23,8 @@ import {
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
 import { PackageJsonInvalidError } from '../errors/filesystem.js';
-import {
-  readDependencies,
-  readDependenciesSync,
-  type Dependencies,
-} from './package-json.js';
-import { detectProToken, detectProTokenSync } from './token.js';
+import { readDependencies, type Dependencies } from './package-json.js';
+import { detectProToken } from './token.js';
 
 export const tierSchema = z.enum(['free', 'pro'], {
   error: () => 'Must be either "free" or "pro"',
@@ -68,26 +65,6 @@ export async function detectTier(cwd: string): Promise<Tier> {
 
   // Fallback to token detection (for init command or if no package installed yet)
   const token = await detectProToken(cwd);
-  return token ? 'pro' : 'free';
-}
-
-/**
- * Synchronous version of detectTier
- *
- * WHY: Some code paths (e.g., validators) need synchronous tier detection.
- * Prefer detectTier() when possible.
- */
-export function detectTierSync(cwd: string): Tier {
-  try {
-    const installed = tierFromDependencies(readDependenciesSync(cwd));
-    if (installed) return installed;
-  } catch (error) {
-    // A broken package.json is not a tier signal; fall through to the token.
-    if (!(error instanceof PackageJsonInvalidError)) throw error;
-  }
-
-  // Fallback to token detection (for init command or if no package installed yet)
-  const token = detectProTokenSync(cwd);
   return token ? 'pro' : 'free';
 }
 

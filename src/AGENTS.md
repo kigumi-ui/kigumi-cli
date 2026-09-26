@@ -66,7 +66,7 @@ src/
 │   ├── metadata-types.ts # Shared CEM-metadata interfaces (`ComponentMetadata`, `CSSPart`, `CSSCustomProperty`, `ComponentCSSMetadata`) owned by the parser; generated data files import and re-export them (issue #34)
 │   ├── component-metadata.ts # Auto-generated component metadata (attributes, events, slots, methods) — data only; types live in metadata-types.ts
 │   ├── detect-framework.ts # Framework, TypeScript, package manager, Next router, source-layout detection
-│   ├── package-json.ts   # readDependencies / readDependenciesSync: merged dependency map from the user's package.json for tier and project detection (missing -> {}, unreadable -> PackageJsonReadError, not a JSON object -> PackageJsonInvalidError)
+│   ├── package-json.ts   # readDependencies: merged dependency map from the user's package.json for tier and project detection (missing -> {}, unreadable -> PackageJsonReadError, not a JSON object -> PackageJsonInvalidError)
 │   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
 │   ├── update-check.ts   # CLI update notification
 │   └── registry/
@@ -176,8 +176,8 @@ path on purpose. The CLI has no `--cwd` flag, so every command reads
 in the message, and inside a command it wraps in the terminal box and can no
 longer be copied.
 
-The read goes through `readDependencies` / `readDependenciesSync`
-(`src/utils/package-json.ts`), which return `dependencies` and
+The read goes through `readDependencies` (`src/utils/package-json.ts`),
+which returns `dependencies` and
 `devDependencies` merged. A missing file is an empty map, since every caller
 treats "no package.json" as "no dependencies". Project detection in
 `detect-framework.ts` uses the same reader. That matters because `init` and
@@ -195,14 +195,15 @@ reader that can run before tier detection should use the helper.
 
 **Detect before writing** (issue #121). A command that writes to the project
 resolves the tier (and, for `upgrade`, the project info) before its first
-write and passes it on through `regenerateKigumiSetup`'s `tierOverride` or
-`generateComponent`'s `tier` argument. `brand`, `palette`, `theme set`,
-`theme install`, `diff`, `update` and `add` all do. A broken `package.json`
-then fails the command before anything changed. When `brand` and
-`theme install` left detection to `regenerateKigumiSetup`, they had already
-saved the config (and theme files) by the time it threw. The `detectTierSync`
-fallback in those two helpers is for callers without a tier; no command
-relies on it. Two related orderings follow the same rule: `upgrade` installs
+write and passes it on. `regenerateKigumiSetup` and `generateComponent` take
+the tier as a required argument, and there is no `detectTierSync`, so no
+helper can detect behind a command's back after the command has written: the
+rule is enforced by the type checker, not by convention. `brand`, `palette`,
+`theme set`, `theme install`, `diff`, `update` and `add` detect up front with
+`detectTier`. A broken `package.json` then fails the command before anything
+changed. When `brand` and `theme install` left detection to
+`regenerateKigumiSetup`'s old `detectTierSync` fallback, they had already
+saved the config (and theme files) by the time it threw. Two related orderings follow the same rule: `upgrade` installs
 the new Web Awesome package before it saves the new version, so a failed
 install is retried on the next run instead of reported as "Already up to
 date", and `theme install` downloads every theme file before writing any.
@@ -514,7 +515,7 @@ more specific — the message is the line the user reads first.
 
 | Error Class               | When Thrown                                                                                                                                                                            |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PackageJsonReadError`    | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `readDependencies` / `readDependenciesSync` in `utils/package-json.ts`                                       |
+| `PackageJsonReadError`    | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `readDependencies` in `utils/package-json.ts`                                                                |
 | `PackageJsonInvalidError` | `package.json` is not a JSON object (syntax error, `null`, an array); same readers. Tier detection catches it and falls through to the token; project detection lets it reach the user |
 
 ---
@@ -586,3 +587,4 @@ output.error('Failed to install');
 - `utils/package-json.ts` reads the user's `package.json` for tier detection and `detect-framework.ts`, so `kigumi init` and `kigumi upgrade` (which call `getProjectInfo` before `detectTier`) report `PackageJsonReadError` too instead of the raw fs error; the readers it does not cover are listed in the tier section, issue #99
 - `utils/package-json.ts` now returns the merged dependency map (`readDependencies`), treats a missing file as empty, and throws `PackageJsonInvalidError` (exit code 4) for a file that is not a JSON object; the six detection callers lost their own existence check and merge, `kigumi init` / `upgrade` report invalid JSON instead of a raw `SyntaxError` or `TypeError`; the permission fix steps keep the relative path (no `--cwd` flag exists, and an absolute path wraps and breaks copy-paste), issue #99
 - commands detect before they write (issue #121): `brand` and `theme install` resolve the tier up front and pass it to `regenerateKigumiSetup`, `upgrade` resolves project info and tier before confirming and installs before saving the new version, `theme install` fetches all files before writing, and `diff` detects once instead of per component, where its catch turned a broken `package.json` into "missing" files; `palette` / `theme set` pass their tier too, so no command relies on the `detectTierSync` fallback
+- `detectTierSync` and `readDependenciesSync` are gone, and `regenerateKigumiSetup` / `generateComponent` take the tier as a required argument: no command used the fallback any more, and keeping it optional left the detect-before-write rule to convention; `generateComponent`'s `typescript` and `cwd` lost their defaults with it, issue #121

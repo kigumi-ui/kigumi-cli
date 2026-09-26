@@ -160,7 +160,8 @@ describe('theme install — local filesystem source', () => {
     registry.themes.midnight.files.variables = 'themes/missing-variables.css';
     await fs.writeJSON(registryPath, registry);
     const configPath = path.join(projectDir, 'kigumi.config.json');
-    const configBefore = await fs.readJSON(configPath);
+    // Compared as text: a reformatted rewrite would still parse equal.
+    const configBefore = await fs.readFile(configPath, 'utf8');
 
     const exitSpy = vi
       .spyOn(process, 'exit')
@@ -184,6 +185,6 @@ describe('theme install — local filesystem source', () => {
         path.join(projectDir, 'src/styles/community-themes/midnight.css')
       )
     ).toBe(false);
-    expect(await fs.readJSON(configPath)).toEqual(configBefore);
+    expect(await fs.readFile(configPath, 'utf8')).toBe(configBefore);
   });
 });

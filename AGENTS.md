@@ -424,7 +424,7 @@ flowchart TD
     subgraph Utils["utils/"]
         registry["registry.ts\n87 ComponentDefinitions\nprops, deps, files, importPath"]
         template["template.ts\nmaterializeTemplate (read + tier swap)"]
-        tier["tier.ts\nFree/Pro detection\ndetectTier, detectTierSync"]
+        tier["tier.ts\nFree/Pro detection\ndetectTier"]
         config["config.ts\ncosmiconfig loader\nloadConfig, saveConfig, getConfig"]
         detect_fw["detect-framework.ts\ngetProjectInfo"]
         regenerate["regenerate.ts"]
@@ -581,7 +581,7 @@ flowchart LR
     end
 
     subgraph TierResolution["Tier Swap"]
-        DETECT["detectTierSync(cwd)\nreads .env + package.json"]
+        DETECT["detectTier(cwd), once per command\nreads package.json, then the token\npassed down as a required tier"]
         PKG["getWebAwesomePackage(tier)\nfree → @awesome.me/webawesome\npro → @awesome.me/webawesome-pro"]
     end
 
@@ -728,7 +728,7 @@ START: Change affects tier detection or packages
 │
 ├─ "Change tier logic"
 │  └─ ACTION: ONLY edit src/utils/tier.ts
-│     └─ Functions: detectTier(), detectTierSync(), getWebAwesomePackage()
+│     └─ Functions: detectTier(), getWebAwesomePackage()
 │     └─ Test: tests/unit/tier.test.ts
 │
 └─ "Add tier-restricted component"
@@ -1121,3 +1121,4 @@ pnpm release-readiness:quick         # skip e2e
 - scripts/is-entry-point.ts: parse-custom-elements and the React/Angular generators decide "run main()" on real paths; the plain argv[1] compare skipped main() and exited 0 when invoked through a symlink, issue #106
 - validate:cem-sync checks attribute names, not just enum values: `checkAttributeDrift()` warns on a CEM attribute with no registry prop, and a stale `COMPONENT_ATTRIBUTE_ALLOWLIST` entry is an error; names are kebab-cased on both sides via `toKebabCase`, so camelCase CEM names like `submenuOpen` stay matchable, issue #100
 - `scripts/check-upstream-versions.ts` no longer reports Web Awesome (that's `wa-upgrade`'s job, avoiding a duplicate weekly comment) and reads `scripts/upstream-holds.json` so an already-triaged toolchain major (TypeScript 7, Vitest 5) stops re-firing the weekly comment every week; a hold covers its whole major, not just the exact patch on npm when it was written
+- tier detection has no sync variant any more: commands call `detectTier` once, before their first write, and pass the tier to `regenerateKigumiSetup` / `generateComponent`, where it is now required, issue #121

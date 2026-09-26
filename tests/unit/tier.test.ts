@@ -2,8 +2,7 @@
  * Tier Detection Tests
  *
  * Tests for src/utils/tier.ts:
- * - detectTier() - Async tier detection
- * - detectTierSync() - Sync tier detection
+ * - detectTier() - Tier detection
  * - detectProToken() - Token extraction (from src/utils/token.ts)
  * - getWebAwesomePackage() - Package name lookup
  */
@@ -14,7 +13,6 @@ import path from 'path';
 import os from 'os';
 import {
   detectTier,
-  detectTierSync,
   getWebAwesomePackage,
   tierSchema,
 } from '../../src/utils/tier.js';
@@ -155,50 +153,6 @@ describe('tier detection', () => {
     });
   });
 
-  describe('detectTierSync', () => {
-    it('should return "free" when no .env file exists', () => {
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('free');
-    });
-
-    it('should return "free" when .env exists but has no token', async () => {
-      await fs.writeFile(path.join(testDir, '.env'), 'SOME_OTHER_VAR=value\n');
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('free');
-    });
-
-    it('should return "pro" when valid token exists', async () => {
-      const validToken = 'x'.repeat(MIN_TOKEN_LENGTH);
-      await fs.writeFile(
-        path.join(testDir, '.env'),
-        `WEBAWESOME_NPM_TOKEN=${validToken}\n`
-      );
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('pro');
-    });
-
-    it('should match detectTier behavior for edge cases', async () => {
-      // Empty token
-      await fs.writeFile(path.join(testDir, '.env'), 'WEBAWESOME_NPM_TOKEN=\n');
-      expect(detectTierSync(testDir)).toBe('free');
-
-      // Short token
-      await fs.writeFile(
-        path.join(testDir, '.env'),
-        'WEBAWESOME_NPM_TOKEN=short\n'
-      );
-      expect(detectTierSync(testDir)).toBe('free');
-
-      // Valid token
-      const validToken = 'x'.repeat(MIN_TOKEN_LENGTH);
-      await fs.writeFile(
-        path.join(testDir, '.env'),
-        `WEBAWESOME_NPM_TOKEN=${validToken}\n`
-      );
-      expect(detectTierSync(testDir)).toBe('pro');
-    });
-  });
-
   describe('detectProToken', () => {
     it('should return null when no .env file exists', async () => {
       const token = await detectProToken(testDir);
@@ -311,53 +265,6 @@ describe('tier detection', () => {
     });
   });
 
-  describe('detectTierSync - package.json detection', () => {
-    it('should return "pro" when webawesome-pro is in dependencies', async () => {
-      await fs.writeJSON(path.join(testDir, 'package.json'), {
-        dependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
-      });
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('pro');
-    });
-
-    it('should return "free" when webawesome is in dependencies', async () => {
-      await fs.writeJSON(path.join(testDir, 'package.json'), {
-        dependencies: { '@awesome.me/webawesome': '^3.2.1' },
-      });
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('free');
-    });
-
-    it('should detect pro in devDependencies', async () => {
-      await fs.writeJSON(path.join(testDir, 'package.json'), {
-        devDependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
-      });
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('pro');
-    });
-
-    it('should prefer package.json over missing token', async () => {
-      await fs.writeJSON(path.join(testDir, 'package.json'), {
-        dependencies: { '@awesome.me/webawesome-pro': '^3.2.1' },
-      });
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('pro');
-    });
-
-    it('should fall back to token when no WA package in package.json', async () => {
-      await fs.writeJSON(path.join(testDir, 'package.json'), {
-        dependencies: { vue: '^3.5.0' },
-      });
-      const validToken = 'x'.repeat(MIN_TOKEN_LENGTH);
-      await fs.writeFile(
-        path.join(testDir, '.env'),
-        `WEBAWESOME_NPM_TOKEN=${validToken}\n`
-      );
-      const tier = detectTierSync(testDir);
-      expect(tier).toBe('pro');
-    });
-  });
-
   describe('package.json wins over a pro token', () => {
     async function installFreePackage(): Promise<void> {
       await fs.writeJSON(path.join(testDir, 'package.json'), {
@@ -370,11 +277,6 @@ describe('tier detection', () => {
       await installFreePackage();
       expect(await detectTier(testDir)).toBe('free');
     });
-
-    it('detectTierSync returns free when the free package is installed and a token is set', async () => {
-      await installFreePackage();
-      expect(detectTierSync(testDir)).toBe('free');
-    });
   });
 
   describe('package.json read failures', () => {
@@ -386,31 +288,10 @@ describe('tier detection', () => {
       expect(await detectTier(testDir)).toBe('pro');
     });
 
-    it('detectTierSync falls through to the token when package.json is not valid JSON', async () => {
-      await fs.writeFile(path.join(testDir, 'package.json'), '{');
-      process.env.WEBAWESOME_NPM_TOKEN = validToken;
-      expect(detectTierSync(testDir)).toBe('pro');
-    });
-
     it('detectTier throws PackageJsonReadError when package.json is a directory', async () => {
       const packageJsonPath = path.join(testDir, 'package.json');
       await fs.mkdir(packageJsonPath);
       const error = await detectTier(testDir).catch((e: unknown) => e);
-      expect(error).toBeInstanceOf(PackageJsonReadError);
-      expect(error).toMatchObject({
-        context: { details: { filePath: packageJsonPath, code: 'EISDIR' } },
-      });
-    });
-
-    it('detectTierSync throws PackageJsonReadError when package.json is a directory', () => {
-      const packageJsonPath = path.join(testDir, 'package.json');
-      fs.mkdirSync(packageJsonPath);
-      let error: unknown;
-      try {
-        detectTierSync(testDir);
-      } catch (e) {
-        error = e;
-      }
       expect(error).toBeInstanceOf(PackageJsonReadError);
       expect(error).toMatchObject({
         context: { details: { filePath: packageJsonPath, code: 'EISDIR' } },

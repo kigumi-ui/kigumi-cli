@@ -329,6 +329,9 @@ describe('upgrade command', () => {
   // without ever retrying the install.
   it('keeps the old version in kigumi.config.json when the install fails', async () => {
     await createConfig({ kigumiVersion: '0.10.0' });
+    const configPath = path.join(testDir, 'kigumi.config.json');
+    // Compared as text: a reformatted rewrite would still parse equal.
+    const configBefore = await fs.readFile(configPath, 'utf8');
 
     const { upgradeCommand } = await import('../../src/commands/upgrade.js');
     const installer = await import('../../src/utils/dependency-installer.js');
@@ -342,11 +345,7 @@ describe('upgrade command', () => {
 
     expect(installer.installDependencies).toHaveBeenCalled();
     expect(process.exit).toHaveBeenCalledWith(5);
-    const savedConfig = await fs.readJSON(
-      path.join(testDir, 'kigumi.config.json')
-    );
-    expect(savedConfig.kigumiVersion).toBe('0.10.0');
-    expect(savedConfig.webAwesome).toBeUndefined();
+    expect(await fs.readFile(configPath, 'utf8')).toBe(configBefore);
   });
 
   it('should skip install when --no-install is passed', async () => {

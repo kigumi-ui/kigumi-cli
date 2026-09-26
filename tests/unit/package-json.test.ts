@@ -12,22 +12,19 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import {
-  readDependencies,
-  readDependenciesSync,
-} from '../../src/utils/package-json.js';
+import { readDependencies } from '../../src/utils/package-json.js';
 import {
   detectFramework,
   isNextProject,
 } from '../../src/utils/detect-framework.js';
-import { detectTier, detectTierSync } from '../../src/utils/tier.js';
+import { detectTier } from '../../src/utils/tier.js';
 import { MIN_TOKEN_LENGTH } from '../../src/constants.js';
 import {
   PackageJsonInvalidError,
   PackageJsonReadError,
 } from '../../src/errors/index.js';
 
-describe('readDependencies / readDependenciesSync', () => {
+describe('readDependencies', () => {
   let testDir: string;
   let packageJsonPath: string;
 
@@ -40,23 +37,8 @@ describe('readDependencies / readDependenciesSync', () => {
     await fs.remove(testDir);
   });
 
-  async function both(): Promise<unknown[]> {
-    const results: unknown[] = [];
-    for (const read of [
-      () => readDependencies(testDir),
-      async () => readDependenciesSync(testDir),
-    ]) {
-      try {
-        results.push(await read());
-      } catch (error) {
-        results.push(error);
-      }
-    }
-    return results;
-  }
-
   it('returns an empty map when package.json is missing', async () => {
-    expect(await both()).toEqual([{}, {}]);
+    expect(await readDependencies(testDir)).toEqual({});
   });
 
   it('merges dependencies and devDependencies, devDependencies winning', async () => {
@@ -64,19 +46,21 @@ describe('readDependencies / readDependenciesSync', () => {
       dependencies: { react: '^19.0.0', shared: '1.0.0' },
       devDependencies: { vite: '^7.0.0', shared: '2.0.0' },
     });
-    const expected = { react: '^19.0.0', vite: '^7.0.0', shared: '2.0.0' };
-    expect(await both()).toEqual([expected, expected]);
+    expect(await readDependencies(testDir)).toEqual({
+      react: '^19.0.0',
+      vite: '^7.0.0',
+      shared: '2.0.0',
+    });
   });
 
   it('throws PackageJsonReadError for a directory at package.json', async () => {
     await fs.mkdir(packageJsonPath);
-    for (const result of await both()) {
-      expect(result).toBeInstanceOf(PackageJsonReadError);
-      expect((result as PackageJsonReadError).context.details).toMatchObject({
-        filePath: packageJsonPath,
-        code: 'EISDIR',
-      });
-    }
+    const error = await readDependencies(testDir).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(PackageJsonReadError);
+    expect((error as PackageJsonReadError).context.details).toMatchObject({
+      filePath: packageJsonPath,
+      code: 'EISDIR',
+    });
   });
 
   it.each([
@@ -86,12 +70,11 @@ describe('readDependencies / readDependenciesSync', () => {
     ['an array', '[]'],
   ])('throws PackageJsonInvalidError for %s', async (_label, content) => {
     await fs.writeFile(packageJsonPath, content);
-    for (const result of await both()) {
-      expect(result).toBeInstanceOf(PackageJsonInvalidError);
-      expect((result as PackageJsonInvalidError).context.details).toEqual({
-        filePath: packageJsonPath,
-      });
-    }
+    const error = await readDependencies(testDir).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(PackageJsonInvalidError);
+    expect((error as PackageJsonInvalidError).context.details).toEqual({
+      filePath: packageJsonPath,
+    });
   });
 });
 
@@ -128,7 +111,6 @@ describe('what each caller does with a broken package.json', () => {
     await fs.writeFile(packageJsonPath, 'null');
     process.env.WEBAWESOME_NPM_TOKEN = 'x'.repeat(MIN_TOKEN_LENGTH);
     expect(await detectTier(testDir)).toBe('pro');
-    expect(detectTierSync(testDir)).toBe('pro');
   });
 
   it.each([
