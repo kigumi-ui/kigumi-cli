@@ -32,6 +32,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+import { toKebabCase } from '../src/utils/naming.js';
 import {
   getAllComponents,
   type ComponentDefinition,
@@ -61,7 +62,9 @@ interface SyncFinding {
     | 'missing-from-registry'
     | 'missing-from-cem'
     | 'prop-value-drift'
-    | 'allowlisted-but-wrapped';
+    | 'allowlisted-but-wrapped'
+    | 'attribute-missing-from-registry'
+    | 'stale-allowlist-entry';
   severity: 'error' | 'warning';
   message: string;
 }
@@ -91,6 +94,519 @@ export const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * CEM attributes every custom element carries that Kigumi never surfaces as a
+ * registry prop, independent of which component declares them. Keyed by
+ * kebab-cased attribute name (see `checkAttributeDrift`).
+ */
+export const GLOBAL_ATTRIBUTE_ALLOWLIST: ReadonlySet<string> = new Set([
+  // Lit's ReactiveElement base class reflects these on every custom element;
+  // Kigumi hosts inherit them from the DOM (React/Vue/Angular all pass
+  // `dir`/`lang` straight through as ordinary HTML attributes) rather than
+  // wrapping them per-component.
+  'dir',
+  'lang',
+  // SSR hydration marker Web Awesome's Lit runtime writes on every element;
+  // internal to the did-ssr protocol, never user-facing.
+  'did-ssr',
+]);
+
+/** True for the `with-*` SSR slot-hint attributes Web Awesome's DSD renderer writes. */
+function isSsrSlotHint(attrName: string): boolean {
+  return attrName.startsWith('with-');
+}
+
+/**
+ * Why a per-component allowlist entry is not (yet) a registry prop.
+ *
+ * `backfill` marks attributes that should be surfaced but are tracked by a
+ * sibling ticket rather than this one — issues #101 and #102 turn these into
+ * real props. `intentional` marks attributes the component manages itself
+ * (e.g. ARIA `role`/`tabindex` on composite widgets) and is never expected to
+ * become a prop.
+ */
+export interface AttributeAllowlistEntry {
+  kind: 'backfill' | 'intentional';
+  reason: string;
+}
+
+/**
+ * Per-component attribute allowlist. Keyed by registry key, then by the
+ * kebab-cased CEM attribute name: the CEM's `submenuOpen` is keyed
+ * `submenu-open`. A key in any other form matches nothing and is reported as a
+ * stale entry. The Free CEM baseline measured on 2026-09-24 found 75
+ * attributes across 26 Free components (after the global allowlist above
+ * absorbs the inherited `dir`/`lang`/`did-ssr` and `with-*` SSR hints);
+ * checking against the Pro CEM (what CI installs, and what `assessCemCompleteness`
+ * requires for an all-or-nothing run covering all 87 registry components)
+ * adds 50 more across 13 Pro-only components (charts, `combobox`,
+ * `file-input`, `video`, `date-input`), for 125 across 39 components total.
+ *
+ * `backfill` entries are triaged by issue #101 (form-control attributes),
+ * #102 (component-specific attributes) or #116 (chart axes, `capture`): each
+ * either becomes a real prop or moves to `intentional`. `intentional` entries
+ * are attributes a caller cannot meaningfully set from markup (function- or
+ * object-typed values, playback state) or that the component manages itself.
+ */
+export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
+  Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
+> = {
+  button: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  input: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    spellcheck: {
+      kind: 'backfill',
+      reason: 'native spellcheck attribute, see #101',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  carousel: {
+    slides: {
+      kind: 'backfill',
+      reason: 'reflected slide count, see #102',
+    },
+    'current-slide': {
+      kind: 'backfill',
+      reason: 'reflected active slide index, see #102',
+    },
+  },
+  checkbox: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'color-picker': {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'copy-button': {
+    tooltip: { kind: 'backfill', reason: 'tooltip text override, see #102' },
+  },
+  'dropdown-item': {
+    'submenu-open': {
+      kind: 'backfill',
+      reason: 'reflected submenu open state, see #102',
+    },
+  },
+  'intersection-observer': {
+    root: {
+      kind: 'backfill',
+      reason: 'viewport root element ID, see #102',
+    },
+  },
+  popup: {
+    boundary: {
+      kind: 'backfill',
+      reason: "'viewport' | 'scroll' bounding box, see #102",
+    },
+    'flip-boundary': {
+      kind: 'backfill',
+      reason: 'Element | Element[] flip boundary, see #102',
+    },
+    'shift-boundary': {
+      kind: 'backfill',
+      reason: 'Element | Element[] shift boundary, see #102',
+    },
+    'auto-size-boundary': {
+      kind: 'backfill',
+      reason: 'Element | Element[] auto-size boundary, see #102',
+    },
+    'hover-bridge': {
+      kind: 'backfill',
+      reason: 'hover bridge toggle, see #102',
+    },
+  },
+  'qr-code': {
+    image: { kind: 'backfill', reason: 'embedded logo image, see #102' },
+    'image-background': {
+      kind: 'backfill',
+      reason: 'embedded logo styling, see #102',
+    },
+    'image-coverage': {
+      kind: 'backfill',
+      reason: 'embedded logo styling, see #102',
+    },
+    'image-padding': {
+      kind: 'backfill',
+      reason: 'embedded logo styling, see #102',
+    },
+  },
+  'radio-group': {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  radio: {
+    name: { kind: 'backfill', reason: 'form field name, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  rating: {
+    role: {
+      kind: 'intentional',
+      reason: 'ARIA role Web Awesome manages internally for the widget pattern',
+    },
+    'default-value': {
+      kind: 'backfill',
+      reason: 'uncontrolled default value, see #102',
+    },
+    'get-symbol': {
+      kind: 'backfill',
+      reason: 'function-typed symbol renderer, see #102',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  select: {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  slider: {
+    'min-value': { kind: 'backfill', reason: 'range slider bound, see #102' },
+    'max-value': { kind: 'backfill', reason: 'range slider bound, see #102' },
+    'indicator-offset': {
+      kind: 'backfill',
+      reason: 'range slider styling, see #102',
+    },
+    'tooltip-distance': {
+      kind: 'backfill',
+      reason: 'tooltip placement, see #102',
+    },
+    'tooltip-placement': {
+      kind: 'backfill',
+      reason: 'tooltip placement, see #102',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  switch: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  tab: {
+    role: {
+      kind: 'intentional',
+      reason:
+        'ARIA role Web Awesome manages internally for the tablist pattern',
+    },
+  },
+  'tab-panel': {
+    role: {
+      kind: 'intentional',
+      reason:
+        'ARIA role Web Awesome manages internally for the tablist pattern',
+    },
+  },
+  'tag-input': {
+    autocapitalize: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocorrect: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    enterkeyhint: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    spellcheck: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  textarea: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    autocapitalize: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocorrect: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    enterkeyhint: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  tree: {
+    tabindex: {
+      kind: 'intentional',
+      reason: 'roving tabindex Web Awesome manages internally for keyboard nav',
+    },
+    role: {
+      kind: 'intentional',
+      reason: 'ARIA role Web Awesome manages internally for the tree pattern',
+    },
+  },
+  'tree-item': {
+    tabindex: {
+      kind: 'intentional',
+      reason: 'roving tabindex Web Awesome manages internally for keyboard nav',
+    },
+    role: {
+      kind: 'intentional',
+      reason: 'ARIA role Web Awesome manages internally for the tree pattern',
+    },
+  },
+  'number-input': {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    pill: { kind: 'backfill', reason: 'pill styling variant, see #102' },
+    readonly: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    enterkeyhint: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    name: { kind: 'backfill', reason: 'form field name, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'otp-input': {
+    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'time-input': {
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    distance: {
+      kind: 'backfill',
+      reason: 'popup placement distance, see #102',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'known-date': {
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'date-input': {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  combobox: {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'file-input': {
+    capture: { kind: 'backfill', reason: 'native input attribute, see #116' },
+    name: { kind: 'backfill', reason: 'form field name, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  video: {
+    duration: {
+      kind: 'intentional',
+      reason: 'length of the loaded media, reported by the element',
+    },
+    'current-time': {
+      kind: 'intentional',
+      reason:
+        'live playback position that advances every frame; a bound prop would fight playback',
+    },
+  },
+  chart: {
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'bar-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'line-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'bubble-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'doughnut-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
+    min: { kind: 'backfill', reason: 'axis bound, see #116' },
+    max: { kind: 'backfill', reason: 'axis bound, see #116' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'pie-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
+    min: { kind: 'backfill', reason: 'axis bound, see #116' },
+    max: { kind: 'backfill', reason: 'axis bound, see #116' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'polar-area-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
+    min: { kind: 'backfill', reason: 'axis bound, see #116' },
+    max: { kind: 'backfill', reason: 'axis bound, see #116' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'radar-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+  'scatter-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'fixed by this typed chart element; only wa-chart takes a chart type',
+    },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
+    },
+  },
+};
+
+/**
  * Allowlist keys that already have a registry entry. Those wrappers exist, so
  * the allowlist entry is a lie — remove it when adding the wrapper.
  */
@@ -106,7 +622,8 @@ interface SyncResult {
   passed: boolean;
   findings: SyncFinding[];
   /**
-   * Whether the prop-value half could run. The presence half needs no manifest
+   * Whether the manifest half (prop-value and attribute drift, which read the
+   * same CEM) could run. The presence half needs no manifest
    * -- it compares the registry against the committed `COMPONENT_METADATA` --
    * so the two halves are reported separately rather than under one verdict
    * that would be true of only one of them.
@@ -125,6 +642,13 @@ interface SyncResult {
     onlyInRegistry: number;
     synced: number;
     propValueDrift: number;
+    /**
+     * Counted separately from `propValueDrift`: that check compares enum
+     * *values* for props the registry already declares, while this counts CEM
+     * attribute *names* with no registry prop at all. Stale allowlist entries
+     * are not drift; they fail the run and are listed under the errors.
+     */
+    attributeDrift: number;
   };
 }
 
@@ -301,6 +825,102 @@ function checkPropValueDrift(
   return findings;
 }
 
+/** The attributes `checkAttributeDrift` may find missing without warning. */
+export interface AttributePolicy {
+  global: ReadonlySet<string>;
+  perComponent: Readonly<
+    Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
+  >;
+}
+
+/**
+ * Compare each wrapped component's full CEM attribute list against its
+ * registry props, in both directions:
+ *
+ * - A CEM attribute with no matching registry prop and no allowlist entry is
+ *   a warning: additive drift, the same as a newly added enum value.
+ * - A per-component allowlist entry is an error when it no longer describes a
+ *   gap: the registry now surfaces the attribute, the CEM no longer declares
+ *   it, or its component is not in the registry. The same discipline
+ *   `allowlistedKeysInRegistry` applies to `INTENTIONALLY_UNWRAPPED`.
+ *
+ * Every name is compared kebab-cased through `toKebabCase`, on both sides. A
+ * Lit property without an explicit `attribute:` option appears in the CEM
+ * under its camelCase property name (`submenuOpen`), so normalizing only the
+ * registry side would leave such an attribute unmatchable by any prop.
+ *
+ * Pure and exported so each case is table-tested against literal fixtures
+ * rather than the real registry/CEM.
+ */
+export function checkAttributeDrift(
+  registryMap: Map<string, ComponentDefinition>,
+  cemAttrTypes: Map<string, Record<string, string | undefined>>,
+  policy: AttributePolicy
+): SyncFinding[] {
+  const findings: SyncFinding[] = [];
+  const stale = (component: string, message: string) =>
+    findings.push({
+      component,
+      category: 'stale-allowlist-entry',
+      severity: 'error',
+      message,
+    });
+
+  for (const [regKey, def] of registryMap) {
+    // Kebab name -> name as the CEM spells it, so messages quote the source.
+    const cemAttrs = new Map(
+      Object.keys(cemAttrTypes.get(`wa-${regKey}`) ?? {}).map((name) => [
+        toKebabCase(name),
+        name,
+      ])
+    );
+    const propAttrs = new Set(def.props.map((p) => toKebabCase(p.name)));
+    const allowlist = policy.perComponent[regKey] ?? {};
+
+    for (const [attr, cemName] of cemAttrs) {
+      if (
+        propAttrs.has(attr) ||
+        policy.global.has(attr) ||
+        isSsrSlotHint(attr) ||
+        Object.hasOwn(allowlist, attr)
+      ) {
+        continue;
+      }
+      findings.push({
+        component: regKey,
+        category: 'attribute-missing-from-registry',
+        severity: 'warning',
+        message: `wa-${regKey} declares attribute "${cemName}" in the CEM with no matching registry prop`,
+      });
+    }
+
+    for (const [attr, entry] of Object.entries(allowlist)) {
+      if (propAttrs.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} is allowlisted as "${entry.kind}" but the registry now has a matching prop; remove it from COMPONENT_ATTRIBUTE_ALLOWLIST`
+        );
+      } else if (!cemAttrs.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} is allowlisted as "${entry.kind}" but wa-${regKey} declares no such attribute in the CEM (removed upstream, or the key is not kebab-cased); remove or rename it in COMPONENT_ATTRIBUTE_ALLOWLIST`
+        );
+      }
+    }
+  }
+
+  for (const regKey of Object.keys(policy.perComponent)) {
+    if (!registryMap.has(regKey)) {
+      stale(
+        regKey,
+        `COMPONENT_ATTRIBUTE_ALLOWLIST has entries for "${regKey}", which is not a registry component; remove them`
+      );
+    }
+  }
+
+  return findings;
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 export async function validateCemSync(
@@ -319,14 +939,24 @@ export async function validateCemSync(
 
   // `usable` implies a resolved path, but narrow on the path itself rather
   // than asserting, so the two can never disagree silently.
-  const propValueFindings =
+  const cemAttrTypes =
     cem.usable && resolution.path !== null
-      ? checkPropValueDrift(registryMap, getCemAttributeTypes(resolution.path))
-      : [];
+      ? getCemAttributeTypes(resolution.path)
+      : null;
+  const propValueFindings = cemAttrTypes
+    ? checkPropValueDrift(registryMap, cemAttrTypes)
+    : [];
+  const attributeDriftFindings = cemAttrTypes
+    ? checkAttributeDrift(registryMap, cemAttrTypes, {
+        global: GLOBAL_ATTRIBUTE_ALLOWLIST,
+        perComponent: COMPONENT_ATTRIBUTE_ALLOWLIST,
+      })
+    : [];
 
   const findings = [
     ...checkComponentPresence(cemKeys, registryMap),
     ...propValueFindings,
+    ...attributeDriftFindings,
   ];
   const onlyInCem = findings.filter(
     (f) => f.category === 'missing-from-registry'
@@ -336,6 +966,9 @@ export async function validateCemSync(
   ).length;
   const propValueDrift = findings.filter(
     (f) => f.category === 'prop-value-drift'
+  ).length;
+  const attributeDrift = findings.filter(
+    (f) => f.category === 'attribute-missing-from-registry'
   ).length;
   const synced = [...registryMap.keys()].filter((k) => cemKeys.has(k)).length;
 
@@ -350,6 +983,7 @@ export async function validateCemSync(
       onlyInRegistry,
       synced,
       propValueDrift,
+      attributeDrift,
     },
   };
 }
@@ -366,13 +1000,11 @@ function printResults(result: SyncResult): void {
   console.log(
     `  Component presence:  ${pc.green('verified')} (committed component metadata, ${result.stats.metadataComponents} components)`
   );
-  console.log(
-    `  Prop-value drift:    ${
-      result.cem.usable
-        ? `${pc.green('verified')} (${result.cem.reason})`
-        : pc.yellow(`NOT RUN - ${result.cem.reason}`)
-    }`
-  );
+  const cemCoverage = result.cem.usable
+    ? `${pc.green('verified')} (${result.cem.reason})`
+    : pc.yellow(`NOT RUN - ${result.cem.reason}`);
+  console.log(`  Prop-value drift:    ${cemCoverage}`);
+  console.log(`  Attribute drift:     ${cemCoverage}`);
   console.log('');
 
   console.log(pc.bold('Statistics:'));
@@ -384,6 +1016,11 @@ function printResults(result: SyncResult): void {
   console.log(
     `  Prop-value drift:    ${
       result.cem.usable ? result.stats.propValueDrift : pc.yellow('not checked')
+    }`
+  );
+  console.log(
+    `  Attribute drift:     ${
+      result.cem.usable ? result.stats.attributeDrift : pc.yellow('not checked')
     }`
   );
   console.log('');
@@ -422,7 +1059,7 @@ function printResults(result: SyncResult): void {
  * vocabulary.
  *
  * Errors found by either half fail outright. Otherwise the verdict turns on
- * whether the prop-value half ran: only a run where both halves were verified
+ * whether the manifest half ran: only a run where both halves were verified
  * may print an unqualified pass.
  */
 export function summarizeSync(
@@ -443,11 +1080,11 @@ export function summarizeSync(
     },
     {
       allowSkip: options.allowSkip ?? false,
-      label: 'Prop-value drift',
+      label: 'Prop-value and attribute drift',
       passHeadline: 'CEM sync validation passed!',
       fixHint:
-        'Install the Web Awesome Pro package so the prop-value half can compare\n' +
-        'every registry enum against the manifest (pnpm setup:npmrc, then\n' +
+        'Install the Web Awesome Pro package so the manifest half can compare\n' +
+        'every registry enum and attribute against it (pnpm setup:npmrc, then\n' +
         'install docs deps).',
     }
   );
