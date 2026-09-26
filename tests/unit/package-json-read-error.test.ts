@@ -1,11 +1,11 @@
 /**
  * package.json Read Error Surface Tests (issue #99)
  *
- * Tier detection reads package.json. Invalid JSON falls through to token
- * detection, but any other read failure is the user's filesystem, not a bug
- * in Kigumi. These tests pin what a user actually sees: a PackageJsonReadError
- * naming the file, a fix that matches the cause, and exit code 4, never the
- * generic "An unexpected error occurred ... please report" message.
+ * Tier and project detection read package.json through src/utils/package-json.ts.
+ * A read failure is the user's filesystem, not a bug in Kigumi. These tests pin
+ * what a user actually sees, per command and per path into the reader: a
+ * PackageJsonReadError naming the file, a fix that matches the cause, and exit
+ * code 4, never the generic "An unexpected error occurred ... please report".
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -15,6 +15,9 @@ import os from 'os';
 import { listCommand } from '../../src/commands/list.js';
 import { initCommand } from '../../src/commands/init/index.js';
 import { brandCommand } from '../../src/commands/brand.js';
+import { upgradeCommand } from '../../src/commands/upgrade.js';
+import { CLI_VERSION } from '../../src/constants.js';
+import { VERSION_MAP, getVersionEntry } from '../../src/utils/version-map.js';
 import { PackageJsonReadError } from '../../src/errors/index.js';
 import {
   setOutputForTesting,
@@ -135,6 +138,41 @@ describe('user-facing output when package.json is unreadable', () => {
     await fs.mkdir(packageJsonPath);
 
     await initCommand({ cwd: testDir, yes: true });
+
+    const text = printed();
+    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
+    expect(text).toContain('package.json is a directory, not a file');
+    expect(text).not.toContain('An unexpected error occurred');
+    expect(text).not.toMatch(/report this issue/i);
+    expect(process.exit).toHaveBeenCalledWith(4);
+  });
+
+  // upgrade reads package.json in getProjectInfo, before detectTier, but only
+  // when the Web Awesome version changes. Pick a project version from the real
+  // version map whose Web Awesome version differs from the running CLI's.
+  it('kigumi upgrade reports a directory at package.json with exit code 4', async () => {
+    const current = getVersionEntry(CLI_VERSION);
+    const older = VERSION_MAP.find(
+      (entry) => entry.webAwesomeVersion !== current?.webAwesomeVersion
+    );
+    expect(
+      current,
+      `VERSION_MAP has no entry for ${CLI_VERSION}`
+    ).toBeDefined();
+    expect(older).toBeDefined();
+
+    const packageJsonPath = path.join(testDir, 'package.json');
+    await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), {
+      framework: 'react',
+      typescript: true,
+      componentsDir: 'src/components/ui',
+      utilsDir: 'src/lib',
+      theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
+      kigumiVersion: older?.kigumiVersion,
+    });
+    await fs.mkdir(packageJsonPath);
+
+    await upgradeCommand({ cwd: testDir, yes: true });
 
     const text = printed();
     expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
