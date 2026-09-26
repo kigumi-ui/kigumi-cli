@@ -27,6 +27,7 @@ import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   toKebabCase,
   toPascalCase,
+  toCamelCase,
   toAngularOutputName,
 } from '../src/utils/naming.js';
 import {
@@ -148,9 +149,7 @@ export function generateComponentTS(
   // @Output names may not collide with method or @Input names
   const taken = new Set([
     ...methods.map((m) => m.name),
-    ...component.props.map((p) =>
-      p.name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-    ),
+    ...component.props.map((p) => toCamelCase(p.name)),
   ]);
   const events = getEvents(componentKey, taken);
 
@@ -220,9 +219,7 @@ export function generateComponentTS(
   for (const prop of component.props) {
     if (classWrittenProps.includes(prop)) continue;
     const attrName = prop.name;
-    const propName = prop.name.replace(/-([a-z])/g, (_, c: string) =>
-      c.toUpperCase()
-    );
+    const propName = toCamelCase(prop.name);
     if (prop.type === 'boolean') {
       templateAttrs.push(`[attr.${attrName}]="${propName} || null"`);
     } else {
@@ -291,9 +288,7 @@ export function generateComponentTS(
 
   // @Input() for each prop
   for (const prop of component.props) {
-    const propName = prop.name.replace(/-([a-z])/g, (_, c: string) =>
-      c.toUpperCase()
-    );
+    const propName = toCamelCase(prop.name);
 
     if (prop.description) {
       lines.push(`  /** ${prop.description} */`);
@@ -346,9 +341,7 @@ export function generateComponentTS(
     lines.push('    // attributes are written here instead.');
     lines.push('    const el = this.elementRef.nativeElement;');
     for (const prop of classWrittenProps) {
-      const propName = prop.name.replace(/-([a-z])/g, (_, c: string) =>
-        c.toUpperCase()
-      );
+      const propName = toCamelCase(prop.name);
       lines.push(`    el.toggleAttribute('${prop.name}', !!this.${propName});`);
     }
     lines.push('  }');
