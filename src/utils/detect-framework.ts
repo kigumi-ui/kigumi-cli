@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { readPackageJson } from './package-json.js';
+import { readDependencies } from './package-json.js';
 
 export type Framework = 'react' | 'vue' | 'angular' | 'unknown';
 
@@ -47,21 +47,14 @@ export interface ProjectInfo {
 
 /**
  * Detect the framework used in the project
+ *
+ * An unreadable or invalid package.json throws PackageJsonReadError /
+ * PackageJsonInvalidError: `init` and `upgrade` cannot go on without it.
  */
 export async function detectFramework(
   cwd: string = process.cwd()
 ): Promise<Framework> {
-  const packageJsonPath = path.join(cwd, 'package.json');
-
-  if (!(await fs.pathExists(packageJsonPath))) {
-    return 'unknown';
-  }
-
-  const packageJson = await readPackageJson(packageJsonPath);
-  const deps = {
-    ...packageJson.dependencies,
-    ...packageJson.devDependencies,
-  };
+  const deps = await readDependencies(cwd);
 
   // Check for React
   if (deps.react || deps['@types/react']) {
@@ -88,7 +81,6 @@ export async function detectTypeScript(
   cwd: string = process.cwd()
 ): Promise<boolean> {
   const tsconfigPath = path.join(cwd, 'tsconfig.json');
-  const packageJsonPath = path.join(cwd, 'package.json');
 
   // Check for tsconfig.json
   if (await fs.pathExists(tsconfigPath)) {
@@ -96,16 +88,8 @@ export async function detectTypeScript(
   }
 
   // Check package.json dependencies
-  if (await fs.pathExists(packageJsonPath)) {
-    const packageJson = await readPackageJson(packageJsonPath);
-    const deps = {
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies,
-    };
-    return !!deps.typescript;
-  }
-
-  return false;
+  const deps = await readDependencies(cwd);
+  return !!deps.typescript;
 }
 
 /**
@@ -141,21 +125,15 @@ export async function detectPackageManager(
 export async function isNextProject(
   cwd: string = process.cwd()
 ): Promise<boolean> {
-  const packageJsonPath = path.join(cwd, 'package.json');
-
-  if (await fs.pathExists(packageJsonPath)) {
-    try {
-      const packageJson = await fs.readJson(packageJsonPath);
-      const deps = {
-        ...packageJson.dependencies,
-        ...packageJson.devDependencies,
-      };
-      if (deps.next) {
-        return true;
-      }
-    } catch (_error) {
-      // Fall through to config-file detection on malformed package.json
+  try {
+    const deps = await readDependencies(cwd);
+    if (deps.next) {
+      return true;
     }
+  } catch (_error) {
+    // Fall through to config-file detection on an unreadable or invalid
+    // package.json. add, update and regenerate call this after tier or
+    // project detection, which already report the broken file.
   }
 
   for (const name of [
@@ -247,17 +225,7 @@ export async function getProjectInfo(
   const nextRouter = isNext ? await detectNextRouter(cwd) : undefined;
   const sourceLayout = await detectSourceLayout(cwd);
 
-  const packageJsonPath = path.join(cwd, 'package.json');
-  let hasVite = false;
-
-  if (await fs.pathExists(packageJsonPath)) {
-    const packageJson = await readPackageJson(packageJsonPath);
-    const deps = {
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies,
-    };
-    hasVite = !!deps.vite;
-  }
+  const hasVite = !!(await readDependencies(cwd)).vite;
 
   return {
     framework,

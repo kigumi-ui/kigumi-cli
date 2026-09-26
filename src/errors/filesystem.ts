@@ -2,7 +2,7 @@
  * File System Error Classes
  *
  * Errors raised when a file Kigumi needs from the user's project exists but
- * cannot be read.
+ * cannot be read or parsed.
  */
 
 import { KigumiError, ErrorCode, type ErrorSuggestion } from './base.js';
@@ -15,6 +15,17 @@ function errnoCode(error: unknown): string | undefined {
   return undefined;
 }
 
+function toError(cause: unknown): Error {
+  return cause instanceof Error ? cause : new Error(String(cause));
+}
+
+/**
+ * The shell commands use the relative path on purpose. The CLI has no --cwd
+ * flag: every command reads package.json from the directory it was run in,
+ * so `package.json` is the right path for the user. The absolute path is in
+ * the message already, and inside a command it wraps in the terminal box and
+ * can no longer be copied.
+ */
 function readFixSteps(code: string | undefined): string[] {
   switch (code) {
     case 'EACCES':
@@ -41,11 +52,11 @@ function readFixSteps(code: string | undefined): string[] {
 /**
  * Thrown when `package.json` exists but cannot be read.
  *
- * Thrown by `readPackageJson` / `readPackageJsonSync` (`src/utils/package-json.ts`),
- * which tier and project detection both read through. A read failure
- * (permissions, a directory at that path) is a problem in the user's project,
- * not a bug in Kigumi, so it gets its own error instead of the generic
- * "unexpected error, please report" one.
+ * Thrown by `readDependencies` / `readDependenciesSync`
+ * (`src/utils/package-json.ts`), which tier and project detection both read
+ * through. A read failure (permissions, a directory at that path) is a
+ * problem in the user's project, not a bug in Kigumi, so it gets its own
+ * error instead of the generic "unexpected error, please report" one.
  */
 export class PackageJsonReadError extends KigumiError {
   constructor(filePath: string, cause: unknown) {
@@ -62,7 +73,38 @@ export class PackageJsonReadError extends KigumiError {
       `Cannot read package.json at ${filePath}`,
       { filePath, code },
       suggestions,
-      cause instanceof Error ? cause : new Error(String(cause))
+      toError(cause)
+    );
+  }
+}
+
+/**
+ * Thrown when `package.json` can be read but is not a JSON object: a syntax
+ * error, or valid JSON such as `null` that has no fields to read.
+ *
+ * Tier detection catches it and falls through to the token, since a broken
+ * file says nothing about the tier. Project detection (`init`, `upgrade`)
+ * lets it reach the user, who has to fix the file before anything else works.
+ */
+export class PackageJsonInvalidError extends KigumiError {
+  constructor(filePath: string, cause: unknown) {
+    const suggestions: ErrorSuggestion[] = [
+      {
+        title: 'Fix package.json',
+        steps: [
+          'Fix the problem named under "Caused by" above',
+          'package.json must hold a single JSON object',
+          'Then run the command again',
+        ],
+      },
+    ];
+
+    super(
+      ErrorCode.PACKAGE_JSON_INVALID,
+      `Invalid package.json at ${filePath}`,
+      { filePath },
+      suggestions,
+      toError(cause)
     );
   }
 }

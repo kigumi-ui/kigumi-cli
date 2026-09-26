@@ -40,7 +40,7 @@ export { ValidationError } from './validation.js';
 export { TierRestrictionError, ProThemeRequiredError } from './tier.js';
 
 // File system errors
-export { PackageJsonReadError } from './filesystem.js';
+export { PackageJsonReadError, PackageJsonInvalidError } from './filesystem.js';
 
 // layers.css rewrite errors
 export { LayersCssRewriteError } from './layers-css.js';

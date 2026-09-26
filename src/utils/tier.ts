@@ -16,14 +16,17 @@
  * @see AGENTS.md Rule #8 for tier system architecture
  */
 
-import fs from 'fs-extra';
-import path from 'path';
 import { z } from 'zod';
 import {
   WEB_AWESOME_FREE_PACKAGE,
   WEB_AWESOME_PRO_PACKAGE,
 } from '../constants.js';
-import { readPackageJson, readPackageJsonSync } from './package-json.js';
+import { PackageJsonInvalidError } from '../errors/filesystem.js';
+import {
+  readDependencies,
+  readDependenciesSync,
+  type Dependencies,
+} from './package-json.js';
 import { detectProToken, detectProTokenSync } from './token.js';
 
 export const tierSchema = z.enum(['free', 'pro'], {
@@ -33,42 +36,34 @@ export const tierSchema = z.enum(['free', 'pro'], {
 export type Tier = z.infer<typeof tierSchema>;
 
 /**
+ * The tier an installed Web Awesome package implies, or undefined when
+ * package.json lists neither. Pro wins when both are listed.
+ */
+function tierFromDependencies(deps: Dependencies): Tier | undefined {
+  if (deps[WEB_AWESOME_PRO_PACKAGE]) return 'pro';
+  if (deps[WEB_AWESOME_FREE_PACKAGE]) return 'free';
+  return undefined;
+}
+
+/**
  * Detect tier based on installed package
  *
  * Checks package.json to see if @awesome.me/webawesome-pro is installed.
- * Falls back to token detection when package.json is missing, is not valid
- * JSON, or lists neither Web Awesome package. Other read errors are thrown
- * as PackageJsonReadError.
+ * Falls back to token detection when package.json is missing, is invalid
+ * (PackageJsonInvalidError), or lists neither Web Awesome package. An
+ * unreadable package.json is thrown as PackageJsonReadError.
  * An installed package wins over a token.
  *
  * @param cwd - Current working directory
  * @returns 'pro' if webawesome-pro is installed, 'free' otherwise
  */
 export async function detectTier(cwd: string): Promise<Tier> {
-  // First check package.json for installed package
-  const packageJsonPath = path.join(cwd, 'package.json');
-  if (await fs.pathExists(packageJsonPath)) {
-    try {
-      const packageJson = await readPackageJson(packageJsonPath);
-      const deps = {
-        ...packageJson.dependencies,
-        ...packageJson.devDependencies,
-      };
-
-      // If webawesome-pro is installed, it's Pro tier
-      if (deps[WEB_AWESOME_PRO_PACKAGE]) {
-        return 'pro';
-      }
-
-      // If webawesome (free) is installed, it's Free tier
-      if (deps[WEB_AWESOME_FREE_PACKAGE]) {
-        return 'free';
-      }
-    } catch (error) {
-      // Invalid JSON is not a tier signal; fall through to the token.
-      // readPackageJson throws every other read failure as PackageJsonReadError.
-      if (!(error instanceof SyntaxError)) throw error;
-    }
+  try {
+    const installed = tierFromDependencies(await readDependencies(cwd));
+    if (installed) return installed;
+  } catch (error) {
+    // A broken package.json is not a tier signal; fall through to the token.
+    if (!(error instanceof PackageJsonInvalidError)) throw error;
   }
 
   // Fallback to token detection (for init command or if no package installed yet)
@@ -83,30 +78,12 @@ export async function detectTier(cwd: string): Promise<Tier> {
  * Prefer detectTier() when possible.
  */
 export function detectTierSync(cwd: string): Tier {
-  // First check package.json for installed package
-  const packageJsonPath = path.join(cwd, 'package.json');
-  if (fs.pathExistsSync(packageJsonPath)) {
-    try {
-      const packageJson = readPackageJsonSync(packageJsonPath);
-      const deps = {
-        ...packageJson.dependencies,
-        ...packageJson.devDependencies,
-      };
-
-      // If webawesome-pro is installed, it's Pro tier
-      if (deps[WEB_AWESOME_PRO_PACKAGE]) {
-        return 'pro';
-      }
-
-      // If webawesome (free) is installed, it's Free tier
-      if (deps[WEB_AWESOME_FREE_PACKAGE]) {
-        return 'free';
-      }
-    } catch (error) {
-      // Invalid JSON is not a tier signal; fall through to the token.
-      // readPackageJsonSync throws every other read failure as PackageJsonReadError.
-      if (!(error instanceof SyntaxError)) throw error;
-    }
+  try {
+    const installed = tierFromDependencies(readDependenciesSync(cwd));
+    if (installed) return installed;
+  } catch (error) {
+    // A broken package.json is not a tier signal; fall through to the token.
+    if (!(error instanceof PackageJsonInvalidError)) throw error;
   }
 
   // Fallback to token detection (for init command or if no package installed yet)

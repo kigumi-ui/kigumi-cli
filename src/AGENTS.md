@@ -66,7 +66,7 @@ src/
 │   ├── metadata-types.ts # Shared CEM-metadata interfaces (`ComponentMetadata`, `CSSPart`, `CSSCustomProperty`, `ComponentCSSMetadata`) owned by the parser; generated data files import and re-export them (issue #34)
 │   ├── component-metadata.ts # Auto-generated component metadata (attributes, events, slots, methods) — data only; types live in metadata-types.ts
 │   ├── detect-framework.ts # Framework, TypeScript, package manager, Next router, source-layout detection
-│   ├── package-json.ts   # readPackageJson / readPackageJsonSync: reads the user's package.json for tier and project detection (unreadable -> PackageJsonReadError, invalid JSON -> SyntaxError)
+│   ├── package-json.ts   # readDependencies / readDependenciesSync: merged dependency map from the user's package.json for tier and project detection (missing -> {}, unreadable -> PackageJsonReadError, not a JSON object -> PackageJsonInvalidError)
 │   ├── token.ts          # Pro token detection chain ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
 │   ├── update-check.ts   # CLI update notification
 │   └── registry/
@@ -78,7 +78,7 @@ src/
 │   └── ...
 ├── errors/               # Typed error classes
 │   ├── community-registry.ts  # Registry-specific errors
-│   ├── filesystem.ts     # PackageJsonReadError (exit code 4)
+│   ├── filesystem.ts     # PackageJsonReadError, PackageJsonInvalidError (exit code 4)
 │   ├── version.ts        # VersionMismatchError (exit code 7)
 │   └── ...
 ├── output/               # Console formatting (delegates to prompts wrapper)
@@ -147,10 +147,12 @@ Detects tier from `package.json` (primary) with token fallback, NOT from config.
 ```typescript
 export async function detectTier(cwd: string): Promise<Tier> {
   // 1. Check package.json first (installed package is source of truth)
-  const pkg = await readJSON(join(cwd, 'package.json'));
-  const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-  if (deps['@awesome.me/webawesome-pro']) return 'pro';
-  if (deps['@awesome.me/webawesome']) return 'free';
+  try {
+    const installed = tierFromDependencies(await readDependencies(cwd));
+    if (installed) return installed; // Pro package wins over Free
+  } catch (error) {
+    if (!(error instanceof PackageJsonInvalidError)) throw error;
+  }
 
   // 2. Fallback to token detection ($WEBAWESOME_NPM_TOKEN, ~/.npmrc, .env)
   const token = await detectProToken(cwd);
@@ -158,24 +160,34 @@ export async function detectTier(cwd: string): Promise<Tier> {
 }
 ```
 
-A missing `package.json`, invalid JSON, or a file that lists neither Web Awesome
-package falls through to token detection. Any other failure while reading it
-(permissions, a directory at that path) is thrown as `PackageJsonReadError`
-(`src/errors/filesystem.ts`, exit code 4): it names the file and suggests a fix
-matched to the errno code, instead of reaching `handleError` as an
-`UnknownError` that tells the user to report a Kigumi bug. The installed package wins
-over a token: the free package stays `'free'` even when `WEBAWESOME_NPM_TOKEN`
-is set.
+A missing `package.json`, a file that is not a JSON object
+(`PackageJsonInvalidError`: a syntax error, or valid JSON such as `null`), or
+one that lists neither Web Awesome package falls through to token detection.
+A file that cannot be read (permissions, a directory at that path) is thrown
+as `PackageJsonReadError` (`src/errors/filesystem.ts`, exit code 4): it names
+the file and suggests a fix matched to the errno code, instead of reaching
+`handleError` as an `UnknownError` that tells the user to report a Kigumi
+bug. The installed package wins over a token: the free package stays `'free'`
+even when `WEBAWESOME_NPM_TOKEN` is set.
 
-The read goes through `readPackageJson` / `readPackageJsonSync`
-(`src/utils/package-json.ts`), which project detection in
-`detect-framework.ts` uses too. That matters because `init` and `upgrade` call
-`getProjectInfo` before `detectTier`, and its first read (`detectFramework`)
-used to let the raw fs error through. The helper rethrows invalid JSON as the
-original `SyntaxError`, so each caller still decides what invalid JSON means.
+The fix steps' shell commands (`chmod u+r package.json`) use the relative
+path on purpose. The CLI has no `--cwd` flag, so every command reads
+`package.json` from the directory it was run in; the absolute path is already
+in the message, and inside a command it wraps in the terminal box and can no
+longer be copied.
 
-It is not the only reader. `isNextProject` swallows every read error on
-purpose. `status`, `init`'s `detectPreviousTier` / `checkDuplicatePackages`,
+The read goes through `readDependencies` / `readDependenciesSync`
+(`src/utils/package-json.ts`), which return `dependencies` and
+`devDependencies` merged. A missing file is an empty map, since every caller
+treats "no package.json" as "no dependencies". Project detection in
+`detect-framework.ts` uses the same reader. That matters because `init` and
+`upgrade` call `getProjectInfo` before `detectTier`, and its first read
+(`detectFramework`) used to let the raw error through. Project detection does
+not catch `PackageJsonInvalidError`: `init` and `upgrade` cannot continue with
+a broken `package.json`, so they report it (exit code 4).
+
+It is not the only reader of the file. `isNextProject` goes through it but
+swallows both errors on purpose and falls back to `next.config.*`. `status`, `init`'s `detectPreviousTier` / `checkDuplicatePackages`,
 the `add` installer's test-setup check and `cleanupOldPackage` read the file
 directly but catch the error, and `doctor`'s version check runs after its
 `detectTier` call, so none of them can surface a raw fs error today. A new
@@ -486,9 +498,10 @@ more specific — the message is the line the user reads first.
 
 **File system errors** (`src/errors/filesystem.ts`):
 
-| Error Class            | When Thrown                                                                                                                                    |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PackageJsonReadError` | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `readPackageJson` / `readPackageJsonSync` in `utils/package-json.ts` |
+| Error Class               | When Thrown                                                                                                                                                                            |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PackageJsonReadError`    | `package.json` exists but cannot be read (EACCES, EISDIR, ...); thrown by `readDependencies` / `readDependenciesSync` in `utils/package-json.ts`                                       |
+| `PackageJsonInvalidError` | `package.json` is not a JSON object (syntax error, `null`, an array); same readers. Tier detection catches it and falls through to the token; project detection lets it reach the user |
 
 ---
 
@@ -557,3 +570,4 @@ output.error('Failed to install');
 - `detectTier` / `detectTierSync` only ignore invalid JSON from `package.json`; other read failures propagate, and the installed free package wins over a Pro token
 - a `package.json` that exists but cannot be read now throws `PackageJsonReadError` (exit code 4, names the file, errno-matched fix) instead of a raw fs error that surfaced as "unexpected error, please report", issue #99
 - `utils/package-json.ts` reads the user's `package.json` for tier detection and `detect-framework.ts`, so `kigumi init` and `kigumi upgrade` (which call `getProjectInfo` before `detectTier`) report `PackageJsonReadError` too instead of the raw fs error; the readers it does not cover are listed in the tier section, issue #99
+- `utils/package-json.ts` now returns the merged dependency map (`readDependencies`), treats a missing file as empty, and throws `PackageJsonInvalidError` (exit code 4) for a file that is not a JSON object; the six detection callers lost their own existence check and merge, `kigumi init` / `upgrade` report invalid JSON instead of a raw `SyntaxError` or `TypeError`; the permission fix steps keep the relative path (no `--cwd` flag exists, and an absolute path wraps and breaks copy-paste), issue #99

@@ -2,10 +2,11 @@
  * package.json Read Error Surface Tests (issue #99)
  *
  * Tier and project detection read package.json through src/utils/package-json.ts.
- * A read failure is the user's filesystem, not a bug in Kigumi. These tests pin
- * what a user actually sees, per command and per path into the reader: a
- * PackageJsonReadError naming the file, a fix that matches the cause, and exit
- * code 4, never the generic "An unexpected error occurred ... please report".
+ * A file that cannot be read or is not a JSON object is a problem in the user's
+ * project, not a bug in Kigumi. These tests pin what a user actually sees, per
+ * command and per path into the reader: a PackageJsonReadError or
+ * PackageJsonInvalidError naming the file, a fix that matches the cause, and
+ * exit code 4, never the generic "An unexpected error occurred ... please report".
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -18,7 +19,10 @@ import { brandCommand } from '../../src/commands/brand.js';
 import { upgradeCommand } from '../../src/commands/upgrade.js';
 import { CLI_VERSION } from '../../src/constants.js';
 import { VERSION_MAP, getVersionEntry } from '../../src/utils/version-map.js';
-import { PackageJsonReadError } from '../../src/errors/index.js';
+import {
+  PackageJsonReadError,
+  PackageJsonInvalidError,
+} from '../../src/errors/index.js';
 import {
   setOutputForTesting,
   resetOutputForTesting,
@@ -72,7 +76,33 @@ describe('PackageJsonReadError', () => {
   });
 });
 
-describe('user-facing output when package.json is unreadable', () => {
+describe('PackageJsonInvalidError', () => {
+  const filePath = '/project/package.json';
+
+  it('names the file, keeps the parse error, and exits 4', () => {
+    const error = new PackageJsonInvalidError(
+      filePath,
+      new SyntaxError('Unexpected token } in JSON at position 12')
+    );
+    expect(error.message).toBe(`Invalid package.json at ${filePath}`);
+    expect(error.context.details).toEqual({ filePath });
+    expect(error.format()).toContain(
+      'Caused by: Unexpected token } in JSON at position 12'
+    );
+    expect(error.exitCode).toBe(4);
+  });
+
+  it('tells the user to fix the file, not to make it readable or report a bug', () => {
+    const text = new PackageJsonInvalidError(
+      filePath,
+      new SyntaxError('bad')
+    ).formatSuggestions();
+    expect(text).toContain('package.json must hold a single JSON object');
+    expect(text).not.toMatch(/readable|chmod|report/i);
+  });
+});
+
+describe('user-facing output when package.json is unreadable or invalid', () => {
   let testDir: string;
   let originalExit: typeof process.exit;
   let output: ReturnType<typeof createRecordingOutput>;
@@ -142,6 +172,22 @@ describe('user-facing output when package.json is unreadable', () => {
     const text = printed();
     expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
     expect(text).toContain('package.json is a directory, not a file');
+    expect(text).not.toContain('An unexpected error occurred');
+    expect(text).not.toMatch(/report this issue/i);
+    expect(process.exit).toHaveBeenCalledWith(4);
+  });
+
+  // Tier detection treats invalid JSON as "no tier signal", but init cannot
+  // detect the project without it, so the invalid file reaches the user.
+  it('kigumi init reports invalid JSON in package.json with exit code 4', async () => {
+    const packageJsonPath = path.join(testDir, 'package.json');
+    await fs.writeFile(packageJsonPath, '{ "name": "broken", }');
+
+    await initCommand({ cwd: testDir, yes: true });
+
+    const text = printed();
+    expect(text).toContain(`Invalid package.json at ${packageJsonPath}`);
+    expect(text).toContain('package.json must hold a single JSON object');
     expect(text).not.toContain('An unexpected error occurred');
     expect(text).not.toMatch(/report this issue/i);
     expect(process.exit).toHaveBeenCalledWith(4);
