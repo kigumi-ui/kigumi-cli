@@ -26,9 +26,8 @@ import {
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   toKebabCase,
-  toCamelCase,
   toPascalCase,
-  stripWaPrefix,
+  toAngularOutputName,
 } from '../src/utils/naming.js';
 import {
   formatCustomTypeImports,
@@ -103,28 +102,19 @@ interface MethodInfo {
 }
 
 /**
- * Convert wa-event-name to Angular @Output() camelCase name
- * wa-show -> show, wa-after-hide -> afterHide, blur -> blur
+ * Get events for a component from metadata. `taken` holds the class's method
+ * and @Input() names, which an @Output() name must not reuse.
  */
-function toOutputName(eventName: string): string {
-  const stripped = stripWaPrefix(eventName);
-
-  // 'input' conflicts with @Input() decorator
-  if (stripped === 'input') return 'inputEvent';
-
-  return toCamelCase(stripped);
-}
-
-/**
- * Get events for a component from metadata
- */
-function getEvents(componentKey: string): EventInfo[] {
+function getEvents(
+  componentKey: string,
+  taken: ReadonlySet<string>
+): EventInfo[] {
   const metadata = COMPONENT_METADATA[componentKey];
   if (!metadata?.events) return [];
 
   return metadata.events.map((e) => ({
     name: e.name,
-    outputName: toOutputName(e.name),
+    outputName: toAngularOutputName(e.name, taken),
     type: mapEventType(e.name),
   }));
 }
@@ -153,21 +143,16 @@ export function generateComponentTS(
   componentKey: string
 ): string {
   const kebabName = toKebabCase(component.name);
-  const events = getEvents(componentKey);
   const methods = getMethods(componentKey);
 
-  // Rename @Output names that collide with method or @Input names
-  const methodNames = new Set(methods.map((m) => m.name));
-  const propNames = new Set(
-    component.props.map((p) =>
+  // @Output names may not collide with method or @Input names
+  const taken = new Set([
+    ...methods.map((m) => m.name),
+    ...component.props.map((p) =>
       p.name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-    )
-  );
-  for (const event of events) {
-    if (methodNames.has(event.outputName) || propNames.has(event.outputName)) {
-      event.outputName = event.outputName + 'Event';
-    }
-  }
+    ),
+  ]);
+  const events = getEvents(componentKey, taken);
 
   const needsCVA =
     CVA_VALUE_COMPONENTS.has(componentKey) ||
