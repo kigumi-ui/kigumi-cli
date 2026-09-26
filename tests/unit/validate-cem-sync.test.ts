@@ -13,7 +13,10 @@ import {
   validateCemSync,
   parseStringEnum,
   allowlistedKeysInRegistry,
+  checkAttributeDrift,
+  type AttributeAllowlistEntry,
 } from '../../scripts/validate-cem-sync.js';
+import type { ComponentDefinition } from '../../src/utils/registry/types.js';
 
 describe('validate:cem-sync', () => {
   it('should return a valid result structure', async () => {
@@ -159,5 +162,132 @@ describe('allowlistedKeysInRegistry', () => {
         new Set(['data-grid', 'date-picker'])
       )
     ).toEqual([]);
+  });
+});
+
+describe('checkAttributeDrift', () => {
+  function makeDef(props: ComponentDefinition['props']): ComponentDefinition {
+    return {
+      name: 'Widget',
+      tagName: 'wa-widget',
+      category: 'Test',
+      description: 'Fixture component',
+      dependencies: [],
+      files: {},
+      props,
+      importPath: '@awesome.me/webawesome/dist/components/widget/widget.js',
+      tier: 'free',
+    };
+  }
+
+  const globalAllowlist = new Set(['dir', 'lang', 'did-ssr']);
+
+  it('warns on a CEM attribute with no matching registry prop', () => {
+    const registryMap = new Map([['widget', makeDef([])]]);
+    const cemAttrTypes = new Map([['wa-widget', { href: 'string' }]]);
+
+    const findings = checkAttributeDrift(
+      registryMap,
+      cemAttrTypes,
+      globalAllowlist,
+      {}
+    );
+
+    expect(findings).toEqual([
+      {
+        component: 'widget',
+        category: 'attribute-missing-from-registry',
+        severity: 'warning',
+        message: expect.stringContaining('href'),
+      },
+    ]);
+  });
+
+  it('does not warn on a globally allowlisted attribute', () => {
+    const registryMap = new Map([['widget', makeDef([])]]);
+    const cemAttrTypes = new Map([
+      ['wa-widget', { dir: 'string', lang: 'string', 'did-ssr': undefined }],
+    ]);
+
+    const findings = checkAttributeDrift(
+      registryMap,
+      cemAttrTypes,
+      globalAllowlist,
+      {}
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('does not warn on a per-component allowlisted attribute', () => {
+    const registryMap = new Map([['tab', makeDef([])]]);
+    const cemAttrTypes = new Map([['wa-tab', { role: 'string' }]]);
+    const perComponentAllowlist: Record<
+      string,
+      Record<string, AttributeAllowlistEntry>
+    > = {
+      tab: {
+        role: {
+          kind: 'intentional',
+          reason: 'managed by the roving tabindex pattern',
+        },
+      },
+    };
+
+    const findings = checkAttributeDrift(
+      registryMap,
+      cemAttrTypes,
+      globalAllowlist,
+      perComponentAllowlist
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('matches a CEM attribute present under the kebab-cased prop name', () => {
+    const registryMap = new Map([
+      ['widget', makeDef([{ name: 'autoFocus', type: 'boolean' }])],
+    ]);
+    const cemAttrTypes = new Map([['wa-widget', { 'auto-focus': 'boolean' }]]);
+
+    const findings = checkAttributeDrift(
+      registryMap,
+      cemAttrTypes,
+      globalAllowlist,
+      {}
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('errors on a stale per-component allowlist entry the registry now surfaces', () => {
+    const registryMap = new Map([
+      ['dropdown-item', makeDef([{ name: 'href', type: 'string' }])],
+    ]);
+    const cemAttrTypes = new Map([['wa-dropdown-item', { href: 'string' }]]);
+    const perComponentAllowlist: Record<
+      string,
+      Record<string, AttributeAllowlistEntry>
+    > = {
+      'dropdown-item': {
+        href: { kind: 'backfill', reason: 'tracked by issue #101' },
+      },
+    };
+
+    const findings = checkAttributeDrift(
+      registryMap,
+      cemAttrTypes,
+      globalAllowlist,
+      perComponentAllowlist
+    );
+
+    expect(findings).toEqual([
+      {
+        component: 'dropdown-item',
+        category: 'stale-allowlist-entry',
+        severity: 'error',
+        message: expect.stringContaining('href'),
+      },
+    ]);
   });
 });

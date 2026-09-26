@@ -61,7 +61,9 @@ interface SyncFinding {
     | 'missing-from-registry'
     | 'missing-from-cem'
     | 'prop-value-drift'
-    | 'allowlisted-but-wrapped';
+    | 'allowlisted-but-wrapped'
+    | 'attribute-missing-from-registry'
+    | 'stale-allowlist-entry';
   severity: 'error' | 'warning';
   message: string;
 }
@@ -89,6 +91,518 @@ export const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
   // thin attribute wrapper. Scoped effort of its own, not this bump.
   'data-grid',
 ]);
+
+/**
+ * CEM attributes every custom element carries that Kigumi never surfaces as a
+ * registry prop, independent of which component declares them. Keyed by CEM
+ * attribute name (kebab-case).
+ */
+export const GLOBAL_ATTRIBUTE_ALLOWLIST: ReadonlySet<string> = new Set([
+  // Lit's ReactiveElement base class reflects these on every custom element;
+  // Kigumi hosts inherit them from the DOM (React/Vue/Angular all pass
+  // `dir`/`lang` straight through as ordinary HTML attributes) rather than
+  // wrapping them per-component.
+  'dir',
+  'lang',
+  // SSR hydration marker Web Awesome's Lit runtime writes on every element;
+  // internal to the did-ssr protocol, never user-facing.
+  'did-ssr',
+]);
+
+/** True for the `with-*` SSR slot-hint attributes Web Awesome's DSD renderer writes. */
+function isSsrSlotHint(attrName: string): boolean {
+  return attrName.startsWith('with-');
+}
+
+/**
+ * Why a per-component allowlist entry is not (yet) a registry prop.
+ *
+ * `backfill` marks attributes that should be surfaced but are tracked by a
+ * sibling ticket rather than this one — issues #101 and #102 turn these into
+ * real props. `intentional` marks attributes the component manages itself
+ * (e.g. ARIA `role`/`tabindex` on composite widgets) and is never expected to
+ * become a prop.
+ */
+export interface AttributeAllowlistEntry {
+  kind: 'backfill' | 'intentional';
+  reason: string;
+}
+
+/**
+ * Per-component attribute allowlist. Keyed by registry key, then by CEM
+ * attribute name (kebab-case). The Free CEM baseline measured on 2026-09-24
+ * found 75 attributes across 26 Free components (after the global allowlist
+ * above absorbs the inherited `dir`/`lang`/`did-ssr` and `with-*` SSR hints);
+ * checking against the Pro CEM (what CI installs, and what `assessCemCompleteness`
+ * requires for an all-or-nothing run covering all 87 registry components)
+ * adds 50 more across 13 Pro-only components (charts, `combobox`,
+ * `file-input`, `video`, `date-input`), for 125 across 39 components total.
+ *
+ * `backfill` entries are surfaced as real props by issue #101 (form-control
+ * attributes) or #102 (component-specific attributes); `intentional` entries
+ * are attributes Web Awesome only honours as a JS property, or that the
+ * component manages itself and never expects a caller to set.
+ */
+export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
+  Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
+> = {
+  button: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  input: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    spellcheck: {
+      kind: 'backfill',
+      reason: 'native spellcheck attribute, see #101',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  carousel: {
+    slides: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (array of slide indices), no attribute reflection',
+    },
+    currentSlide: {
+      kind: 'intentional',
+      reason: 'JS-only property (camelCase, no attribute reflection)',
+    },
+  },
+  checkbox: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'color-picker': {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'copy-button': {
+    tooltip: { kind: 'backfill', reason: 'tooltip text override, see #102' },
+  },
+  'dropdown-item': {
+    submenuOpen: {
+      kind: 'intentional',
+      reason: 'JS-only property (camelCase, internal submenu state)',
+    },
+  },
+  'intersection-observer': {
+    root: {
+      kind: 'intentional',
+      reason: 'JS-only property (Element reference), no attribute reflection',
+    },
+  },
+  popup: {
+    boundary: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Element/Element[] reference), no attribute reflection',
+    },
+    flipBoundary: {
+      kind: 'intentional',
+      reason: 'JS-only property (camelCase, Element reference)',
+    },
+    shiftBoundary: {
+      kind: 'intentional',
+      reason: 'JS-only property (camelCase, Element reference)',
+    },
+    autoSizeBoundary: {
+      kind: 'intentional',
+      reason: 'JS-only property (camelCase, Element reference)',
+    },
+    'hover-bridge': {
+      kind: 'backfill',
+      reason: 'hover bridge toggle, see #102',
+    },
+  },
+  'qr-code': {
+    image: { kind: 'backfill', reason: 'embedded logo image, see #102' },
+    'image-background': {
+      kind: 'backfill',
+      reason: 'embedded logo styling, see #102',
+    },
+    'image-coverage': {
+      kind: 'backfill',
+      reason: 'embedded logo styling, see #102',
+    },
+    'image-padding': {
+      kind: 'backfill',
+      reason: 'embedded logo styling, see #102',
+    },
+  },
+  'radio-group': {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  radio: {
+    name: { kind: 'backfill', reason: 'form field name, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  rating: {
+    role: {
+      kind: 'intentional',
+      reason: 'ARIA role Web Awesome manages internally for the widget pattern',
+    },
+    'default-value': {
+      kind: 'backfill',
+      reason: 'uncontrolled default value, see #102',
+    },
+    getSymbol: {
+      kind: 'intentional',
+      reason: 'JS-only function property, no attribute reflection',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  select: {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  slider: {
+    'min-value': { kind: 'backfill', reason: 'range slider bound, see #102' },
+    'max-value': { kind: 'backfill', reason: 'range slider bound, see #102' },
+    'indicator-offset': {
+      kind: 'backfill',
+      reason: 'range slider styling, see #102',
+    },
+    'tooltip-distance': {
+      kind: 'backfill',
+      reason: 'tooltip placement, see #102',
+    },
+    'tooltip-placement': {
+      kind: 'backfill',
+      reason: 'tooltip placement, see #102',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  switch: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  tab: {
+    role: {
+      kind: 'intentional',
+      reason:
+        'ARIA role Web Awesome manages internally for the tablist pattern',
+    },
+  },
+  'tab-panel': {
+    role: {
+      kind: 'intentional',
+      reason:
+        'ARIA role Web Awesome manages internally for the tablist pattern',
+    },
+  },
+  'tag-input': {
+    autocapitalize: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocorrect: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    enterkeyhint: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    spellcheck: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  textarea: {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    autocapitalize: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocorrect: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    enterkeyhint: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  tree: {
+    tabindex: {
+      kind: 'intentional',
+      reason: 'roving tabindex Web Awesome manages internally for keyboard nav',
+    },
+    role: {
+      kind: 'intentional',
+      reason: 'ARIA role Web Awesome manages internally for the tree pattern',
+    },
+  },
+  'tree-item': {
+    tabindex: {
+      kind: 'intentional',
+      reason: 'roving tabindex Web Awesome manages internally for keyboard nav',
+    },
+    role: {
+      kind: 'intentional',
+      reason: 'ARIA role Web Awesome manages internally for the tree pattern',
+    },
+  },
+  'number-input': {
+    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
+    pill: { kind: 'backfill', reason: 'pill styling variant, see #102' },
+    readonly: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    enterkeyhint: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    name: { kind: 'backfill', reason: 'form field name, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'otp-input': {
+    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'time-input': {
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    distance: {
+      kind: 'backfill',
+      reason: 'popup placement distance, see #102',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'known-date': {
+    autocomplete: {
+      kind: 'backfill',
+      reason: 'native input attribute, see #101',
+    },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'date-input': {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  combobox: {
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  'file-input': {
+    capture: { kind: 'backfill', reason: 'native input attribute, see #101' },
+    name: { kind: 'backfill', reason: 'form field name, see #101' },
+    'custom-error': {
+      kind: 'backfill',
+      reason: 'form validation message, see #101',
+    },
+  },
+  video: {
+    duration: {
+      kind: 'intentional',
+      reason:
+        'read-only JS property reporting playback state, no attribute reflection',
+    },
+    currentTime: {
+      kind: 'intentional',
+      reason: 'JS-only property (camelCase, read-write playback position)',
+    },
+  },
+  chart: {
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'bar-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'line-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'bubble-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'doughnut-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #102' },
+    min: { kind: 'backfill', reason: 'axis bound, see #102' },
+    max: { kind: 'backfill', reason: 'axis bound, see #102' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'pie-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #102' },
+    min: { kind: 'backfill', reason: 'axis bound, see #102' },
+    max: { kind: 'backfill', reason: 'axis bound, see #102' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'polar-area-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
+    grid: { kind: 'backfill', reason: 'axis grid toggle, see #102' },
+    min: { kind: 'backfill', reason: 'axis bound, see #102' },
+    max: { kind: 'backfill', reason: 'axis bound, see #102' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'radar-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    'x-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    'y-label': { kind: 'backfill', reason: 'axis label, see #102' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+  'scatter-chart': {
+    type: {
+      kind: 'intentional',
+      reason:
+        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+    },
+    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #102' },
+    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #102' },
+    plugins: {
+      kind: 'intentional',
+      reason:
+        'JS-only property (Chart.js plugin object array), no attribute reflection',
+    },
+  },
+};
 
 /**
  * Allowlist keys that already have a registry entry. Those wrappers exist, so
@@ -125,6 +639,12 @@ interface SyncResult {
     onlyInRegistry: number;
     synced: number;
     propValueDrift: number;
+    /**
+     * Counted separately from `propValueDrift`: that check compares enum
+     * *values* for props the registry already declares, while this counts CEM
+     * attribute *names* with no registry prop at all.
+     */
+    attributeDrift: number;
   };
 }
 
@@ -301,6 +821,80 @@ function checkPropValueDrift(
   return findings;
 }
 
+/**
+ * Kebab-case a registry prop name for comparison against a CEM attribute name.
+ * `autoFocus` -> `auto-focus`, mirroring how Lit/Web Awesome reflects a
+ * camelCase JS property to its HTML attribute.
+ */
+function propNameToAttrName(propName: string): string {
+  return propName.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+/**
+ * Compare each wrapped component's full CEM attribute list against its
+ * registry props, in both directions:
+ *
+ * - A CEM attribute with no matching registry prop (by kebab-cased name) and
+ *   no allowlist entry is a warning: additive drift, the same as a newly
+ *   added enum value.
+ * - A per-component allowlist entry for an attribute the registry now
+ *   surfaces is an error: the allowlist is stale and must be removed, the
+ *   same discipline `allowlistedKeysInRegistry` applies to
+ *   `INTENTIONALLY_UNWRAPPED`.
+ *
+ * Pure and exported so the five cases (missing, globally allowlisted,
+ * per-component allowlisted, kebab-cased match, stale allowlist entry) are
+ * table-tested against literal fixtures rather than the real registry/CEM.
+ */
+export function checkAttributeDrift(
+  registryMap: Map<string, ComponentDefinition>,
+  cemAttrTypes: Map<string, Record<string, string | undefined>>,
+  globalAllowlist: ReadonlySet<string>,
+  perComponentAllowlist: Readonly<
+    Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
+  >
+): SyncFinding[] {
+  const findings: SyncFinding[] = [];
+
+  for (const [regKey, def] of registryMap) {
+    const attrs = cemAttrTypes.get(`wa-${regKey}`);
+    if (!attrs) continue;
+
+    const propAttrNames = new Set(
+      def.props.map((p) => propNameToAttrName(p.name))
+    );
+    const componentAllowlist = perComponentAllowlist[regKey] ?? {};
+
+    for (const attrName of Object.keys(attrs)) {
+      if (propAttrNames.has(attrName)) continue;
+      if (globalAllowlist.has(attrName) || isSsrSlotHint(attrName)) continue;
+
+      const allowlistEntry = componentAllowlist[attrName];
+      if (!allowlistEntry) {
+        findings.push({
+          component: regKey,
+          category: 'attribute-missing-from-registry',
+          severity: 'warning',
+          message: `wa-${regKey} declares attribute "${attrName}" in the CEM with no matching registry prop`,
+        });
+      }
+    }
+
+    for (const [attrName, entry] of Object.entries(componentAllowlist)) {
+      if (propAttrNames.has(attrName)) {
+        findings.push({
+          component: regKey,
+          category: 'stale-allowlist-entry',
+          severity: 'error',
+          message: `${regKey}.${attrName} is allowlisted as "${entry.kind}" but the registry now has a matching prop; remove it from COMPONENT_ATTRIBUTE_ALLOWLIST`,
+        });
+      }
+    }
+  }
+
+  return findings;
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 export async function validateCemSync(
@@ -319,14 +913,28 @@ export async function validateCemSync(
 
   // `usable` implies a resolved path, but narrow on the path itself rather
   // than asserting, so the two can never disagree silently.
+  const cemAttrTypes =
+    cem.usable && resolution.path !== null
+      ? getCemAttributeTypes(resolution.path)
+      : new Map<string, Record<string, string | undefined>>();
   const propValueFindings =
     cem.usable && resolution.path !== null
-      ? checkPropValueDrift(registryMap, getCemAttributeTypes(resolution.path))
+      ? checkPropValueDrift(registryMap, cemAttrTypes)
+      : [];
+  const attributeDriftFindings =
+    cem.usable && resolution.path !== null
+      ? checkAttributeDrift(
+          registryMap,
+          cemAttrTypes,
+          GLOBAL_ATTRIBUTE_ALLOWLIST,
+          COMPONENT_ATTRIBUTE_ALLOWLIST
+        )
       : [];
 
   const findings = [
     ...checkComponentPresence(cemKeys, registryMap),
     ...propValueFindings,
+    ...attributeDriftFindings,
   ];
   const onlyInCem = findings.filter(
     (f) => f.category === 'missing-from-registry'
@@ -336,6 +944,11 @@ export async function validateCemSync(
   ).length;
   const propValueDrift = findings.filter(
     (f) => f.category === 'prop-value-drift'
+  ).length;
+  const attributeDrift = findings.filter(
+    (f) =>
+      f.category === 'attribute-missing-from-registry' ||
+      f.category === 'stale-allowlist-entry'
   ).length;
   const synced = [...registryMap.keys()].filter((k) => cemKeys.has(k)).length;
 
@@ -350,6 +963,7 @@ export async function validateCemSync(
       onlyInRegistry,
       synced,
       propValueDrift,
+      attributeDrift,
     },
   };
 }
@@ -384,6 +998,11 @@ function printResults(result: SyncResult): void {
   console.log(
     `  Prop-value drift:    ${
       result.cem.usable ? result.stats.propValueDrift : pc.yellow('not checked')
+    }`
+  );
+  console.log(
+    `  Attribute drift:     ${
+      result.cem.usable ? result.stats.attributeDrift : pc.yellow('not checked')
     }`
   );
   console.log('');
