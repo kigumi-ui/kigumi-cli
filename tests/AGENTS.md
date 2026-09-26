@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (107 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (109 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -61,7 +61,7 @@ tests/
 │   ├── project-config.test.ts       # Project config helpers
 │   ├── prompts-wrapper.test.ts      # Prompts wrapper (setPromptsForTesting routing)
 │   ├── react-function-harness.test.ts # jsdom CEM function harness tracer for the committed Dialog Template (issue #74)
-│   ├── react-function-harness.ts    # proveReactTemplate, the harness both react-function-harness*.test.ts files drive (not a test file)
+│   ├── react-function-harness.ts    # proveReactTemplate: the React adapter (`onAfterHide`, ref handle) over template-function-harness.ts (not a test file)
 │   ├── react-function-harness-registry.test.ts # Loops proveReactTemplate over every LOCAL_REGISTRY component (issue #75); fails closed on a missing COMPONENT_METADATA entry, on an emptied attributes/methods list, and asserts public CEM methods reach the host via the exposed ref
 │   ├── regenerate.test.ts           # File regeneration utilities
 │   ├── relaxed-compile-check.test.ts # Pins the relaxed generate-then-tsc check until it is removed (issue #73)
@@ -84,6 +84,7 @@ tests/
 │   ├── storybook-generator.test.ts  # Storybook story generation
 │   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
 │   ├── template.test.ts             # Template materialization + tier swap
+│   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract both adapters share, incl. the host add/removeEventListener log (not a test file)
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
@@ -119,7 +120,10 @@ tests/
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
-│   ├── vue-templates.test.ts        # Vue template generation validation
+│   ├── vue-function-harness.ts      # proveVueTemplate: the Vue adapter (`onWaAfterHide`, defineExpose, declared emits) over template-function-harness.ts (not a test file)
+│   ├── vue-function-harness.test.ts # The Vue adapter alone, on inline components: callback naming, undeclared emits, a leak Vue's post-unmount emit would hide (issue #76)
+│   ├── vue-function-harness-registry.test.ts # Loops proveVueTemplate over every LOCAL_REGISTRY component's `.vue` Template (issue #76); pins the v-model Templates and the attribute each model carries
+│   ├── vue-templates.test.ts        # Every .vue and .js.vue Template forwards through hostAttributes() and cleans up in onBeforeUnmount
 │   ├── scripts/
 │   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset)
 │   │   ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
@@ -141,11 +145,13 @@ tests/
 │   │   ├── pr-134-aliases-removal.test.ts      # F-064 — aliases dropped, toKigumiAlias substitute
 │   │   ├── pr-95-init-preservation-length.test.ts       # Record vs array .length on installedComponents
 │   │   ├── pr-126-react-ref-typing.test.ts     # F-072 — useRef<Wa* | null> + useCallback setter
-│   │   ├── f-068-vue-boolean-prop-filter.test.ts        # Vue definedProps strips false (else attrs stick)
+│   │   ├── f-068-vue-boolean-prop-filter.test.ts        # Vue hostAttributes strips false (else attrs stick)
 │   │   ├── f-013-palette-tier-gating.test.ts   # Free tier rejects Pro palettes (B3 bug-injection mirror)
 │   │   ├── resolve-components-tolowercase.test.ts       # Multi-word components survive kebab/Pascal
 │   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   ├── _helpers/                               # Shared test helpers (see Test Helpers below); not test files
+│   │   ├── eventless-components.ts             # EVENTLESS_COMPONENTS: registry components with no CEM events, pinned data shared by the React and Vue registry harnesses
+│   │   ├── methodless-components.ts            # METHODLESS_COMPONENTS: registry components with no public CEM methods, pinned data shared by the React and Vue registry harnesses
 │   │   └── wa-component-stub.ts                # Stub every `@awesome.me/webawesome(-pro)/dist/components/**` import resolves to, aliased from both vitest configs via vitest.wa-stub-alias.ts
 │   └── _setup/
 │       └── fast-check.ts                        # Cluster T: fast-check global config (pinned seed=1; FC_SEED env override)
@@ -187,7 +193,7 @@ pnpm test:watch        # Watch mode
 
 `tests/**` is included in `tsconfig.tests.json` and gated by `pnpm check:tests`.
 The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error.
-The function harness renders a committed React Template, so this tsconfig sets
+The function harness renders committed React and Vue Templates, so this tsconfig sets
 `jsx` and the DOM lib and includes the CSS and React JSX shims.
 The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137
 once the existing 133 errors were fixed; the gate is now strict.
@@ -211,16 +217,17 @@ be paired with a follow-up plan to drain it.
 Sibling modules shared across unit tests. Prefer these over per-file `vi.mock`
 factories (cluster S).
 
-| Helper                                                                               | Use when                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `createTestOutput()` (from `_helpers/output.ts`)                                     | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape.                                                                                                                                                                                                                                |
-| `createRecordingOutput()` (from `_helpers/output.ts`)                                | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`.                                                                                                                                                                                                        |
-| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`)                            | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`.                                                      |
-| `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`)                   | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier.                                                                                                                                                                                                                      |
-| `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`)               | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers.                                                                                                                                                                                                                                                                                                                                                               |
-| `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`)                   | You need a fully-typed `AddOptions` for command tests.                                                                                                                                                                                                                                                                                                                                                                                 |
-| `registerTestSeams(output, prompts)` / `clearTestSeams()` (from `_helpers/seams.ts`) | You're wiring both the output and prompts seams in the same test file. Call `registerTestSeams` after `vi.resetModules()` in `beforeEach`, and `clearTestSeams` in `afterEach`. Wraps the dynamic-import dance below.                                                                                                                                                                                                                  |
-| `WebAwesomeComponentStub` (default export of `_helpers/wa-component-stub.ts`)        | You don't import it: both vitest configs alias every `@awesome.me/webawesome(-pro)/dist/components/**` deep-import to it (via `vitest.wa-stub-alias.ts`), so a Template's dynamic component import resolves without loading Web Awesome's runtime. Pro isn't installed at all, and Free's runtime is dead weight for a contract proof. It registers nothing, keeping the harness's `customElements.get(tagName)` assertion meaningful. |
+| Helper                                                                                                                           | Use when                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createTestOutput()` (from `_helpers/output.ts`)                                                                                 | You only need a satisfies-the-interface output that records via `vi.fn()` and lets you assert with `vi.mocked(output.success).toHaveBeenCalledWith(...)`. The 4 init-family tests still use this shape.                                                                                                                                                                                                                                |
+| `createRecordingOutput()` (from `_helpers/output.ts`)                                                                            | You want a `RecordingOutput` with a typed `calls` array. Assert via `expect(output.calls).toContainEqual({ method: 'note', args: ['Settings', expect.stringContaining('awesome')] })`. Pair with `setOutputForTesting(output)`.                                                                                                                                                                                                        |
+| `createTestPrompts(scripts)` (from `_helpers/prompts.ts`)                                                                        | You need a scripted `PromptsAdapter`. Pass arrays for `confirm`, `select`, `text`, `multiselect`; the adapter dispenses them in order. Throws "Unexpected prompt" when a script is exhausted or an unconfigured method is called, so missing setup fails loud. Pair with `setPromptsForTesting(prompts)`. Set `cancelSymbol` to drive the cancellation path through `isCancel()`.                                                      |
+| `writeTierFixture(dir, 'free' \| 'pro')` (from `_helpers/tier.ts`)                                                               | You need `detectTier()` to read a real `package.json` instead of mocking `src/utils/tier.js`. Call after `mkdtemp` + `chdir(testDir)`; production code reads the dependencies map and returns the requested tier.                                                                                                                                                                                                                      |
+| `createTestKigumiConfig(overrides)` (from `_helpers/kigumi-config.ts`)                                                           | You need a fully-typed `KigumiConfig` for `parseKigumiConfig()` callers.                                                                                                                                                                                                                                                                                                                                                               |
+| `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`)                                                               | You need a fully-typed `AddOptions` for command tests.                                                                                                                                                                                                                                                                                                                                                                                 |
+| `registerTestSeams(output, prompts)` / `clearTestSeams()` (from `_helpers/seams.ts`)                                             | You're wiring both the output and prompts seams in the same test file. Call `registerTestSeams` after `vi.resetModules()` in `beforeEach`, and `clearTestSeams` in `afterEach`. Wraps the dynamic-import dance below.                                                                                                                                                                                                                  |
+| `WebAwesomeComponentStub` (default export of `_helpers/wa-component-stub.ts`)                                                    | You don't import it: both vitest configs alias every `@awesome.me/webawesome(-pro)/dist/components/**` deep-import to it (via `vitest.wa-stub-alias.ts`), so a Template's dynamic component import resolves without loading Web Awesome's runtime. Pro isn't installed at all, and Free's runtime is dead weight for a contract proof. It registers nothing, keeping the harness's `customElements.get(tagName)` assertion meaningful. |
+| `METHODLESS_COMPONENTS` / `EVENTLESS_COMPONENTS` (from `_helpers/methodless-components.ts` / `_helpers/eventless-components.ts`) | A registry harness needs to know which components may legitimately prove zero methods / events. Committed data, never derived from `COMPONENT_METADATA`: `react-function-harness-registry.test.ts` pins both directions, so a WA bump that adds or removes a method or event must edit the list in the same commit.                                                                                                                    |
 
 The DI hooks live on the production modules. Prefer `registerTestSeams` /
 `clearTestSeams` from `_helpers/seams.ts` so the dynamic-import boilerplate
@@ -594,7 +601,7 @@ describe('smoke test', () => {
 
 - Third-party libraries (Commander, Zod)
 - File system mocking (use real temp dirs)
-- Per-Template generated tests as the function oracle. The CEM function harness renders every committed React Template in jsdom (issue #75); visual checks stay in the browser
+- Per-Template generated tests as the function oracle. The CEM function harness renders every committed React and Vue TypeScript Template in jsdom (issues #75, #76); visual checks stay in the browser
 
 ### JSON with Comments
 
@@ -842,3 +849,8 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - proveReactTemplate (react-function-harness.ts) now returns `{ violations, proved }`: a clean run must also report what it exercised, so an emptied CEM field can't read as a pass (ADR 0003). It gained a method-on-ref assertion — each public CEM method is stubbed on the host and called through the exposed ref, so a ref method that never reaches the host fails closed, issue #75
 - vitest.config.ts and vitest.unit.config.ts both alias every `@awesome.me/webawesome(-pro)/dist/components/**` import to a shared stub (vitest.wa-stub-alias.ts / tests/unit/_helpers/wa-component-stub.ts): the Pro package isn't installed, and loading Free's real runtime buys nothing for a contract proof, while `vi.mock` hoisting can't cover 87 dynamically resolved specifiers — bug-injected against AccordionItem's `expand()`, Badge's className forwarding, a deleted `COMPONENT_METADATA.dialog` entry, and an emptied `accordion-item.methods` array, issue #75
 - validate-cem-sync.test.ts covers checkAttributeDrift against the shipped `GLOBAL_ATTRIBUTE_ALLOWLIST`, including the `with-*` branch, camelCase CEM names (`submenuOpen`) and stale entries in every direction; each case was mutation-checked against the validator, issue #100
+- added the Vue function harness, issue #76: vue-function-harness-registry.test.ts proves every `.vue` TypeScript Template against COMPONENT_METADATA through the shared template-function-harness.ts (split out of react-function-harness.ts, which is now the React adapter). SFCs compile via vitest.vue-plugin.ts with the `isCustomElement` rule `kigumi init` writes. METHODLESS_COMPONENTS moved to _helpers/methodless-components.ts so both loops share one pin
+- the shared harness now logs add/removeEventListener on the host: Vue's emit is a no-op after unmount, so dispatch-after-unmount could not see a leaked listener. Bug-injected (dropped removeEventListener in Dialog.vue went green before this, red after), issue #76
+- `proved` in template-function-harness.ts now counts a CEM member only once its check observed the host behaviour (attribute reflected, event delivered and cleaned up, method reached the host). It used to count members iterated, so `proved.X === metadata.X.length` held by construction: a harness that silently skipped dispatch passed all 269 registry tests, and now fails 102. Added `_helpers/eventless-components.ts` with a both-directions pin and a `proved.events > 0` floor in both loops (bug-injected: emptied `dialog.events` goes red in the pin and both loops), issue #76
+- vue-function-harness-registry.test.ts mounts every Vue Template with `aria-expanded` / `data-probe` / `probe-flag` set to `false` and asserts the first two reach the host as `"false"` and the third is dropped. Bug-injected on Button.vue: removing the aria/data exception or the attrs-loop `false` filter goes red, while vue-templates.test.ts's source-text check stays green for the latter, issue #76
+- `mountVueTemplate` (vue-function-harness.ts) is the one Vue mount for the harness unit test, the registry loop and the consumer-attribute loop, replacing three copies of the createApp/shallowRef/refHandle closure. Re-bug-injected through it: Dialog back to onUnmounted, Badge without `:class`, AccordionItem without `expand` all go red, issue #76

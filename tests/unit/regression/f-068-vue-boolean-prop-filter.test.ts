@@ -12,6 +12,9 @@
  *      to `Record<string, unknown>` at iteration so vue-tsc accepts the
  *      `value !== false` check on components without Boolean props.
  *
+ * Since issue #76 the filter lives in `hostAttributes()`, which also covers
+ * fallthrough attributes; the Vue function harness proves the behaviour.
+ *
  * Verification target: the generated Vue templates checked into the repo
  * (templates/vue/<Component>/<Component>.vue). Reverting the generator alone
  * would not break the suite; what matters for shipped code is the output.
@@ -26,7 +29,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../../../');
 const SAMPLE_TEMPLATES = ['Button', 'Switch', 'Checkbox'];
 
-describe('F-068: Vue definedProps filter strips false', () => {
+describe('F-068: Vue hostAttributes filter strips false', () => {
   it.each(SAMPLE_TEMPLATES)(
     '%s.vue stripping filter rejects false',
     (component) => {
@@ -38,17 +41,20 @@ describe('F-068: Vue definedProps filter strips false', () => {
       );
       const source = fs.readFileSync(file, 'utf8');
 
-      // The fix replaced `if (value !== undefined)` with a guard that ALSO
-      // rejects false. Both invariants must hold; if a future refactor flips
-      // either back to the pre-fix form this test should fail.
-      expect(source).toContain('value !== false');
-      expect(source).toContain('definedProps');
+      // The guard must skip false as well as undefined; if a future refactor
+      // flips it back to the pre-fix form this test should fail.
+      expect(source).toContain(
+        'if (value === undefined || value === false) continue;'
+      );
+      expect(source).toContain('hostAttributes');
     }
   );
 
   it('Button.js.vue (untyped variant) also strips false', () => {
     const file = path.join(REPO_ROOT, 'templates/vue/Button/Button.js.vue');
     const source = fs.readFileSync(file, 'utf8');
-    expect(source).toContain('value !== false');
+    expect(source).toContain(
+      'if (value === undefined || value === false) continue;'
+    );
   });
 });

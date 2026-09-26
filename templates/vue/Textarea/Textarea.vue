@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import './Textarea.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -31,17 +31,34 @@ export interface TextareaProps {
 
 const props = defineProps<TextareaProps>();
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// `false`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward `false` to <wa-*> (would render pill="" / loading="").
-const definedProps = computed(() => {
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so `false` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   `false`, and would render a fallthrough `false` as the string "false".
+//   `aria-*` / `data-*` keep `false`, where "false" is a real value.
+// - Vue camelizes declared prop keys (`with-caret` -> `withCaret`). Before
+//   the element upgrades, that key lands as the attribute `withcaret`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not `computed`: `attrs` is tracked per property read,
+// so a computed over an empty `attrs` would never see a later attribute.
+const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
   }
   return result;
-});
+}
 
 const emit = defineEmits<{
   blur: [event: FocusEvent];
@@ -84,7 +101,7 @@ onMounted(() => {
   el.addEventListener('wa-invalid', handleWaInvalid);
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -137,7 +154,7 @@ defineExpose({
 <template>
   <wa-textarea
     ref="elementRef"
-    v-bind="definedProps"
+    v-bind="hostAttributes()"
     :class="$attrs.class"
     :value="model"
   >

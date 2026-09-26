@@ -9,7 +9,9 @@
  * Key design decisions:
  * - No named slot bridging: users apply slot="name" directly on children (WA-idiomatic)
  * - v-model via defineModel() for form controls (value) and toggleable components (open/checked)
- * - Separate onMounted/onUnmounted hooks (not nested)
+ * - Separate onMounted/onBeforeUnmount hooks (not nested). Cleanup runs before
+ *   unmount because Vue nulls template refs first: an onUnmounted hook reads
+ *   `elementRef.value === null` and never removes the listeners (issue #76)
  */
 
 import fs from 'fs-extra';
@@ -289,7 +291,7 @@ function buildJsdocBlock(componentKey: string, description: string): string {
  * - the props and emits declaration shape — a `Props` interface plus
  *   `defineProps<T>()` and a typed `defineEmits<{…}>()` in TS, an Options-API
  *   `defineProps({…})` object and a plain event-name array in JS;
- * - type annotations on handler bodies, model declarations, the `definedProps`
+ * - type annotations on handler bodies, model declarations, the `hostAttributes`
  *   accumulator, and the element ref;
  * - `as any` casts on the element ref inside watchers and exposed methods;
  * - the `lang="ts"` script attribute;
@@ -395,8 +397,8 @@ function assembleVueSFC(
       : '  element: elementRef';
 
   // Build imports
-  const vueImports: string[] = ['ref', 'computed', 'onMounted'];
-  if (listeners.length > 0) vueImports.push('onUnmounted');
+  const vueImports: string[] = ['ref', 'onMounted', 'useAttrs'];
+  if (listeners.length > 0) vueImports.push('onBeforeUnmount');
   if (hasAnyModel) vueImports.push('watch');
 
   // Build defineModel declarations
@@ -468,12 +470,15 @@ function assembleVueSFC(
   // Build template attributes
   const templateAttrs: string[] = [
     '    ref="elementRef"',
-    '    v-bind="definedProps"',
+    '    v-bind="hostAttributes()"',
     '    :class="$attrs.class"',
   ];
+  // Boolean models go through `|| undefined` for the same reason props do:
+  // `false` would render `checked="false"` / `open="false"`, which Web
+  // Awesome reads as present, i.e. true, until the element upgrades.
   if (hasValueModel) templateAttrs.push('    :value="model"');
-  if (hasCheckedModel) templateAttrs.push('    :checked="model"');
-  if (hasOpenModel) templateAttrs.push('    :open="open"');
+  if (hasCheckedModel) templateAttrs.push('    :checked="model || undefined"');
+  if (hasOpenModel) templateAttrs.push('    :open="open || undefined"');
 
   // Build lifecycle blocks (only when there are listeners)
   const lifecycleBlock =
@@ -488,7 +493,7 @@ onMounted(() => {
 ${addListenerCalls}
 });
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   const el = elementRef.value;
   if (!el) return;
 
@@ -522,22 +527,38 @@ const props = defineProps<${component.name}Props>();`
 ${propsSection}
 });`;
 
-  // The definedProps computed: identical logic, annotated in the TS variant.
-  const definedPropsBlock = typed
-    ? `const definedProps = computed(() => {
+  // The host-attribute builder: identical logic, annotated in the TS variant.
+  const hostAttributesBlock = typed
+    ? `const attrs = useAttrs();
+
+function hostAttributes(): Record<string, unknown> {
   const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});`
-    : `const definedProps = computed(() => {
+}`
+    : `const attrs = useAttrs();
+
+function hostAttributes() {
   const result = {};
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') continue;
+    if (value === false && !/^(aria|data)-/.test(key)) continue;
+    result[key] = value;
+  }
   for (const [key, value] of Object.entries(props)) {
-    if (value !== undefined && value !== false) result[key] = value;
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
   return result;
-});`;
+}`;
 
   const emitBlock = typed
     ? `const emit = defineEmits<{
@@ -558,11 +579,20 @@ function ensureLoaded() {
 ${buildJsdocBlock(componentKey, component.description)}
 ${propsBlock}
 
-// Strip undefined and false props before forwarding to the web component.
-// Vue boolean-prop coercion materializes absent optional Boolean props as
-// \`false\`, but Web Awesome elements read attribute presence as truthy, so
-// we must not forward \`false\` to <wa-*> (would render pill="" / loading="").
-${definedPropsBlock}
+defineOptions({ inheritAttrs: false });
+
+// Forward props and fallthrough attributes to the web component yourself,
+// rather than through Vue's default fallthrough:
+// - Web Awesome reads attribute presence as truthy, so \`false\` must never
+//   reach <wa-*>. Vue materializes every absent optional Boolean prop as
+//   \`false\`, and would render a fallthrough \`false\` as the string "false".
+//   \`aria-*\` / \`data-*\` keep \`false\`, where "false" is a real value.
+// - Vue camelizes declared prop keys (\`with-caret\` -> \`withCaret\`). Before
+//   the element upgrades, that key lands as the attribute \`withcaret\`, which
+//   Web Awesome never reads, so props go back to their kebab-case names.
+// A plain function, not \`computed\`: \`attrs\` is tracked per property read,
+// so a computed over an empty \`attrs\` would never see a later attribute.
+${hostAttributesBlock}
 
 ${emitBlock}
 
