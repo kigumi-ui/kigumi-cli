@@ -193,6 +193,20 @@ directly but catch the error, and `doctor`'s version check runs after its
 `detectTier` call, so none of them can surface a raw fs error today. A new
 reader that can run before tier detection should use the helper.
 
+**Detect before writing** (issue #121). A command that writes to the project
+resolves the tier (and, for `upgrade`, the project info) before its first
+write and passes it on through `regenerateKigumiSetup`'s `tierOverride` or
+`generateComponent`'s `tier` argument. `brand`, `palette`, `theme set`,
+`theme install`, `diff`, `update` and `add` all do. A broken `package.json`
+then fails the command before anything changed. When `brand` and
+`theme install` left detection to `regenerateKigumiSetup`, they had already
+saved the config (and theme files) by the time it threw. The `detectTierSync`
+fallback in those two helpers is for callers without a tier; no command
+relies on it. Two related orderings follow the same rule: `upgrade` installs
+the new Web Awesome package before it saves the new version, so a failed
+install is retried on the next run instead of reported as "Already up to
+date", and `theme install` downloads every theme file before writing any.
+
 ### Pro Authentication
 
 **Design Decision:** Pro tokens are stored in global `~/.npmrc`, not per-project.
@@ -571,3 +585,4 @@ output.error('Failed to install');
 - a `package.json` that exists but cannot be read now throws `PackageJsonReadError` (exit code 4, names the file, errno-matched fix) instead of a raw fs error that surfaced as "unexpected error, please report", issue #99
 - `utils/package-json.ts` reads the user's `package.json` for tier detection and `detect-framework.ts`, so `kigumi init` and `kigumi upgrade` (which call `getProjectInfo` before `detectTier`) report `PackageJsonReadError` too instead of the raw fs error; the readers it does not cover are listed in the tier section, issue #99
 - `utils/package-json.ts` now returns the merged dependency map (`readDependencies`), treats a missing file as empty, and throws `PackageJsonInvalidError` (exit code 4) for a file that is not a JSON object; the six detection callers lost their own existence check and merge, `kigumi init` / `upgrade` report invalid JSON instead of a raw `SyntaxError` or `TypeError`; the permission fix steps keep the relative path (no `--cwd` flag exists, and an absolute path wraps and breaks copy-paste), issue #99
+- commands detect before they write (issue #121): `brand` and `theme install` resolve the tier up front and pass it to `regenerateKigumiSetup`, `upgrade` resolves project info and tier before confirming and installs before saving the new version, `theme install` fetches all files before writing, and `diff` detects once instead of per component, where its catch turned a broken `package.json` into "missing" files; `palette` / `theme set` pass their tier too, so no command relies on the `detectTierSync` fallback

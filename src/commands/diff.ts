@@ -17,6 +17,7 @@ import { getOutput } from '../output/index.js';
 import { getConfig } from '../utils/config.js';
 import { handleError } from '../errors/index.js';
 import { getComponent } from '../utils/registry.js';
+import { detectTier, type Tier } from '../utils/tier.js';
 import { toKebabCase } from '../utils/naming.js';
 import {
   generateComponent,
@@ -85,11 +86,16 @@ export async function diffCommand(
       return;
     }
 
-    // 3. Compare each component
+    // 3. Compare each component. The tier is detected once and passed down,
+    // as `update` does. Left to generateComponent it would be re-detected per
+    // component, and diffComponentFiles reports any generation error as a
+    // missing file, so a broken package.json would list every component
+    // file as missing instead of naming package.json.
+    const tier = await detectTier(cwd);
     const results: ComponentDiffResult[] = [];
 
     for (const componentName of componentsToCheck) {
-      const result = await diffComponent(componentName, config, cwd);
+      const result = await diffComponent(componentName, config, cwd, tier);
       if (result) {
         results.push(result);
       }
@@ -184,7 +190,8 @@ export async function diffCommand(
 async function diffComponent(
   componentName: string,
   config: KigumiConfig,
-  cwd: string
+  cwd: string,
+  tier: Tier
 ): Promise<ComponentDiffResult | null> {
   const component = getComponent(toKebabCase(componentName));
   if (!component) {
@@ -194,7 +201,7 @@ async function diffComponent(
   const installedVersion =
     config.installedComponents?.[componentName]?.kigumiVersion;
 
-  const files = await diffComponentFiles(component, config, cwd);
+  const files = await diffComponentFiles(component, config, cwd, tier);
 
   return {
     name: componentName,
@@ -209,7 +216,8 @@ async function diffComponent(
 async function diffComponentFiles(
   component: ComponentDefinition,
   config: KigumiConfig,
-  cwd: string
+  cwd: string,
+  tier: Tier
 ): Promise<FileDiffResult[]> {
   const componentDir = path.join(cwd, config.componentsDir, component.name);
   const results: FileDiffResult[] = [];
@@ -228,7 +236,8 @@ async function diffComponentFiles(
       component,
       config,
       config.typescript,
-      cwd
+      cwd,
+      tier
     );
     const snapshotContent = snapshot?.[componentFileName] ?? null;
     results.push(

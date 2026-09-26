@@ -19,6 +19,7 @@ import {
   type RecordingOutput,
 } from './_helpers/output.js';
 import { createTestPrompts } from './_helpers/prompts.js';
+import { writeTierFixture } from './_helpers/tier.js';
 import type { PromptsAdapter } from '../../src/prompts/types.js';
 
 import { registerTestSeams, clearTestSeams } from './_helpers/seams.js';
@@ -142,6 +143,7 @@ describe('brandCommand', () => {
     });
 
     it('should call regenerateKigumiSetup after updating', async () => {
+      await writeTierFixture(testDir, 'free');
       await createConfig();
 
       const { brandCommand } = await import('../../src/commands/brand.js');
@@ -152,11 +154,13 @@ describe('brandCommand', () => {
         expect.objectContaining({
           theme: expect.objectContaining({ brandColor: 'green' }),
         }),
-        'src/lib'
+        'src/lib',
+        'free'
       );
     });
 
     it('should use custom utilsDir from config', async () => {
+      await writeTierFixture(testDir, 'free');
       await createConfig({ utilsDir: 'lib/utils' });
 
       const { brandCommand } = await import('../../src/commands/brand.js');
@@ -167,7 +171,8 @@ describe('brandCommand', () => {
         expect.objectContaining({
           theme: expect.objectContaining({ brandColor: 'red' }),
         }),
-        'lib/utils'
+        'lib/utils',
+        'free'
       );
     });
 

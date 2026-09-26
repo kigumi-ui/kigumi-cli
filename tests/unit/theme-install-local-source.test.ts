@@ -151,4 +151,39 @@ describe('theme install — local filesystem source', () => {
       )
     ).toBe(true);
   });
+
+  // Issue #121: both theme files are fetched before either is written, so a
+  // failed download leaves no half-installed theme behind.
+  it('writes nothing when one of the theme files cannot be fetched', async () => {
+    const registryPath = path.join(registryDir, 'registry.json');
+    const registry = await fs.readJSON(registryPath);
+    registry.themes.midnight.files.variables = 'themes/missing-variables.css';
+    await fs.writeJSON(registryPath, registry);
+    const configPath = path.join(projectDir, 'kigumi.config.json');
+    const configBefore = await fs.readJSON(configPath);
+
+    const exitSpy = vi
+      .spyOn(process, 'exit')
+      .mockImplementation((() => undefined) as never);
+    try {
+      const { themeInstallAction } =
+        await import('../../src/commands/theme/install.js');
+      await themeInstallAction('midnight', {
+        from: registryDir,
+        cwd: projectDir,
+      });
+
+      expect(exitSpy).toHaveBeenCalledWith(expect.any(Number));
+      expect(exitSpy).not.toHaveBeenCalledWith(0);
+    } finally {
+      exitSpy.mockRestore();
+    }
+
+    expect(
+      await fs.pathExists(
+        path.join(projectDir, 'src/styles/community-themes/midnight.css')
+      )
+    ).toBe(false);
+    expect(await fs.readJSON(configPath)).toEqual(configBefore);
+  });
 });

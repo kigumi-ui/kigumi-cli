@@ -110,7 +110,7 @@ async function paletteAction(
     await saveConfig({ theme: { palette: selectedPalette } }, cwd);
 
     const utilsDir = config.utilsDir;
-    await regenerateKigumiSetup(cwd, config, utilsDir);
+    await regenerateKigumiSetup(cwd, config, utilsDir, tier);
 
     spinner.stop('Palette updated');
 

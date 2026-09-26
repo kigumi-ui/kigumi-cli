@@ -7,6 +7,10 @@
  * command and per path into the reader: a PackageJsonReadError or
  * PackageJsonInvalidError naming the file, a fix that matches the cause, and
  * exit code 4, never the generic "An unexpected error occurred ... please report".
+ *
+ * Commands that write to the project detect first (issue #121), so the tests
+ * for them also check that a failed run left kigumi.config.json and the
+ * project's files as they were.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -17,6 +21,8 @@ import { listCommand } from '../../src/commands/list.js';
 import { initCommand } from '../../src/commands/init/index.js';
 import { brandCommand } from '../../src/commands/brand.js';
 import { upgradeCommand } from '../../src/commands/upgrade.js';
+import { diffCommand } from '../../src/commands/diff.js';
+import { themeInstallAction } from '../../src/commands/theme/install.js';
 import { CLI_VERSION } from '../../src/constants.js';
 import { VERSION_MAP, getVersionEntry } from '../../src/utils/version-map.js';
 import {
@@ -28,6 +34,15 @@ import {
   resetOutputForTesting,
 } from '../../src/output/index.js';
 import { createRecordingOutput } from './_helpers/output.js';
+
+const CONFIG = {
+  framework: 'react',
+  typescript: true,
+  componentsDir: 'src/components/ui',
+  utilsDir: 'src/lib',
+  stylesDir: 'src/styles',
+  theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
+};
 
 function errnoError(code: string): Error {
   return Object.assign(new Error(`${code}: simulated`), { code });
@@ -208,14 +223,9 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
     expect(older).toBeDefined();
 
     const packageJsonPath = path.join(testDir, 'package.json');
-    await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), {
-      framework: 'react',
-      typescript: true,
-      componentsDir: 'src/components/ui',
-      utilsDir: 'src/lib',
-      theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
-      kigumiVersion: older?.kigumiVersion,
-    });
+    const configPath = path.join(testDir, 'kigumi.config.json');
+    const config = { ...CONFIG, kigumiVersion: older?.kigumiVersion };
+    await fs.writeJSON(configPath, config);
     await fs.mkdir(packageJsonPath);
 
     await upgradeCommand({ cwd: testDir, yes: true });
@@ -226,21 +236,18 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
     expect(text).not.toContain('An unexpected error occurred');
     expect(text).not.toMatch(/report this issue/i);
     expect(process.exit).toHaveBeenCalledWith(4);
+    // Issue #121: the version was not bumped before detection failed.
+    expect(await fs.readJSON(configPath)).toEqual(config);
   });
 
-  // brand reaches tier detection through regenerateKigumiSetup, which calls
-  // detectTierSync. brand reads process.cwd(), not a cwd option.
-  it('kigumi brand reports a directory at package.json with exit code 4', async () => {
+  // brand detects the tier before it saves the new color (issue #121). It
+  // reads process.cwd(), not a cwd option.
+  it('kigumi brand reports a directory at package.json and saves nothing', async () => {
     const originalCwd = process.cwd();
     const projectDir = fs.realpathSync(testDir);
     const packageJsonPath = path.join(projectDir, 'package.json');
-    await fs.writeJSON(path.join(projectDir, 'kigumi.config.json'), {
-      framework: 'react',
-      typescript: true,
-      componentsDir: 'src/components/ui',
-      utilsDir: 'src/lib',
-      theme: { selected: 'default', palette: 'default', brandColor: 'blue' },
-    });
+    const configPath = path.join(projectDir, 'kigumi.config.json');
+    await fs.writeJSON(configPath, CONFIG);
     await fs.mkdir(packageJsonPath);
 
     process.chdir(projectDir);
@@ -255,6 +262,66 @@ describe('user-facing output when package.json is unreadable or invalid', () => 
     expect(text).toContain('package.json is a directory, not a file');
     expect(text).not.toContain('An unexpected error occurred');
     expect(text).not.toMatch(/report this issue/i);
+    expect(process.exit).toHaveBeenCalledWith(4);
+    expect(await fs.readJSON(configPath)).toEqual(CONFIG);
+  });
+
+  // theme install detects the tier before fetching or writing (issue #121).
+  it('kigumi theme install reports a directory at package.json and writes nothing', async () => {
+    const registryDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'kigumi-pkg-read-registry-')
+    );
+    try {
+      await fs.outputFile(
+        path.join(registryDir, 'themes/midnight.css'),
+        ':root { --wa-color-surface-default: #101014; }\n'
+      );
+      await fs.writeJSON(path.join(registryDir, 'registry.json'), {
+        name: 'local-theme-registry',
+        version: '0.1.0',
+        frameworks: ['react'],
+        components: {},
+        themes: {
+          midnight: {
+            name: 'Midnight',
+            description: 'A dark theme',
+            files: { css: 'themes/midnight.css' },
+          },
+        },
+      });
+      const packageJsonPath = path.join(testDir, 'package.json');
+      const configPath = path.join(testDir, 'kigumi.config.json');
+      await fs.writeJSON(configPath, CONFIG);
+      await fs.mkdir(packageJsonPath);
+
+      await themeInstallAction('midnight', { from: registryDir, cwd: testDir });
+
+      const text = printed();
+      expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
+      expect(text).not.toContain('An unexpected error occurred');
+      expect(process.exit).toHaveBeenCalledWith(4);
+      expect(
+        await fs.pathExists(path.join(testDir, 'src/styles/community-themes'))
+      ).toBe(false);
+      expect(await fs.readJSON(configPath)).toEqual(CONFIG);
+    } finally {
+      await fs.remove(registryDir);
+    }
+  });
+
+  // diff reports every generation error as a missing file, so the tier has to
+  // be detected before the per-component loop for the broken package.json to
+  // be named at all.
+  it('kigumi diff reports a directory at package.json instead of missing files', async () => {
+    const packageJsonPath = path.join(testDir, 'package.json');
+    await fs.writeJSON(path.join(testDir, 'kigumi.config.json'), CONFIG);
+    await fs.mkdir(packageJsonPath);
+
+    await diffCommand(['button'], { cwd: testDir });
+
+    const text = printed();
+    expect(text).toContain(`Cannot read package.json at ${packageJsonPath}`);
+    expect(text).not.toMatch(/missing/i);
     expect(process.exit).toHaveBeenCalledWith(4);
   });
 });
