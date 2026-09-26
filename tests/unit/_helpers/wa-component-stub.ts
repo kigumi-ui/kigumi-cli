@@ -1,12 +1,12 @@
 /**
- * Stub for every Web Awesome component deep-import (`.../dist/components/**\/*.js`),
- * aliased in `vitest.config.ts`. Neither the Free nor the Pro package is a real
- * dependency of this repo, so a Template's dynamic `import('@awesome.me/webawesome...')`
- * cannot resolve at the module-graph level — Vite's import analysis needs
- * something resolvable before a `vi.mock`/`vi.doMock` factory can intercept it
- * (see the registry-wide React function harness, issue #75).
+ * Stub every Web Awesome component deep-import (`.../dist/components/**\/*.js`)
+ * resolves to, aliased from `vitest.config.ts` and `vitest.unit.config.ts` via
+ * `vitest.wa-stub-alias.ts`. See that file for why the real modules are not
+ * loaded: Pro is not installed, and Free's runtime is dead weight for a
+ * contract proof.
  *
- * The stub registers nothing: `customElements.get(tagName)` staying undefined
- * after mount is itself one of the harness's assertions.
+ * The default export stands in for a component class, which is what a
+ * Template's `import(...)` reads. It registers nothing, so the harness's
+ * `customElements.get(tagName)` assertion stays meaningful.
  */
 export default class WebAwesomeComponentStub {}
