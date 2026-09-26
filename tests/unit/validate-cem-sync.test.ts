@@ -14,6 +14,7 @@ import {
   parseStringEnum,
   allowlistedKeysInRegistry,
   checkAttributeDrift,
+  isAllowlistedAttribute,
   GLOBAL_ATTRIBUTE_ALLOWLIST,
   type AttributeAllowlistEntry,
   type AttributePolicy,
@@ -166,6 +167,31 @@ describe('allowlistedKeysInRegistry', () => {
         new Set(['data-grid', 'date-picker'])
       )
     ).toEqual([]);
+  });
+});
+
+/**
+ * The one rule for "this CEM attribute needs no registry prop", shared by
+ * checkAttributeDrift and the Angular function harness (issue #77), where it
+ * decides which CEM attributes a Template may leave without an @Input().
+ */
+describe('isAllowlistedAttribute', () => {
+  const policy: AttributePolicy = {
+    global: new Set(['dir']),
+    perComponent: { widget: { href: { kind: 'backfill', reason: 'fixture' } } },
+  };
+
+  it.each([
+    ['dir', true],
+    ['with-footer', true],
+    ['href', true],
+    ['target', false],
+  ])('widget.%s -> %s', (attribute, expected) => {
+    expect(isAllowlistedAttribute('widget', attribute, policy)).toBe(expected);
+  });
+
+  it("does not apply one component's entry to another", () => {
+    expect(isAllowlistedAttribute('gadget', 'href', policy)).toBe(false);
   });
 });
 
