@@ -9,18 +9,20 @@
 // @vitest-environment jsdom
 
 import {
-  createApp,
   defineComponent,
   h,
   onBeforeUnmount,
   onMounted,
   onUnmounted,
   ref,
-  shallowRef,
   type Component,
 } from 'vue';
 import { describe, expect, it } from 'vitest';
-import { proveVueTemplate, VUE_ADAPTER } from './vue-function-harness.js';
+import {
+  mountVueTemplate,
+  proveVueTemplate,
+  VUE_ADAPTER,
+} from './vue-function-harness.js';
 import type { VueTemplateProbe } from './vue-function-harness.js';
 
 const SHOW = { name: 'wa-after-show', eventType: 'CustomEvent' };
@@ -54,34 +56,6 @@ function reEmitting(options: {
   return { component, emits: options.emits };
 }
 
-function mountWith(Template: Component): VueTemplateProbe['mount'] {
-  return ({ attributes, className, handlers }) => {
-    const exposed = shallowRef<Record<string, unknown> | null>(null);
-    const container = document.createElement('div');
-    const app = createApp({
-      render: () =>
-        h(Template, {
-          ...attributes,
-          class: className,
-          ...handlers,
-          ref: exposed,
-        }),
-    });
-    app.mount(container);
-    return {
-      container,
-      unmount: () => {
-        app.unmount();
-      },
-      refHandle: {
-        get current() {
-          return exposed.value;
-        },
-      },
-    };
-  };
-}
-
 async function prove(
   template: InlineTemplate,
   overrides: Partial<VueTemplateProbe> = {}
@@ -91,7 +65,7 @@ async function prove(
     attributes: [],
     className: 'probe-class',
     emits: template.emits,
-    mount: mountWith(template.component),
+    mount: mountVueTemplate(template.component),
     ...overrides,
   });
   return violations;

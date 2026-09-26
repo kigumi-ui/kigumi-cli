@@ -24,11 +24,15 @@
  */
 // @vitest-environment jsdom
 
-import { createApp, defineComponent, h, shallowRef, type Component } from 'vue';
+import type { Component } from 'vue';
 import { describe, expect, it } from 'vitest';
 import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
 import { COMPONENT_METADATA } from '../../src/utils/component-metadata.js';
-import { probeAttributes, proveVueTemplate } from './vue-function-harness.js';
+import {
+  mountVueTemplate,
+  probeAttributes,
+  proveVueTemplate,
+} from './vue-function-harness.js';
 import { METHODLESS_COMPONENTS } from './_helpers/methodless-components.js';
 import { EVENTLESS_COMPONENTS } from './_helpers/eventless-components.js';
 
@@ -126,33 +130,9 @@ describe('every Vue Template against CEM metadata', () => {
         attributes: probeAttributes(metadata.attributes),
         className: 'probe-class',
         emits: Template.emits,
-        mount: ({ attributes, className, handlers }) => {
-          const exposed = shallowRef<Record<string, unknown> | null>(null);
-          const container = document.createElement('div');
-          const app = createApp(
-            defineComponent({
-              render: () =>
-                h(Template, {
-                  ...toVueProps(slug, attributes),
-                  class: className,
-                  ...handlers,
-                  ref: exposed,
-                }),
-            })
-          );
-          app.mount(container);
-          return {
-            container,
-            unmount: () => {
-              app.unmount();
-            },
-            refHandle: {
-              get current() {
-                return exposed.value;
-              },
-            },
-          };
-        },
+        mount: mountVueTemplate(Template, (attributes) =>
+          toVueProps(slug, attributes)
+        ),
       });
 
       expect(violations).toEqual([]);
@@ -193,11 +173,11 @@ describe('every Vue Template forwards consumer attributes', () => {
       expect(tagName).toBeDefined();
       if (!Template || !tagName) return;
 
-      const container = document.createElement('div');
-      const app = createApp(
-        defineComponent({ render: () => h(Template, CONSUMER_ATTRIBUTES) })
-      );
-      app.mount(container);
+      const { container, unmount } = mountVueTemplate(Template)({
+        attributes: CONSUMER_ATTRIBUTES,
+        className: 'probe-class',
+        handlers: {},
+      });
       try {
         const host = container.querySelector(tagName);
         expect(host, `host tag ${tagName} is missing`).not.toBeNull();
@@ -205,7 +185,7 @@ describe('every Vue Template forwards consumer attributes', () => {
         expect(host?.getAttribute('data-probe')).toBe('false');
         expect(host?.hasAttribute('probe-flag')).toBe(false);
       } finally {
-        app.unmount();
+        unmount();
       }
     });
   }

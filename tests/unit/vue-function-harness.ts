@@ -14,6 +14,7 @@
  * would catch the leak, but under a message that points at the wrong cause.
  */
 
+import { createApp, defineComponent, h, shallowRef, type Component } from 'vue';
 import { toPascalCase } from '../../src/utils/naming.js';
 import {
   proveTemplate,
@@ -39,6 +40,46 @@ export const VUE_ADAPTER: TemplateAdapter = {
   callbackName: (eventName) => `on${toPascalCase(eventName)}`,
   handleName: 'defineExpose',
 };
+
+/**
+ * Mount a Vue Template the way a consumer's template renders it: the probe
+ * attributes as props (after `toProps`), the probe class, and the `on*`
+ * listeners, with `ref` capturing the `defineExpose` proxy as `refHandle`.
+ */
+export function mountVueTemplate(
+  Template: Component,
+  toProps: (
+    attributes: Record<string, string | boolean>
+  ) => Record<string, unknown> = (attributes) => attributes
+): VueTemplateProbe['mount'] {
+  return ({ attributes, className, handlers }) => {
+    const exposed = shallowRef<Record<string, unknown> | null>(null);
+    const container = document.createElement('div');
+    const app = createApp(
+      defineComponent({
+        render: () =>
+          h(Template, {
+            ...toProps(attributes),
+            class: className,
+            ...handlers,
+            ref: exposed,
+          }),
+      })
+    );
+    app.mount(container);
+    return {
+      container,
+      unmount: () => {
+        app.unmount();
+      },
+      refHandle: {
+        get current() {
+          return exposed.value;
+        },
+      },
+    };
+  };
+}
 
 export async function proveVueTemplate(
   probe: VueTemplateProbe
