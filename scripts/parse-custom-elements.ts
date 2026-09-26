@@ -467,6 +467,11 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+// Only run when executed directly, not when imported: two unit tests import
+// the pure emitters, and an unguarded call rewrote the committed metadata on
+// every `pnpm test` (issue #106).
+if (process.argv[1] === __filename) {
+  main().catch(console.error);
+}
 
 export { generateTypeScriptSource, generateCssMetadataSource };
