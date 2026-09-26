@@ -32,6 +32,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
+import { toKebabCase } from '../src/utils/naming.js';
 import {
   getAllComponents,
   type ComponentDefinition,
@@ -94,8 +95,8 @@ export const INTENTIONALLY_UNWRAPPED: ReadonlySet<string> = new Set([
 
 /**
  * CEM attributes every custom element carries that Kigumi never surfaces as a
- * registry prop, independent of which component declares them. Keyed by CEM
- * attribute name (kebab-case).
+ * registry prop, independent of which component declares them. Keyed by
+ * kebab-cased attribute name (see `checkAttributeDrift`).
  */
 export const GLOBAL_ATTRIBUTE_ALLOWLIST: ReadonlySet<string> = new Set([
   // Lit's ReactiveElement base class reflects these on every custom element;
@@ -129,19 +130,22 @@ export interface AttributeAllowlistEntry {
 }
 
 /**
- * Per-component attribute allowlist. Keyed by registry key, then by CEM
- * attribute name (kebab-case). The Free CEM baseline measured on 2026-09-24
- * found 75 attributes across 26 Free components (after the global allowlist
- * above absorbs the inherited `dir`/`lang`/`did-ssr` and `with-*` SSR hints);
+ * Per-component attribute allowlist. Keyed by registry key, then by the
+ * kebab-cased CEM attribute name: the CEM's `submenuOpen` is keyed
+ * `submenu-open`. A key in any other form matches nothing and is reported as a
+ * stale entry. The Free CEM baseline measured on 2026-09-24 found 75
+ * attributes across 26 Free components (after the global allowlist above
+ * absorbs the inherited `dir`/`lang`/`did-ssr` and `with-*` SSR hints);
  * checking against the Pro CEM (what CI installs, and what `assessCemCompleteness`
  * requires for an all-or-nothing run covering all 87 registry components)
  * adds 50 more across 13 Pro-only components (charts, `combobox`,
  * `file-input`, `video`, `date-input`), for 125 across 39 components total.
  *
- * `backfill` entries are surfaced as real props by issue #101 (form-control
- * attributes) or #102 (component-specific attributes); `intentional` entries
- * are attributes Web Awesome only honours as a JS property, or that the
- * component manages itself and never expects a caller to set.
+ * `backfill` entries are triaged by issue #101 (form-control attributes),
+ * #102 (component-specific attributes) or #116 (chart axes, `capture`): each
+ * either becomes a real prop or moves to `intentional`. `intentional` entries
+ * are attributes a caller cannot meaningfully set from markup (function- or
+ * object-typed values, playback state) or that the component manages itself.
  */
 export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
@@ -166,13 +170,12 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   },
   carousel: {
     slides: {
-      kind: 'intentional',
-      reason:
-        'JS-only property (array of slide indices), no attribute reflection',
+      kind: 'backfill',
+      reason: 'reflected slide count, see #102',
     },
-    currentSlide: {
-      kind: 'intentional',
-      reason: 'JS-only property (camelCase, no attribute reflection)',
+    'current-slide': {
+      kind: 'backfill',
+      reason: 'reflected active slide index, see #102',
     },
   },
   checkbox: {
@@ -192,34 +195,33 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     tooltip: { kind: 'backfill', reason: 'tooltip text override, see #102' },
   },
   'dropdown-item': {
-    submenuOpen: {
-      kind: 'intentional',
-      reason: 'JS-only property (camelCase, internal submenu state)',
+    'submenu-open': {
+      kind: 'backfill',
+      reason: 'reflected submenu open state, see #102',
     },
   },
   'intersection-observer': {
     root: {
-      kind: 'intentional',
-      reason: 'JS-only property (Element reference), no attribute reflection',
+      kind: 'backfill',
+      reason: 'viewport root element ID, see #102',
     },
   },
   popup: {
     boundary: {
-      kind: 'intentional',
-      reason:
-        'JS-only property (Element/Element[] reference), no attribute reflection',
+      kind: 'backfill',
+      reason: "'viewport' | 'scroll' bounding box, see #102",
     },
-    flipBoundary: {
-      kind: 'intentional',
-      reason: 'JS-only property (camelCase, Element reference)',
+    'flip-boundary': {
+      kind: 'backfill',
+      reason: 'Element | Element[] flip boundary, see #102',
     },
-    shiftBoundary: {
-      kind: 'intentional',
-      reason: 'JS-only property (camelCase, Element reference)',
+    'shift-boundary': {
+      kind: 'backfill',
+      reason: 'Element | Element[] shift boundary, see #102',
     },
-    autoSizeBoundary: {
-      kind: 'intentional',
-      reason: 'JS-only property (camelCase, Element reference)',
+    'auto-size-boundary': {
+      kind: 'backfill',
+      reason: 'Element | Element[] auto-size boundary, see #102',
     },
     'hover-bridge': {
       kind: 'backfill',
@@ -263,9 +265,9 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       kind: 'backfill',
       reason: 'uncontrolled default value, see #102',
     },
-    getSymbol: {
-      kind: 'intentional',
-      reason: 'JS-only function property, no attribute reflection',
+    'get-symbol': {
+      kind: 'backfill',
+      reason: 'function-typed symbol renderer, see #102',
     },
     'custom-error': {
       kind: 'backfill',
@@ -465,62 +467,62 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   video: {
     duration: {
       kind: 'intentional',
-      reason:
-        'read-only JS property reporting playback state, no attribute reflection',
+      reason: 'length of the loaded media, reported by the element',
     },
-    currentTime: {
+    'current-time': {
       kind: 'intentional',
-      reason: 'JS-only property (camelCase, read-write playback position)',
+      reason:
+        'live playback position that advances every frame; a bound prop would fight playback',
     },
   },
   chart: {
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'bar-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'line-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'bubble-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'doughnut-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
     'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
@@ -532,14 +534,14 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'pie-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
     'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
@@ -551,14 +553,14 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'polar-area-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
     'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
@@ -570,14 +572,14 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'radar-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
     'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
@@ -585,21 +587,21 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
   'scatter-chart': {
     type: {
       kind: 'intentional',
       reason:
-        'Chart.js internal discriminator the wrapper element sets, not user-configurable',
+        'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
     'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
     plugins: {
       kind: 'intentional',
       reason:
-        'JS-only property (Chart.js plugin object array), no attribute reflection',
+        'array of Chart.js plugin objects, which carry functions no attribute value can express',
     },
   },
 };
@@ -620,7 +622,8 @@ interface SyncResult {
   passed: boolean;
   findings: SyncFinding[];
   /**
-   * Whether the prop-value half could run. The presence half needs no manifest
+   * Whether the manifest half (prop-value and attribute drift, which read the
+   * same CEM) could run. The presence half needs no manifest
    * -- it compares the registry against the committed `COMPONENT_METADATA` --
    * so the two halves are reported separately rather than under one verdict
    * that would be true of only one of them.
@@ -642,7 +645,8 @@ interface SyncResult {
     /**
      * Counted separately from `propValueDrift`: that check compares enum
      * *values* for props the registry already declares, while this counts CEM
-     * attribute *names* with no registry prop at all.
+     * attribute *names* with no registry prop at all. Stale allowlist entries
+     * are not drift; they fail the run and are listed under the errors.
      */
     attributeDrift: number;
   };
@@ -821,74 +825,96 @@ function checkPropValueDrift(
   return findings;
 }
 
-/**
- * Kebab-case a registry prop name for comparison against a CEM attribute name.
- * `autoFocus` -> `auto-focus`, mirroring how Lit/Web Awesome reflects a
- * camelCase JS property to its HTML attribute.
- */
-function propNameToAttrName(propName: string): string {
-  return propName.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+/** The attributes `checkAttributeDrift` may find missing without warning. */
+export interface AttributePolicy {
+  global: ReadonlySet<string>;
+  perComponent: Readonly<
+    Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
+  >;
 }
 
 /**
  * Compare each wrapped component's full CEM attribute list against its
  * registry props, in both directions:
  *
- * - A CEM attribute with no matching registry prop (by kebab-cased name) and
- *   no allowlist entry is a warning: additive drift, the same as a newly
- *   added enum value.
- * - A per-component allowlist entry for an attribute the registry now
- *   surfaces is an error: the allowlist is stale and must be removed, the
- *   same discipline `allowlistedKeysInRegistry` applies to
- *   `INTENTIONALLY_UNWRAPPED`.
+ * - A CEM attribute with no matching registry prop and no allowlist entry is
+ *   a warning: additive drift, the same as a newly added enum value.
+ * - A per-component allowlist entry is an error when it no longer describes a
+ *   gap: the registry now surfaces the attribute, the CEM no longer declares
+ *   it, or its component is not in the registry. The same discipline
+ *   `allowlistedKeysInRegistry` applies to `INTENTIONALLY_UNWRAPPED`.
  *
- * Pure and exported so the five cases (missing, globally allowlisted,
- * per-component allowlisted, kebab-cased match, stale allowlist entry) are
- * table-tested against literal fixtures rather than the real registry/CEM.
+ * Every name is compared kebab-cased through `toKebabCase`, on both sides. A
+ * Lit property without an explicit `attribute:` option appears in the CEM
+ * under its camelCase property name (`submenuOpen`), so normalizing only the
+ * registry side would leave such an attribute unmatchable by any prop.
+ *
+ * Pure and exported so each case is table-tested against literal fixtures
+ * rather than the real registry/CEM.
  */
 export function checkAttributeDrift(
   registryMap: Map<string, ComponentDefinition>,
   cemAttrTypes: Map<string, Record<string, string | undefined>>,
-  globalAllowlist: ReadonlySet<string>,
-  perComponentAllowlist: Readonly<
-    Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
-  >
+  policy: AttributePolicy
 ): SyncFinding[] {
   const findings: SyncFinding[] = [];
+  const stale = (component: string, message: string) =>
+    findings.push({
+      component,
+      category: 'stale-allowlist-entry',
+      severity: 'error',
+      message,
+    });
 
   for (const [regKey, def] of registryMap) {
-    const attrs = cemAttrTypes.get(`wa-${regKey}`);
-    if (!attrs) continue;
-
-    const propAttrNames = new Set(
-      def.props.map((p) => propNameToAttrName(p.name))
+    // Kebab name -> name as the CEM spells it, so messages quote the source.
+    const cemAttrs = new Map(
+      Object.keys(cemAttrTypes.get(`wa-${regKey}`) ?? {}).map((name) => [
+        toKebabCase(name),
+        name,
+      ])
     );
-    const componentAllowlist = perComponentAllowlist[regKey] ?? {};
+    const propAttrs = new Set(def.props.map((p) => toKebabCase(p.name)));
+    const allowlist = policy.perComponent[regKey] ?? {};
 
-    for (const attrName of Object.keys(attrs)) {
-      if (propAttrNames.has(attrName)) continue;
-      if (globalAllowlist.has(attrName) || isSsrSlotHint(attrName)) continue;
-
-      const allowlistEntry = componentAllowlist[attrName];
-      if (!allowlistEntry) {
-        findings.push({
-          component: regKey,
-          category: 'attribute-missing-from-registry',
-          severity: 'warning',
-          message: `wa-${regKey} declares attribute "${attrName}" in the CEM with no matching registry prop`,
-        });
+    for (const [attr, cemName] of cemAttrs) {
+      if (
+        propAttrs.has(attr) ||
+        policy.global.has(attr) ||
+        isSsrSlotHint(attr) ||
+        Object.hasOwn(allowlist, attr)
+      ) {
+        continue;
       }
+      findings.push({
+        component: regKey,
+        category: 'attribute-missing-from-registry',
+        severity: 'warning',
+        message: `wa-${regKey} declares attribute "${cemName}" in the CEM with no matching registry prop`,
+      });
     }
 
-    for (const [attrName, entry] of Object.entries(componentAllowlist)) {
-      if (propAttrNames.has(attrName)) {
-        findings.push({
-          component: regKey,
-          category: 'stale-allowlist-entry',
-          severity: 'error',
-          message: `${regKey}.${attrName} is allowlisted as "${entry.kind}" but the registry now has a matching prop; remove it from COMPONENT_ATTRIBUTE_ALLOWLIST`,
-        });
+    for (const [attr, entry] of Object.entries(allowlist)) {
+      if (propAttrs.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} is allowlisted as "${entry.kind}" but the registry now has a matching prop; remove it from COMPONENT_ATTRIBUTE_ALLOWLIST`
+        );
+      } else if (!cemAttrs.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} is allowlisted as "${entry.kind}" but wa-${regKey} declares no such attribute in the CEM (removed upstream, or the key is not kebab-cased); remove or rename it in COMPONENT_ATTRIBUTE_ALLOWLIST`
+        );
       }
+    }
+  }
+
+  for (const regKey of Object.keys(policy.perComponent)) {
+    if (!registryMap.has(regKey)) {
+      stale(
+        regKey,
+        `COMPONENT_ATTRIBUTE_ALLOWLIST has entries for "${regKey}", which is not a registry component; remove them`
+      );
     }
   }
 
@@ -916,20 +942,16 @@ export async function validateCemSync(
   const cemAttrTypes =
     cem.usable && resolution.path !== null
       ? getCemAttributeTypes(resolution.path)
-      : new Map<string, Record<string, string | undefined>>();
-  const propValueFindings =
-    cem.usable && resolution.path !== null
-      ? checkPropValueDrift(registryMap, cemAttrTypes)
-      : [];
-  const attributeDriftFindings =
-    cem.usable && resolution.path !== null
-      ? checkAttributeDrift(
-          registryMap,
-          cemAttrTypes,
-          GLOBAL_ATTRIBUTE_ALLOWLIST,
-          COMPONENT_ATTRIBUTE_ALLOWLIST
-        )
-      : [];
+      : null;
+  const propValueFindings = cemAttrTypes
+    ? checkPropValueDrift(registryMap, cemAttrTypes)
+    : [];
+  const attributeDriftFindings = cemAttrTypes
+    ? checkAttributeDrift(registryMap, cemAttrTypes, {
+        global: GLOBAL_ATTRIBUTE_ALLOWLIST,
+        perComponent: COMPONENT_ATTRIBUTE_ALLOWLIST,
+      })
+    : [];
 
   const findings = [
     ...checkComponentPresence(cemKeys, registryMap),
@@ -946,9 +968,7 @@ export async function validateCemSync(
     (f) => f.category === 'prop-value-drift'
   ).length;
   const attributeDrift = findings.filter(
-    (f) =>
-      f.category === 'attribute-missing-from-registry' ||
-      f.category === 'stale-allowlist-entry'
+    (f) => f.category === 'attribute-missing-from-registry'
   ).length;
   const synced = [...registryMap.keys()].filter((k) => cemKeys.has(k)).length;
 
@@ -980,13 +1000,11 @@ function printResults(result: SyncResult): void {
   console.log(
     `  Component presence:  ${pc.green('verified')} (committed component metadata, ${result.stats.metadataComponents} components)`
   );
-  console.log(
-    `  Prop-value drift:    ${
-      result.cem.usable
-        ? `${pc.green('verified')} (${result.cem.reason})`
-        : pc.yellow(`NOT RUN - ${result.cem.reason}`)
-    }`
-  );
+  const cemCoverage = result.cem.usable
+    ? `${pc.green('verified')} (${result.cem.reason})`
+    : pc.yellow(`NOT RUN - ${result.cem.reason}`);
+  console.log(`  Prop-value drift:    ${cemCoverage}`);
+  console.log(`  Attribute drift:     ${cemCoverage}`);
   console.log('');
 
   console.log(pc.bold('Statistics:'));
@@ -1041,7 +1059,7 @@ function printResults(result: SyncResult): void {
  * vocabulary.
  *
  * Errors found by either half fail outright. Otherwise the verdict turns on
- * whether the prop-value half ran: only a run where both halves were verified
+ * whether the manifest half ran: only a run where both halves were verified
  * may print an unqualified pass.
  */
 export function summarizeSync(
@@ -1062,11 +1080,11 @@ export function summarizeSync(
     },
     {
       allowSkip: options.allowSkip ?? false,
-      label: 'Prop-value drift',
+      label: 'Prop-value and attribute drift',
       passHeadline: 'CEM sync validation passed!',
       fixHint:
-        'Install the Web Awesome Pro package so the prop-value half can compare\n' +
-        'every registry enum against the manifest (pnpm setup:npmrc, then\n' +
+        'Install the Web Awesome Pro package so the manifest half can compare\n' +
+        'every registry enum and attribute against it (pnpm setup:npmrc, then\n' +
         'install docs deps).',
     }
   );

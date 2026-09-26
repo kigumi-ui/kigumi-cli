@@ -14,7 +14,9 @@ import {
   parseStringEnum,
   allowlistedKeysInRegistry,
   checkAttributeDrift,
+  GLOBAL_ATTRIBUTE_ALLOWLIST,
   type AttributeAllowlistEntry,
+  type AttributePolicy,
 } from '../../scripts/validate-cem-sync.js';
 import type { ComponentDefinition } from '../../src/utils/registry/types.js';
 
@@ -182,17 +184,22 @@ describe('checkAttributeDrift', () => {
     };
   }
 
-  const globalAllowlist = new Set(['dir', 'lang', 'did-ssr']);
+  function policy(
+    perComponent: AttributePolicy['perComponent'] = {}
+  ): AttributePolicy {
+    return { global: GLOBAL_ATTRIBUTE_ALLOWLIST, perComponent };
+  }
+
+  const backfill: AttributeAllowlistEntry = {
+    kind: 'backfill',
+    reason: 'fixture',
+  };
 
   it('warns on a CEM attribute with no matching registry prop', () => {
-    const registryMap = new Map([['widget', makeDef([])]]);
-    const cemAttrTypes = new Map([['wa-widget', { href: 'string' }]]);
-
     const findings = checkAttributeDrift(
-      registryMap,
-      cemAttrTypes,
-      globalAllowlist,
-      {}
+      new Map([['widget', makeDef([])]]),
+      new Map([['wa-widget', { href: 'string' }]]),
+      policy()
     );
 
     expect(findings).toEqual([
@@ -200,96 +207,200 @@ describe('checkAttributeDrift', () => {
         component: 'widget',
         category: 'attribute-missing-from-registry',
         severity: 'warning',
-        message: expect.stringContaining('href'),
+        message: expect.stringContaining('"href"'),
       },
     ]);
   });
 
-  it('does not warn on a globally allowlisted attribute', () => {
-    const registryMap = new Map([['widget', makeDef([])]]);
-    const cemAttrTypes = new Map([
-      ['wa-widget', { dir: 'string', lang: 'string', 'did-ssr': undefined }],
-    ]);
-
+  it('does not warn on the shipped globally allowlisted attributes', () => {
     const findings = checkAttributeDrift(
-      registryMap,
-      cemAttrTypes,
-      globalAllowlist,
-      {}
+      new Map([['widget', makeDef([])]]),
+      new Map([
+        ['wa-widget', { dir: 'string', lang: 'string', 'did-ssr': undefined }],
+      ]),
+      policy()
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('does not warn on a with-* SSR slot hint', () => {
+    const findings = checkAttributeDrift(
+      new Map([['widget', makeDef([])]]),
+      new Map([['wa-widget', { 'with-label': 'boolean' }]]),
+      policy()
     );
 
     expect(findings).toEqual([]);
   });
 
   it('does not warn on a per-component allowlisted attribute', () => {
-    const registryMap = new Map([['tab', makeDef([])]]);
-    const cemAttrTypes = new Map([['wa-tab', { role: 'string' }]]);
-    const perComponentAllowlist: Record<
-      string,
-      Record<string, AttributeAllowlistEntry>
-    > = {
-      tab: {
-        role: {
-          kind: 'intentional',
-          reason: 'managed by the roving tabindex pattern',
-        },
-      },
-    };
-
     const findings = checkAttributeDrift(
-      registryMap,
-      cemAttrTypes,
-      globalAllowlist,
-      perComponentAllowlist
+      new Map([['tab', makeDef([])]]),
+      new Map([['wa-tab', { role: 'string' }]]),
+      policy({
+        tab: { role: { kind: 'intentional', reason: 'managed internally' } },
+      })
     );
 
     expect(findings).toEqual([]);
   });
 
   it('matches a CEM attribute present under the kebab-cased prop name', () => {
-    const registryMap = new Map([
-      ['widget', makeDef([{ name: 'autoFocus', type: 'boolean' }])],
-    ]);
-    const cemAttrTypes = new Map([['wa-widget', { 'auto-focus': 'boolean' }]]);
-
     const findings = checkAttributeDrift(
-      registryMap,
-      cemAttrTypes,
-      globalAllowlist,
-      {}
+      new Map([['widget', makeDef([{ name: 'autoFocus', type: 'boolean' }])]]),
+      new Map([['wa-widget', { 'auto-focus': 'boolean' }]]),
+      policy()
     );
 
     expect(findings).toEqual([]);
   });
 
-  it('errors on a stale per-component allowlist entry the registry now surfaces', () => {
-    const registryMap = new Map([
-      ['dropdown-item', makeDef([{ name: 'href', type: 'string' }])],
-    ]);
-    const cemAttrTypes = new Map([['wa-dropdown-item', { href: 'string' }]]);
-    const perComponentAllowlist: Record<
-      string,
-      Record<string, AttributeAllowlistEntry>
-    > = {
-      'dropdown-item': {
-        href: { kind: 'backfill', reason: 'tracked by issue #101' },
-      },
-    };
-
+  it('matches a camelCase CEM attribute to the prop of the same name', () => {
+    // Lit properties without an explicit `attribute:` option appear in the CEM
+    // under their camelCase property name, e.g. wa-dropdown-item's submenuOpen.
     const findings = checkAttributeDrift(
-      registryMap,
-      cemAttrTypes,
-      globalAllowlist,
-      perComponentAllowlist
+      new Map([
+        ['dropdown-item', makeDef([{ name: 'submenuOpen', type: 'boolean' }])],
+      ]),
+      new Map([['wa-dropdown-item', { submenuOpen: 'boolean' }]]),
+      policy()
     );
 
-    expect(findings).toEqual([
-      {
-        component: 'dropdown-item',
-        category: 'stale-allowlist-entry',
-        severity: 'error',
-        message: expect.stringContaining('href'),
-      },
+    expect(findings).toEqual([]);
+  });
+
+  it('allowlists a camelCase CEM attribute under its kebab-cased key', () => {
+    const findings = checkAttributeDrift(
+      new Map([['dropdown-item', makeDef([])]]),
+      new Map([['wa-dropdown-item', { submenuOpen: 'boolean' }]]),
+      policy({ 'dropdown-item': { 'submenu-open': backfill } })
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('quotes a missing camelCase attribute as the CEM spells it', () => {
+    const findings = checkAttributeDrift(
+      new Map([['dropdown-item', makeDef([])]]),
+      new Map([['wa-dropdown-item', { submenuOpen: 'boolean' }]]),
+      policy()
+    );
+
+    expect(findings).toHaveLength(1);
+    expect(findings[0].message).toContain('"submenuOpen"');
+  });
+
+  it('does not treat an inherited object key as an allowlist entry', () => {
+    const findings = checkAttributeDrift(
+      new Map([['widget', makeDef([])]]),
+      new Map([['wa-widget', { constructor: 'string' }]]),
+      policy()
+    );
+
+    expect(findings.map((f) => f.category)).toEqual([
+      'attribute-missing-from-registry',
     ]);
+  });
+
+  describe('stale allowlist entries', () => {
+    function staleFindings(
+      registry: Array<[string, ComponentDefinition]>,
+      cem: Array<[string, Record<string, string | undefined>]>,
+      perComponent: AttributePolicy['perComponent']
+    ) {
+      return checkAttributeDrift(
+        new Map(registry),
+        new Map(cem),
+        policy(perComponent)
+      );
+    }
+
+    const staleError = (component: string, text: string) => ({
+      component,
+      category: 'stale-allowlist-entry',
+      severity: 'error',
+      message: expect.stringContaining(text),
+    });
+
+    it('errors when the registry now surfaces the attribute', () => {
+      const findings = staleFindings(
+        [['dropdown-item', makeDef([{ name: 'href', type: 'string' }])]],
+        [['wa-dropdown-item', { href: 'string' }]],
+        { 'dropdown-item': { href: backfill } }
+      );
+
+      expect(findings).toEqual([
+        staleError('dropdown-item', 'registry now has a matching prop'),
+      ]);
+    });
+
+    it('errors when a camelCase CEM attribute is surfaced but still allowlisted', () => {
+      // The #101/#102 backfill path: add the prop, forget the allowlist entry.
+      const findings = staleFindings(
+        [
+          [
+            'dropdown-item',
+            makeDef([{ name: 'submenuOpen', type: 'boolean' }]),
+          ],
+        ],
+        [['wa-dropdown-item', { submenuOpen: 'boolean' }]],
+        { 'dropdown-item': { 'submenu-open': backfill } }
+      );
+
+      expect(findings).toEqual([
+        staleError('dropdown-item', 'registry now has a matching prop'),
+      ]);
+    });
+
+    it('errors when the CEM no longer declares the attribute', () => {
+      const findings = staleFindings(
+        [['widget', makeDef([])]],
+        [['wa-widget', {}]],
+        { widget: { removed: backfill } }
+      );
+
+      expect(findings).toEqual([
+        staleError('widget', 'declares no such attribute'),
+      ]);
+    });
+
+    it('errors on a key that is not kebab-cased, instead of warning forever', () => {
+      const findings = staleFindings(
+        [['dropdown-item', makeDef([])]],
+        [['wa-dropdown-item', { submenuOpen: 'boolean' }]],
+        { 'dropdown-item': { submenuOpen: backfill } }
+      );
+
+      expect(findings).toEqual([
+        {
+          component: 'dropdown-item',
+          category: 'attribute-missing-from-registry',
+          severity: 'warning',
+          message: expect.stringContaining('"submenuOpen"'),
+        },
+        staleError('dropdown-item', 'declares no such attribute'),
+      ]);
+    });
+
+    it('errors when the component is missing from the CEM', () => {
+      const findings = staleFindings([['widget', makeDef([])]], [], {
+        widget: { href: backfill },
+      });
+
+      expect(findings).toEqual([
+        staleError('widget', 'declares no such attribute'),
+      ]);
+    });
+
+    it('errors when the component is not in the registry', () => {
+      const findings = staleFindings([], [['wa-gone', { href: 'string' }]], {
+        gone: { href: backfill },
+      });
+
+      expect(findings).toEqual([
+        staleError('gone', 'not a registry component'),
+      ]);
+    });
   });
 });
