@@ -161,10 +161,10 @@ jobs:
       - name: Validate Changesets
         run: pnpm run validate:changesets
 
-      # Checks B/C/D/E (docs-wrapper CSS, .jsx subset, starter fixtures,
-      # llms.txt) are pure file comparisons and need no manifest, so they stay
-      # in this token-free job. Check A needs the Pro package and runs in the
-      # `freshness` job below.
+      # Checks B/C/D/E (docs-wrapper CSS, .jsx and .js.vue subset, starter
+      # fixtures, llms.txt) are pure file comparisons and need no manifest, so
+      # they stay in this token-free job. Check A needs the Pro package and
+      # runs in the `freshness` job below.
       - name: Validate generated-artifact freshness (B/C/D/E)
         env:
           KIGUMI_FRESHNESS_ALLOW_SKIP: '1'
