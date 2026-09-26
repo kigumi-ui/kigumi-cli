@@ -118,9 +118,9 @@ export class RatingComponent
 
     const handleValueChange = () =>
       this.onChangeCallback((el as unknown as { value: unknown }).value);
-    el.addEventListener('input', handleValueChange);
+    el.addEventListener('change', handleValueChange);
     this.cleanups.push(() =>
-      el.removeEventListener('input', handleValueChange)
+      el.removeEventListener('change', handleValueChange)
     );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);
