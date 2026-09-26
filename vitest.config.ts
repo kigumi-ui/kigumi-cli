@@ -1,8 +1,12 @@
 import { defineConfig } from 'vitest/config';
+import { WA_COMPONENT_STUB_ALIAS } from './vitest.wa-stub-alias.js';
 
 // Storybook-vitest integration lives in docs/vitest.storybook.config.ts.
 
 export default defineConfig({
+  resolve: {
+    alias: [WA_COMPONENT_STUB_ALIAS],
+  },
   test: {
     testTimeout: 30000,
     hookTimeout: 30000,
