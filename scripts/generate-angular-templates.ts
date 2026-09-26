@@ -159,6 +159,20 @@ export function generateComponentTS(
     CVA_CHECKED_COMPONENTS.has(componentKey);
   const _isOverlay = OVERLAY_COMPONENTS.has(componentKey);
 
+  // Angular treats any `on*` binding as an event handler and refuses to
+  // compile it, `[attr.once]` included, so such attributes are written from
+  // the class in ngOnChanges instead of bound in the template (issue #77).
+  const classWrittenProps = component.props.filter((p) =>
+    p.name.toLowerCase().startsWith('on')
+  );
+  for (const prop of classWrittenProps) {
+    if (prop.type !== 'boolean') {
+      throw new Error(
+        `${component.name}: prop "${prop.name}" starts with "on" but is not a boolean; only boolean on* attributes are written from the class`
+      );
+    }
+  }
+
   // Build imports
   const coreImports = [
     'Component',
@@ -173,6 +187,7 @@ export function generateComponentTS(
   if (events.length > 0 || needsCVA) {
     coreImports.push('OnDestroy');
   }
+  if (classWrittenProps.length > 0) coreImports.push('OnChanges');
   if (needsCVA) coreImports.push('forwardRef');
 
   const lines: string[] = [];
@@ -203,6 +218,7 @@ export function generateComponentTS(
 
   // Pass props as attributes
   for (const prop of component.props) {
+    if (classWrittenProps.includes(prop)) continue;
     const attrName = prop.name;
     const propName = prop.name.replace(/-([a-z])/g, (_, c: string) =>
       c.toUpperCase()
@@ -257,6 +273,7 @@ export function generateComponentTS(
   if (events.length > 0 || needsCVA) {
     interfaces.push('OnDestroy');
   }
+  if (classWrittenProps.length > 0) interfaces.push('OnChanges');
   if (needsCVA) interfaces.push('ControlValueAccessor');
 
   const implementsStr = ` implements ${interfaces.join(', ')}`;
@@ -316,6 +333,25 @@ export function generateComponentTS(
   if (events.length > 0 || needsCVA) {
     lines.push('');
     lines.push('  private cleanups: (() => void)[] = [];');
+  }
+
+  // ngOnChanges -- writes the on* attributes a template binding cannot. The
+  // static #element query has resolved by the first ngOnChanges.
+  if (classWrittenProps.length > 0) {
+    lines.push('');
+    lines.push('  ngOnChanges(): void {');
+    lines.push(
+      '    // Angular refuses `on*` template bindings as event handlers, so these'
+    );
+    lines.push('    // attributes are written here instead.');
+    lines.push('    const el = this.elementRef.nativeElement;');
+    for (const prop of classWrittenProps) {
+      const propName = prop.name.replace(/-([a-z])/g, (_, c: string) =>
+        c.toUpperCase()
+      );
+      lines.push(`    el.toggleAttribute('${prop.name}', !!this.${propName});`);
+    }
+    lines.push('  }');
   }
 
   // ngAfterViewInit -- always present for host attribute forwarding
