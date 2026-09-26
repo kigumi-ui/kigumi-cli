@@ -214,6 +214,40 @@ const MARKDOWN_FIXTURE: ComponentDefinition = {
   tier: 'free',
 };
 
+// IntersectionObserver's `once` starts with "on", which Angular refuses as a
+// template binding (it reads as an event handler), so the generator writes
+// it from ngOnChanges instead (issue #77).
+const INTERSECTION_OBSERVER_FIXTURE: ComponentDefinition = {
+  name: 'IntersectionObserver',
+  tagName: 'wa-intersection-observer',
+  category: 'Utilities',
+  description:
+    'Observes changes in the intersection of a target element with an ancestor',
+  dependencies: [],
+  files: {
+    angular: [
+      'components/IntersectionObserver/intersection-observer.component.ts',
+    ],
+  },
+  props: [
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the observer',
+    },
+    {
+      name: 'once',
+      type: 'boolean',
+      default: 'false',
+      description: 'Stops observing after first intersection',
+    },
+  ],
+  importPath:
+    '@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js',
+  tier: 'free',
+};
+
 describe('generateComponentTS', () => {
   it('emits the Button component', () => {
     expect(generateComponentTS(BUTTON_FIXTURE, 'button')).toMatchSnapshot();
@@ -225,6 +259,26 @@ describe('generateComponentTS', () => {
 
   it('emits the Markdown component with the @remarks JSDoc for removed imperative methods', () => {
     expect(generateComponentTS(MARKDOWN_FIXTURE, 'markdown')).toMatchSnapshot();
+  });
+
+  it('writes an on* boolean from ngOnChanges instead of binding it', () => {
+    expect(
+      generateComponentTS(
+        INTERSECTION_OBSERVER_FIXTURE,
+        'intersection-observer'
+      )
+    ).toMatchSnapshot();
+  });
+
+  it('refuses an on* prop it cannot write from the class', () => {
+    const fixture: ComponentDefinition = {
+      ...INTERSECTION_OBSERVER_FIXTURE,
+      props: [{ name: 'onset', type: 'string', description: 'Fixture' }],
+    };
+
+    expect(() => generateComponentTS(fixture, 'intersection-observer')).toThrow(
+      /prop "onset" starts with "on" but is not a boolean/
+    );
   });
 });
 

@@ -9,6 +9,7 @@ import {
   Output,
   EventEmitter,
   OnDestroy,
+  OnChanges,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js';
 
@@ -31,7 +32,6 @@ function ensureLoaded() {
     <wa-intersection-observer
       #element
       [attr.disabled]="disabled || null"
-      [attr.once]="once || null"
       [attr.threshold]="threshold"
       [attr.root-margin]="rootMargin"
       [attr.intersect-class]="intersectClass"
@@ -41,7 +41,9 @@ function ensureLoaded() {
   `,
   styleUrl: './intersection-observer.component.css',
 })
-export class IntersectionObserverComponent implements AfterViewInit, OnDestroy {
+export class IntersectionObserverComponent
+  implements AfterViewInit, OnDestroy, OnChanges
+{
   @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
@@ -59,6 +61,13 @@ export class IntersectionObserverComponent implements AfterViewInit, OnDestroy {
   @Output() intersect = new EventEmitter<CustomEvent>();
 
   private cleanups: (() => void)[] = [];
+
+  ngOnChanges(): void {
+    // Angular refuses `on*` template bindings as event handlers, so these
+    // attributes are written here instead.
+    const el = this.elementRef.nativeElement;
+    el.toggleAttribute('once', !!this.once);
+  }
 
   ngAfterViewInit(): void {
     ensureLoaded();
