@@ -853,7 +853,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-27
+**Last Updated:** 2026-09-28
 
 - added tests/unit/parse-custom-elements-attributes.test.ts covering extractAttributes (boolean-vs-string classification, untyped attributes kept) and regression-pinning COMPONENT_METADATA.dialog's did-ssr plus otp-input/pagination/tag-input attribute coverage, issue #105
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
@@ -925,3 +925,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - review follow-up on #129: `_helpers/jsdoc-deprecation.ts` became `_helpers/deprecation-readers.ts` with `.jsx` typedef and story readers, the shared `_helpers/deprecated-props-fixture.ts` replaced four fixture copies, deprecated-props.test.ts gained Vue probes for both dialects and guards the docs wrappers, `.jsx` typedefs and stories, and validate-cem-sync.test.ts pins that an x/y axis attribute on a chart without x/y axes is inert or deprecated. Each bug-injected: a `.jsx` message losing "to false", a story losing its prefix, no tag for `.js.vue`, an undeprecated radar `min` and a `backfill` pie `x-label` all go red
 - validate-cem-sync.test.ts covers `parseCemAttributes` (message, bare `true`, `false`) and `checkDeprecationDrift` on literal fixtures, plus the shipped `KIGUMI_DEPRECATIONS` against the real registry; template-registry-props.test.ts pins QrCode's new `.jsx` typedef. Mutation-checked: dropping the warning, ignoring `KIGUMI_DEPRECATIONS`, the upstream-stale branch, counting `deprecated: false` and skipping kebab-casing each go red, issue #133
 - review follow-up on #133: validate-cem-sync.test.ts builds its deprecation fixtures through `parseCemAttributes`, covers `deprecated: ""` and the absent-attribute message, and tests `countDrift` on literal findings instead of re-deriving the stat; regression/issue-133-qr-code-color-defaults.test.ts mounts both QrCode Vue Templates and fails if an unset `fill` / `background` reaches the host. Each bug-injected, issue #133
+- starter-snapshot fixtures refreshed for Icon in all four starters after the Web Awesome 3.13.0 bump. `kigumi add` does not overwrite an existing dependency, so the fixture had recorded each starter's committed Icon rather than the Template; it now matches `templates/*/Icon`, issue #138

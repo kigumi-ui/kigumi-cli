@@ -816,6 +816,7 @@ START: Change affects tier detection or packages
 The code/registry side is guarded by validators (`validate:cem-sync`, `validate:registry`, `validate:generated-fresh`, `validate:wa-pins`). The surfaces below are **hand-maintained** and were the source of all drift found in the WA 3.7.0–3.10.0 audit (PR #220). Walk this list on every bump:
 
 - [ ] **Pins** (now enforced — run `pnpm validate:wa-pins`): `package.json`, `docs/package.json`, `docs/kigumi.config.json`, root `kigumi.config.json` (dogfooding), `src/constants.ts` `DEFAULT_WEBAWESOME_VERSION`, `src/utils/version-map.ts` newest entry. All six must name the same exact version. **Adding the `version-map.ts` entry is not optional**: `kigumi upgrade` installs whatever the newest entry names, so skipping it makes upgrade hand users an older Web Awesome than the CLI ships.
+- [ ] **Starters** (merge before the bump PR): the Starter E2E job adds every component to each starter's default branch, so once a Template imports something newer than a starter's Web Awesome, CI fails. In `kigumi-ui/kigumi-{react,vue,angular,next}-starter`, set `@awesome.me/webawesome` in `package.json` and `webAwesome.version` in `kigumi.config.json` to the new exact version, `pnpm install`, then `pnpm run typecheck && pnpm run build`. Afterwards refresh `tests/fixtures/starter-snapshots` with `pnpm run update:starter-snapshots`. Once the release is out, `kigumi upgrade --yes` and `kigumi update --yes` in each starter move `kigumiVersion` and the installed components (`upgrade` reads the Web Awesome version from the released CLI's `VERSION_MAP`). Check the pin stays exact: pnpm keeps an existing `^` despite `--save-exact`
 - [ ] **New upstream components**: either full wrapper (run the "Before Adding New Component" checklist above, including the docs-site items) or an explicit entry in `INTENTIONALLY_UNWRAPPED` in `scripts/validate-cem-sync.ts` with rationale
 - [ ] **Changed props/defaults/enum values**: check every changelog line against templates, `docs/src/components/ui`, stories (argTypes `defaultValue` summaries!), and registry prop values — new enum values need a demo story (e.g. Tree `leaf-multiple`)
 - [ ] **Removed CSS custom properties / parts**: grep repo-wide for the removed name; also confirm it is absent from `kigumi-theme` references
@@ -1095,7 +1096,7 @@ pnpm release-readiness:quick         # skip e2e
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-27
+**Maintained by:** AI Assistants | **Last Updated:** 2026-09-28
 
 - the CSS-template emitter is one shared generateCssTemplate in scripts/generator-utils.ts rather than three copies; the Angular copy had drifted and silently ignored cssInfo.docsUrl, see issue #30
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
@@ -1132,3 +1133,4 @@ pnpm release-readiness:quick         # skip e2e
 - registry props can be `deprecated`: they stay in every Template with a JSDoc `@deprecated` tag (`templates/AGENTS.md` rule 12) and removal waits for a major; RadarChart's `stacked`/`grid`/`min`/`max` are deprecated (#129), removal tracked in #130
 - validate:cem-sync checks deprecation drift: a prop the CEM deprecates must be `deprecated` in the registry (warning), and a registry deprecation the CEM does not share must be recorded in `KIGUMI_DEPRECATIONS` (error); QrCode `fill` / `background` deprecated as the first catch, issue #133
 - Vercel builds docs and Storybook only when something they render or serve changed: `ignoreCommand` in both `vercel.json` runs `scripts/vercel-ignore-build.mjs`, since building every push exhausted the free deployment quota in a day
+- the four starters are bumped to Web Awesome 3.13.0 in their own repos, and the version-bump checklist has a Starters item: the Starter E2E job now adds every component before its typecheck and build, so a starter left on an older Web Awesome fails CI instead of passing on the nine curated components, issue #138

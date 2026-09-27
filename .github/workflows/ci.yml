@@ -605,6 +605,13 @@ jobs:
           KIGUMI_STARTER_DIR: ${{ github.workspace }}/starter
         run: pnpm run test:starters
 
+      # After the snapshot diff, so the fixtures stay the curated set above.
+      # Type-checking and building every component is what fails a starter
+      # left on an older Web Awesome than the Templates import from (issue #138).
+      - name: Add every component
+        working-directory: starter
+        run: pnpm exec kigumi add --all --force --yes
+
       - name: Starter typecheck
         working-directory: starter
         run: pnpm run typecheck
