@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaSwitch from '@awesome.me/webawesome/dist/components/switch/switch.js';
 import './Switch.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -63,10 +64,10 @@ const emit = defineEmits<{
 
 const model = defineModel<boolean>({ default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSwitch | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { checked: boolean }) | null;
   if (el && el.checked !== val) el.checked = val ?? false;
 });
 
@@ -75,7 +76,7 @@ onMounted(() => {
 });
 
 const handleChange = (e: Event) => {
-  model.value = (e.target as any).checked;
+  model.value = (e.target as HTMLElement & { checked: boolean }).checked;
   emit('change', e as Event);
 };
 const handleInput = (e: Event) => emit('input', e as InputEvent);
@@ -106,16 +107,16 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  click: () => (elementRef.value as any)?.click?.(),
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
+  click: () => elementRef.value?.click?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
+    elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
-  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  ) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

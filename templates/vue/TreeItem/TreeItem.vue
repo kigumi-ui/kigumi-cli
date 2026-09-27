@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaTreeItem from '@awesome.me/webawesome/dist/components/tree-item/tree-item.js';
 import './TreeItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -58,7 +59,7 @@ const emit = defineEmits<{
   'wa-lazy-load': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaTreeItem | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -100,7 +101,7 @@ onBeforeUnmount(() => {
 
 defineExpose({
   getChildrenItems: (options: { includeDisabled?: boolean }) =>
-    (elementRef.value as any)?.getChildrenItems?.(options),
+    elementRef.value?.getChildrenItems?.(options),
   element: elementRef,
 });
 </script>

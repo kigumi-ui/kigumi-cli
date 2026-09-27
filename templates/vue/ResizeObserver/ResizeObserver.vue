@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaResizeObserver from '@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js';
 import './ResizeObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,7 +51,7 @@ const emit = defineEmits<{
   'wa-resize': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaResizeObserver | null>(null);
 
 onMounted(() => {
   ensureLoaded();

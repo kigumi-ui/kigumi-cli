@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaCopyButton from '@awesome.me/webawesome/dist/components/copy-button/copy-button.js';
 import './CopyButton.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -58,7 +59,7 @@ const emit = defineEmits<{
   'wa-error': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaCopyButton | null>(null);
 
 onMounted(() => {
   ensureLoaded();

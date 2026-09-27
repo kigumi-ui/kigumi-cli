@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaButtonGroup from '@awesome.me/webawesome/dist/components/button-group/button-group.js';
 import './ButtonGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -47,11 +48,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaButtonGroup | null>(null);
 
 onMounted(() => {
   ensureLoaded();

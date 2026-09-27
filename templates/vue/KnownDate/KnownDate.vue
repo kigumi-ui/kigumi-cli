@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaKnownDate from '@awesome.me/webawesome/dist/components/known-date/known-date.js';
 import './KnownDate.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -68,7 +69,7 @@ const emit = defineEmits<{
   'wa-invalid': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaKnownDate | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -103,13 +104,13 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
   formStateRestoreCallback: (state: string | File | FormData | null) =>
-    (elementRef.value as any)?.formStateRestoreCallback?.(state),
+    elementRef.value?.formStateRestoreCallback?.(state),
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+    elementRef.value?.setCustomValidity?.(message),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaAccordionItem from '@awesome.me/webawesome/dist/components/accordion-item/accordion-item.js';
 import './AccordionItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -48,21 +49,17 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaAccordionItem | null>(null);
 
 onMounted(() => {
   ensureLoaded();
 });
 
 defineExpose({
-  expand: () => (elementRef.value as any)?.expand?.(),
-  collapse: () => (elementRef.value as any)?.collapse?.(),
-  toggle: () => (elementRef.value as any)?.toggle?.(),
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
+  expand: () => elementRef.value?.expand?.(),
+  collapse: () => elementRef.value?.collapse?.(),
+  toggle: () => elementRef.value?.toggle?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
   element: elementRef,
 });
 </script>

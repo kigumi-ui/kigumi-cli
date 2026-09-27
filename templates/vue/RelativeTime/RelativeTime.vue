@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaRelativeTime from '@awesome.me/webawesome/dist/components/relative-time/relative-time.js';
 import './RelativeTime.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,11 +51,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaRelativeTime | null>(null);
 
 onMounted(() => {
   ensureLoaded();

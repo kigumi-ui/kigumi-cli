@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaCarousel from '@awesome.me/webawesome/dist/components/carousel/carousel.js';
 import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
 import './Carousel.css';
 
@@ -59,7 +60,7 @@ const emit = defineEmits<{
   'wa-slide-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaCarousel | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -84,15 +85,12 @@ onBeforeUnmount(() => {
 
 defineExpose({
   previous: (behavior: ScrollBehavior) =>
-    (elementRef.value as any)?.previous?.(behavior),
-  next: (behavior: ScrollBehavior) =>
-    (elementRef.value as any)?.next?.(behavior),
-  addSlide: (slide: WaCarouselItem) =>
-    (elementRef.value as any)?.addSlide?.(slide),
-  removeSlide: (index: number) =>
-    (elementRef.value as any)?.removeSlide?.(index),
+    elementRef.value?.previous?.(behavior),
+  next: (behavior: ScrollBehavior) => elementRef.value?.next?.(behavior),
+  addSlide: (slide: WaCarouselItem) => elementRef.value?.addSlide?.(slide),
+  removeSlide: (index: number) => elementRef.value?.removeSlide?.(index),
   goToSlide: (index: number, behavior: ScrollBehavior) =>
-    (elementRef.value as any)?.goToSlide?.(index, behavior),
+    elementRef.value?.goToSlide?.(index, behavior),
   element: elementRef,
 });
 </script>

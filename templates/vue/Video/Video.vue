@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaVideo from '@awesome.me/webawesome/dist/components/video/video.js';
 import './Video.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -69,7 +70,7 @@ const emit = defineEmits<{
   loadedmetadata: [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaVideo | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -111,18 +112,17 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  play: () => (elementRef.value as any)?.play?.(),
-  pause: () => (elementRef.value as any)?.pause?.(),
-  togglePlay: () => (elementRef.value as any)?.togglePlay?.(),
-  toggleMute: () => (elementRef.value as any)?.toggleMute?.(),
-  seek: (time: number) => (elementRef.value as any)?.seek?.(time),
-  setVolume: (volume: number) => (elementRef.value as any)?.setVolume?.(volume),
-  setPlaybackRate: (rate: number) =>
-    (elementRef.value as any)?.setPlaybackRate?.(rate),
-  requestFullscreen: () => (elementRef.value as any)?.requestFullscreen?.(),
-  exitFullscreen: () => (elementRef.value as any)?.exitFullscreen?.(),
-  getVideoElement: () => (elementRef.value as any)?.getVideoElement?.(),
-  getState: () => (elementRef.value as any)?.getState?.(),
+  play: () => elementRef.value?.play?.(),
+  pause: () => elementRef.value?.pause?.(),
+  togglePlay: () => elementRef.value?.togglePlay?.(),
+  toggleMute: () => elementRef.value?.toggleMute?.(),
+  seek: (time: number) => elementRef.value?.seek?.(time),
+  setVolume: (volume: number) => elementRef.value?.setVolume?.(volume),
+  setPlaybackRate: (rate: number) => elementRef.value?.setPlaybackRate?.(rate),
+  requestFullscreen: () => elementRef.value?.requestFullscreen?.(),
+  exitFullscreen: () => elementRef.value?.exitFullscreen?.(),
+  getVideoElement: () => elementRef.value?.getVideoElement?.(),
+  getState: () => elementRef.value?.getState?.(),
   element: elementRef,
 });
 </script>

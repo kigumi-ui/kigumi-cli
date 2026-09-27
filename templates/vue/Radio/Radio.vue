@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaRadio from '@awesome.me/webawesome/dist/components/radio/radio.js';
 import './Radio.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -56,7 +57,7 @@ const emit = defineEmits<{
   focus: [event: FocusEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaRadio | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -83,12 +84,12 @@ onBeforeUnmount(() => {
 
 defineExpose({
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
+    elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
-  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  ) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

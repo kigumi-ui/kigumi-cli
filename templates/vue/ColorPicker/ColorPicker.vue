@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaColorPicker from '@awesome.me/webawesome/dist/components/color-picker/color-picker.js';
 import './ColorPicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -86,10 +87,10 @@ const emit = defineEmits<{
 
 const model = defineModel<string>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaColorPicker | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { value: unknown }) | null;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
@@ -99,7 +100,7 @@ onMounted(() => {
 
 const handleChange = (e: Event) => emit('change', e as Event);
 const handleInput = (e: Event) => {
-  model.value = (e.target as any).value;
+  model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
 const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
@@ -145,29 +146,23 @@ defineExpose({
     hue: number,
     saturation: number,
     brightness: number,
-    alpha: any
-  ) =>
-    (elementRef.value as any)?.getHexString?.(
-      hue,
-      saturation,
-      brightness,
-      alpha
-    ),
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
+    alpha: number
+  ) => elementRef.value?.getHexString?.(hue, saturation, brightness, alpha),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
   getFormattedValue: (
     format: 'hex' | 'hexa' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'hsv' | 'hsva'
-  ) => (elementRef.value as any)?.getFormattedValue?.(format),
-  reportValidity: () => (elementRef.value as any)?.reportValidity?.(),
-  show: () => (elementRef.value as any)?.show?.(),
-  hide: () => (elementRef.value as any)?.hide?.(),
+  ) => elementRef.value?.getFormattedValue?.(format),
+  reportValidity: () => elementRef.value?.reportValidity?.(),
+  show: () => elementRef.value?.show?.(),
+  hide: () => elementRef.value?.hide?.(),
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
+    elementRef.value?.setCustomValidity?.(message),
   formStateRestoreCallback: (
     state: string | File | FormData | null,
     reason: 'autocomplete' | 'restore'
-  ) => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  ) => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

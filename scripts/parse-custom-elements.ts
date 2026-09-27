@@ -29,6 +29,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.join(__dirname, '..');
 
+export interface CemParameter {
+  name?: string;
+  type?: { text?: string };
+  default?: string;
+}
+
 export interface CustomElementDeclaration {
   kind?: string;
   name?: string;
@@ -40,7 +46,7 @@ export interface CustomElementDeclaration {
     privacy?: string;
     static?: boolean;
     type?: { text?: string };
-    parameters?: Array<{ name?: string; type?: { text?: string } }>;
+    parameters?: CemParameter[];
   }>;
   attributes?: Array<{
     name?: string;
@@ -93,6 +99,25 @@ interface ParsedOutput {
 export function sanitizeParamName(rawName: string, index: number): string {
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(rawName)) return rawName;
   return index === 0 ? 'options' : `options${index}`;
+}
+
+/**
+ * The type a wrapper declares for a CEM method parameter. The CEM leaves
+ * `type` out when the source only gives the parameter a default
+ * (`alpha = 100` in wa-color-picker's `getHexString`), so a literal default
+ * stands in for it. Anything else is `unknown`, never `any`: generated
+ * wrappers ship into consumer projects, whose lint rejects `any` (issue #136).
+ *
+ * Exported for unit testing.
+ */
+export function paramType(param: CemParameter): string {
+  if (param.type?.text) return param.type.text;
+  const fallback = param.default?.trim();
+  if (fallback === undefined) return 'unknown';
+  if (/^-?\d+(\.\d+)?$/.test(fallback)) return 'number';
+  if (/^(['"]).*\1$/.test(fallback)) return 'string';
+  if (fallback === 'true' || fallback === 'false') return 'boolean';
+  return 'unknown';
 }
 
 /**
@@ -307,7 +332,7 @@ async function parseCustomElements(): Promise<ParsedOutput> {
           const params =
             method.parameters?.map((p, i) => ({
               name: sanitizeParamName(p.name || '', i),
-              type: p.type?.text || 'any',
+              type: paramType(p),
             })) || [];
 
           return {

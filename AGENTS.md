@@ -1095,7 +1095,7 @@ pnpm release-readiness:quick         # skip e2e
 
 ---
 
-**Maintained by:** AI Assistants | **Last Updated:** 2026-09-27
+**Maintained by:** AI Assistants | **Last Updated:** 2026-09-28
 
 - the CSS-template emitter is one shared generateCssTemplate in scripts/generator-utils.ts rather than three copies; the Angular copy had drifted and silently ignored cssInfo.docsUrl, see issue #30
 - the dependency installer moved from commands/init/installer.ts to utils/dependency-installer.ts, so no command imports from a sibling command's directory, issue #4
@@ -1132,3 +1132,4 @@ pnpm release-readiness:quick         # skip e2e
 - registry props can be `deprecated`: they stay in every Template with a JSDoc `@deprecated` tag (`templates/AGENTS.md` rule 12) and removal waits for a major; RadarChart's `stacked`/`grid`/`min`/`max` are deprecated (#129), removal tracked in #130
 - validate:cem-sync checks deprecation drift: a prop the CEM deprecates must be `deprecated` in the registry (warning), and a registry deprecation the CEM does not share must be recorded in `KIGUMI_DEPRECATIONS` (error); QrCode `fill` / `background` deprecated as the first catch, issue #133
 - Vercel builds docs and Storybook only when something they render or serve changed: `ignoreCommand` in both `vercel.json` runs `scripts/vercel-ignore-build.mjs`, since building every push exhausted the free deployment quota in a day
+- `eslint.config.js` no longer turns typescript-eslint `recommended` rules off for `templates/**`: Templates are linted as a consumer's project lints them, enforced by `tests/unit/eslint-rules/templates-consumer-rules.test.ts` (`templates/AGENTS.md` rule 13), issue #136

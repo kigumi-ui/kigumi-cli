@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaInclude from '@awesome.me/webawesome/dist/components/include/include.js';
 import './Include.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -53,7 +54,7 @@ const emit = defineEmits<{
   'wa-include-error': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaInclude | null>(null);
 
 onMounted(() => {
   ensureLoaded();

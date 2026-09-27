@@ -46,6 +46,9 @@ export default tseslint.config(
     },
   },
   {
+    // Templates keep the rule's default options, which a consumer runs; see
+    // the Templates block below.
+    ignores: ['templates/**'],
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -55,6 +58,10 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+    },
+  },
+  {
+    rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       'no-console': ['error', { allow: ['error'] }],
     },
@@ -63,22 +70,18 @@ export default tseslint.config(
   // check them without resolving framework imports (typescript-eslint's parser
   // doesn't require resolution by default). Type-check coverage runs as a
   // separate `pnpm typecheck:templates` step, not via parserOptions.project.
+  //
+  // Templates are copied verbatim into consumer projects, whose lint configs
+  // build on typescript-eslint `recommended`. Never turn one of its rules off
+  // here: a consumer would see the errors this repo hides (issue #136).
+  // tests/unit/eslint-rules/templates-consumer-rules.test.ts enforces this.
   {
     files: ['templates/**/*.{ts,tsx,js,jsx}'],
     rules: {
-      // Templates intentionally widen to `unknown` / use bare `any` casts in
-      // a few spots (Angular CVA, React forwarded attrs).
-      '@typescript-eslint/no-explicit-any': 'off',
       // Test templates use vitest / DOM globals; we don't wire parserOptions.project here.
       'no-undef': 'off',
-      // Wrappers re-export named symbols that are unused at the wrapper level.
-      '@typescript-eslint/no-unused-vars': 'off',
       // JSDoc examples and comments may include console.log() snippets.
       'no-console': 'off',
-      // `interface XProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {}`
-      // is the canonical wrapper-with-no-extra-props pattern. Switching to a
-      // type alias would change the user-facing template output.
-      '@typescript-eslint/no-empty-object-type': 'off',
     },
   },
   // Vue SFCs need vue-eslint-parser to parse <template>/<script>/<style>.
@@ -95,11 +98,8 @@ export default tseslint.config(
       },
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
       'no-undef': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
       'no-console': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off',
     },
   }
 );

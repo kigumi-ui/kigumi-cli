@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaMutationObserver from '@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js';
 import './MutationObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -56,7 +57,7 @@ const emit = defineEmits<{
   'wa-mutation': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaMutationObserver | null>(null);
 
 onMounted(() => {
   ensureLoaded();

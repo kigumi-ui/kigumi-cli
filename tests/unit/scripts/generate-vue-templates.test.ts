@@ -5,7 +5,11 @@ import {
   generateVueJavascriptTemplate,
   generateVueTypescriptTemplate,
 } from '../../../scripts/generate-vue-templates.js';
-import type { ComponentDefinition } from '../../../src/utils/registry.js';
+import {
+  getComponent,
+  type ComponentDefinition,
+} from '../../../src/utils/registry.js';
+import { lintAsConsumer } from '../_helpers/consumer-lint.js';
 import { readPropDeprecations } from '../_helpers/deprecation-readers.js';
 import {
   DEPRECATED_PROPS,
@@ -426,6 +430,8 @@ const TOAST_FIXTURE: ComponentDefinition = {
   tier: 'pro',
 };
 
+const COLOR_PICKER = getComponent('color-picker')!;
+
 describe('generateVueTypescriptTemplate', () => {
   it('emits the Button wrapper', () => {
     expect(generateVueTypescriptTemplate(BUTTON_FIXTURE)).toMatchSnapshot();
@@ -459,6 +465,64 @@ describe('generateVueTypescriptTemplate', () => {
 
   it('emits the Toast wrapper (custom type import, parameterised method)', () => {
     expect(generateVueTypescriptTemplate(TOAST_FIXTURE)).toMatchSnapshot();
+  });
+});
+
+describe('consumer lint baseline (issue #136)', () => {
+  const branches: Array<[string, ComponentDefinition]> = [
+    ['Badge (no events, no methods)', BADGE_FIXTURE],
+    ['Button (events, methods)', BUTTON_FIXTURE],
+    ['Switch (checked v-model)', SWITCH_FIXTURE],
+    ['Input (string value v-model)', INPUT_FIXTURE],
+    ['NumberInput (number value v-model)', NUMBER_INPUT_FIXTURE],
+    ['Dialog (open v-model)', DIALOG_FIXTURE],
+    ['Toast (custom type import, parameterised method)', TOAST_FIXTURE],
+    ['ColorPicker (a CEM parameter typed from its default)', COLOR_PICKER],
+  ];
+
+  it.each(branches)(
+    'emits a %s TS wrapper that a consumer lints clean',
+    async (_label, component) => {
+      const name = component.name;
+      expect(
+        await lintAsConsumer(
+          generateVueTypescriptTemplate(component),
+          `src/components/ui/${name}/${name}.vue`
+        )
+      ).toEqual([]);
+    }
+  );
+
+  it.each(branches)(
+    'emits a %s JS wrapper that a consumer lints clean',
+    async (_label, component) => {
+      const name = component.name;
+      expect(
+        await lintAsConsumer(
+          generateVueJavascriptTemplate(component),
+          `src/components/ui/${name}/${name}.vue`
+        )
+      ).toEqual([]);
+    }
+  );
+
+  it('declares no emits for a component without events', () => {
+    // An empty `defineEmits<{}>()` is `no-empty-object-type`, and the
+    // `emit` it returns is never called.
+    expect(generateVueTypescriptTemplate(BADGE_FIXTURE)).not.toContain(
+      'defineEmits'
+    );
+    expect(generateVueJavascriptTemplate(BADGE_FIXTURE)).not.toContain(
+      'defineEmits'
+    );
+  });
+
+  it('types the element ref as the Web Awesome element', () => {
+    const source = generateVueTypescriptTemplate(BUTTON_FIXTURE);
+    expect(source).toContain(
+      "import type WaButton from '@awesome.me/webawesome/dist/components/button/button.js';"
+    );
+    expect(source).toContain('const elementRef = ref<WaButton | null>(null);');
   });
 });
 

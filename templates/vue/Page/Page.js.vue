@@ -52,8 +52,6 @@ function hostAttributes() {
   return result;
 }
 
-const emit = defineEmits([]);
-
 const elementRef = ref(null);
 
 onMounted(() => {

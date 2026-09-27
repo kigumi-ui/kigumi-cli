@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaSpinner from '@awesome.me/webawesome/dist/components/spinner/spinner.js';
 import './Spinner.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -11,10 +12,6 @@ function ensureLoaded() {
 /**
  * Spinners are used to show the progress of an indeterminate operation
  */
-export interface SpinnerProps {}
-
-const props = defineProps<SpinnerProps>();
-
 defineOptions({ inheritAttrs: false });
 
 // Forward props and fallthrough attributes to the web component yourself,
@@ -37,18 +34,10 @@ function hostAttributes(): Record<string, unknown> {
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
   }
-  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value === undefined || value === false) continue;
-    result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
-  }
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSpinner | null>(null);
 
 onMounted(() => {
   ensureLoaded();

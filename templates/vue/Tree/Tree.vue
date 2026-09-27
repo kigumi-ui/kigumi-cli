@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaTree from '@awesome.me/webawesome/dist/components/tree/tree.js';
 import './Tree.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,7 +51,7 @@ const emit = defineEmits<{
   'wa-selection-change': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaTree | null>(null);
 
 onMounted(() => {
   ensureLoaded();

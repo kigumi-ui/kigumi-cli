@@ -77,8 +77,6 @@ function hostAttributes() {
   return result;
 }
 
-const emit = defineEmits([]);
-
 const elementRef = ref(null);
 
 onMounted(() => {
@@ -497,8 +495,6 @@ function hostAttributes() {
   return result;
 }
 
-const emit = defineEmits([]);
-
 const elementRef = ref(null);
 
 onMounted(() => {
@@ -805,8 +801,6 @@ function hostAttributes() {
   return result;
 }
 
-const emit = defineEmits([]);
-
 const elementRef = ref(null);
 
 onMounted(() => {
@@ -834,6 +828,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the Badge wrapper (no events, no methods branch) 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaBadge from '@awesome.me/webawesome/dist/components/badge/badge.js';
 import './Badge.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -882,11 +877,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaBadge | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -912,6 +903,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the Button wrapper 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaButton from '@awesome.me/webawesome/dist/components/button/button.js';
 import './Button.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -981,7 +973,7 @@ const emit = defineEmits<{
   'wa-invalid': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaButton | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -1010,12 +1002,12 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  click: () => (elementRef.value as any)?.click?.(),
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  click: () => elementRef.value?.click?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -1035,6 +1027,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the Dialog wrapper (open v-model branch) 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js';
 import './Dialog.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1092,10 +1085,10 @@ const emit = defineEmits<{
 
 const open = defineModel<boolean>('open', { default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaDialog | null>(null);
 
 watch(open, (newOpen) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { open: boolean }) | null;
   if (el && el.open !== newOpen) el.open = newOpen;
 });
 
@@ -1149,6 +1142,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the Input wrapper (value v-model branch) 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import './Input.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1207,10 +1201,10 @@ const emit = defineEmits<{
 
 const model = defineModel<string>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaInput | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { value: unknown }) | null;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
@@ -1218,7 +1212,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as InputEvent); };
+const handleInput = (e: Event) => { model.value = (e.target as HTMLElement & { value: string }).value; emit('input', e as InputEvent); };
 const handleChange = (e: Event) => emit('change', e as Event);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -1250,17 +1244,17 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  select: () => (elementRef.value as any)?.select?.(),
-  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => (elementRef.value as any)?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
-  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => (elementRef.value as any)?.setRangeText?.(replacement, start, end, selectMode),
-  showPicker: () => (elementRef.value as any)?.showPicker?.(),
-  stepUp: () => (elementRef.value as any)?.stepUp?.(),
-  stepDown: () => (elementRef.value as any)?.stepDown?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  select: () => elementRef.value?.select?.(),
+  setSelectionRange: (selectionStart: number, selectionEnd: number, selectionDirection: 'forward' | 'backward' | 'none') => elementRef.value?.setSelectionRange?.(selectionStart, selectionEnd, selectionDirection),
+  setRangeText: (replacement: string, start: number, end: number, selectMode: 'select' | 'start' | 'end' | 'preserve') => elementRef.value?.setRangeText?.(replacement, start, end, selectMode),
+  showPicker: () => elementRef.value?.showPicker?.(),
+  stepUp: () => elementRef.value?.stepUp?.(),
+  stepDown: () => elementRef.value?.stepDown?.(),
+  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -1281,6 +1275,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the Markdown wrapper with the @remarks JSDoc for removed imperative methods 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaMarkdown from '@awesome.me/webawesome/dist/components/markdown/markdown.js';
 import './Markdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1328,18 +1323,14 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaMarkdown | null>(null);
 
 onMounted(() => {
   ensureLoaded();
 });
 
 defineExpose({
-  renderMarkdown: () => (elementRef.value as any)?.renderMarkdown?.(),
+  renderMarkdown: () => elementRef.value?.renderMarkdown?.(),
   element: elementRef,
 });
 </script>
@@ -1359,6 +1350,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the NumberInput wrapper (number-typed value model) 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaNumberInput from '@awesome.me/webawesome/dist/components/number-input/number-input.js';
 import './NumberInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1415,10 +1407,10 @@ const emit = defineEmits<{
 
 const model = defineModel<number>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaNumberInput | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { value: unknown }) | null;
   if (el && el.value !== val) el.value = val ?? '';
 });
 
@@ -1426,7 +1418,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => { model.value = (e.target as any).value; emit('input', e as InputEvent); };
+const handleInput = (e: Event) => { model.value = (e.target as HTMLElement & { value: number }).value; emit('input', e as InputEvent); };
 const handleChange = (e: Event) => emit('change', e as Event);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -1458,14 +1450,14 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  select: () => (elementRef.value as any)?.select?.(),
-  stepUp: () => (elementRef.value as any)?.stepUp?.(),
-  stepDown: () => (elementRef.value as any)?.stepDown?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  select: () => elementRef.value?.select?.(),
+  stepUp: () => elementRef.value?.stepUp?.(),
+  stepDown: () => elementRef.value?.stepDown?.(),
+  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -1486,6 +1478,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the Switch wrapper (checked v-model branch) 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
+import type WaSwitch from '@awesome.me/webawesome/dist/components/switch/switch.js';
 import './Switch.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -1546,10 +1539,10 @@ const emit = defineEmits<{
 
 const model = defineModel<boolean>({ default: false });
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaSwitch | null>(null);
 
 watch(model, (val) => {
-  const el = elementRef.value as any;
+  const el = elementRef.value as (HTMLElement & { checked: boolean }) | null;
   if (el && el.checked !== val) el.checked = val ?? false;
 });
 
@@ -1557,7 +1550,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => { model.value = (e.target as any).checked; emit('change', e as Event); };
+const handleChange = (e: Event) => { model.value = (e.target as HTMLElement & { checked: boolean }).checked; emit('change', e as Event); };
 const handleInput = (e: Event) => emit('input', e as InputEvent);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
@@ -1586,12 +1579,12 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  click: () => (elementRef.value as any)?.click?.(),
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  setCustomValidity: (message: string) => (elementRef.value as any)?.setCustomValidity?.(message),
-  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => (elementRef.value as any)?.formStateRestoreCallback?.(state, reason),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+  click: () => elementRef.value?.click?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  setCustomValidity: (message: string) => elementRef.value?.setCustomValidity?.(message),
+  formStateRestoreCallback: (state: string | File | FormData | null, reason: 'autocomplete' | 'restore') => elementRef.value?.formStateRestoreCallback?.(state, reason),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>
@@ -1612,6 +1605,7 @@ defineExpose({
 exports[`generateVueTypescriptTemplate > emits the Toast wrapper (custom type import, parameterised method) 1`] = `
 "<script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaToast from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import type { ToastCreateOptions } from '@awesome.me/webawesome/dist/components/toast/toast.js';
 import './Toast.css';
 
@@ -1658,18 +1652,14 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaToast | null>(null);
 
 onMounted(() => {
   ensureLoaded();
 });
 
 defineExpose({
-  create: (message: string, options: ToastCreateOptions) => (elementRef.value as any)?.create?.(message, options),
+  create: (message: string, options: ToastCreateOptions) => elementRef.value?.create?.(message, options),
   element: elementRef,
 });
 </script>

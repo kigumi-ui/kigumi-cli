@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaCarouselItem from '@awesome.me/webawesome/dist/components/carousel-item/carousel-item.js';
 import './CarouselItem.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -11,10 +12,6 @@ function ensureLoaded() {
 /**
  * Represents an individual slide within a carousel component
  */
-export interface CarouselItemProps {}
-
-const props = defineProps<CarouselItemProps>();
-
 defineOptions({ inheritAttrs: false });
 
 // Forward props and fallthrough attributes to the web component yourself,
@@ -37,18 +34,10 @@ function hostAttributes(): Record<string, unknown> {
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
   }
-  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
-    if (value === undefined || value === false) continue;
-    result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
-  }
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaCarouselItem | null>(null);
 
 onMounted(() => {
   ensureLoaded();

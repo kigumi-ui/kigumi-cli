@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaAnimatedImage from '@awesome.me/webawesome/dist/components/animated-image/animated-image.js';
 import './AnimatedImage.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -53,7 +54,7 @@ const emit = defineEmits<{
   'wa-error': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaAnimatedImage | null>(null);
 
 onMounted(() => {
   ensureLoaded();

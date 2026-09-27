@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaTabGroup from '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
 import './TabGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -54,7 +55,7 @@ const emit = defineEmits<{
   'wa-tab-hide': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaTabGroup | null>(null);
 
 onMounted(() => {
   ensureLoaded();

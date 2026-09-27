@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaMarkdown from '@awesome.me/webawesome/dist/components/markdown/markdown.js';
 import './Markdown.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -48,18 +49,14 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaMarkdown | null>(null);
 
 onMounted(() => {
   ensureLoaded();
 });
 
 defineExpose({
-  renderMarkdown: () => (elementRef.value as any)?.renderMarkdown?.(),
+  renderMarkdown: () => elementRef.value?.renderMarkdown?.(),
   element: elementRef,
 });
 </script>

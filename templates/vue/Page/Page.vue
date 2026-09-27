@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaPage from '@awesome.me/webawesome/dist/components/page/page.js';
 import './Page.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,11 +51,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaPage | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -62,10 +59,10 @@ onMounted(() => {
 
 defineExpose({
   visiblePixelsInViewport: (element: HTMLElement | null) =>
-    (elementRef.value as any)?.visiblePixelsInViewport?.(element),
-  showNavigation: () => (elementRef.value as any)?.showNavigation?.(),
-  hideNavigation: () => (elementRef.value as any)?.hideNavigation?.(),
-  toggleNavigation: () => (elementRef.value as any)?.toggleNavigation?.(),
+    elementRef.value?.visiblePixelsInViewport?.(element),
+  showNavigation: () => elementRef.value?.showNavigation?.(),
+  hideNavigation: () => elementRef.value?.hideNavigation?.(),
+  toggleNavigation: () => elementRef.value?.toggleNavigation?.(),
   element: elementRef,
 });
 </script>

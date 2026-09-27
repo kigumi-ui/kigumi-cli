@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaTimeInput from '@awesome.me/webawesome/dist/components/time-input/time-input.js';
 import './TimeInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -79,7 +80,7 @@ const emit = defineEmits<{
   'wa-invalid': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaTimeInput | null>(null);
 
 onMounted(() => {
   ensureLoaded();
@@ -129,15 +130,15 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  focus: (options: FocusOptions) => (elementRef.value as any)?.focus?.(options),
-  blur: () => (elementRef.value as any)?.blur?.(),
-  show: () => (elementRef.value as any)?.show?.(),
-  hide: () => (elementRef.value as any)?.hide?.(),
+  focus: (options: FocusOptions) => elementRef.value?.focus?.(options),
+  blur: () => elementRef.value?.blur?.(),
+  show: () => elementRef.value?.show?.(),
+  hide: () => elementRef.value?.hide?.(),
   formStateRestoreCallback: (state: string | File | FormData | null) =>
-    (elementRef.value as any)?.formStateRestoreCallback?.(state),
+    elementRef.value?.formStateRestoreCallback?.(state),
   setCustomValidity: (message: string) =>
-    (elementRef.value as any)?.setCustomValidity?.(message),
-  resetValidity: () => (elementRef.value as any)?.resetValidity?.(),
+    elementRef.value?.setCustomValidity?.(message),
+  resetValidity: () => elementRef.value?.resetValidity?.(),
   element: elementRef,
 });
 </script>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs } from 'vue';
+import type WaCallout from '@awesome.me/webawesome/dist/components/callout/callout.js';
 import './Callout.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -48,11 +49,7 @@ function hostAttributes(): Record<string, unknown> {
   return result;
 }
 
-const emit = defineEmits<{
-  // No events for this component
-}>();
-
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaCallout | null>(null);
 
 onMounted(() => {
   ensureLoaded();

@@ -423,6 +423,34 @@ consumer's browser console, including the docs site, the Angular function
 harness and every starter fixture, for a prop that still works exactly as
 before. `kigumi update`'s strike-through is the intended signal.
 
+### 13. Templates pass a consumer's lint (issue #136)
+
+A Template is copied verbatim into a consumer project and linted there, and
+so is its `.kigumi/snapshots/` copy. Consumer configs (create-vite react-ts,
+create-vue, angular-eslint) build on `@eslint/js` + typescript-eslint
+`recommended`, so every Template must pass it with default options:
+
+- **No `any`.** Type what the code relies on. A CEM parameter without a type
+  is inferred from its default by `paramType()` in
+  `scripts/parse-custom-elements.ts`, else `unknown`. A Vue `elementRef` is
+  typed as the Web Awesome element (as in React), and a model sync casts to
+  the one property it touches, e.g. `HTMLElement & { checked: boolean }`
+  (`modelHost()` in the Vue generator): Pro typecheck shims declare no
+  properties, so the element class cannot carry it.
+- **No empty object types.** A React wrapper that adds no props or events
+  declares `export type XProps = Omit<HTMLAttributes<HTMLElement>, 'dir'>`,
+  not an empty `interface`. A Vue wrapper without props or events declares
+  no `defineProps` / `defineEmits` at all: Vue's compiler resolves no
+  type-alias spelling of "no props", and an unused `emit` is itself a finding.
+- **No unused variables**, under the rule's default options: no `_` prefix
+  escape, which the repo allows itself outside `templates/`.
+
+`eslint.config.js` never turns a `recommended` rule off for `templates/**`,
+and `tests/unit/eslint-rules/templates-consumer-rules.test.ts` fails if it
+does. The generator tests lint their output through `lintAsConsumer()`.
+Framework plugins a consumer adds on top (`eslint-plugin-react-hooks`,
+`eslint-plugin-vue`) are not installed here and not checked.
+
 ---
 
 ## Adding New Components
@@ -500,7 +528,7 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-27
+**Last Updated:** 2026-09-28
 
 - 87 templates per framework after WA 3.13.0 (OtpInput, Pagination, TagInput)
 
@@ -515,3 +543,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - rule 12: a registry prop with `deprecated` stays in every Template and carries a JSDoc `@deprecated` tag written by `propJsdocLines()`; RadarChart's `stacked`, `grid`, `min` and `max` are the first, removal tracked in #130, issue #129
 - rule 12: recorded why deprecation carries no runtime `console.warn` (compile-time-only signal, by design, not an oversight) — a second-opinion review on #129 flagged the gap against a JS/no-language-server consumer, issue #129
 - rule 12: QrCode `fill` / `background` are deprecated in every Template (Web Awesome deprecates them for CSS `color` / `background-color`), and their registry defaults are `''` as in the CEM, so the `.js.vue` no longer writes `fill="black"` over the CSS fallback, issue #133
+- rule 13: Templates pass `@eslint/js` + typescript-eslint `recommended` with default options, the baseline consumer configs build on: no `any` (a default-only CEM parameter is typed from its default; Vue types its element ref and casts a model sync to the one property it touches), no empty `interface` / `defineEmits<{}>()`, no unused `emit`. The repo had turned `no-explicit-any` and `no-empty-object-type` off for `templates/**`, so a default create-vite project failed where `pnpm lint` passed, issue #136

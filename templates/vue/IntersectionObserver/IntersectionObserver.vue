@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaIntersectionObserver from '@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js';
 import './IntersectionObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -54,7 +55,7 @@ const emit = defineEmits<{
   'wa-intersect': [event: CustomEvent];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaIntersectionObserver | null>(null);
 
 onMounted(() => {
   ensureLoaded();

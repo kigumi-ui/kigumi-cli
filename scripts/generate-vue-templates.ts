@@ -148,6 +148,17 @@ interface ListenerEntry {
 }
 
 /**
+ * The element type a model sync reads or writes through: `HTMLElement` plus
+ * the one property it touches. Structural rather than the Web Awesome class,
+ * because a Pro element's typecheck shim declares no properties, and a
+ * number model's element writes `''` when cleared. Never `any`: a consumer's
+ * lint rejects it (issue #136).
+ */
+function modelHost(property: string, type: string): string {
+  return `HTMLElement & { ${property}: ${type} }`;
+}
+
+/**
  * Build the unified list of event listeners for a component.
  * Merges component events (emit) with model sync events, deduplicating
  * events that serve both purposes (e.g. wa-show emits AND syncs open model).
@@ -155,11 +166,14 @@ interface ListenerEntry {
 function buildListenerEntries(
   componentKey: string,
   metadata: { events: Array<{ name: string; eventType: string }> },
+  modelType: string,
   hasValueModel: boolean,
   hasCheckedModel: boolean,
   hasOpenModel: boolean
 ): ListenerEntry[] {
   const entries: ListenerEntry[] = [];
+  const readValue = `(e.target as ${modelHost('value', modelType)}).value`;
+  const readChecked = `(e.target as ${modelHost('checked', 'boolean')}).checked`;
   const usedEvents = new Set<string>();
 
   // Determine which events are used by models
@@ -182,14 +196,14 @@ function buildListenerEntries(
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { model.value = (e.target as any).value; emit('${event.name}', e as ${eventType}); }`,
+        tsBody: `(e: Event) => { model.value = ${readValue}; emit('${event.name}', e as ${eventType}); }`,
         jsBody: `(e) => { model.value = e.target.value; emit('${event.name}', e); }`,
       });
     } else if (hasCheckedModel && event.name === 'change') {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { model.value = (e.target as any).checked; emit('${event.name}', e as ${eventType}); }`,
+        tsBody: `(e: Event) => { model.value = ${readChecked}; emit('${event.name}', e as ${eventType}); }`,
         jsBody: `(e) => { model.value = e.target.checked; emit('${event.name}', e); }`,
       });
     } else if (hasOpenModel && event.name === 'wa-show') {
@@ -223,7 +237,7 @@ function buildListenerEntries(
       entries.push({
         event: inputEvent,
         handlerName: 'handleModelInput',
-        tsBody: `(e: Event) => { model.value = (e.target as any).value; }`,
+        tsBody: `(e: Event) => { model.value = ${readValue}; }`,
         jsBody: `(e) => { model.value = e.target.value; }`,
       });
     }
@@ -232,7 +246,7 @@ function buildListenerEntries(
     entries.push({
       event: 'change',
       handlerName: 'handleModelChange',
-      tsBody: `(e: Event) => { model.value = (e.target as any).checked; }`,
+      tsBody: `(e: Event) => { model.value = ${readChecked}; }`,
       jsBody: `(e) => { model.value = e.target.checked; }`,
     });
   }
@@ -295,10 +309,10 @@ function buildJsdocBlock(componentKey: string, description: string): string {
  *   `defineProps<T>()` and a typed `defineEmits<{…}>()` in TS, an Options-API
  *   `defineProps({…})` object and a plain event-name array in JS;
  * - type annotations on handler bodies, model declarations, the `hostAttributes`
- *   accumulator, and the element ref;
- * - `as any` casts on the element ref inside watchers and exposed methods;
+ *   accumulator, and the element ref (typed as the Web Awesome element);
+ * - `modelHost` casts where a model sync reads or writes the element;
  * - the `lang="ts"` script attribute;
- * - the component-specific `import type` block (TS only).
+ * - the `import type` block for the element and its method parameters (TS only).
  *
  * Every such divergence is expressed as a `typed ? … : …` at its point of use,
  * so the shell around them exists once.
@@ -359,37 +373,35 @@ function assembleVueSFC(
     })
     .join(typed ? '\n' : ',\n');
 
-  // 2. Emits — a typed call-signature block, or a plain event-name array
+  // 2. Emits — a typed call-signature block, or a plain event-name array.
+  // A component without events declares none: an empty `defineEmits<{}>()`
+  // is `no-empty-object-type` and its `emit` is never called (issue #136).
   const emitsSection = typed
-    ? metadata.events.length > 0
-      ? metadata.events
-          .map(
-            (event) =>
-              `  '${event.name}': [event: ${mapEventType(event.name)}];`
-          )
-          .join('\n')
-      : '  // No events for this component'
-    : metadata.events.length > 0
-      ? `['${metadata.events.map((e) => e.name).join("', '")}']`
-      : '[]';
+    ? metadata.events
+        .map(
+          (event) => `  '${event.name}': [event: ${mapEventType(event.name)}];`
+        )
+        .join('\n')
+    : `['${metadata.events.map((e) => e.name).join("', '")}']`;
 
   // 3. Build unified listener entries
+  const modelType = getModelValueType(componentKey, component);
   const listeners = buildListenerEntries(
     componentKey,
     metadata,
+    modelType,
     hasValueModel,
     hasCheckedModel,
     hasOpenModel
   );
 
-  // 4. Exposed Methods — typed params and an `as any` ref cast, or bare params
+  // 4. Exposed Methods — typed params, or bare params. The element ref is
+  // typed as the Web Awesome element, so each call type-checks against it.
   const exposedMethods =
     metadata.methods.length > 0
       ? metadata.methods
           .map((method) => {
-            const ref = typed
-              ? '(elementRef.value as any)'
-              : 'elementRef.value';
+            const ref = 'elementRef.value';
             if (method.parameters && method.parameters.length > 0) {
               const params = typed
                 ? method.parameters
@@ -417,9 +429,7 @@ function assembleVueSFC(
   // Build defineModel declarations
   const modelDeclarations: string[] = [];
   if (hasValueModel) {
-    const typeArg = typed
-      ? `<${getModelValueType(componentKey, component)}>`
-      : '';
+    const typeArg = typed ? `<${modelType}>` : '';
     modelDeclarations.push(`const model = defineModel${typeArg}();`);
   }
   if (hasCheckedModel) {
@@ -434,18 +444,23 @@ function assembleVueSFC(
   }
 
   // Build model sync watchers (model → element). The TS variant casts the ref
-  // to `any` so the WA-specific properties type-check.
-  const elAccess = typed ? 'elementRef.value as any' : 'elementRef.value';
+  // to the one property the watcher syncs, see `modelHost`. `value` is
+  // `unknown` there: the watcher compares and assigns it, and a cleared
+  // model writes `''` whatever the element's value type.
+  const elAccess = (property: string, type: string) =>
+    typed
+      ? `elementRef.value as (${modelHost(property, type)}) | null`
+      : 'elementRef.value';
   const modelWatchers: string[] = [];
   if (hasValueModel) {
     modelWatchers.push(`watch(model, (val) => {
-  const el = ${elAccess};
+  const el = ${elAccess('value', 'unknown')};
   if (el && el.value !== val) el.value = val ?? '';
 });`);
   }
   if (hasCheckedModel) {
     modelWatchers.push(`watch(model, (val) => {
-  const el = ${elAccess};
+  const el = ${elAccess('checked', 'boolean')};
   if (el && el.checked !== val) el.checked = val ?? false;
 });`);
   }
@@ -459,7 +474,7 @@ function assembleVueSFC(
     // equivalent: setting the property triggers the same internal show/hide
     // sequence. One uniform code path, no dead branches.
     modelWatchers.push(`watch(open, (newOpen) => {
-  const el = ${elAccess};
+  const el = ${elAccess('open', 'boolean')};
   if (el && el.open !== newOpen) el.open = newOpen;
 });`);
   }
@@ -525,7 +540,8 @@ onMounted(() => {
   // Sibling `Wa*` element types default-import from their own module; other
   // names named-import from this component's importPath.
   const typeImport = typed
-    ? formatCustomTypeImports(metadata.methods, component.importPath)
+    ? `import type Wa${component.name} from '${component.importPath}';
+${formatCustomTypeImports(metadata.methods, component.importPath)}`
     : '';
 
   // Enumerated booleans (`spellcheck`, `autocorrect`): `false` is written as
@@ -540,16 +556,25 @@ ${enumerated.map((p) => `  ${p.name}: undefined,`).join('\n')}
       : `defineProps<${component.name}Props>()`;
 
   // The props block: a TS interface plus a type-argument defineProps, or an
-  // Options-API defineProps object.
-  const propsBlock = typed
-    ? `export interface ${component.name}Props {
+  // Options-API defineProps object. A component without props declares none:
+  // `interface XProps {}` is `no-empty-object-type` (issue #136), and Vue's
+  // compiler resolves no type-alias spelling of "no props".
+  const hasProps = filteredProps.length > 0;
+  const propsBlock = !hasProps
+    ? ''
+    : typed
+      ? `export interface ${component.name}Props {
 ${propsSection}
 }
 
-const props = ${typedDefineProps};`
-    : `const props = defineProps({
+const props = ${typedDefineProps};
+
+`
+      : `const props = defineProps({
 ${propsSection}
-});`;
+});
+
+`;
 
   // Keyword table and branch for enumerated booleans, emitted only where a
   // component has one. The `^` prefix makes Vue write an attribute even once
@@ -574,6 +599,16 @@ ${enumerated.map((p) => `  ${p.name}: ${keywordPairLiteral(p.keywords)},`).join(
     }`
       : '';
 
+  // Props go back to kebab-case attributes; nothing to do without props.
+  const propsLoop = (entries: string) =>
+    hasProps
+      ? `
+  for (const [key, value] of Object.entries(${entries})) {${enumeratedBranch}
+    if (value === undefined || value === false) continue;
+    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
+  }`
+      : '';
+
   // The host-attribute builder: identical logic, annotated in the TS variant.
   const hostAttributesBlock = typed
     ? `const attrs = useAttrs();
@@ -584,11 +619,7 @@ function hostAttributes(): Record<string, unknown> {
     if (key === 'class') continue;
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
-  }
-  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {${enumeratedBranch}
-    if (value === undefined || value === false) continue;
-    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
-  }
+  }${propsLoop('props as Record<string, unknown>')}
   return result;
 }`
     : `const attrs = useAttrs();
@@ -599,19 +630,22 @@ function hostAttributes() {
     if (key === 'class') continue;
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
-  }
-  for (const [key, value] of Object.entries(props)) {${enumeratedBranch}
-    if (value === undefined || value === false) continue;
-    result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
-  }
+  }${propsLoop('props')}
   return result;
 }`;
 
-  const emitBlock = typed
-    ? `const emit = defineEmits<{
+  const emitBlock =
+    metadata.events.length === 0
+      ? ''
+      : typed
+        ? `const emit = defineEmits<{
 ${emitsSection}
-}>();`
-    : `const emit = defineEmits(${emitsSection});`;
+}>();
+
+`
+        : `const emit = defineEmits(${emitsSection});
+
+`;
 
   // Assemble the template
   return `<script setup${typed ? ' lang="ts"' : ''}>
@@ -624,9 +658,7 @@ function ensureLoaded() {
 }
 
 ${buildJsdocBlock(componentKey, component.description)}
-${propsBlock}
-
-defineOptions({ inheritAttrs: false });
+${propsBlock}defineOptions({ inheritAttrs: false });
 
 ${enumeratedTable}// Forward props and fallthrough attributes to the web component yourself,
 // rather than through Vue's default fallthrough:
@@ -641,9 +673,7 @@ ${enumeratedTable}// Forward props and fallthrough attributes to the web compone
 // so a computed over an empty \`attrs\` would never see a later attribute.
 ${hostAttributesBlock}
 
-${emitBlock}
-
-${modelDeclarations.length > 0 ? modelDeclarations.join('\n') + '\n\n' : ''}const elementRef = ref${typed ? '<HTMLElement | null>' : ''}(null);
+${emitBlock}${modelDeclarations.length > 0 ? modelDeclarations.join('\n') + '\n\n' : ''}const elementRef = ref${typed ? `<Wa${component.name} | null>` : ''}(null);
 ${modelWatchers.length > 0 ? '\n' + modelWatchers.join('\n\n') + '\n' : ''}${loadBlock}${lifecycleBlock}
 defineExpose({
 ${exposeContent},

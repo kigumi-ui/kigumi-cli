@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
+import type WaComparison from '@awesome.me/webawesome/dist/components/comparison/comparison.js';
 import './Comparison.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,7 +51,7 @@ const emit = defineEmits<{
   change: [event: Event];
 }>();
 
-const elementRef = ref<HTMLElement | null>(null);
+const elementRef = ref<WaComparison | null>(null);
 
 onMounted(() => {
   ensureLoaded();

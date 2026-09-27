@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (117 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (118 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -115,6 +115,7 @@ tests/
 │   ├── parse-custom-elements-css.test.ts  # CEM → CSS_METADATA extraction + framework parity
 │   ├── parse-custom-elements-types.test.ts # Shared metadata types: generated modules import+re-export, never re-declare (issue #34)
 │   ├── parse-custom-elements-attributes.test.ts # extractAttributes: boolean-vs-string classification, untyped attributes kept (did-ssr), otp-input/pagination/tag-input coverage (issue #105)
+│   ├── parse-custom-elements-params.test.ts # paramType: a CEM parameter without a type is typed from its default, else `unknown`, never `any`; the committed COMPONENT_METADATA carries no `any` parameter (issue #136)
 │   ├── validation-errors.test.ts    # Validation error classes
 │   ├── version-check.test.ts        # CLI vs project version check
 │   ├── check-commit-attribution.test.ts # Commit-message matcher: rejects AI attribution trailers, accepts prose mentioning Claude (cluster S)
@@ -136,14 +137,15 @@ tests/
 │   ├── scripts/
 │   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset), plus Check C's Vue arm (issue #122): the SFC surface reader (including its plain-`<script>` reader) on literal snippets and, for the `<script setup>` half, against the Vue compiler on every committed Template; the variant comparer; and the templates/vue and templates/react walks (one pair per registry component)
 │   │   ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
-│   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
-│   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
-│   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch)
+│   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge); output linted as a consumer (issue #136)
+│   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge); output linted as a consumer (issue #136)
+│   │   ├── generate-vue-templates.test.ts      # Snapshot-pinned Vue wrapper generator (Button + Badge + Switch); both dialects linted as a consumer (issue #136)
 │   │   ├── generate-skill-references.test.ts   # formatCompactProps: the compact prop list the skill API surfaces print, including the `deprecated` label (issue #129)
 │   │   ├── generator-utils.test.ts             # Custom method-param type imports (sibling Wa* vs named self); the enumerated-boolean emitters (narrowing, named pair literal, keyword expression)
 │   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 │   ├── eslint-rules/
-│   │   └── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
+│   │   ├── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
+│   │   └── templates-consumer-rules.test.ts    # Resolves eslint.config.js for one file per Template glob and fails when any consumer-baseline rule is off or has other options there (issue #136)
 │   ├── schemas/
 │   │   ├── config-corrupt.test.ts              # Cluster T: corrupt-config edge cases (BOM, trailing comma, truncated, null byte, wrong-type per required field)
 │   │   └── config-property.test.ts             # Cluster T: fast-check property tests (round-trip, strict rejection, mergeWithDefaults invariance)
@@ -160,6 +162,7 @@ tests/
 │   │   ├── resolve-components-tolowercase.test.ts       # Multi-word components survive kebab/Pascal
 │   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   ├── _helpers/                               # Shared test helpers (see Test Helpers below); not test files
+│   │   ├── consumer-lint.ts                    # CONSUMER_BASELINE (`@eslint/js` + typescript-eslint `recommended`, the config consumer projects build on) and lintAsConsumer(): lint generated source as a consumer would (issue #136)
 │   │   ├── angular-omitted-inputs.ts           # ANGULAR_OMITTED_INPUTS / ANGULAR_INHERITED_OMISSIONS: the CEM attributes each Angular Template has no @Input() for, pinned as committed data independent of validate:cem-sync's allowlists
 │   │   ├── deprecation-readers.ts              # How each surface states a deprecation: readPropDeprecations() via TypeScript's own JSDoc parser (interface member, class property, defineProps key; SFCs via Vue's parser), plus the `.jsx` typedef and story argType text readers
 │   │   ├── deprecated-props-fixture.ts         # DEPRECATED_PROPS / DEPRECATION_MESSAGES: the plain and kebab-case deprecated props every deprecation test generates from
@@ -853,7 +856,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-27
+**Last Updated:** 2026-09-28
 
 - added tests/unit/parse-custom-elements-attributes.test.ts covering extractAttributes (boolean-vs-string classification, untyped attributes kept) and regression-pinning COMPONENT_METADATA.dialog's did-ssr plus otp-input/pagination/tag-input attribute coverage, issue #105
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
@@ -925,3 +928,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - review follow-up on #129: `_helpers/jsdoc-deprecation.ts` became `_helpers/deprecation-readers.ts` with `.jsx` typedef and story readers, the shared `_helpers/deprecated-props-fixture.ts` replaced four fixture copies, deprecated-props.test.ts gained Vue probes for both dialects and guards the docs wrappers, `.jsx` typedefs and stories, and validate-cem-sync.test.ts pins that an x/y axis attribute on a chart without x/y axes is inert or deprecated. Each bug-injected: a `.jsx` message losing "to false", a story losing its prefix, no tag for `.js.vue`, an undeprecated radar `min` and a `backfill` pie `x-label` all go red
 - validate-cem-sync.test.ts covers `parseCemAttributes` (message, bare `true`, `false`) and `checkDeprecationDrift` on literal fixtures, plus the shipped `KIGUMI_DEPRECATIONS` against the real registry; template-registry-props.test.ts pins QrCode's new `.jsx` typedef. Mutation-checked: dropping the warning, ignoring `KIGUMI_DEPRECATIONS`, the upstream-stale branch, counting `deprecated: false` and skipping kebab-casing each go red, issue #133
 - review follow-up on #133: validate-cem-sync.test.ts builds its deprecation fixtures through `parseCemAttributes`, covers `deprecated: ""` and the absent-attribute message, and tests `countDrift` on literal findings instead of re-deriving the stat; regression/issue-133-qr-code-color-defaults.test.ts mounts both QrCode Vue Templates and fails if an unset `fill` / `background` reaches the host. Each bug-injected, issue #133
+- added eslint-rules/templates-consumer-rules.test.ts, parse-custom-elements-params.test.ts and `_helpers/consumer-lint.ts`; the three generator suites lint their output through `lintAsConsumer()`. Bug-injected: turning `no-empty-object-type` back off for `templates/**` turns the rules test red, and an injected `any` / empty interface in a Template fails `pnpm lint`, issue #136
