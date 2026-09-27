@@ -127,7 +127,7 @@ tests/
 │   ├── vue-function-harness-registry.test.ts # Loops proveVueTemplate over every LOCAL_REGISTRY component's `.vue` Template (issue #76); pins the v-model Templates and the attribute each model carries
 │   ├── vue-templates.test.ts        # Every .vue and .js.vue Template forwards through hostAttributes() and cleans up in onBeforeUnmount
 │   ├── scripts/
-│   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset)
+│   │   ├── check-generated-fresh.test.ts       # Pure helpers of the validate:generated-fresh drift guard (CSS comment-strip, rule-block split, at-rule guard, docs-only allowlist, event-subset), plus Check C's Vue arm (issue #122): the SFC surface reader (including its plain-`<script>` reader) on literal snippets and, for the `<script setup>` half, against the Vue compiler on every committed Template; the variant comparer; and the templates/vue and templates/react walks (one pair per registry component)
 │   │   ├── check-tests-baseline.test.ts        # Tests for the tsc baseline gate wrapper
 │   │   ├── generate-angular-templates.test.ts  # Snapshot-pinned Angular wrapper generator (Button + Badge)
 │   │   ├── generate-react-templates.test.ts    # Snapshot-pinned React wrapper generator (Button + Badge)
@@ -708,6 +708,15 @@ helper's logic in isolation. Current cases:
   file that re-declares `ComponentMetadata` (or the CSS types) instead of
   importing `src/utils/metadata-types.ts` fails without a live CEM (issue #34).
 
+- `extractVueSurface`, `compareVueVariants`, `checkReactJsVariantSubset` and
+  `checkVueJsVariantSubset` in `scripts/check-generated-fresh.ts` — Check C's
+  Vue SFC reader, its per-component comparer, and both arms' walks, asserted
+  directly by `tests/unit/scripts/check-generated-fresh.test.ts`. Re-exported
+  at the bottom of the module so each declaration the reader refuses, and each
+  walk's pair count, can be pinned without running the whole guard (issue
+  #122). The older helpers in that file (`extractReactSurface`, `diffSubset`,
+  the CSS matchers) are still exported inline.
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
@@ -819,7 +828,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 
 **Parent:** [AGENTS.md](../AGENTS.md)
 
-**Last Updated:** 2026-09-26
+**Last Updated:** 2026-09-27
 
 - added tests/unit/parse-custom-elements-attributes.test.ts covering extractAttributes (boolean-vs-string classification, untyped attributes kept) and regression-pinning COMPONENT_METADATA.dialog's did-ssr plus otp-input/pagination/tag-input attribute coverage, issue #105
 - added tests/e2e/free-consumer-tsc.test.ts, the issue #73 Free React tracer: real init, add --all, and strict consumer tsc
@@ -874,3 +883,7 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - added package-json.test.ts for the `readDependencies` contract and each caller's handling (detectFramework surfaces invalid JSON, tier detection falls through on `null`, isNextProject falls back to next.config.*); package-json-read-error.test.ts pins `kigumi init` on invalid JSON; every property bug-injected on its own, issue #99
 - issue #121: package-json-read-error.test.ts checks that `brand`, `upgrade` and `theme install` leave kigumi.config.json (and theme files) untouched when package.json is broken, and pins `diff` naming the file instead of reporting missing files; upgrade-command.test.ts pins install-before-save, theme-install-local-source.test.ts pins fetch-before-write; the Negative-Path Inventory gained the matching rows. Each ordering was bug-injected back to write-first and turns its test red
 - package-json-read-error.test.ts pins the full rendered error block and fix note for EISDIR, EACCES and invalid JSON (only Node's parser message is matched by prefix), adds `palette` and `theme set` to the detect-before-write checks, and compares kigumi.config.json as bytes written compact, so even a same-value rewrite by saveConfig fails; detectTierSync tests were dropped with the function, their async twins stay
+- check-generated-fresh.test.ts covers Check C's Vue arm, issue #122: `extractVueSurface` on literal SFCs of both dialects and on each form it refuses to read, `compareVueVariants`, and `checkVueJsVariantSubset` on a temp tree and on the committed Templates, which must yield one pair per registry component. Each committed `.vue` and `.js.vue` is also compiled by Vue and its props and emits compared with the reader's, so the `<script setup>` half of the reader is proven on real input, not only on snippets. Two halves have no real input to run against and are pinned by the literal tests alone: listener extraction, which no compiler can check, and the plain-`<script>` reader, because no committed Template carries a plain `<script>` block (so it is pinned on snippets covering its type declarations, shorthand options, `export =` and unparseable `lang`)
+- check-generated-fresh.test.ts also walks templates/react through `checkReactJsVariantSubset` on a temp tree and on the committed Templates, so a React arm that compared nothing fails the suite as well as the guard, issue #122
+- registered Check C's four test-only exports (`extractVueSurface`, `compareVueVariants`, and both arms' walks) in the "Internals Exported for Test Coverage" list and moved them to the bottom of check-generated-fresh.ts. The React and Vue walk tests are one `it.each` over both arms, and a plain `<script>` that only sets `name` or `inheritAttrs` is now read as declaring nothing; bug-injected: call signatures read for `defineProps`, a React arm reporting zero pairs, and `emits` allowlisted each go red, issue #122
+- `parseBlock` is the one lang-to-parse path shared by `readPlainScript` and `extractVueSurface`, so an unparseable dialect is refused identically in a plain `<script>` and a `<script setup>`. Bug-injected: making it fall back to JavaScript turns both bad-`lang` cases red, which is also the proof the extraction is behaviour-preserving, issue #122
