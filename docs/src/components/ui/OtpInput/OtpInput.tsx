@@ -97,6 +97,12 @@ export interface OtpInputProps extends Omit<
   /** The name of the input, submitted with form data */
   name?: string;
 
+  /** Focuses the control on page load */
+  autofocus?: boolean;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when a character is entered or removed. */
   onInput?: (event: InputEvent) => void;
 

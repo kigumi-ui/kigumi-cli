@@ -74,6 +74,31 @@ export interface NumberInputProps extends Omit<
   /** Hides the stepper buttons */
   'without-steppers'?: boolean;
 
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** The name of the control, submitted with form data */
+  name?: string;
+
+  /** Makes the input readonly */
+  readonly?: boolean;
+
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Focuses the control on page load */
+  autofocus?: boolean;
+
+  /** Hint for Enter key label on virtual keyboards */
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
+  /** Hint for virtual keyboard type */
+  inputmode?: 'numeric' | 'decimal';
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the control receives input. */
   onInput?: (event: CustomEvent) => void;
 

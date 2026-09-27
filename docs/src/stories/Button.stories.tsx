@@ -96,6 +96,15 @@ const meta = {
       description: "Override the form's target attribute",
     },
     children: { control: 'text' },
+    title: {
+      control: 'text',
+      description: 'Native tooltip text, shown on hover',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onBlur: {
       action: 'blur',
       description: 'Emitted when the button loses focus.',

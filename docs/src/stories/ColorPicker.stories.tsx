@@ -79,6 +79,11 @@ const meta = {
       description: 'Renders the color picker inline instead of in a dropdown',
       table: { defaultValue: { summary: 'false' } },
     },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onChange: {
       action: 'change',
       description: "Emitted when the color picker's value changes.",
@@ -135,8 +140,7 @@ export const Default: Story = {
   // through onto the host. Opening the panel is covered by Chromatic.
   play: async ({ canvasElement }) => {
     const host = canvasElement.querySelector('wa-color-picker') as
-      | (HTMLElement & { value?: string; label?: string })
-      | null;
+      (HTMLElement & { value?: string; label?: string }) | null;
     await expect(host).not.toBeNull();
     await waitFor(() => {
       expect(host!.value).toBe('#0066cc');

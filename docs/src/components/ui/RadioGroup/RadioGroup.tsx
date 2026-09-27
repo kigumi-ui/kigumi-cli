@@ -62,6 +62,9 @@ export interface RadioGroupProps extends Omit<
   /** Makes selection required */
   required?: boolean;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the radio group receives user input. */
   onInput?: (event: CustomEvent) => void;
 

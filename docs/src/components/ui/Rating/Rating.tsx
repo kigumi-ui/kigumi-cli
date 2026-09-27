@@ -59,6 +59,9 @@ export interface RatingProps extends Omit<
   /** Disables the rating */
   disabled?: boolean;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the rating's value changes. */
   onChange?: (event: CustomEvent) => void;
 

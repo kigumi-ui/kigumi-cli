@@ -34,6 +34,15 @@ const meta = {
     },
     hint: { control: 'text', description: 'Hint text' },
     children: { control: 'text' },
+    title: {
+      control: 'text',
+      description: 'Native tooltip text, shown on hover',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onChange: {
       action: 'change',
       description: "Emitted when the control's checked state changes.",

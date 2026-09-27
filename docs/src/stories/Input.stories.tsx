@@ -110,8 +110,8 @@ const meta = {
     },
     autocorrect: {
       control: 'boolean',
-      description: 'Enable autocorrect',
-      table: { defaultValue: { summary: 'false' } },
+      description:
+        'Turns autocorrect on or off; the browser decides when unset',
     },
     inputmode: {
       control: 'select',
@@ -131,6 +131,20 @@ const meta = {
       control: 'select',
       options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
       description: 'Hint for Enter key label on virtual keyboards',
+    },
+    title: {
+      control: 'text',
+      description: 'Native tooltip text, shown on hover',
+    },
+    spellcheck: {
+      control: 'boolean',
+      description: 'Turns spell checking on or off; on when unset',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
     },
     onInput: {
       action: 'input',

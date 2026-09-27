@@ -56,13 +56,60 @@ const meta = {
     maxlength: { control: 'number', description: 'Maximum length' },
     spellcheck: {
       control: 'boolean',
-      description: 'Enable spell checking',
+      description: 'Turns spell checking on or off; on when unset',
       table: { defaultValue: { summary: 'true' } },
     },
     'with-count': {
       control: 'boolean',
       description: 'Shows a character count when maxlength is set',
       table: { defaultValue: { summary: 'false' } },
+    },
+    title: {
+      control: 'text',
+      description: 'Native tooltip text, shown on hover',
+    },
+    autocomplete: {
+      control: 'text',
+      description: 'Hint for browser autofill',
+    },
+    autocapitalize: {
+      control: 'select',
+      options: ['off', 'none', 'on', 'sentences', 'words', 'characters'],
+      description: 'Controls automatic capitalization',
+    },
+    autofocus: {
+      control: 'boolean',
+      description: 'Focuses the control on page load',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    enterkeyhint: {
+      control: 'select',
+      options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+      description: 'Hint for Enter key label on virtual keyboards',
+    },
+    inputmode: {
+      control: 'select',
+      options: [
+        'none',
+        'text',
+        'decimal',
+        'numeric',
+        'tel',
+        'search',
+        'email',
+        'url',
+      ],
+      description: 'Hint for virtual keyboard type',
+    },
+    autocorrect: {
+      control: 'boolean',
+      description:
+        'Turns autocorrect on or off; the browser decides when unset',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
     },
     onBlur: {
       action: 'blur',

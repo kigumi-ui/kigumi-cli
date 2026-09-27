@@ -11,6 +11,22 @@ import '@awesome.me/webawesome-pro/dist/components/textarea/textarea.js';
 import './Textarea.css';
 
 /**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default. Web Awesome reads these by value, not
+ * presence, and React would write a DOM property or a bare attribute.
+ */
+function setEnumeratedAttribute(
+  el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
+  name: string,
+  value: boolean | undefined,
+  keywords: [on: string, off: string]
+): void {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+}
+
+/**
  * Textareas collect multi-line text data from the user
  *
  * @example
@@ -77,8 +93,41 @@ export interface TextareaProps extends Omit<
   /** Shows a character count when maxlength is set */
   'with-count'?: boolean;
 
-  /** Enable spell checking */
+  /** Turns spell checking on or off; on when unset */
   spellcheck?: boolean;
+
+  /** Turns autocorrect on or off; the browser decides when unset */
+  autocorrect?: boolean;
+
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Controls automatic capitalization */
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+
+  /** Focuses the control on page load */
+  autofocus?: boolean;
+
+  /** Hint for Enter key label on virtual keyboards */
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
+  /** Hint for virtual keyboard type */
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -137,6 +186,8 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       onFocus,
       onInput,
       onInvalid,
+      autocorrect,
+      spellcheck,
       ...props
     },
     ref
@@ -279,6 +330,13 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
         el.removeEventListener('wa-invalid', handleInvalid);
       };
     }, [onBlur, onChange, onFocus, onInput, onInvalid]);
+
+    useEffect(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-textarea
