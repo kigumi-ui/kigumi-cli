@@ -51,7 +51,8 @@ export interface IconProps extends Omit<
 
   /**
    * Sets the width to match the cropped SVG viewBox
-   * @deprecated Use `canvas="auto"` instead.
+   *
+   * @deprecated Set canvas="auto" instead.
    */
   'auto-width'?: boolean;
 

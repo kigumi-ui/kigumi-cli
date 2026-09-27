@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatCompactProps } from '../../../scripts/generate-skill-references.js';
+import { DEPRECATED_PROPS } from '../_helpers/deprecated-props-fixture.js';
 
 describe('formatCompactProps', () => {
   it('keeps the compact form for props that are not deprecated', () => {
@@ -15,23 +16,9 @@ describe('formatCompactProps', () => {
   // Agents read these surfaces to write code, so a deprecated prop has to say
   // so there too, or they keep reaching for it (issue #129).
   it('labels a deprecated prop so agents stop reaching for it', () => {
-    expect(
-      formatCompactProps([
-        {
-          name: 'min',
-          type: 'number',
-          deprecated:
-            'Set options.scales.r.min in the chart JSON config instead.',
-        },
-        {
-          name: 'grid',
-          type: 'string',
-          values: ['x', 'y'],
-          default: 'x',
-          deprecated: 'Has no effect on this chart.',
-        },
-      ])
-    ).toBe('min(number, deprecated), grid(x|y=x, deprecated)');
+    expect(formatCompactProps(DEPRECATED_PROPS)).toBe(
+      'min(number, deprecated), index-axis(x|y=x, deprecated)'
+    );
   });
 
   it('reports none for a component without props', () => {

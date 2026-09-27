@@ -15,10 +15,14 @@ import {
   allowlistedKeysInRegistry,
   checkAttributeDrift,
   GLOBAL_ATTRIBUTE_ALLOWLIST,
+  COMPONENT_ATTRIBUTE_ALLOWLIST,
+  INERT_ON_AXISLESS_CHART,
+  INERT_ON_RADIAL_CHART,
   type AttributeAllowlistEntry,
   type AttributePolicy,
 } from '../../scripts/validate-cem-sync.js';
 import type { ComponentDefinition } from '../../src/utils/registry/types.js';
+import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
 
 describe('validate:cem-sync', () => {
   it('should return a valid result structure', async () => {
@@ -402,5 +406,44 @@ describe('checkAttributeDrift', () => {
         staleError('gone', 'not a registry component'),
       ]);
     });
+  });
+});
+
+/**
+ * The x/y axis attributes every typed chart inherits from WaChart do nothing
+ * on a chart without x/y axes (issues #116, #129). Pinned as committed data,
+ * not derived: a derived list would shrink with the bug it should catch.
+ */
+describe('x/y axis attributes on charts without x/y axes', () => {
+  const AXIS_ATTRIBUTES = [
+    'x-label',
+    'y-label',
+    'stacked',
+    'index-axis',
+    'grid',
+    'min',
+    'max',
+  ];
+  const INERT_BY_CHART: Record<string, AttributeAllowlistEntry> = {
+    'pie-chart': INERT_ON_AXISLESS_CHART,
+    'doughnut-chart': INERT_ON_AXISLESS_CHART,
+    'polar-area-chart': INERT_ON_RADIAL_CHART,
+    'radar-chart': INERT_ON_RADIAL_CHART,
+  };
+
+  it('are never offered as working props: each is allowlisted as inert, or a deprecated prop', () => {
+    const offered: string[] = [];
+    for (const [chart, inert] of Object.entries(INERT_BY_CHART)) {
+      for (const attribute of AXIS_ATTRIBUTES) {
+        const prop = LOCAL_REGISTRY[chart].props.find(
+          (p) => p.name === attribute
+        );
+        const entry = COMPONENT_ATTRIBUTE_ALLOWLIST[chart]?.[attribute];
+        if (prop ? !prop.deprecated : entry !== inert) {
+          offered.push(`${chart}.${attribute}`);
+        }
+      }
+    }
+    expect(offered).toEqual([]);
   });
 });

@@ -137,7 +137,7 @@ wa-pagination -> <Pagination>
 Display | free | Icons are symbols that can be used to represent various options within an application
 wa-icon -> <Icon>
 
-**Props:** name(string), library(string=default), src(string), label(string=''), family(string), variant(string), canvas(fixed|auto|square|roomy), auto-width(boolean=false), swap-opacity(boolean=false), rotate(number), flip(horizontal|vertical|both), animation(string)
+**Props:** name(string), library(string=default), src(string), label(string=''), family(string), variant(string), canvas(fixed|auto|square|roomy), auto-width(boolean=false, deprecated), swap-opacity(boolean=false), rotate(number), flip(horizontal|vertical|both), animation(string)
 **Events:** onLoad, onError
 **Parts:** svg, use
 **CSS:** --animation-delay(0), --animation-direction(normal), --animation-duration(1s), --animation-iteration-count(infinite), --animation-timing, --beat-fade-opacity, --beat-fade-scale, --beat-scale, --bounce-height, --bounce-jump-scale-x, --bounce-jump-scale-y, --bounce-land-scale-x, --bounce-land-scale-y, --bounce-rebound, --bounce-start-scale-x, --bounce-start-scale-y, --fade-opacity, --flip-angle, --flip-x, --flip-y, --flip-z, --flip-anticipation-scale, --flip-overshoot, --bounce-anticipation, --buzz-distance, --wag-angle, --swing-angle, --jello-scale-x, --jello-scale-y, --float-height, --float-drift, --float-tilt, --float-squash-x, --float-squash-y, --float-stretch-x, --float-stretch-y, --primary-color(currentColor), --primary-opacity(1), --secondary-color(currentColor), --secondary-opacity(0.4)

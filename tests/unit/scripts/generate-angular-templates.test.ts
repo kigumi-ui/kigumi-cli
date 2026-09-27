@@ -4,7 +4,11 @@ import {
   generateSpec,
 } from '../../../scripts/generate-angular-templates.js';
 import type { ComponentDefinition } from '../../../src/utils/registry.js';
-import { readPropDeprecations } from '../_helpers/jsdoc-deprecation.js';
+import { readPropDeprecations } from '../_helpers/deprecation-readers.js';
+import {
+  DEPRECATED_PROPS,
+  DEPRECATION_MESSAGES,
+} from '../_helpers/deprecated-props-fixture.js';
 
 const BUTTON_FIXTURE: ComponentDefinition = {
   name: 'Button',
@@ -187,25 +191,10 @@ const BADGE_FIXTURE: ComponentDefinition = {
   tier: 'free',
 };
 
-/** Badge plus two deprecated props, one kebab-case, beside undeprecated ones. */
+/** Badge plus the shared deprecated props, beside undeprecated ones. */
 const DEPRECATED_PROPS_FIXTURE: ComponentDefinition = {
   ...BADGE_FIXTURE,
-  props: [
-    ...BADGE_FIXTURE.props,
-    {
-      name: 'min',
-      type: 'number',
-      description: 'Floor value for the value axis scale',
-      deprecated: 'Set options.scales.r.min in the chart JSON config instead.',
-    },
-    {
-      name: 'index-axis',
-      type: 'string',
-      values: ['x', 'y'],
-      default: 'x',
-      deprecated: 'Has no effect on this chart.',
-    },
-  ],
+  props: [...BADGE_FIXTURE.props, ...DEPRECATED_PROPS],
 };
 
 // Markdown fixture exercises the REMOVED_IMPERATIVE_METHODS branch in
@@ -342,10 +331,8 @@ describe('deprecated props (issue #129)', () => {
   const tags = readPropDeprecations(source, 'ts');
 
   it('attaches a @deprecated tag to the @Input() carrying the registry message', () => {
-    expect(tags.get('min')).toBe(
-      'Set options.scales.r.min in the chart JSON config instead.'
-    );
-    expect(tags.get('indexAxis')).toBe('Has no effect on this chart.');
+    expect(tags.get('min')).toBe(DEPRECATION_MESSAGES.min);
+    expect(tags.get('indexAxis')).toBe(DEPRECATION_MESSAGES['index-axis']);
   });
 
   it('keeps the prop description beside the tag', () => {

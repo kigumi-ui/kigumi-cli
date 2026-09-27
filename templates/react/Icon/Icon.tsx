@@ -55,7 +55,11 @@ export interface IconProps extends Omit<
   /** Controls how the icon is sized within its canvas */
   canvas?: 'fixed' | 'auto' | 'square' | 'roomy';
 
-  /** Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto") */
+  /**
+   * Sets the width to match the cropped SVG viewBox
+   *
+   * @deprecated Set canvas="auto" instead.
+   */
   'auto-width'?: boolean;
 
   /** Swaps the opacity of duotone icons */

@@ -390,27 +390,30 @@ its registry prop gets `keywords`.
 
 ### 12. Deprecated props keep working and carry `@deprecated` (issue #129)
 
-A prop scheduled for removal is not deleted: that would break every consumer
-still passing it. Its registry entry gets `deprecated: '<what to do instead>'`
-and stays a prop in every Template, and `propJsdocLines()` in
-`scripts/generator-utils.ts` writes the message as a JSDoc `@deprecated` tag
-on its declaration. Editors strike the prop through and show the message.
+A prop that should no longer be used is not deleted: that would break every
+consumer still passing it. Its registry entry gets `deprecated: '<what to do
+instead>'` and it stays a prop everywhere. How each surface states it:
 
-- **React** `.tsx` and **Angular**: the prop keeps its description, and the
-  one-line `/** description */` becomes a block ending in the tag.
-- **Vue** `.vue` and `.js.vue` do not document props, so they get a tag-only
-  `/** @deprecated ... */` line above the interface member or the
-  `defineProps` key.
-- The hand-maintained `.jsx` typedef cannot tag a single `@property`, so its
-  description starts with "Deprecated". Docs wrappers copy the Template's
-  JSDoc; stories file the argType under the `Deprecated` table category.
+- **React `.tsx`, Angular, docs wrappers**: a JSDoc `@deprecated` tag on the
+  declaration, below the description. `propJsdocLines()` in
+  `scripts/generator-utils.ts` writes it; docs wrappers copy it by hand.
+- **Vue `.vue` and `.js.vue`**: a tag-only `/** @deprecated ... */` line (Vue
+  Templates do not document props), above the interface member or the runtime
+  `defineProps` key. The runtime key's tag survives Vue's component types too.
+- **React `.jsx`**: its `@typedef` is not applied to the component, so a JS
+  consumer gets no per-prop types and nothing can strike the prop through. The
+  `@property` description reads `Deprecated: <message>` instead.
+- **Stories**: the argType `description` reads `**Deprecated.** <message>`,
+  filed under the `Deprecated` table category.
 
-The message says what to do instead, and it has to be true: check it against
-the real element before it ships (RadarChart's point to
-`options.scales.r.min` / `max` / `grid.display` in the JSON config, which
-were checked in the browser). `tests/unit/deprecated-props.test.ts` fails when
-a committed Template's tags differ from the registry in either direction.
-Removing the prop is a `major` changeset (`### Removed`).
+The message says what to do instead, reachable from where the consumer is: a
+chart's config lives in the `application/json` script inside the chart, so
+RadarChart's messages name that script, and a `RadialScaleFromConfig` story
+shows it. Check the alternative against the real element before it ships.
+`tests/unit/deprecated-props.test.ts` proves the React and both Vue shapes
+reach a consumer's TypeScript, and fails when any of the seven surfaces
+disagrees with the registry, in either direction. Removing the prop is a
+`major` changeset (`### Removed`).
 
 ---
 

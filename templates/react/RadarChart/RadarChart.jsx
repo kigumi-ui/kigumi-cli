@@ -30,10 +30,10 @@ function ensureLoaded() {
  * @property {string} [label] - Accessible name announced by assistive technology
  * @property {string} [description] - Extended accessible description for the chart
  * @property {string} [legend-position] - Placement of the legend: top | right | bottom | left | start | end
- * @property {boolean} [stacked] - Deprecated, no effect on a radar chart: remove it. Removed in the next major
- * @property {string} [grid] - Deprecated, no effect on a radar chart: set options.scales.r.grid.display in the JSON config. Removed in the next major
- * @property {number} [min] - Deprecated, no effect on a radar chart: set options.scales.r.min in the JSON config. Removed in the next major
- * @property {number} [max] - Deprecated, no effect on a radar chart: set options.scales.r.max in the JSON config. Removed in the next major
+ * @property {boolean} [stacked] - Deprecated: Radar charts cannot stack datasets, so remove this prop. Removed in the next major.
+ * @property {string} [grid] - Deprecated: Hide the radial grid by setting options.scales.r.grid.display to false in the chart JSON config (the application/json script inside the chart). Removed in the next major.
+ * @property {number} [min] - Deprecated: Set options.scales.r.min in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.
+ * @property {number} [max] - Deprecated: Set options.scales.r.max in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.
  * @property {boolean} [without-animation] - Disables entrance and update motion effects
  * @property {boolean} [without-legend] - Hides the dataset legend entirely
  * @property {boolean} [without-tooltip] - Prevents hover tooltips from appearing on data points

@@ -89,9 +89,8 @@ const meta = {
     },
     'auto-width': {
       control: 'boolean',
-      description:
-        'Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto")',
-      table: { defaultValue: { summary: 'false' } },
+      description: '**Deprecated.** Set canvas="auto" instead.',
+      table: { category: 'Deprecated', defaultValue: { summary: 'false' } },
     },
     'swap-opacity': {
       control: 'boolean',

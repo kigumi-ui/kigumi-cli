@@ -19,6 +19,7 @@ export interface IconProps {
   family?: string;
   variant?: string;
   canvas?: 'fixed' | 'auto' | 'square' | 'roomy';
+  /** @deprecated Set canvas="auto" instead. */
   'auto-width'?: boolean;
   'swap-opacity'?: boolean;
   rotate?: number;

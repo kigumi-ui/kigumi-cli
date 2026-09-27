@@ -18,6 +18,7 @@ import { mkdir, writeFile, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
+import type { ComponentProp } from '../src/utils/registry/types.js';
 import {
   toKebabCase,
   toPascalCase,
@@ -278,16 +279,7 @@ async function loadCustomElementsMetadata(): Promise<
  * Format props as a compact inline list: open(bool=false), label(string, required),
  * min(number, deprecated)
  */
-export function formatCompactProps(
-  props: Array<{
-    name: string;
-    type: string;
-    values?: string[];
-    default?: string;
-    required?: boolean;
-    deprecated?: string;
-  }>
-): string {
+function formatCompactProps(props: readonly ComponentProp[]): string {
   if (props.length === 0) return 'none';
   return props
     .map((p) => {
@@ -837,3 +829,6 @@ if (isEntryPoint(import.meta.url)) {
     process.exit(1);
   });
 }
+
+// Test-only seam, see tests/AGENTS.md "Internals Exported for Test Coverage".
+export { formatCompactProps };

@@ -153,7 +153,7 @@ export interface AttributeAllowlistEntry {
  */
 
 /** An x/y axis attribute on a pie or doughnut chart, which gets no scales. */
-const INERT_ON_AXISLESS_CHART: AttributeAllowlistEntry = {
+export const INERT_ON_AXISLESS_CHART: AttributeAllowlistEntry = {
   kind: 'intentional',
   reason:
     'x/y axis setting; WaChart builds no scales for this chart type, so it is never read',
@@ -163,7 +163,7 @@ const INERT_ON_AXISLESS_CHART: AttributeAllowlistEntry = {
  * An x/y axis attribute on a polar-area or radar chart, whose only scale is
  * the radial `r` scale.
  */
-const INERT_ON_RADIAL_CHART: AttributeAllowlistEntry = {
+export const INERT_ON_RADIAL_CHART: AttributeAllowlistEntry = {
   kind: 'intentional',
   reason:
     'x/y axis setting; WaChart builds this chart only a radial r scale, which does not read it',

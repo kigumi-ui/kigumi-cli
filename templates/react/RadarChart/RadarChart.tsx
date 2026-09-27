@@ -52,21 +52,21 @@ export interface RadarChartProps extends Omit<
   /**
    * Has no effect on a radar chart
    *
-   * @deprecated To hide the radial grid, set options.scales.r.grid.display to false in the chart JSON config. Removed in the next major.
+   * @deprecated Hide the radial grid by setting options.scales.r.grid.display to false in the chart JSON config (the application/json script inside the chart). Removed in the next major.
    */
   grid?: 'x' | 'y' | 'both' | 'none';
 
   /**
    * Has no effect on a radar chart
    *
-   * @deprecated Set options.scales.r.min in the chart JSON config instead. Removed in the next major.
+   * @deprecated Set options.scales.r.min in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.
    */
   min?: number;
 
   /**
    * Has no effect on a radar chart
    *
-   * @deprecated Set options.scales.r.max in the chart JSON config instead. Removed in the next major.
+   * @deprecated Set options.scales.r.max in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.
    */
   max?: number;
 

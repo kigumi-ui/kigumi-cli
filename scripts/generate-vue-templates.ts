@@ -333,11 +333,9 @@ function assembleVueSFC(
     .map((prop) => {
       const quotedName = prop.name.includes('-') ? `'${prop.name}'` : prop.name;
       // Vue Templates do not document their props, so only a deprecation
-      // is written, as a tag-only JSDoc line above the declaration.
-      const tag = propJsdocLines(
-        { deprecated: prop.deprecated },
-        typed ? '  ' : '    '
-      )
+      // is written: a tag-only JSDoc line above the declaration.
+      const propIndent = typed ? '  ' : '    ';
+      const tag = propJsdocLines(prop, propIndent, { describe: false })
         .map((line) => `${line}\n`)
         .join('');
       if (typed) {

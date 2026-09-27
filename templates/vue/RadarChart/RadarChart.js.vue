@@ -17,11 +17,11 @@ const props = defineProps({
   'legend-position': { type: String, required: false, default: 'top' },
   /** @deprecated Radar charts cannot stack datasets, so remove this prop. Removed in the next major. */
   stacked: { type: Boolean, required: false, default: false },
-  /** @deprecated To hide the radial grid, set options.scales.r.grid.display to false in the chart JSON config. Removed in the next major. */
+  /** @deprecated Hide the radial grid by setting options.scales.r.grid.display to false in the chart JSON config (the application/json script inside the chart). Removed in the next major. */
   grid: { type: String, required: false, default: 'both' },
-  /** @deprecated Set options.scales.r.min in the chart JSON config instead. Removed in the next major. */
+  /** @deprecated Set options.scales.r.min in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major. */
   min: { type: Number, required: false },
-  /** @deprecated Set options.scales.r.max in the chart JSON config instead. Removed in the next major. */
+  /** @deprecated Set options.scales.r.max in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major. */
   max: { type: Number, required: false },
   'without-animation': { type: Boolean, required: false, default: false },
   'without-legend': { type: Boolean, required: false, default: false },
