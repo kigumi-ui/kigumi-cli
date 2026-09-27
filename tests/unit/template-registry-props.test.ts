@@ -9,8 +9,9 @@
  * `.tsx`, and the props the `.vue` declares, where a `v-model` Template
  * declares `modelValue` in place of the attribute its model carries
  * (`_helpers/vue-model-attributes.ts`). A hand-maintained `.jsx` has no
- * interface; where it documents its props in a `<Name>Props` JSDoc typedef,
- * that typedef must name every registry prop too. The Angular half is the Angular
+ * interface; where it documents its props in a `<Name>Props` JSDoc typedef
+ * (the files `JSX_PROPS_TYPEDEFS` pins), that typedef must name every
+ * registry prop too. The Angular half is the Angular
  * registry harness, which fails on a CEM attribute with no `@Input()` unless
  * `_helpers/angular-omitted-inputs.ts` pins it.
  */
@@ -72,7 +73,62 @@ function jsdocTypedefProps(source: string, name: string): Set<string> | null {
   );
 }
 
+/**
+ * The `.jsx` Templates that document their props in a `<Name>Props` JSDoc
+ * typedef. Pinned as committed data rather than read from the files: a
+ * derived list would drop a component whose typedef was deleted, and the
+ * check below would then pass without running for it. Adding or removing a
+ * typedef means editing this list in the same commit.
+ */
+const JSX_PROPS_TYPEDEFS: ReadonlySet<string> = new Set([
+  'AnimatedImage',
+  'Animation',
+  'Avatar',
+  'Badge',
+  'BarChart',
+  'Breadcrumb',
+  'BreadcrumbItem',
+  'BubbleChart',
+  'Button',
+  'ButtonGroup',
+  'Callout',
+  'Carousel',
+  'Chart',
+  'Checkbox',
+  'CheckboxGroup',
+  'DateInput',
+  'DatePicker',
+  'Divider',
+  'DoughnutChart',
+  'FileInput',
+  'FormatBytes',
+  'Icon',
+  'Input',
+  'LineChart',
+  'NumberInput',
+  'Page',
+  'PieChart',
+  'PolarAreaChart',
+  'RadarChart',
+  'RandomContent',
+  'ScatterChart',
+  'Sparkline',
+  'Toast',
+  'ToastItem',
+  'Video',
+  'VideoPlaylist',
+]);
+
 describe('registry props are typed in every React and Vue Template', () => {
+  it('pins only registry components as documenting .jsx props', () => {
+    const components = new Set(
+      Object.values(LOCAL_REGISTRY).map((component) => component.name)
+    );
+    expect(
+      [...JSX_PROPS_TYPEDEFS].filter((name) => !components.has(name))
+    ).toEqual([]);
+  });
+
   for (const [slug, component] of Object.entries(LOCAL_REGISTRY)) {
     const propNames = component.props.map((prop) => prop.name);
 
@@ -92,7 +148,7 @@ describe('registry props are typed in every React and Vue Template', () => {
       expect(missing).toEqual([]);
     });
 
-    it(`${component.name}.jsx documents each registry prop, if it documents any`, async () => {
+    it(`${component.name}.jsx documents each registry prop where it pins a props typedef`, async () => {
       const source = await fs.readFile(
         path.join(
           REPO_ROOT,
@@ -103,6 +159,11 @@ describe('registry props are typed in every React and Vue Template', () => {
         'utf-8'
       );
       const documented = jsdocTypedefProps(source, component.name);
+      expect(
+        documented !== null,
+        `${component.name}.jsx has a ${component.name}Props typedef exactly when JSX_PROPS_TYPEDEFS lists it`
+      ).toBe(JSX_PROPS_TYPEDEFS.has(component.name));
+      // Reached only where the pin says there is no typedef to check.
       if (!documented) return;
       const missing = propNames.filter((name) => !documented.has(name));
       expect(missing).toEqual([]);

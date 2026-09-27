@@ -139,7 +139,6 @@ const meta = {
     spellcheck: {
       control: 'boolean',
       description: 'Turns spell checking on or off; on when unset',
-      table: { defaultValue: { summary: 'true' } },
     },
     'custom-error': {
       control: 'text',
