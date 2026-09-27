@@ -29,6 +29,18 @@ const meta = {
       description: 'Placement of the dataset legend relative to the chart',
       table: { defaultValue: { summary: 'top' } },
     },
+    stacked: {
+      control: 'boolean',
+      description: 'Layers multiple datasets on a single axis',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'index-axis': {
+      control: 'select',
+      options: ['x', 'y'],
+      description:
+        'Base axis for category labels (swap to flip chart orientation)',
+      table: { defaultValue: { summary: 'x' } },
+    },
     grid: {
       control: 'select',
       options: ['x', 'y', 'both', 'none'],
@@ -94,6 +106,28 @@ export const Default: Story = {
     label: 'Study hours vs test scores',
     'x-label': 'Hours Studied',
     'y-label': 'Test Score',
+  },
+  render: (args) => (
+    <ScatterChart {...args} style={{ height: '300px' }}>
+      <script type="application/json">
+        {JSON.stringify(studyScoresConfig)}
+      </script>
+    </ScatterChart>
+  ),
+};
+
+/**
+ * With `index-axis="y"` the horizontal axis becomes the value axis, so `min`
+ * and `max` bound the hours studied (0 to 10) instead of the test score.
+ */
+export const ValueAxisOnX: Story = {
+  args: {
+    label: 'Study hours vs test scores',
+    'x-label': 'Hours Studied',
+    'y-label': 'Test Score',
+    'index-axis': 'y',
+    min: 0,
+    max: 10,
   },
   render: (args) => (
     <ScatterChart {...args} style={{ height: '300px' }}>

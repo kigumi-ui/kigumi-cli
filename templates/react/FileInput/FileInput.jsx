@@ -34,6 +34,7 @@ function ensureLoaded() {
  * @property {string} [label] - Accessible label
  * @property {string} [hint] - Descriptive hint text
  * @property {string} [accept] - Accepted file types (MIME types or extensions)
+ * @property {string} [capture] - Mobile capture device: user (front) | environment (rear)
  * @property {boolean} [multiple] - Allow multiple file selection
  * @property {string} [size] - Input size: small | medium | large
  * @property {boolean} [disabled] - Disables the input

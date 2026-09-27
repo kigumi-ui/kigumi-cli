@@ -4293,6 +4293,14 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         required: false,
       },
       {
+        name: 'capture',
+        type: 'string',
+        values: ['user', 'environment'],
+        description:
+          'Camera or mic to open directly on phones and tablets: user (front) or environment (rear)',
+        required: false,
+      },
+      {
         name: 'multiple',
         type: 'boolean',
         default: 'false',
@@ -5324,6 +5332,20 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['top', 'right', 'bottom', 'left', 'start', 'end'],
         default: 'top',
         description: 'Placement of the dataset legend relative to the chart',
+      },
+      {
+        name: 'stacked',
+        type: 'boolean',
+        default: 'false',
+        description: 'Layers multiple datasets on a single axis',
+      },
+      {
+        name: 'index-axis',
+        type: 'string',
+        values: ['x', 'y'],
+        default: 'x',
+        description:
+          'Base axis for category labels (swap to flip chart orientation)',
       },
       {
         name: 'grid',

@@ -17,6 +17,8 @@ export interface ScatterChartProps {
   'x-label'?: string;
   'y-label'?: string;
   'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  stacked?: boolean;
+  'index-axis'?: 'x' | 'y';
   grid?: 'x' | 'y' | 'both' | 'none';
   min?: number;
   max?: number;

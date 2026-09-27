@@ -28,6 +28,8 @@ function ensureLoaded() {
  * @property {string} [x-label] - Caption displayed beneath the horizontal axis
  * @property {string} [y-label] - Caption displayed beside the vertical axis
  * @property {string} [legend-position] - Placement of the legend: top | right | bottom | left | start | end
+ * @property {boolean} [stacked] - Layers multiple datasets on a single axis
+ * @property {string} [index-axis] - Base axis for category labels: x | y
  * @property {string} [grid] - Background grid lines: x | y | both | none
  * @property {number} [min] - Floor value for the value axis scale
  * @property {number} [max] - Ceiling value for the value axis scale

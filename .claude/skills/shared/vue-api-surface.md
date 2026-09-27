@@ -641,7 +641,7 @@ wa-callout -> <Callout>
 Form Controls | pro | File inputs allow users to select and upload files from their device
 wa-file-input -> <FileInput>
 
-**Props:** label(string), hint(string), accept(string), multiple(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), name(string), custom-error(string)
+**Props:** label(string), hint(string), accept(string), capture(user|environment), multiple(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), name(string), custom-error(string)
 **Events:** @input, @change, @focus, @blur, @wa-invalid
 **Slots:** label, hint, dropzone
 **Methods:** focus(), blur()
@@ -744,7 +744,7 @@ wa-radar-chart -> <RadarChart>
 Data Display | pro | Positions individual data points by two numeric axes to expose correlations
 wa-scatter-chart -> <ScatterChart>
 
-**Props:** label(string), description(string), x-label(string), y-label(string), legend-position(top|right|bottom|left|start|end=top), grid(x|y|both|none=both), min(number), max(number), without-animation(boolean=false), without-legend(boolean=false), without-tooltip(boolean=false)
+**Props:** label(string), description(string), x-label(string), y-label(string), legend-position(top|right|bottom|left|start|end=top), stacked(boolean=false), index-axis(x|y=x), grid(x|y|both|none=both), min(number), max(number), without-animation(boolean=false), without-legend(boolean=false), without-tooltip(boolean=false)
 **Slots:** default
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 

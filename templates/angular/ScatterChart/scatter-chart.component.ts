@@ -32,6 +32,8 @@ function ensureLoaded() {
       [attr.x-label]="xLabel"
       [attr.y-label]="yLabel"
       [attr.legend-position]="legendPosition"
+      [attr.stacked]="stacked || null"
+      [attr.index-axis]="indexAxis"
       [attr.grid]="grid"
       [attr.min]="min"
       [attr.max]="max"
@@ -59,6 +61,10 @@ export class ScatterChartComponent implements AfterViewInit {
   /** Placement of the dataset legend relative to the chart */
   @Input() legendPosition?:
     'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
+  /** Layers multiple datasets on a single axis */
+  @Input() stacked?: boolean;
+  /** Base axis for category labels (swap to flip chart orientation) */
+  @Input() indexAxis?: 'x' | 'y';
   /** Selects which background grid lines are drawn */
   @Input() grid?: 'x' | 'y' | 'both' | 'none';
   /** Floor value for the value axis scale */

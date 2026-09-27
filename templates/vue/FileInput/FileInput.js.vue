@@ -15,6 +15,7 @@ const props = defineProps({
   label: { type: String, required: false },
   hint: { type: String, required: false },
   accept: { type: String, required: false },
+  capture: { type: String, required: false },
   multiple: { type: Boolean, required: false, default: false },
   disabled: { type: Boolean, required: false, default: false },
   required: { type: Boolean, required: false, default: false },

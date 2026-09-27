@@ -14,6 +14,12 @@ const meta = {
       control: 'text',
       description: 'Accepted file types (MIME types or extensions)',
     },
+    capture: {
+      control: 'select',
+      options: ['user', 'environment'],
+      description:
+        'Camera or mic to open directly on phones and tablets: user (front) or environment (rear)',
+    },
     multiple: {
       control: 'boolean',
       description: 'Allow multiple file selection',
@@ -106,6 +112,20 @@ export const AcceptImages: Story = {
     label: 'Upload an image',
     accept: 'image/*',
     hint: 'Only image files are accepted (JPG, PNG, GIF, WebP, etc.).',
+  },
+};
+
+/**
+ * A photo field that skips the gallery on phones and tablets and goes
+ * straight to the rear camera. Pair `capture` with an image, video or audio
+ * `accept`; on a desktop the usual file picker opens either way.
+ */
+export const CaptureFromCamera: Story = {
+  args: {
+    label: 'Take a photo',
+    accept: 'image/*',
+    capture: 'environment',
+    hint: 'On a phone, this opens the rear camera.',
   },
 };
 
