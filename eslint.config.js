@@ -72,13 +72,16 @@ export default tseslint.config(
   // separate `pnpm typecheck:templates` step, not via parserOptions.project.
   //
   // Templates are copied verbatim into consumer projects, whose lint configs
-  // build on typescript-eslint `recommended`. Never turn one of its rules off
-  // here: a consumer would see the errors this repo hides (issue #136).
+  // build on `@eslint/js` + typescript-eslint `recommended`. Never turn one of
+  // those rules off here: a consumer would see the errors this repo hides
+  // (issue #136). The one exception is `no-undef`, below.
   // tests/unit/eslint-rules/templates-consumer-rules.test.ts enforces this.
   {
     files: ['templates/**/*.{ts,tsx,js,jsx}'],
     rules: {
-      // Test templates use vitest / DOM globals; we don't wire parserOptions.project here.
+      // Which globals exist (DOM, vitest) is each consumer's own setup, which
+      // this repo does not mirror. typescript-eslint already turns it off for
+      // .ts/.tsx, so this only differs from a consumer for .js/.jsx.
       'no-undef': 'off',
       // JSDoc examples and comments may include console.log() snippets.
       'no-console': 'off',
@@ -98,6 +101,8 @@ export default tseslint.config(
       },
     },
     rules: {
+      // As above, plus Vue's compiler macros (`defineProps`), which a Vue
+      // consumer's eslint-plugin-vue declares as globals.
       'no-undef': 'off',
       'no-console': 'off',
     },

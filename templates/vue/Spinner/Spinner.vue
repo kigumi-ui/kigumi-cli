@@ -12,6 +12,8 @@ function ensureLoaded() {
 /**
  * Spinners are used to show the progress of an indeterminate operation
  */
+export type SpinnerProps = object;
+
 defineOptions({ inheritAttrs: false });
 
 // Forward props and fallthrough attributes to the web component yourself,

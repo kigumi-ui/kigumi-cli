@@ -373,7 +373,7 @@ function assembleVueSFC(
     })
     .join(typed ? '\n' : ',\n');
 
-  // 2. Emits — a typed call-signature block, or a plain event-name array.
+  // 2. Emits: a typed call-signature block, or a plain event-name array.
   // A component without events declares none: an empty `defineEmits<{}>()`
   // is `no-empty-object-type` and its `emit` is never called (issue #136).
   const emitsSection = typed
@@ -395,7 +395,7 @@ function assembleVueSFC(
     hasOpenModel
   );
 
-  // 4. Exposed Methods — typed params, or bare params. The element ref is
+  // 4. Exposed Methods: typed params, or bare params. The element ref is
   // typed as the Web Awesome element, so each call type-checks against it.
   const exposedMethods =
     metadata.methods.length > 0
@@ -556,12 +556,20 @@ ${enumerated.map((p) => `  ${p.name}: undefined,`).join('\n')}
       : `defineProps<${component.name}Props>()`;
 
   // The props block: a TS interface plus a type-argument defineProps, or an
-  // Options-API defineProps object. A component without props declares none:
-  // `interface XProps {}` is `no-empty-object-type` (issue #136), and Vue's
-  // compiler resolves no type-alias spelling of "no props".
+  // Options-API defineProps object. A component without props calls no
+  // `defineProps`, since there is nothing to declare, but the TS variant keeps
+  // exporting its Props type for consumers who import it. It is `object`, not
+  // the old `interface XProps {}`: that is `no-empty-object-type` (issue #136),
+  // and `object` accepts the same `extends` and assignments. Vue's compiler
+  // rejects empty types such as `object` or `Record<string, never>` as a
+  // `defineProps` type argument, so the export cannot be passed to it.
   const hasProps = filteredProps.length > 0;
   const propsBlock = !hasProps
-    ? ''
+    ? typed
+      ? `export type ${component.name}Props = object;
+
+`
+      : ''
     : typed
       ? `export interface ${component.name}Props {
 ${propsSection}
@@ -600,14 +608,13 @@ ${enumerated.map((p) => `  ${p.name}: ${keywordPairLiteral(p.keywords)},`).join(
       : '';
 
   // Props go back to kebab-case attributes; nothing to do without props.
-  const propsLoop = (entries: string) =>
-    hasProps
-      ? `
-  for (const [key, value] of Object.entries(${entries})) {${enumeratedBranch}
+  const propsLoop = hasProps
+    ? `
+  for (const [key, value] of Object.entries(${typed ? 'props as Record<string, unknown>' : 'props'})) {${enumeratedBranch}
     if (value === undefined || value === false) continue;
     result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }`
-      : '';
+    : '';
 
   // The host-attribute builder: identical logic, annotated in the TS variant.
   const hostAttributesBlock = typed
@@ -619,7 +626,7 @@ function hostAttributes(): Record<string, unknown> {
     if (key === 'class') continue;
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
-  }${propsLoop('props as Record<string, unknown>')}
+  }${propsLoop}
   return result;
 }`
     : `const attrs = useAttrs();
@@ -630,7 +637,7 @@ function hostAttributes() {
     if (key === 'class') continue;
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
-  }${propsLoop('props')}
+  }${propsLoop}
   return result;
 }`;
 

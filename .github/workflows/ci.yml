@@ -363,6 +363,15 @@ jobs:
         if: steps.pro.outputs.available == 'true'
         run: pnpm run validate:cem-sync
 
+      # The Vue Templates type their element ref as the Web Awesome element,
+      # and `typecheck:templates` checks Pro elements only against the
+      # hand-listed methods in typecheck-shims/wa-pro-paths.d.ts. This checks
+      # them against the Pro package itself, as a Pro consumer's vue-tsc does
+      # (issue #136).
+      - name: Type-check Vue Templates against Web Awesome Pro
+        if: steps.pro.outputs.available == 'true'
+        run: pnpm run typecheck:templates:pro
+
   test:
     name: Test
     runs-on: ubuntu-latest

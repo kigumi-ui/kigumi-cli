@@ -238,6 +238,24 @@ describe('consumer lint baseline (issue #136)', () => {
     expect(source).not.toContain('interface SpinnerProps');
   });
 
+  it('types array and object props with unknown, not any', async () => {
+    // No registry prop is an array or object today, so this fixture is the
+    // only thing that runs those branches.
+    const component: ComponentDefinition = {
+      ...BADGE_FIXTURE,
+      props: [
+        { name: 'items', type: 'array', description: 'Fixture' },
+        { name: 'options', type: 'object', description: 'Fixture' },
+      ],
+    };
+    const source = generateReactTypescriptTemplate(component);
+    expect(source).toContain('items?: unknown[];');
+    expect(source).toContain('options?: Record<string, unknown>;');
+    expect(
+      await lintAsConsumer(source, 'src/components/ui/Badge/Badge.tsx')
+    ).toEqual([]);
+  });
+
   it.each([
     ['Spinner (no props, no events)', SPINNER_FIXTURE],
     ['Badge (props, no events)', BADGE_FIXTURE],

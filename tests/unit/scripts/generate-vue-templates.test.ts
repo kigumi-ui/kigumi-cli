@@ -431,6 +431,7 @@ const TOAST_FIXTURE: ComponentDefinition = {
 };
 
 const COLOR_PICKER = getComponent('color-picker')!;
+const SPINNER = getComponent('spinner')!;
 
 describe('generateVueTypescriptTemplate', () => {
   it('emits the Button wrapper', () => {
@@ -470,6 +471,7 @@ describe('generateVueTypescriptTemplate', () => {
 
 describe('consumer lint baseline (issue #136)', () => {
   const branches: Array<[string, ComponentDefinition]> = [
+    ['Spinner (no props, no events)', SPINNER],
     ['Badge (no events, no methods)', BADGE_FIXTURE],
     ['Button (events, methods)', BUTTON_FIXTURE],
     ['Switch (checked v-model)', SWITCH_FIXTURE],
@@ -515,6 +517,16 @@ describe('consumer lint baseline (issue #136)', () => {
     expect(generateVueJavascriptTemplate(BADGE_FIXTURE)).not.toContain(
       'defineEmits'
     );
+  });
+
+  it('keeps exporting the Props type of a component without props', () => {
+    // `interface SpinnerProps {}` is `no-empty-object-type`, but consumers may
+    // import the type, so it stays: `object`, which `extends` and assignment
+    // accept exactly as they accepted the empty interface. Nothing passes it
+    // to `defineProps`, whose compiler cannot resolve an empty type.
+    const source = generateVueTypescriptTemplate(SPINNER);
+    expect(source).toContain('export type SpinnerProps = object;');
+    expect(source).not.toContain('defineProps');
   });
 
   it('types the element ref as the Web Awesome element', () => {

@@ -4,8 +4,7 @@
 
 ### Fixed
 
-- **Generated components**: installed components now pass the lint config a new Vite, Vue or Angular project ships (`@eslint/js` + typescript-eslint `recommended`). A default create-vite React project reported 8 errors after `kigumi add --all`, in Spinner, CarouselItem and ColorPicker plus their `.kigumi/snapshots/` copies. Run `kigumi update` to pick up the fix in installed components.
+- **Generated components**: installed components, and their `.kigumi/snapshots/` copies, now pass `@eslint/js` + typescript-eslint `recommended` with default options, the rule set a new create-vite React project lints with. A default create-vite React project reported 8 errors after `kigumi add --all`, in Spinner, CarouselItem and ColorPicker plus their snapshot copies. Rules from framework plugins on top (`eslint-plugin-react-hooks`, `eslint-plugin-vue`, angular-eslint) are not covered. Run `kigumi update` to pick up the fix in installed components.
 - **ColorPicker**: `getHexString`'s `alpha` parameter is typed `number` in the React, Vue and Angular wrappers instead of `any`.
-- **Spinner, CarouselItem (React)**: `SpinnerProps` and `CarouselItemProps` are type aliases instead of empty interfaces. They accept the same props.
-- **Vue**: the wrappers no longer cast to `any`. `element` is typed as the Web Awesome element, and exposed methods are type-checked against it. Components without events no longer declare an empty `defineEmits`.
-- **Spinner, CarouselItem (Vue)**: the empty `SpinnerProps` / `CarouselItemProps` interfaces are removed, since neither component has props. Vue cannot compile a type alias for "no props", so unlike React there is no replacement. If you imported either type, drop the import: it declared nothing.
+- **Spinner, CarouselItem**: `SpinnerProps` and `CarouselItemProps` are type aliases instead of empty interfaces, in React (`Omit<HTMLAttributes<HTMLElement>, 'dir'>`) and Vue (`object`). Both accept the same props objects as before, and still work with `interface MyProps extends SpinnerProps`.
+- **Vue**: the wrappers no longer cast to `any`. `element` is typed as the Web Awesome element, so your type-checker checks calls to the exposed methods against it. Components without events no longer declare an empty `defineEmits`.

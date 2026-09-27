@@ -12,6 +12,8 @@ function ensureLoaded() {
 /**
  * Represents an individual slide within a carousel component
  */
+export type CarouselItemProps = object;
+
 defineOptions({ inheritAttrs: false });
 
 // Forward props and fallthrough attributes to the web component yourself,
