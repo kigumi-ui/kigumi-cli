@@ -77,6 +77,8 @@ function setEnumeratedAttribute(el, name, value, keywords) {
  * @property {boolean} [autofocus] - Auto-focus on page load
  * @property {string} [inputmode] - Virtual keyboard hint
  * @property {string} [enterkeyhint] - Enter key label hint
+ * @property {string} [title] - Native tooltip text, shown on hover
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
  * @property {function} [onBlur] - Event fired when input loses focus
  * @property {function} [onFocus] - Event fired when input gains focus
  * @property {function} [onInput] - Event fired when value changes

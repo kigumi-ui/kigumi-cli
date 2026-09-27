@@ -47,6 +47,10 @@ function ensureLoaded() {
  * @property {'mobile' | 'desktop'} [view] - Reflects viewport relative to mobile-breakpoint
  * @property {React.ReactNode} [children] - Content of the page
  * @property {string} [className] - Additional CSS classes
+ * @property {boolean} [disable-navigation-toggle] - Hide default hamburger button; auto-sets true if custom toggle element present
+ * @property {string} [mobile-breakpoint] - Viewport width threshold for navigation collapse; accepts numbers (px) or CSS lengths
+ * @property {string} [navigation-placement] - Navigation drawer position on mobile: start | end
+ * @property {boolean} [nav-open] - Mobile navigation drawer open state
  */
 
 /**

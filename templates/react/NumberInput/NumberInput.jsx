@@ -44,6 +44,14 @@ function ensureLoaded() {
  * @property {boolean} [disabled] - Disables the input
  * @property {boolean} [required] - Makes field mandatory
  * @property {boolean} [without-steppers] - Hides the stepper buttons
+ * @property {string} [title] - Native tooltip text, shown on hover
+ * @property {string} [name] - The name of the control, submitted with form data
+ * @property {boolean} [readonly] - Makes the input readonly
+ * @property {string} [autocomplete] - Hint for browser autofill
+ * @property {boolean} [autofocus] - Focuses the control on page load
+ * @property {string} [enterkeyhint] - Hint for Enter key label on virtual keyboards: enter | done | go | next | previous | search | send
+ * @property {string} [inputmode] - Hint for virtual keyboard type: numeric | decimal
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
  * @property {function} [onBlur] - Event fired when input loses focus
  * @property {function} [onFocus] - Event fired when input gains focus
  * @property {function} [onInput] - Event fired when value changes
