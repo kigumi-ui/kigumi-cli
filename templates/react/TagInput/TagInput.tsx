@@ -274,7 +274,7 @@ export const TagInput = forwardRef<TagInputRef, TagInputProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {

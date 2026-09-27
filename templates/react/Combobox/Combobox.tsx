@@ -299,7 +299,7 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {

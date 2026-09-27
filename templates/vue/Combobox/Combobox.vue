@@ -130,7 +130,7 @@ const handleInput = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
-const handleChange = (e: Event) => emit('change', e as Event);
+const handleChange = (e: Event) => emit('change', e);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleWaClear = (e: Event) => emit('wa-clear', e as WaClearEvent);

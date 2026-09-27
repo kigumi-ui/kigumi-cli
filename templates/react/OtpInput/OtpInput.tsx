@@ -258,7 +258,7 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {

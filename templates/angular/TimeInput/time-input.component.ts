@@ -141,7 +141,7 @@ export class TimeInputComponent implements AfterViewInit, OnDestroy {
       this.inputEvent.emit(e as InputEvent);
     el.addEventListener('input', handleInputEvent);
     this.cleanups.push(() => el.removeEventListener('input', handleInputEvent));
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleFocusEvent = (e: Event) =>

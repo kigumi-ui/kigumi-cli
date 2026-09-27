@@ -78,7 +78,7 @@ onMounted(() => {
 
 const handleChange = (e: Event) => {
   model.value = (e.target as HTMLElement & { checked: boolean }).checked;
-  emit('change', e as Event);
+  emit('change', e);
 };
 const handleInput = (e: Event) => emit('input', e as InputEvent);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);

@@ -116,7 +116,7 @@ onMounted(() => {
 });
 
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleChange = (e: Event) => emit('change', e as Event);
+const handleChange = (e: Event) => emit('change', e);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleInput = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: string }).value;

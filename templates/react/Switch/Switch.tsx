@@ -196,7 +196,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleInput = (e: Event) => {

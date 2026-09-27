@@ -331,7 +331,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {

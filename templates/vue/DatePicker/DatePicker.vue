@@ -86,7 +86,7 @@ onMounted(() => {
 });
 
 const handleInput = (e: Event) => emit('input', e as InputEvent);
-const handleChange = (e: Event) => emit('change', e as Event);
+const handleChange = (e: Event) => emit('change', e);
 const handleWaFocusDay = (e: Event) =>
   emit('wa-focus-day', e as WaFocusDayEvent);
 const handleWaViewChange = (e: Event) =>

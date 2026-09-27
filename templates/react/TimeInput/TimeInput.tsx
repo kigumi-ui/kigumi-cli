@@ -274,7 +274,7 @@ export const TimeInput = forwardRef<TimeInputRef, TimeInputProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {

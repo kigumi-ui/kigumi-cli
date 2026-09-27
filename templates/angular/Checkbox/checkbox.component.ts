@@ -110,7 +110,7 @@ export class CheckboxComponent
       host.style.display = 'inline';
     }
 
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);

@@ -77,7 +77,9 @@ export type EventClassOverrides = Readonly<
  * entry naming a class the package does not ship, or a class registered for a
  * different event, is refused, and an entry no manifest event consults is
  * reported as stale. A missing entry is caught where the manifest declares a
- * payload the registered class does not carry.
+ * payload the registered class does not carry. That check reaches only events
+ * whose manifest entry declares a payload shape, and it refuses a class whose
+ * detail it cannot read rather than skipping it.
  */
 export const EVENT_CLASS_OVERRIDES: EventClassOverrides = {
   'wa-accordion': {
@@ -102,7 +104,10 @@ export const NATIVE_EVENT_TYPES: Readonly<Record<string, string>> = {
   beforeinput: 'InputEvent',
   load: 'Event',
   error: 'Event',
-  // Media events (wa-video) are plain Events in the DOM.
+  // wa-video's media events. Its manifest declares a type for `timeupdate`
+  // only (`Event`); the HTML spec fires all of these on a media element as
+  // plain `Event`s ("fire an event named play"), so this is the DOM's
+  // interface for them, not one read off the event name.
   play: 'Event',
   pause: 'Event',
   ended: 'Event',
@@ -111,7 +116,11 @@ export const NATIVE_EVENT_TYPES: Readonly<Record<string, string>> = {
   loadedmetadata: 'Event',
 };
 
-/** DOM event interfaces a manifest may declare for a native event. */
+/**
+ * DOM event interfaces a manifest may declare for a native event.
+ * `CustomEvent` is deliberately absent: no Web Awesome event is one, so a
+ * native event declared `CustomEvent` is refused rather than typed with it.
+ */
 const DOM_EVENT_INTERFACES = new Set([
   'Event',
   'UIEvent',
@@ -122,7 +131,6 @@ const DOM_EVENT_INTERFACES = new Set([
   'PointerEvent',
   'TouchEvent',
   'WheelEvent',
-  'CustomEvent',
 ]);
 
 /** Declared scalar types that a custom event's class supersedes. */
@@ -333,7 +341,18 @@ export function createEventTypeResolver(
 
     const keys = declaredShapeKeys(text);
     if (keys) {
-      if (cls.detail.kind === 'opaque') return;
+      // A detail declared through a type this file does not define (an
+      // import) cannot be compared, and skipping the comparison would switch
+      // the missing-override check off for that class without anyone
+      // noticing. No shipped class is opaque today, so this is refused.
+      if (cls.detail.kind === 'opaque') {
+        throw new Error(
+          `${where}: the manifest declares a payload with ${keys.join(', ')}, ` +
+            `but ${className}'s detail is declared through a type ` +
+            `${cls.module}.d.ts does not define, so the payload cannot be ` +
+            'checked. Teach parseEventDeclarations() to read that type.'
+        );
+      }
       const carried = cls.detail.kind === 'keys' ? cls.detail.keys : [];
       const missing = keys.filter((k) => !carried.includes(k));
       if (missing.length > 0) {

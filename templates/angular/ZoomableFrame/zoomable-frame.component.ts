@@ -92,10 +92,10 @@ export class ZoomableFrameComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleLoad = (e: Event) => this.load.emit(e as Event);
+    const handleLoad = (e: Event) => this.load.emit(e);
     el.addEventListener('load', handleLoad);
     this.cleanups.push(() => el.removeEventListener('load', handleLoad));
-    const handleError = (e: Event) => this.error.emit(e as Event);
+    const handleError = (e: Event) => this.error.emit(e);
     el.addEventListener('error', handleError);
     this.cleanups.push(() => el.removeEventListener('error', handleError));
   }

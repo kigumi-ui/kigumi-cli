@@ -247,31 +247,31 @@ export const Video = forwardRef<VideoRef, VideoProps>(
       if (!el) return;
 
       const handleTimeupdate = (e: Event) => {
-        if (onTimeupdate) onTimeupdate(e as Event);
+        if (onTimeupdate) onTimeupdate(e);
       };
 
       const handlePlay = (e: Event) => {
-        if (onPlay) onPlay(e as Event);
+        if (onPlay) onPlay(e);
       };
 
       const handlePause = (e: Event) => {
-        if (onPause) onPause(e as Event);
+        if (onPause) onPause(e);
       };
 
       const handleVolumechange = (e: Event) => {
-        if (onVolumechange) onVolumechange(e as Event);
+        if (onVolumechange) onVolumechange(e);
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as Event);
+        if (onError) onError(e);
       };
 
       const handleEnded = (e: Event) => {
-        if (onEnded) onEnded(e as Event);
+        if (onEnded) onEnded(e);
       };
 
       const handleLoadedmetadata = (e: Event) => {
-        if (onLoadedmetadata) onLoadedmetadata(e as Event);
+        if (onLoadedmetadata) onLoadedmetadata(e);
       };
 
       el.addEventListener('timeupdate', handleTimeupdate);

@@ -149,7 +149,7 @@ export const Rating = forwardRef<RatingRef, RatingProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleWaHover = (e: Event) => {

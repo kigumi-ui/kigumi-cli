@@ -241,6 +241,8 @@ A handler is typed with the metadata's `eventType`, which `scripts/parse-custom-
 
 Web Awesome's classes extend `Event`, not `CustomEvent`, so never type a handler `CustomEvent`. The accordion dispatches `WaAccordionExpandEvent` under `wa-expand`, a name registered to Details' `WaExpandEvent`; that case is pinned in `EVENT_CLASS_OVERRIDES`. An event neither rule types stops the parser instead of falling back.
 
+Every generated listener receives `e: Event` and passes on `handlerArgument(eventType)` from `scripts/generator-utils.ts`: `e` itself when the handler type is `Event`, `e as <Type>` otherwise, so no Template casts `Event` to `Event`. The two hand-maintained `.jsx` files that type a handler in their JSDoc (Carousel, Checkbox) use the same class through an `import('…/dist/events/….js')` type, and `event-type-parity.test.ts` holds them to the `.tsx`.
+
 ### 4. Always Cleanup Event Listeners
 
 ```typescript
@@ -578,3 +580,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - rule 12: QrCode `fill` / `background` are deprecated in every Template (Web Awesome deprecates them for CSS `color` / `background-color`), and their registry defaults are `''` as in the CEM, so the `.js.vue` no longer writes `fill="black"` over the CSS fallback, issue #133
 - rule 13: Templates pass `@eslint/js` + typescript-eslint `recommended` with default options, the baseline consumer configs build on: no `any` (a default-only CEM parameter is typed from its default; Vue types its element ref and casts a model sync to the one property it touches), no empty `interface` / `defineEmits<{}>()`, no unused `emit`; a prop-less Vue wrapper exports `type XProps = object`. `no-undef` is the one exception. The repo had turned `no-explicit-any` and `no-empty-object-type` off for `templates/**`, so a default create-vite project failed where `pnpm lint` passed. Typecheck Pipeline gained `typecheck:templates:pro`, which checks the Vue Templates against the real Pro package in CI, issue #136
 - rule 3a: handlers are typed with the Web Awesome event class the component dispatches (`WaHideEvent`, imported from `dist/events/`), or the DOM interface for a native event; never `CustomEvent`. The accordion override and the refuse-rather-than-fallback rule are documented there, issue #6
+- rule 3a: listeners pass `e` uncast when the handler type is `Event` (`handlerArgument()`), and the Carousel/Checkbox `.jsx` JSDoc handler types follow the `.tsx`, held there by event-type-parity.test.ts, review follow-up on issue #6

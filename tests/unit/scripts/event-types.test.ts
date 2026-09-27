@@ -84,6 +84,18 @@ declare global {
     }
 }`;
 
+// A detail declared through an imported type: nothing in this file says
+// which keys it carries.
+const IMPORTED_DETAIL_DTS = `import type { WaPayload } from './payload.js';
+export declare class WaImportedEvent extends Event {
+    readonly detail: WaPayload;
+}
+declare global {
+    interface GlobalEventHandlersEventMap {
+        'wa-imported': WaImportedEvent;
+    }
+}`;
+
 function catalogOf(files: Record<string, string>): EventCatalog {
   const catalog: EventCatalog = { classes: new Map(), registered: new Map() };
   for (const [module, source] of Object.entries(files)) {
@@ -102,6 +114,7 @@ const CATALOG = catalogOf({
   'accordion-expand': ACCORDION_EXPAND_DTS,
   intersect: INTERSECT_DTS,
   'data-request': DATA_REQUEST_DTS,
+  imported: IMPORTED_DETAIL_DTS,
 });
 
 const ACCORDION_OVERRIDE = {
@@ -249,6 +262,23 @@ describe('createEventTypeResolver', () => {
       ).toBe('WaHideEvent');
     });
 
+    it('refuse a declared payload when the class detail cannot be read', () => {
+      // Skipping the comparison here would silently switch the missing-
+      // override check off for this class.
+      const resolver = createEventTypeResolver(CATALOG, {});
+      expect(() =>
+        resolver.resolve('wa-x', {
+          name: 'wa-imported',
+          type: { text: '{ item: WaItem }' },
+        })
+      ).toThrow(/wa-imported.*item.*WaImportedEvent.*imported\.d\.ts/s);
+      // Without a declared payload there is nothing to compare: it resolves.
+      expect(resolver.resolve('wa-x', { name: 'wa-imported' })).toEqual({
+        type: 'WaImportedEvent',
+        module: 'imported',
+      });
+    });
+
     it('ignore a declared scalar CustomEvent, which the class supersedes', () => {
       const resolver = createEventTypeResolver(CATALOG, {});
       expect(
@@ -317,6 +347,16 @@ describe('createEventTypeResolver', () => {
       expect(() => resolver.resolve('wa-video', { name: 'seeking' })).toThrow(
         /seeking/
       );
+    });
+
+    it('refuse a native event declared CustomEvent, the type no Web Awesome event has', () => {
+      const resolver = createEventTypeResolver(CATALOG, {});
+      expect(() =>
+        resolver.resolve('wa-x', {
+          name: 'change',
+          type: { text: 'CustomEvent' },
+        })
+      ).toThrow(/change.*CustomEvent/s);
     });
 
     it('refuse a declared type that is neither a DOM interface nor a class', () => {

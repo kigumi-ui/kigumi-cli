@@ -175,11 +175,11 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as Event);
+        if (onInput) onInput(e);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {

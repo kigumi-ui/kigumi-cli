@@ -76,13 +76,13 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleTimeupdate = (e: Event) => emit('timeupdate', e as Event);
-const handlePlay = (e: Event) => emit('play', e as Event);
-const handlePause = (e: Event) => emit('pause', e as Event);
-const handleVolumechange = (e: Event) => emit('volumechange', e as Event);
-const handleError = (e: Event) => emit('error', e as Event);
-const handleEnded = (e: Event) => emit('ended', e as Event);
-const handleLoadedmetadata = (e: Event) => emit('loadedmetadata', e as Event);
+const handleTimeupdate = (e: Event) => emit('timeupdate', e);
+const handlePlay = (e: Event) => emit('play', e);
+const handlePause = (e: Event) => emit('pause', e);
+const handleVolumechange = (e: Event) => emit('volumechange', e);
+const handleError = (e: Event) => emit('error', e);
+const handleEnded = (e: Event) => emit('ended', e);
+const handleLoadedmetadata = (e: Event) => emit('loadedmetadata', e);
 
 onMounted(() => {
   const el = elementRef.value;

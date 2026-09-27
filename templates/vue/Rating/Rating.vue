@@ -78,7 +78,7 @@ onMounted(() => {
 
 const handleChange = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: number }).value;
-  emit('change', e as Event);
+  emit('change', e);
 };
 const handleWaHover = (e: Event) => emit('wa-hover', e as WaHoverEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);

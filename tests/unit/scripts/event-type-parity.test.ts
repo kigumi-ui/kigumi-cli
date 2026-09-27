@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { COMPONENT_METADATA } from '../../../src/utils/component-metadata.js';
 import { getAllComponents } from '../../../src/utils/registry.js';
-import {
-  generateReactTypescriptTemplate,
-  toReactEventName,
-} from '../../../scripts/generate-react-templates.js';
+import { generateReactTypescriptTemplate } from '../../../scripts/generate-react-templates.js';
 import { generateVueTypescriptTemplate } from '../../../scripts/generate-vue-templates.js';
 import { generateComponentTS } from '../../../scripts/generate-angular-templates.js';
 
@@ -23,7 +23,42 @@ import { generateComponentTS } from '../../../scripts/generate-angular-templates
  * See docs/adr/0005-event-types-come-from-web-awesome-event-classes.md.
  */
 
+/**
+ * The DOM interfaces shipped Templates type native events with. Deliberately
+ * a separate, committed list rather than an import of the resolver's
+ * `DOM_EVENT_INTERFACES` / `NATIVE_EVENT_TYPES`: a test that read those would
+ * accept whatever the resolver accepts. A new native type must be added here
+ * by hand.
+ */
 const DOM_EVENT_TYPES = new Set(['Event', 'FocusEvent', 'InputEvent']);
+
+/** What a listener passes on for `type`: no cast when it is already `Event`. */
+function expectedArgument(type: string): string {
+  return type === 'Event' ? 'e' : `e as ${type}`;
+}
+
+function escape(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * The React prop an event feeds, found through the generated listener that
+ * subscribes to it, never by deriving the name: a test that computed the name
+ * with the generator's own helper could not catch a bug in that helper.
+ */
+function reactListener(
+  source: string,
+  eventName: string
+): { prop: string; argument: string } | null {
+  const subscribe = new RegExp(
+    `el\\.addEventListener\\('${escape(eventName)}', (\\w+)\\);`
+  ).exec(source);
+  if (!subscribe) return null;
+  const handler = new RegExp(
+    `const ${subscribe[1]} = \\(e: Event\\) => \\{\\s*if \\((\\w+)\\) \\1\\((e(?: as \\w+)?)\\);`
+  ).exec(source);
+  return handler ? { prop: handler[1], argument: handler[2] } : null;
+}
 
 const components = Object.values(getAllComponents())
   .map((component) => ({
@@ -84,6 +119,26 @@ describe('resolved event types in the metadata', () => {
   });
 });
 
+describe('React handler names', () => {
+  // Hard-coded, so the name derivation is checked against an independent
+  // oracle rather than against itself.
+  it.each([
+    ['wa-dialog', 'wa-after-hide', 'onAfterHide'],
+    ['wa-dialog', 'wa-show', 'onShow'],
+    ['wa-input', 'blur', 'onBlur'],
+    ['wa-input', 'wa-invalid', 'onInvalid'],
+    ['wa-tree', 'wa-selection-change', 'onSelectionChange'],
+    ['wa-video', 'loadedmetadata', 'onLoadedmetadata'],
+  ])('%s %s feeds %s', (tagName, eventName, prop) => {
+    const component = Object.values(getAllComponents()).find(
+      (c) => c.tagName === tagName
+    );
+    expect(component, tagName).toBeDefined();
+    const react = generateReactTypescriptTemplate(component!);
+    expect(reactListener(react, eventName)?.prop).toBe(prop);
+  });
+});
+
 describe('event type parity across frameworks', () => {
   it.each(components.map((c) => [c.component.name, c] as const))(
     '%s types each handler with the metadata eventType in all three',
@@ -95,18 +150,24 @@ describe('event type parity across frameworks', () => {
 
       for (const event of events) {
         const type = event.eventType;
-        const reactName = toReactEventName(event.name);
-
+        const listened = reactListener(react, event.name);
+        expect(listened, `React listener ${event.name}`).not.toBeNull();
+        expect(listened!.argument, `React argument ${event.name}`).toBe(
+          expectedArgument(type)
+        );
         expect(react, `React ${event.name}`).toContain(
-          `${reactName}?: (event: ${type}) => void;`
+          `${listened!.prop}?: (event: ${type}) => void;`
         );
         expect(vue, `Vue ${event.name}`).toContain(
           `'${event.name}': [event: ${type}];`
         );
+        expect(vue, `Vue argument ${event.name}`).toContain(
+          `emit('${event.name}', ${expectedArgument(type)})`
+        );
         // Find the @Output() this event feeds through the listener that
         // subscribes to it, then check that output's emitter type.
         const listener = new RegExp(
-          `const (\\w+) = \\(e: Event\\) => this\\.(\\w+)\\.emit\\(e as ${type}\\);\\n\\s*el\\.addEventListener\\('${event.name}', \\1\\);`
+          `const (\\w+) = \\(e: Event\\) =>\\s*this\\.(\\w+)\\.emit\\(${escape(expectedArgument(type))}\\);\\n\\s*el\\.addEventListener\\('${event.name}', \\1\\);`
         ).exec(angular);
         expect(listener, `Angular listener ${event.name}`).not.toBeNull();
         expect(angular, `Angular output ${event.name}`).toContain(
@@ -128,6 +189,53 @@ describe('event type parity across frameworks', () => {
         ['Angular', angular],
       ] as const) {
         expect(source, framework).not.toMatch(/\bCustomEvent\b/);
+      }
+    }
+  );
+});
+
+describe('hand-maintained .jsx handler JSDoc', () => {
+  // `.jsx` Templates are not generated, and validate:generated-fresh's
+  // Check C compares their event names with the `.tsx`, not their types, so
+  // a JSDoc handler type can keep a retired annotation unnoticed.
+  const reactDir = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../../templates/react'
+  );
+  const jsdocHandler =
+    /@property \{\(event: (?:import\('@awesome\.me\/webawesome\/dist\/events\/([\w-]+)\.js'\)\.)?(\w+)\) => void\} \[(on\w+)\]/g;
+
+  const annotated = fs
+    .readdirSync(reactDir)
+    .map((name) => ({ name, jsx: path.join(reactDir, name, `${name}.jsx`) }))
+    .filter(({ jsx }) => fs.existsSync(jsx))
+    .flatMap(({ name, jsx }) =>
+      [...fs.readFileSync(jsx, 'utf8').matchAll(jsdocHandler)].map((m) => ({
+        name,
+        module: m[1],
+        type: m[2],
+        prop: m[3],
+      }))
+    );
+
+  it('finds annotated handlers to check', () => {
+    expect(annotated.length).toBeGreaterThan(0);
+  });
+
+  it.each(annotated.map((a) => [`${a.name} ${a.prop}`, a] as const))(
+    '%s is typed like the .tsx',
+    (_label, { name, module, type, prop }) => {
+      const tsx = fs.readFileSync(
+        path.join(reactDir, name, `${name}.tsx`),
+        'utf8'
+      );
+      expect(tsx).toContain(`${prop}?: (event: ${type}) => void;`);
+      if (module) {
+        expect(tsx).toMatch(
+          new RegExp(
+            `import type \\{[^}]*\\b${type}\\b[^}]*\\} from '@awesome\\.me/webawesome/dist/events/${module}\\.js';`
+          )
+        );
       }
     }
   );

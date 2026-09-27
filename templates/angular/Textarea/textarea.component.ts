@@ -169,7 +169,7 @@ export class TextareaComponent
     const handleBlurEvent = (e: Event) => this.blurEvent.emit(e as FocusEvent);
     el.addEventListener('blur', handleBlurEvent);
     this.cleanups.push(() => el.removeEventListener('blur', handleBlurEvent));
-    const handleChange = (e: Event) => this.change.emit(e as Event);
+    const handleChange = (e: Event) => this.change.emit(e);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
     const handleFocusEvent = (e: Event) =>

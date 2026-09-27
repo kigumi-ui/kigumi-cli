@@ -77,7 +77,7 @@ onMounted(() => {
 });
 
 const handleInput = (e: Event) => emit('input', e as InputEvent);
-const handleChange = (e: Event) => emit('change', e as Event);
+const handleChange = (e: Event) => emit('change', e);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);

@@ -190,6 +190,16 @@ export function formatEventTypeImports(
 }
 
 /**
+ * The expression a generated listener passes on to the consumer's handler.
+ * Every listener receives `e: Event`, so a handler typed `Event` gets `e`
+ * as-is and any narrower type gets `e as <Type>`: a cast to `Event` would
+ * assert nothing, and the ESLint setup is not type-aware enough to flag it.
+ */
+export function handlerArgument(eventType: string): string {
+  return eventType === 'Event' ? 'e' : `e as ${eventType}`;
+}
+
+/**
  * Emit a component's CSS template.
  *
  * The header comment (documentation link, custom properties, CSS parts) is

@@ -201,7 +201,7 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleWaFocusDay = (e: Event) => {

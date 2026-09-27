@@ -201,7 +201,7 @@ export const KnownDate = forwardRef<KnownDateRef, KnownDateProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {

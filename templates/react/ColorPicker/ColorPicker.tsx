@@ -319,7 +319,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleInput = (e: Event) => {

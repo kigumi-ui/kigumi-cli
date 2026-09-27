@@ -144,7 +144,7 @@ tests/
 │   │   ├── generate-skill-references.test.ts   # formatCompactProps: the compact prop list the skill API surfaces print, including the `deprecated` label (issue #129)
 │   │   ├── generator-utils.test.ts             # Custom method-param type imports (sibling Wa* vs named self); event-class imports from dist/events (formatEventTypeImports); the enumerated-boolean emitters (narrowing, named pair literal, keyword expression)
 │   │   ├── event-types.test.ts                 # Event-class resolution (scripts/event-types.ts): dist/events d.ts parsing, override > registered class > declared type > NATIVE_EVENT_TYPES, every refusal, stale overrides, and every event of the installed manifest
-│   │   ├── event-type-parity.test.ts           # Metadata eventType invariants (wa- events are Wa*Event classes with a module, natives are DOM interfaces, never CustomEvent) and React/Vue/Angular each typing + importing it for every registry event
+│   │   ├── event-type-parity.test.ts           # Metadata eventType invariants (wa- events are Wa*Event classes with a module, natives are DOM interfaces, never CustomEvent) and React/Vue/Angular each typing + importing it for every registry event. The React prop is found through the listener that subscribes to the event, never derived with the generator's helper; React names are pinned on hard-coded cases; hand-maintained `.jsx` JSDoc handler types must match the `.tsx`
 │   │   └── post-changeset-version.test.ts      # Snapshot-pinned changeset → Keep-a-Changelog rewrite
 │   ├── eslint-rules/
 │   │   ├── harness.test.ts                     # Cluster D: proves the eslint-plugin-kigumi RuleTester harness runs in the unit lane and that a namespaced rule reaches real files via flat config
@@ -748,6 +748,13 @@ helper's logic in isolation. Current cases:
   bottom of the module; the script only runs `main()` when it is the entry
   point (`isEntryPoint`), so importing it writes nothing (issue #129).
 
+- `newestInputMtime` in `scripts/check-metadata-freshness.ts` — the newest
+  mtime among the parser's inputs (the CEM and `dist/events/*.d.ts`), asserted
+  directly by `tests/unit/scripts/check-metadata-freshness.test.ts` on a temp
+  tree. Re-exported at the bottom of the module so an event declaration newer
+  than the CEM can be shown to mark the metadata stale without touching the
+  installed package's mtimes (issue #6).
+
 If you add a similar export, keep it at the bottom of the module, mark its
 role in the accompanying test's describe block, and avoid adding new public
 callers — these are test-only seams.
@@ -937,3 +944,4 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - dependency-installer.test.ts covers the pnpm range case: the exact Web Awesome version is in `package.json` when pnpm runs, a failed install restores the file byte for byte, and a project without Web Awesome or without a configured version is untouched; update-command.test.ts covers `installedComponents` provenance (recorded after an update or an already-current run, created when missing, left alone on conflict, missing snapshot and dry run), issue #138
 - added eslint-rules/templates-consumer-rules.test.ts, parse-custom-elements-params.test.ts and `_helpers/consumer-lint.ts`; the three generator suites lint their output through `lintAsConsumer()`, and the React suite pins the otherwise unreachable `array`/`object` prop arms. The rules test resolves every Template file, with `no-undef` as its one named exception. Bug-injected: `no-explicit-any` off for `templates/vue/Button/**` only, dropping the repo's `no-undef` carve-out, and `any[]` back in the array arm each go red. component-installer.test.ts pins that every snapshot is byte-identical to its installed file, the ground for adding no `.kigumi/` lint ignore; a one-byte divergence goes red, issue #136
 - scripts/event-types.test.ts pins event-class resolution: d.ts parsing, the override/registered/declared/native-table order, each refusal, stale overrides, and every event in the installed manifest. map-event-type.test.ts is gone with the function; event-type-parity.test.ts now checks all three generators emit and import the metadata `eventType` for every event of every registry component. Bug-injected: dropped shape check, dropped accordion overrides, a no-op stale report, Vue emits typed `CustomEvent`, React without event imports, issue #6
+- review follow-up on issue #6: event-type-parity.test.ts no longer imports `toReactEventName` (private again): it reads the React prop off the generated listener, pins names on hard-coded cases, checks each listener passes `e` uncast for `Event`, and holds the Carousel/Checkbox `.jsx` JSDoc to the `.tsx`. event-types.test.ts refuses an unreadable `detail` and a native `CustomEvent`; template.test.ts sends `dist/events` imports through the Pro swap in all three frameworks; check-metadata-freshness.test.ts covers the events-directory mtime via the `newestInputMtime` seam. Harness fixtures use real event classes and dispatch `Event`, not `CustomEvent`. Each bug-injected: a React name keeping `wa`, an always-cast listener, a skipped opaque check, `CustomEvent` back among the DOM interfaces, a `.jsx` typed `CustomEvent`, a swap limited to `dist/components`, and an ignored events mtime all go red

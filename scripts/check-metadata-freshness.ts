@@ -1,8 +1,11 @@
 #!/usr/bin/env tsx
 /**
- * Compare mtimes between Web Awesome's custom-elements.json (CEM) and the
- * generated `src/utils/component-metadata.ts`. Used by `prebuild` to decide
- * whether to regenerate metadata before the CLI bundle is built.
+ * Compare mtimes between the generated `src/utils/component-metadata.ts` and
+ * the two Web Awesome inputs it is parsed from: custom-elements.json (CEM) and
+ * the event class declarations beside it (`dist/events/*.d.ts`, which supply
+ * every handler type, see docs/adr/0005). The newer of the two is what the
+ * metadata is compared against. Used by `prebuild` to decide whether to
+ * regenerate metadata before the CLI bundle is built.
  *
  * Exit codes (matching the historical `test -f` behavior `prebuild` used):
  *   0 → up-to-date, OR cannot check (CEM not on disk); skip regen
@@ -51,13 +54,33 @@ export function compareFreshness(
 const REASON_TEXT: Record<FreshnessCheckResult['reason'], string> = {
   'metadata-missing': 'component-metadata.ts is missing; regenerating',
   'cem-newer':
-    'Web Awesome CEM is newer than component-metadata.ts; regenerating',
-  fresh: 'component-metadata.ts is up to date with the Web Awesome CEM',
+    'Web Awesome CEM or event declarations are newer than ' +
+    'component-metadata.ts; regenerating',
+  fresh:
+    'component-metadata.ts is up to date with the Web Awesome CEM and event ' +
+    'declarations',
   'cem-missing-skip-check':
     'NOT CHECKED: no Web Awesome CEM on disk, so metadata freshness could ' +
     'not be compared. Skipping regeneration (expected in a fresh clone or ' +
     'without docs dependencies installed).',
 };
+
+/**
+ * The newest mtime among the parser's Web Awesome inputs: the CEM and every
+ * `dist/events/*.d.ts` next to it. An events directory that is missing counts
+ * for nothing here; the parser itself refuses to run without it.
+ */
+async function newestInputMtime(cemPath: string): Promise<number> {
+  let newest = (await fs.stat(cemPath)).mtimeMs;
+  const eventsDir = path.join(path.dirname(cemPath), 'events');
+  if (!(await fs.pathExists(eventsDir))) return newest;
+  for (const file of await fs.readdir(eventsDir)) {
+    if (!file.endsWith('.d.ts')) continue;
+    const { mtimeMs } = await fs.stat(path.join(eventsDir, file));
+    if (mtimeMs > newest) newest = mtimeMs;
+  }
+  return newest;
+}
 
 async function main(): Promise<void> {
   const metaPath = path.join(PROJECT_ROOT, 'src/utils/component-metadata.ts');
@@ -67,7 +90,7 @@ async function main(): Promise<void> {
 
   const cemResolution = await resolveCem(PROJECT_ROOT);
   const cemPath = cemResolution.path;
-  const cemMtime = cemPath ? (await fs.stat(cemPath)).mtimeMs : null;
+  const cemMtime = cemPath ? await newestInputMtime(cemPath) : null;
 
   const { isStale, reason } = compareFreshness(metaMtime, cemMtime);
 
@@ -89,3 +112,6 @@ const invokedDirectly = process.argv[1]
 if (invokedDirectly) {
   void main();
 }
+
+// Test-only seam (tests/AGENTS.md, "Internals Exported for Test Coverage").
+export { newestInputMtime };

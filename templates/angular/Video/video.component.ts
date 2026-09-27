@@ -109,30 +109,29 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleTimeupdate = (e: Event) => this.timeupdate.emit(e as Event);
+    const handleTimeupdate = (e: Event) => this.timeupdate.emit(e);
     el.addEventListener('timeupdate', handleTimeupdate);
     this.cleanups.push(() =>
       el.removeEventListener('timeupdate', handleTimeupdate)
     );
-    const handlePlayEvent = (e: Event) => this.playEvent.emit(e as Event);
+    const handlePlayEvent = (e: Event) => this.playEvent.emit(e);
     el.addEventListener('play', handlePlayEvent);
     this.cleanups.push(() => el.removeEventListener('play', handlePlayEvent));
-    const handlePauseEvent = (e: Event) => this.pauseEvent.emit(e as Event);
+    const handlePauseEvent = (e: Event) => this.pauseEvent.emit(e);
     el.addEventListener('pause', handlePauseEvent);
     this.cleanups.push(() => el.removeEventListener('pause', handlePauseEvent));
-    const handleVolumechange = (e: Event) => this.volumechange.emit(e as Event);
+    const handleVolumechange = (e: Event) => this.volumechange.emit(e);
     el.addEventListener('volumechange', handleVolumechange);
     this.cleanups.push(() =>
       el.removeEventListener('volumechange', handleVolumechange)
     );
-    const handleError = (e: Event) => this.error.emit(e as Event);
+    const handleError = (e: Event) => this.error.emit(e);
     el.addEventListener('error', handleError);
     this.cleanups.push(() => el.removeEventListener('error', handleError));
-    const handleEnded = (e: Event) => this.ended.emit(e as Event);
+    const handleEnded = (e: Event) => this.ended.emit(e);
     el.addEventListener('ended', handleEnded);
     this.cleanups.push(() => el.removeEventListener('ended', handleEnded));
-    const handleLoadedmetadata = (e: Event) =>
-      this.loadedmetadata.emit(e as Event);
+    const handleLoadedmetadata = (e: Event) => this.loadedmetadata.emit(e);
     el.addEventListener('loadedmetadata', handleLoadedmetadata);
     this.cleanups.push(() =>
       el.removeEventListener('loadedmetadata', handleLoadedmetadata)

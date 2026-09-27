@@ -21,6 +21,7 @@ import {
   formatEventTypeImports,
   enumeratedProps,
   generateCssTemplate,
+  handlerArgument,
   keywordPairLiteral,
   writeFormatted,
   propJsdocLines,
@@ -36,7 +37,7 @@ const TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates', 'react');
  * Convert event name to React style (e.g., 'wa-show' → 'onShow', 'blur' → 'onBlur')
  * Strips the 'wa-' prefix since Kigumi wrappers expose simplified handler names.
  */
-export function toReactEventName(eventName: string): string {
+function toReactEventName(eventName: string): string {
   return 'on' + toPascalCase(stripWaPrefix(eventName));
 }
 
@@ -192,7 +193,7 @@ ${ownProps}
       const reactName = toReactEventName(event.name);
       const eventType = event.eventType;
       return `      const ${toHandlerName(event.name)} = (e: Event) => {
-        if (${reactName}) ${reactName}(e as ${eventType});
+        if (${reactName}) ${reactName}(${handlerArgument(eventType)});
       };`;
     })
     .join('\n\n');

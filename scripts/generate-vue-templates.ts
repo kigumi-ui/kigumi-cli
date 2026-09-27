@@ -26,6 +26,7 @@ import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
   formatEventTypeImports,
+  handlerArgument,
   enumeratedProps,
   generateCssTemplate,
   keywordPairLiteral,
@@ -196,35 +197,35 @@ function buildListenerEntries(
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { model.value = ${readValue}; emit('${event.name}', e as ${eventType}); }`,
+        tsBody: `(e: Event) => { model.value = ${readValue}; emit('${event.name}', ${handlerArgument(eventType)}); }`,
         jsBody: `(e) => { model.value = e.target.value; emit('${event.name}', e); }`,
       });
     } else if (hasCheckedModel && event.name === 'change') {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { model.value = ${readChecked}; emit('${event.name}', e as ${eventType}); }`,
+        tsBody: `(e: Event) => { model.value = ${readChecked}; emit('${event.name}', ${handlerArgument(eventType)}); }`,
         jsBody: `(e) => { model.value = e.target.checked; emit('${event.name}', e); }`,
       });
     } else if (hasOpenModel && event.name === 'wa-show') {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { open.value = true; emit('${event.name}', e as ${eventType}); }`,
+        tsBody: `(e: Event) => { open.value = true; emit('${event.name}', ${handlerArgument(eventType)}); }`,
         jsBody: `(e) => { open.value = true; emit('${event.name}', e); }`,
       });
     } else if (hasOpenModel && event.name === 'wa-hide') {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => { open.value = false; emit('${event.name}', e as ${eventType}); }`,
+        tsBody: `(e: Event) => { open.value = false; emit('${event.name}', ${handlerArgument(eventType)}); }`,
         jsBody: `(e) => { open.value = false; emit('${event.name}', e); }`,
       });
     } else {
       entries.push({
         event: event.name,
         handlerName,
-        tsBody: `(e: Event) => emit('${event.name}', e as ${eventType})`,
+        tsBody: `(e: Event) => emit('${event.name}', ${handlerArgument(eventType)})`,
         jsBody: `(e) => emit('${event.name}', e)`,
       });
     }

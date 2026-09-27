@@ -57,7 +57,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleChange = (e: Event) => emit('change', e as Event);
+const handleChange = (e: Event) => emit('change', e);
 
 onMounted(() => {
   const el = elementRef.value;
