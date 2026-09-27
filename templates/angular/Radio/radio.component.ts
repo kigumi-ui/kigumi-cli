@@ -34,6 +34,8 @@ function ensureLoaded() {
       [attr.disabled]="disabled || null"
       [attr.size]="size"
       [attr.appearance]="appearance"
+      [attr.name]="name"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-radio>
@@ -52,6 +54,10 @@ export class RadioComponent implements AfterViewInit, OnDestroy {
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Radio appearance style */
   @Input() appearance?: 'default' | 'button';
+  /** The name of the control, submitted with form data */
+  @Input() name?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() blur = new EventEmitter<FocusEvent>();
   @Output() focus = new EventEmitter<FocusEvent>();

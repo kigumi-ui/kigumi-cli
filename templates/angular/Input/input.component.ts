@@ -60,6 +60,8 @@ function ensureLoaded() {
       [attr.autofocus]="autofocus || null"
       [attr.inputmode]="inputmode"
       [attr.enterkeyhint]="enterkeyhint"
+      [attr.title]="title"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-input>
@@ -153,6 +155,10 @@ export class InputComponent
   /** Hint for Enter key label on virtual keyboards */
   @Input() enterkeyhint?:
     'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  /** Native tooltip text, shown on hover */
+  @Input() title?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

@@ -38,6 +38,7 @@ export interface ColorPickerProps {
   uppercase?: boolean;
   'without-format-toggle'?: boolean;
   inline?: boolean;
+  'custom-error'?: string;
 }
 
 const props = defineProps<ColorPickerProps>();

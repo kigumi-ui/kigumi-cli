@@ -45,6 +45,7 @@ export interface DateInputProps {
   placement?:
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
   distance?: number;
+  'custom-error'?: string;
 }
 
 const props = defineProps<DateInputProps>();

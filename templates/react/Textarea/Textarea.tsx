@@ -86,6 +86,36 @@ export interface TextareaProps extends Omit<
   /** Shows a character count when maxlength is set */
   'with-count'?: boolean;
 
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Controls automatic capitalization */
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+
+  /** Focuses the control on page load */
+  autofocus?: boolean;
+
+  /** Hint for Enter key label on virtual keyboards */
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
+  /** Hint for virtual keyboard type */
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
 

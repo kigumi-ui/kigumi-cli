@@ -33,6 +33,7 @@ const props = defineProps({
   size: { type: String, required: false, default: 'medium' },
   spellcheck: { type: Boolean, required: false },
   'with-clear': { type: Boolean, required: false, default: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

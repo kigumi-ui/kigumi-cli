@@ -56,6 +56,8 @@ export interface InputProps {
     | 'url';
   enterkeyhint?:
     'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  title?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<InputProps>();

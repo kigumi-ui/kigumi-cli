@@ -25,6 +25,8 @@ const props = defineProps({
   min: { type: String, required: false, default: '' },
   max: { type: String, required: false, default: '' },
   locale: { type: String, required: false, default: '' },
+  autocomplete: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

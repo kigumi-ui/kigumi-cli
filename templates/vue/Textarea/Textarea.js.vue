@@ -27,6 +27,13 @@ const props = defineProps({
   maxlength: { type: Number, required: false },
   spellcheck: { type: Boolean, required: false, default: true },
   'with-count': { type: Boolean, required: false, default: false },
+  title: { type: String, required: false },
+  autocomplete: { type: String, required: false },
+  autocapitalize: { type: String, required: false },
+  autofocus: { type: Boolean, required: false, default: false },
+  enterkeyhint: { type: String, required: false },
+  inputmode: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

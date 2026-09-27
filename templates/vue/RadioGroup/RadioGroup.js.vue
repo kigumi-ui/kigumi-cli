@@ -21,6 +21,7 @@ const props = defineProps({
   disabled: { type: Boolean, required: false, default: false },
   invalid: { type: Boolean, required: false, default: false },
   'help-text': { type: String, required: false, default: '' },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

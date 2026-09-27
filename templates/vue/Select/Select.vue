@@ -29,6 +29,7 @@ export interface SelectProps {
   required?: boolean;
   invalid?: boolean;
   'help-text'?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<SelectProps>();

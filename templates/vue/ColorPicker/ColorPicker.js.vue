@@ -26,6 +26,7 @@ const props = defineProps({
   uppercase: { type: Boolean, required: false, default: false },
   'without-format-toggle': { type: Boolean, required: false, default: false },
   inline: { type: Boolean, required: false, default: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

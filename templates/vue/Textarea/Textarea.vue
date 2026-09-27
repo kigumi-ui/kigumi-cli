@@ -27,6 +27,22 @@ export interface TextareaProps {
   maxlength?: number;
   spellcheck?: boolean;
   'with-count'?: boolean;
+  title?: string;
+  autocomplete?: string;
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  autofocus?: boolean;
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+  'custom-error'?: string;
 }
 
 const props = defineProps<TextareaProps>();

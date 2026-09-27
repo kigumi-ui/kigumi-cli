@@ -27,6 +27,11 @@ const props = defineProps({
   readonly: { type: Boolean, required: false, default: false },
   disabled: { type: Boolean, required: false, default: false },
   name: { type: String, required: false },
+  autocomplete: { type: String, required: false },
+  autocapitalize: { type: String, required: false },
+  enterkeyhint: { type: String, required: false },
+  inputmode: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

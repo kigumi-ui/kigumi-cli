@@ -39,6 +39,8 @@ const props = defineProps({
   autofocus: { type: Boolean, required: false, default: false },
   inputmode: { type: String, required: false },
   enterkeyhint: { type: String, required: false },
+  title: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

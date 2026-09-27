@@ -104,6 +104,9 @@ export interface ColorPickerProps extends Omit<
   /** Renders the color picker inline instead of in a dropdown */
   inline?: boolean;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the color picker's value changes. */
   onChange?: (event: Event) => void;
 

@@ -42,6 +42,7 @@ function ensureLoaded() {
       [attr.disabled]="disabled || null"
       [attr.invalid]="invalid || null"
       [attr.help-text]="helpText"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-radio-group>
@@ -81,6 +82,8 @@ export class RadioGroupComponent
   @Input() invalid?: boolean;
   /** Help text below the group */
   @Input() helpText?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

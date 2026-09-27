@@ -61,6 +61,7 @@ function ensureLoaded() {
       [attr.open]="open || null"
       [attr.placement]="placement"
       [attr.distance]="distance"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-date-input>
@@ -135,6 +136,8 @@ export class DateInputComponent implements AfterViewInit, OnDestroy {
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
   /** The distance in pixels between the popup and input */
   @Input() distance?: number;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

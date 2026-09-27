@@ -49,6 +49,8 @@ function ensureLoaded() {
       [attr.formmethod]="formmethod"
       [attr.formnovalidate]="formnovalidate || null"
       [attr.formtarget]="formtarget"
+      [attr.title]="title"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-button>
@@ -98,6 +100,10 @@ export class ButtonComponent implements AfterViewInit, OnDestroy {
   @Input() formnovalidate?: boolean;
   /** Override the form's target attribute */
   @Input() formtarget?: string;
+  /** Native tooltip text, shown on hover */
+  @Input() title?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();

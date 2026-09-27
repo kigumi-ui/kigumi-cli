@@ -124,6 +124,9 @@ export interface ComboboxProps extends Omit<
   /** Current value of the combobox */
   value?: string;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   onInput?: (event: InputEvent) => void;
 
   onChange?: (event: Event) => void;

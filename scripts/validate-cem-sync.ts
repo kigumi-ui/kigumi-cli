@@ -150,22 +150,10 @@ export interface AttributeAllowlistEntry {
 export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
 > = {
-  button: {
-    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
   input: {
-    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
     spellcheck: {
       kind: 'backfill',
       reason: 'native spellcheck attribute, see #101',
-    },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
     },
   },
   carousel: {
@@ -176,19 +164,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     'current-slide': {
       kind: 'backfill',
       reason: 'reflected active slide index, see #102',
-    },
-  },
-  checkbox: {
-    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  'color-picker': {
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
     },
   },
   'copy-button': {
@@ -243,19 +218,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason: 'embedded logo styling, see #102',
     },
   },
-  'radio-group': {
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  radio: {
-    name: { kind: 'backfill', reason: 'form field name, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
   rating: {
     role: {
       kind: 'intentional',
@@ -268,16 +230,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     'get-symbol': {
       kind: 'backfill',
       reason: 'function-typed symbol renderer, see #102',
-    },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  select: {
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
     },
   },
   slider: {
@@ -295,17 +247,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       kind: 'backfill',
       reason: 'tooltip placement, see #102',
     },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  switch: {
-    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
   },
   tab: {
     role: {
@@ -322,19 +263,7 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     },
   },
   'tag-input': {
-    autocapitalize: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
     autocorrect: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    autocomplete: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    enterkeyhint: {
       kind: 'backfill',
       reason: 'native input attribute, see #101',
     },
@@ -342,35 +271,11 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       kind: 'backfill',
       reason: 'native input attribute, see #101',
     },
-    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
   },
   textarea: {
-    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
-    autocapitalize: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
     autocorrect: {
       kind: 'backfill',
       reason: 'native input attribute, see #101',
-    },
-    autocomplete: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
-    enterkeyhint: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
     },
   },
   tree: {
@@ -394,75 +299,16 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     },
   },
   'number-input': {
-    title: { kind: 'backfill', reason: 'native title attribute, see #101' },
     pill: { kind: 'backfill', reason: 'pill styling variant, see #102' },
-    readonly: { kind: 'backfill', reason: 'native input attribute, see #101' },
-    autocomplete: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
-    enterkeyhint: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    inputmode: { kind: 'backfill', reason: 'native input attribute, see #101' },
-    name: { kind: 'backfill', reason: 'form field name, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  'otp-input': {
-    autofocus: { kind: 'backfill', reason: 'native input attribute, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
   },
   'time-input': {
-    autocomplete: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
     distance: {
       kind: 'backfill',
       reason: 'popup placement distance, see #102',
     },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  'known-date': {
-    autocomplete: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  'date-input': {
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
-  },
-  combobox: {
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
   },
   'file-input': {
     capture: { kind: 'backfill', reason: 'native input attribute, see #116' },
-    name: { kind: 'backfill', reason: 'form field name, see #101' },
-    'custom-error': {
-      kind: 'backfill',
-      reason: 'form validation message, see #101',
-    },
   },
   video: {
     duration: {

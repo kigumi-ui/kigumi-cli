@@ -167,6 +167,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: "Override the form's target attribute",
         required: false,
       },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Native tooltip text, shown on hover',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/button/button.js`,
     tier: 'free',
@@ -409,6 +420,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
         description: 'Hint for Enter key label on virtual keyboards',
         required: false,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Native tooltip text, shown on hover',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/input/input.js`,
@@ -1126,6 +1148,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'string',
         description: 'Form submission value',
       },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Native tooltip text, shown on hover',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/checkbox/checkbox.js`,
     tier: 'free',
@@ -1309,6 +1342,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: 'false',
         description: 'Renders the color picker inline instead of in a dropdown',
       },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/color-picker/color-picker.js`,
     tier: 'free',
@@ -1467,6 +1506,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'string',
         default: "''",
         description: 'Current value of the combobox',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/combobox/combobox.js`,
@@ -2717,6 +2762,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: "''",
         description: 'Help text below the group',
       },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/radio-group/radio-group.js`,
     tier: 'free',
@@ -2757,6 +2808,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['default', 'button'],
         default: 'default',
         description: 'Radio appearance style',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        description: 'The name of the control, submitted with form data',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/radio/radio.js`,
@@ -2887,6 +2949,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         values: ['small', 'medium', 'large', 'xs', 's', 'm', 'l', 'xl'],
         default: 'medium',
         description: 'Rating size',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/rating/rating.js`,
@@ -3103,6 +3171,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: "''",
         description: 'Help text below the control',
       },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/select/select.js`,
     tier: 'free',
@@ -3277,6 +3351,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: 'false',
         description: 'Automatically focuses the slider on page load',
       },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/slider/slider.js`,
     tier: 'free',
@@ -3408,6 +3488,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'string',
         default: "''",
         description: 'Hint text',
+      },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Native tooltip text, shown on hover',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/switch/switch.js`,
@@ -3673,6 +3764,44 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: 'The name of the input, submitted with form data',
         required: false,
       },
+      {
+        name: 'autocomplete',
+        type: 'string',
+        description: 'Hint for browser autofill',
+      },
+      {
+        name: 'autocapitalize',
+        type: 'string',
+        values: ['off', 'none', 'on', 'sentences', 'words', 'characters'],
+        description: 'Controls automatic capitalization',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+        values: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+        description: 'Hint for Enter key label on virtual keyboards',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+        values: [
+          'none',
+          'text',
+          'decimal',
+          'numeric',
+          'tel',
+          'search',
+          'email',
+          'url',
+        ],
+        description: 'Hint for virtual keyboard type',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/tag-input/tag-input.js`,
     tier: 'free',
@@ -3784,6 +3913,55 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'boolean',
         default: 'false',
         description: 'Shows a character count when maxlength is set',
+      },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Native tooltip text, shown on hover',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+        description: 'Hint for browser autofill',
+      },
+      {
+        name: 'autocapitalize',
+        type: 'string',
+        values: ['off', 'none', 'on', 'sentences', 'words', 'characters'],
+        description: 'Controls automatic capitalization',
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+        default: 'false',
+        description: 'Focuses the control on page load',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+        values: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+        description: 'Hint for Enter key label on virtual keyboards',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+        values: [
+          'none',
+          'text',
+          'decimal',
+          'numeric',
+          'tel',
+          'search',
+          'email',
+          'url',
+        ],
+        description: 'Hint for virtual keyboard type',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/textarea/textarea.js`,
@@ -4110,6 +4288,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: 'medium',
         description: 'Input size',
       },
+      {
+        name: 'name',
+        type: 'string',
+        description: 'The name of the control, submitted with form data',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/file-input/file-input.js`,
     tier: 'pro',
@@ -4200,6 +4389,51 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'boolean',
         default: 'false',
         description: 'Hides the stepper buttons',
+      },
+      {
+        name: 'title',
+        type: 'string',
+        description: 'Native tooltip text, shown on hover',
+      },
+      {
+        name: 'name',
+        type: 'string',
+        description: 'The name of the control, submitted with form data',
+      },
+      {
+        name: 'readonly',
+        type: 'boolean',
+        default: 'false',
+        description: 'Makes the input readonly',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+        description: 'Hint for browser autofill',
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+        default: 'false',
+        description: 'Focuses the control on page load',
+      },
+      {
+        name: 'enterkeyhint',
+        type: 'string',
+        values: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+        description: 'Hint for Enter key label on virtual keyboards',
+      },
+      {
+        name: 'inputmode',
+        type: 'string',
+        values: ['numeric', 'decimal'],
+        description: 'Hint for virtual keyboard type',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/number-input/number-input.js`,
@@ -4329,6 +4563,18 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'string',
         description: 'The name of the input, submitted with form data',
         required: false,
+      },
+      {
+        name: 'autofocus',
+        type: 'boolean',
+        default: 'false',
+        description: 'Focuses the control on page load',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/otp-input/otp-input.js`,
@@ -5372,6 +5618,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: 'bottom-start',
         description: 'The preferred placement of the dropdown',
       },
+      {
+        name: 'autocomplete',
+        type: 'string',
+        description: 'Hint for browser autofill',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
+      },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/time-input/time-input.js`,
     tier: 'free',
@@ -5468,6 +5725,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'string',
         default: "''",
         description: 'The locale used to format and parse the date',
+      },
+      {
+        name: 'autocomplete',
+        type: 'string',
+        description: 'Hint for browser autofill',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/known-date/known-date.js`,
@@ -5964,6 +6232,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'number',
         default: '0',
         description: 'The distance in pixels between the popup and input',
+      },
+      {
+        name: 'custom-error',
+        type: 'string',
+        description:
+          'Custom validation message; the control is invalid while it is set',
       },
     ],
     importPath: `${WEB_AWESOME_FREE_PACKAGE}/dist/components/date-input/date-input.js`,

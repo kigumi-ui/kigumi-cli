@@ -145,6 +145,12 @@ export interface InputProps extends Omit<
   enterkeyhint?:
     'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
 
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the control receives input. */
   onInput?: (event: InputEvent) => void;
 

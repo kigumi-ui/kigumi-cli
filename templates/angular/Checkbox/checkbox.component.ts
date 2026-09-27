@@ -40,6 +40,8 @@ function ensureLoaded() {
       [attr.required]="required || null"
       [attr.size]="size"
       [attr.value]="value"
+      [attr.title]="title"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-checkbox>
@@ -75,6 +77,10 @@ export class CheckboxComponent
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Form submission value */
   @Input() value?: string;
+  /** Native tooltip text, shown on hover */
+  @Input() title?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() change = new EventEmitter<Event>();
   @Output() blurEvent = new EventEmitter<FocusEvent>();

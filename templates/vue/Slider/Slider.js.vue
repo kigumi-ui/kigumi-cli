@@ -26,6 +26,7 @@ const props = defineProps({
   'with-tooltip': { type: Boolean, required: false, default: true },
   size: { type: String, required: false, default: 'medium' },
   autofocus: { type: Boolean, required: false, default: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

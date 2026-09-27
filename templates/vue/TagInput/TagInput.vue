@@ -27,6 +27,20 @@ export interface TagInputProps {
   readonly?: boolean;
   disabled?: boolean;
   name?: string;
+  autocomplete?: string;
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+  'custom-error'?: string;
 }
 
 const props = defineProps<TagInputProps>();

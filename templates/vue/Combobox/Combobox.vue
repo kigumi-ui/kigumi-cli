@@ -42,6 +42,7 @@ export interface ComboboxProps {
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   spellcheck?: boolean;
   'with-clear'?: boolean;
+  'custom-error'?: string;
 }
 
 const props = defineProps<ComboboxProps>();

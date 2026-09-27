@@ -19,6 +19,8 @@ export interface FileInputProps {
   disabled?: boolean;
   required?: boolean;
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
+  name?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<FileInputProps>();

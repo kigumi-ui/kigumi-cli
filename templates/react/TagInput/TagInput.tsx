@@ -93,6 +93,30 @@ export interface TagInputProps extends Omit<
   /** The name of the input, submitted with form data */
   name?: string;
 
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Controls automatic capitalization */
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+
+  /** Hint for Enter key label on virtual keyboards */
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
+  /** Hint for virtual keyboard type */
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the user types in the text box or when a tag is added or removed. */
   onInput?: (event: InputEvent) => void;
 

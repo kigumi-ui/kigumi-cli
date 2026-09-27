@@ -18,6 +18,8 @@ const props = defineProps({
   disabled: { type: Boolean, required: false, default: false },
   required: { type: Boolean, required: false, default: false },
   hint: { type: String, required: false, default: '' },
+  title: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

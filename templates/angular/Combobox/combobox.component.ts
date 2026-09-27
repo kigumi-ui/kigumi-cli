@@ -54,6 +54,7 @@ function ensureLoaded() {
       [attr.spellcheck]="spellcheck || null"
       [attr.with-clear]="withClear || null"
       [attr.value]="value"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-combobox>
@@ -127,6 +128,8 @@ export class ComboboxComponent
   @Input() withClear?: boolean;
   /** Current value of the combobox */
   @Input() value?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();
