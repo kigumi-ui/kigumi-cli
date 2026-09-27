@@ -115,3 +115,25 @@ export const Default: Story = {
     </ScatterChart>
   ),
 };
+
+/**
+ * With `index-axis="y"` the horizontal axis becomes the value axis, so `min`
+ * and `max` bound the hours studied (0 to 10) instead of the test score.
+ */
+export const ValueAxisOnX: Story = {
+  args: {
+    label: 'Study hours vs test scores',
+    'x-label': 'Hours Studied',
+    'y-label': 'Test Score',
+    'index-axis': 'y',
+    min: 0,
+    max: 10,
+  },
+  render: (args) => (
+    <ScatterChart {...args} style={{ height: '300px' }}>
+      <script type="application/json">
+        {JSON.stringify(studyScoresConfig)}
+      </script>
+    </ScatterChart>
+  ),
+};

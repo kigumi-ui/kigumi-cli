@@ -47,7 +47,7 @@ export interface FileInputProps extends Omit<
   /** Accepted file types (MIME types or extensions) */
   accept?: string;
 
-  /** On mobile, which camera or microphone captures new media: user (front) or environment (rear) */
+  /** Camera or mic to open directly on phones and tablets: user (front) or environment (rear) */
   capture?: 'user' | 'environment';
 
   /** Allow multiple file selection */

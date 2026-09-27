@@ -4090,7 +4090,7 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         type: 'string',
         values: ['user', 'environment'],
         description:
-          'On mobile, which camera or microphone captures new media: user (front) or environment (rear)',
+          'Camera or mic to open directly on phones and tablets: user (front) or environment (rear)',
         required: false,
       },
       {

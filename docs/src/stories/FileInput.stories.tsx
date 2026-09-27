@@ -18,7 +18,7 @@ const meta = {
       control: 'select',
       options: ['user', 'environment'],
       description:
-        'On mobile, which camera or microphone captures new media: user (front) or environment (rear)',
+        'Camera or mic to open directly on phones and tablets: user (front) or environment (rear)',
     },
     multiple: {
       control: 'boolean',
@@ -107,9 +107,9 @@ export const AcceptImages: Story = {
 };
 
 /**
- * Opens the rear camera on phones and tablets instead of the file picker.
- * `capture` only takes effect when `accept` names an image, video or audio
- * type; desktop browsers ignore it and show the file picker.
+ * A photo field that skips the gallery on phones and tablets and goes
+ * straight to the rear camera. Pair `capture` with an image, video or audio
+ * `accept`; on a desktop the usual file picker opens either way.
  */
 export const CaptureFromCamera: Story = {
   args: {
