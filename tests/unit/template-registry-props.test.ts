@@ -109,6 +109,7 @@ const JSX_PROPS_TYPEDEFS: ReadonlySet<string> = new Set([
   'Page',
   'PieChart',
   'PolarAreaChart',
+  'QrCode',
   'RadarChart',
   'RandomContent',
   'ScatterChart',

@@ -14,12 +14,17 @@ import {
   parseStringEnum,
   allowlistedKeysInRegistry,
   checkAttributeDrift,
+  checkDeprecationDrift,
+  parseCemAttributes,
   GLOBAL_ATTRIBUTE_ALLOWLIST,
+  KIGUMI_DEPRECATIONS,
   COMPONENT_ATTRIBUTE_ALLOWLIST,
   INERT_ON_AXISLESS_CHART,
   INERT_ON_RADIAL_CHART,
   type AttributeAllowlistEntry,
   type AttributePolicy,
+  type CemManifest,
+  type KigumiDeprecation,
 } from '../../scripts/validate-cem-sync.js';
 import type { ComponentDefinition } from '../../src/utils/registry/types.js';
 import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
@@ -61,6 +66,8 @@ describe('validate:cem-sync', () => {
         'allowlisted-but-wrapped',
         'attribute-missing-from-registry',
         'stale-allowlist-entry',
+        'deprecation-missing-from-registry',
+        'deprecation-missing-from-cem',
       ]).toContain(finding.category);
     }
   });
@@ -97,6 +104,17 @@ describe('validate:cem-sync', () => {
       (f) => f.category === 'prop-value-drift'
     ).length;
     expect(result.stats.propValueDrift).toBe(drift);
+  });
+
+  it('deprecationDrift stat matches count of deprecation findings', async () => {
+    const result = await validateCemSync();
+
+    const drift = result.findings.filter(
+      (f) =>
+        f.category === 'deprecation-missing-from-registry' ||
+        f.category === 'deprecation-missing-from-cem'
+    ).length;
+    expect(result.stats.deprecationDrift).toBe(drift);
   });
 
   it('reports whether the prop-value half actually ran', async (ctx) => {
@@ -445,5 +463,245 @@ describe('x/y axis attributes on charts without x/y axes', () => {
       }
     }
     expect(offered).toEqual([]);
+  });
+});
+
+type CemAttribute = NonNullable<
+  NonNullable<
+    NonNullable<CemManifest['modules']>[number]['declarations']
+  >[number]['attributes']
+>[number];
+
+describe('parseCemAttributes', () => {
+  const manifest = (attributes: CemAttribute[]): CemManifest => ({
+    modules: [
+      {
+        declarations: [
+          { customElement: true, tagName: 'wa-widget', attributes },
+          // Not a custom element: its attributes must not be read.
+          { tagName: 'wa-mixin', attributes: [{ name: 'ignored' }] },
+        ],
+      },
+    ],
+  });
+
+  it('reads each attribute type by tag', () => {
+    const { types } = parseCemAttributes(
+      manifest([{ name: 'size', type: { text: "'s' | 'm'" } }, { name: 'x' }])
+    );
+
+    expect([...types]).toEqual([
+      ['wa-widget', { size: "'s' | 'm'", x: undefined }],
+    ]);
+  });
+
+  it('carries a deprecation message, and `true` for a bare deprecation', () => {
+    const { deprecations } = parseCemAttributes(
+      manifest([
+        { name: 'fill', deprecated: 'Use color instead.' },
+        { name: 'old', deprecated: true },
+        { name: 'kept', deprecated: false },
+        { name: 'plain' },
+      ])
+    );
+
+    expect([...deprecations]).toEqual([
+      ['wa-widget', { fill: 'Use color instead.', old: true }],
+    ]);
+  });
+});
+
+describe('checkDeprecationDrift', () => {
+  function makeDef(props: ComponentDefinition['props']): ComponentDefinition {
+    return {
+      name: 'Widget',
+      tagName: 'wa-widget',
+      category: 'Test',
+      description: 'Fixture component',
+      dependencies: [],
+      files: {},
+      props,
+      importPath: '@awesome.me/webawesome/dist/components/widget/widget.js',
+      tier: 'free',
+    };
+  }
+
+  const kigumi: KigumiDeprecation = { reason: 'fixture' };
+
+  function drift(
+    registry: Array<[string, ComponentDefinition]>,
+    cem: Array<[string, Record<string, string | true>]>,
+    kigumiDeprecations: Record<string, Record<string, KigumiDeprecation>> = {}
+  ) {
+    return checkDeprecationDrift(
+      new Map(registry),
+      new Map(cem),
+      kigumiDeprecations
+    );
+  }
+
+  it('warns when the CEM deprecates an attribute the registry does not', () => {
+    const findings = drift(
+      [['widget', makeDef([{ name: 'fill', type: 'string' }])]],
+      [['wa-widget', { fill: 'Use color instead.' }]]
+    );
+
+    expect(findings).toEqual([
+      {
+        component: 'widget',
+        category: 'deprecation-missing-from-registry',
+        severity: 'warning',
+        message: expect.stringContaining('widget.fill'),
+      },
+    ]);
+    expect(findings[0].message).toContain('Use color instead.');
+  });
+
+  it('is clean when both sides deprecate the attribute', () => {
+    const findings = drift(
+      [
+        [
+          'widget',
+          makeDef([{ name: 'fill', type: 'string', deprecated: 'Use CSS.' }]),
+        ],
+      ],
+      [['wa-widget', { fill: true }]]
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('matches a camelCase CEM attribute to a kebab-case prop', () => {
+    const findings = drift(
+      [
+        [
+          'widget',
+          makeDef([{ name: 'auto-width', type: 'boolean', deprecated: 'x' }]),
+        ],
+      ],
+      [['wa-widget', { autoWidth: true }]]
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('errors when the registry deprecates an attribute the CEM does not', () => {
+    const findings = drift(
+      [
+        [
+          'widget',
+          makeDef([{ name: 'min', type: 'number', deprecated: 'Gone.' }]),
+        ],
+      ],
+      [['wa-widget', {}]]
+    );
+
+    expect(findings).toEqual([
+      {
+        component: 'widget',
+        category: 'deprecation-missing-from-cem',
+        severity: 'error',
+        message: expect.stringContaining('widget.min'),
+      },
+    ]);
+  });
+
+  it('accepts a registry-only deprecation recorded as Kigumi-side', () => {
+    const findings = drift(
+      [
+        [
+          'widget',
+          makeDef([{ name: 'min', type: 'number', deprecated: 'Gone.' }]),
+        ],
+      ],
+      [['wa-widget', {}]],
+      { widget: { min: kigumi } }
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  it('ignores a CEM deprecation on an attribute the registry has no prop for', () => {
+    // Attribute-name drift owns that gap; reporting it twice adds nothing.
+    const findings = drift(
+      [['widget', makeDef([])]],
+      [['wa-widget', { fill: true }]]
+    );
+
+    expect(findings).toEqual([]);
+  });
+
+  describe('stale Kigumi-side entries', () => {
+    const staleError = (component: string, text: string) => ({
+      component,
+      category: 'stale-allowlist-entry',
+      severity: 'error',
+      message: expect.stringContaining(text),
+    });
+
+    it('errors when the registry prop is no longer deprecated', () => {
+      const findings = drift(
+        [['widget', makeDef([{ name: 'min', type: 'number' }])]],
+        [['wa-widget', {}]],
+        { widget: { min: kigumi } }
+      );
+
+      expect(findings).toEqual([
+        staleError('widget', 'is not deprecated in the registry'),
+      ]);
+    });
+
+    it('errors when the registry has no such prop', () => {
+      const findings = drift([['widget', makeDef([])]], [['wa-widget', {}]], {
+        widget: { min: kigumi },
+      });
+
+      expect(findings).toEqual([
+        staleError('widget', 'is not deprecated in the registry'),
+      ]);
+    });
+
+    it('errors when Web Awesome now deprecates the attribute too', () => {
+      const findings = drift(
+        [
+          [
+            'widget',
+            makeDef([{ name: 'min', type: 'number', deprecated: 'Gone.' }]),
+          ],
+        ],
+        [['wa-widget', { min: true }]],
+        { widget: { min: kigumi } }
+      );
+
+      expect(findings).toEqual([
+        staleError('widget', 'now deprecates it upstream'),
+      ]);
+    });
+
+    it('errors when the component is not in the registry', () => {
+      const findings = drift([], [], { gone: { min: kigumi } });
+
+      expect(findings).toEqual([
+        staleError('gone', 'not a registry component'),
+      ]);
+    });
+  });
+
+  it('keeps every shipped Kigumi-side deprecation a deprecated registry prop', () => {
+    // Pinned against the real registry so a KIGUMI_DEPRECATIONS entry cannot
+    // outlive its prop without a manifest on disk to notice.
+    const findings = checkDeprecationDrift(
+      new Map(Object.entries(LOCAL_REGISTRY)),
+      new Map(),
+      KIGUMI_DEPRECATIONS
+    ).filter((f) => f.category === 'stale-allowlist-entry');
+
+    expect(findings).toEqual([]);
+    expect(Object.keys(KIGUMI_DEPRECATIONS['radar-chart']).sort()).toEqual([
+      'grid',
+      'max',
+      'min',
+      'stacked',
+    ]);
   });
 });

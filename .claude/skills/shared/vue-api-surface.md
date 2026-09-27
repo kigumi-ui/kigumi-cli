@@ -394,7 +394,7 @@ wa-progress-ring -> <ProgressRing>
 Display | free | Generates QR codes for encoding text, URLs, or data
 wa-qr-code -> <QrCode>
 
-**Props:** value(string=''), label(string=''), size(number=128), fill(string=black), background(string=white), radius(number=0), error-correction(L|M|Q|H=H)
+**Props:** value(string=''), label(string=''), size(number=128), fill(string='', deprecated), background(string='', deprecated), radius(number=0), error-correction(L|M|Q|H=H)
 **Parts:** base, qr-code
 
 ## RadioGroup

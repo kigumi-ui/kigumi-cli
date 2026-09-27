@@ -30,6 +30,7 @@ function syncResult(over: Partial<SyncResultArg> = {}): SyncResultArg {
       synced: 84,
       propValueDrift: 0,
       attributeDrift: 0,
+      deprecationDrift: 0,
     },
     ...over,
   };

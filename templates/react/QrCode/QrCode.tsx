@@ -39,10 +39,18 @@ export interface QrCodeProps extends Omit<HTMLAttributes<HTMLElement>, 'dir'> {
   /** Size in pixels */
   size?: number;
 
-  /** Fill color */
+  /**
+   * Fill color
+   *
+   * @deprecated Set the CSS color property on the QR code instead.
+   */
   fill?: string;
 
-  /** Background color */
+  /**
+   * Background color
+   *
+   * @deprecated Set the CSS background-color property on the QR code instead.
+   */
   background?: string;
 
   /** Corner radius */

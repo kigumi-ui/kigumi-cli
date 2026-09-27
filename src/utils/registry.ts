@@ -2670,14 +2670,17 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'fill',
         type: 'string',
-        default: 'black',
+        default: "''",
         description: 'Fill color',
+        deprecated: 'Set the CSS color property on the QR code instead.',
       },
       {
         name: 'background',
         type: 'string',
-        default: 'white',
+        default: "''",
         description: 'Background color',
+        deprecated:
+          'Set the CSS background-color property on the QR code instead.',
       },
       {
         name: 'radius',
