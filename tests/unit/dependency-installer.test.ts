@@ -237,6 +237,126 @@ describe('installDependencies', () => {
     expect(installCalls[0][1] as string[]).toContain('--save-exact');
   });
 
+  describe('existing Web Awesome range (pnpm keeps its prefix)', () => {
+    const WA = '@awesome.me/webawesome';
+
+    // `pnpm add <pkg>@<v> --save-exact` keeps the prefix of an entry that is
+    // already there: `^3.6.0` becomes `^3.13.0`. npm and yarn write `3.13.0`.
+    // So the installer has to hand pnpm an exact entry to begin with.
+    async function writeManifest(raw: string): Promise<string> {
+      const manifestPath = path.join(tempDir, 'package.json');
+      await fs.writeFile(manifestPath, raw);
+      return manifestPath;
+    }
+
+    function isWebAwesomeAdd(args: unknown): boolean {
+      return (
+        Array.isArray(args) &&
+        (args as string[]).some((arg) => arg.startsWith(`${WA}@`))
+      );
+    }
+
+    it('writes the exact version over an existing range before pnpm runs', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      const manifestPath = await writeManifest(
+        JSON.stringify(
+          { dependencies: { [WA]: '^3.6.0', react: '^19.2.4' } },
+          null,
+          2
+        ) + '\n'
+      );
+      const seenByPnpm: Record<string, string>[] = [];
+      mockExeca.mockImplementation(async (_cmd: string, args: unknown) => {
+        if (isWebAwesomeAdd(args)) {
+          seenByPnpm.push((await fs.readJson(manifestPath)).dependencies);
+        }
+        return { stdout: '', stderr: '', exitCode: 0 };
+      });
+
+      await installDependencies({
+        cwd: tempDir,
+        config: createConfig({ webAwesome: { version: '3.13.0' } }),
+        tier: 'free',
+        packageManager: 'pnpm',
+        output: mockOutput,
+      });
+
+      expect(seenByPnpm).toEqual([{ [WA]: '3.13.0', react: '^19.2.4' }]);
+    });
+
+    it('restores package.json byte for byte when the install fails', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      const original =
+        '{\n    "dependencies": {\n        "@awesome.me/webawesome": "~3.6.0"\n    }\n}\n';
+      const manifestPath = await writeManifest(original);
+      let pinnedDuringInstall: string | undefined;
+      mockExeca.mockImplementation(async (_cmd: string, args: unknown) => {
+        if (isWebAwesomeAdd(args)) {
+          pinnedDuringInstall = (await fs.readJson(manifestPath)).dependencies[
+            WA
+          ];
+          throw Object.assign(new Error('install failed'), {
+            exitCode: 1,
+            stderr: 'something went wrong',
+            stdout: '',
+          });
+        }
+        return { stdout: '', stderr: '', exitCode: 0 };
+      });
+
+      await expect(
+        installDependencies({
+          cwd: tempDir,
+          config: createConfig({ webAwesome: { version: '3.13.0' } }),
+          tier: 'free',
+          packageManager: 'pnpm',
+          output: mockOutput,
+        })
+      ).rejects.toThrow();
+
+      // Premise: the pin was written, so the restore had something to undo.
+      expect(pinnedDuringInstall).toBe('3.13.0');
+      expect(await fs.readFile(manifestPath, 'utf-8')).toBe(original);
+    });
+
+    it('leaves package.json alone when Web Awesome is not a dependency yet', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      const original =
+        '{\n  "dependencies": {\n    "react": "^19.2.4"\n  }\n}\n';
+      const manifestPath = await writeManifest(original);
+
+      await installDependencies({
+        cwd: tempDir,
+        config: createConfig({ webAwesome: { version: '3.13.0' } }),
+        tier: 'free',
+        packageManager: 'pnpm',
+        output: mockOutput,
+      });
+
+      expect(await fs.readFile(manifestPath, 'utf-8')).toBe(original);
+    });
+
+    it('leaves package.json alone when no Web Awesome version is configured', async () => {
+      const { installDependencies } =
+        await import('../../src/utils/dependency-installer.js');
+      const original = `{\n  "dependencies": {\n    "${WA}": "^3.6.0"\n  }\n}\n`;
+      const manifestPath = await writeManifest(original);
+
+      await installDependencies({
+        cwd: tempDir,
+        config: createConfig(),
+        tier: 'free',
+        packageManager: 'pnpm',
+        output: mockOutput,
+      });
+
+      expect(await fs.readFile(manifestPath, 'utf-8')).toBe(original);
+    });
+  });
+
   it('should include clsx for React framework', async () => {
     const { installDependencies } =
       await import('../../src/utils/dependency-installer.js');
