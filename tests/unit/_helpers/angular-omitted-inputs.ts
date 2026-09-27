@@ -35,7 +35,7 @@ export const ANGULAR_OMITTED_INPUTS: Readonly<
   Record<string, readonly string[]>
 > = {
   button: ['with-start', 'with-end'],
-  input: ['spellcheck', 'with-label', 'with-hint'],
+  input: ['with-label', 'with-hint'],
   card: ['with-header-actions', 'with-footer-actions'],
   dialog: ['with-footer'],
   carousel: ['slides', 'current-slide'],
@@ -68,8 +68,8 @@ export const ANGULAR_OMITTED_INPUTS: Readonly<
   switch: ['with-hint'],
   tab: ['role'],
   'tab-panel': ['role'],
-  'tag-input': ['with-label', 'with-hint', 'autocorrect', 'spellcheck'],
-  textarea: ['autocorrect', 'with-label', 'with-hint'],
+  'tag-input': ['with-label', 'with-hint'],
+  textarea: ['with-label', 'with-hint'],
   tree: ['tabindex', 'role'],
   'tree-item': ['tabindex', 'role'],
   'zoomable-frame': ['with-theme-sync'],

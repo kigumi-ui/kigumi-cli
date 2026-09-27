@@ -17,6 +17,21 @@ function ensureLoaded() {
 }
 
 /**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default.
+ */
+function setEnumeratedAttribute(
+  el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
+  name: string,
+  value: boolean | undefined,
+  keywords: [on: string, off: string]
+): void {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+}
+
+/**
  * Tag inputs collect a list of short values, such as keywords or labels, as removable tags
  *
  * @example
@@ -114,6 +129,12 @@ export interface TagInputProps extends Omit<
     | 'email'
     | 'url';
 
+  /** Turns autocorrect on or off; the browser decides when unset */
+  autocorrect?: boolean;
+
+  /** Turns spell checking on or off; on when unset */
+  spellcheck?: boolean;
+
   /** Custom validation message; the control is invalid while it is set */
   'custom-error'?: string;
 
@@ -176,6 +197,8 @@ export const TagInput = forwardRef<TagInputRef, TagInputProps>(
       onCreate,
       onClear,
       onInvalid,
+      autocorrect,
+      spellcheck,
       ...props
     },
     ref
@@ -289,6 +312,13 @@ export const TagInput = forwardRef<TagInputRef, TagInputProps>(
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onBlur, onFocus, onCreate, onClear, onInvalid]);
+
+    useEffect(() => {
+      const el = taginputRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-tag-input

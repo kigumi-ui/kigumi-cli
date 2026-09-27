@@ -52,6 +52,12 @@ function ensureLoaded() {
       [attr.autocapitalize]="autocapitalize"
       [attr.enterkeyhint]="enterkeyhint"
       [attr.inputmode]="inputmode"
+      [attr.autocorrect]="
+        autocorrect == null ? null : autocorrect ? 'on' : 'off'
+      "
+      [attr.spellcheck]="
+        spellcheck == null ? null : spellcheck ? 'true' : 'false'
+      "
       [attr.custom-error]="customError"
     >
       <ng-content />
@@ -122,6 +128,10 @@ export class TagInputComponent
     | 'search'
     | 'email'
     | 'url';
+  /** Turns autocorrect on or off; the browser decides when unset */
+  @Input() autocorrect?: boolean;
+  /** Turns spell checking on or off; on when unset */
+  @Input() spellcheck?: boolean;
   /** Custom validation message; the control is invalid while it is set */
   @Input() customError?: string;
 

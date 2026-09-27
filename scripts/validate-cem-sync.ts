@@ -119,7 +119,7 @@ function isSsrSlotHint(attrName: string): boolean {
  * Why a per-component allowlist entry is not (yet) a registry prop.
  *
  * `backfill` marks attributes that should be surfaced but are tracked by a
- * sibling ticket rather than this one — issues #101 and #102 turn these into
+ * sibling ticket rather than this one — issues #102 and #116 turn these into
  * real props. `intentional` marks attributes the component manages itself
  * (e.g. ARIA `role`/`tabindex` on composite widgets) and is never expected to
  * become a prop.
@@ -140,22 +140,18 @@ export interface AttributeAllowlistEntry {
  * requires for an all-or-nothing run covering all 87 registry components)
  * adds 50 more across 13 Pro-only components (charts, `combobox`,
  * `file-input`, `video`, `date-input`), for 125 across 39 components total.
+ * Issue #101 then surfaced the 49 form-control entries as registry props,
+ * leaving 76 across 25 components (50 `backfill`, 26 `intentional`).
  *
- * `backfill` entries are triaged by issue #101 (form-control attributes),
- * #102 (component-specific attributes) or #116 (chart axes, `capture`): each
- * either becomes a real prop or moves to `intentional`. `intentional` entries
+ * `backfill` entries are triaged by issue #102 (component-specific
+ * attributes) or #116 (chart axes, `capture`): each either becomes a real
+ * prop or moves to `intentional`. `intentional` entries
  * are attributes a caller cannot meaningfully set from markup (function- or
  * object-typed values, playback state) or that the component manages itself.
  */
 export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
 > = {
-  input: {
-    spellcheck: {
-      kind: 'backfill',
-      reason: 'native spellcheck attribute, see #101',
-    },
-  },
   carousel: {
     slides: {
       kind: 'backfill',
@@ -260,22 +256,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       kind: 'intentional',
       reason:
         'ARIA role Web Awesome manages internally for the tablist pattern',
-    },
-  },
-  'tag-input': {
-    autocorrect: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-    spellcheck: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
-    },
-  },
-  textarea: {
-    autocorrect: {
-      kind: 'backfill',
-      reason: 'native input attribute, see #101',
     },
   },
   tree: {

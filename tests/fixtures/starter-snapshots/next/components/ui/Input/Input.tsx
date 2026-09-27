@@ -19,6 +19,21 @@ function ensureLoaded() {
 }
 
 /**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default.
+ */
+function setEnumeratedAttribute(
+  el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
+  name: string,
+  value: boolean | undefined,
+  keywords: [on: string, off: string]
+): void {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+}
+
+/**
  * Inputs collect data from the user
  *
  * @example
@@ -126,7 +141,7 @@ export interface InputProps extends Omit<
   /** Controls automatic capitalization */
   autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
 
-  /** Enable autocorrect */
+  /** Turns autocorrect on or off; the browser decides when unset */
   autocorrect?: boolean;
 
   /** Automatically focuses the input on page load */
@@ -146,6 +161,15 @@ export interface InputProps extends Omit<
   /** Hint for Enter key label on virtual keyboards */
   enterkeyhint?:
     'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** Turns spell checking on or off; on when unset */
+  spellcheck?: boolean;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
 
   /** Emitted when the control receives input. */
   onInput?: (event: InputEvent) => void;
@@ -229,6 +253,8 @@ export const Input = forwardRef<InputRef, InputProps>(
       onFocus,
       onClear,
       onInvalid,
+      autocorrect,
+      spellcheck,
       ...props
     },
     ref
@@ -394,6 +420,13 @@ export const Input = forwardRef<InputRef, InputProps>(
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onBlur, onFocus, onClear, onInvalid]);
+
+    useEffect(() => {
+      const el = inputRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-input

@@ -45,9 +45,19 @@ export interface ComboboxProps {
   'custom-error'?: string;
 }
 
-const props = defineProps<ComboboxProps>();
+const props = withDefaults(defineProps<ComboboxProps>(), {
+  autocorrect: undefined,
+  spellcheck: undefined,
+});
 
 defineOptions({ inheritAttrs: false });
+
+// Web Awesome reads these as enumerated attributes, not by presence:
+// `false` is written as its keyword rather than dropped.
+const ENUMERATED_ATTRIBUTES: Record<string, [string, string]> = {
+  autocorrect: ['on', 'off'],
+  spellcheck: ['true', 'false'],
+};
 
 // Forward props and fallthrough attributes to the web component yourself,
 // rather than through Vue's default fallthrough:
@@ -70,6 +80,11 @@ function hostAttributes(): Record<string, unknown> {
     result[key] = value;
   }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    const keywords = ENUMERATED_ATTRIBUTES[key];
+    if (keywords && value !== undefined) {
+      result[`^${key}`] = value ? keywords[0] : keywords[1];
+      continue;
+    }
     if (value === undefined || value === false) continue;
     result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
   }

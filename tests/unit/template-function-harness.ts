@@ -16,6 +16,7 @@
  */
 
 import type { ComponentMetadata } from '../../src/utils/metadata-types.js';
+import { ENUMERATED_BOOLEAN_ATTRIBUTES } from './_helpers/enumerated-boolean-attributes.js';
 
 export interface MountedTemplate {
   container: HTMLElement;
@@ -71,7 +72,9 @@ export interface TemplateProbe<
 
 /**
  * Turn committed CEM attributes into probe values: boolean attributes are
- * probed as true (the harness also remounts them as false), everything else
+ * probed as true (the harness also remounts them as false; an enumerated one,
+ * per `_helpers/enumerated-boolean-attributes.ts`, must then carry its
+ * keyword for each value rather than appear and disappear), everything else
  * (string-typed or untyped, e.g. did-ssr) gets a sentinel string so a
  * hardcoded value in the Template cannot pass.
  */
@@ -397,6 +400,12 @@ function attributeReflected(
   value: string | boolean
 ): boolean {
   if (typeof value === 'boolean') {
+    const keywords = ENUMERATED_BOOLEAN_ATTRIBUTES[name];
+    if (keywords) {
+      return (
+        host.getAttribute(name) === (value ? keywords.true : keywords.false)
+      );
+    }
     return value ? host.hasAttribute(name) : !host.hasAttribute(name);
   }
   return host.getAttribute(name) === value;
@@ -414,7 +423,9 @@ function attributeRecord(
 
 /**
  * A host that always emits a boolean attribute still passes a presence check.
- * Passing the prop as false must remove it.
+ * Passing the prop as false must remove it, or, for an enumerated boolean,
+ * write its false keyword: a dropped `spellcheck` falls back to the element's
+ * default, which is on.
  */
 function booleansThatStickWhenFalse<ClassName extends string | null>(
   probe: TemplateProbe<ClassName>
@@ -433,7 +444,15 @@ function booleansThatStickWhenFalse<ClassName extends string | null>(
     violations.push(missingHost(probe));
   } else {
     for (const attribute of booleansOn) {
-      if (host.hasAttribute(attribute.name)) {
+      const keywords = ENUMERATED_BOOLEAN_ATTRIBUTES[attribute.name];
+      if (keywords) {
+        const actual = host.getAttribute(attribute.name);
+        if (actual !== keywords.false) {
+          violations.push(
+            `attribute ${attribute.name} was ${JSON.stringify(actual)} when the prop was false, not "${keywords.false}"`
+          );
+        }
+      } else if (host.hasAttribute(attribute.name)) {
         violations.push(
           `attribute ${attribute.name} stayed on the host when the prop was false`
         );

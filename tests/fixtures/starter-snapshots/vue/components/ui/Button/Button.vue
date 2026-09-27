@@ -31,6 +31,8 @@ export interface ButtonProps {
   formmethod?: string;
   formnovalidate?: boolean;
   formtarget?: string;
+  title?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<ButtonProps>();

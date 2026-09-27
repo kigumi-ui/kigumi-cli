@@ -46,7 +46,9 @@ function ensureLoaded() {
       [attr.required]="required || null"
       [attr.minlength]="minlength"
       [attr.maxlength]="maxlength"
-      [attr.spellcheck]="spellcheck || null"
+      [attr.spellcheck]="
+        spellcheck == null ? null : spellcheck ? 'true' : 'false'
+      "
       [attr.with-count]="withCount || null"
       [attr.title]="title"
       [attr.autocomplete]="autocomplete"
@@ -54,6 +56,9 @@ function ensureLoaded() {
       [attr.autofocus]="autofocus || null"
       [attr.enterkeyhint]="enterkeyhint"
       [attr.inputmode]="inputmode"
+      [attr.autocorrect]="
+        autocorrect == null ? null : autocorrect ? 'on' : 'off'
+      "
       [attr.custom-error]="customError"
     >
       <ng-content />
@@ -102,7 +107,7 @@ export class TextareaComponent
   @Input() minlength?: number;
   /** Maximum length */
   @Input() maxlength?: number;
-  /** Enable spell checking */
+  /** Turns spell checking on or off; on when unset */
   @Input() spellcheck?: boolean;
   /** Shows a character count when maxlength is set */
   @Input() withCount?: boolean;
@@ -128,6 +133,8 @@ export class TextareaComponent
     | 'search'
     | 'email'
     | 'url';
+  /** Turns autocorrect on or off; the browser decides when unset */
+  @Input() autocorrect?: boolean;
   /** Custom validation message; the control is invalid while it is set */
   @Input() customError?: string;
 

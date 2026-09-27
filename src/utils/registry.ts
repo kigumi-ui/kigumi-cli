@@ -388,9 +388,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'autocorrect',
         type: 'boolean',
-        default: 'false',
-        description: 'Enable autocorrect',
-        required: false,
+        keywords: { true: 'on', false: 'off' },
+        description:
+          'Turns autocorrect on or off; the browser decides when unset',
       },
       {
         name: 'autofocus',
@@ -425,6 +425,12 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'title',
         type: 'string',
         description: 'Native tooltip text, shown on hover',
+      },
+      {
+        name: 'spellcheck',
+        type: 'boolean',
+        keywords: { true: 'true', false: 'false' },
+        description: 'Turns spell checking on or off; on when unset',
       },
       {
         name: 'custom-error',
@@ -1393,7 +1399,9 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'autocorrect',
         type: 'boolean',
-        description: 'Enable or disable autocorrect on supported devices',
+        keywords: { true: 'on', false: 'off' },
+        description:
+          'Turns autocorrect on or off; the browser decides when unset',
       },
       {
         name: 'disabled',
@@ -1493,7 +1501,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'spellcheck',
         type: 'boolean',
-        description: 'Enable or disable spellchecking',
+        keywords: { true: 'true', false: 'false' },
+        description: 'Turns spell checking on or off; on when unset',
       },
       {
         name: 'with-clear',
@@ -3797,6 +3806,19 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         description: 'Hint for virtual keyboard type',
       },
       {
+        name: 'autocorrect',
+        type: 'boolean',
+        keywords: { true: 'on', false: 'off' },
+        description:
+          'Turns autocorrect on or off; the browser decides when unset',
+      },
+      {
+        name: 'spellcheck',
+        type: 'boolean',
+        keywords: { true: 'true', false: 'false' },
+        description: 'Turns spell checking on or off; on when unset',
+      },
+      {
         name: 'custom-error',
         type: 'string',
         description:
@@ -3905,8 +3927,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
       {
         name: 'spellcheck',
         type: 'boolean',
-        default: 'true',
-        description: 'Enable spell checking',
+        keywords: { true: 'true', false: 'false' },
+        description: 'Turns spell checking on or off; on when unset',
       },
       {
         name: 'with-count',
@@ -3956,6 +3978,13 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
           'url',
         ],
         description: 'Hint for virtual keyboard type',
+      },
+      {
+        name: 'autocorrect',
+        type: 'boolean',
+        keywords: { true: 'on', false: 'off' },
+        description:
+          'Turns autocorrect on or off; the browser decides when unset',
       },
       {
         name: 'custom-error',

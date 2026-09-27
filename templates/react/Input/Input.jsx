@@ -9,6 +9,22 @@ function ensureLoaded() {
 }
 
 /**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default. Web Awesome reads these by value, not
+ * presence, and React would write a DOM property or a bare attribute.
+ *
+ * @param {Element} el
+ * @param {string} name
+ * @param {boolean | undefined} value
+ * @param {[string, string]} keywords - the values for true and for false
+ */
+function setEnumeratedAttribute(el, name, value, keywords) {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+}
+
+/**
  * Inputs collect data from the user
  *
  * @example
@@ -56,7 +72,8 @@ function ensureLoaded() {
  * @property {boolean} [without-spin-buttons] - Hides spin buttons
  * @property {string} [autocomplete] - Hint for autocomplete
  * @property {string} [autocapitalize] - Capitalization hint
- * @property {boolean} [autocorrect] - Enable autocorrect
+ * @property {boolean} [autocorrect] - Turns autocorrect on or off; the browser decides when unset
+ * @property {boolean} [spellcheck] - Turns spell checking on or off; on when unset
  * @property {boolean} [autofocus] - Auto-focus on page load
  * @property {string} [inputmode] - Virtual keyboard hint
  * @property {string} [enterkeyhint] - Enter key label hint
@@ -69,7 +86,17 @@ function ensureLoaded() {
 
 export const Input = React.forwardRef(
   (
-    { children, className, onBlur, onFocus, onInput, onChange, ...props },
+    {
+      children,
+      className,
+      onBlur,
+      onFocus,
+      onInput,
+      onChange,
+      autocorrect,
+      spellcheck,
+      ...props
+    },
     ref
   ) => {
     const inputRef = React.useRef(null);
@@ -146,6 +173,13 @@ export const Input = React.forwardRef(
         el.removeEventListener('change', handleChange);
       };
     }, [onBlur, onFocus, onInput, onChange]);
+
+    React.useEffect(() => {
+      const el = inputRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-input ref={inputRef} class={clsx('Input', className)} {...props}>

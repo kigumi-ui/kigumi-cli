@@ -31,10 +31,19 @@ const props = defineProps({
   autocapitalize: { type: String, required: false },
   enterkeyhint: { type: String, required: false },
   inputmode: { type: String, required: false },
+  autocorrect: { type: Boolean, required: false, default: undefined },
+  spellcheck: { type: Boolean, required: false, default: undefined },
   'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });
+
+// Web Awesome reads these as enumerated attributes, not by presence:
+// `false` is written as its keyword rather than dropped.
+const ENUMERATED_ATTRIBUTES = {
+  autocorrect: ['on', 'off'],
+  spellcheck: ['true', 'false'],
+};
 
 // Forward props and fallthrough attributes to the web component yourself,
 // rather than through Vue's default fallthrough:
@@ -57,6 +66,11 @@ function hostAttributes() {
     result[key] = value;
   }
   for (const [key, value] of Object.entries(props)) {
+    const keywords = ENUMERATED_ATTRIBUTES[key];
+    if (keywords && value !== undefined) {
+      result[`^${key}`] = value ? keywords[0] : keywords[1];
+      continue;
+    }
     if (value === undefined || value === false) continue;
     result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
   }

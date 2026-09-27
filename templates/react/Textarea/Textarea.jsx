@@ -8,9 +8,35 @@ function ensureLoaded() {
     import('@awesome.me/webawesome/dist/components/textarea/textarea.js'));
 }
 
+/**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default. Web Awesome reads these by value, not
+ * presence, and React would write a DOM property or a bare attribute.
+ *
+ * @param {Element} el
+ * @param {string} name
+ * @param {boolean | undefined} value
+ * @param {[string, string]} keywords - the values for true and for false
+ */
+function setEnumeratedAttribute(el, name, value, keywords) {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+}
+
 export const Textarea = React.forwardRef(
   (
-    { className, onInput, onChange, onInvalid, onFocus, onBlur, ...props },
+    {
+      className,
+      onInput,
+      onChange,
+      onInvalid,
+      onFocus,
+      onBlur,
+      autocorrect,
+      spellcheck,
+      ...props
+    },
     ref
   ) => {
     const textareaRef = useRef(null);
@@ -62,6 +88,13 @@ export const Textarea = React.forwardRef(
         el.removeEventListener('blur', handleBlur);
       };
     }, [onInput, onChange, onInvalid, onFocus, onBlur]);
+
+    React.useEffect(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-textarea

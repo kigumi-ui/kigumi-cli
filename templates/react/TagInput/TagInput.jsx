@@ -9,6 +9,22 @@ function ensureLoaded() {
 }
 
 /**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default. Web Awesome reads these by value, not
+ * presence, and React would write a DOM property or a bare attribute.
+ *
+ * @param {Element} el
+ * @param {string} name
+ * @param {boolean | undefined} value
+ * @param {[string, string]} keywords - the values for true and for false
+ */
+function setEnumeratedAttribute(el, name, value, keywords) {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+}
+
+/**
  * Tag inputs collect a list of short values, such as keywords or labels, as removable tags
  *
  * @example
@@ -40,6 +56,8 @@ export const TagInput = React.forwardRef(
       onCreate,
       onClear,
       onInvalid,
+      autocorrect,
+      spellcheck,
       ...props
     },
     ref
@@ -147,6 +165,13 @@ export const TagInput = React.forwardRef(
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onBlur, onFocus, onCreate, onClear, onInvalid]);
+
+    React.useEffect(() => {
+      const el = taginputRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-tag-input

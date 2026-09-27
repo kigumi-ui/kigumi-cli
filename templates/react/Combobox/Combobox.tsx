@@ -17,6 +17,21 @@ function ensureLoaded() {
 }
 
 /**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default.
+ */
+function setEnumeratedAttribute(
+  el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
+  name: string,
+  value: boolean | undefined,
+  keywords: [on: string, off: string]
+): void {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+}
+
+/**
  * Combines a text input with a listbox for filtering and selecting options
  *
  * @example
@@ -61,7 +76,7 @@ export interface ComboboxProps extends Omit<
   /** Controls autocapitalization on supported devices */
   autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
 
-  /** Enable or disable autocorrect on supported devices */
+  /** Turns autocorrect on or off; the browser decides when unset */
   autocorrect?: boolean;
 
   /** Disables the combobox */
@@ -115,7 +130,7 @@ export interface ComboboxProps extends Omit<
   /** Combobox size */
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
-  /** Enable or disable spellchecking */
+  /** Turns spell checking on or off; on when unset */
   spellcheck?: boolean;
 
   /** Shows clear button */
@@ -187,6 +202,8 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       onAfterHide,
       onCreate,
       onInvalid,
+      autocorrect,
+      spellcheck,
       ...props
     },
     ref
@@ -352,6 +369,13 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       onCreate,
       onInvalid,
     ]);
+
+    useEffect(() => {
+      const el = comboboxRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-combobox
