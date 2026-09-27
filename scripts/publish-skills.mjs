@@ -13,6 +13,7 @@
  */
 
 import { cp, rm, mkdir, readdir } from 'fs/promises';
+import { realpathSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -21,8 +22,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = join(__dirname, '..');
 
-/** Skills published to kigumi.style — add new end-user skills here */
-const PUBLISHED_SKILLS = [
+/**
+ * Skills published to kigumi.style — add new end-user skills here.
+ * Also read by vercel-ignore-build.mjs, so a change to one of these skills
+ * rebuilds the docs site.
+ */
+export const PUBLISHED_SKILLS = [
   'shared',
   'kigumi-react',
   'kigumi-vue',
@@ -65,10 +70,19 @@ async function main() {
     }
   }
 
-  console.log(`Published ${PUBLISHED_SKILLS.length} skills: ${PUBLISHED_SKILLS.join(', ')}`);
+  console.log(
+    `Published ${PUBLISHED_SKILLS.length} skills: ${PUBLISHED_SKILLS.join(', ')}`
+  );
 }
 
-main().catch(err => {
-  console.error('Failed to publish skills:', err);
-  process.exit(1);
-});
+// Only run when invoked directly; vercel-ignore-build.mjs imports this module
+// for PUBLISHED_SKILLS and must not trigger a publish.
+if (
+  process.argv[1] &&
+  realpathSync(process.argv[1]) === realpathSync(__filename)
+) {
+  main().catch((err) => {
+    console.error('Failed to publish skills:', err);
+    process.exit(1);
+  });
+}

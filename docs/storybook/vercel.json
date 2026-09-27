@@ -3,6 +3,7 @@
   "buildCommand": "cd .. && pnpm run build-storybook:vercel",
   "outputDirectory": "dist",
   "installCommand": "cd ../.. && node scripts/setup-npmrc.mjs && cd docs && pnpm install",
+  "ignoreCommand": "node ../../scripts/vercel-ignore-build.mjs storybook",
   "framework": null,
   "headers": [
     {
