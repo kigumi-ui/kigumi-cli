@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaSlider from '@awesome.me/webawesome/dist/components/slider/slider.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Slider.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -99,7 +100,7 @@ export interface SliderProps extends Omit<
   onInput?: (event: InputEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface SliderRef {
@@ -245,7 +246,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('change', handleChange);

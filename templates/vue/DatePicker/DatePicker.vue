@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaDatePicker from '@awesome.me/webawesome/dist/components/date-picker/date-picker.js';
+import type { WaFocusDayEvent } from '@awesome.me/webawesome/dist/events/focus-day.js';
+import type { WaViewChangeEvent } from '@awesome.me/webawesome/dist/events/view-change.js';
 import './DatePicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -73,8 +75,8 @@ function hostAttributes(): Record<string, unknown> {
 const emit = defineEmits<{
   input: [event: InputEvent];
   change: [event: Event];
-  'wa-focus-day': [event: CustomEvent];
-  'wa-view-change': [event: CustomEvent];
+  'wa-focus-day': [event: WaFocusDayEvent];
+  'wa-view-change': [event: WaViewChangeEvent];
 }>();
 
 const elementRef = ref<WaDatePicker | null>(null);
@@ -85,9 +87,10 @@ onMounted(() => {
 
 const handleInput = (e: Event) => emit('input', e as InputEvent);
 const handleChange = (e: Event) => emit('change', e as Event);
-const handleWaFocusDay = (e: Event) => emit('wa-focus-day', e as CustomEvent);
+const handleWaFocusDay = (e: Event) =>
+  emit('wa-focus-day', e as WaFocusDayEvent);
 const handleWaViewChange = (e: Event) =>
-  emit('wa-view-change', e as CustomEvent);
+  emit('wa-view-change', e as WaViewChangeEvent);
 
 onMounted(() => {
   const el = elementRef.value;

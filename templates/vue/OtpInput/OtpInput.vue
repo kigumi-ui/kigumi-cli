@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaOtpInput from '@awesome.me/webawesome/dist/components/otp-input/otp-input.js';
+import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
+import type { WaCompleteEvent } from '@awesome.me/webawesome/dist/events/complete.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './OtpInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -69,9 +72,9 @@ const emit = defineEmits<{
   change: [event: Event];
   focus: [event: FocusEvent];
   blur: [event: FocusEvent];
-  'wa-complete': [event: CustomEvent];
-  'wa-clear': [event: CustomEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-complete': [event: WaCompleteEvent];
+  'wa-clear': [event: WaClearEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<string>();
@@ -94,9 +97,10 @@ const handleInput = (e: Event) => {
 const handleChange = (e: Event) => emit('change', e as Event);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleWaComplete = (e: Event) => emit('wa-complete', e as CustomEvent);
-const handleWaClear = (e: Event) => emit('wa-clear', e as CustomEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaComplete = (e: Event) =>
+  emit('wa-complete', e as WaCompleteEvent);
+const handleWaClear = (e: Event) => emit('wa-clear', e as WaClearEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

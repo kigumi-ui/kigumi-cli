@@ -14,7 +14,7 @@
 | `slot="header"` | `slot="header"` (attribute, NOT `<template #header>`) |
 | Boolean prop (`open`) | `:open="isOpen"` (dynamic) |
 | Native events (change, input) | `@change`, `@input` via `e.target` |
-| Custom events (wa-hide, wa-show) | `@wa-hide`, `@wa-show` via CustomEvent |
+| Custom events (wa-hide, wa-show) | `@wa-hide`, `@wa-show`; typed `WaHideEvent` etc., payload in `e.detail` |
 | v-model | Supported on form controls (Input, Select, etc.) |
 
 ---

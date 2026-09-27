@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaAnimation from '@awesome.me/webawesome/dist/components/animation/animation.js';
+import type { WaCancelEvent } from '@awesome.me/webawesome/dist/events/cancel.js';
+import type { WaFinishEvent } from '@awesome.me/webawesome/dist/events/finish.js';
+import type { WaStartEvent } from '@awesome.me/webawesome/dist/events/start.js';
 import './Animation.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -58,9 +61,9 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-cancel': [event: CustomEvent];
-  'wa-finish': [event: CustomEvent];
-  'wa-start': [event: CustomEvent];
+  'wa-cancel': [event: WaCancelEvent];
+  'wa-finish': [event: WaFinishEvent];
+  'wa-start': [event: WaStartEvent];
 }>();
 
 const elementRef = ref<WaAnimation | null>(null);
@@ -69,9 +72,9 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaCancel = (e: Event) => emit('wa-cancel', e as CustomEvent);
-const handleWaFinish = (e: Event) => emit('wa-finish', e as CustomEvent);
-const handleWaStart = (e: Event) => emit('wa-start', e as CustomEvent);
+const handleWaCancel = (e: Event) => emit('wa-cancel', e as WaCancelEvent);
+const handleWaFinish = (e: Event) => emit('wa-finish', e as WaFinishEvent);
+const handleWaStart = (e: Event) => emit('wa-start', e as WaStartEvent);
 
 onMounted(() => {
   const el = elementRef.value;

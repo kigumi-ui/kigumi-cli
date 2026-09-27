@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaAvatar from '@awesome.me/webawesome/dist/components/avatar/avatar.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
 import './Avatar.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,7 +51,7 @@ export interface AvatarProps extends Omit<
   shape?: 'circle' | 'square' | 'rounded';
 
   /** The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: WaErrorEvent) => void;
 }
 
 export interface AvatarRef {
@@ -81,7 +82,7 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
       if (!el) return;
 
       const handleWaError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as WaErrorEvent);
       };
 
       el.addEventListener('wa-error', handleWaError);

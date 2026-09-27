@@ -8,6 +8,8 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaAnimatedImage from '@awesome.me/webawesome/dist/components/animated-image/animated-image.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome/dist/events/load.js';
 import './AnimatedImage.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -44,10 +46,10 @@ export interface AnimatedImageProps extends Omit<
   play?: boolean;
 
   /** Emitted when the image loads successfully. */
-  onLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: WaLoadEvent) => void;
 
   /** Emitted when the image fails to load. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: WaErrorEvent) => void;
 }
 
 export interface AnimatedImageRef {
@@ -78,11 +80,11 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
       if (!el) return;
 
       const handleWaLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+        if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleWaError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as WaErrorEvent);
       };
 
       el.addEventListener('wa-load', handleWaLoad);

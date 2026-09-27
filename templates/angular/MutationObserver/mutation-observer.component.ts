@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js';
+import type { WaMutationEvent } from '@awesome.me/webawesome/dist/events/mutation.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -62,7 +63,7 @@ export class MutationObserverComponent implements AfterViewInit, OnDestroy {
   /** Observes changes in subtree */
   @Input() subtree?: boolean;
 
-  @Output() mutation = new EventEmitter<CustomEvent>();
+  @Output() mutation = new EventEmitter<WaMutationEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -82,7 +83,8 @@ export class MutationObserverComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleMutation = (e: Event) => this.mutation.emit(e as CustomEvent);
+    const handleMutation = (e: Event) =>
+      this.mutation.emit(e as WaMutationEvent);
     el.addEventListener('wa-mutation', handleMutation);
     this.cleanups.push(() =>
       el.removeEventListener('wa-mutation', handleMutation)

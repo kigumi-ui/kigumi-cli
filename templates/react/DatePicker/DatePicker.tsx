@@ -8,6 +8,8 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaDatePicker from '@awesome.me/webawesome/dist/components/date-picker/date-picker.js';
+import type { WaFocusDayEvent } from '@awesome.me/webawesome/dist/events/focus-day.js';
+import type { WaViewChangeEvent } from '@awesome.me/webawesome/dist/events/view-change.js';
 import './DatePicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -112,9 +114,9 @@ export interface DatePickerProps extends Omit<
 
   onChange?: (event: Event) => void;
 
-  onFocusDay?: (event: CustomEvent) => void;
+  onFocusDay?: (event: WaFocusDayEvent) => void;
 
-  onViewChange?: (event: CustomEvent) => void;
+  onViewChange?: (event: WaViewChangeEvent) => void;
 }
 
 export interface DatePickerRef {
@@ -203,11 +205,11 @@ export const DatePicker = forwardRef<DatePickerRef, DatePickerProps>(
       };
 
       const handleWaFocusDay = (e: Event) => {
-        if (onFocusDay) onFocusDay(e as CustomEvent);
+        if (onFocusDay) onFocusDay(e as WaFocusDayEvent);
       };
 
       const handleWaViewChange = (e: Event) => {
-        if (onViewChange) onViewChange(e as CustomEvent);
+        if (onViewChange) onViewChange(e as WaViewChangeEvent);
       };
 
       el.addEventListener('input', handleInput);

@@ -8,6 +8,11 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaColorPicker from '@awesome.me/webawesome/dist/components/color-picker/color-picker.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './ColorPicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -113,13 +118,13 @@ export interface ColorPickerProps extends Omit<
   /** Emitted when the color picker receives input. */
   onInput?: (event: InputEvent) => void;
 
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 
   /** Emitted when the color picker loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -128,7 +133,7 @@ export interface ColorPickerProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface ColorPickerRef {
@@ -322,19 +327,19 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
       };
 
       const handleWaShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
+        if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleWaAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleWaHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
+        if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleWaAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       const handleBlur = (e: Event) => {
@@ -346,7 +351,7 @@ export const ColorPicker = forwardRef<ColorPickerRef, ColorPickerProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('change', handleChange);

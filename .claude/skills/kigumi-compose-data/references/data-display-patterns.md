@@ -832,7 +832,7 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
       <div className="wa-split wa-align-items-center">
         <Select
           value={String(pageSize)}
-          onChange={(e: CustomEvent) =>
+          onChange={(e) =>
             handlePageSizeChange(Number((e.target as HTMLSelectElement).value))
           }
           size="small"
@@ -849,10 +849,7 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
           page-size={pageSize}
           page={page}
           with-summary
-          onPageChange={(e: CustomEvent) => {
-            const next = (e.target as HTMLElement & { page?: number }).page;
-            if (typeof next === 'number') setPage(next);
-          }}
+          onPageChange={(e) => setPage(e.detail.page)}
         />
       </div>
     </div>
@@ -866,6 +863,8 @@ export function PaginatedUserTable({ users }: { users: User[] }) {
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Badge, Pagination, Select } from '@/components/ui';
+import type { WaPageChangeEvent } from '@awesome.me/webawesome/dist/events/page-change.js';
+// Pro projects: '@awesome.me/webawesome-pro/dist/events/page-change.js'
 
 interface User {
   id: number;
@@ -895,14 +894,13 @@ const paginatedUsers = computed(() =>
   props.users.slice(start.value, end.value)
 );
 
-function handlePageSizeChange(event: CustomEvent) {
+function handlePageSizeChange(event: Event) {
   pageSize.value = Number((event.target as HTMLSelectElement).value);
   page.value = 1;
 }
 
-function handlePageChange(event: CustomEvent) {
-  const next = (event.target as HTMLElement & { page?: number }).page;
-  if (typeof next === 'number') page.value = next;
+function handlePageChange(event: WaPageChangeEvent) {
+  page.value = event.detail.page;
 }
 
 const cellStyle = { padding: 'var(--wa-space-s) var(--wa-space-m)' };
@@ -954,7 +952,7 @@ const headerStyle = {
         :value="String(pageSize)"
         size="small"
         style="width: 80px"
-        @wa-change="handlePageSizeChange"
+        @change="handlePageSizeChange"
       >
         <option v-for="size in PAGE_SIZE_OPTIONS" :key="size" :value="size">
           {{ size }}
@@ -1003,7 +1001,7 @@ export function FilteredUserTable({ users }: { users: User[] }) {
   const [search, setSearch] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const handleSearch = useCallback((e: CustomEvent) => {
+  const handleSearch = useCallback((e: Event) => {
     const value = (e.target as HTMLInputElement).value;
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => setSearch(value), 300);
@@ -1133,7 +1131,7 @@ const props = defineProps<{ users: User[] }>();
 const search = ref('');
 let debounceTimer: ReturnType<typeof setTimeout>;
 
-function handleSearch(event: CustomEvent) {
+function handleSearch(event: Event) {
   const value = (event.target as HTMLInputElement).value;
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {

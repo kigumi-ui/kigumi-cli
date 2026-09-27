@@ -228,9 +228,7 @@ export function ActionsMenu({
 }) {
   return (
     <Dropdown
-      onSelect={(e: CustomEvent) =>
-        onAction((e.detail.item as HTMLElement).getAttribute('value') || '')
-      }
+      onSelect={(e) => onAction(e.detail.item.getAttribute('value') || '')}
     >
       <Button slot="trigger" variant="neutral" with-caret>
         <Icon slot="start" name="ellipsis-vertical" />
@@ -259,9 +257,11 @@ export function ActionsMenu({
 ```vue
 <script setup lang="ts">
 import { Dropdown, DropdownItem, Button, Icon } from '@/components/ui';
+import type { WaSelectEvent } from '@awesome.me/webawesome/dist/events/select.js';
+// Pro projects: '@awesome.me/webawesome-pro/dist/events/select.js'
 const emit = defineEmits<{ action: [value: string] }>();
-function handleSelect(e: CustomEvent) {
-  emit('action', (e.detail.item as HTMLElement).getAttribute('value') || '');
+function handleSelect(e: WaSelectEvent) {
+  emit('action', e.detail.item.getAttribute('value') || '');
 }
 </script>
 
@@ -467,7 +467,7 @@ Unlike Dialog and Drawer, Popover's `wa-show` event is cancelable. You can preve
 
 ```tsx
 <Popover
-  onShow={(e: CustomEvent) => {
+  onShow={(e) => {
     if (someCondition) {
       e.preventDefault(); // Popover will NOT open
     }

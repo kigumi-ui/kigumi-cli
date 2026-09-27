@@ -25,10 +25,10 @@ import { toPascalCase } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
+  formatEventTypeImports,
   enumeratedProps,
   generateCssTemplate,
   keywordPairLiteral,
-  mapEventType,
   writeFormatted,
   propJsdocLines,
 } from './generator-utils.js';
@@ -187,7 +187,7 @@ function buildListenerEntries(
 
   // Component events from metadata — merge with model sync where needed
   for (const event of metadata.events) {
-    const eventType = mapEventType(event.name);
+    const eventType = event.eventType;
     const handlerName = `handle${pascalCase(event.name)}`;
     usedEvents.add(event.name);
 
@@ -378,9 +378,7 @@ function assembleVueSFC(
   // is `no-empty-object-type` and its `emit` is never called (issue #136).
   const emitsSection = typed
     ? metadata.events
-        .map(
-          (event) => `  '${event.name}': [event: ${mapEventType(event.name)}];`
-        )
+        .map((event) => `  '${event.name}': [event: ${event.eventType}];`)
         .join('\n')
     : `['${metadata.events.map((e) => e.name).join("', '")}']`;
 
@@ -538,10 +536,11 @@ onMounted(() => {
 
   // Component-specific type imports for non-primitive parameter types (TS only).
   // Sibling `Wa*` element types default-import from their own module; other
-  // names named-import from this component's importPath.
+  // names named-import from this component's importPath. Handler types that
+  // are Web Awesome event classes import from dist/events.
   const typeImport = typed
     ? `import type Wa${component.name} from '${component.importPath}';
-${formatCustomTypeImports(metadata.methods, component.importPath)}`
+${formatCustomTypeImports(metadata.methods, component.importPath)}${formatEventTypeImports(metadata.events)}`
     : '';
 
   // Enumerated booleans (`spellcheck`, `autocorrect`): `false` is written as

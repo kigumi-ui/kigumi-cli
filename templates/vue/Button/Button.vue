@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaButton from '@awesome.me/webawesome/dist/components/button/button.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Button.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -70,7 +71,7 @@ function hostAttributes(): Record<string, unknown> {
 const emit = defineEmits<{
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const elementRef = ref<WaButton | null>(null);
@@ -81,7 +82,7 @@ onMounted(() => {
 
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

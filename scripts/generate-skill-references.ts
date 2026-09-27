@@ -314,7 +314,7 @@ function generateCompactReactSurface(
   md += `| \`slot="header"\` | \`slot="header"\` (preserved) |\n`;
   md += `| Self-closing: \`<wa-icon></wa-icon>\` | \`<Icon />\` |\n`;
   md += `| Native events (change, input) | \`onChange\`, \`onInput\` via \`e.target\` |\n`;
-  md += `| Custom events (wa-hide, wa-show) | \`onHide\`, \`onShow\` via CustomEvent |\n\n`;
+  md += `| Custom events (wa-hide, wa-show) | \`onHide\`, \`onShow\`; typed \`WaHideEvent\` etc., payload in \`e.detail\` |\n\n`;
   md += `---\n\n`;
 
   // Components
@@ -408,7 +408,7 @@ function generateCompactVueSurface(
   md += `| \`slot="header"\` | \`slot="header"\` (attribute, NOT \`<template #header>\`) |\n`;
   md += `| Boolean prop (\`open\`) | \`:open="isOpen"\` (dynamic) |\n`;
   md += `| Native events (change, input) | \`@change\`, \`@input\` via \`e.target\` |\n`;
-  md += `| Custom events (wa-hide, wa-show) | \`@wa-hide\`, \`@wa-show\` via CustomEvent |\n`;
+  md += `| Custom events (wa-hide, wa-show) | \`@wa-hide\`, \`@wa-show\`; typed \`WaHideEvent\` etc., payload in \`e.detail\` |\n`;
   md += `| v-model | Supported on form controls (Input, Select, etc.) |\n\n`;
   md += `---\n\n`;
 

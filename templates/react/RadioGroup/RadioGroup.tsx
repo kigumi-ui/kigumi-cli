@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaRadioGroup from '@awesome.me/webawesome/dist/components/radio-group/radio-group.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './RadioGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -78,7 +79,7 @@ export interface RadioGroupProps extends Omit<
   onChange?: (event: Event) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface RadioGroupRef {
@@ -169,7 +170,7 @@ export const RadioGroup = forwardRef<RadioGroupRef, RadioGroupProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

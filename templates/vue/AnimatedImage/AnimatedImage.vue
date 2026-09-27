@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaAnimatedImage from '@awesome.me/webawesome/dist/components/animated-image/animated-image.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome/dist/events/load.js';
 import './AnimatedImage.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,8 +52,8 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-load': [event: CustomEvent];
-  'wa-error': [event: CustomEvent];
+  'wa-load': [event: WaLoadEvent];
+  'wa-error': [event: WaErrorEvent];
 }>();
 
 const elementRef = ref<WaAnimatedImage | null>(null);
@@ -60,8 +62,8 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaLoad = (e: Event) => emit('wa-load', e as CustomEvent);
-const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
+const handleWaLoad = (e: Event) => emit('wa-load', e as WaLoadEvent);
+const handleWaError = (e: Event) => emit('wa-error', e as WaErrorEvent);
 
 onMounted(() => {
   const el = elementRef.value;

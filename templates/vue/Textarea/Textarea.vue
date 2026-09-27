@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaTextarea from '@awesome.me/webawesome/dist/components/textarea/textarea.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Textarea.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -98,7 +99,7 @@ const emit = defineEmits<{
   change: [event: Event];
   focus: [event: FocusEvent];
   input: [event: InputEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<string>();
@@ -121,7 +122,7 @@ const handleInput = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

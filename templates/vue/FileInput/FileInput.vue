@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaFileInput from '@awesome.me/webawesome/dist/components/file-input/file-input.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './FileInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -57,11 +58,11 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  input: [event: InputEvent];
+  input: [event: Event];
   change: [event: Event];
   focus: [event: FocusEvent];
   blur: [event: FocusEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const elementRef = ref<WaFileInput | null>(null);
@@ -70,11 +71,11 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleInput = (e: Event) => emit('input', e as InputEvent);
+const handleInput = (e: Event) => emit('input', e as Event);
 const handleChange = (e: Event) => emit('change', e as Event);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

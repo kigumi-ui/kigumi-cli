@@ -15,6 +15,7 @@ import { spawn } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createEventTypeResolver, readEventCatalog } from './event-types.js';
 import { resolveCem } from './find-cem.js';
 import { isEntryPoint } from './is-entry-point.js';
 import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
@@ -277,6 +278,10 @@ async function parseCustomElements(): Promise<ParsedOutput> {
   );
 
   const data = (await fs.readJson(filePath)) as CustomElementsJSON;
+  // The manifest and its event declarations ship side by side in `dist/`.
+  const eventTypes = createEventTypeResolver(
+    await readEventCatalog(path.join(path.dirname(filePath), 'events'))
+  );
   const metadata: Record<string, ComponentMetadata> = {};
   const cssMetadata: Record<string, ComponentCSSMetadata> = {};
 
@@ -294,17 +299,24 @@ async function parseCustomElements(): Promise<ParsedOutput> {
       // Extract events
       // Derive reactName from the raw event name (strip wa- prefix, camelCase, prepend on)
       // Never use reactName from custom-elements.json — it says "onWaHide" but templates use "onHide"
+      // The type is the class Web Awesome dispatches, never the manifest's
+      // `eventName`: see scripts/event-types.ts.
       const events = (declaration.events || [])
+        .filter((event) => event.name)
         .map((event) => {
-          const name = event.name || '';
+          const name = event.name!;
+          const resolved = eventTypes.resolve(tagName, {
+            name,
+            type: event.type,
+          });
           return {
             name,
             description: event.description || '',
             reactName: `on${toPascalCase(stripWaPrefix(name))}`,
-            eventType: event.eventName || event.type?.text || 'Event',
+            eventType: resolved.type,
+            ...(resolved.module ? { eventTypeModule: resolved.module } : {}),
           };
-        })
-        .filter((e) => e.name);
+        });
 
       // Extract slots
       const slots = (declaration.slots || []).map((slot) => ({
@@ -357,6 +369,14 @@ async function parseCustomElements(): Promise<ParsedOutput> {
       const css = extractCssMetadata(declaration);
       if (css) cssMetadata[componentKey] = css;
     }
+  }
+
+  const stale = eventTypes.unusedOverrides();
+  if (stale.length > 0) {
+    throw new Error(
+      `EVENT_CLASS_OVERRIDES (scripts/event-types.ts) has entries no manifest ` +
+        `event uses: ${stale.join(', ')}. Delete them.`
+    );
   }
 
   return { components: metadata, cssMetadata };

@@ -8,6 +8,8 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaTabGroup from '@awesome.me/webawesome/dist/components/tab-group/tab-group.js';
+import type { WaTabHideEvent } from '@awesome.me/webawesome/dist/events/tab-hide.js';
+import type { WaTabShowEvent } from '@awesome.me/webawesome/dist/events/tab-show.js';
 import './TabGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -47,10 +49,10 @@ export interface TabGroupProps extends Omit<
   active?: string;
 
   /** Emitted when a tab is shown. */
-  onTabShow?: (event: CustomEvent) => void;
+  onTabShow?: (event: WaTabShowEvent) => void;
 
   /** Emitted when a tab is hidden. */
-  onTabHide?: (event: CustomEvent) => void;
+  onTabHide?: (event: WaTabHideEvent) => void;
 }
 
 export interface TabGroupRef {
@@ -81,11 +83,11 @@ export const TabGroup = forwardRef<TabGroupRef, TabGroupProps>(
       if (!el) return;
 
       const handleWaTabShow = (e: Event) => {
-        if (onTabShow) onTabShow(e as CustomEvent);
+        if (onTabShow) onTabShow(e as WaTabShowEvent);
       };
 
       const handleWaTabHide = (e: Event) => {
-        if (onTabHide) onTabHide(e as CustomEvent);
+        if (onTabHide) onTabHide(e as WaTabHideEvent);
       };
 
       el.addEventListener('wa-tab-show', handleWaTabShow);

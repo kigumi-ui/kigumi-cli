@@ -11,6 +11,10 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/drawer/drawer.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -58,10 +62,10 @@ export class DrawerComponent implements AfterViewInit, OnDestroy {
   /** Removes the header */
   @Input() withoutHeader?: boolean;
 
-  @Output() show = new EventEmitter<CustomEvent>();
-  @Output() afterShow = new EventEmitter<CustomEvent>();
-  @Output() hide = new EventEmitter<CustomEvent>();
-  @Output() afterHide = new EventEmitter<CustomEvent>();
+  @Output() show = new EventEmitter<WaShowEvent>();
+  @Output() afterShow = new EventEmitter<WaAfterShowEvent>();
+  @Output() hide = new EventEmitter<WaHideEvent>();
+  @Output() afterHide = new EventEmitter<WaAfterHideEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -81,18 +85,20 @@ export class DrawerComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleShow = (e: Event) => this.show.emit(e as CustomEvent);
+    const handleShow = (e: Event) => this.show.emit(e as WaShowEvent);
     el.addEventListener('wa-show', handleShow);
     this.cleanups.push(() => el.removeEventListener('wa-show', handleShow));
-    const handleAfterShow = (e: Event) => this.afterShow.emit(e as CustomEvent);
+    const handleAfterShow = (e: Event) =>
+      this.afterShow.emit(e as WaAfterShowEvent);
     el.addEventListener('wa-after-show', handleAfterShow);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-show', handleAfterShow)
     );
-    const handleHide = (e: Event) => this.hide.emit(e as CustomEvent);
+    const handleHide = (e: Event) => this.hide.emit(e as WaHideEvent);
     el.addEventListener('wa-hide', handleHide);
     this.cleanups.push(() => el.removeEventListener('wa-hide', handleHide));
-    const handleAfterHide = (e: Event) => this.afterHide.emit(e as CustomEvent);
+    const handleAfterHide = (e: Event) =>
+      this.afterHide.emit(e as WaAfterHideEvent);
     el.addEventListener('wa-after-hide', handleAfterHide);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-hide', handleAfterHide)

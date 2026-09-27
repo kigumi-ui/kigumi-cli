@@ -8,6 +8,10 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaAccordion from '@awesome.me/webawesome/dist/components/accordion/accordion.js';
+import type { WaAccordionAfterCollapseEvent } from '@awesome.me/webawesome/dist/events/accordion-after-collapse.js';
+import type { WaAccordionAfterExpandEvent } from '@awesome.me/webawesome/dist/events/accordion-after-expand.js';
+import type { WaAccordionCollapseEvent } from '@awesome.me/webawesome/dist/events/accordion-collapse.js';
+import type { WaAccordionExpandEvent } from '@awesome.me/webawesome/dist/events/accordion-expand.js';
 import './Accordion.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -51,16 +55,16 @@ export interface AccordionProps extends Omit<
   appearance?: 'filled' | 'outlined' | 'filled-outlined' | 'plain';
 
   /** Emitted before an item expands. Cancelable. */
-  onExpand?: (event: CustomEvent) => void;
+  onExpand?: (event: WaAccordionExpandEvent) => void;
 
   /** Emitted after an item finishes expanding. */
-  onAfterExpand?: (event: CustomEvent) => void;
+  onAfterExpand?: (event: WaAccordionAfterExpandEvent) => void;
 
   /** Emitted before an item collapses. Cancelable. */
-  onCollapse?: (event: CustomEvent) => void;
+  onCollapse?: (event: WaAccordionCollapseEvent) => void;
 
   /** Emitted after an item finishes collapsing. */
-  onAfterCollapse?: (event: CustomEvent) => void;
+  onAfterCollapse?: (event: WaAccordionAfterCollapseEvent) => void;
 }
 
 export interface AccordionRef {
@@ -123,19 +127,20 @@ export const Accordion = forwardRef<AccordionRef, AccordionProps>(
       if (!el) return;
 
       const handleWaExpand = (e: Event) => {
-        if (onExpand) onExpand(e as CustomEvent);
+        if (onExpand) onExpand(e as WaAccordionExpandEvent);
       };
 
       const handleWaAfterExpand = (e: Event) => {
-        if (onAfterExpand) onAfterExpand(e as CustomEvent);
+        if (onAfterExpand) onAfterExpand(e as WaAccordionAfterExpandEvent);
       };
 
       const handleWaCollapse = (e: Event) => {
-        if (onCollapse) onCollapse(e as CustomEvent);
+        if (onCollapse) onCollapse(e as WaAccordionCollapseEvent);
       };
 
       const handleWaAfterCollapse = (e: Event) => {
-        if (onAfterCollapse) onAfterCollapse(e as CustomEvent);
+        if (onAfterCollapse)
+          onAfterCollapse(e as WaAccordionAfterCollapseEvent);
       };
 
       el.addEventListener('wa-expand', handleWaExpand);

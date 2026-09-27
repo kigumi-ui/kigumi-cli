@@ -11,6 +11,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/icon/icon.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome/dist/events/load.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -81,8 +83,8 @@ export class IconComponent implements AfterViewInit, OnDestroy {
   /** The name of a built-in animation to apply */
   @Input() animation?: string;
 
-  @Output() load = new EventEmitter<CustomEvent>();
-  @Output() error = new EventEmitter<CustomEvent>();
+  @Output() load = new EventEmitter<WaLoadEvent>();
+  @Output() error = new EventEmitter<WaErrorEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -102,10 +104,10 @@ export class IconComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleLoad = (e: Event) => this.load.emit(e as CustomEvent);
+    const handleLoad = (e: Event) => this.load.emit(e as WaLoadEvent);
     el.addEventListener('wa-load', handleLoad);
     this.cleanups.push(() => el.removeEventListener('wa-load', handleLoad));
-    const handleError = (e: Event) => this.error.emit(e as CustomEvent);
+    const handleError = (e: Event) => this.error.emit(e as WaErrorEvent);
     el.addEventListener('wa-error', handleError);
     this.cleanups.push(() => el.removeEventListener('wa-error', handleError));
   }

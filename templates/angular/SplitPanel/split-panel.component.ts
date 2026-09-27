@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/split-panel/split-panel.js';
+import type { WaRepositionEvent } from '@awesome.me/webawesome/dist/events/reposition.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -62,7 +63,7 @@ export class SplitPanelComponent implements AfterViewInit, OnDestroy {
   /** Snap threshold (px) */
   @Input() snapThreshold?: number;
 
-  @Output() reposition = new EventEmitter<CustomEvent>();
+  @Output() reposition = new EventEmitter<WaRepositionEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -83,7 +84,7 @@ export class SplitPanelComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleReposition = (e: Event) =>
-      this.reposition.emit(e as CustomEvent);
+      this.reposition.emit(e as WaRepositionEvent);
     el.addEventListener('wa-reposition', handleReposition);
     this.cleanups.push(() =>
       el.removeEventListener('wa-reposition', handleReposition)

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaSlider from '@awesome.me/webawesome/dist/components/slider/slider.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Slider.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -66,7 +67,7 @@ const emit = defineEmits<{
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
   input: [event: InputEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<number>();
@@ -89,7 +90,7 @@ const handleInput = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: number }).value;
   emit('input', e as InputEvent);
 };
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaTag from '@awesome.me/webawesome/dist/components/tag/tag.js';
+import type { WaRemoveEvent } from '@awesome.me/webawesome/dist/events/remove.js';
 import './Tag.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -50,7 +51,7 @@ export interface TagProps extends Omit<
   'with-remove'?: boolean;
 
   /** Emitted when the remove button is activated. */
-  onRemove?: (event: CustomEvent) => void;
+  onRemove?: (event: WaRemoveEvent) => void;
 }
 
 export interface TagRef {
@@ -81,7 +82,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
       if (!el) return;
 
       const handleWaRemove = (e: Event) => {
-        if (onRemove) onRemove(e as CustomEvent);
+        if (onRemove) onRemove(e as WaRemoveEvent);
       };
 
       el.addEventListener('wa-remove', handleWaRemove);

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaResizeObserver from '@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js';
+import type { WaResizeEvent } from '@awesome.me/webawesome/dist/events/resize.js';
 import './ResizeObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -48,7 +49,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-resize': [event: CustomEvent];
+  'wa-resize': [event: WaResizeEvent];
 }>();
 
 const elementRef = ref<WaResizeObserver | null>(null);
@@ -57,7 +58,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaResize = (e: Event) => emit('wa-resize', e as CustomEvent);
+const handleWaResize = (e: Event) => emit('wa-resize', e as WaResizeEvent);
 
 onMounted(() => {
   const el = elementRef.value;

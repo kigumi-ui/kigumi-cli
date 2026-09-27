@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaSwitch from '@awesome.me/webawesome/dist/components/switch/switch.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Switch.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -59,7 +60,7 @@ const emit = defineEmits<{
   input: [event: InputEvent];
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<boolean>({ default: false });
@@ -82,7 +83,7 @@ const handleChange = (e: Event) => {
 const handleInput = (e: Event) => emit('input', e as InputEvent);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

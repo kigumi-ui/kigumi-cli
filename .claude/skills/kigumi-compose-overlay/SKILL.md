@@ -31,7 +31,7 @@ Build production-ready overlay UIs: Dialog, Drawer, Dropdown, Tooltip, Popover, 
 
 ## Critical Rules
 
-1. **Overlays emit CustomEvent (`wa-show`, `wa-hide`), NOT native DOM events.**
+1. **Overlays emit Web Awesome events (`wa-show`, `wa-hide`), NOT native DOM events.** Handlers receive the event class (`WaShowEvent`, `WaHideEvent`), which extends `Event`, not `CustomEvent`: never annotate `(e: CustomEvent)`. Leave inline handlers unannotated, and read any payload from `e.detail` (Dropdown `wa-select`: `e.detail.item`).
 2. **Always `requestClose()`, never `hide()`.** requestClose triggers wa-hide (cancelable). hide bypasses it.
 3. **Always provide `label` prop** on Dialog and Drawer for accessibility.
 4. **Focus trap is automatic.** No manual focus management needed.

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaTagInput from '@awesome.me/webawesome/dist/components/tag-input/tag-input.js';
+import type { WaClearEvent } from '@awesome.me/webawesome/dist/events/clear.js';
+import type { WaCreateEvent } from '@awesome.me/webawesome/dist/events/create.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './TagInput.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -97,9 +100,9 @@ const emit = defineEmits<{
   change: [event: Event];
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
-  'wa-create': [event: CustomEvent];
-  'wa-clear': [event: CustomEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-create': [event: WaCreateEvent];
+  'wa-clear': [event: WaClearEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<string>();
@@ -122,9 +125,9 @@ const handleInput = (e: Event) => {
 const handleChange = (e: Event) => emit('change', e as Event);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaCreate = (e: Event) => emit('wa-create', e as CustomEvent);
-const handleWaClear = (e: Event) => emit('wa-clear', e as CustomEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaCreate = (e: Event) => emit('wa-create', e as WaCreateEvent);
+const handleWaClear = (e: Event) => emit('wa-clear', e as WaClearEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

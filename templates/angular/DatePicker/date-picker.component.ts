@@ -11,6 +11,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/date-picker/date-picker.js';
+import type { WaFocusDayEvent } from '@awesome.me/webawesome/dist/events/focus-day.js';
+import type { WaViewChangeEvent } from '@awesome.me/webawesome/dist/events/view-change.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -113,8 +115,8 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();
-  @Output() focusDay = new EventEmitter<CustomEvent>();
-  @Output() viewChange = new EventEmitter<CustomEvent>();
+  @Output() focusDay = new EventEmitter<WaFocusDayEvent>();
+  @Output() viewChange = new EventEmitter<WaViewChangeEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -141,13 +143,14 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
     const handleChange = (e: Event) => this.change.emit(e as Event);
     el.addEventListener('change', handleChange);
     this.cleanups.push(() => el.removeEventListener('change', handleChange));
-    const handleFocusDay = (e: Event) => this.focusDay.emit(e as CustomEvent);
+    const handleFocusDay = (e: Event) =>
+      this.focusDay.emit(e as WaFocusDayEvent);
     el.addEventListener('wa-focus-day', handleFocusDay);
     this.cleanups.push(() =>
       el.removeEventListener('wa-focus-day', handleFocusDay)
     );
     const handleViewChange = (e: Event) =>
-      this.viewChange.emit(e as CustomEvent);
+      this.viewChange.emit(e as WaViewChangeEvent);
     el.addEventListener('wa-view-change', handleViewChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-view-change', handleViewChange)

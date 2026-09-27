@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaMutationObserver from '@awesome.me/webawesome/dist/components/mutation-observer/mutation-observer.js';
+import type { WaMutationEvent } from '@awesome.me/webawesome/dist/events/mutation.js';
 import './MutationObserver.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -56,7 +57,7 @@ export interface MutationObserverProps extends Omit<
   subtree?: boolean;
 
   /** Emitted when a mutation occurs. */
-  onMutation?: (event: CustomEvent) => void;
+  onMutation?: (event: WaMutationEvent) => void;
 }
 
 export interface MutationObserverRef {
@@ -92,7 +93,7 @@ export const MutationObserver = forwardRef<
     if (!el) return;
 
     const handleWaMutation = (e: Event) => {
-      if (onMutation) onMutation(e as CustomEvent);
+      if (onMutation) onMutation(e as WaMutationEvent);
     };
 
     el.addEventListener('wa-mutation', handleWaMutation);

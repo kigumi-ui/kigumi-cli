@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/random-content/random-content.js';
+import type { WaContentChangeEvent } from '@awesome.me/webawesome/dist/events/random-content-change.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -57,7 +58,7 @@ export class RandomContentComponent implements AfterViewInit, OnDestroy {
   @Input() animation?:
     'none' | 'fade' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right';
 
-  @Output() contentChange = new EventEmitter<CustomEvent>();
+  @Output() contentChange = new EventEmitter<WaContentChangeEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -78,7 +79,7 @@ export class RandomContentComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleContentChange = (e: Event) =>
-      this.contentChange.emit(e as CustomEvent);
+      this.contentChange.emit(e as WaContentChangeEvent);
     el.addEventListener('wa-content-change', handleContentChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-content-change', handleContentChange)

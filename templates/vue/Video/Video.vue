@@ -61,13 +61,13 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  timeupdate: [event: CustomEvent];
-  play: [event: CustomEvent];
-  pause: [event: CustomEvent];
-  volumechange: [event: CustomEvent];
+  timeupdate: [event: Event];
+  play: [event: Event];
+  pause: [event: Event];
+  volumechange: [event: Event];
   error: [event: Event];
-  ended: [event: CustomEvent];
-  loadedmetadata: [event: CustomEvent];
+  ended: [event: Event];
+  loadedmetadata: [event: Event];
 }>();
 
 const elementRef = ref<WaVideo | null>(null);
@@ -76,14 +76,13 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleTimeupdate = (e: Event) => emit('timeupdate', e as CustomEvent);
-const handlePlay = (e: Event) => emit('play', e as CustomEvent);
-const handlePause = (e: Event) => emit('pause', e as CustomEvent);
-const handleVolumechange = (e: Event) => emit('volumechange', e as CustomEvent);
+const handleTimeupdate = (e: Event) => emit('timeupdate', e as Event);
+const handlePlay = (e: Event) => emit('play', e as Event);
+const handlePause = (e: Event) => emit('pause', e as Event);
+const handleVolumechange = (e: Event) => emit('volumechange', e as Event);
 const handleError = (e: Event) => emit('error', e as Event);
-const handleEnded = (e: Event) => emit('ended', e as CustomEvent);
-const handleLoadedmetadata = (e: Event) =>
-  emit('loadedmetadata', e as CustomEvent);
+const handleEnded = (e: Event) => emit('ended', e as Event);
+const handleLoadedmetadata = (e: Event) => emit('loadedmetadata', e as Event);
 
 onMounted(() => {
   const el = elementRef.value;

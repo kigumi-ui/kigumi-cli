@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tree/tree.js';
+import type { WaSelectionChangeEvent } from '@awesome.me/webawesome/dist/events/selection-change.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -41,7 +42,7 @@ export class TreeComponent implements AfterViewInit, OnDestroy {
   /** Selection behavior */
   @Input() selection?: 'single' | 'multiple' | 'leaf' | 'leaf-multiple';
 
-  @Output() selectionChange = new EventEmitter<CustomEvent>();
+  @Output() selectionChange = new EventEmitter<WaSelectionChangeEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -62,7 +63,7 @@ export class TreeComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleSelectionChange = (e: Event) =>
-      this.selectionChange.emit(e as CustomEvent);
+      this.selectionChange.emit(e as WaSelectionChangeEvent);
     el.addEventListener('wa-selection-change', handleSelectionChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-selection-change', handleSelectionChange)

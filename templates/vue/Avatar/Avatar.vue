@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaAvatar from '@awesome.me/webawesome/dist/components/avatar/avatar.js';
+import type { WaErrorEvent } from '@awesome.me/webawesome/dist/events/error.js';
 import './Avatar.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -52,7 +53,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-error': [event: CustomEvent];
+  'wa-error': [event: WaErrorEvent];
 }>();
 
 const elementRef = ref<WaAvatar | null>(null);
@@ -61,7 +62,7 @@ onMounted(() => {
   ensureLoaded();
 });
 
-const handleWaError = (e: Event) => emit('wa-error', e as CustomEvent);
+const handleWaError = (e: Event) => emit('wa-error', e as WaErrorEvent);
 
 onMounted(() => {
   const el = elementRef.value;

@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tag/tag.js';
+import type { WaRemoveEvent } from '@awesome.me/webawesome/dist/events/remove.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -56,7 +57,7 @@ export class TagComponent implements AfterViewInit, OnDestroy {
   /** Shows remove button */
   @Input() withRemove?: boolean;
 
-  @Output() remove = new EventEmitter<CustomEvent>();
+  @Output() remove = new EventEmitter<WaRemoveEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -76,7 +77,7 @@ export class TagComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleRemove = (e: Event) => this.remove.emit(e as CustomEvent);
+    const handleRemove = (e: Event) => this.remove.emit(e as WaRemoveEvent);
     el.addEventListener('wa-remove', handleRemove);
     this.cleanups.push(() => el.removeEventListener('wa-remove', handleRemove));
   }

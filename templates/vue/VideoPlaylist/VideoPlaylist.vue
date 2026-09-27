@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaVideoPlaylist from '@awesome.me/webawesome/dist/components/video-playlist/video-playlist.js';
+import type { WaVideoChangeEvent } from '@awesome.me/webawesome/dist/events/video-change.js';
 import './VideoPlaylist.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -49,7 +50,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-video-change': [event: CustomEvent];
+  'wa-video-change': [event: WaVideoChangeEvent];
 }>();
 
 const elementRef = ref<WaVideoPlaylist | null>(null);
@@ -59,7 +60,7 @@ onMounted(() => {
 });
 
 const handleWaVideoChange = (e: Event) =>
-  emit('wa-video-change', e as CustomEvent);
+  emit('wa-video-change', e as WaVideoChangeEvent);
 
 onMounted(() => {
   const el = elementRef.value;

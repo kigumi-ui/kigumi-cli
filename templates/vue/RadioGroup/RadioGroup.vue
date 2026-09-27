@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaRadioGroup from '@awesome.me/webawesome/dist/components/radio-group/radio-group.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './RadioGroup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -59,7 +60,7 @@ function hostAttributes(): Record<string, unknown> {
 const emit = defineEmits<{
   input: [event: InputEvent];
   change: [event: Event];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<string>();
@@ -80,7 +81,7 @@ const handleInput = (e: Event) => {
   emit('input', e as InputEvent);
 };
 const handleChange = (e: Event) => emit('change', e as Event);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

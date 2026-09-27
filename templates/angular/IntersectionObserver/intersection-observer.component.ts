@@ -12,6 +12,7 @@ import {
   OnChanges,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/intersection-observer/intersection-observer.js';
+import type { WaIntersectEvent } from '@awesome.me/webawesome/dist/events/intersect.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -58,7 +59,7 @@ export class IntersectionObserverComponent
   /** CSS class to apply when intersecting */
   @Input() intersectClass?: string;
 
-  @Output() intersect = new EventEmitter<CustomEvent>();
+  @Output() intersect = new EventEmitter<WaIntersectEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -85,7 +86,8 @@ export class IntersectionObserverComponent
       host.style.display = 'inline';
     }
 
-    const handleIntersect = (e: Event) => this.intersect.emit(e as CustomEvent);
+    const handleIntersect = (e: Event) =>
+      this.intersect.emit(e as WaIntersectEvent);
     el.addEventListener('wa-intersect', handleIntersect);
     this.cleanups.push(() =>
       el.removeEventListener('wa-intersect', handleIntersect)

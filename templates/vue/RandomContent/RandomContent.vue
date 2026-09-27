@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaRandomContent from '@awesome.me/webawesome/dist/components/random-content/random-content.js';
+import type { WaContentChangeEvent } from '@awesome.me/webawesome/dist/events/random-content-change.js';
 import './RandomContent.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -53,7 +54,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-content-change': [event: CustomEvent];
+  'wa-content-change': [event: WaContentChangeEvent];
 }>();
 
 const elementRef = ref<WaRandomContent | null>(null);
@@ -63,7 +64,7 @@ onMounted(() => {
 });
 
 const handleWaContentChange = (e: Event) =>
-  emit('wa-content-change', e as CustomEvent);
+  emit('wa-content-change', e as WaContentChangeEvent);
 
 onMounted(() => {
   const el = elementRef.value;

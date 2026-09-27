@@ -32,9 +32,9 @@ import {
 } from '../src/utils/naming.js';
 import {
   formatCustomTypeImports,
+  formatEventTypeImports,
   generateCssTemplate,
   keywordExpression,
-  mapEventType,
   writeFormatted,
   propJsdocLines,
 } from './generator-utils.js';
@@ -92,6 +92,7 @@ interface EventInfo {
   name: string;
   outputName: string;
   type: string;
+  typeModule?: string;
 }
 
 interface MethodParameter {
@@ -118,7 +119,8 @@ function getEvents(
   return metadata.events.map((e) => ({
     name: e.name,
     outputName: toAngularOutputName(e.name, taken),
-    type: mapEventType(e.name),
+    type: e.eventType,
+    typeModule: e.eventTypeModule,
   }));
 }
 
@@ -203,7 +205,11 @@ export function generateComponentTS(
 
   lines.push(`import type WaElement from '${component.importPath}';`);
 
-  const typeImport = formatCustomTypeImports(methods, component.importPath);
+  const typeImport =
+    formatCustomTypeImports(methods, component.importPath) +
+    formatEventTypeImports(
+      events.map((e) => ({ eventType: e.type, eventTypeModule: e.typeModule }))
+    );
   if (typeImport) {
     lines.push(typeImport.trimEnd());
   }

@@ -8,6 +8,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaVideoPlaylist from '@awesome.me/webawesome/dist/components/video-playlist/video-playlist.js';
+import type { WaVideoChangeEvent } from '@awesome.me/webawesome/dist/events/video-change.js';
 import './VideoPlaylist.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -44,7 +45,7 @@ export interface VideoPlaylistProps extends Omit<
   /** The icon library used for placeholder icons */
   'icon-library'?: string;
 
-  onVideoChange?: (event: CustomEvent) => void;
+  onVideoChange?: (event: WaVideoChangeEvent) => void;
 }
 
 export interface VideoPlaylistRef {
@@ -104,7 +105,7 @@ export const VideoPlaylist = forwardRef<VideoPlaylistRef, VideoPlaylistProps>(
       if (!el) return;
 
       const handleWaVideoChange = (e: Event) => {
-        if (onVideoChange) onVideoChange(e as CustomEvent);
+        if (onVideoChange) onVideoChange(e as WaVideoChangeEvent);
       };
 
       el.addEventListener('wa-video-change', handleWaVideoChange);

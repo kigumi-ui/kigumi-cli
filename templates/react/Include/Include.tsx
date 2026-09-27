@@ -8,6 +8,8 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaInclude from '@awesome.me/webawesome/dist/components/include/include.js';
+import type { WaIncludeErrorEvent } from '@awesome.me/webawesome/dist/events/include-error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome/dist/events/load.js';
 import './Include.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -44,10 +46,10 @@ export interface IncludeProps extends Omit<
   'allow-scripts'?: boolean;
 
   /** Emitted when the included file is loaded. */
-  onLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: WaLoadEvent) => void;
 
   /** Emitted when the included file fails to load due to an error. */
-  onIncludeError?: (event: CustomEvent) => void;
+  onIncludeError?: (event: WaIncludeErrorEvent) => void;
 }
 
 export interface IncludeRef {
@@ -78,11 +80,11 @@ export const Include = forwardRef<IncludeRef, IncludeProps>(
       if (!el) return;
 
       const handleWaLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+        if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleWaIncludeError = (e: Event) => {
-        if (onIncludeError) onIncludeError(e as CustomEvent);
+        if (onIncludeError) onIncludeError(e as WaIncludeErrorEvent);
       };
 
       el.addEventListener('wa-load', handleWaLoad);

@@ -11,6 +11,12 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/tree-item/tree-item.js';
+import type { WaAfterCollapseEvent } from '@awesome.me/webawesome/dist/events/after-collapse.js';
+import type { WaAfterExpandEvent } from '@awesome.me/webawesome/dist/events/after-expand.js';
+import type { WaCollapseEvent } from '@awesome.me/webawesome/dist/events/collapse.js';
+import type { WaExpandEvent } from '@awesome.me/webawesome/dist/events/expand.js';
+import type { WaLazyChangeEvent } from '@awesome.me/webawesome/dist/events/lazy-change.js';
+import type { WaLazyLoadEvent } from '@awesome.me/webawesome/dist/events/lazy-load.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -53,12 +59,12 @@ export class TreeItemComponent implements AfterViewInit, OnDestroy {
   /** Enables lazy loading */
   @Input() lazy?: boolean;
 
-  @Output() expand = new EventEmitter<CustomEvent>();
-  @Output() afterExpand = new EventEmitter<CustomEvent>();
-  @Output() collapse = new EventEmitter<CustomEvent>();
-  @Output() afterCollapse = new EventEmitter<CustomEvent>();
-  @Output() lazyChange = new EventEmitter<CustomEvent>();
-  @Output() lazyLoad = new EventEmitter<CustomEvent>();
+  @Output() expand = new EventEmitter<WaExpandEvent>();
+  @Output() afterExpand = new EventEmitter<WaAfterExpandEvent>();
+  @Output() collapse = new EventEmitter<WaCollapseEvent>();
+  @Output() afterCollapse = new EventEmitter<WaAfterCollapseEvent>();
+  @Output() lazyChange = new EventEmitter<WaLazyChangeEvent>();
+  @Output() lazyLoad = new EventEmitter<WaLazyLoadEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -78,33 +84,35 @@ export class TreeItemComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleExpand = (e: Event) => this.expand.emit(e as CustomEvent);
+    const handleExpand = (e: Event) => this.expand.emit(e as WaExpandEvent);
     el.addEventListener('wa-expand', handleExpand);
     this.cleanups.push(() => el.removeEventListener('wa-expand', handleExpand));
     const handleAfterExpand = (e: Event) =>
-      this.afterExpand.emit(e as CustomEvent);
+      this.afterExpand.emit(e as WaAfterExpandEvent);
     el.addEventListener('wa-after-expand', handleAfterExpand);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-expand', handleAfterExpand)
     );
-    const handleCollapse = (e: Event) => this.collapse.emit(e as CustomEvent);
+    const handleCollapse = (e: Event) =>
+      this.collapse.emit(e as WaCollapseEvent);
     el.addEventListener('wa-collapse', handleCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-collapse', handleCollapse)
     );
     const handleAfterCollapse = (e: Event) =>
-      this.afterCollapse.emit(e as CustomEvent);
+      this.afterCollapse.emit(e as WaAfterCollapseEvent);
     el.addEventListener('wa-after-collapse', handleAfterCollapse);
     this.cleanups.push(() =>
       el.removeEventListener('wa-after-collapse', handleAfterCollapse)
     );
     const handleLazyChange = (e: Event) =>
-      this.lazyChange.emit(e as CustomEvent);
+      this.lazyChange.emit(e as WaLazyChangeEvent);
     el.addEventListener('wa-lazy-change', handleLazyChange);
     this.cleanups.push(() =>
       el.removeEventListener('wa-lazy-change', handleLazyChange)
     );
-    const handleLazyLoad = (e: Event) => this.lazyLoad.emit(e as CustomEvent);
+    const handleLazyLoad = (e: Event) =>
+      this.lazyLoad.emit(e as WaLazyLoadEvent);
     el.addEventListener('wa-lazy-load', handleLazyLoad);
     this.cleanups.push(() =>
       el.removeEventListener('wa-lazy-load', handleLazyLoad)

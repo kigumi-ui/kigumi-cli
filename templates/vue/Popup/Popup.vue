@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount } from 'vue';
 import type WaPopup from '@awesome.me/webawesome/dist/components/popup/popup.js';
+import type { WaRepositionEvent } from '@awesome.me/webawesome/dist/events/reposition.js';
 import './Popup.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -77,7 +78,7 @@ function hostAttributes(): Record<string, unknown> {
 }
 
 const emit = defineEmits<{
-  'wa-reposition': [event: CustomEvent];
+  'wa-reposition': [event: WaRepositionEvent];
 }>();
 
 const elementRef = ref<WaPopup | null>(null);
@@ -87,7 +88,7 @@ onMounted(() => {
 });
 
 const handleWaReposition = (e: Event) =>
-  emit('wa-reposition', e as CustomEvent);
+  emit('wa-reposition', e as WaRepositionEvent);
 
 onMounted(() => {
   const el = elementRef.value;

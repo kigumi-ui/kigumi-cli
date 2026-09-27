@@ -11,6 +11,9 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/animation/animation.js';
+import type { WaCancelEvent } from '@awesome.me/webawesome/dist/events/cancel.js';
+import type { WaFinishEvent } from '@awesome.me/webawesome/dist/events/finish.js';
+import type { WaStartEvent } from '@awesome.me/webawesome/dist/events/start.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -74,9 +77,9 @@ export class AnimationComponent implements AfterViewInit, OnDestroy {
   /** Sets the animation's playback rate */
   @Input() playbackRate?: number;
 
-  @Output() cancelEvent = new EventEmitter<CustomEvent>();
-  @Output() finishEvent = new EventEmitter<CustomEvent>();
-  @Output() start = new EventEmitter<CustomEvent>();
+  @Output() cancelEvent = new EventEmitter<WaCancelEvent>();
+  @Output() finishEvent = new EventEmitter<WaFinishEvent>();
+  @Output() start = new EventEmitter<WaStartEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -97,18 +100,18 @@ export class AnimationComponent implements AfterViewInit, OnDestroy {
     }
 
     const handleCancelEvent = (e: Event) =>
-      this.cancelEvent.emit(e as CustomEvent);
+      this.cancelEvent.emit(e as WaCancelEvent);
     el.addEventListener('wa-cancel', handleCancelEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-cancel', handleCancelEvent)
     );
     const handleFinishEvent = (e: Event) =>
-      this.finishEvent.emit(e as CustomEvent);
+      this.finishEvent.emit(e as WaFinishEvent);
     el.addEventListener('wa-finish', handleFinishEvent);
     this.cleanups.push(() =>
       el.removeEventListener('wa-finish', handleFinishEvent)
     );
-    const handleStart = (e: Event) => this.start.emit(e as CustomEvent);
+    const handleStart = (e: Event) => this.start.emit(e as WaStartEvent);
     el.addEventListener('wa-start', handleStart);
     this.cleanups.push(() => el.removeEventListener('wa-start', handleStart));
   }

@@ -27,7 +27,19 @@ export interface ComponentMetadata {
      */
     description?: string;
     reactName?: string;
+    /**
+     * The type a handler receives: the Web Awesome class the component
+     * dispatches (`WaHideEvent`), or a DOM interface for a native event
+     * (`FocusEvent`). Resolved by `scripts/event-types.ts`, never from the
+     * manifest's `eventName`.
+     */
     eventType: string;
+    /**
+     * File basename under Web Awesome's `dist/events/` that declares
+     * `eventType` (`hide` for `hide.js`). Present exactly when `eventType`
+     * is a Web Awesome class a Template must import.
+     */
+    eventTypeModule?: string;
   }>;
   slots: Array<{
     name: string;

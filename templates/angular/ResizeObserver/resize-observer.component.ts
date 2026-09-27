@@ -11,6 +11,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/resize-observer/resize-observer.js';
+import type { WaResizeEvent } from '@awesome.me/webawesome/dist/events/resize.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -41,7 +42,7 @@ export class ResizeObserverComponent implements AfterViewInit, OnDestroy {
   /** Disables the observer */
   @Input() disabled?: boolean;
 
-  @Output() resize = new EventEmitter<CustomEvent>();
+  @Output() resize = new EventEmitter<WaResizeEvent>();
 
   private cleanups: (() => void)[] = [];
 
@@ -61,7 +62,7 @@ export class ResizeObserverComponent implements AfterViewInit, OnDestroy {
       host.style.display = 'inline';
     }
 
-    const handleResize = (e: Event) => this.resize.emit(e as CustomEvent);
+    const handleResize = (e: Event) => this.resize.emit(e as WaResizeEvent);
     el.addEventListener('wa-resize', handleResize);
     this.cleanups.push(() => el.removeEventListener('wa-resize', handleResize));
   }

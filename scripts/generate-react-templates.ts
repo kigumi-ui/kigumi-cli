@@ -18,10 +18,10 @@ import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
+  formatEventTypeImports,
   enumeratedProps,
   generateCssTemplate,
   keywordPairLiteral,
-  mapEventType,
   writeFormatted,
   propJsdocLines,
 } from './generator-utils.js';
@@ -103,7 +103,7 @@ export function generateReactTypescriptTemplate(
   const eventProps = metadata.events
     .map((event) => {
       const reactName = toReactEventName(event.name);
-      const eventType = mapEventType(event.name);
+      const eventType = event.eventType;
       const comment = event.description
         ? `\n  /** ${event.description} */`
         : '';
@@ -190,7 +190,7 @@ ${ownProps}
   const eventHandlers = metadata.events
     .map((event) => {
       const reactName = toReactEventName(event.name);
-      const eventType = mapEventType(event.name);
+      const eventType = event.eventType;
       return `      const ${toHandlerName(event.name)} = (e: Event) => {
         if (${reactName}) ${reactName}(e as ${eventType});
       };`;
@@ -264,10 +264,10 @@ ${enumerated.map((p) => `      setEnumeratedAttribute(el, '${p.name}', ${p.name}
   // 9. Component-specific type imports for non-primitive parameter types.
   // Sibling `Wa*` element types (WaCarouselItem) default-import from their
   // own module; other names named-import from this component's importPath.
-  const typeImport = formatCustomTypeImports(
-    metadata.methods,
-    component.importPath
-  );
+  // Handler types that are Web Awesome event classes import from dist/events.
+  const typeImport =
+    formatCustomTypeImports(metadata.methods, component.importPath) +
+    formatEventTypeImports(metadata.events);
 
   // Convert "AnimatedImage" → "animated-image" for the WA Free path.
   const kebabName = component.tagName.replace(/^wa-/, '');

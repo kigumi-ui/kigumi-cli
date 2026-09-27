@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, useAttrs, onBeforeUnmount, watch } from 'vue';
 import type WaColorPicker from '@awesome.me/webawesome/dist/components/color-picker/color-picker.js';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome/dist/events/hide.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
+import type { WaShowEvent } from '@awesome.me/webawesome/dist/events/show.js';
 import './ColorPicker.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -76,13 +81,13 @@ function hostAttributes(): Record<string, unknown> {
 const emit = defineEmits<{
   change: [event: Event];
   input: [event: InputEvent];
-  'wa-show': [event: CustomEvent];
-  'wa-after-show': [event: CustomEvent];
-  'wa-hide': [event: CustomEvent];
-  'wa-after-hide': [event: CustomEvent];
+  'wa-show': [event: WaShowEvent];
+  'wa-after-show': [event: WaAfterShowEvent];
+  'wa-hide': [event: WaHideEvent];
+  'wa-after-hide': [event: WaAfterHideEvent];
   blur: [event: FocusEvent];
   focus: [event: FocusEvent];
-  'wa-invalid': [event: CustomEvent];
+  'wa-invalid': [event: WaInvalidEvent];
 }>();
 
 const model = defineModel<string>();
@@ -103,13 +108,15 @@ const handleInput = (e: Event) => {
   model.value = (e.target as HTMLElement & { value: string }).value;
   emit('input', e as InputEvent);
 };
-const handleWaShow = (e: Event) => emit('wa-show', e as CustomEvent);
-const handleWaAfterShow = (e: Event) => emit('wa-after-show', e as CustomEvent);
-const handleWaHide = (e: Event) => emit('wa-hide', e as CustomEvent);
-const handleWaAfterHide = (e: Event) => emit('wa-after-hide', e as CustomEvent);
+const handleWaShow = (e: Event) => emit('wa-show', e as WaShowEvent);
+const handleWaAfterShow = (e: Event) =>
+  emit('wa-after-show', e as WaAfterShowEvent);
+const handleWaHide = (e: Event) => emit('wa-hide', e as WaHideEvent);
+const handleWaAfterHide = (e: Event) =>
+  emit('wa-after-hide', e as WaAfterHideEvent);
 const handleBlur = (e: Event) => emit('blur', e as FocusEvent);
 const handleFocus = (e: Event) => emit('focus', e as FocusEvent);
-const handleWaInvalid = (e: Event) => emit('wa-invalid', e as CustomEvent);
+const handleWaInvalid = (e: Event) => emit('wa-invalid', e as WaInvalidEvent);
 
 onMounted(() => {
   const el = elementRef.value;

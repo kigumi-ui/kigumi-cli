@@ -125,9 +125,9 @@ Form controls (Input, Switch, Checkbox, Textarea, Select) emit native DOM events
 | `<Input onInput={...} />` (React)                                               | `<k-input [(ngModel)]="x" />` (Angular, requires `FormsModule`) — **do NOT** wire `(inputEvent)` manually, CVA handles it |
 | `<Input v-model="x" />` (Vue)                                                   | `<Input value={x} onInput={(e) => setX((e.target as HTMLInputElement).value)} />` (React)                                 |
 
-### Overlay event handlers (CustomEvent)
+### Overlay event handlers (Web Awesome event classes)
 
-Overlays (Dialog, Drawer, Dropdown) emit `wa-show`, `wa-hide`, etc. The wrapper exposes them differently per framework.
+Overlays (Dialog, Drawer, Dropdown) emit `wa-show`, `wa-hide`, etc. The wrapper exposes them differently per framework. The handler type is the same in all three, the Web Awesome class (`WaHideEvent`), so carry an explicit annotation across unchanged, and never convert one to `CustomEvent`.
 
 | Source                                             | Target                                                                                                                                      |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
