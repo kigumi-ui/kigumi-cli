@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-09-27
+
+### Added
+
+- **Form controls**: new typed props for native-style attributes that Web Awesome already supports, in React, Vue and Angular. Run `kigumi update` to pick them up in installed components.
+  - `custom-error` (Angular `customError`), a custom validation message that keeps the control invalid while it is set: `Button`, `Checkbox`, `ColorPicker`, `Combobox`, `DateInput`, `FileInput`, `Input`, `KnownDate`, `NumberInput`, `OtpInput`, `Radio`, `RadioGroup`, `Rating`, `Select`, `Slider`, `Switch`, `TagInput`, `Textarea`, `TimeInput`
+  - `title`: `Button`, `Checkbox`, `Input`, `NumberInput`, `Switch`, `Textarea`
+  - `name`: `FileInput`, `NumberInput`, `Radio`
+  - `readonly`: `NumberInput`
+  - `autocomplete`: `KnownDate`, `NumberInput`, `TagInput`, `Textarea`, `TimeInput`
+  - `autofocus`: `NumberInput`, `OtpInput`, `Textarea`
+  - `autocapitalize`, `inputmode`: `TagInput`, `Textarea` (`inputmode` on `NumberInput` too, limited to `numeric` and `decimal`)
+  - `enterkeyhint`: `NumberInput`, `TagInput`, `Textarea`
+  - `spellcheck`: `Input`, `TagInput`
+  - `autocorrect`: `TagInput`, `Textarea`
+
+### Fixed
+
+- **Input, Textarea, Combobox**: `autocorrect={false}` (`Input`, `Combobox`) and `spellcheck={false}` (`Textarea`, `Combobox`) now turn autocorrect and spell checking off. Web Awesome reads these two attributes by value (`"true"`/`"false"`, `"on"`/`"off"`), not by presence. Vue and Angular dropped a `false` value, so `spellcheck` stayed on. React wrote `autocorrect={false}` as `"false"`, which Web Awesome reads as on (React 18), and `autocorrect` as a bare attribute, which it reads as off (React 19). All three frameworks now write the keyword, and leave the attribute off only when the prop is unset. Run `kigumi update` to pick up the fix in installed components.
+- **Angular**: form controls bound with reactive forms (`[formControl]`, `formControlName`) now show the control's initial value and initial disabled state. The Template looked its Web Awesome element up only after the first view check, but reactive forms write the initial state before it, so `new FormControl('a@b.c')` rendered an empty input. Every Angular Template now resolves the element at creation. Run `kigumi update` to pick up the fix in installed Angular components.
+- **Angular**: `IntersectionObserver` compiles on current Angular again. Since 21.2.13 (and in recent 20.3 patches) Angular rejects every `on*` attribute binding as an event handler, so the Template's `[attr.once]` binding failed `ng build` with NG5002. The Template now writes `once` onto the Web Awesome element from `ngOnChanges`. Run `kigumi update` to pick up the fix if you installed it.
+- **Angular**: `Rating` now updates `[(ngModel)]` and reactive forms when the user picks a value. Its ControlValueAccessor listened for `input`, which `wa-rating` never dispatches (it only fires `change`), so the form model never changed. Form controls now read their value on `input` where the component emits one and on `change` otherwise. Run `kigumi update` to pick up the fix in an installed `Rating`.
+- **Unreadable `package.json`**: When `package.json` exists but cannot be read (for example a permissions error, or a directory at that path), commands including `kigumi init` and `kigumi upgrade` now say which file is the problem and how to fix it, and exit with code 4. Previously they printed "An unexpected error occurred" and asked you to report a Kigumi bug.
+- **Invalid `package.json`**: `kigumi init` and `kigumi upgrade` now report a `package.json` that is not valid JSON (or not a JSON object, such as `null`) as "Invalid package.json at ..." with exit code 4, instead of "An unexpected error occurred". Other commands still fall back to token-based tier detection for such a file, as before.
+- **Failed commands no longer leave the project half-changed**: `kigumi brand` and `kigumi theme install` check `package.json` before they write, so a run that fails on it leaves `kigumi.config.json` and your theme files as they were. `kigumi upgrade` saves the new version only after Web Awesome installed, so a failed install is retried on the next run instead of reported as "Already up to date". `kigumi theme install` downloads every theme file before writing any of them.
+- **`kigumi diff`**: a broken `package.json` is now reported as such, instead of every component file being listed as missing.
+- **Tier detection**: Tier detection only ignores a `package.json` that is invalid (not valid JSON, or valid JSON that is not an object, such as `null`) and falls back to the Pro token for it. Other read failures, such as a permissions error or a directory at that path, are reported instead of being treated as "no package installed".
+- **Vue**: multi-word boolean props such as `with-caret`, `with-clear` or `light-dismiss` now reach the Web Awesome element. Vue camelized them, so the first render wrote an attribute (`withcaret`) that Web Awesome never reads. Run `kigumi update` to pick up the fix in installed Vue components.
+- **Vue**: a `false` value no longer turns a Web Awesome boolean on. Attributes passed through without a declared prop (for example `:with-hint="false"`), and the `v-model:open` / checked models, rendered as `attr="false"`, which Web Awesome treats as present.
+- **Vue**: event listeners on the Web Awesome element are now removed on unmount. The cleanup ran after Vue had cleared the element ref, so it never removed anything.
+
 ## [1.1.0] - 2026-09-20
 
 ### Added
