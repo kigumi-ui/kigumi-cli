@@ -31,7 +31,8 @@
  *     its `defineEmits` names, host listeners and props (issue #122). Both
  *     variants come from one generator, so a finding means a dialect branch
  *     in the generator or a hand edit. A declaration the reader cannot
- *     enumerate is a finding. Either arm comparing no Template is a finding.
+ *     enumerate is a finding. Either arm comparing no component directory is
+ *     a finding.
  *
  *   D (starter fixtures, comment-normalized): each fixture `.css` under
  *     `tests/fixtures/starter-snapshots/` must match its source template by
@@ -389,6 +390,32 @@ const SCRIPT_KINDS = new Map<string, ts.ScriptKind>([
 const SURFACELESS_OPTIONS = new Set(['name', 'inheritAttrs']);
 
 /**
+ * Parse one SFC script block with the TypeScript parser, choosing the dialect
+ * from the block's `lang` (defaulting to JavaScript). `report` receives the
+ * offending `lang` when the block is neither, and the result is `undefined`.
+ * Both `<script>` and `<script setup>` go through here so a `lang` the reader
+ * cannot handle is refused the same way in each.
+ */
+function parseBlock(
+  block: SFCScriptBlock,
+  fileName: string,
+  report: (lang: string) => void
+): ts.SourceFile | undefined {
+  const scriptKind = SCRIPT_KINDS.get(block.lang ?? 'js');
+  if (scriptKind === undefined) {
+    report(block.lang ?? 'js');
+    return undefined;
+  }
+  return ts.createSourceFile(
+    fileName,
+    block.content,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKind
+  );
+}
+
+/**
  * Check that a plain `<script>` block declares no surface. Vue merges its
  * default export into the component, so an `emits` or `props` there is
  * surface the `<script setup>` reading never sees. Imports, type
@@ -400,18 +427,12 @@ function readPlainScript(
   block: SFCScriptBlock,
   report: (problem: string) => void
 ): void {
-  const scriptKind = SCRIPT_KINDS.get(block.lang ?? 'js');
-  if (scriptKind === undefined) {
-    report(`lang="${block.lang}" is not JavaScript or TypeScript`);
+  const script = parseBlock(block, 'script.ts', (lang) => {
+    report(`lang="${lang}" is not JavaScript or TypeScript`);
+  });
+  if (!script) {
     return;
   }
-  const script = ts.createSourceFile(
-    'script.ts',
-    block.content,
-    ts.ScriptTarget.Latest,
-    true,
-    scriptKind
-  );
   for (const statement of script.statements) {
     if (
       ts.isImportDeclaration(statement) ||
@@ -484,21 +505,14 @@ function extractVueSurface(source: string): VueSurface {
       surface.unreadable.push(`plain <script>: ${problem}`);
     });
   }
-  const scriptKind = SCRIPT_KINDS.get(block.lang ?? 'js');
-  if (scriptKind === undefined) {
+  const script = parseBlock(block, 'script-setup.ts', (lang) => {
     surface.unreadable.push(
-      `<script setup lang="${block.lang}"> is not JavaScript or TypeScript`
+      `<script setup lang="${lang}"> is not JavaScript or TypeScript`
     );
+  });
+  if (!script) {
     return surface;
   }
-
-  const script = ts.createSourceFile(
-    'script-setup.ts',
-    block.content,
-    ts.ScriptTarget.Latest,
-    true,
-    scriptKind
-  );
   const readCall = (call: ts.CallExpression): void => {
     const callee = call.expression;
     // Vue compiles a macro only when it is called by its bare name.

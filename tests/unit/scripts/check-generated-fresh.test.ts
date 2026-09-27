@@ -359,6 +359,33 @@ describe('extractVueSurface (declarations it cannot enumerate)', () => {
     expect(surface.emits).toEqual(new Set(['blur']));
   });
 
+  it('reads type declarations in a plain <script> as declaring nothing', () => {
+    // The other half of "an import or type" the refused-cases table names.
+    const surface = extractVueSurface(
+      '<script lang="ts">\n' +
+        'interface WaProps {\n  variant: string;\n}\n' +
+        'type WaAlias = WaProps | undefined;\n' +
+        "export default { name: 'Button' };\n" +
+        '</script>\n' +
+        tsSfc('defineEmits<{ blur: [event: FocusEvent] }>();')
+    );
+    expect(surface.unreadable).toEqual([]);
+    expect(surface.emits).toEqual(new Set(['blur']));
+  });
+
+  it('reads a shorthand surfaceless option in a plain <script> as declaring nothing', () => {
+    // `export default { name }` names the property without a colon, so it is a
+    // ShorthandPropertyAssignment rather than a PropertyAssignment.
+    const surface = extractVueSurface(
+      "<script>\nimport { name } from './component-name.js';\n" +
+        'export default { name };\n' +
+        '</script>\n' +
+        jsSfc("defineEmits(['blur']);")
+    );
+    expect(surface.unreadable).toEqual([]);
+    expect(surface.emits).toEqual(new Set(['blur']));
+  });
+
   it.each([
     [
       'a runtime declaration held in a variable',
@@ -451,9 +478,21 @@ describe('extractVueSurface (declarations it cannot enumerate)', () => {
       'plain <script>: const EMITS = []; is not read',
     ],
     [
+      'a plain <script> using `export =`',
+      '<script lang="ts">\nexport = { name: "Button" };\n</script>\n' +
+        tsSfc('defineEmits<{ blur: [event: FocusEvent] }>();'),
+      'plain <script>: export = { name: "Button" }; is not read',
+    ],
+    [
       'a script language that is not JavaScript or TypeScript',
       '<script setup lang="coffee">\ndefineEmits [\'blur\']\n</script>\n',
       '<script setup lang="coffee"> is not JavaScript or TypeScript',
+    ],
+    [
+      'a plain <script> language that is not JavaScript or TypeScript',
+      '<script lang="coffee">\nexport default { name: "Button" }\n</script>\n' +
+        jsSfc("defineEmits(['blur']);"),
+      'plain <script>: lang="coffee" is not JavaScript or TypeScript',
     ],
     [
       'an SFC that does not parse',
