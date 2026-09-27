@@ -45,7 +45,7 @@ function ensureLoaded() {
   styleUrl: './format-number.component.css',
 })
 export class FormatNumberComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The number to format */

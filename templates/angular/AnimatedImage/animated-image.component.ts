@@ -40,7 +40,7 @@ function ensureLoaded() {
   styleUrl: './animated-image.component.css',
 })
 export class AnimatedImageComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The path to the image to load */

@@ -35,7 +35,7 @@ function ensureLoaded() {
   styleUrl: './comparison.component.css',
 })
 export class ComparisonComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Divider location as percentage (0-100) */

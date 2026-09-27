@@ -38,7 +38,7 @@ function ensureLoaded() {
   styleUrl: './format-bytes.component.css',
 })
 export class FormatBytesComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The number to format in bytes */

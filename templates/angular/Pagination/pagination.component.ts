@@ -51,7 +51,7 @@ function ensureLoaded() {
   styleUrl: './pagination.component.css',
 })
 export class PaginationComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The total number of items to paginate */

@@ -21,7 +21,8 @@ export {
   type ProofCoverage,
 } from './template-function-harness.js';
 
-export type ReactTemplateProbe = Omit<TemplateProbe, 'adapter'>;
+/** React forwards `className`, so a React probe always carries one. */
+export type ReactTemplateProbe = Omit<TemplateProbe<string>, 'adapter'>;
 export type ReactTemplateProof = TemplateProof;
 
 export const REACT_ADAPTER: TemplateAdapter = {

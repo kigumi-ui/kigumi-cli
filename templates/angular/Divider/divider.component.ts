@@ -32,7 +32,7 @@ function ensureLoaded() {
   styleUrl: './divider.component.css',
 })
 export class DividerComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Divider orientation */

@@ -55,7 +55,7 @@ function ensureLoaded() {
   styleUrl: './time-input.component.css',
 })
 export class TimeInputComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The name of the control, submitted with form data */

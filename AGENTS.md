@@ -233,16 +233,17 @@ All Kigumi Angular components use `k-` prefix (e.g., `<k-button>`, `<k-dialog>`)
 
 ### 10. Angular: Event Collision Suffixes
 
-Native DOM events collide with Angular lifecycle methods. The `@Output()` names use suffixes:
+An `@Output()` shares the component class namespace with its public methods and `@Input()`s, so a name already taken there gets an `Event` suffix. `input` always does, since it reads as the `@Input()` decorator. The rule is `toAngularOutputName()` in `src/utils/naming.ts`, shared by the generator and the Angular function harness:
 
-| WA Event | Angular @Output() |
-| -------- | ----------------- |
-| `blur`   | `blurEvent`       |
-| `focus`  | `focusEvent`      |
-| `show`   | `showEvent`       |
-| `input`  | `inputEvent`      |
+| WA Event     | Angular @Output() | Why                                                    |
+| ------------ | ----------------- | ------------------------------------------------------ |
+| `input`      | `inputEvent`      | always                                                 |
+| `blur`       | `blurEvent`       | form controls have a public `blur()` method            |
+| `focus`      | `focusEvent`      | form controls have a public `focus()` method           |
+| `wa-show`    | `showEvent`       | only with a public `show()` (e.g. Tooltip, Select)     |
+| `wa-invalid` | `invalidEvent`    | only with an `invalid` input (e.g. Select, RadioGroup) |
 
-Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` -> `afterShow`.
+Non-colliding events keep their base name: `wa-hide` -> `hide`, `wa-after-show` -> `afterShow`, and Dialog's `wa-show` -> `show` (its `show()` is private since WA 3.5.0).
 
 ### 11. Angular: CVA for Form Controls
 
@@ -1124,3 +1125,4 @@ pnpm release-readiness:quick         # skip e2e
 - tier detection has no sync variant any more: commands call `detectTier` once, before their first write, and pass the tier to `regenerateKigumiSetup` / `generateComponent`, where it is now required, issue #121
 - validate:generated-fresh Check C covers Vue: every `.js.vue` emit, host listener and prop must exist in its `.vue`. The `<script setup>` is parsed (Vue's SFC parser, then the TypeScript AST), a declaration it cannot enumerate is a finding rather than an empty set, and a run that compared no Vue Template fails, issue #122
 - Check C's React arm follows the same rule: `checkReactJsVariantSubset()` reports how many `.tsx`/`.jsx` pairs it compared, and a run that compared none fails instead of passing silently, issue #122
+- the Angular `@Output()` naming rule moved from the generator into `toAngularOutputName()` in `src/utils/naming.ts`, shared with the Angular function harness; rule 10 now states it as a class-namespace collision (methods and `@Input()`s) rather than a lifecycle-method one, issue #77

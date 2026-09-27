@@ -14,9 +14,10 @@
  * The SFCs compile through `vitest.vue-plugin.ts` with the same
  * `isCustomElement` rule `kigumi init` writes for consumers, and Web Awesome
  * deep-imports resolve to a stub (`vitest.wa-stub-alias.ts`), so no Pro token
- * is needed. Metadata presence and the eventless / methodless pins are
- * asserted by the React loop's coverage block; here each run must also report
- * what it proved, so an emptied CEM field cannot read as a pass (ADR 0003).
+ * is needed. The shared coverage block (`_helpers/registry-coverage.ts`)
+ * rejects missing or emptied metadata and stale eventless / methodless pins,
+ * and each run must also report what it proved, so an emptied CEM field
+ * cannot read as a pass (ADR 0003).
  *
  * One Vue-specific input mapping: a `v-model` Template carries its CEM
  * `value` / `checked` attribute as `modelValue`, and binds that model over
@@ -36,6 +37,7 @@ import {
 } from './vue-function-harness.js';
 import { METHODLESS_COMPONENTS } from './_helpers/methodless-components.js';
 import { EVENTLESS_COMPONENTS } from './_helpers/eventless-components.js';
+import { describeRegistryCoverage } from './_helpers/registry-coverage.js';
 
 const METHODLESS = new Set(METHODLESS_COMPONENTS);
 const EVENTLESS = new Set(EVENTLESS_COMPONENTS);
@@ -88,6 +90,8 @@ function toVueProps(
   const { [modelAttribute]: modelValue, ...rest } = attributes;
   return { ...rest, modelValue };
 }
+
+describeRegistryCoverage();
 
 describe('v-model pin (fail closed)', () => {
   it('pins every Vue Template that declares modelValue, and only those', async () => {

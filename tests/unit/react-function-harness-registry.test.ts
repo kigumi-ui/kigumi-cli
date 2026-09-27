@@ -26,6 +26,7 @@ import {
 } from './react-function-harness.js';
 import { METHODLESS_COMPONENTS } from './_helpers/methodless-components.js';
 import { EVENTLESS_COMPONENTS } from './_helpers/eventless-components.js';
+import { describeRegistryCoverage } from './_helpers/registry-coverage.js';
 
 afterEach(() => {
   cleanup();
@@ -34,49 +35,7 @@ afterEach(() => {
 const METHODLESS = new Set(METHODLESS_COMPONENTS);
 const EVENTLESS = new Set(EVENTLESS_COMPONENTS);
 
-describe('registry coverage (fail closed)', () => {
-  it('has a COMPONENT_METADATA entry for every registry component', () => {
-    const missing = Object.keys(LOCAL_REGISTRY).filter(
-      (slug) => !(slug in COMPONENT_METADATA)
-    );
-    expect(missing).toEqual([]);
-  });
-
-  it('has a non-empty attribute list for every registry component', () => {
-    const empty = Object.keys(LOCAL_REGISTRY).filter(
-      (slug) => (COMPONENT_METADATA[slug]?.attributes.length ?? 0) === 0
-    );
-    expect(empty).toEqual([]);
-  });
-
-  it('keeps public CEM methods for every component not pinned as methodless', () => {
-    const gutted = Object.keys(LOCAL_REGISTRY)
-      .filter((slug) => !METHODLESS.has(slug))
-      .filter((slug) => (COMPONENT_METADATA[slug]?.methods.length ?? 0) === 0);
-    expect(gutted).toEqual([]);
-  });
-
-  it('pins only components that really have no public CEM methods', () => {
-    const stale = METHODLESS_COMPONENTS.filter(
-      (slug) => (COMPONENT_METADATA[slug]?.methods.length ?? 0) > 0
-    );
-    expect(stale).toEqual([]);
-  });
-
-  it('keeps CEM events for every component not pinned as eventless', () => {
-    const gutted = Object.keys(LOCAL_REGISTRY)
-      .filter((slug) => !EVENTLESS.has(slug))
-      .filter((slug) => (COMPONENT_METADATA[slug]?.events.length ?? 0) === 0);
-    expect(gutted).toEqual([]);
-  });
-
-  it('pins only components that really have no CEM events', () => {
-    const stale = EVENTLESS_COMPONENTS.filter(
-      (slug) => (COMPONENT_METADATA[slug]?.events.length ?? 0) > 0
-    );
-    expect(stale).toEqual([]);
-  });
-});
+describeRegistryCoverage();
 
 describe('every React Template against CEM metadata', () => {
   for (const [slug, definition] of Object.entries(LOCAL_REGISTRY)) {

@@ -37,7 +37,7 @@ function ensureLoaded() {
   styleUrl: './callout.component.css',
 })
 export class CalloutComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The callout's visual appearance */
