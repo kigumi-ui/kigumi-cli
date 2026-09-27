@@ -18,13 +18,13 @@ const meta = {
       control: 'text',
       description:
         '**Deprecated.** Set the CSS color property on the QR code instead.',
-      table: { category: 'Deprecated' },
+      table: { category: 'Deprecated', defaultValue: { summary: "''" } },
     },
     background: {
       control: 'text',
       description:
         '**Deprecated.** Set the CSS background-color property on the QR code instead.',
-      table: { category: 'Deprecated' },
+      table: { category: 'Deprecated', defaultValue: { summary: "''" } },
     },
     radius: {
       control: 'number',

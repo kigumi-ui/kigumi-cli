@@ -15,6 +15,7 @@ import {
   allowlistedKeysInRegistry,
   checkAttributeDrift,
   checkDeprecationDrift,
+  countDrift,
   parseCemAttributes,
   GLOBAL_ATTRIBUTE_ALLOWLIST,
   KIGUMI_DEPRECATIONS,
@@ -25,6 +26,7 @@ import {
   type AttributePolicy,
   type CemManifest,
   type KigumiDeprecation,
+  type SyncFinding,
 } from '../../scripts/validate-cem-sync.js';
 import type { ComponentDefinition } from '../../src/utils/registry/types.js';
 import { LOCAL_REGISTRY } from '../../src/utils/registry.js';
@@ -66,6 +68,7 @@ describe('validate:cem-sync', () => {
         'allowlisted-but-wrapped',
         'attribute-missing-from-registry',
         'stale-allowlist-entry',
+        'stale-kigumi-deprecation',
         'deprecation-missing-from-registry',
         'deprecation-missing-from-cem',
       ]).toContain(finding.category);
@@ -106,15 +109,10 @@ describe('validate:cem-sync', () => {
     expect(result.stats.propValueDrift).toBe(drift);
   });
 
-  it('deprecationDrift stat matches count of deprecation findings', async () => {
+  it('reports drift counts from the findings it returns', async () => {
     const result = await validateCemSync();
 
-    const drift = result.findings.filter(
-      (f) =>
-        f.category === 'deprecation-missing-from-registry' ||
-        f.category === 'deprecation-missing-from-cem'
-    ).length;
-    expect(result.stats.deprecationDrift).toBe(drift);
+    expect(result.stats).toMatchObject(countDrift(result.findings));
   });
 
   it('reports whether the prop-value half actually ran', async (ctx) => {
@@ -509,6 +507,15 @@ describe('parseCemAttributes', () => {
       ['wa-widget', { fill: 'Use color instead.', old: true }],
     ]);
   });
+
+  it('reads an empty deprecation message as a bare deprecation', () => {
+    // The schema's string is the reason, so "" still deprecates the attribute.
+    const { deprecations } = parseCemAttributes(
+      manifest([{ name: 'fill', deprecated: '' }])
+    );
+
+    expect([...deprecations]).toEqual([['wa-widget', { fill: true }]]);
+  });
 });
 
 describe('checkDeprecationDrift', () => {
@@ -528,14 +535,31 @@ describe('checkDeprecationDrift', () => {
 
   const kigumi: KigumiDeprecation = { reason: 'fixture' };
 
+  /**
+   * Each CEM attribute maps to its `deprecated` field, `false` meaning
+   * declared but not deprecated. Built through `parseCemAttributes`, so the
+   * fixtures read the manifest the way the validator does.
+   */
   function drift(
     registry: Array<[string, ComponentDefinition]>,
-    cem: Array<[string, Record<string, string | true>]>,
+    cem: Array<[string, Record<string, string | boolean>]>,
     kigumiDeprecations: Record<string, Record<string, KigumiDeprecation>> = {}
   ) {
     return checkDeprecationDrift(
       new Map(registry),
-      new Map(cem),
+      parseCemAttributes({
+        modules: [
+          {
+            declarations: cem.map(([tagName, attributes]) => ({
+              customElement: true,
+              tagName,
+              attributes: Object.entries(attributes).map(
+                ([name, deprecated]) => ({ name, deprecated })
+              ),
+            })),
+          },
+        ],
+      }),
       kigumiDeprecations
     );
   }
@@ -593,7 +617,7 @@ describe('checkDeprecationDrift', () => {
           makeDef([{ name: 'min', type: 'number', deprecated: 'Gone.' }]),
         ],
       ],
-      [['wa-widget', {}]]
+      [['wa-widget', { min: false }]]
     );
 
     expect(findings).toEqual([
@@ -602,6 +626,31 @@ describe('checkDeprecationDrift', () => {
         category: 'deprecation-missing-from-cem',
         severity: 'error',
         message: expect.stringContaining('widget.min'),
+      },
+    ]);
+    expect(findings[0].message).toContain('record why in KIGUMI_DEPRECATIONS');
+  });
+
+  it('says so when the CEM declares no such attribute at all', () => {
+    // A removed attribute needs a different fix than a Kigumi-side choice.
+    const findings = drift(
+      [
+        [
+          'widget',
+          makeDef([{ name: 'min', type: 'number', deprecated: 'Gone.' }]),
+        ],
+      ],
+      [['wa-widget', {}]]
+    );
+
+    expect(findings).toEqual([
+      {
+        component: 'widget',
+        category: 'deprecation-missing-from-cem',
+        severity: 'error',
+        message: expect.stringContaining(
+          'wa-widget declares no such attribute'
+        ),
       },
     ]);
   });
@@ -614,7 +663,7 @@ describe('checkDeprecationDrift', () => {
           makeDef([{ name: 'min', type: 'number', deprecated: 'Gone.' }]),
         ],
       ],
-      [['wa-widget', {}]],
+      [['wa-widget', { min: false }]],
       { widget: { min: kigumi } }
     );
 
@@ -634,7 +683,7 @@ describe('checkDeprecationDrift', () => {
   describe('stale Kigumi-side entries', () => {
     const staleError = (component: string, text: string) => ({
       component,
-      category: 'stale-allowlist-entry',
+      category: 'stale-kigumi-deprecation',
       severity: 'error',
       message: expect.stringContaining(text),
     });
@@ -642,13 +691,14 @@ describe('checkDeprecationDrift', () => {
     it('errors when the registry prop is no longer deprecated', () => {
       const findings = drift(
         [['widget', makeDef([{ name: 'min', type: 'number' }])]],
-        [['wa-widget', {}]],
+        [['wa-widget', { min: false }]],
         { widget: { min: kigumi } }
       );
 
       expect(findings).toEqual([
         staleError('widget', 'is not deprecated in the registry'),
       ]);
+      expect(findings[0].message).toContain(`("${kigumi.reason}")`);
     });
 
     it('errors when the registry has no such prop', () => {
@@ -692,9 +742,9 @@ describe('checkDeprecationDrift', () => {
     // outlive its prop without a manifest on disk to notice.
     const findings = checkDeprecationDrift(
       new Map(Object.entries(LOCAL_REGISTRY)),
-      new Map(),
+      { types: new Map(), deprecations: new Map() },
       KIGUMI_DEPRECATIONS
-    ).filter((f) => f.category === 'stale-allowlist-entry');
+    ).filter((f) => f.category === 'stale-kigumi-deprecation');
 
     expect(findings).toEqual([]);
     expect(Object.keys(KIGUMI_DEPRECATIONS['radar-chart']).sort()).toEqual([
@@ -703,5 +753,36 @@ describe('checkDeprecationDrift', () => {
       'min',
       'stacked',
     ]);
+  });
+});
+
+describe('countDrift', () => {
+  const finding = (category: SyncFinding['category']): SyncFinding => ({
+    component: 'widget',
+    category,
+    severity: 'warning',
+    message: 'fixture',
+  });
+
+  it('counts each kind of drift, and no stale entry as drift', () => {
+    expect(
+      countDrift([
+        finding('missing-from-registry'),
+        finding('missing-from-cem'),
+        finding('prop-value-drift'),
+        finding('prop-value-drift'),
+        finding('attribute-missing-from-registry'),
+        finding('deprecation-missing-from-registry'),
+        finding('deprecation-missing-from-cem'),
+        finding('stale-allowlist-entry'),
+        finding('stale-kigumi-deprecation'),
+      ])
+    ).toEqual({
+      onlyInCem: 1,
+      onlyInRegistry: 1,
+      propValueDrift: 2,
+      attributeDrift: 1,
+      deprecationDrift: 2,
+    });
   });
 });
