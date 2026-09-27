@@ -18,7 +18,9 @@ import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
+  enumeratedProps,
   generateCssTemplate,
+  keywordPairLiteral,
   mapEventType,
   writeFormatted,
 } from './generator-utils.js';
@@ -213,13 +215,11 @@ export function generateReactTypescriptTemplate(
   // coerces the string "false" to true, and writes other booleans as a bare
   // attribute, which Web Awesome reads as false. So they leave the rest
   // spread and an effect writes the keyword attribute itself.
-  const enumeratedProps = component.props.filter((p) => p.keywords);
+  const enumerated = enumeratedProps(component.props);
   const refName = `${component.name.toLowerCase()}Ref`;
-  const enumeratedDestructure = enumeratedProps
-    .map((p) => `, ${p.name}`)
-    .join('');
+  const enumeratedDestructure = enumerated.map((p) => `, ${p.name}`).join('');
   const enumeratedHelper =
-    enumeratedProps.length > 0
+    enumerated.length > 0
       ? `
 /**
  * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
@@ -230,21 +230,21 @@ function setEnumeratedAttribute(
   el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
   name: string,
   value: boolean | undefined,
-  keywords: [on: string, off: string]
+  keywords: { true: string; false: string }
 ): void {
   if (value === undefined) el.removeAttribute(name);
-  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+  else el.setAttribute(name, value ? keywords.true : keywords.false);
 }
 `
       : '';
   const enumeratedEffect =
-    enumeratedProps.length > 0
+    enumerated.length > 0
       ? `
     useEffect(() => {
       const el = ${refName}.current;
       if (!el) return;
-${enumeratedProps.map((p) => `      setEnumeratedAttribute(el, '${p.name}', ${p.name}, ['${p.keywords?.true}', '${p.keywords?.false}']);`).join('\n')}
-    }, [${enumeratedProps.map((p) => p.name).join(', ')}]);
+${enumerated.map((p) => `      setEnumeratedAttribute(el, '${p.name}', ${p.name}, ${keywordPairLiteral(p.keywords)});`).join('\n')}
+    }, [${enumerated.map((p) => p.name).join(', ')}]);
 `
       : '';
 

@@ -17,11 +17,13 @@ function ensureLoaded() {
  * @param {Element} el
  * @param {string} name
  * @param {boolean | undefined} value
- * @param {[string, string]} keywords - the values for true and for false
+ * @param {Object} keywords - the attribute values for true and for false
+ * @param {string} keywords.true
+ * @param {string} keywords.false
  */
 function setEnumeratedAttribute(el, name, value, keywords) {
   if (value === undefined) el.removeAttribute(name);
-  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+  else el.setAttribute(name, value ? keywords.true : keywords.false);
 }
 
 /**
@@ -169,8 +171,14 @@ export const TagInput = React.forwardRef(
     React.useEffect(() => {
       const el = taginputRef.current;
       if (!el) return;
-      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
-      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, {
+        true: 'on',
+        false: 'off',
+      });
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, {
+        true: 'true',
+        false: 'false',
+      });
     }, [autocorrect, spellcheck]);
 
     return (

@@ -27,10 +27,10 @@ function setEnumeratedAttribute(
   el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
   name: string,
   value: boolean | undefined,
-  keywords: [on: string, off: string]
+  keywords: { true: string; false: string }
 ): void {
   if (value === undefined) el.removeAttribute(name);
-  else el.setAttribute(name, value ? keywords[0] : keywords[1]);
+  else el.setAttribute(name, value ? keywords.true : keywords.false);
 }
 
 /**
@@ -424,8 +424,14 @@ export const Input = forwardRef<InputRef, InputProps>(
     useEffect(() => {
       const el = inputRef.current;
       if (!el) return;
-      setEnumeratedAttribute(el, 'autocorrect', autocorrect, ['on', 'off']);
-      setEnumeratedAttribute(el, 'spellcheck', spellcheck, ['true', 'false']);
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, {
+        true: 'on',
+        false: 'off',
+      });
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, {
+        true: 'true',
+        false: 'false',
+      });
     }, [autocorrect, spellcheck]);
 
     return (

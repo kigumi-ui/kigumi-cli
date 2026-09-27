@@ -6,6 +6,10 @@ export default defineConfig({
   plugins: [VUE_SFC_PLUGIN],
   resolve: {
     alias: [WA_COMPONENT_STUB_ALIAS],
+    // One React for every importer. The docs-site wrappers under docs/ would
+    // otherwise resolve docs/node_modules/react wherever docs dependencies
+    // are installed, and its hooks fail under the root react-dom.
+    dedupe: ['react', 'react-dom'],
   },
   test: {
     testTimeout: 30000,

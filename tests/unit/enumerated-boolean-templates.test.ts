@@ -5,7 +5,9 @@
  * The function harnesses prove the TypeScript Templates write the pinned
  * keyword for true and for false, each on a fresh mount. Two things stay
  * outside them: the JavaScript variants (`.jsx` is hand-maintained, and
- * neither it nor `.js.vue` has a harness yet, #71), and a prop that changes
+ * neither it nor `.js.vue` has a harness yet, #71), the docs-site wrappers
+ * (hand-maintained copies of the React Templates that back Storybook), and a
+ * prop that changes
  * after mount, which is where a React effect with the wrong dependencies or
  * a Vue branch that ignores `undefined` would go wrong. So each variant is
  * mounted once and moved true -> false -> unset: the attribute must read the
@@ -73,13 +75,30 @@ describe('enumerated-boolean targets', () => {
   });
 });
 
-describe.each(['tsx', 'jsx'] as const)('React .%s', (extension) => {
+/** Every React source that carries its own copy of the keyword write. */
+const REACT_SOURCES = [
+  {
+    label: 'Template .tsx',
+    path: (name: string) => `../../templates/react/${name}/${name}.tsx`,
+  },
+  {
+    label: 'Template .jsx',
+    path: (name: string) => `../../templates/react/${name}/${name}.jsx`,
+  },
+  {
+    label: 'docs wrapper',
+    path: (name: string) => `../../docs/src/components/ui/${name}/${name}.tsx`,
+  },
+];
+
+describe.each(REACT_SOURCES)('React $label', ({ path }) => {
   it.each(TARGETS)(
     '$name writes $attribute as its keyword across prop changes',
     async ({ name, tagName, attribute }) => {
-      const mod = (await import(
-        /* @vite-ignore */ `../../templates/react/${name}/${name}.${extension}`
-      )) as Record<string, React.ComponentType<Record<string, unknown>>>;
+      const mod = (await import(/* @vite-ignore */ path(name))) as Record<
+        string,
+        React.ComponentType<Record<string, unknown>>
+      >;
       const Template = mod[name];
       expect(Template).toBeDefined();
 

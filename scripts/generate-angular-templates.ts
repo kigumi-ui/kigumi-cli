@@ -33,6 +33,7 @@ import {
 import {
   formatCustomTypeImports,
   generateCssTemplate,
+  keywordExpression,
   mapEventType,
   writeFormatted,
 } from './generator-utils.js';
@@ -224,7 +225,7 @@ export function generateComponentTS(
       // An enumerated attribute: `false` is written as its keyword, not
       // dropped, and only an unset input leaves the element's default.
       templateAttrs.push(
-        `[attr.${attrName}]="${propName} == null ? null : ${propName} ? '${prop.keywords.true}' : '${prop.keywords.false}'"`
+        `[attr.${attrName}]="${propName} == null ? null : ${keywordExpression(propName, prop.keywords)}"`
       );
     } else if (prop.type === 'boolean') {
       templateAttrs.push(`[attr.${attrName}]="${propName} || null"`);

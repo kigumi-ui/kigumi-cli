@@ -25,7 +25,9 @@ import { toPascalCase } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
+  enumeratedProps,
   generateCssTemplate,
+  keywordPairLiteral,
   mapEventType,
   writeFormatted,
 } from './generator-utils.js';
@@ -522,11 +524,11 @@ onMounted(() => {
   // Enumerated booleans (`spellcheck`, `autocorrect`): `false` is written as
   // its keyword, so the TS variant opts them out of Vue's Boolean casting
   // with an explicit `undefined` default, as the JS variant does per prop.
-  const enumeratedProps = filteredProps.filter((p) => p.keywords);
+  const enumerated = enumeratedProps(filteredProps);
   const typedDefineProps =
-    enumeratedProps.length > 0
+    enumerated.length > 0
       ? `withDefaults(defineProps<${component.name}Props>(), {
-${enumeratedProps.map((p) => `  ${p.name}: undefined,`).join('\n')}
+${enumerated.map((p) => `  ${p.name}: undefined,`).join('\n')}
 })`
       : `defineProps<${component.name}Props>()`;
 
@@ -546,21 +548,21 @@ ${propsSection}
   // component has one. The `^` prefix makes Vue write an attribute even once
   // the upgraded element has a property of that name.
   const enumeratedTable =
-    enumeratedProps.length > 0
+    enumerated.length > 0
       ? `// Web Awesome reads these as enumerated attributes, not by presence:
 // \`false\` is written as its keyword rather than dropped.
-const ENUMERATED_ATTRIBUTES${typed ? ': Record<string, [string, string]>' : ''} = {
-${enumeratedProps.map((p) => `  ${p.name}: ['${p.keywords?.true}', '${p.keywords?.false}'],`).join('\n')}
+const ENUMERATED_ATTRIBUTES${typed ? ': Record<string, { true: string; false: string }>' : ''} = {
+${enumerated.map((p) => `  ${p.name}: ${keywordPairLiteral(p.keywords)},`).join('\n')}
 };
 
 `
       : '';
   const enumeratedBranch =
-    enumeratedProps.length > 0
+    enumerated.length > 0
       ? `
     const keywords = ENUMERATED_ATTRIBUTES[key];
     if (keywords && value !== undefined) {
-      result[\`^\${key}\`] = value ? keywords[0] : keywords[1];
+      result[\`^\${key}\`] = value ? keywords.true : keywords.false;
       continue;
     }`
       : '';

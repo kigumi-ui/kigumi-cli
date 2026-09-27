@@ -41,8 +41,8 @@ defineOptions({ inheritAttrs: false });
 // Web Awesome reads these as enumerated attributes, not by presence:
 // `false` is written as its keyword rather than dropped.
 const ENUMERATED_ATTRIBUTES = {
-  autocorrect: ['on', 'off'],
-  spellcheck: ['true', 'false'],
+  autocorrect: { true: 'on', false: 'off' },
+  spellcheck: { true: 'true', false: 'false' },
 };
 
 // Forward props and fallthrough attributes to the web component yourself,
@@ -68,7 +68,7 @@ function hostAttributes() {
   for (const [key, value] of Object.entries(props)) {
     const keywords = ENUMERATED_ATTRIBUTES[key];
     if (keywords && value !== undefined) {
-      result[`^${key}`] = value ? keywords[0] : keywords[1];
+      result[`^${key}`] = value ? keywords.true : keywords.false;
       continue;
     }
     if (value === undefined || value === false) continue;

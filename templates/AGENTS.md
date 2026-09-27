@@ -369,13 +369,22 @@ the prop is unset. Such a prop takes no `default`.
   an effect via `setEnumeratedAttribute()`. JSX cannot express it. React 19
   sets `spellcheck` as a DOM property, whose setter coerces `"false"` to true,
   and writes other booleans as a bare attribute, which WA reads as false. The
-  hand-maintained `.jsx` files carry the same effect (Input, Textarea,
-  TagInput, Combobox).
+  hand-maintained `.jsx` files and the docs-site wrappers carry the same
+  effect (Input, Textarea, TagInput, Combobox).
+
+The three generators share one source for what the frameworks have in common:
+`enumeratedProps()`, `keywordPairLiteral()` and `keywordExpression()` in
+`scripts/generator-utils.ts`. Every copy spells a pair with the registry's
+named shape, `{ true: 'on', false: 'off' }`, and reads it as `keywords.true` /
+`keywords.false`, never as a positional `[on, off]` tuple, so a transposed
+pair cannot compile. The per-Template copies are deliberate: a Template is
+copied into a user's project and has no shared runtime to import from.
 
 The keyword pairs are pinned in `tests/unit/_helpers/enumerated-boolean-attributes.ts`
 and proven against WA's runtime converters. The function harnesses expect
 them for true and for false, and `enumerated-boolean-templates.test.ts`
-covers the JavaScript variants and prop changes after mount. A new
+covers every hand-maintained copy (`.jsx`, `.js.vue`, the docs wrappers) and
+prop changes after mount. A new
 enumerated boolean in a WA release fails the pin test until it is pinned and
 its registry prop gets `keywords`.
 
@@ -467,3 +476,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - `on*` props (IntersectionObserver's `once`) are written from `ngOnChanges`, since Angular refuses them as template bindings and the Template did not compile. Found by the Angular function harness, issue #77
 - a value form control reads on `input` only where its CEM declares that event, else on `change`: Rating's accessor listened for `input`, which `wa-rating` never dispatches, so forms never saw a user's pick. Found by the Angular function harness, issue #77
 - rule 11: `spellcheck` and `autocorrect` are enumerated attributes, written as their keyword for `false` instead of dropped, via the registry prop's `keywords` in all three generators and by hand in four `.jsx` files; previously neither could be turned off in Vue or Angular, and React wrote `autocorrect={false}` as `"false"` (React 18, read as on) and `autocorrect` as a bare attribute (React 19 without a native property, read as off), issue #101
+- rule 11: the generators share `enumeratedProps()` / `keywordPairLiteral()` / `keywordExpression()` from `scripts/generator-utils.ts`, and every emitted or hand-maintained copy spells a keyword pair as the registry's named `{ true, false }` shape instead of a positional tuple, review follow-up on issue #101
