@@ -41,6 +41,9 @@ export default defineConfig({
       exclude: [
         '**/node_modules/**',
         '**/dist/**',
+        // The docs-site wrappers are imported by one unit test, but they are
+        // not CLI source and must not count toward the CLI's thresholds.
+        'docs/**',
         '**/*.test.ts',
         '**/*.d.ts',
         'src/lib/**',
