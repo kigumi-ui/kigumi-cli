@@ -5,10 +5,11 @@
  * committed `.vue` Templates: host tag, CEM attributes, CEM listeners with
  * cleanup, dispatch reaching the consumer's `@wa-*` listener, public CEM
  * methods on `defineExpose`, and class forwarding. JavaScript `.js.vue`
- * variants stay out of this loop. Unlike React's `.jsx`, they have no
- * JS-is-a-subset-of-TS check yet (Check C in `check-generated-fresh.ts` is
- * React-only, #122); until one exists, `vue-templates.test.ts` is their only
- * gate.
+ * variants stay out of this loop (#71). Their gate is Check C in
+ * `check-generated-fresh.ts` (`pnpm validate:generated-fresh`): every event a
+ * `.js.vue` emits or listens for, and every prop it declares, must exist in
+ * its `.vue` (#122). `vue-templates.test.ts` also pins their host-forwarding
+ * source.
  *
  * The SFCs compile through `vitest.vue-plugin.ts` with the same
  * `isCustomElement` rule `kigumi init` writes for consumers, and Web Awesome

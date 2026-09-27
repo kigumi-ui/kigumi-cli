@@ -133,9 +133,20 @@ Exactly one was the bug. A syntactic rule keyed on this shape would produce ten
 false positives, and the noise would be worse than the defect: a rule that is
 suppressed everywhere teaches people to suppress it.
 
+Line numbers are as of commit `21511e2b`, when the list was taken. One entry
+has since gone: `check-generated-fresh.ts:275` became `readVariantPairs`, which
+still returns `[]` for an absent directory, but since issue #122 its caller
+counts the pairs compared and fails on zero. That is this ADR applied, not the
+shape removed. `readVariantPairs` now serves both Check C arms — the React walk
+and the Vue walk differ only in the two file extensions they look for — so the
+fix is shared rather than duplicated per arm, and one caller enforces the rule
+for both. The other three entries are unchanged in shape and have only drifted
+down the file (now `:582`, `:790` and `:836`), so read the list by shape rather
+than by line number.
+
 Read the list rather than the count. `validate-cem-sync.ts:239` is the _fixed_
-cem-sync guard, and the four `check-generated-fresh.ts` entries return empty
-when a path is absent. All eleven are indistinguishable, as text, from the
+cem-sync guard, and the three surviving `check-generated-fresh.ts` entries return
+empty when a path is absent. Each of them, as text, is indistinguishable from the
 defect.
 
 The irony is sharpest in the most correct code in the repo.
