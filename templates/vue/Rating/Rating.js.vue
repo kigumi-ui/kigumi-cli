@@ -20,6 +20,7 @@ const props = defineProps({
   name: { type: String, required: false, default: '' },
   required: { type: Boolean, required: false, default: false },
   size: { type: String, required: false, default: 'medium' },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

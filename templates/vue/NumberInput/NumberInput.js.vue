@@ -23,6 +23,14 @@ const props = defineProps({
   size: { type: String, required: false, default: 'medium' },
   appearance: { type: String, required: false, default: 'outlined' },
   'without-steppers': { type: Boolean, required: false, default: false },
+  title: { type: String, required: false },
+  name: { type: String, required: false },
+  readonly: { type: Boolean, required: false, default: false },
+  autocomplete: { type: String, required: false },
+  autofocus: { type: Boolean, required: false, default: false },
+  enterkeyhint: { type: String, required: false },
+  inputmode: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

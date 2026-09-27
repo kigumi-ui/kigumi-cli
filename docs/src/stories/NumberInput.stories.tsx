@@ -47,6 +47,43 @@ const meta = {
       description: 'Hides the stepper buttons',
       table: { defaultValue: { summary: 'false' } },
     },
+    title: {
+      control: 'text',
+      description: 'Native tooltip text, shown on hover',
+    },
+    name: {
+      control: 'text',
+      description: 'The name of the control, submitted with form data',
+    },
+    readonly: {
+      control: 'boolean',
+      description: 'Makes the input readonly',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    autocomplete: {
+      control: 'text',
+      description: 'Hint for browser autofill',
+    },
+    autofocus: {
+      control: 'boolean',
+      description: 'Focuses the control on page load',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    enterkeyhint: {
+      control: 'select',
+      options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+      description: 'Hint for Enter key label on virtual keyboards',
+    },
+    inputmode: {
+      control: 'select',
+      options: ['numeric', 'decimal'],
+      description: 'Hint for virtual keyboard type',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description: 'Emitted when the control receives input.',

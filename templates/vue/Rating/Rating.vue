@@ -20,6 +20,7 @@ export interface RatingProps {
   name?: string;
   required?: boolean;
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
+  'custom-error'?: string;
 }
 
 const props = defineProps<RatingProps>();

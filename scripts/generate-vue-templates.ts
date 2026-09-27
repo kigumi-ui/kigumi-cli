@@ -25,7 +25,9 @@ import { toPascalCase } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
+  enumeratedProps,
   generateCssTemplate,
+  keywordPairLiteral,
   mapEventType,
   writeFormatted,
 } from './generator-utils.js';
@@ -339,9 +341,13 @@ function assembleVueSFC(
       }
       const type = convertToVuePropType(prop.type);
       const required = prop.required ? 'true' : 'false';
-      const defaultValue = prop.default
-        ? `, default: ${formatVueDefault(prop.type, prop.default)}`
-        : '';
+      // An enumerated boolean must stay undefined when unset: Vue would
+      // otherwise cast it to `false`, which writes the false keyword.
+      const defaultValue = prop.keywords
+        ? ', default: undefined'
+        : prop.default
+          ? `, default: ${formatVueDefault(prop.type, prop.default)}`
+          : '';
       return `    ${quotedName}: { type: ${type}, required: ${required}${defaultValue} }`;
     })
     .join(typed ? '\n' : ',\n');
@@ -515,6 +521,17 @@ onMounted(() => {
     ? formatCustomTypeImports(metadata.methods, component.importPath)
     : '';
 
+  // Enumerated booleans (`spellcheck`, `autocorrect`): `false` is written as
+  // its keyword, so the TS variant opts them out of Vue's Boolean casting
+  // with an explicit `undefined` default, as the JS variant does per prop.
+  const enumerated = enumeratedProps(filteredProps);
+  const typedDefineProps =
+    enumerated.length > 0
+      ? `withDefaults(defineProps<${component.name}Props>(), {
+${enumerated.map((p) => `  ${p.name}: undefined,`).join('\n')}
+})`
+      : `defineProps<${component.name}Props>()`;
+
   // The props block: a TS interface plus a type-argument defineProps, or an
   // Options-API defineProps object.
   const propsBlock = typed
@@ -522,10 +539,33 @@ onMounted(() => {
 ${propsSection}
 }
 
-const props = defineProps<${component.name}Props>();`
+const props = ${typedDefineProps};`
     : `const props = defineProps({
 ${propsSection}
 });`;
+
+  // Keyword table and branch for enumerated booleans, emitted only where a
+  // component has one. The `^` prefix makes Vue write an attribute even once
+  // the upgraded element has a property of that name.
+  const enumeratedTable =
+    enumerated.length > 0
+      ? `// Web Awesome reads these as enumerated attributes, not by presence:
+// \`false\` is written as its keyword rather than dropped.
+const ENUMERATED_ATTRIBUTES${typed ? ': Record<string, { true: string; false: string }>' : ''} = {
+${enumerated.map((p) => `  ${p.name}: ${keywordPairLiteral(p.keywords)},`).join('\n')}
+};
+
+`
+      : '';
+  const enumeratedBranch =
+    enumerated.length > 0
+      ? `
+    const keywords = ENUMERATED_ATTRIBUTES[key];
+    if (keywords && value !== undefined) {
+      result[\`^\${key}\`] = value ? keywords.true : keywords.false;
+      continue;
+    }`
+      : '';
 
   // The host-attribute builder: identical logic, annotated in the TS variant.
   const hostAttributesBlock = typed
@@ -538,7 +578,7 @@ function hostAttributes(): Record<string, unknown> {
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
   }
-  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+  for (const [key, value] of Object.entries(props as Record<string, unknown>)) {${enumeratedBranch}
     if (value === undefined || value === false) continue;
     result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
@@ -553,7 +593,7 @@ function hostAttributes() {
     if (value === false && !/^(aria|data)-/.test(key)) continue;
     result[key] = value;
   }
-  for (const [key, value] of Object.entries(props)) {
+  for (const [key, value] of Object.entries(props)) {${enumeratedBranch}
     if (value === undefined || value === false) continue;
     result[key.replace(/[A-Z]/g, (c) => \`-\${c.toLowerCase()}\`)] = value;
   }
@@ -581,7 +621,7 @@ ${propsBlock}
 
 defineOptions({ inheritAttrs: false });
 
-// Forward props and fallthrough attributes to the web component yourself,
+${enumeratedTable}// Forward props and fallthrough attributes to the web component yourself,
 // rather than through Vue's default fallthrough:
 // - Web Awesome reads attribute presence as truthy, so \`false\` must never
 //   reach <wa-*>. Vue materializes every absent optional Boolean prop as

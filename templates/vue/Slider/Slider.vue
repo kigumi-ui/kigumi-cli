@@ -26,6 +26,7 @@ export interface SliderProps {
   'with-tooltip'?: boolean;
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   autofocus?: boolean;
+  'custom-error'?: string;
 }
 
 const props = defineProps<SliderProps>();

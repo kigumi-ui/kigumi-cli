@@ -49,6 +49,8 @@ function ensureLoaded() {
  * @property {string} [formmethod] - Override form method
  * @property {boolean} [formnovalidate] - Bypass form validation
  * @property {string} [formtarget] - Override form target
+ * @property {string} [title] - Native tooltip text, shown on hover
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
  * @property {function} [onBlur] - Event fired when button loses focus
  * @property {function} [onFocus] - Event fired when button gains focus
  */

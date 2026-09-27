@@ -26,6 +26,8 @@ function ensureLoaded() {
  * @property {boolean} [required] - Required field
  * @property {'small'|'medium'|'large'} [size] - Checkbox size
  * @property {string} [value] - Form value
+ * @property {string} [title] - Native tooltip text, shown on hover
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
  * @property {(event: CustomEvent) => void} [onInvalid] - Invalid handler
  */
 

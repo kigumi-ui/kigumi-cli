@@ -27,11 +27,37 @@ export interface TagInputProps {
   readonly?: boolean;
   disabled?: boolean;
   name?: string;
+  autocomplete?: string;
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+  autocorrect?: boolean;
+  spellcheck?: boolean;
+  'custom-error'?: string;
 }
 
-const props = defineProps<TagInputProps>();
+const props = withDefaults(defineProps<TagInputProps>(), {
+  autocorrect: undefined,
+  spellcheck: undefined,
+});
 
 defineOptions({ inheritAttrs: false });
+
+// Web Awesome reads these as enumerated attributes, not by presence:
+// `false` is written as its keyword rather than dropped.
+const ENUMERATED_ATTRIBUTES: Record<string, { true: string; false: string }> = {
+  autocorrect: { true: 'on', false: 'off' },
+  spellcheck: { true: 'true', false: 'false' },
+};
 
 // Forward props and fallthrough attributes to the web component yourself,
 // rather than through Vue's default fallthrough:
@@ -54,6 +80,11 @@ function hostAttributes(): Record<string, unknown> {
     result[key] = value;
   }
   for (const [key, value] of Object.entries(props as Record<string, unknown>)) {
+    const keywords = ENUMERATED_ATTRIBUTES[key];
+    if (keywords && value !== undefined) {
+      result[`^${key}`] = value ? keywords.true : keywords.false;
+      continue;
+    }
     if (value === undefined || value === false) continue;
     result[key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)] = value;
   }

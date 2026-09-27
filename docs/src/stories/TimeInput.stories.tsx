@@ -99,6 +99,15 @@ const meta = {
       description: 'The preferred placement of the dropdown',
       table: { defaultValue: { summary: 'bottom-start' } },
     },
+    autocomplete: {
+      control: 'text',
+      description: 'Hint for browser autofill',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description:

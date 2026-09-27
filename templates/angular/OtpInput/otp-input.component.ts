@@ -49,6 +49,8 @@ function ensureLoaded() {
       [attr.readonly]="readonly || null"
       [attr.disabled]="disabled || null"
       [attr.name]="name"
+      [attr.autofocus]="autofocus || null"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-otp-input>
@@ -102,6 +104,10 @@ export class OtpInputComponent
   @Input() disabled?: boolean;
   /** The name of the input, submitted with form data */
   @Input() name?: string;
+  /** Focuses the control on page load */
+  @Input() autofocus?: boolean;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

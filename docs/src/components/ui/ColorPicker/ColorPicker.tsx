@@ -98,6 +98,9 @@ export interface ColorPickerProps extends Omit<
   /** Hides the format toggle button */
   'without-format-toggle'?: boolean;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the color picker's value changes. */
   onChange?: (event: CustomEvent) => void;
 

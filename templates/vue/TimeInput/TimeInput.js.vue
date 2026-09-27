@@ -30,6 +30,8 @@ const props = defineProps({
   'hour-format': { type: String, required: false, default: 'auto' },
   open: { type: Boolean, required: false, default: false },
   placement: { type: String, required: false, default: 'bottom-start' },
+  autocomplete: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

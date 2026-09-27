@@ -46,8 +46,20 @@ function ensureLoaded() {
       [attr.required]="required || null"
       [attr.minlength]="minlength"
       [attr.maxlength]="maxlength"
-      [attr.spellcheck]="spellcheck || null"
+      [attr.spellcheck]="
+        spellcheck == null ? null : spellcheck ? 'true' : 'false'
+      "
       [attr.with-count]="withCount || null"
+      [attr.title]="title"
+      [attr.autocomplete]="autocomplete"
+      [attr.autocapitalize]="autocapitalize"
+      [attr.autofocus]="autofocus || null"
+      [attr.enterkeyhint]="enterkeyhint"
+      [attr.inputmode]="inputmode"
+      [attr.autocorrect]="
+        autocorrect == null ? null : autocorrect ? 'on' : 'off'
+      "
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-textarea>
@@ -95,10 +107,36 @@ export class TextareaComponent
   @Input() minlength?: number;
   /** Maximum length */
   @Input() maxlength?: number;
-  /** Enable spell checking */
+  /** Turns spell checking on or off; on when unset */
   @Input() spellcheck?: boolean;
   /** Shows a character count when maxlength is set */
   @Input() withCount?: boolean;
+  /** Native tooltip text, shown on hover */
+  @Input() title?: string;
+  /** Hint for browser autofill */
+  @Input() autocomplete?: string;
+  /** Controls automatic capitalization */
+  @Input() autocapitalize?:
+    'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  /** Focuses the control on page load */
+  @Input() autofocus?: boolean;
+  /** Hint for Enter key label on virtual keyboards */
+  @Input() enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  /** Hint for virtual keyboard type */
+  @Input() inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+  /** Turns autocorrect on or off; the browser decides when unset */
+  @Input() autocorrect?: boolean;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() blurEvent = new EventEmitter<FocusEvent>();
   @Output() change = new EventEmitter<Event>();

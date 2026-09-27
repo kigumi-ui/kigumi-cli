@@ -19,6 +19,8 @@ const props = defineProps({
   required: { type: Boolean, required: false, default: false },
   size: { type: String, required: false, default: 'medium' },
   value: { type: String, required: false },
+  title: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

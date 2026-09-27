@@ -47,6 +47,11 @@ const meta = {
       description: 'Rating size',
       table: { defaultValue: { summary: 'medium' } },
     },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onChange: {
       action: 'change',
       description: "Emitted when the rating's value changes.",

@@ -23,6 +23,15 @@ export interface NumberInputProps {
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   appearance?: 'filled' | 'outlined' | 'filled-outlined';
   'without-steppers'?: boolean;
+  title?: string;
+  name?: string;
+  readonly?: boolean;
+  autocomplete?: string;
+  autofocus?: boolean;
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  inputmode?: 'numeric' | 'decimal';
+  'custom-error'?: string;
 }
 
 const props = defineProps<NumberInputProps>();

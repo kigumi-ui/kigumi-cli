@@ -56,10 +56,17 @@ function ensureLoaded() {
       [attr.without-spin-buttons]="withoutSpinButtons || null"
       [attr.autocomplete]="autocomplete"
       [attr.autocapitalize]="autocapitalize"
-      [attr.autocorrect]="autocorrect || null"
+      [attr.autocorrect]="
+        autocorrect == null ? null : autocorrect ? 'on' : 'off'
+      "
       [attr.autofocus]="autofocus || null"
       [attr.inputmode]="inputmode"
       [attr.enterkeyhint]="enterkeyhint"
+      [attr.title]="title"
+      [attr.spellcheck]="
+        spellcheck == null ? null : spellcheck ? 'true' : 'false'
+      "
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-input>
@@ -136,7 +143,7 @@ export class InputComponent
   /** Controls automatic capitalization */
   @Input() autocapitalize?:
     'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
-  /** Enable autocorrect */
+  /** Turns autocorrect on or off; the browser decides when unset */
   @Input() autocorrect?: boolean;
   /** Automatically focuses the input on page load */
   @Input() autofocus?: boolean;
@@ -153,6 +160,12 @@ export class InputComponent
   /** Hint for Enter key label on virtual keyboards */
   @Input() enterkeyhint?:
     'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  /** Native tooltip text, shown on hover */
+  @Input() title?: string;
+  /** Turns spell checking on or off; on when unset */
+  @Input() spellcheck?: boolean;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

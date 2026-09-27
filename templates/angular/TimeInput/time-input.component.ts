@@ -48,6 +48,8 @@ function ensureLoaded() {
       [attr.hour-format]="hourFormat"
       [attr.open]="open || null"
       [attr.placement]="placement"
+      [attr.autocomplete]="autocomplete"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-time-input>
@@ -95,6 +97,10 @@ export class TimeInputComponent implements AfterViewInit, OnDestroy {
   /** The preferred placement of the dropdown */
   @Input() placement?:
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
+  /** Hint for browser autofill */
+  @Input() autocomplete?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

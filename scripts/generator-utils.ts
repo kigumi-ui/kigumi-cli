@@ -10,6 +10,7 @@
 
 import { CSS_METADATA } from './css-metadata.js';
 import { toKebabCase } from '../src/utils/naming.js';
+import type { ComponentProp } from '../src/utils/registry/types.js';
 
 export const DOM_GLOBALS = new Set([
   // Element / event types
@@ -245,4 +246,51 @@ export function generateCssTemplate(
   content += ` */\n${options.selector} {\n${options.body}\n}\n`;
 
   return content;
+}
+
+/**
+ * The attribute values an enumerated boolean is written as: `spellcheck` is
+ * `{ true: 'true', false: 'false' }`, `autocorrect` `{ true: 'on', false: 'off' }`.
+ */
+export type KeywordPair = NonNullable<ComponentProp['keywords']>;
+
+/** A registry prop Web Awesome reads by keyword, with its pair narrowed. */
+export interface EnumeratedProp {
+  name: string;
+  keywords: KeywordPair;
+}
+
+/**
+ * The props of a component Web Awesome reads as enumerated attributes rather
+ * than by presence (templates/AGENTS.md rule 11), in registry order.
+ *
+ * All three generators write these, each in its framework's own way (an
+ * Angular binding, a Vue `hostAttributes()` branch, a React effect). What they
+ * share lives here: which props qualify, and how a pair and the pick between
+ * its two keywords are spelled. Every Template spells a pair with the
+ * registry's named shape, never as a positional `[on, off]` tuple, so a
+ * transposed pair cannot compile into the wrong keyword.
+ */
+export function enumeratedProps(
+  props: readonly ComponentProp[]
+): EnumeratedProp[] {
+  return props.flatMap(({ name, keywords }) =>
+    keywords ? [{ name, keywords }] : []
+  );
+}
+
+/** A pair as the object literal Templates emit: `{ true: 'on', false: 'off' }`. */
+export function keywordPairLiteral(keywords: KeywordPair): string {
+  return `{ true: '${keywords.true}', false: '${keywords.false}' }`;
+}
+
+/**
+ * The expression that picks a pair's keyword for the boolean expression
+ * `value`: `autocorrect ? 'on' : 'off'`.
+ */
+export function keywordExpression(
+  value: string,
+  keywords: KeywordPair
+): string {
+  return `${value} ? '${keywords.true}' : '${keywords.false}'`;
 }

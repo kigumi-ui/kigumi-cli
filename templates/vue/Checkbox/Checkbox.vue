@@ -19,6 +19,8 @@ export interface CheckboxProps {
   required?: boolean;
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   value?: string;
+  title?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<CheckboxProps>();

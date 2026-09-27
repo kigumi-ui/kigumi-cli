@@ -21,6 +21,7 @@ export interface RadioGroupProps {
   disabled?: boolean;
   invalid?: boolean;
   'help-text'?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<RadioGroupProps>();

@@ -71,6 +71,12 @@ export interface KnownDateProps extends Omit<
   /** The locale used to format and parse the date */
   locale?: string;
 
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted as the user types in any field. */
   onInput?: (event: CustomEvent) => void;
 

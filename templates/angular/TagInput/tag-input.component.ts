@@ -48,6 +48,17 @@ function ensureLoaded() {
       [attr.readonly]="readonly || null"
       [attr.disabled]="disabled || null"
       [attr.name]="name"
+      [attr.autocomplete]="autocomplete"
+      [attr.autocapitalize]="autocapitalize"
+      [attr.enterkeyhint]="enterkeyhint"
+      [attr.inputmode]="inputmode"
+      [attr.autocorrect]="
+        autocorrect == null ? null : autocorrect ? 'on' : 'off'
+      "
+      [attr.spellcheck]="
+        spellcheck == null ? null : spellcheck ? 'true' : 'false'
+      "
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-tag-input>
@@ -99,6 +110,30 @@ export class TagInputComponent
   @Input() disabled?: boolean;
   /** The name of the input, submitted with form data */
   @Input() name?: string;
+  /** Hint for browser autofill */
+  @Input() autocomplete?: string;
+  /** Controls automatic capitalization */
+  @Input() autocapitalize?:
+    'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  /** Hint for Enter key label on virtual keyboards */
+  @Input() enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  /** Hint for virtual keyboard type */
+  @Input() inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+  /** Turns autocorrect on or off; the browser decides when unset */
+  @Input() autocorrect?: boolean;
+  /** Turns spell checking on or off; on when unset */
+  @Input() spellcheck?: boolean;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

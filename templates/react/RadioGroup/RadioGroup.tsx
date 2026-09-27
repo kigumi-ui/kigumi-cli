@@ -68,6 +68,9 @@ export interface RadioGroupProps extends Omit<
   /** Help text below the group */
   'help-text'?: string;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the radio group receives user input. */
   onInput?: (event: InputEvent) => void;
 

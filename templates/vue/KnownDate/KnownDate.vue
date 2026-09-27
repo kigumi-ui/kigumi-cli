@@ -25,6 +25,8 @@ export interface KnownDateProps {
   min?: string;
   max?: string;
   locale?: string;
+  autocomplete?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<KnownDateProps>();
