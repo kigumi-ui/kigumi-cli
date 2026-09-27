@@ -16,13 +16,15 @@ const meta = {
     },
     fill: {
       control: 'text',
-      description: 'Fill color',
-      table: { defaultValue: { summary: 'black' } },
+      description:
+        '**Deprecated.** Set the CSS color property on the QR code instead.',
+      table: { category: 'Deprecated', defaultValue: { summary: "''" } },
     },
     background: {
       control: 'text',
-      description: 'Background color',
-      table: { defaultValue: { summary: 'white' } },
+      description:
+        '**Deprecated.** Set the CSS background-color property on the QR code instead.',
+      table: { category: 'Deprecated', defaultValue: { summary: "''" } },
     },
     radius: {
       control: 'number',
@@ -70,27 +72,27 @@ export const WithText: Story = {
   ),
 };
 
-/** Changes foreground and background colors. */
+/** Changes the foreground color through the CSS color property. */
 export const CustomColors: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
       <QrCode
         value="https://kigumi.style"
-        fill="#6366f1"
         size={140}
         label="Purple QR"
+        style={{ color: '#6366f1' }}
       />
       <QrCode
         value="https://kigumi.style"
-        fill="#22c55e"
         size={140}
         label="Green QR"
+        style={{ color: '#22c55e' }}
       />
       <QrCode
         value="https://kigumi.style"
-        fill="#ef4444"
         size={140}
         label="Red QR"
+        style={{ color: '#ef4444' }}
       />
     </div>
   ),
@@ -168,7 +170,10 @@ export const ChromaticOnly: Story = {
       }}
     >
       <QrCode value="https://example.com" />
-      <QrCode value="https://example.com" fill="#4a90d9" background="white" />
+      <QrCode
+        value="https://example.com"
+        style={{ color: '#4a90d9', backgroundColor: 'white' }}
+      />
       <QrCode value="https://example.com" radius={0.5} />
       <QrCode value="https://example.com" style={{ width: '80px' }} />
       <QrCode value="https://example.com" style={{ width: '200px' }} />

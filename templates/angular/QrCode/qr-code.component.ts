@@ -50,9 +50,17 @@ export class QrCodeComponent implements AfterViewInit {
   @Input() label?: string;
   /** Size in pixels */
   @Input() size?: number;
-  /** Fill color */
+  /**
+   * Fill color
+   *
+   * @deprecated Set the CSS color property on the QR code instead.
+   */
   @Input() fill?: string;
-  /** Background color */
+  /**
+   * Background color
+   *
+   * @deprecated Set the CSS background-color property on the QR code instead.
+   */
   @Input() background?: string;
   /** Corner radius */
   @Input() radius?: number;

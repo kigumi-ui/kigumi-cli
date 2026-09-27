@@ -19,6 +19,8 @@
  *   registry advertises but Web Awesome rejects is a user-facing defect.
  * - CEM enum values the registry has not surfaced yet (warning) — additive,
  *   e.g. the XS/XL/short-form `size` tokens added in WA 3.6.0.
+ * - CEM attribute names with no registry prop (warning), see `checkAttributeDrift`.
+ * - Deprecations the CEM and the registry disagree on, see `checkDeprecationDrift`.
  *
  * Prop-value drift is what silently slipped through before: `component-metadata.ts`
  * does not carry attribute value enums, so this check reads the CEM directly.
@@ -56,7 +58,7 @@ const PROJECT_ROOT = path.join(
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
-interface SyncFinding {
+export interface SyncFinding {
   component: string;
   category:
     | 'missing-from-registry'
@@ -64,7 +66,10 @@ interface SyncFinding {
     | 'prop-value-drift'
     | 'allowlisted-but-wrapped'
     | 'attribute-missing-from-registry'
-    | 'stale-allowlist-entry';
+    | 'stale-allowlist-entry'
+    | 'stale-kigumi-deprecation'
+    | 'deprecation-missing-from-registry'
+    | 'deprecation-missing-from-cem';
   severity: 'error' | 'warning';
   message: string;
 }
@@ -472,6 +477,38 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   },
 };
 
+/** Why Kigumi deprecates a prop whose Web Awesome attribute is not deprecated. */
+export interface KigumiDeprecation {
+  /** Quoted in the stale-entry error, so whoever removes the entry sees why it was there. */
+  reason: string;
+}
+
+const NO_EFFECT_ON_RADAR_CHART: KigumiDeprecation = {
+  reason:
+    'wa-radar-chart declares it, but WaChart builds a radar chart with only a radial r scale and never reads it; the registry message names any r-scale replacement; deprecated by #129, removed by #130',
+};
+
+/**
+ * Registry props Kigumi deprecates on its own account, keyed by registry key,
+ * then by kebab-cased prop name. `checkDeprecationDrift` errors on any other
+ * registry deprecation the CEM does not share, so a deprecation copied from a
+ * Web Awesome changelog that never reached the manifest is caught, while one
+ * Kigumi decided on is stated here with its reason.
+ *
+ * An entry is stale, and an error, once the registry prop is no longer
+ * deprecated (or gone) or Web Awesome deprecates the attribute as well.
+ */
+export const KIGUMI_DEPRECATIONS: Readonly<
+  Record<string, Readonly<Record<string, KigumiDeprecation>>>
+> = {
+  'radar-chart': {
+    stacked: NO_EFFECT_ON_RADAR_CHART,
+    grid: NO_EFFECT_ON_RADAR_CHART,
+    min: NO_EFFECT_ON_RADAR_CHART,
+    max: NO_EFFECT_ON_RADAR_CHART,
+  },
+};
+
 /**
  * Allowlist keys that already have a registry entry. Those wrappers exist, so
  * the allowlist entry is a lie — remove it when adding the wrapper.
@@ -515,6 +552,12 @@ interface SyncResult {
      * are not drift; they fail the run and are listed under the errors.
      */
     attributeDrift: number;
+    /**
+     * Registry props whose deprecation disagrees with the CEM, in either
+     * direction. Stale `KIGUMI_DEPRECATIONS` entries are errors listed with
+     * the stale allowlist entries, not counted here.
+     */
+    deprecationDrift: number;
   };
 }
 
@@ -555,8 +598,66 @@ export function parseStringEnum(text: string | undefined): string[] | null {
     : null;
 }
 
+/** A CEM attribute's `deprecated` field: a message, or `true` when bare. */
+export type CemDeprecation = string | true;
+
+/** What the manifest half reads from the CEM, keyed by `wa-<tag>`. */
+export interface CemAttributes {
+  /** attrName -> `type.text`, for prop-value and attribute-name drift. */
+  types: Map<string, Record<string, string | undefined>>;
+  /** attrName -> deprecation, holding only the deprecated attributes. */
+  deprecations: Map<string, Record<string, CemDeprecation>>;
+}
+
+export interface CemManifest {
+  modules?: Array<{
+    declarations?: Array<{
+      customElement?: boolean;
+      tagName?: string;
+      attributes?: Array<{
+        name: string;
+        type?: { text?: string };
+        deprecated?: boolean | string;
+      }>;
+    }>;
+  }>;
+}
+
 /**
- * Build a `wa-<tag>` → { attrName → type.text } map from the CEM at `cemPath`.
+ * Read every custom element's attribute types and deprecations from a parsed
+ * CEM. Pure, so the `deprecated` handling is tested on literal manifests: the
+ * schema allows a message or a bare `true` (an empty message reads as `true`),
+ * and `false` means not deprecated.
+ */
+export function parseCemAttributes(cem: CemManifest): CemAttributes {
+  const types: CemAttributes['types'] = new Map();
+  const deprecations: CemAttributes['deprecations'] = new Map();
+
+  for (const mod of cem.modules ?? []) {
+    for (const dec of mod.declarations ?? []) {
+      if (!dec.customElement || !dec.tagName) continue;
+      const attributes = dec.attributes ?? [];
+      types.set(
+        dec.tagName,
+        Object.fromEntries(attributes.map((a) => [a.name, a.type?.text]))
+      );
+      // The schema's string is the reason, so an empty one is still a
+      // deprecation: only an absent field or `false` means not deprecated.
+      const deprecated = attributes.flatMap((a) =>
+        a.deprecated === undefined || a.deprecated === false
+          ? []
+          : [[a.name, a.deprecated === '' ? true : a.deprecated] as const]
+      );
+      if (deprecated.length > 0) {
+        deprecations.set(dec.tagName, Object.fromEntries(deprecated));
+      }
+    }
+  }
+  return { types, deprecations };
+}
+
+/**
+ * Read the CEM at `cemPath`.
  *
  * Takes a resolved path rather than finding one itself. It previously returned
  * an empty map when the CEM was unreachable, which `checkPropValueDrift` then
@@ -565,33 +666,10 @@ export function parseStringEnum(text: string | undefined): string[] | null {
  * components. Whether a missing manifest is tolerable is now decided before
  * this function is reached, so it can assume its input exists.
  */
-function getCemAttributeTypes(
-  cemPath: string
-): Map<string, Record<string, string | undefined>> {
-  const out = new Map<string, Record<string, string | undefined>>();
-
-  const cem = JSON.parse(fs.readFileSync(cemPath, 'utf8')) as {
-    modules?: Array<{
-      declarations?: Array<{
-        customElement?: boolean;
-        tagName?: string;
-        attributes?: Array<{ name: string; type?: { text?: string } }>;
-      }>;
-    }>;
-  };
-
-  for (const mod of cem.modules ?? []) {
-    for (const dec of mod.declarations ?? []) {
-      if (!dec.customElement || !dec.tagName) continue;
-      out.set(
-        dec.tagName,
-        Object.fromEntries(
-          (dec.attributes ?? []).map((a) => [a.name, a.type?.text])
-        )
-      );
-    }
-  }
-  return out;
+function readCemAttributes(cemPath: string): CemAttributes {
+  return parseCemAttributes(
+    JSON.parse(fs.readFileSync(cemPath, 'utf8')) as CemManifest
+  );
 }
 
 // ── Comparison ──────────────────────────────────────────────────────────────
@@ -699,6 +777,38 @@ export interface AttributePolicy {
   >;
 }
 
+type StaleCategory = 'stale-allowlist-entry' | 'stale-kigumi-deprecation';
+
+/** An allowlist entry that no longer describes a gap, which fails the run. */
+function staleEntry(
+  category: StaleCategory,
+  component: string,
+  message: string
+): SyncFinding {
+  return { component, category, severity: 'error', message };
+}
+
+/**
+ * A stale entry for each component a per-component allowlist names that the
+ * registry does not have. Shared by every check that keeps such an allowlist.
+ */
+function unregisteredAllowlistKeys(
+  category: StaleCategory,
+  allowlistName: string,
+  allowlist: Readonly<Record<string, unknown>>,
+  registryMap: ReadonlyMap<string, ComponentDefinition>
+): SyncFinding[] {
+  return Object.keys(allowlist)
+    .filter((regKey) => !registryMap.has(regKey))
+    .map((regKey) =>
+      staleEntry(
+        category,
+        regKey,
+        `${allowlistName} has entries for "${regKey}", which is not a registry component; remove them`
+      )
+    );
+}
+
 /**
  * Compare each wrapped component's full CEM attribute list against its
  * registry props, in both directions:
@@ -725,12 +835,7 @@ export function checkAttributeDrift(
 ): SyncFinding[] {
   const findings: SyncFinding[] = [];
   const stale = (component: string, message: string) =>
-    findings.push({
-      component,
-      category: 'stale-allowlist-entry',
-      severity: 'error',
-      message,
-    });
+    findings.push(staleEntry('stale-allowlist-entry', component, message));
 
   for (const [regKey, def] of registryMap) {
     // Kebab name -> name as the CEM spells it, so messages quote the source.
@@ -775,16 +880,146 @@ export function checkAttributeDrift(
     }
   }
 
-  for (const regKey of Object.keys(policy.perComponent)) {
-    if (!registryMap.has(regKey)) {
-      stale(
-        regKey,
-        `COMPONENT_ATTRIBUTE_ALLOWLIST has entries for "${regKey}", which is not a registry component; remove them`
-      );
+  findings.push(
+    ...unregisteredAllowlistKeys(
+      'stale-allowlist-entry',
+      'COMPONENT_ATTRIBUTE_ALLOWLIST',
+      policy.perComponent,
+      registryMap
+    )
+  );
+
+  return findings;
+}
+
+/**
+ * Compare each registry prop's `deprecated` against its CEM attribute's
+ * `deprecated`, matching names kebab-cased on both sides as
+ * `checkAttributeDrift` does:
+ *
+ * - The CEM deprecates the attribute and the registry prop does not: a
+ *   warning, additive drift like a new attribute. Mark the prop `deprecated`
+ *   (in Kigumi's own words) and regenerate.
+ * - The registry prop is deprecated and the CEM attribute is not (or the CEM
+ *   has no such attribute): an error, unless `kigumiDeprecations` records it
+ *   as a Kigumi-side deprecation. The message says which of the two it is,
+ *   since an attribute Web Awesome removed needs a different fix.
+ * - A `kigumiDeprecations` entry is a `stale-kigumi-deprecation` error once its prop is no longer
+ *   deprecated, once the CEM deprecates the attribute too, or when its
+ *   component is not in the registry.
+ *
+ * A CEM deprecation on an attribute with no registry prop is left to
+ * `checkAttributeDrift`, which already reports the missing prop.
+ *
+ * Pure and exported so each case is table-tested against literal fixtures.
+ */
+export function checkDeprecationDrift(
+  registryMap: Map<string, ComponentDefinition>,
+  cem: CemAttributes,
+  kigumiDeprecations: Readonly<
+    Record<string, Readonly<Record<string, KigumiDeprecation>>>
+  >
+): SyncFinding[] {
+  const findings: SyncFinding[] = [];
+  const stale = (component: string, message: string) =>
+    findings.push(staleEntry('stale-kigumi-deprecation', component, message));
+
+  for (const [regKey, def] of registryMap) {
+    const declared = new Set(
+      Object.keys(cem.types.get(`wa-${regKey}`) ?? {}).map(toKebabCase)
+    );
+    const upstream = new Map(
+      Object.entries(cem.deprecations.get(`wa-${regKey}`) ?? {}).map(
+        ([name, deprecation]) => [toKebabCase(name), deprecation]
+      )
+    );
+    const ownDeprecations = kigumiDeprecations[regKey] ?? {};
+    const deprecatedProps = new Set<string>();
+
+    for (const prop of def.props) {
+      const attr = toKebabCase(prop.name);
+      const cemDeprecation = upstream.get(attr);
+      if (prop.deprecated) deprecatedProps.add(attr);
+
+      if (cemDeprecation !== undefined && !prop.deprecated) {
+        const says = cemDeprecation === true ? '' : ` ("${cemDeprecation}")`;
+        findings.push({
+          component: regKey,
+          category: 'deprecation-missing-from-registry',
+          severity: 'warning',
+          message: `${regKey}.${prop.name} is deprecated in the CEM${says} but not in the registry; add \`deprecated\` to the prop in Kigumi's own words and regenerate`,
+        });
+      } else if (
+        cemDeprecation === undefined &&
+        prop.deprecated &&
+        !Object.hasOwn(ownDeprecations, attr)
+      ) {
+        findings.push({
+          component: regKey,
+          category: 'deprecation-missing-from-cem',
+          severity: 'error',
+          message: declared.has(attr)
+            ? `${regKey}.${prop.name} is deprecated in the registry but not in the CEM; if Kigumi deprecates it on its own account, record why in KIGUMI_DEPRECATIONS`
+            : `${regKey}.${prop.name} is deprecated in the registry, and wa-${regKey} declares no such attribute in the CEM; if Web Awesome removed it, remove the prop or keep it until the next major and record that in KIGUMI_DEPRECATIONS, otherwise fix the prop name`,
+        });
+      }
+    }
+
+    for (const [attr, entry] of Object.entries(ownDeprecations)) {
+      const recorded = `is in KIGUMI_DEPRECATIONS ("${entry.reason}")`;
+      if (!deprecatedProps.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} ${recorded} but is not deprecated in the registry; remove the entry`
+        );
+      } else if (upstream.has(attr)) {
+        stale(
+          regKey,
+          `${regKey}.${attr} ${recorded} but Web Awesome now deprecates it upstream; remove the entry`
+        );
+      }
     }
   }
 
+  findings.push(
+    ...unregisteredAllowlistKeys(
+      'stale-kigumi-deprecation',
+      'KIGUMI_DEPRECATIONS',
+      kigumiDeprecations,
+      registryMap
+    )
+  );
+
   return findings;
+}
+
+/**
+ * The summary's per-kind counts. Stale allowlist and Kigumi-deprecation
+ * entries are errors listed with the others, not drift, so no count includes
+ * them. Pure so each count is tested on literal findings.
+ */
+export function countDrift(
+  findings: readonly SyncFinding[]
+): Pick<
+  SyncResult['stats'],
+  | 'onlyInCem'
+  | 'onlyInRegistry'
+  | 'propValueDrift'
+  | 'attributeDrift'
+  | 'deprecationDrift'
+> {
+  const count = (...categories: SyncFinding['category'][]) =>
+    findings.filter((f) => categories.includes(f.category)).length;
+  return {
+    onlyInCem: count('missing-from-registry'),
+    onlyInRegistry: count('missing-from-cem'),
+    propValueDrift: count('prop-value-drift'),
+    attributeDrift: count('attribute-missing-from-registry'),
+    deprecationDrift: count(
+      'deprecation-missing-from-registry',
+      'deprecation-missing-from-cem'
+    ),
+  };
 }
 
 // ── Main ────────────────────────────────────────────────────────────────────
@@ -805,10 +1040,11 @@ export async function validateCemSync(
 
   // `usable` implies a resolved path, but narrow on the path itself rather
   // than asserting, so the two can never disagree silently.
-  const cemAttrTypes =
+  const cemAttributes =
     cem.usable && resolution.path !== null
-      ? getCemAttributeTypes(resolution.path)
+      ? readCemAttributes(resolution.path)
       : null;
+  const cemAttrTypes = cemAttributes?.types ?? null;
   const propValueFindings = cemAttrTypes
     ? checkPropValueDrift(registryMap, cemAttrTypes)
     : [];
@@ -818,24 +1054,16 @@ export async function validateCemSync(
         perComponent: COMPONENT_ATTRIBUTE_ALLOWLIST,
       })
     : [];
+  const deprecationDriftFindings = cemAttributes
+    ? checkDeprecationDrift(registryMap, cemAttributes, KIGUMI_DEPRECATIONS)
+    : [];
 
   const findings = [
     ...checkComponentPresence(cemKeys, registryMap),
     ...propValueFindings,
     ...attributeDriftFindings,
+    ...deprecationDriftFindings,
   ];
-  const onlyInCem = findings.filter(
-    (f) => f.category === 'missing-from-registry'
-  ).length;
-  const onlyInRegistry = findings.filter(
-    (f) => f.category === 'missing-from-cem'
-  ).length;
-  const propValueDrift = findings.filter(
-    (f) => f.category === 'prop-value-drift'
-  ).length;
-  const attributeDrift = findings.filter(
-    (f) => f.category === 'attribute-missing-from-registry'
-  ).length;
   const synced = [...registryMap.keys()].filter((k) => cemKeys.has(k)).length;
 
   return {
@@ -845,11 +1073,8 @@ export async function validateCemSync(
     stats: {
       metadataComponents: cemKeys.size,
       registryComponents: registryMap.size,
-      onlyInCem,
-      onlyInRegistry,
       synced,
-      propValueDrift,
-      attributeDrift,
+      ...countDrift(findings),
     },
   };
 }
@@ -871,6 +1096,7 @@ function printResults(result: SyncResult): void {
     : pc.yellow(`NOT RUN - ${result.cem.reason}`);
   console.log(`  Prop-value drift:    ${cemCoverage}`);
   console.log(`  Attribute drift:     ${cemCoverage}`);
+  console.log(`  Deprecation drift:   ${cemCoverage}`);
   console.log('');
 
   console.log(pc.bold('Statistics:'));
@@ -887,6 +1113,13 @@ function printResults(result: SyncResult): void {
   console.log(
     `  Attribute drift:     ${
       result.cem.usable ? result.stats.attributeDrift : pc.yellow('not checked')
+    }`
+  );
+  console.log(
+    `  Deprecation drift:   ${
+      result.cem.usable
+        ? result.stats.deprecationDrift
+        : pc.yellow('not checked')
     }`
   );
   console.log('');
@@ -946,12 +1179,12 @@ export function summarizeSync(
     },
     {
       allowSkip: options.allowSkip ?? false,
-      label: 'Prop-value and attribute drift',
+      label: 'Prop-value, attribute and deprecation drift',
       passHeadline: 'CEM sync validation passed!',
       fixHint:
         'Install the Web Awesome Pro package so the manifest half can compare\n' +
-        'every registry enum and attribute against it (pnpm setup:npmrc, then\n' +
-        'install docs deps).',
+        'every registry enum, attribute and deprecation against it\n' +
+        '(pnpm setup:npmrc, then install docs deps).',
     }
   );
 }

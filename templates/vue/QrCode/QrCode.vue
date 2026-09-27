@@ -15,7 +15,9 @@ export interface QrCodeProps {
   value?: string;
   label?: string;
   size?: number;
+  /** @deprecated Set the CSS color property on the QR code instead. */
   fill?: string;
+  /** @deprecated Set the CSS background-color property on the QR code instead. */
   background?: string;
   radius?: number;
   'error-correction'?: 'L' | 'M' | 'Q' | 'H';

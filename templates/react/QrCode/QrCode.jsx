@@ -8,6 +8,19 @@ function ensureLoaded() {
     import('@awesome.me/webawesome/dist/components/qr-code/qr-code.js'));
 }
 
+/**
+ * Generates QR codes for encoding text, URLs, or data
+ *
+ * @typedef {Object} QrCodeProps
+ * @property {string} [value] - The data to encode
+ * @property {string} [label] - Accessible label
+ * @property {number} [size] - Size in pixels
+ * @property {string} [fill] - Deprecated: Set the CSS color property on the QR code instead.
+ * @property {string} [background] - Deprecated: Set the CSS background-color property on the QR code instead.
+ * @property {number} [radius] - Corner radius
+ * @property {string} [error-correction] - Error correction level: L | M | Q | H
+ */
+
 export const QrCode = React.forwardRef(({ className, ...props }, ref) => {
   React.useEffect(() => {
     ensureLoaded();

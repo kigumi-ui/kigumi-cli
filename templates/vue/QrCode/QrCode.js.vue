@@ -15,8 +15,10 @@ const props = defineProps({
   value: { type: String, required: false, default: '' },
   label: { type: String, required: false, default: '' },
   size: { type: Number, required: false, default: 128 },
-  fill: { type: String, required: false, default: 'black' },
-  background: { type: String, required: false, default: 'white' },
+  /** @deprecated Set the CSS color property on the QR code instead. */
+  fill: { type: String, required: false, default: '' },
+  /** @deprecated Set the CSS background-color property on the QR code instead. */
+  background: { type: String, required: false, default: '' },
   radius: { type: Number, required: false, default: 0 },
   'error-correction': { type: String, required: false, default: 'H' },
 });
