@@ -301,7 +301,8 @@ function generateCompactReactSurface(
 ): string {
   let md = `# Kigumi React API Surface\n\n`;
   md += `> Auto-generated from registry + custom-elements.json + templates.\n`;
-  md += `> Event handler names derived from templates (wa-hide -> onHide, not onWaHide).\n\n`;
+  md += `> Event handler names derived from templates (wa-hide -> onHide, not onWaHide).\n`;
+  md += `> Prop flags \`required\` and \`deprecated\` mark the prop itself, not a value; e.g. \`min(number, deprecated)\` means \`min\` accepts a number and is deprecated.\n\n`;
 
   // Transformation quick-ref
   md += `## Transformation Rules\n\n`;
@@ -394,7 +395,8 @@ function generateCompactVueSurface(
 ): string {
   let md = `# Kigumi Vue API Surface\n\n`;
   md += `> Auto-generated from registry + custom-elements.json + templates.\n`;
-  md += `> Vue uses @event-name syntax. Custom events keep the wa- prefix.\n\n`;
+  md += `> Vue uses @event-name syntax. Custom events keep the wa- prefix.\n`;
+  md += `> Prop flags \`required\` and \`deprecated\` mark the prop itself, not a value; e.g. \`min(number, deprecated)\` means \`min\` accepts a number and is deprecated.\n\n`;
 
   // Transformation quick-ref
   md += `## Transformation Rules\n\n`;
@@ -649,7 +651,8 @@ function generateCompactAngularSurface(
 ): string {
   let md = `# Kigumi Angular API Surface\n\n`;
   md += `> Auto-generated from registry + custom-elements.json + Angular templates.\n`;
-  md += `> Angular events use (outputName) syntax. Collision suffixes: blur->blurEvent, focus->focusEvent, show->showEvent, input->inputEvent.\n\n`;
+  md += `> Angular events use (outputName) syntax. Collision suffixes: blur->blurEvent, focus->focusEvent, show->showEvent, input->inputEvent.\n`;
+  md += `> Prop flags \`required\` and \`deprecated\` mark the prop itself, not a value; e.g. \`min(number, deprecated)\` means \`min\` accepts a number and is deprecated.\n\n`;
 
   // Transformation quick-ref
   md += `## Transformation Rules\n\n`;

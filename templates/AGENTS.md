@@ -415,6 +415,14 @@ reach a consumer's TypeScript, and fails when any of the seven surfaces
 disagrees with the registry, in either direction. Removing the prop is a
 `major` changeset (`### Removed`).
 
+Deliberately no `console.warn` at runtime: the JSDoc tag only reaches a
+`.tsx`/`.vue` consumer's editor and type-checker, so a `.jsx`/`.js.vue`
+consumer with no language server sees nothing until the prop is removed. A
+runtime warning was considered and rejected — it would fire in every
+consumer's browser console, including the docs site, the Angular function
+harness and every starter fixture, for a prop that still works exactly as
+before. `kigumi update`'s strike-through is the intended signal.
+
 ---
 
 ## Adding New Components
@@ -505,3 +513,4 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - rule 11: `spellcheck` and `autocorrect` are enumerated attributes, written as their keyword for `false` instead of dropped, via the registry prop's `keywords` in all three generators and by hand in four `.jsx` files; previously neither could be turned off in Vue or Angular, and React wrote `autocorrect={false}` as `"false"` (React 18, read as on) and `autocorrect` as a bare attribute (React 19 without a native property, read as off), issue #101
 - rule 11: the generators share `enumeratedProps()` / `keywordPairLiteral()` / `keywordExpression()` from `scripts/generator-utils.ts`, and every emitted or hand-maintained copy spells a keyword pair as the registry's named `{ true, false }` shape instead of a positional tuple, review follow-up on issue #101
 - rule 12: a registry prop with `deprecated` stays in every Template and carries a JSDoc `@deprecated` tag written by `propJsdocLines()`; RadarChart's `stacked`, `grid`, `min` and `max` are the first, removal tracked in #130, issue #129
+- rule 12: recorded why deprecation carries no runtime `console.warn` (compile-time-only signal, by design, not an oversight) — a second-opinion review on #129 flagged the gap against a JS/no-language-server consumer, issue #129

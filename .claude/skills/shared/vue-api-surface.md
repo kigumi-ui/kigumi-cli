@@ -2,6 +2,7 @@
 
 > Auto-generated from registry + custom-elements.json + templates.
 > Vue uses @event-name syntax. Custom events keep the wa- prefix.
+> Prop flags `required` and `deprecated` mark the prop itself, not a value; e.g. `min(number, deprecated)` means `min` accepts a number and is deprecated.
 
 ## Transformation Rules
 

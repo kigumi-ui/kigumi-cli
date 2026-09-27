@@ -2,6 +2,7 @@
 
 > Auto-generated from registry + custom-elements.json + Angular templates.
 > Angular events use (outputName) syntax. Collision suffixes: blur->blurEvent, focus->focusEvent, show->showEvent, input->inputEvent.
+> Prop flags `required` and `deprecated` mark the prop itself, not a value; e.g. `min(number, deprecated)` means `min` accepts a number and is deprecated.
 
 ## Transformation Rules
 
