@@ -26,7 +26,7 @@ export function MonorepoPatternBlock({ snippets }: MonorepoPatternBlockProps) {
       <TabGroup
         activation="auto"
         active={pattern}
-        onTabShow={(e: CustomEvent) => {
+        onTabShow={(e) => {
           const name = e.detail.name;
           if (name === 'apps' || name === 'packages') {
             setPattern(name);

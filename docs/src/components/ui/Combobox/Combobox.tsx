@@ -9,6 +9,13 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/combobox/combobox.js';
 import './Combobox.css';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome-pro/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome-pro/dist/events/after-show.js';
+import type { WaClearEvent } from '@awesome.me/webawesome-pro/dist/events/clear.js';
+import type { WaCreateEvent } from '@awesome.me/webawesome-pro/dist/events/create.js';
+import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
+import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js';
 
 /**
  * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
@@ -138,10 +145,10 @@ export interface ComboboxProps extends Omit<
   'custom-error'?: string;
 
   /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the control's value changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control gains focus. */
   onFocus?: (event: FocusEvent) => void;
@@ -150,25 +157,25 @@ export interface ComboboxProps extends Omit<
   onBlur?: (event: FocusEvent) => void;
 
   /** Emitted when the control's value is cleared. */
-  onClear?: (event: CustomEvent) => void;
+  onClear?: (event: WaClearEvent) => void;
 
   /** Emitted when the combobox's menu opens. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the combobox's menu opens and all animations are complete. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the combobox's menu closes. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the combobox's menu closes and all animations are complete. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 
   /** Emitted when a new option is created via allow-create. */
-  onCreate?: (event: CustomEvent) => void;
+  onCreate?: (event: WaCreateEvent) => void;
 }
 
 export interface ComboboxRef {
@@ -295,11 +302,11 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
@@ -311,31 +318,31 @@ export const Combobox = forwardRef<ComboboxRef, ComboboxProps>(
       };
 
       const handleClear = (e: Event) => {
-        if (onClear) onClear(e as CustomEvent);
+        if (onClear) onClear(e as WaClearEvent);
       };
 
       const handleShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
+        if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
+        if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       const handleCreate = (e: Event) => {
-        if (onCreate) onCreate(e as CustomEvent);
+        if (onCreate) onCreate(e as WaCreateEvent);
       };
 
       el.addEventListener('input', handleInput);

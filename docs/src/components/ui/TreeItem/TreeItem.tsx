@@ -9,6 +9,12 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/tree-item/tree-item.js';
 import './TreeItem.css';
+import type { WaAfterCollapseEvent } from '@awesome.me/webawesome-pro/dist/events/after-collapse.js';
+import type { WaAfterExpandEvent } from '@awesome.me/webawesome-pro/dist/events/after-expand.js';
+import type { WaCollapseEvent } from '@awesome.me/webawesome-pro/dist/events/collapse.js';
+import type { WaExpandEvent } from '@awesome.me/webawesome-pro/dist/events/expand.js';
+import type { WaLazyChangeEvent } from '@awesome.me/webawesome-pro/dist/events/lazy-change.js';
+import type { WaLazyLoadEvent } from '@awesome.me/webawesome-pro/dist/events/lazy-load.js';
 
 /**
  * Tree items are used inside trees to represent hierarchical items
@@ -51,22 +57,22 @@ export interface TreeItemProps extends Omit<
   lazy?: boolean;
 
   /** Emitted when the tree item expands. */
-  onExpand?: (event: CustomEvent) => void;
+  onExpand?: (event: WaExpandEvent) => void;
 
   /** Emitted after the tree item expands and all animations are complete. */
-  onAfterExpand?: (event: CustomEvent) => void;
+  onAfterExpand?: (event: WaAfterExpandEvent) => void;
 
   /** Emitted when the tree item collapses. */
-  onCollapse?: (event: CustomEvent) => void;
+  onCollapse?: (event: WaCollapseEvent) => void;
 
   /** Emitted after the tree item collapses and all animations are complete. */
-  onAfterCollapse?: (event: CustomEvent) => void;
+  onAfterCollapse?: (event: WaAfterCollapseEvent) => void;
 
   /** Emitted when the tree item's lazy state changes. */
-  onLazyChange?: (event: CustomEvent) => void;
+  onLazyChange?: (event: WaLazyChangeEvent) => void;
 
   /** Emitted when a lazy item is selected. Use this event to asynchronously load data and append items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading state and update the tree. */
-  onLazyLoad?: (event: CustomEvent) => void;
+  onLazyLoad?: (event: WaLazyLoadEvent) => void;
 }
 
 export interface TreeItemRef {
@@ -124,27 +130,27 @@ export const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
       if (!el) return;
 
       const handleExpand = (e: Event) => {
-        if (onExpand) onExpand(e as CustomEvent);
+        if (onExpand) onExpand(e as WaExpandEvent);
       };
 
       const handleAfterExpand = (e: Event) => {
-        if (onAfterExpand) onAfterExpand(e as CustomEvent);
+        if (onAfterExpand) onAfterExpand(e as WaAfterExpandEvent);
       };
 
       const handleCollapse = (e: Event) => {
-        if (onCollapse) onCollapse(e as CustomEvent);
+        if (onCollapse) onCollapse(e as WaCollapseEvent);
       };
 
       const handleAfterCollapse = (e: Event) => {
-        if (onAfterCollapse) onAfterCollapse(e as CustomEvent);
+        if (onAfterCollapse) onAfterCollapse(e as WaAfterCollapseEvent);
       };
 
       const handleLazyChange = (e: Event) => {
-        if (onLazyChange) onLazyChange(e as CustomEvent);
+        if (onLazyChange) onLazyChange(e as WaLazyChangeEvent);
       };
 
       const handleLazyLoad = (e: Event) => {
-        if (onLazyLoad) onLazyLoad(e as CustomEvent);
+        if (onLazyLoad) onLazyLoad(e as WaLazyLoadEvent);
       };
 
       el.addEventListener('wa-expand', handleExpand);

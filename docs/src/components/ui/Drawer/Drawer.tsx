@@ -10,6 +10,10 @@ import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/drawer/drawer.js';
 import './Drawer.css';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome-pro/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome-pro/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js';
 
 /**
  * Drawers slide in from a container edge to expose additional options
@@ -62,16 +66,16 @@ export interface DrawerProps extends Omit<
   'without-header'?: boolean;
 
   /** Emitted when the drawer opens. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the drawer opens and all animations are complete. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the drawer is requesting to close. Calling `event.preventDefault()` will prevent the drawer from closing. You can inspect `event.detail.source` to see which element caused the drawer to close. If the source is the drawer element itself, the user has pressed [[Escape]] or the drawer has been closed programmatically. Avoid using this unless closing the drawer will result in destructive behavior such as data loss. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the drawer closes and all animations are complete. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 }
 
 export interface DrawerRef {
@@ -133,10 +137,12 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       const el = drawerRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleShow = (e: Event) => onShow?.(e as WaShowEvent);
+      const handleAfterShow = (e: Event) =>
+        onAfterShow?.(e as WaAfterShowEvent);
+      const handleHide = (e: Event) => onHide?.(e as WaHideEvent);
+      const handleAfterHide = (e: Event) =>
+        onAfterHide?.(e as WaAfterHideEvent);
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

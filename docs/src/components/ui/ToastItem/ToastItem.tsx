@@ -9,6 +9,10 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/toast-item/toast-item.js';
 import './ToastItem.css';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome-pro/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome-pro/dist/events/after-show.js';
+import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';
+import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js';
 
 /**
  * A single notification banner that can be stacked inside a Toast container
@@ -47,16 +51,16 @@ export interface ToastItemProps extends Omit<
   duration?: number;
 
   /** Fires when the reveal transition starts. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Fires once the reveal transition has finished. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Fires when the dismiss transition starts. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Fires once the dismiss transition has finished. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 }
 
 export interface ToastItemRef {
@@ -96,10 +100,12 @@ export const ToastItem = forwardRef<ToastItemRef, ToastItemProps>(
       const el = toastItemRef.current;
       if (!el) return;
 
-      const handleShow = (e: Event) => onShow?.(e as CustomEvent);
-      const handleAfterShow = (e: Event) => onAfterShow?.(e as CustomEvent);
-      const handleHide = (e: Event) => onHide?.(e as CustomEvent);
-      const handleAfterHide = (e: Event) => onAfterHide?.(e as CustomEvent);
+      const handleShow = (e: Event) => onShow?.(e as WaShowEvent);
+      const handleAfterShow = (e: Event) =>
+        onAfterShow?.(e as WaAfterShowEvent);
+      const handleHide = (e: Event) => onHide?.(e as WaHideEvent);
+      const handleAfterHide = (e: Event) =>
+        onAfterHide?.(e as WaAfterHideEvent);
 
       el.addEventListener('wa-show', handleShow);
       el.addEventListener('wa-after-show', handleAfterShow);

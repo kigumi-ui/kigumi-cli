@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/random-content/random-content.js';
 import './RandomContent.css';
+import type { WaContentChangeEvent } from '@awesome.me/webawesome-pro/dist/events/random-content-change.js';
 
 /**
  * Randomly selects and displays one or more of its child elements
@@ -48,7 +49,7 @@ export interface RandomContentProps extends Omit<
     'none' | 'fade' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right';
 
   /** Emitted when the displayed content changes. */
-  onContentChange?: (event: CustomEvent) => void;
+  onContentChange?: (event: WaContentChangeEvent) => void;
 }
 
 export interface RandomContentRef {
@@ -96,7 +97,7 @@ export const RandomContent = forwardRef<RandomContentRef, RandomContentProps>(
       if (!el) return;
 
       const handleContentChange = (e: Event) => {
-        if (onContentChange) onContentChange(e as CustomEvent);
+        if (onContentChange) onContentChange(e as WaContentChangeEvent);
       };
 
       el.addEventListener('wa-content-change', handleContentChange);

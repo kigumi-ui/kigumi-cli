@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/textarea/textarea.js';
 import './Textarea.css';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
 
 /**
  * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
@@ -133,16 +134,16 @@ export interface TextareaProps extends Omit<
   onBlur?: (event: FocusEvent) => void;
 
   /** Emitted when an alteration to the control's value is committed by the user. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control gains focus. */
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface TextareaRef {
@@ -301,7 +302,7 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
@@ -309,11 +310,11 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       };
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('blur', handleBlur);

@@ -9,6 +9,12 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/date-input/date-input.js';
 import './DateInput.css';
+import type { WaAfterHideEvent } from '@awesome.me/webawesome-pro/dist/events/after-hide.js';
+import type { WaAfterShowEvent } from '@awesome.me/webawesome-pro/dist/events/after-show.js';
+import type { WaClearEvent } from '@awesome.me/webawesome-pro/dist/events/clear.js';
+import type { WaHideEvent } from '@awesome.me/webawesome-pro/dist/events/hide.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
+import type { WaShowEvent } from '@awesome.me/webawesome-pro/dist/events/show.js';
 
 /**
  * A segmented date field with an optional popup calendar, for use in forms
@@ -132,10 +138,10 @@ export interface DateInputProps extends Omit<
   'custom-error'?: string;
 
   /** Emitted on every segment edit, step, calendar interaction, and clear. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted on every committed value transition. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control receives focus. */
   onFocus?: (event: FocusEvent) => void;
@@ -144,22 +150,22 @@ export interface DateInputProps extends Omit<
   onBlur?: (event: FocusEvent) => void;
 
   /** Emitted when the clear button is activated. */
-  onClear?: (event: CustomEvent) => void;
+  onClear?: (event: WaClearEvent) => void;
 
   /** Emitted when the popup is about to open. Cancelable. */
-  onShow?: (event: CustomEvent) => void;
+  onShow?: (event: WaShowEvent) => void;
 
   /** Emitted after the popup opens and animations complete. */
-  onAfterShow?: (event: CustomEvent) => void;
+  onAfterShow?: (event: WaAfterShowEvent) => void;
 
   /** Emitted when the popup is about to close. Cancelable. */
-  onHide?: (event: CustomEvent) => void;
+  onHide?: (event: WaHideEvent) => void;
 
   /** Emitted after the popup closes and animations complete. */
-  onAfterHide?: (event: CustomEvent) => void;
+  onAfterHide?: (event: WaAfterHideEvent) => void;
 
   /** Emitted when the form control's constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface DateInputRef {
@@ -293,11 +299,11 @@ export const DateInput = forwardRef<DateInputRef, DateInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleFocus = (e: Event) => {
@@ -309,27 +315,27 @@ export const DateInput = forwardRef<DateInputRef, DateInputProps>(
       };
 
       const handleClear = (e: Event) => {
-        if (onClear) onClear(e as CustomEvent);
+        if (onClear) onClear(e as WaClearEvent);
       };
 
       const handleShow = (e: Event) => {
-        if (onShow) onShow(e as CustomEvent);
+        if (onShow) onShow(e as WaShowEvent);
       };
 
       const handleAfterShow = (e: Event) => {
-        if (onAfterShow) onAfterShow(e as CustomEvent);
+        if (onAfterShow) onAfterShow(e as WaAfterShowEvent);
       };
 
       const handleHide = (e: Event) => {
-        if (onHide) onHide(e as CustomEvent);
+        if (onHide) onHide(e as WaHideEvent);
       };
 
       const handleAfterHide = (e: Event) => {
-        if (onAfterHide) onAfterHide(e as CustomEvent);
+        if (onAfterHide) onAfterHide(e as WaAfterHideEvent);
       };
 
       const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

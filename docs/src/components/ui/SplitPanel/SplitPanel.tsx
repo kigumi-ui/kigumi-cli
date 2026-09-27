@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/split-panel/split-panel.js';
 import './SplitPanel.css';
+import type { WaRepositionEvent } from '@awesome.me/webawesome-pro/dist/events/reposition.js';
 
 /**
  * Split panels display two adjacent panels with a divider for resizing
@@ -50,7 +51,7 @@ export interface SplitPanelProps extends Omit<
   'snap-threshold'?: number;
 
   /** Emitted when the divider's position changes. */
-  onReposition?: (event: CustomEvent) => void;
+  onReposition?: (event: WaRepositionEvent) => void;
 }
 
 export interface SplitPanelRef {
@@ -81,7 +82,7 @@ export const SplitPanel = forwardRef<SplitPanelRef, SplitPanelProps>(
       if (!el) return;
 
       const handleReposition = (e: Event) => {
-        if (onReposition) onReposition(e as CustomEvent);
+        if (onReposition) onReposition(e as WaRepositionEvent);
       };
 
       el.addEventListener('wa-reposition', handleReposition);

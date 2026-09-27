@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/avatar/avatar.js';
 import './Avatar.css';
+import type { WaErrorEvent } from '@awesome.me/webawesome-pro/dist/events/error.js';
 
 /**
  * Avatars are used to represent a person or object
@@ -44,7 +45,7 @@ export interface AvatarProps extends Omit<
   shape?: 'circle' | 'square' | 'rounded';
 
   /** The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some unknown cause. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: WaErrorEvent) => void;
 }
 
 export interface AvatarRef {
@@ -75,7 +76,7 @@ export const Avatar = forwardRef<AvatarRef, AvatarProps>(
       if (!el) return;
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as WaErrorEvent);
       };
 
       el.addEventListener('wa-error', handleError);

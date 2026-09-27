@@ -1,16 +1,23 @@
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/Button/Button';
 import { Icon } from '@/components/ui/Icon/Icon';
-import { Dropdown } from '@/components/ui/Dropdown/Dropdown';
+import {
+  Dropdown,
+  type DropdownProps,
+} from '@/components/ui/Dropdown/Dropdown';
 import { DropdownItem } from '@/components/ui/DropdownItem/DropdownItem';
 import { Tooltip } from '@/components/ui/Tooltip/Tooltip';
 
 export const ThemeFab = () => {
   const { theme, setTheme, isDark } = useTheme();
 
-  const handleThemeSelect = (event: CustomEvent) => {
-    const selectedTheme = event.detail.item.value;
-    setTheme(selectedTheme);
+  const handleThemeSelect: NonNullable<DropdownProps['onSelect']> = (event) => {
+    // `detail.item` is typed `Element`; the value is the DropdownItem's.
+    const selected = (event.detail.item as HTMLElement & { value?: string })
+      .value;
+    if (selected === 'light' || selected === 'dark' || selected === 'system') {
+      setTheme(selected);
+    }
   };
 
   const getIconName = () => {

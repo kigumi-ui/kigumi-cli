@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/video-playlist/video-playlist.js';
 import './VideoPlaylist.css';
+import type { WaVideoChangeEvent } from '@awesome.me/webawesome-pro/dist/events/video-change.js';
 
 /**
  * Groups multiple videos into a playlist with next/previous navigation
@@ -32,7 +33,7 @@ export interface VideoPlaylistProps extends Omit<
   'icon-library'?: string;
 
   /** Emitted when the active video changes. */
-  onVideoChange?: (event: CustomEvent) => void;
+  onVideoChange?: (event: WaVideoChangeEvent) => void;
 }
 
 export interface VideoPlaylistRef {
@@ -104,7 +105,7 @@ export const VideoPlaylist = forwardRef<VideoPlaylistRef, VideoPlaylistProps>(
       if (!el) return;
 
       const handleVideoChange = (e: Event) => {
-        if (onVideoChange) onVideoChange(e as CustomEvent);
+        if (onVideoChange) onVideoChange(e as WaVideoChangeEvent);
       };
 
       el.addEventListener('wa-video-change', handleVideoChange);

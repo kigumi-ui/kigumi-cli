@@ -9,6 +9,9 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/animation/animation.js';
 import './Animation.css';
+import type { WaCancelEvent } from '@awesome.me/webawesome-pro/dist/events/cancel.js';
+import type { WaFinishEvent } from '@awesome.me/webawesome-pro/dist/events/finish.js';
+import type { WaStartEvent } from '@awesome.me/webawesome-pro/dist/events/start.js';
 
 /**
  * Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes
@@ -66,13 +69,13 @@ export interface AnimationProps extends Omit<
   'playback-rate'?: number;
 
   /** Emitted when the animation is canceled. */
-  onCancel?: (event: CustomEvent) => void;
+  onCancel?: (event: WaCancelEvent) => void;
 
   /** Emitted when the animation finishes. */
-  onFinish?: (event: CustomEvent) => void;
+  onFinish?: (event: WaFinishEvent) => void;
 
   /** Emitted when the animation starts or restarts. */
-  onStart?: (event: CustomEvent) => void;
+  onStart?: (event: WaStartEvent) => void;
 }
 
 export interface AnimationRef {
@@ -129,15 +132,15 @@ export const Animation = forwardRef<AnimationRef, AnimationProps>(
       if (!el) return;
 
       const handleCancel = (e: Event) => {
-        if (onCancel) onCancel(e as CustomEvent);
+        if (onCancel) onCancel(e as WaCancelEvent);
       };
 
       const handleFinish = (e: Event) => {
-        if (onFinish) onFinish(e as CustomEvent);
+        if (onFinish) onFinish(e as WaFinishEvent);
       };
 
       const handleStart = (e: Event) => {
-        if (onStart) onStart(e as CustomEvent);
+        if (onStart) onStart(e as WaStartEvent);
       };
 
       el.addEventListener('wa-cancel', handleCancel);

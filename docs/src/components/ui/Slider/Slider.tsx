@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/slider/slider.js';
 import type WaElement from '@awesome.me/webawesome-pro/dist/components/slider/slider.js';
 import './Slider.css';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
 
 /**
  * Sliders allow the user to select a value within a range
@@ -78,7 +79,7 @@ export interface SliderProps extends Omit<
   'custom-error'?: string;
 
   /** Emitted when an alteration to the control's value is committed by the user. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -87,10 +88,10 @@ export interface SliderProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface SliderRef {
@@ -174,7 +175,7 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {
@@ -186,11 +187,11 @@ export const Slider = forwardRef<SliderRef, SliderProps>(
       };
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('change', handleChange);

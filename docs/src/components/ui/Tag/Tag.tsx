@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/tag/tag.js';
 import './Tag.css';
+import type { WaRemoveEvent } from '@awesome.me/webawesome-pro/dist/events/remove.js';
 
 /**
  * Tags are used as labels to organize things or indicate selections
@@ -47,7 +48,7 @@ export interface TagProps extends Omit<
   withRemove?: boolean;
 
   /** Emitted when the remove button is activated. */
-  onRemove?: (event: CustomEvent) => void;
+  onRemove?: (event: WaRemoveEvent) => void;
 }
 
 export interface TagRef {
@@ -82,7 +83,7 @@ export const Tag = forwardRef<TagRef, TagProps>(
       if (!el) return;
 
       const handleRemove = (e: Event) => {
-        if (onRemove) onRemove(e as CustomEvent);
+        if (onRemove) onRemove(e as WaRemoveEvent);
       };
 
       el.addEventListener('wa-remove', handleRemove);

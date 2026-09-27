@@ -9,6 +9,8 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/icon/icon.js';
 import './Icon.css';
+import type { WaErrorEvent } from '@awesome.me/webawesome-pro/dist/events/error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome-pro/dist/events/load.js';
 
 /**
  * Icons are symbols that can be used to represent various options within an application
@@ -69,10 +71,10 @@ export interface IconProps extends Omit<
   animation?: string;
 
   /** Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit. */
-  onLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: WaLoadEvent) => void;
 
   /** Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: WaErrorEvent) => void;
 }
 
 export interface IconRef {
@@ -103,11 +105,11 @@ export const Icon = forwardRef<IconRef, IconProps>(
       if (!el) return;
 
       const handleLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+        if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as WaErrorEvent);
       };
 
       el.addEventListener('wa-load', handleLoad);

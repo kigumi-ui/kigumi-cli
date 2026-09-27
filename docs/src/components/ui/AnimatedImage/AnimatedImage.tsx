@@ -9,6 +9,8 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/animated-image/animated-image.js';
 import './AnimatedImage.css';
+import type { WaErrorEvent } from '@awesome.me/webawesome-pro/dist/events/error.js';
+import type { WaLoadEvent } from '@awesome.me/webawesome-pro/dist/events/load.js';
 
 /**
  * A component for displaying animated GIFs and WEBPs that play and pause on interaction
@@ -38,10 +40,10 @@ export interface AnimatedImageProps extends Omit<
   play?: boolean;
 
   /** Emitted when the image loads successfully. */
-  onLoad?: (event: CustomEvent) => void;
+  onLoad?: (event: WaLoadEvent) => void;
 
   /** Emitted when the image fails to load. */
-  onError?: (event: CustomEvent) => void;
+  onError?: (event: WaErrorEvent) => void;
 }
 
 export interface AnimatedImageRef {
@@ -75,11 +77,11 @@ export const AnimatedImage = forwardRef<AnimatedImageRef, AnimatedImageProps>(
       if (!el) return;
 
       const handleLoad = (e: Event) => {
-        if (onLoad) onLoad(e as CustomEvent);
+        if (onLoad) onLoad(e as WaLoadEvent);
       };
 
       const handleError = (e: Event) => {
-        if (onError) onError(e as CustomEvent);
+        if (onError) onError(e as WaErrorEvent);
       };
 
       el.addEventListener('wa-load', handleLoad);

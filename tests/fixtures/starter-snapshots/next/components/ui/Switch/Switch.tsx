@@ -10,6 +10,7 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import type WaSwitch from '@awesome.me/webawesome/dist/components/switch/switch.js';
+import type { WaInvalidEvent } from '@awesome.me/webawesome/dist/events/invalid.js';
 import './Switch.css';
 
 let loadPromise: Promise<unknown> | null = null;
@@ -80,7 +81,7 @@ export interface SwitchProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface SwitchRef {
@@ -197,7 +198,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as Event);
+        if (onChange) onChange(e);
       };
 
       const handleInput = (e: Event) => {
@@ -213,7 +214,7 @@ export const Switch = forwardRef<SwitchRef, SwitchProps>(
       };
 
       const handleWaInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('change', handleChange);

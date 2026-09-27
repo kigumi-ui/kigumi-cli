@@ -9,6 +9,7 @@ import {
 import clsx from 'clsx';
 import '@awesome.me/webawesome-pro/dist/components/number-input/number-input.js';
 import './NumberInput.css';
+import type { WaInvalidEvent } from '@awesome.me/webawesome-pro/dist/events/invalid.js';
 
 /**
  * Number inputs allow users to enter numeric values with optional step controls
@@ -100,13 +101,13 @@ export interface NumberInputProps extends Omit<
   'custom-error'?: string;
 
   /** Emitted when the control receives input. */
-  onInput?: (event: CustomEvent) => void;
+  onInput?: (event: InputEvent) => void;
 
   /** Emitted before the value changes. Can be cancelled with `event.preventDefault()` to prevent the value from changing. */
-  onBeforeinput?: (event: CustomEvent) => void;
+  onBeforeinput?: (event: InputEvent) => void;
 
   /** Emitted when an alteration to the control's value is committed by the user. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -115,7 +116,7 @@ export interface NumberInputProps extends Omit<
   onFocus?: (event: FocusEvent) => void;
 
   /** Emitted when the form control has been checked for validity and its constraints aren't satisfied. */
-  onInvalid?: (event: CustomEvent) => void;
+  onInvalid?: (event: WaInvalidEvent) => void;
 }
 
 export interface NumberInputRef {
@@ -224,15 +225,15 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       if (!el) return;
 
       const handleInput = (e: Event) => {
-        if (onInput) onInput(e as CustomEvent);
+        if (onInput) onInput(e as InputEvent);
       };
 
       const handleBeforeinput = (e: Event) => {
-        if (onBeforeinput) onBeforeinput(e as CustomEvent);
+        if (onBeforeinput) onBeforeinput(e as InputEvent);
       };
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       const handleBlur = (e: Event) => {
@@ -244,7 +245,7 @@ export const NumberInput = forwardRef<NumberInputRef, NumberInputProps>(
       };
 
       const handleInvalid = (e: Event) => {
-        if (onInvalid) onInvalid(e as CustomEvent);
+        if (onInvalid) onInvalid(e as WaInvalidEvent);
       };
 
       el.addEventListener('input', handleInput);

@@ -32,7 +32,7 @@ export interface ComparisonProps extends Omit<
   position?: number;
 
   /** Emitted when the position changes. */
-  onChange?: (event: CustomEvent) => void;
+  onChange?: (event: Event) => void;
 }
 
 export interface ComparisonRef {
@@ -63,7 +63,7 @@ export const Comparison = forwardRef<ComparisonRef, ComparisonProps>(
       if (!el) return;
 
       const handleChange = (e: Event) => {
-        if (onChange) onChange(e as CustomEvent);
+        if (onChange) onChange(e);
       };
 
       el.addEventListener('change', handleChange);

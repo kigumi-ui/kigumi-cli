@@ -10,6 +10,8 @@ import clsx from 'clsx';
 import type WaPagination from '@awesome.me/webawesome-pro/dist/components/pagination/pagination.js';
 import '@awesome.me/webawesome-pro/dist/components/pagination/pagination.js';
 import './Pagination.css';
+import type { WaBeforePageChangeEvent } from '@awesome.me/webawesome-pro/dist/events/before-page-change.js';
+import type { WaPageChangeEvent } from '@awesome.me/webawesome-pro/dist/events/page-change.js';
 
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
@@ -78,10 +80,10 @@ export interface PaginationProps extends Omit<
   disabled?: boolean;
 
   /** Emitted when the page is about to change but before it does. Canceling this event with `event.preventDefault()` prevents the page from changing. */
-  onBeforePageChange?: (event: CustomEvent) => void;
+  onBeforePageChange?: (event: WaBeforePageChangeEvent) => void;
 
   /** Emitted after the page changes. */
-  onPageChange?: (event: CustomEvent) => void;
+  onPageChange?: (event: WaPageChangeEvent) => void;
 }
 
 export interface PaginationRef {
@@ -115,11 +117,12 @@ export const Pagination = forwardRef<PaginationRef, PaginationProps>(
       if (!el) return;
 
       const handleWaBeforePageChange = (e: Event) => {
-        if (onBeforePageChange) onBeforePageChange(e as CustomEvent);
+        if (onBeforePageChange)
+          onBeforePageChange(e as WaBeforePageChangeEvent);
       };
 
       const handleWaPageChange = (e: Event) => {
-        if (onPageChange) onPageChange(e as CustomEvent);
+        if (onPageChange) onPageChange(e as WaPageChangeEvent);
       };
 
       el.addEventListener('wa-before-page-change', handleWaBeforePageChange);

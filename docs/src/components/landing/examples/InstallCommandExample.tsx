@@ -23,7 +23,10 @@ export function InstallCommandExample() {
       <TabGroup
         activation="auto"
         active={activeTab}
-        onTabShow={(e: CustomEvent) => setActiveTab(e.detail.name)}
+        onTabShow={(e) => {
+          const name = e.detail.name;
+          if (name in PACKAGE_MANAGERS) setActiveTab(name as PackageManager);
+        }}
       >
         {(Object.keys(PACKAGE_MANAGERS) as PackageManager[]).map((pm) => (
           <Tab key={pm} panel={pm}>
