@@ -41,7 +41,7 @@ function ensureLoaded() {
   styleUrl: './checkbox-group.component.css',
 })
 export class CheckboxGroupComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Group label */

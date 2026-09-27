@@ -40,7 +40,7 @@ function ensureLoaded() {
   styleUrl: './toast-item.component.css',
 })
 export class ToastItemComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Colour scheme reflecting the notification intent */

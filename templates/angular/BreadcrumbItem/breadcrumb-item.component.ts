@@ -37,7 +37,7 @@ function ensureLoaded() {
   styleUrl: './breadcrumb-item.component.css',
 })
 export class BreadcrumbItemComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Optional URL to direct the user to when activated */

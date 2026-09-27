@@ -57,7 +57,7 @@ function ensureLoaded() {
 export class RatingComponent
   implements AfterViewInit, OnDestroy, ControlValueAccessor
 {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Accessible label */
@@ -118,9 +118,9 @@ export class RatingComponent
 
     const handleValueChange = () =>
       this.onChangeCallback((el as unknown as { value: unknown }).value);
-    el.addEventListener('input', handleValueChange);
+    el.addEventListener('change', handleValueChange);
     this.cleanups.push(() =>
-      el.removeEventListener('input', handleValueChange)
+      el.removeEventListener('change', handleValueChange)
     );
     const handleBlurTouch = () => this.onTouchedCallback();
     el.addEventListener('blur', handleBlurTouch);

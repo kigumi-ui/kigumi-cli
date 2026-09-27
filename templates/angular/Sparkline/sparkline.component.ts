@@ -39,7 +39,7 @@ function ensureLoaded() {
   styleUrl: './sparkline.component.css',
 })
 export class SparklineComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Space-separated numeric data points */

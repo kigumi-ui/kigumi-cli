@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── unit/                    # Fast, isolated tests (111 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
+├── unit/                    # Fast, isolated tests (113 files at top level, ~1500 tests; more under eslint-rules/, scripts/, schemas/)
 │   ├── add-command.test.ts          # Add command (built-in + remote)
 │   ├── add-command-cross-framework.test.ts # Add command --cross-framework flag
 │   ├── add-print-summary.test.ts    # printSummary's four reporting concerns
@@ -86,7 +86,7 @@ tests/
 │   ├── storybook-generator.test.ts  # Storybook story generation
 │   ├── surgical-rewrite-layers-css.test.ts # Surgical @import rewrite for layers.css
 │   ├── template.test.ts             # Template materialization + tier swap
-│   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract both adapters share, incl. the host add/removeEventListener log (not a test file)
+│   ├── template-function-harness.ts # proveTemplate: the framework-neutral CEM function contract all three adapters share, incl. the host add/removeEventListener log; `className: null` skips the class check for an adapter with no class seam yet (Angular, #125) (not a test file)
 │   ├── test-detection.test.ts       # Test framework detection
 │   ├── theme.test.ts                # Theme validation
 │   ├── theme-commands.test.ts       # Theme set/list/show/install commands
@@ -121,6 +121,9 @@ tests/
 │   ├── validate-fixture-exclusions.test.ts # Matchers for the three ignore lists that must all skip tests/fixtures/starter-snapshots (cluster X)
 │   ├── version-error.test.ts        # Version error classes
 │   ├── version-map.test.ts          # Version history data
+│   ├── angular-function-harness.ts  # proveAngularTemplate: the Angular adapter (JIT compile, `k-` selector, declared @Input()/@Output() via toAngularOutputName, component instance, `style` seam, ControlValueAccessor through a real [formControl]) over template-function-harness.ts (not a test file)
+│   ├── angular-function-harness-registry.test.ts # Loops proveAngularTemplate over every LOCAL_REGISTRY component's `.component.ts` Template (issue #77); pins the form-control catalogue (ControlValueAccessor) and the host property each maps to, both directions; an attribute may lack an @Input() only where `_helpers/angular-omitted-inputs.ts` pins it, and every pinned attribute must really lack one
+│   ├── angular-function-harness.test.ts # The Angular adapter alone, on inline JIT components: compile errors reported not thrown, selector, undeclared inputs/outputs, omittable inputs, style seam, each ControlValueAccessor facet (issue #77)
 │   ├── angular-templates.test.ts    # Angular template generation validation (collision-resolution exercised against Tooltip — Dialog is no longer a collision case since WA 3.5.0 marked its show()/requestClose() private)
 │   ├── vue-function-harness.ts      # proveVueTemplate: the Vue adapter (`onWaAfterHide`, defineExpose, declared emits) over template-function-harness.ts (not a test file)
 │   ├── vue-function-harness.test.ts # The Vue adapter alone, on inline components: callback naming, undeclared emits, a leak Vue's post-unmount emit would hide (issue #76)
@@ -152,8 +155,10 @@ tests/
 │   │   ├── resolve-components-tolowercase.test.ts       # Multi-word components survive kebab/Pascal
 │   │   └── f-058-config-monorepo-isolation.test.ts      # loadConfig stopDir: cwd, no parent inheritance
 │   ├── _helpers/                               # Shared test helpers (see Test Helpers below); not test files
-│   │   ├── eventless-components.ts             # EVENTLESS_COMPONENTS: registry components with no CEM events, pinned data shared by the React and Vue registry harnesses
-│   │   ├── methodless-components.ts            # METHODLESS_COMPONENTS: registry components with no public CEM methods, pinned data shared by the React and Vue registry harnesses
+│   │   ├── angular-omitted-inputs.ts           # ANGULAR_OMITTED_INPUTS / ANGULAR_INHERITED_OMISSIONS: the CEM attributes each Angular Template has no @Input() for, pinned as committed data independent of validate:cem-sync's allowlists
+│   │   ├── registry-coverage.ts                # describeRegistryCoverage(): the fail-closed metadata and eventless/methodless pin checks, registered by all three registry loops
+│   │   ├── eventless-components.ts             # EVENTLESS_COMPONENTS: registry components with no CEM events, pinned data shared by the React, Vue and Angular registry harnesses
+│   │   ├── methodless-components.ts            # METHODLESS_COMPONENTS: registry components with no public CEM methods, pinned data shared by the React, Vue and Angular registry harnesses
 │   │   └── wa-component-stub.ts                # Stub every `@awesome.me/webawesome(-pro)/dist/components/**` import resolves to, aliased from both vitest configs via vitest.wa-stub-alias.ts
 │   └── _setup/
 │       └── fast-check.ts                        # Cluster T: fast-check global config (pinned seed=1; FC_SEED env override)
@@ -197,6 +202,11 @@ pnpm test:watch        # Watch mode
 The script runs `tsc --noEmit -p tsconfig.tests.json` and fails CI on any error.
 The function harness renders committed React and Vue Templates, so this tsconfig sets
 `jsx` and the DOM lib and includes the CSS and React JSX shims.
+Angular Templates are imported by computed path, so `tsc` does not follow them here: their
+decorators need `experimentalDecorators`, which only `templates/angular/tsconfig.json`
+(`pnpm typecheck:templates`) sets. For the same reason the Angular adapter's inline test
+components use `Component({...})(class ...)` instead of decorator syntax: Vite compiles
+test files under the root tsconfig, and esbuild would emit standard decorators.
 The historical baseline at `tests/.tsc-baseline.json` was retired in PR #137
 once the existing 133 errors were fixed; the gate is now strict.
 
@@ -229,7 +239,7 @@ factories (cluster S).
 | `createTestAddOptions(overrides)` (from `_helpers/add-options.ts`)                                                               | You need a fully-typed `AddOptions` for command tests.                                                                                                                                                                                                                                                                                                                                                                                 |
 | `registerTestSeams(output, prompts)` / `clearTestSeams()` (from `_helpers/seams.ts`)                                             | You're wiring both the output and prompts seams in the same test file. Call `registerTestSeams` after `vi.resetModules()` in `beforeEach`, and `clearTestSeams` in `afterEach`. Wraps the dynamic-import dance below.                                                                                                                                                                                                                  |
 | `WebAwesomeComponentStub` (default export of `_helpers/wa-component-stub.ts`)                                                    | You don't import it: both vitest configs alias every `@awesome.me/webawesome(-pro)/dist/components/**` deep-import to it (via `vitest.wa-stub-alias.ts`), so a Template's dynamic component import resolves without loading Web Awesome's runtime. Pro isn't installed at all, and Free's runtime is dead weight for a contract proof. It registers nothing, keeping the harness's `customElements.get(tagName)` assertion meaningful. |
-| `METHODLESS_COMPONENTS` / `EVENTLESS_COMPONENTS` (from `_helpers/methodless-components.ts` / `_helpers/eventless-components.ts`) | A registry harness needs to know which components may legitimately prove zero methods / events. Committed data, never derived from `COMPONENT_METADATA`: `react-function-harness-registry.test.ts` pins both directions, so a WA bump that adds or removes a method or event must edit the list in the same commit.                                                                                                                    |
+| `METHODLESS_COMPONENTS` / `EVENTLESS_COMPONENTS` (from `_helpers/methodless-components.ts` / `_helpers/eventless-components.ts`) | A registry harness needs to know which components may legitimately prove zero methods / events. Committed data, never derived from `COMPONENT_METADATA`: `describeRegistryCoverage()` (`_helpers/registry-coverage.ts`, registered by every registry loop) pins both directions, so a WA bump that adds or removes a method or event must edit the list in the same commit.                                                            |
 
 The DI hooks live on the production modules. Prefer `registerTestSeams` /
 `clearTestSeams` from `_helpers/seams.ts` so the dynamic-import boilerplate
@@ -615,7 +625,7 @@ describe('smoke test', () => {
 
 - Third-party libraries (Commander, Zod)
 - File system mocking (use real temp dirs)
-- Per-Template generated tests as the function oracle. The CEM function harness renders every committed React and Vue TypeScript Template in jsdom (issues #75, #76); visual checks stay in the browser
+- Per-Template generated tests as the function oracle. The CEM function harness renders every committed React, Vue and Angular TypeScript Template in jsdom (issues #75, #76, #77); visual checks stay in the browser
 
 ### JSON with Comments
 
@@ -887,3 +897,6 @@ Validate skill output in `~/Documents/dev/git/kigumi-angular/`:
 - check-generated-fresh.test.ts also walks templates/react through `checkReactJsVariantSubset` on a temp tree and on the committed Templates, so a React arm that compared nothing fails the suite as well as the guard, issue #122
 - registered Check C's four test-only exports (`extractVueSurface`, `compareVueVariants`, and both arms' walks) in the "Internals Exported for Test Coverage" list and moved them to the bottom of check-generated-fresh.ts. The React and Vue walk tests are one `it.each` over both arms, and a plain `<script>` that only sets `name` or `inheritAttrs` is now read as declaring nothing; bug-injected: call signatures read for `defineProps`, a React arm reporting zero pairs, and `emits` allowlisted each go red, issue #122
 - `parseBlock` is the one lang-to-parse path shared by `readPlainScript` and `extractVueSurface`, so an unparseable dialect is refused identically in a plain `<script>` and a `<script setup>`. Bug-injected: making it fall back to JavaScript turns both bad-`lang` cases red, which is also the proof the extraction is behaviour-preserving, issue #122
+- added the Angular adapter, issue #77: angular-function-harness.ts JIT-compiles a Template (a compile error is a violation, not a throw), mounts it with createComponent and inputBinding/outputBinding under a zoneless app, and checks the `k-` selector, declared @Input()/@Output() names (toAngularOutputName), the `style` seam and ControlValueAccessor through a real [formControl]. template-function-harness.ts takes `className: null` for an adapter with no class seam: an Angular consumer's class stays on the `k-*` element, tracked in #125. Each check in angular-function-harness.test.ts was bug-injected in the adapter; two sabotages first stayed green (enable never reaching the host, writeValue ignored) and got their own cases
+- added angular-function-harness-registry.test.ts, issue #77: every Angular Template JIT-compiled and proven against COMPONENT_METADATA, with the form-control catalogue pinned both ways (ANGULAR_FORM_CONTROLS). It was red on three real Template bugs, fixed generator-side in the same PR: all 14 form controls dropped a FormControl's initial value and disabled state (non-static @ViewChild), IntersectionObserver did not compile (`[attr.once]`), Rating's accessor read on `input`, which wa-rating never dispatches. Bug-injected on committed Templates (dropped Dialog `label` input, Dialog cleanup, Badge style forwarding), the catalogue pin in both directions, and an emptied `dialog.events` (premise asserted)
+- the Angular registry loop no longer borrows validate:cem-sync's allowlist to decide which CEM attributes may lack an @Input(): that shared predicate let one allowlist edit both silence the drift warning and shrink the Angular proof. `_helpers/angular-omitted-inputs.ts` pins the 160 component-specific omissions plus the inherited `dir`/`lang`/`did-ssr`, and the adapter fails on an unpinned omission, on a pinned attribute that has an @Input(), and on one the CEM no longer declares. The fail-closed coverage block moved from the React loop into `_helpers/registry-coverage.ts` and runs in all three loops, issue #77

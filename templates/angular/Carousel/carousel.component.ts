@@ -47,7 +47,7 @@ function ensureLoaded() {
   styleUrl: './carousel.component.css',
 })
 export class CarouselComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Automatically scrolls slides when user isn't interacting */

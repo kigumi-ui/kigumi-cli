@@ -32,7 +32,7 @@ function ensureLoaded() {
   styleUrl: './skeleton.component.css',
 })
 export class SkeletonComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Animation effect */

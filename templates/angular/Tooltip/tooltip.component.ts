@@ -47,7 +47,7 @@ function ensureLoaded() {
   styleUrl: './tooltip.component.css',
 })
 export class TooltipComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Tooltip placement */

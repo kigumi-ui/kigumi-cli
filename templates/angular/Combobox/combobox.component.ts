@@ -70,7 +70,7 @@ function ensureLoaded() {
 export class ComboboxComponent
   implements AfterViewInit, OnDestroy, ControlValueAccessor
 {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** Allows entering custom values */

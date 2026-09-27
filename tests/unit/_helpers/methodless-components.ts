@@ -5,8 +5,8 @@
  * exists to close (ADR 0003). A WA bump that adds or removes a public method
  * edits this list in the same commit as the regenerated metadata.
  *
- * Shared by the React and Vue registry harnesses: whether a component has
- * public methods is a CEM fact, not a framework one.
+ * Shared by the React, Vue and Angular registry harnesses: whether a
+ * component has public methods is a CEM fact, not a framework one.
  */
 export const METHODLESS_COMPONENTS: readonly string[] = [
   'animated-image',

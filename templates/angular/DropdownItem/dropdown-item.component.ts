@@ -47,7 +47,7 @@ function ensureLoaded() {
   styleUrl: './dropdown-item.component.css',
 })
 export class DropdownItemComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The type of menu item */

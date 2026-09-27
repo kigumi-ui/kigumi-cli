@@ -4,6 +4,7 @@ import {
   toPascalCase,
   toCamelCase,
   stripWaPrefix,
+  toAngularOutputName,
 } from '../../../src/utils/naming.js';
 
 /**
@@ -82,16 +83,49 @@ describe('stripWaPrefix', () => {
 });
 
 /**
+ * The Angular @Output() name: shared by the generator and the Angular function
+ * harness (issue #77), so the two cannot disagree about what a consumer binds.
+ */
+describe('toAngularOutputName', () => {
+  it.each([
+    ['wa-after-hide', 'afterHide'],
+    ['wa-show', 'show'],
+    ['change', 'change'],
+    ['input', 'inputEvent'],
+  ])('%s -> %s when no other member has the name', (event, expected) => {
+    expect(toAngularOutputName(event, new Set())).toBe(expected);
+  });
+
+  it('suffixes Event when a public method has the name', () => {
+    expect(toAngularOutputName('blur', new Set(['blur', 'focus']))).toBe(
+      'blurEvent'
+    );
+    expect(toAngularOutputName('wa-show', new Set(['show', 'hide']))).toBe(
+      'showEvent'
+    );
+  });
+
+  it('suffixes Event when an @Input() has the name', () => {
+    expect(toAngularOutputName('wa-invalid', new Set(['invalid']))).toBe(
+      'invalidEvent'
+    );
+  });
+
+  it('leaves a name alone when only a different member is taken', () => {
+    expect(toAngularOutputName('wa-after-show', new Set(['show']))).toBe(
+      'afterShow'
+    );
+  });
+});
+
+/**
  * The three generators build genuinely different handler names from the same
  * primitive. These assertions pin the per-framework adapters so a future change
  * to the shared primitive cannot silently converge them.
  */
 describe('per-framework adapters built on the primitives', () => {
   const reactEventName = (e: string) => 'on' + toPascalCase(stripWaPrefix(e));
-  const angularOutputName = (e: string) => {
-    const stripped = stripWaPrefix(e);
-    return stripped === 'input' ? 'inputEvent' : toCamelCase(stripped);
-  };
+  const angularOutputName = (e: string) => toAngularOutputName(e, new Set());
 
   it.each([
     ['wa-after-hide', 'onAfterHide', 'afterHide'],

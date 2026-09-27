@@ -26,9 +26,9 @@ import {
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   toKebabCase,
-  toCamelCase,
   toPascalCase,
-  stripWaPrefix,
+  toCamelCase,
+  toAngularOutputName,
 } from '../src/utils/naming.js';
 import {
   formatCustomTypeImports,
@@ -103,28 +103,19 @@ interface MethodInfo {
 }
 
 /**
- * Convert wa-event-name to Angular @Output() camelCase name
- * wa-show -> show, wa-after-hide -> afterHide, blur -> blur
+ * Get events for a component from metadata. `taken` holds the class's method
+ * and @Input() names, which an @Output() name must not reuse.
  */
-function toOutputName(eventName: string): string {
-  const stripped = stripWaPrefix(eventName);
-
-  // 'input' conflicts with @Input() decorator
-  if (stripped === 'input') return 'inputEvent';
-
-  return toCamelCase(stripped);
-}
-
-/**
- * Get events for a component from metadata
- */
-function getEvents(componentKey: string): EventInfo[] {
+function getEvents(
+  componentKey: string,
+  taken: ReadonlySet<string>
+): EventInfo[] {
   const metadata = COMPONENT_METADATA[componentKey];
   if (!metadata?.events) return [];
 
   return metadata.events.map((e) => ({
     name: e.name,
-    outputName: toOutputName(e.name),
+    outputName: toAngularOutputName(e.name, taken),
     type: mapEventType(e.name),
   }));
 }
@@ -153,26 +144,33 @@ export function generateComponentTS(
   componentKey: string
 ): string {
   const kebabName = toKebabCase(component.name);
-  const events = getEvents(componentKey);
   const methods = getMethods(componentKey);
 
-  // Rename @Output names that collide with method or @Input names
-  const methodNames = new Set(methods.map((m) => m.name));
-  const propNames = new Set(
-    component.props.map((p) =>
-      p.name.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-    )
-  );
-  for (const event of events) {
-    if (methodNames.has(event.outputName) || propNames.has(event.outputName)) {
-      event.outputName = event.outputName + 'Event';
-    }
-  }
+  // @Output names may not collide with method or @Input names
+  const taken = new Set([
+    ...methods.map((m) => m.name),
+    ...component.props.map((p) => toCamelCase(p.name)),
+  ]);
+  const events = getEvents(componentKey, taken);
 
   const needsCVA =
     CVA_VALUE_COMPONENTS.has(componentKey) ||
     CVA_CHECKED_COMPONENTS.has(componentKey);
   const _isOverlay = OVERLAY_COMPONENTS.has(componentKey);
+
+  // Since 21.2.13 Angular treats any `on*` binding as an event handler and
+  // refuses to compile it (NG5002), `[attr.once]` included, so such attributes are written from
+  // the class in ngOnChanges instead of bound in the template (issue #77).
+  const classWrittenProps = component.props.filter((p) =>
+    p.name.toLowerCase().startsWith('on')
+  );
+  for (const prop of classWrittenProps) {
+    if (prop.type !== 'boolean') {
+      throw new Error(
+        `${component.name}: prop "${prop.name}" starts with "on" but is not a boolean; only boolean on* attributes are written from the class`
+      );
+    }
+  }
 
   // Build imports
   const coreImports = [
@@ -188,6 +186,7 @@ export function generateComponentTS(
   if (events.length > 0 || needsCVA) {
     coreImports.push('OnDestroy');
   }
+  if (classWrittenProps.length > 0) coreImports.push('OnChanges');
   if (needsCVA) coreImports.push('forwardRef');
 
   const lines: string[] = [];
@@ -218,10 +217,9 @@ export function generateComponentTS(
 
   // Pass props as attributes
   for (const prop of component.props) {
+    if (classWrittenProps.includes(prop)) continue;
     const attrName = prop.name;
-    const propName = prop.name.replace(/-([a-z])/g, (_, c: string) =>
-      c.toUpperCase()
-    );
+    const propName = toCamelCase(prop.name);
     if (prop.type === 'boolean') {
       templateAttrs.push(`[attr.${attrName}]="${propName} || null"`);
     } else {
@@ -272,20 +270,25 @@ export function generateComponentTS(
   if (events.length > 0 || needsCVA) {
     interfaces.push('OnDestroy');
   }
+  if (classWrittenProps.length > 0) interfaces.push('OnChanges');
   if (needsCVA) interfaces.push('ControlValueAccessor');
 
   const implementsStr = ` implements ${interfaces.join(', ')}`;
 
   lines.push(`export class ${component.name}Component${implementsStr} {`);
-  lines.push("  @ViewChild('element') elementRef!: ElementRef<WaElement>;");
+  // `static: true` resolves the host at creation rather than after the first
+  // view check. `[formControl]` calls writeValue / setDisabledState before
+  // that check, so a non-static query dropped a reactive form's initial value
+  // and disabled state (issue #77). `#element` is never conditional.
+  lines.push(
+    "  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;"
+  );
   lines.push('  private hostRef = inject(ElementRef<HTMLElement>);');
   lines.push('');
 
   // @Input() for each prop
   for (const prop of component.props) {
-    const propName = prop.name.replace(/-([a-z])/g, (_, c: string) =>
-      c.toUpperCase()
-    );
+    const propName = toCamelCase(prop.name);
 
     if (prop.description) {
       lines.push(`  /** ${prop.description} */`);
@@ -327,6 +330,23 @@ export function generateComponentTS(
     lines.push('  private cleanups: (() => void)[] = [];');
   }
 
+  // ngOnChanges -- writes the on* attributes a template binding cannot. The
+  // static #element query has resolved by the first ngOnChanges.
+  if (classWrittenProps.length > 0) {
+    lines.push('');
+    lines.push('  ngOnChanges(): void {');
+    lines.push(
+      '    // Angular refuses `on*` template bindings as event handlers, so these'
+    );
+    lines.push('    // attributes are written here instead.');
+    lines.push('    const el = this.elementRef.nativeElement;');
+    for (const prop of classWrittenProps) {
+      const propName = toCamelCase(prop.name);
+      lines.push(`    el.toggleAttribute('${prop.name}', !!this.${propName});`);
+    }
+    lines.push('  }');
+  }
+
   // ngAfterViewInit -- always present for host attribute forwarding
   lines.push('');
   lines.push('  ngAfterViewInit(): void {');
@@ -361,15 +381,23 @@ export function generateComponentTS(
       );
     }
 
-    // CVA: listen for value changes
+    // CVA: listen for value changes on the event the component emits when a
+    // user edits it: `input` where the CEM declares one, else `change`.
+    // wa-rating only dispatches change, so listening on input never updated
+    // the form (issue #77).
     if (CVA_VALUE_COMPONENTS.has(componentKey)) {
+      const valueEvent = events.some((e) => e.name === 'input')
+        ? 'input'
+        : 'change';
       lines.push('');
       lines.push(
         '    const handleValueChange = () => this.onChangeCallback((el as unknown as { value: unknown }).value);'
       );
-      lines.push("    el.addEventListener('input', handleValueChange);");
       lines.push(
-        "    this.cleanups.push(() => el.removeEventListener('input', handleValueChange));"
+        `    el.addEventListener('${valueEvent}', handleValueChange);`
+      );
+      lines.push(
+        `    this.cleanups.push(() => el.removeEventListener('${valueEvent}', handleValueChange));`
       );
       lines.push('    const handleBlurTouch = () => this.onTouchedCallback();');
       lines.push("    el.addEventListener('blur', handleBlurTouch);");

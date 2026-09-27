@@ -37,7 +37,7 @@ function ensureLoaded() {
   styleUrl: './accordion-item.component.css',
 })
 export class AccordionItemComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The header text. Use the `label` slot for markup-rich headers. */

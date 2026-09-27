@@ -38,7 +38,7 @@ function ensureLoaded() {
   styleUrl: './badge.component.css',
 })
 export class BadgeComponent implements AfterViewInit {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The badge's theme variant */

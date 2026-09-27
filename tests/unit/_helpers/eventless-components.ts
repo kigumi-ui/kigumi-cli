@@ -5,8 +5,8 @@
  * cleanup checks run over nothing (ADR 0003). A WA bump that adds or removes
  * an event edits this list in the same commit as the regenerated metadata.
  *
- * Shared by the React and Vue registry harnesses: whether a component has
- * events is a CEM fact, not a framework one.
+ * Shared by the React, Vue and Angular registry harnesses: whether a
+ * component has events is a CEM fact, not a framework one.
  */
 export const EVENTLESS_COMPONENTS: readonly string[] = [
   'accordion-item',
