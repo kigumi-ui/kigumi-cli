@@ -14,6 +14,12 @@ const meta = {
       control: 'text',
       description: 'Accepted file types (MIME types or extensions)',
     },
+    capture: {
+      control: 'select',
+      options: ['user', 'environment'],
+      description:
+        'On mobile, which camera or microphone captures new media: user (front) or environment (rear)',
+    },
     multiple: {
       control: 'boolean',
       description: 'Allow multiple file selection',
@@ -97,6 +103,20 @@ export const AcceptImages: Story = {
     label: 'Upload an image',
     accept: 'image/*',
     hint: 'Only image files are accepted (JPG, PNG, GIF, WebP, etc.).',
+  },
+};
+
+/**
+ * Opens the rear camera on phones and tablets instead of the file picker.
+ * `capture` only takes effect when `accept` names an image, video or audio
+ * type; desktop browsers ignore it and show the file picker.
+ */
+export const CaptureFromCamera: Story = {
+  args: {
+    label: 'Take a photo',
+    accept: 'image/*',
+    capture: 'environment',
+    hint: 'On a phone, this opens the rear camera.',
   },
 };
 

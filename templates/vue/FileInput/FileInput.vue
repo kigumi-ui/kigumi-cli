@@ -15,6 +15,7 @@ export interface FileInputProps {
   label?: string;
   hint?: string;
   accept?: string;
+  capture?: 'user' | 'environment';
   multiple?: boolean;
   disabled?: boolean;
   required?: boolean;

@@ -48,6 +48,12 @@ export interface ScatterChartProps extends Omit<
   /** Placement of the dataset legend relative to the chart */
   'legend-position'?: 'top' | 'right' | 'bottom' | 'left' | 'start' | 'end';
 
+  /** Layers multiple datasets on a single axis */
+  stacked?: boolean;
+
+  /** Base axis for category labels (swap to flip chart orientation) */
+  'index-axis'?: 'x' | 'y';
+
   /** Selects which background grid lines are drawn */
   grid?: 'x' | 'y' | 'both' | 'none';
 

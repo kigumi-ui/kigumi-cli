@@ -130,6 +130,21 @@ export interface AttributeAllowlistEntry {
 }
 
 /**
+ * The x/y axis attributes every typed chart inherits from `WaChart`
+ * (`x-label`, `y-label`, `stacked`, `index-axis`, `grid`, `min`, `max`) only
+ * reach Chart.js through the cartesian scales `WaChart.getDefaultConfig`
+ * builds for bar, line, scatter and bubble. Pie, doughnut and polar-area
+ * charts get no scales and radar gets a radial `r` scale that reads none of
+ * them, so on those elements the attributes change nothing, and a prop for
+ * one would be a setting with no effect (issue #116).
+ */
+const INERT_AXIS_ATTRIBUTE: AttributeAllowlistEntry = {
+  kind: 'intentional',
+  reason:
+    'x/y axis setting; WaChart builds x/y axes only for bar, line, scatter and bubble, so this chart ignores it',
+};
+
+/**
  * Per-component attribute allowlist. Keyed by registry key, then by the
  * kebab-cased CEM attribute name: the CEM's `submenuOpen` is keyed
  * `submenu-open`. A key in any other form matches nothing and is reported as a
@@ -141,11 +156,13 @@ export interface AttributeAllowlistEntry {
  * adds 50 more across 13 Pro-only components (charts, `combobox`,
  * `file-input`, `video`, `date-input`), for 125 across 39 components total.
  *
- * `backfill` entries are triaged by issue #101 (form-control attributes),
- * #102 (component-specific attributes) or #116 (chart axes, `capture`): each
- * either becomes a real prop or moves to `intentional`. `intentional` entries
- * are attributes a caller cannot meaningfully set from markup (function- or
- * object-typed values, playback state) or that the component manages itself.
+ * `backfill` entries are triaged by issue #101 (form-control attributes) or
+ * #102 (component-specific attributes): each either becomes a real prop or
+ * moves to `intentional`. `intentional` entries are attributes a caller cannot
+ * meaningfully set from markup (function- or object-typed values, playback
+ * state), that the component manages itself, or that the element accepts but
+ * ignores (x/y axis settings on a chart without x/y axes, see
+ * `INERT_AXIS_ATTRIBUTE`).
  */
 export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
   Record<string, Readonly<Record<string, AttributeAllowlistEntry>>>
@@ -457,7 +474,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
     },
   },
   'file-input': {
-    capture: { kind: 'backfill', reason: 'native input attribute, see #116' },
     name: { kind: 'backfill', reason: 'form field name, see #101' },
     'custom-error': {
       kind: 'backfill',
@@ -524,13 +540,13 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'fixed by this typed chart element; only wa-chart takes a chart type',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
-    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
-    min: { kind: 'backfill', reason: 'axis bound, see #116' },
-    max: { kind: 'backfill', reason: 'axis bound, see #116' },
+    'x-label': INERT_AXIS_ATTRIBUTE,
+    'y-label': INERT_AXIS_ATTRIBUTE,
+    stacked: INERT_AXIS_ATTRIBUTE,
+    'index-axis': INERT_AXIS_ATTRIBUTE,
+    grid: INERT_AXIS_ATTRIBUTE,
+    min: INERT_AXIS_ATTRIBUTE,
+    max: INERT_AXIS_ATTRIBUTE,
     plugins: {
       kind: 'intentional',
       reason:
@@ -543,13 +559,13 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'fixed by this typed chart element; only wa-chart takes a chart type',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
-    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
-    min: { kind: 'backfill', reason: 'axis bound, see #116' },
-    max: { kind: 'backfill', reason: 'axis bound, see #116' },
+    'x-label': INERT_AXIS_ATTRIBUTE,
+    'y-label': INERT_AXIS_ATTRIBUTE,
+    stacked: INERT_AXIS_ATTRIBUTE,
+    'index-axis': INERT_AXIS_ATTRIBUTE,
+    grid: INERT_AXIS_ATTRIBUTE,
+    min: INERT_AXIS_ATTRIBUTE,
+    max: INERT_AXIS_ATTRIBUTE,
     plugins: {
       kind: 'intentional',
       reason:
@@ -562,13 +578,13 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'fixed by this typed chart element; only wa-chart takes a chart type',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
-    grid: { kind: 'backfill', reason: 'axis grid toggle, see #116' },
-    min: { kind: 'backfill', reason: 'axis bound, see #116' },
-    max: { kind: 'backfill', reason: 'axis bound, see #116' },
+    'x-label': INERT_AXIS_ATTRIBUTE,
+    'y-label': INERT_AXIS_ATTRIBUTE,
+    stacked: INERT_AXIS_ATTRIBUTE,
+    'index-axis': INERT_AXIS_ATTRIBUTE,
+    grid: INERT_AXIS_ATTRIBUTE,
+    min: INERT_AXIS_ATTRIBUTE,
+    max: INERT_AXIS_ATTRIBUTE,
     plugins: {
       kind: 'intentional',
       reason:
@@ -581,9 +597,9 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'fixed by this typed chart element; only wa-chart takes a chart type',
     },
-    'x-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    'y-label': { kind: 'backfill', reason: 'axis label, see #116' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
+    'x-label': INERT_AXIS_ATTRIBUTE,
+    'y-label': INERT_AXIS_ATTRIBUTE,
+    'index-axis': INERT_AXIS_ATTRIBUTE,
     plugins: {
       kind: 'intentional',
       reason:
@@ -596,8 +612,6 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
       reason:
         'fixed by this typed chart element; only wa-chart takes a chart type',
     },
-    stacked: { kind: 'backfill', reason: 'axis stacking toggle, see #116' },
-    'index-axis': { kind: 'backfill', reason: 'axis orientation, see #116' },
     plugins: {
       kind: 'intentional',
       reason:

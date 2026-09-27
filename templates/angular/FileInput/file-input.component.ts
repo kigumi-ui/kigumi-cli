@@ -35,6 +35,7 @@ function ensureLoaded() {
       [attr.label]="label"
       [attr.hint]="hint"
       [attr.accept]="accept"
+      [attr.capture]="capture"
       [attr.multiple]="multiple || null"
       [attr.disabled]="disabled || null"
       [attr.required]="required || null"
@@ -64,6 +65,8 @@ export class FileInputComponent
   @Input() hint?: string;
   /** Accepted file types (MIME types or extensions) */
   @Input() accept?: string;
+  /** On mobile, which camera or microphone captures new media: user (front) or environment (rear) */
+  @Input() capture?: 'user' | 'environment';
   /** Allow multiple file selection */
   @Input() multiple?: boolean;
   /** Disables the input */

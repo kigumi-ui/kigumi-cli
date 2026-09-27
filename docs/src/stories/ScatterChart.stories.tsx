@@ -29,6 +29,18 @@ const meta = {
       description: 'Placement of the dataset legend relative to the chart',
       table: { defaultValue: { summary: 'top' } },
     },
+    stacked: {
+      control: 'boolean',
+      description: 'Layers multiple datasets on a single axis',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'index-axis': {
+      control: 'select',
+      options: ['x', 'y'],
+      description:
+        'Base axis for category labels (swap to flip chart orientation)',
+      table: { defaultValue: { summary: 'x' } },
+    },
     grid: {
       control: 'select',
       options: ['x', 'y', 'both', 'none'],

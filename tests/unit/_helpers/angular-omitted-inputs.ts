@@ -28,8 +28,9 @@ export const ANGULAR_INHERITED_OMISSIONS: ReadonlySet<string> = new Set([
 
 /**
  * Per registry key, the kebab-cased CEM attributes the Template has no
- * `@Input()` for, beyond the inherited three. Mostly `with-*` SSR slot hints
- * and attributes validate:cem-sync tracks as backfill (#101, #102, #116).
+ * `@Input()` for, beyond the inherited three. Mostly `with-*` SSR slot hints,
+ * attributes validate:cem-sync tracks as backfill (#101, #102), and the x/y
+ * axis attributes pie, doughnut, polar-area and radar charts ignore (#116).
  */
 export const ANGULAR_OMITTED_INPUTS: Readonly<
   Record<string, readonly string[]>
@@ -97,7 +98,7 @@ export const ANGULAR_OMITTED_INPUTS: Readonly<
   tree: ['tabindex', 'role'],
   'tree-item': ['tabindex', 'role'],
   'zoomable-frame': ['with-theme-sync'],
-  'file-input': ['capture', 'with-label', 'with-hint', 'name', 'custom-error'],
+  'file-input': ['with-label', 'with-hint', 'name', 'custom-error'],
   'number-input': [
     'title',
     'pill',
@@ -150,7 +151,7 @@ export const ANGULAR_OMITTED_INPUTS: Readonly<
     'plugins',
   ],
   'radar-chart': ['type', 'x-label', 'y-label', 'index-axis', 'plugins'],
-  'scatter-chart': ['type', 'stacked', 'index-axis', 'plugins'],
+  'scatter-chart': ['type', 'plugins'],
   'toast-item': ['with-icon'],
   'time-input': [
     'autocomplete',

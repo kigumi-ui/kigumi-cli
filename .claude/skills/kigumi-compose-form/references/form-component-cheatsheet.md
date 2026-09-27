@@ -88,7 +88,7 @@ Quick reference: which Kigumi component for which input type.
 
 ### FileInput (Pro)
 
-`label` `hint` `accept` `multiple` `required` `disabled` `size`
+`label` `hint` `accept` `capture` (user|environment) `multiple` `required` `disabled` `size`
 
 ### Combobox (Pro)
 

@@ -17,6 +17,8 @@ const props = defineProps({
   'x-label': { type: String, required: false },
   'y-label': { type: String, required: false },
   'legend-position': { type: String, required: false, default: 'top' },
+  stacked: { type: Boolean, required: false, default: false },
+  'index-axis': { type: String, required: false, default: 'x' },
   grid: { type: String, required: false, default: 'both' },
   min: { type: Number, required: false },
   max: { type: Number, required: false },
