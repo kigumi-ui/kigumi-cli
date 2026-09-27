@@ -2,6 +2,7 @@
 
 > Auto-generated from registry + custom-elements.json + templates.
 > Event handler names derived from templates (wa-hide -> onHide, not onWaHide).
+> Prop flags `required` and `deprecated` mark the prop itself, not a value; e.g. `min(number, deprecated)` means `min` accepts a number and is deprecated.
 
 ## Transformation Rules
 
@@ -137,7 +138,7 @@ wa-pagination -> <Pagination>
 Display | free | Icons are symbols that can be used to represent various options within an application
 wa-icon -> <Icon>
 
-**Props:** name(string), library(string=default), src(string), label(string=''), family(string), variant(string), canvas(fixed|auto|square|roomy), auto-width(boolean=false), swap-opacity(boolean=false), rotate(number), flip(horizontal|vertical|both), animation(string)
+**Props:** name(string), library(string=default), src(string), label(string=''), family(string), variant(string), canvas(fixed|auto|square|roomy), auto-width(boolean=false, deprecated), swap-opacity(boolean=false), rotate(number), flip(horizontal|vertical|both), animation(string)
 **Events:** onLoad, onError
 **Parts:** svg, use
 **CSS:** --animation-delay(0), --animation-direction(normal), --animation-duration(1s), --animation-iteration-count(infinite), --animation-timing, --beat-fade-opacity, --beat-fade-scale, --beat-scale, --bounce-height, --bounce-jump-scale-x, --bounce-jump-scale-y, --bounce-land-scale-x, --bounce-land-scale-y, --bounce-rebound, --bounce-start-scale-x, --bounce-start-scale-y, --fade-opacity, --flip-angle, --flip-x, --flip-y, --flip-z, --flip-anticipation-scale, --flip-overshoot, --bounce-anticipation, --buzz-distance, --wag-angle, --swing-angle, --jello-scale-x, --jello-scale-y, --float-height, --float-drift, --float-tilt, --float-squash-x, --float-squash-y, --float-stretch-x, --float-stretch-y, --primary-color(currentColor), --primary-opacity(1), --secondary-color(currentColor), --secondary-opacity(0.4)
@@ -735,7 +736,7 @@ wa-polar-area-chart -> <PolarAreaChart>
 Data Display | pro | Maps multiple variables onto radial axes to compare profiles at a glance
 wa-radar-chart -> <RadarChart>
 
-**Props:** label(string), description(string), legend-position(top|right|bottom|left|start|end=top), stacked(boolean=false), grid(x|y|both|none=both), min(number), max(number), without-animation(boolean=false), without-legend(boolean=false), without-tooltip(boolean=false)
+**Props:** label(string), description(string), legend-position(top|right|bottom|left|start|end=top), stacked(boolean=false, deprecated), grid(x|y|both|none=both, deprecated), min(number, deprecated), max(number, deprecated), without-animation(boolean=false), without-legend(boolean=false), without-tooltip(boolean=false)
 **Slots:** default
 **CSS:** --fill-color-1(color-mix(in srgb, var(--wa-color-blue-60) 40%, transparent)), --fill-color-2(color-mix(in srgb, var(--wa-color-pink-60) 40%, transparent)), --fill-color-3(color-mix(in srgb, var(--wa-color-green-60) 40%, transparent)), --fill-color-4(color-mix(in srgb, var(--wa-color-yellow-60) 40%, transparent)), --fill-color-5(color-mix(in srgb, var(--wa-color-purple-60) 40%, transparent)), --fill-color-6(color-mix(in srgb, var(--wa-color-orange-60) 40%, transparent)), --border-color-1(var(--wa-color-blue-60)), --border-color-2(var(--wa-color-pink-60)), --border-color-3(var(--wa-color-green-60)), --border-color-4(var(--wa-color-yellow-60)), --border-color-5(var(--wa-color-purple-60)), --border-color-6(var(--wa-color-orange-60)), --grid-color(var(--wa-color-neutral-border-quiet)), --border-width(var(--wa-border-width-s)), --border-radius(var(--wa-border-radius-s)), --grid-border-width(var(--wa-border-width-s)), --line-border-width(var(--wa-border-width-m)), --point-radius(var(--wa-border-width-m))
 

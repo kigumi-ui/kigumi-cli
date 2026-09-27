@@ -6,6 +6,11 @@ import {
   generateVueTypescriptTemplate,
 } from '../../../scripts/generate-vue-templates.js';
 import type { ComponentDefinition } from '../../../src/utils/registry.js';
+import { readPropDeprecations } from '../_helpers/deprecation-readers.js';
+import {
+  DEPRECATED_PROPS,
+  DEPRECATION_MESSAGES,
+} from '../_helpers/deprecated-props-fixture.js';
 
 const BUTTON_FIXTURE: ComponentDefinition = {
   name: 'Button',
@@ -243,6 +248,12 @@ const BADGE_FIXTURE: ComponentDefinition = {
   ],
   importPath: '@awesome.me/webawesome/dist/components/badge/badge.js',
   tier: 'free',
+};
+
+/** Badge plus the shared deprecated props, beside undeprecated ones. */
+const DEPRECATED_PROPS_FIXTURE: ComponentDefinition = {
+  ...BADGE_FIXTURE,
+  props: [...BADGE_FIXTURE.props, ...DEPRECATED_PROPS],
 };
 
 // Markdown fixture exercises the REMOVED_IMPERATIVE_METHODS branch in
@@ -501,4 +512,23 @@ describe('generateTestJavascriptTemplate', () => {
       generateTestJavascriptTemplate('Button', 'wa-button')
     ).toMatchSnapshot();
   });
+});
+
+describe('deprecated props (issue #129)', () => {
+  it.each([
+    ['.vue', generateVueTypescriptTemplate],
+    ['.js.vue', generateVueJavascriptTemplate],
+  ] as const)(
+    '%s attaches a @deprecated tag carrying the registry message',
+    (_dialect, generate) => {
+      const tags = readPropDeprecations(
+        generate(DEPRECATED_PROPS_FIXTURE),
+        'vue'
+      );
+      expect(tags.get('min')).toBe(DEPRECATION_MESSAGES.min);
+      expect(tags.get('index-axis')).toBe(DEPRECATION_MESSAGES['index-axis']);
+      expect(tags.get('pill')).toBeNull();
+      expect(tags.get('variant')).toBeNull();
+    }
+  );
 });

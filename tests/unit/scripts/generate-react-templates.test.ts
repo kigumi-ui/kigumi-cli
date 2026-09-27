@@ -4,6 +4,11 @@ import {
   generateTestTypescriptTemplate,
 } from '../../../scripts/generate-react-templates.js';
 import type { ComponentDefinition } from '../../../src/utils/registry.js';
+import { readPropDeprecations } from '../_helpers/deprecation-readers.js';
+import {
+  DEPRECATED_PROPS,
+  DEPRECATION_MESSAGES,
+} from '../_helpers/deprecated-props-fixture.js';
 
 const BUTTON_FIXTURE: ComponentDefinition = {
   name: 'Button',
@@ -186,6 +191,12 @@ const BADGE_FIXTURE: ComponentDefinition = {
   tier: 'free',
 };
 
+/** Badge plus the shared deprecated props, beside undeprecated ones. */
+const DEPRECATED_PROPS_FIXTURE: ComponentDefinition = {
+  ...BADGE_FIXTURE,
+  props: [...BADGE_FIXTURE.props, ...DEPRECATED_PROPS],
+};
+
 describe('generateReactTypescriptTemplate', () => {
   it('emits the Button wrapper', () => {
     expect(generateReactTypescriptTemplate(BUTTON_FIXTURE)).toMatchSnapshot();
@@ -205,5 +216,24 @@ describe('generateTestTypescriptTemplate', () => {
         BUTTON_FIXTURE.props
       )
     ).toMatchSnapshot();
+  });
+});
+
+describe('deprecated props (issue #129)', () => {
+  const source = generateReactTypescriptTemplate(DEPRECATED_PROPS_FIXTURE);
+  const tags = readPropDeprecations(source, 'tsx');
+
+  it('attaches a @deprecated tag carrying the registry message', () => {
+    expect(tags.get('min')).toBe(DEPRECATION_MESSAGES.min);
+    expect(tags.get('index-axis')).toBe(DEPRECATION_MESSAGES['index-axis']);
+  });
+
+  it('keeps the prop description beside the tag', () => {
+    expect(source).toContain('Floor value for the value axis scale');
+  });
+
+  it('leaves every other prop undeprecated', () => {
+    expect(tags.get('pill')).toBeNull();
+    expect(tags.get('variant')).toBeNull();
   });
 });

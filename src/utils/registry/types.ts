@@ -20,6 +20,15 @@ export interface ComponentProp {
    * `default`.
    */
   keywords?: { true: string; false: string };
+  /**
+   * Marks a prop that is still accepted but should no longer be used, with
+   * the message a consumer sees: what to do instead, and when it goes if
+   * Kigumi removes it (a `major` changeset). Every TypeScript Template and
+   * docs wrapper carries it as a JSDoc `@deprecated` tag, so editors strike
+   * the prop through; the `.jsx` typedef, the stories and the skill API
+   * surfaces state it in text (issue #129).
+   */
+  deprecated?: string;
 }
 
 export interface ComponentDefinition {

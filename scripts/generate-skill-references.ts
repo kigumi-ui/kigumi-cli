@@ -18,12 +18,14 @@ import { mkdir, writeFile, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { LOCAL_REGISTRY } from '../src/utils/registry.js';
+import type { ComponentProp } from '../src/utils/registry/types.js';
 import {
   toKebabCase,
   toPascalCase,
   stripWaPrefix,
 } from '../src/utils/naming.js';
 import { resolveCem, assessCemCompleteness } from './find-cem.js';
+import { isEntryPoint } from './is-entry-point.js';
 
 const PROJECT_ROOT = process.cwd();
 
@@ -274,24 +276,18 @@ async function loadCustomElementsMetadata(): Promise<
 }
 
 /**
- * Format props as a compact inline list: open(bool=false), label(string, required)
+ * Format props as a compact inline list: open(bool=false), label(string, required),
+ * min(number, deprecated)
  */
-function formatCompactProps(
-  props: Array<{
-    name: string;
-    type: string;
-    values?: string[];
-    default?: string;
-    required?: boolean;
-  }>
-): string {
+function formatCompactProps(props: readonly ComponentProp[]): string {
   if (props.length === 0) return 'none';
   return props
     .map((p) => {
       const type = p.values ? p.values.join('|') : p.type;
       const def = p.default ? `=${p.default}` : '';
       const req = p.required ? ', required' : '';
-      return `${p.name}(${type}${def}${req})`;
+      const dep = p.deprecated ? ', deprecated' : '';
+      return `${p.name}(${type}${def}${req}${dep})`;
     })
     .join(', ');
 }
@@ -305,7 +301,8 @@ function generateCompactReactSurface(
 ): string {
   let md = `# Kigumi React API Surface\n\n`;
   md += `> Auto-generated from registry + custom-elements.json + templates.\n`;
-  md += `> Event handler names derived from templates (wa-hide -> onHide, not onWaHide).\n\n`;
+  md += `> Event handler names derived from templates (wa-hide -> onHide, not onWaHide).\n`;
+  md += `> Prop flags \`required\` and \`deprecated\` mark the prop itself, not a value; e.g. \`min(number, deprecated)\` means \`min\` accepts a number and is deprecated.\n\n`;
 
   // Transformation quick-ref
   md += `## Transformation Rules\n\n`;
@@ -398,7 +395,8 @@ function generateCompactVueSurface(
 ): string {
   let md = `# Kigumi Vue API Surface\n\n`;
   md += `> Auto-generated from registry + custom-elements.json + templates.\n`;
-  md += `> Vue uses @event-name syntax. Custom events keep the wa- prefix.\n\n`;
+  md += `> Vue uses @event-name syntax. Custom events keep the wa- prefix.\n`;
+  md += `> Prop flags \`required\` and \`deprecated\` mark the prop itself, not a value; e.g. \`min(number, deprecated)\` means \`min\` accepts a number and is deprecated.\n\n`;
 
   // Transformation quick-ref
   md += `## Transformation Rules\n\n`;
@@ -653,7 +651,8 @@ function generateCompactAngularSurface(
 ): string {
   let md = `# Kigumi Angular API Surface\n\n`;
   md += `> Auto-generated from registry + custom-elements.json + Angular templates.\n`;
-  md += `> Angular events use (outputName) syntax. Collision suffixes: blur->blurEvent, focus->focusEvent, show->showEvent, input->inputEvent.\n\n`;
+  md += `> Angular events use (outputName) syntax. Collision suffixes: blur->blurEvent, focus->focusEvent, show->showEvent, input->inputEvent.\n`;
+  md += `> Prop flags \`required\` and \`deprecated\` mark the prop itself, not a value; e.g. \`min(number, deprecated)\` means \`min\` accepts a number and is deprecated.\n\n`;
 
   // Transformation quick-ref
   md += `## Transformation Rules\n\n`;
@@ -825,7 +824,14 @@ async function main() {
 // `catch(console.error)` printed the failure and still exited 0, so a caller
 // could only tell this generator had failed by reading its log. That is the
 // same shape as issue #43: visible to a human, invisible to CI.
-main().catch((error: unknown) => {
-  console.error(error);
-  process.exit(1);
-});
+// Guarded so tests can import `formatCompactProps` without regenerating the
+// skill references as a side effect (issue #129).
+if (isEntryPoint(import.meta.url)) {
+  main().catch((error: unknown) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+// Test-only seam, see tests/AGENTS.md "Internals Exported for Test Coverage".
+export { formatCompactProps };

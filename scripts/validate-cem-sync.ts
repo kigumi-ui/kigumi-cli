@@ -153,7 +153,7 @@ export interface AttributeAllowlistEntry {
  */
 
 /** An x/y axis attribute on a pie or doughnut chart, which gets no scales. */
-const INERT_ON_AXISLESS_CHART: AttributeAllowlistEntry = {
+export const INERT_ON_AXISLESS_CHART: AttributeAllowlistEntry = {
   kind: 'intentional',
   reason:
     'x/y axis setting; WaChart builds no scales for this chart type, so it is never read',
@@ -163,7 +163,7 @@ const INERT_ON_AXISLESS_CHART: AttributeAllowlistEntry = {
  * An x/y axis attribute on a polar-area or radar chart, whose only scale is
  * the radial `r` scale.
  */
-const INERT_ON_RADIAL_CHART: AttributeAllowlistEntry = {
+export const INERT_ON_RADIAL_CHART: AttributeAllowlistEntry = {
   kind: 'intentional',
   reason:
     'x/y axis setting; WaChart builds this chart only a radial r scale, which does not read it',
@@ -447,8 +447,8 @@ export const COMPONENT_ATTRIBUTE_ALLOWLIST: Readonly<
         'fixed by this typed chart element; only wa-chart takes a chart type',
     },
     // `stacked`, `grid`, `min` and `max` are just as inert here, but they are
-    // registry props already, so they need no entry. Whether to keep offering
-    // them is #129.
+    // still registry props, deprecated by #129, so they need no entry yet.
+    // #130 removes them in the next major and files them here.
     'x-label': INERT_ON_RADIAL_CHART,
     'y-label': INERT_ON_RADIAL_CHART,
     'index-axis': INERT_ON_RADIAL_CHART,

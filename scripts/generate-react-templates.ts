@@ -23,6 +23,7 @@ import {
   keywordPairLiteral,
   mapEventType,
   writeFormatted,
+  propJsdocLines,
 } from './generator-utils.js';
 import { isEntryPoint } from './is-entry-point.js';
 
@@ -90,7 +91,9 @@ export function generateReactTypescriptTemplate(
       const quotedName = prop.name.includes('-') ? `'${prop.name}'` : prop.name;
       const type = convertToReactPropType(prop.type, prop.values);
       const optional = prop.required ? '' : '?';
-      const comment = prop.description ? `\n  /** ${prop.description} */` : '';
+      const comment = propJsdocLines(prop, '  ')
+        .map((line) => `\n${line}`)
+        .join('');
       return `${comment}\n  ${quotedName}${optional}: ${type};`;
     })
     .join('\n');

@@ -66,7 +66,11 @@ export class IconComponent implements AfterViewInit, OnDestroy {
   @Input() variant?: string;
   /** Controls how the icon is sized within its canvas */
   @Input() canvas?: 'fixed' | 'auto' | 'square' | 'roomy';
-  /** Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto") */
+  /**
+   * Sets the width to match the cropped SVG viewBox
+   *
+   * @deprecated Set canvas="auto" instead.
+   */
   @Input() autoWidth?: boolean;
   /** Swaps the opacity of duotone icons */
   @Input() swapOpacity?: boolean;

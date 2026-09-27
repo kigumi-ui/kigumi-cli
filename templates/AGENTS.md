@@ -388,6 +388,41 @@ prop changes after mount. A new
 enumerated boolean in a WA release fails the pin test until it is pinned and
 its registry prop gets `keywords`.
 
+### 12. Deprecated props keep working and carry `@deprecated` (issue #129)
+
+A prop that should no longer be used is not deleted: that would break every
+consumer still passing it. Its registry entry gets `deprecated: '<what to do
+instead>'` and it stays a prop everywhere. How each surface states it:
+
+- **React `.tsx`, Angular, docs wrappers**: a JSDoc `@deprecated` tag on the
+  declaration, below the description. `propJsdocLines()` in
+  `scripts/generator-utils.ts` writes it; docs wrappers copy it by hand.
+- **Vue `.vue` and `.js.vue`**: a tag-only `/** @deprecated ... */` line (Vue
+  Templates do not document props), above the interface member or the runtime
+  `defineProps` key. The runtime key's tag survives Vue's component types too.
+- **React `.jsx`**: its `@typedef` is not applied to the component, so a JS
+  consumer gets no per-prop types and nothing can strike the prop through. The
+  `@property` description reads `Deprecated: <message>` instead.
+- **Stories**: the argType `description` reads `**Deprecated.** <message>`,
+  filed under the `Deprecated` table category.
+
+The message says what to do instead, reachable from where the consumer is: a
+chart's config lives in the `application/json` script inside the chart, so
+RadarChart's messages name that script, and a `RadialScaleFromConfig` story
+shows it. Check the alternative against the real element before it ships.
+`tests/unit/deprecated-props.test.ts` proves the React and both Vue shapes
+reach a consumer's TypeScript, and fails when any of the seven surfaces
+disagrees with the registry, in either direction. Removing the prop is a
+`major` changeset (`### Removed`).
+
+Deliberately no `console.warn` at runtime: the JSDoc tag only reaches a
+`.tsx`/`.vue` consumer's editor and type-checker, so a `.jsx`/`.js.vue`
+consumer with no language server sees nothing until the prop is removed. A
+runtime warning was considered and rejected — it would fire in every
+consumer's browser console, including the docs site, the Angular function
+harness and every starter fixture, for a prop that still works exactly as
+before. `kigumi update`'s strike-through is the intended signal.
+
 ---
 
 ## Adding New Components
@@ -477,3 +512,5 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - a value form control reads on `input` only where its CEM declares that event, else on `change`: Rating's accessor listened for `input`, which `wa-rating` never dispatches, so forms never saw a user's pick. Found by the Angular function harness, issue #77
 - rule 11: `spellcheck` and `autocorrect` are enumerated attributes, written as their keyword for `false` instead of dropped, via the registry prop's `keywords` in all three generators and by hand in four `.jsx` files; previously neither could be turned off in Vue or Angular, and React wrote `autocorrect={false}` as `"false"` (React 18, read as on) and `autocorrect` as a bare attribute (React 19 without a native property, read as off), issue #101
 - rule 11: the generators share `enumeratedProps()` / `keywordPairLiteral()` / `keywordExpression()` from `scripts/generator-utils.ts`, and every emitted or hand-maintained copy spells a keyword pair as the registry's named `{ true, false }` shape instead of a positional tuple, review follow-up on issue #101
+- rule 12: a registry prop with `deprecated` stays in every Template and carries a JSDoc `@deprecated` tag written by `propJsdocLines()`; RadarChart's `stacked`, `grid`, `min` and `max` are the first, removal tracked in #130, issue #129
+- rule 12: recorded why deprecation carries no runtime `console.warn` (compile-time-only signal, by design, not an oversight) — a second-opinion review on #129 flagged the gap against a JS/no-language-server consumer, issue #129

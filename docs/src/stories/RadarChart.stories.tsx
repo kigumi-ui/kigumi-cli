@@ -23,22 +23,28 @@ const meta = {
     },
     stacked: {
       control: 'boolean',
-      description: 'Layers multiple datasets on a single axis',
-      table: { defaultValue: { summary: 'false' } },
+      description:
+        '**Deprecated.** Radar charts cannot stack datasets, so remove this prop. Removed in the next major.',
+      table: { category: 'Deprecated', defaultValue: { summary: 'false' } },
     },
     grid: {
       control: 'select',
       options: ['x', 'y', 'both', 'none'],
-      description: 'Selects which background grid lines are drawn',
-      table: { defaultValue: { summary: 'both' } },
+      description:
+        '**Deprecated.** Hide the radial grid by setting options.scales.r.grid.display to false in the chart JSON config (the application/json script inside the chart). Removed in the next major.',
+      table: { category: 'Deprecated', defaultValue: { summary: 'both' } },
     },
     min: {
       control: 'number',
-      description: 'Floor value for the value axis scale',
+      description:
+        '**Deprecated.** Set options.scales.r.min in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.',
+      table: { category: 'Deprecated' },
     },
     max: {
       control: 'number',
-      description: 'Ceiling value for the value axis scale',
+      description:
+        '**Deprecated.** Set options.scales.r.max in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.',
+      table: { category: 'Deprecated' },
     },
     'without-animation': {
       control: 'boolean',
@@ -103,6 +109,27 @@ export const SingleProfile: Story = {
     <RadarChart label="Developer skill assessment" style={{ height: '300px' }}>
       <script type="application/json">
         {JSON.stringify(skillAssessmentConfig)}
+      </script>
+    </RadarChart>
+  ),
+};
+
+/**
+ * The radial scale is configured in the chart's JSON config, not through
+ * props: `options.scales.r` pins the scale to 0 to 100 and hides its grid.
+ * This replaces the deprecated `min`, `max` and `grid` props, which a radar
+ * chart never applied.
+ */
+export const RadialScaleFromConfig: Story = {
+  render: () => (
+    <RadarChart label="Product feature comparison" style={{ height: '300px' }}>
+      <script type="application/json">
+        {JSON.stringify({
+          ...featureComparisonConfig,
+          options: {
+            scales: { r: { min: 0, max: 100, grid: { display: false } } },
+          },
+        })}
       </script>
     </RadarChart>
   ),

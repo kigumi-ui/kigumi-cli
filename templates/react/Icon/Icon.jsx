@@ -43,7 +43,7 @@ function ensureLoaded() {
  * @property {string} [family] - The family of icons (classic, brands, sharp, duotone, sharp-duotone)
  * @property {string} [variant] - The icon's variant (thin, light, regular, solid)
  * @property {string} [canvas] - Canvas sizing: fixed | auto | square | roomy
- * @property {boolean} [auto-width] - Deprecated, use canvas="auto". Sets width to match SVG viewBox
+ * @property {boolean} [auto-width] - Deprecated: Set canvas="auto" instead.
  * @property {boolean} [swap-opacity] - Swaps opacity of duotone icons
  * @property {number} [rotate] - Rotate the icon by this many degrees
  * @property {string} [flip] - Flip: horizontal | vertical | both

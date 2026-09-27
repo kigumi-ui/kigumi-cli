@@ -975,8 +975,8 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         name: 'auto-width',
         type: 'boolean',
         default: 'false',
-        description:
-          'Sets the width to match the cropped SVG viewBox (deprecated, use canvas="auto")',
+        description: 'Sets the width to match the cropped SVG viewBox',
+        deprecated: 'Set canvas="auto" instead.',
       },
       {
         name: 'swap-opacity',
@@ -5248,28 +5248,39 @@ export const LOCAL_REGISTRY: ComponentRegistry = {
         default: 'top',
         description: 'Placement of the dataset legend relative to the chart',
       },
+      // stacked, grid, min and max never reach a radar chart: WaChart builds
+      // it only a radial r scale that reads none of them. Deprecated by #129;
+      // #130 removes them in the next major.
       {
         name: 'stacked',
         type: 'boolean',
         default: 'false',
-        description: 'Layers multiple datasets on a single axis',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'Radar charts cannot stack datasets, so remove this prop. Removed in the next major.',
       },
       {
         name: 'grid',
         type: 'string',
         values: ['x', 'y', 'both', 'none'],
         default: 'both',
-        description: 'Selects which background grid lines are drawn',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'Hide the radial grid by setting options.scales.r.grid.display to false in the chart JSON config (the application/json script inside the chart). Removed in the next major.',
       },
       {
         name: 'min',
         type: 'number',
-        description: 'Floor value for the value axis scale',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'Set options.scales.r.min in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.',
       },
       {
         name: 'max',
         type: 'number',
-        description: 'Ceiling value for the value axis scale',
+        description: 'Has no effect on a radar chart',
+        deprecated:
+          'Set options.scales.r.max in the chart JSON config (the application/json script inside the chart) instead. Removed in the next major.',
       },
       {
         name: 'without-animation',
