@@ -52,7 +52,8 @@ const meta = {
     },
     autocorrect: {
       control: 'boolean',
-      description: 'Enable or disable autocorrect on supported devices',
+      description:
+        'Turns autocorrect on or off; the browser decides when unset',
     },
     disabled: {
       control: 'boolean',
@@ -121,7 +122,7 @@ const meta = {
     },
     spellcheck: {
       control: 'boolean',
-      description: 'Enable or disable spellchecking',
+      description: 'Turns spell checking on or off; on when unset',
     },
     'with-clear': {
       control: 'boolean',
@@ -129,6 +130,11 @@ const meta = {
       table: { defaultValue: { summary: 'false' } },
     },
     value: { control: 'text', description: 'Current value of the combobox' },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description: 'Emitted when the control receives input.',

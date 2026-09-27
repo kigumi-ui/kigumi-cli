@@ -40,6 +40,8 @@ function ensureLoaded() {
       [attr.disabled]="disabled || null"
       [attr.required]="required || null"
       [attr.size]="size"
+      [attr.name]="name"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-file-input>
@@ -75,6 +77,10 @@ export class FileInputComponent
   @Input() required?: boolean;
   /** Input size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
+  /** The name of the control, submitted with form data */
+  @Input() name?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

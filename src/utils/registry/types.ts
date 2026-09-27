@@ -11,6 +11,15 @@ export interface ComponentProp {
   default?: string;
   description?: string;
   required?: boolean;
+  /**
+   * For a boolean prop Web Awesome reads as an enumerated attribute rather
+   * than by presence: the attribute value meaning true and the one meaning
+   * false (`spellcheck` is "true"/"false", `autocorrect` is "on"/"off").
+   * Templates write `false` as its keyword instead of dropping the attribute,
+   * and leave it off only when the prop is unset, so such a prop takes no
+   * `default`.
+   */
+  keywords?: { true: string; false: string };
 }
 
 export interface ComponentDefinition {

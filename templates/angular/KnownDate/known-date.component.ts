@@ -43,6 +43,8 @@ function ensureLoaded() {
       [attr.min]="min"
       [attr.max]="max"
       [attr.locale]="locale"
+      [attr.autocomplete]="autocomplete"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-known-date>
@@ -79,6 +81,10 @@ export class KnownDateComponent implements AfterViewInit, OnDestroy {
   @Input() max?: string;
   /** The locale used to format and parse the date */
   @Input() locale?: string;
+  /** Hint for browser autofill */
+  @Input() autocomplete?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

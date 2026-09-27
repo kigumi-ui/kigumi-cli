@@ -17,6 +17,21 @@ function ensureLoaded() {
 }
 
 /**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default.
+ */
+function setEnumeratedAttribute(
+  el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
+  name: string,
+  value: boolean | undefined,
+  keywords: { true: string; false: string }
+): void {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords.true : keywords.false);
+}
+
+/**
  * Textareas collect multi-line text data from the user
  *
  * @example
@@ -80,11 +95,44 @@ export interface TextareaProps extends Omit<
   /** Maximum length */
   maxlength?: number;
 
-  /** Enable spell checking */
+  /** Turns spell checking on or off; on when unset */
   spellcheck?: boolean;
 
   /** Shows a character count when maxlength is set */
   'with-count'?: boolean;
+
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Controls automatic capitalization */
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+
+  /** Focuses the control on page load */
+  autofocus?: boolean;
+
+  /** Hint for Enter key label on virtual keyboards */
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
+  /** Hint for virtual keyboard type */
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+
+  /** Turns autocorrect on or off; the browser decides when unset */
+  autocorrect?: boolean;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
 
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
@@ -158,6 +206,8 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
       onFocus,
       onInput,
       onInvalid,
+      spellcheck,
+      autocorrect,
       ...props
     },
     ref
@@ -309,6 +359,19 @@ export const Textarea = forwardRef<TextareaRef, TextareaProps>(
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onBlur, onChange, onFocus, onInput, onInvalid]);
+
+    useEffect(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, {
+        true: 'true',
+        false: 'false',
+      });
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, {
+        true: 'on',
+        false: 'off',
+      });
+    }, [spellcheck, autocorrect]);
 
     return (
       <wa-textarea

@@ -97,6 +97,12 @@ export interface ButtonProps extends Omit<
   /** Override the form's target attribute */
   formtarget?: string;
 
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the button loses focus. */
   onBlur?: (event: FocusEvent) => void;
 

@@ -22,7 +22,8 @@
  * One Vue-specific input mapping: a `v-model` Template carries its CEM
  * `value` / `checked` attribute as `modelValue`, and binds that model over
  * any raw attribute of the same name. The probe therefore feeds that one
- * attribute through `modelValue`, per `VUE_MODEL_ATTRIBUTE` below.
+ * attribute through `modelValue`, per `VUE_MODEL_ATTRIBUTE`
+ * (`_helpers/vue-model-attributes.ts`).
  */
 // @vitest-environment jsdom
 
@@ -38,32 +39,10 @@ import {
 import { METHODLESS_COMPONENTS } from './_helpers/methodless-components.js';
 import { EVENTLESS_COMPONENTS } from './_helpers/eventless-components.js';
 import { describeRegistryCoverage } from './_helpers/registry-coverage.js';
+import { VUE_MODEL_ATTRIBUTE } from './_helpers/vue-model-attributes.js';
 
 const METHODLESS = new Set(METHODLESS_COMPONENTS);
 const EVENTLESS = new Set(EVENTLESS_COMPONENTS);
-
-/**
- * Vue Templates that expose a `v-model`, keyed by registry key, with the CEM
- * attribute that model carries. Pinned as committed data, not read from the
- * generator: a derived map would follow a generator that bound the model to
- * the wrong attribute. Both directions are asserted below, so a Template that
- * gains or loses `modelValue` must edit this map in the same commit.
- */
-const VUE_MODEL_ATTRIBUTE: Readonly<Record<string, 'value' | 'checked'>> = {
-  checkbox: 'checked',
-  'color-picker': 'value',
-  combobox: 'value',
-  input: 'value',
-  'number-input': 'value',
-  'otp-input': 'value',
-  'radio-group': 'value',
-  rating: 'value',
-  select: 'value',
-  slider: 'value',
-  switch: 'checked',
-  'tag-input': 'value',
-  textarea: 'value',
-};
 
 type CompiledTemplate = Component & {
   emits?: readonly string[];

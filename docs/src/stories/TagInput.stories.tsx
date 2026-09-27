@@ -79,6 +79,48 @@ const meta = {
       control: 'text',
       description: 'The name of the input, submitted with form data',
     },
+    autocomplete: {
+      control: 'text',
+      description: 'Hint for browser autofill',
+    },
+    autocapitalize: {
+      control: 'select',
+      options: ['off', 'none', 'on', 'sentences', 'words', 'characters'],
+      description: 'Controls automatic capitalization',
+    },
+    enterkeyhint: {
+      control: 'select',
+      options: ['enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
+      description: 'Hint for Enter key label on virtual keyboards',
+    },
+    inputmode: {
+      control: 'select',
+      options: [
+        'none',
+        'text',
+        'decimal',
+        'numeric',
+        'tel',
+        'search',
+        'email',
+        'url',
+      ],
+      description: 'Hint for virtual keyboard type',
+    },
+    autocorrect: {
+      control: 'boolean',
+      description:
+        'Turns autocorrect on or off; the browser decides when unset',
+    },
+    spellcheck: {
+      control: 'boolean',
+      description: 'Turns spell checking on or off; on when unset',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description:

@@ -43,6 +43,7 @@ const props = defineProps({
   open: { type: Boolean, required: false, default: false },
   placement: { type: String, required: false, default: 'bottom-start' },
   distance: { type: Number, required: false, default: 0 },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

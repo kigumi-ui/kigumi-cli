@@ -74,6 +74,9 @@ export interface SliderProps extends Omit<
   /** Draws a tooltip above the thumb */
   'with-tooltip'?: boolean;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when an alteration to the control's value is committed by the user. */
   onChange?: (event: CustomEvent) => void;
 

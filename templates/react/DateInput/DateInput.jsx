@@ -57,6 +57,7 @@ function ensureLoaded() {
  * @property {boolean} [open] - Whether the popup calendar is open
  * @property {string} [placement] - The preferred popup placement
  * @property {number} [distance] - The distance in pixels between the popup and input
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
  * @property {function} [onInput] - Event fired on every segment edit, step, calendar interaction, and clear
  * @property {function} [onChange] - Event fired on every committed value transition
  * @property {function} [onFocus] - Event fired when the control receives focus

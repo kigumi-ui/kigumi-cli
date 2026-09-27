@@ -44,6 +44,14 @@ function ensureLoaded() {
       [attr.size]="size"
       [attr.appearance]="appearance"
       [attr.without-steppers]="withoutSteppers || null"
+      [attr.title]="title"
+      [attr.name]="name"
+      [attr.readonly]="readonly || null"
+      [attr.autocomplete]="autocomplete"
+      [attr.autofocus]="autofocus || null"
+      [attr.enterkeyhint]="enterkeyhint"
+      [attr.inputmode]="inputmode"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-number-input>
@@ -87,6 +95,23 @@ export class NumberInputComponent
   @Input() appearance?: 'filled' | 'outlined' | 'filled-outlined';
   /** Hides the stepper buttons */
   @Input() withoutSteppers?: boolean;
+  /** Native tooltip text, shown on hover */
+  @Input() title?: string;
+  /** The name of the control, submitted with form data */
+  @Input() name?: string;
+  /** Makes the input readonly */
+  @Input() readonly?: boolean;
+  /** Hint for browser autofill */
+  @Input() autocomplete?: string;
+  /** Focuses the control on page load */
+  @Input() autofocus?: boolean;
+  /** Hint for Enter key label on virtual keyboards */
+  @Input() enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  /** Hint for virtual keyboard type */
+  @Input() inputmode?: 'numeric' | 'decimal';
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

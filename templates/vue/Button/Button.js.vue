@@ -31,6 +31,8 @@ const props = defineProps({
   formmethod: { type: String, required: false },
   formnovalidate: { type: Boolean, required: false, default: false },
   formtarget: { type: String, required: false },
+  title: { type: String, required: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

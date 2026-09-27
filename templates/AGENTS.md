@@ -348,6 +348,46 @@ All three were found by the Vue function harness
 (`tests/unit/vue-function-harness-registry.test.ts`). Edit
 `scripts/generate-vue-templates.ts`, never the emitted templates.
 
+### 11. Enumerated booleans: `spellcheck` and `autocorrect` (issue #101)
+
+Most WA booleans are presence attributes, so rule 10 drops `false`. Two are
+not: WA reads `spellcheck` as `"true"`/`"false"` and `autocorrect` as
+`"on"`/`"off"`, and a bare attribute reads as false. Dropping `false` leaves
+the element's default (`spellcheck` defaults to on), so these props could not
+be turned off. A registry prop with `keywords: { true, false }` makes every
+generator write the keyword instead, and leave the attribute off only when
+the prop is unset. Such a prop takes no `default`.
+
+- **Angular** binds `[attr.spellcheck]="spellcheck == null ? null : spellcheck ? 'true' : 'false'"`.
+- **Vue** gives the prop an explicit `undefined` default (`withDefaults` in
+  `.vue`, `default: undefined` in `.js.vue`), since Vue casts an absent
+  Boolean to `false`. `hostAttributes()` looks the prop up in the Template's
+  `ENUMERATED_ATTRIBUTES` table and writes `^spellcheck: 'false'`. The `^`
+  forces an attribute even once the upgraded element has a property of that
+  name.
+- **React** pulls the prop out of the rest spread and writes the attribute in
+  an effect via `setEnumeratedAttribute()`. JSX cannot express it. React 19
+  sets `spellcheck` as a DOM property, whose setter coerces `"false"` to true,
+  and writes other booleans as a bare attribute, which WA reads as false. The
+  hand-maintained `.jsx` files and the docs-site wrappers carry the same
+  effect (Input, Textarea, TagInput, Combobox).
+
+The three generators share one source for what the frameworks have in common:
+`enumeratedProps()`, `keywordPairLiteral()` and `keywordExpression()` in
+`scripts/generator-utils.ts`. Every copy spells a pair with the registry's
+named shape, `{ true: 'on', false: 'off' }`, and reads it as `keywords.true` /
+`keywords.false`, never as a positional `[on, off]` tuple, so a transposed
+pair cannot compile. The per-Template copies are deliberate: a Template is
+copied into a user's project and has no shared runtime to import from.
+
+The keyword pairs are pinned in `tests/unit/_helpers/enumerated-boolean-attributes.ts`
+and proven against WA's runtime converters. The function harnesses expect
+them for true and for false, and `enumerated-boolean-templates.test.ts`
+covers every hand-maintained copy (`.jsx`, `.js.vue`, the docs wrappers) and
+prop changes after mount. A new
+enumerated boolean in a WA release fails the pin test until it is pinned and
+its registry prop gets `keywords`.
+
 ---
 
 ## Adding New Components
@@ -435,3 +475,5 @@ The `typecheck-shims/` directory is dev-only. `package.json#files` whitelists on
 - every Angular Template resolves `#element` with `{ static: true }`: reactive forms write the initial value and disabled state before the first view check, which the non-static query dropped. Found by the Angular function harness, issue #77
 - `on*` props (IntersectionObserver's `once`) are written from `ngOnChanges`, since Angular refuses them as template bindings and the Template did not compile. Found by the Angular function harness, issue #77
 - a value form control reads on `input` only where its CEM declares that event, else on `change`: Rating's accessor listened for `input`, which `wa-rating` never dispatches, so forms never saw a user's pick. Found by the Angular function harness, issue #77
+- rule 11: `spellcheck` and `autocorrect` are enumerated attributes, written as their keyword for `false` instead of dropped, via the registry prop's `keywords` in all three generators and by hand in four `.jsx` files; previously neither could be turned off in Vue or Angular, and React wrote `autocorrect={false}` as `"false"` (React 18, read as on) and `autocorrect` as a bare attribute (React 19 without a native property, read as off), issue #101
+- rule 11: the generators share `enumeratedProps()` / `keywordPairLiteral()` / `keywordExpression()` from `scripts/generator-utils.ts`, and every emitted or hand-maintained copy spells a keyword pair as the registry's named `{ true, false }` shape instead of a positional tuple, review follow-up on issue #101

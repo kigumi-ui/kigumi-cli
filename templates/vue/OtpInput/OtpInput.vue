@@ -28,6 +28,8 @@ export interface OtpInputProps {
   readonly?: boolean;
   disabled?: boolean;
   name?: string;
+  autofocus?: boolean;
+  'custom-error'?: string;
 }
 
 const props = defineProps<OtpInputProps>();

@@ -61,6 +61,12 @@ export interface SwitchProps extends Omit<
   /** Hint text */
   hint?: string;
 
+  /** Native tooltip text, shown on hover */
+  title?: string;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the control's checked state changes. */
   onChange?: (event: Event) => void;
 

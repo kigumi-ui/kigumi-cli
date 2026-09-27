@@ -163,6 +163,11 @@ const meta = {
       description: 'The distance in pixels between the popup and input',
       table: { defaultValue: { summary: '0' } },
     },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description:

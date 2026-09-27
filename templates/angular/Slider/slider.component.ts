@@ -47,6 +47,7 @@ function ensureLoaded() {
       [attr.with-tooltip]="withTooltip || null"
       [attr.size]="size"
       [attr.autofocus]="autofocus || null"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-slider>
@@ -96,6 +97,8 @@ export class SliderComponent
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   /** Automatically focuses the slider on page load */
   @Input() autofocus?: boolean;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() change = new EventEmitter<Event>();
   @Output() blurEvent = new EventEmitter<FocusEvent>();

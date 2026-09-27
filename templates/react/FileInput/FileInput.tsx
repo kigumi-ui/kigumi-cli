@@ -62,6 +62,12 @@ export interface FileInputProps extends Omit<
   /** Input size */
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
+  /** The name of the control, submitted with form data */
+  name?: string;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   onInput?: (event: InputEvent) => void;
 
   onChange?: (event: Event) => void;

@@ -41,6 +41,15 @@ const meta = {
       description: 'Input size',
       table: { defaultValue: { summary: 'medium' } },
     },
+    name: {
+      control: 'text',
+      description: 'The name of the control, submitted with form data',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description: 'Emitted when file selection changes.',

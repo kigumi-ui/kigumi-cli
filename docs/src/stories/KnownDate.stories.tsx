@@ -63,6 +63,15 @@ const meta = {
       control: 'text',
       description: 'The locale used to format and parse the date',
     },
+    autocomplete: {
+      control: 'text',
+      description: 'Hint for browser autofill',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description: 'Emitted as the user types in any field.',

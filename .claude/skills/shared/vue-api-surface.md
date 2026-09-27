@@ -22,7 +22,7 @@
 Actions | free | Buttons represent actions that are available to the user
 wa-button -> <Button>
 
-**Props:** variant(neutral|brand|success|warning|danger=neutral), appearance(accent|filled-outlined|filled|outlined|plain=filled), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), disabled(boolean=false), loading(boolean=false), with-caret(boolean=false), href(string), target(_blank|_self|_parent|_top), download(string), rel(string), type(button|submit|reset=button), name(string), value(string), formaction(string), formenctype(string), formmethod(string), formnovalidate(boolean=false), formtarget(string)
+**Props:** variant(neutral|brand|success|warning|danger=neutral), appearance(accent|filled-outlined|filled|outlined|plain=filled), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), disabled(boolean=false), loading(boolean=false), with-caret(boolean=false), href(string), target(_blank|_self|_parent|_top), download(string), rel(string), type(button|submit|reset=button), name(string), value(string), formaction(string), formenctype(string), formmethod(string), formnovalidate(boolean=false), formtarget(string), title(string), custom-error(string)
 **Events:** @blur, @focus, @wa-invalid
 **Slots:** default, start, end
 **Methods:** click(), focus(), blur()
@@ -41,7 +41,7 @@ wa-button-group -> <ButtonGroup>
 Form Controls | free | Inputs collect data from the user
 wa-input -> <Input>
 
-**Props:** type(text|email|password|number|date|tel|url|search=text), label(string), hint(string), placeholder(string), value(string), appearance(filled|filled-outlined|outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), disabled(boolean=false), with-clear(boolean=false), password-toggle(boolean=false), password-visible(boolean=false), readonly(boolean=false), required(boolean=false), name(string), pattern(string), minlength(number), maxlength(number), min(string), max(string), step(string), without-spin-buttons(boolean=false), autocomplete(string), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean=false), autofocus(boolean=false), inputmode(none|text|decimal|numeric|tel|search|email|url), enterkeyhint(enter|done|go|next|previous|search|send)
+**Props:** type(text|email|password|number|date|tel|url|search=text), label(string), hint(string), placeholder(string), value(string), appearance(filled|filled-outlined|outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), disabled(boolean=false), with-clear(boolean=false), password-toggle(boolean=false), password-visible(boolean=false), readonly(boolean=false), required(boolean=false), name(string), pattern(string), minlength(number), maxlength(number), min(string), max(string), step(string), without-spin-buttons(boolean=false), autocomplete(string), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), autofocus(boolean=false), inputmode(none|text|decimal|numeric|tel|search|email|url), enterkeyhint(enter|done|go|next|previous|search|send), title(string), spellcheck(boolean), custom-error(string)
 **Events:** @input, @change, @blur, @focus, @wa-clear, @wa-invalid
 **Slots:** label, start, end, clear-icon, show-password-icon, hide-password-icon, hint
 **Methods:** focus(), blur(), select(), setSelectionRange(), setRangeText(), showPicker(), stepUp(), stepDown()
@@ -167,7 +167,7 @@ wa-carousel-item -> <CarouselItem>
 Form Controls | free | Checkboxes allow the user to toggle an option on or off
 wa-checkbox -> <Checkbox>
 
-**Props:** checked(boolean=false), disabled(boolean=false), hint(string=''), indeterminate(boolean=false), name(string=''), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), value(string)
+**Props:** checked(boolean=false), disabled(boolean=false), hint(string=''), indeterminate(boolean=false), name(string=''), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), value(string), title(string), custom-error(string)
 **Events:** @change, @blur, @focus, @input, @wa-invalid
 **Slots:** default, hint
 **Methods:** click(), focus(), blur()
@@ -188,7 +188,7 @@ wa-checkbox-group -> <CheckboxGroup>
 Form Controls | free | Color pickers allow the user to select a color
 wa-color-picker -> <ColorPicker>
 
-**Props:** value(string), format(hex|rgb|hsl|hsv=hex), opacity(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), label(string=''), hint(string=''), name(string), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), swatches(string=''), uppercase(boolean=false), without-format-toggle(boolean=false), inline(boolean=false)
+**Props:** value(string), format(hex|rgb|hsl|hsv=hex), opacity(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), label(string=''), hint(string=''), name(string), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end|right|right-start|right-end|left|left-start|left-end=bottom-start), swatches(string=''), uppercase(boolean=false), without-format-toggle(boolean=false), inline(boolean=false), custom-error(string)
 **Events:** @change, @input, @wa-show, @wa-after-show, @wa-hide, @wa-after-hide, @blur, @focus, @wa-invalid
 **Slots:** label, hint
 **Methods:** getHexString(), focus(), blur(), getFormattedValue(), show(), hide()
@@ -200,7 +200,7 @@ wa-color-picker -> <ColorPicker>
 Form Controls | pro | Combines a text input with a listbox for filtering and selecting options
 wa-combobox -> <Combobox>
 
-**Props:** allow-custom-value(boolean=false), appearance(filled|outlined|filled-outlined=outlined), allow-create(boolean=false), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), disabled(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), hint(string=''), inputmode(none|text|decimal|numeric|tel|search|email|url), label(string=''), max-options-visible(number=3), multiple(boolean=false), name(string=''), open(boolean=false), pill(boolean=false), placeholder(string=''), placement(top|bottom=bottom), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), spellcheck(boolean), with-clear(boolean=false), value(string='')
+**Props:** allow-custom-value(boolean=false), appearance(filled|outlined|filled-outlined=outlined), allow-create(boolean=false), autocapitalize(off|none|on|sentences|words|characters), autocorrect(boolean), disabled(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), hint(string=''), inputmode(none|text|decimal|numeric|tel|search|email|url), label(string=''), max-options-visible(number=3), multiple(boolean=false), name(string=''), open(boolean=false), pill(boolean=false), placeholder(string=''), placement(top|bottom=bottom), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), spellcheck(boolean), with-clear(boolean=false), value(string=''), custom-error(string)
 **Events:** @input, @change, @focus, @blur, @wa-clear, @wa-show, @wa-after-show, @wa-hide, @wa-after-hide, @wa-create, @wa-invalid
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
@@ -400,7 +400,7 @@ wa-qr-code -> <QrCode>
 Form Controls | free | Radio groups are used to group multiple radios so only one can be selected
 wa-radio-group -> <RadioGroup>
 
-**Props:** label(string=''), hint(string=''), name(string=option), value(string=''), size(small|medium|large|xs|s|m|l|xl=medium), required(boolean=false), orientation(horizontal|vertical=vertical), disabled(boolean=false), invalid(boolean=false), help-text(string='')
+**Props:** label(string=''), hint(string=''), name(string=option), value(string=''), size(small|medium|large|xs|s|m|l|xl=medium), required(boolean=false), orientation(horizontal|vertical=vertical), disabled(boolean=false), invalid(boolean=false), help-text(string=''), custom-error(string)
 **Events:** @input, @change, @wa-invalid
 **Slots:** default, label, hint
 **Methods:** focus()
@@ -411,7 +411,7 @@ wa-radio-group -> <RadioGroup>
 Form Controls | free | Radios allow the user to select a single option from a group
 wa-radio -> <Radio>
 
-**Props:** value(string), disabled(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(default|button=default)
+**Props:** value(string), disabled(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(default|button=default), name(string), custom-error(string)
 **Events:** @blur, @focus
 **Slots:** default
 **Parts:** control, checked-icon, label
@@ -432,7 +432,7 @@ wa-random-content -> <RandomContent>
 Form Controls | free | Ratings give users a way to quickly view and provide feedback
 wa-rating -> <Rating>
 
-**Props:** label(string=''), value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string=''), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium)
+**Props:** label(string=''), value(number=0), max(number=5), precision(number=1), readonly(boolean=false), disabled(boolean=false), name(string=''), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), custom-error(string)
 **Events:** @change, @wa-hover, @wa-invalid
 **Parts:** base, rating
 **CSS:** --symbol-color, --symbol-color-active, --symbol-spacing
@@ -457,7 +457,7 @@ wa-scroller -> <Scroller>
 Form Controls | free | Selects allow you to choose items from a menu of predefined options
 wa-select -> <Select>
 
-**Props:** name(string=''), value(string), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), placeholder(string=''), multiple(boolean=false), max-options-visible(number=3), disabled(boolean=false), with-clear(boolean=false), open(boolean=false), hoist(boolean=false), placement(top|bottom=bottom), pill(boolean=false), label(string=''), hint(string=''), required(boolean=false), invalid(boolean=false), help-text(string='')
+**Props:** name(string=''), value(string), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), placeholder(string=''), multiple(boolean=false), max-options-visible(number=3), disabled(boolean=false), with-clear(boolean=false), open(boolean=false), hoist(boolean=false), placement(top|bottom=bottom), pill(boolean=false), label(string=''), hint(string=''), required(boolean=false), invalid(boolean=false), help-text(string=''), custom-error(string)
 **Events:** @input, @change, @focus, @blur, @wa-clear, @wa-show, @wa-after-show, @wa-hide, @wa-after-hide, @wa-invalid
 **Slots:** default, label, start, end, clear-icon, expand-icon, hint
 **Methods:** show(), hide(), focus(), blur()
@@ -487,7 +487,7 @@ wa-skeleton -> <Skeleton>
 Form Controls | free | Sliders allow the user to select a value within a range
 wa-slider -> <Slider>
 
-**Props:** name(string=''), value(number=0), label(string=''), hint(string=''), min(number=0), max(number=100), step(number=1), orientation(horizontal|vertical=horizontal), disabled(boolean=false), readonly(boolean=false), range(boolean=false), with-markers(boolean=false), with-tooltip(boolean=true), size(small|medium|large|xs|s|m|l|xl=medium), autofocus(boolean=false)
+**Props:** name(string=''), value(number=0), label(string=''), hint(string=''), min(number=0), max(number=100), step(number=1), orientation(horizontal|vertical=horizontal), disabled(boolean=false), readonly(boolean=false), range(boolean=false), with-markers(boolean=false), with-tooltip(boolean=true), size(small|medium|large|xs|s|m|l|xl=medium), autofocus(boolean=false), custom-error(string)
 **Events:** @change, @blur, @focus, @input, @wa-invalid
 **Slots:** label, hint, reference
 **Methods:** focus(), blur(), stepDown(), stepUp()
@@ -517,7 +517,7 @@ wa-split-panel -> <SplitPanel>
 Form Controls | free | Switches allow the user to toggle an option on or off
 wa-switch -> <Switch>
 
-**Props:** name(string), value(string), size(small|medium|large|xs|s|m|l|xl=medium), disabled(boolean=false), checked(boolean=false), required(boolean=false), hint(string='')
+**Props:** name(string), value(string), size(small|medium|large|xs|s|m|l|xl=medium), disabled(boolean=false), checked(boolean=false), required(boolean=false), hint(string=''), title(string), custom-error(string)
 **Events:** @change, @input, @blur, @focus, @wa-invalid
 **Slots:** default, hint
 **Methods:** click(), focus(), blur()
@@ -567,7 +567,7 @@ wa-tag -> <Tag>
 Form Controls | free | Tag inputs collect a list of short values, such as keywords or labels, as removable tags
 wa-tag-input -> <TagInput>
 
-**Props:** label(string=''), hint(string=''), value(string), placeholder(string=''), delimiter(string=,), max-tags(number), min-tags(number), allow-duplicates(boolean=false), with-clear(boolean=false), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string)
+**Props:** label(string=''), hint(string=''), value(string), placeholder(string=''), delimiter(string=,), max-tags(number), min-tags(number), allow-duplicates(boolean=false), with-clear(boolean=false), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string), autocomplete(string), autocapitalize(off|none|on|sentences|words|characters), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(none|text|decimal|numeric|tel|search|email|url), autocorrect(boolean), spellcheck(boolean), custom-error(string)
 **Events:** @input, @change, @blur, @focus, @wa-create, @wa-clear, @wa-invalid
 **Slots:** label, start, end, clear-icon, hint
 **Methods:** focus(), blur()
@@ -578,7 +578,7 @@ wa-tag-input -> <TagInput>
 Form Controls | free | Textareas collect multi-line text data from the user
 wa-textarea -> <Textarea>
 
-**Props:** name(string), value(string=''), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), label(string=''), hint(string=''), placeholder(string=''), rows(number=4), resize(none|vertical|horizontal|both|auto=vertical), disabled(boolean=false), readonly(boolean=false), required(boolean=false), minlength(number), maxlength(number), spellcheck(boolean=true), with-count(boolean=false)
+**Props:** name(string), value(string=''), appearance(filled|outlined|filled-outlined=outlined), size(small|medium|large|xs|s|m|l|xl=medium), label(string=''), hint(string=''), placeholder(string=''), rows(number=4), resize(none|vertical|horizontal|both|auto=vertical), disabled(boolean=false), readonly(boolean=false), required(boolean=false), minlength(number), maxlength(number), spellcheck(boolean), with-count(boolean=false), title(string), autocomplete(string), autocapitalize(off|none|on|sentences|words|characters), autofocus(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(none|text|decimal|numeric|tel|search|email|url), autocorrect(boolean), custom-error(string)
 **Events:** @blur, @change, @focus, @input, @wa-invalid
 **Slots:** label, hint
 **Methods:** focus(), blur(), select(), scrollPosition(), setSelectionRange(), setRangeText()
@@ -641,7 +641,7 @@ wa-callout -> <Callout>
 Form Controls | pro | File inputs allow users to select and upload files from their device
 wa-file-input -> <FileInput>
 
-**Props:** label(string), hint(string), accept(string), capture(user|environment), multiple(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium)
+**Props:** label(string), hint(string), accept(string), capture(user|environment), multiple(boolean=false), disabled(boolean=false), required(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), name(string), custom-error(string)
 **Events:** @input, @change, @focus, @blur, @wa-invalid
 **Slots:** label, hint, dropzone
 **Methods:** focus(), blur()
@@ -651,7 +651,7 @@ wa-file-input -> <FileInput>
 Form Controls | pro | Number inputs allow users to enter numeric values with optional step controls
 wa-number-input -> <NumberInput>
 
-**Props:** label(string), hint(string), value(number), min(number), max(number), step(number=1), disabled(boolean=false), required(boolean=false), placeholder(string), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), without-steppers(boolean=false)
+**Props:** label(string), hint(string), value(number), min(number), max(number), step(number=1), disabled(boolean=false), required(boolean=false), placeholder(string), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), without-steppers(boolean=false), title(string), name(string), readonly(boolean=false), autocomplete(string), autofocus(boolean=false), enterkeyhint(enter|done|go|next|previous|search|send), inputmode(numeric|decimal), custom-error(string)
 **Events:** @input, @change, @blur, @focus, @beforeinput, @wa-invalid
 **Slots:** label, start, end, increment-icon, decrement-icon, hint
 **Methods:** focus(), blur(), select(), stepUp(), stepDown()
@@ -661,7 +661,7 @@ wa-number-input -> <NumberInput>
 Form Controls | free | OTP inputs collect one-time passcodes, PINs, and other fixed-length codes, one character per segment
 wa-otp-input -> <OtpInput>
 
-**Props:** label(string=''), hint(string=''), value(string), length(number=6), format(string=''), type(numeric|alpha|alphanumeric=numeric), case(preserve|upper|lower=preserve), appearance(outlined|filled|filled-outlined|contained=outlined), size(small|medium|large|xs|s|m|l|xl=medium), mask(boolean=false), with-mask(boolean=false), autocomplete(string=one-time-code), autosubmit(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string)
+**Props:** label(string=''), hint(string=''), value(string), length(number=6), format(string=''), type(numeric|alpha|alphanumeric=numeric), case(preserve|upper|lower=preserve), appearance(outlined|filled|filled-outlined|contained=outlined), size(small|medium|large|xs|s|m|l|xl=medium), mask(boolean=false), with-mask(boolean=false), autocomplete(string=one-time-code), autosubmit(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), name(string), autofocus(boolean=false), custom-error(string)
 **Events:** @input, @change, @focus, @blur, @wa-complete, @wa-clear, @wa-invalid
 **Slots:** label, hint
 **Methods:** clear(), focus(), blur(), select()
@@ -794,7 +794,7 @@ wa-accordion-item -> <AccordionItem>
 Form Controls | free | Time inputs collect a time of day from the user
 wa-time-input -> <TimeInput>
 
-**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), with-clear(boolean=false), with-now(boolean=false), min(string=''), max(string=''), step(number=60), hour-format(auto|12|24=auto), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start)
+**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), with-clear(boolean=false), with-now(boolean=false), min(string=''), max(string=''), step(number=60), hour-format(auto|12|24=auto), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), autocomplete(string), custom-error(string)
 **Events:** @input, @change, @focus, @blur, @wa-clear, @wa-show, @wa-after-show, @wa-hide, @wa-after-hide, @wa-invalid
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer
 **Methods:** focus(), blur(), show(), hide()
@@ -805,7 +805,7 @@ wa-time-input -> <TimeInput>
 Form Controls | free | Known dates collect a calendar date the user already knows, such as a birthday
 wa-known-date -> <KnownDate>
 
-**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), min(string=''), max(string=''), locale(string='')
+**Props:** name(string=''), value(string), disabled(boolean=false), required(boolean=false), readonly(boolean=false), size(small|medium|large|xs|s|m|l|xl=medium), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), label(string=''), hint(string=''), min(string=''), max(string=''), locale(string=''), autocomplete(string), custom-error(string)
 **Events:** @input, @change, @blur, @focus, @wa-invalid
 **Slots:** label, hint
 **Methods:** focus(), blur()
@@ -849,7 +849,7 @@ wa-date-picker -> <DatePicker>
 Form Controls | pro | A segmented date field with an optional popup calendar, for use in forms
 wa-date-input -> <DateInput>
 
-**Props:** name(string), value(string), mode(single|range=single), label(string), hint(string), size(xs|s|m|l|xl=m), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), autocomplete(string), with-clear(boolean=false), min(string), max(string), today(string), first-day-of-week(auto|sun|mon|tue|wed|thu|fri|sat=auto), disabled-dates(string), disabled-days-of-week(string), disable-past(boolean=false), disable-future(boolean=false), min-range(number=0), max-range(number=0), months(1|2=1), page-by(months|single=months), with-outside-days(boolean=false), with-week-numbers(boolean=false), weekday-format(narrow|short|long=short), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), distance(number=0)
+**Props:** name(string), value(string), mode(single|range=single), label(string), hint(string), size(xs|s|m|l|xl=m), appearance(filled|outlined|filled-outlined=outlined), pill(boolean=false), required(boolean=false), readonly(boolean=false), disabled(boolean=false), autocomplete(string), with-clear(boolean=false), min(string), max(string), today(string), first-day-of-week(auto|sun|mon|tue|wed|thu|fri|sat=auto), disabled-dates(string), disabled-days-of-week(string), disable-past(boolean=false), disable-future(boolean=false), min-range(number=0), max-range(number=0), months(1|2=1), page-by(months|single=months), with-outside-days(boolean=false), with-week-numbers(boolean=false), weekday-format(narrow|short|long=short), open(boolean=false), placement(top|top-start|top-end|bottom|bottom-start|bottom-end=bottom-start), distance(number=0), custom-error(string)
 **Events:** @input, @change, @focus, @blur, @wa-clear, @wa-show, @wa-after-show, @wa-hide, @wa-after-hide, @wa-invalid
 **Slots:** label, hint, start, end, clear-icon, expand-icon, footer, previous-icon, next-icon, day-YYYY-MM-DD
 **Methods:** focus(), blur(), show(), hide(), clear()

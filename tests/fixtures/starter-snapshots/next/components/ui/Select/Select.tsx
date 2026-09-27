@@ -104,6 +104,9 @@ export interface SelectProps extends Omit<
   /** Help text below the control */
   'help-text'?: string;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the control receives input. */
   onInput?: (event: InputEvent) => void;
 

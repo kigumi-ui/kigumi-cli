@@ -83,6 +83,9 @@ export interface SliderProps extends Omit<
   /** Automatically focuses the slider on page load */
   autofocus?: boolean;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when an alteration to the control's value is committed by the user. */
   onChange?: (event: Event) => void;
 

@@ -47,6 +47,7 @@ function ensureLoaded() {
       [attr.uppercase]="uppercase || null"
       [attr.without-format-toggle]="withoutFormatToggle || null"
       [attr.inline]="inline || null"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-color-picker>
@@ -108,6 +109,8 @@ export class ColorPickerComponent
   @Input() withoutFormatToggle?: boolean;
   /** Renders the color picker inline instead of in a dropdown */
   @Input() inline?: boolean;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() change = new EventEmitter<Event>();
   @Output() inputEvent = new EventEmitter<InputEvent>();

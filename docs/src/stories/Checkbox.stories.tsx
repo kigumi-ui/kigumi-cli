@@ -39,6 +39,15 @@ const meta = {
     },
     value: { control: 'text', description: 'Form submission value' },
     children: { control: 'text' },
+    title: {
+      control: 'text',
+      description: 'Native tooltip text, shown on hover',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onChange: {
       action: 'change',
       description: 'Emitted when the checked state changes.',

@@ -27,6 +27,15 @@ const meta = {
       description: 'Radio appearance style',
       table: { defaultValue: { summary: 'default' } },
     },
+    name: {
+      control: 'text',
+      description: 'The name of the control, submitted with form data',
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onBlur: {
       action: 'blur',
       description: 'Emitted when the control loses focus.',

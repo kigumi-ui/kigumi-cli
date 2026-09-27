@@ -39,6 +39,8 @@ function ensureLoaded() {
  * @property {string} [size] - Input size: small | medium | large
  * @property {boolean} [disabled] - Disables the input
  * @property {boolean} [required] - Makes field mandatory
+ * @property {string} [name] - The name of the control, submitted with form data
+ * @property {string} [custom-error] - Custom validation message; the control is invalid while it is set
  * @property {function} [onBlur] - Event fired when input loses focus
  * @property {function} [onFocus] - Event fired when input gains focus
  * @property {function} [onInput] - Event fired when file selection changes
