@@ -18,7 +18,9 @@ import { toPascalCase, stripWaPrefix } from '../src/utils/naming.js';
 import { COMPONENT_METADATA } from '../src/utils/component-metadata.js';
 import {
   formatCustomTypeImports,
+  enumeratedProps,
   generateCssTemplate,
+  keywordPairLiteral,
   mapEventType,
   writeFormatted,
 } from './generator-utils.js';
@@ -208,6 +210,44 @@ export function generateReactTypescriptTemplate(
       ? metadata.events.map((e) => toReactEventName(e.name)).join(', ')
       : '';
 
+  // 8b. Enumerated booleans (`spellcheck`, `autocorrect`). React cannot
+  // write them: React 19 sets `spellcheck` as a DOM property, whose setter
+  // coerces the string "false" to true, and writes other booleans as a bare
+  // attribute, which Web Awesome reads as false. So they leave the rest
+  // spread and an effect writes the keyword attribute itself.
+  const enumerated = enumeratedProps(component.props);
+  const refName = `${component.name.toLowerCase()}Ref`;
+  const enumeratedDestructure = enumerated.map((p) => `, ${p.name}`).join('');
+  const enumeratedHelper =
+    enumerated.length > 0
+      ? `
+/**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default.
+ */
+function setEnumeratedAttribute(
+  el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
+  name: string,
+  value: boolean | undefined,
+  keywords: { true: string; false: string }
+): void {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords.true : keywords.false);
+}
+`
+      : '';
+  const enumeratedEffect =
+    enumerated.length > 0
+      ? `
+    useEffect(() => {
+      const el = ${refName}.current;
+      if (!el) return;
+${enumerated.map((p) => `      setEnumeratedAttribute(el, '${p.name}', ${p.name}, ${keywordPairLiteral(p.keywords)});`).join('\n')}
+    }, [${enumerated.map((p) => p.name).join(', ')}]);
+`
+      : '';
+
   // 9. Component-specific type imports for non-primitive parameter types.
   // Sibling `Wa*` element types (WaCarouselItem) default-import from their
   // own module; other names named-import from this component's importPath.
@@ -229,7 +269,7 @@ let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
   return (loadPromise ??= import('${component.importPath}'));
 }
-
+${enumeratedHelper}
 /**
  * ${component.description}
  *
@@ -260,7 +300,7 @@ ${refInterface}
 }
 
 export const ${component.name} = forwardRef<${component.name}Ref, ${component.name}Props>(
-  ({ children, className${eventPropsDestructure}, ...props }, ref) => {
+  ({ children, className${eventPropsDestructure}${enumeratedDestructure}, ...props }, ref) => {
     const ${component.name.toLowerCase()}Ref = useRef<Wa${component.name} | null>(null);
     const set${component.name}Ref = useCallback((el: Wa${component.name} | null) => {
       ${component.name.toLowerCase()}Ref.current = el;
@@ -295,7 +335,7 @@ ${removeEventListeners}
       ensureLoaded();
     }, []);
 `
-}
+}${enumeratedEffect}
     return (
       <${component.tagName}
         ref={set${component.name}Ref}

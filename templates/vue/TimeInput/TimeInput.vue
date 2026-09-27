@@ -31,6 +31,8 @@ export interface TimeInputProps {
   open?: boolean;
   placement?:
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
+  autocomplete?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<TimeInputProps>();

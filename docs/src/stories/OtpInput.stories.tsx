@@ -98,6 +98,16 @@ const meta = {
       control: 'text',
       description: 'The name of the input, submitted with form data',
     },
+    autofocus: {
+      control: 'boolean',
+      description: 'Focuses the control on page load',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description: 'Emitted when a character is entered or removed.',

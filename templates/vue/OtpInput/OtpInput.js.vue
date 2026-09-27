@@ -28,6 +28,8 @@ const props = defineProps({
   readonly: { type: Boolean, required: false, default: false },
   disabled: { type: Boolean, required: false, default: false },
   name: { type: String, required: false },
+  autofocus: { type: Boolean, required: false, default: false },
+  'custom-error': { type: String, required: false },
 });
 
 defineOptions({ inheritAttrs: false });

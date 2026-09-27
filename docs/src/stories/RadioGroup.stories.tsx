@@ -45,6 +45,11 @@ const meta = {
       table: { defaultValue: { summary: 'false' } },
     },
     'help-text': { control: 'text', description: 'Help text below the group' },
+    'custom-error': {
+      control: 'text',
+      description:
+        'Custom validation message; the control is invalid while it is set',
+    },
     onInput: {
       action: 'input',
       description: 'Emitted when the radio group receives user input.',

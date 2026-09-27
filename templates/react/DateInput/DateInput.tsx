@@ -143,6 +143,9 @@ export interface DateInputProps extends Omit<
   /** The distance in pixels between the popup and input */
   distance?: number;
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   onInput?: (event: InputEvent) => void;
 
   onChange?: (event: Event) => void;

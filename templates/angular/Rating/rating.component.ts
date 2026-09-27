@@ -41,6 +41,7 @@ function ensureLoaded() {
       [attr.name]="name"
       [attr.required]="required || null"
       [attr.size]="size"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-rating>
@@ -78,6 +79,8 @@ export class RatingComponent
   @Input() required?: boolean;
   /** Rating size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() change = new EventEmitter<Event>();
   @Output() hover = new EventEmitter<CustomEvent>();

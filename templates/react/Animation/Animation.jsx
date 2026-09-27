@@ -34,6 +34,10 @@ function ensureLoaded() {
  * @property {number} [duration] - Milliseconds each iteration takes
  * @property {string} [easing] - The easing function to use
  * @property {number} [iterations] - Number of iterations to run
+ * @property {number} [end-delay] - The number of milliseconds to delay after the active period
+ * @property {string} [fill] - Sets how the animation applies styles before and after execution: auto | backwards | both | forwards | none
+ * @property {number} [iteration-start] - The offset at which to start the animation
+ * @property {number} [playback-rate] - Sets the animation's playback rate
  * @property {function} [onCancel] - Event fired when canceled
  * @property {function} [onFinish] - Event fired when finished
  * @property {function} [onStart] - Event fired when started

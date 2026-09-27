@@ -39,6 +39,8 @@ function ensureLoaded() {
       [attr.checked]="checked || null"
       [attr.required]="required || null"
       [attr.hint]="hint"
+      [attr.title]="title"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-switch>
@@ -72,6 +74,10 @@ export class SwitchComponent
   @Input() required?: boolean;
   /** Hint text */
   @Input() hint?: string;
+  /** Native tooltip text, shown on hover */
+  @Input() title?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() change = new EventEmitter<Event>();
   @Output() inputEvent = new EventEmitter<InputEvent>();

@@ -65,6 +65,9 @@ export interface RatingProps extends Omit<
   /** Rating size */
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the rating's value changes. */
   onChange?: (event: Event) => void;
 

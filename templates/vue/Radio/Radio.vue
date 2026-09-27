@@ -16,6 +16,8 @@ export interface RadioProps {
   disabled?: boolean;
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
   appearance?: 'default' | 'button';
+  name?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<RadioProps>();

@@ -97,6 +97,12 @@ export interface TimeInputProps extends Omit<
   placement?:
     'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted as the user types into a segment or interacts with the popup columns. */
   onInput?: (event: CustomEvent) => void;
 

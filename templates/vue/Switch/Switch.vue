@@ -18,6 +18,8 @@ export interface SwitchProps {
   disabled?: boolean;
   required?: boolean;
   hint?: string;
+  title?: string;
+  'custom-error'?: string;
 }
 
 const props = defineProps<SwitchProps>();

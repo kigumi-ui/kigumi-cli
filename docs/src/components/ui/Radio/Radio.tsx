@@ -40,6 +40,12 @@ export interface RadioProps extends Omit<
   /** Radio size */
   size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
 
+  /** The name of the control, submitted with form data */
+  name?: string;
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the control loses focus. */
   onBlur?: (event: FocusEvent) => void;
 

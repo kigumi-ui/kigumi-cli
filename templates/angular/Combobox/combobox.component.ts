@@ -36,7 +36,9 @@ function ensureLoaded() {
       [attr.appearance]="appearance"
       [attr.allow-create]="allowCreate || null"
       [attr.autocapitalize]="autocapitalize"
-      [attr.autocorrect]="autocorrect || null"
+      [attr.autocorrect]="
+        autocorrect == null ? null : autocorrect ? 'on' : 'off'
+      "
       [attr.disabled]="disabled || null"
       [attr.enterkeyhint]="enterkeyhint"
       [attr.hint]="hint"
@@ -51,9 +53,12 @@ function ensureLoaded() {
       [attr.placement]="placement"
       [attr.required]="required || null"
       [attr.size]="size"
-      [attr.spellcheck]="spellcheck || null"
+      [attr.spellcheck]="
+        spellcheck == null ? null : spellcheck ? 'true' : 'false'
+      "
       [attr.with-clear]="withClear || null"
       [attr.value]="value"
+      [attr.custom-error]="customError"
     >
       <ng-content />
     </wa-combobox>
@@ -82,7 +87,7 @@ export class ComboboxComponent
   /** Controls autocapitalization on supported devices */
   @Input() autocapitalize?:
     'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
-  /** Enable or disable autocorrect on supported devices */
+  /** Turns autocorrect on or off; the browser decides when unset */
   @Input() autocorrect?: boolean;
   /** Disables the combobox */
   @Input() disabled?: boolean;
@@ -121,12 +126,14 @@ export class ComboboxComponent
   @Input() required?: boolean;
   /** Combobox size */
   @Input() size?: 'small' | 'medium' | 'large' | 'xs' | 's' | 'm' | 'l' | 'xl';
-  /** Enable or disable spellchecking */
+  /** Turns spell checking on or off; on when unset */
   @Input() spellcheck?: boolean;
   /** Shows clear button */
   @Input() withClear?: boolean;
   /** Current value of the combobox */
   @Input() value?: string;
+  /** Custom validation message; the control is invalid while it is set */
+  @Input() customError?: string;
 
   @Output() inputEvent = new EventEmitter<InputEvent>();
   @Output() change = new EventEmitter<Event>();

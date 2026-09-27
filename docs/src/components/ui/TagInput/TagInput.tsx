@@ -11,6 +11,22 @@ import type WaTagInput from '@awesome.me/webawesome-pro/dist/components/tag-inpu
 import '@awesome.me/webawesome-pro/dist/components/tag-input/tag-input.js';
 import './TagInput.css';
 
+/**
+ * Write a boolean as the keyword an enumerated attribute expects ("on"/"off",
+ * "true"/"false"), or remove the attribute when the prop is unset so the
+ * element keeps its own default. Web Awesome reads these by value, not
+ * presence, and React would write a DOM property or a bare attribute.
+ */
+function setEnumeratedAttribute(
+  el: Pick<Element, 'setAttribute' | 'removeAttribute'>,
+  name: string,
+  value: boolean | undefined,
+  keywords: { true: string; false: string }
+): void {
+  if (value === undefined) el.removeAttribute(name);
+  else el.setAttribute(name, value ? keywords.true : keywords.false);
+}
+
 let loadPromise: Promise<unknown> | null = null;
 function ensureLoaded() {
   return (loadPromise ??=
@@ -94,6 +110,36 @@ export interface TagInputProps extends Omit<
   /** The name of the input, submitted with form data */
   name?: string;
 
+  /** Turns autocorrect on or off; the browser decides when unset */
+  autocorrect?: boolean;
+
+  /** Turns spell checking on or off; on when unset */
+  spellcheck?: boolean;
+
+  /** Hint for browser autofill */
+  autocomplete?: string;
+
+  /** Controls automatic capitalization */
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+
+  /** Hint for Enter key label on virtual keyboards */
+  enterkeyhint?:
+    'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+
+  /** Hint for virtual keyboard type */
+  inputmode?:
+    | 'none'
+    | 'text'
+    | 'decimal'
+    | 'numeric'
+    | 'tel'
+    | 'search'
+    | 'email'
+    | 'url';
+
+  /** Custom validation message; the control is invalid while it is set */
+  'custom-error'?: string;
+
   /** Emitted when the user types in the text box or when a tag is added or removed. */
   onInput?: (event: InputEvent) => void;
 
@@ -153,6 +199,8 @@ export const TagInput = forwardRef<TagInputRef, TagInputProps>(
       onCreate,
       onClear,
       onInvalid,
+      autocorrect,
+      spellcheck,
       ...props
     },
     ref
@@ -266,6 +314,19 @@ export const TagInput = forwardRef<TagInputRef, TagInputProps>(
         el.removeEventListener('wa-invalid', handleWaInvalid);
       };
     }, [onInput, onChange, onBlur, onFocus, onCreate, onClear, onInvalid]);
+
+    useEffect(() => {
+      const el = taginputRef.current;
+      if (!el) return;
+      setEnumeratedAttribute(el, 'autocorrect', autocorrect, {
+        true: 'on',
+        false: 'off',
+      });
+      setEnumeratedAttribute(el, 'spellcheck', spellcheck, {
+        true: 'true',
+        false: 'false',
+      });
+    }, [autocorrect, spellcheck]);
 
     return (
       <wa-tag-input
