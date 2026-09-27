@@ -36,7 +36,7 @@ const TEMPLATES_DIR = path.join(PROJECT_ROOT, 'templates', 'react');
  * Convert event name to React style (e.g., 'wa-show' → 'onShow', 'blur' → 'onBlur')
  * Strips the 'wa-' prefix since Kigumi wrappers expose simplified handler names.
  */
-function toReactEventName(eventName: string): string {
+export function toReactEventName(eventName: string): string {
   return 'on' + toPascalCase(stripWaPrefix(eventName));
 }
 

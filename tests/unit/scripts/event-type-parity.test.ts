@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { COMPONENT_METADATA } from '../../../src/utils/component-metadata.js';
 import { getAllComponents } from '../../../src/utils/registry.js';
-import { generateReactTypescriptTemplate } from '../../../scripts/generate-react-templates.js';
+import {
+  generateReactTypescriptTemplate,
+  toReactEventName,
+} from '../../../scripts/generate-react-templates.js';
 import { generateVueTypescriptTemplate } from '../../../scripts/generate-vue-templates.js';
 import { generateComponentTS } from '../../../scripts/generate-angular-templates.js';
 
@@ -92,9 +95,7 @@ describe('event type parity across frameworks', () => {
 
       for (const event of events) {
         const type = event.eventType;
-        const reactName = `on${event.name
-          .replace(/^wa-/, '')
-          .replace(/(^|-)([a-z])/g, (_m, _d, c: string) => c.toUpperCase())}`;
+        const reactName = toReactEventName(event.name);
 
         expect(react, `React ${event.name}`).toContain(
           `${reactName}?: (event: ${type}) => void;`
