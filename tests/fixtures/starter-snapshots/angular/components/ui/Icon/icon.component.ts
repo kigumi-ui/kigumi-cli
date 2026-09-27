@@ -1,6 +1,22 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, AfterViewInit, inject, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-import '@awesome.me/webawesome/dist/components/icon/icon.js';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+} from '@angular/core';
 import type WaElement from '@awesome.me/webawesome/dist/components/icon/icon.js';
+
+let loadPromise: Promise<unknown> | null = null;
+function ensureLoaded() {
+  return (loadPromise ??=
+    import('@awesome.me/webawesome/dist/components/icon/icon.js'));
+}
 
 /**
  * Icons are symbols that can be used to represent various options within an application
@@ -13,25 +29,27 @@ import type WaElement from '@awesome.me/webawesome/dist/components/icon/icon.js'
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <wa-icon
-        #element
-        [attr.name]="name"
-        [attr.library]="library"
-        [attr.src]="src"
-        [attr.label]="label"
-        [attr.family]="family"
-        [attr.variant]="variant"
-        [attr.auto-width]="autoWidth || null"
-        [attr.swap-opacity]="swapOpacity || null"
-        [attr.rotate]="rotate"
-        [attr.flip]="flip"
-        [attr.animation]="animation">
+      #element
+      [attr.name]="name"
+      [attr.library]="library"
+      [attr.src]="src"
+      [attr.label]="label"
+      [attr.family]="family"
+      [attr.variant]="variant"
+      [attr.canvas]="canvas"
+      [attr.auto-width]="autoWidth || null"
+      [attr.swap-opacity]="swapOpacity || null"
+      [attr.rotate]="rotate"
+      [attr.flip]="flip"
+      [attr.animation]="animation"
+    >
       <ng-content />
     </wa-icon>
   `,
   styleUrl: './icon.component.css',
 })
 export class IconComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('element') elementRef!: ElementRef<WaElement>;
+  @ViewChild('element', { static: true }) elementRef!: ElementRef<WaElement>;
   private hostRef = inject(ElementRef<HTMLElement>);
 
   /** The name of the icon to draw */
@@ -46,7 +64,13 @@ export class IconComponent implements AfterViewInit, OnDestroy {
   @Input() family?: string;
   /** The icon's variant (thin, light, regular, solid) */
   @Input() variant?: string;
-  /** Sets the width to match the cropped SVG viewBox */
+  /** Controls how the icon is sized within its canvas */
+  @Input() canvas?: 'fixed' | 'auto' | 'square' | 'roomy';
+  /**
+   * Sets the width to match the cropped SVG viewBox
+   *
+   * @deprecated Set canvas="auto" instead.
+   */
   @Input() autoWidth?: boolean;
   /** Swaps the opacity of duotone icons */
   @Input() swapOpacity?: boolean;
@@ -63,6 +87,7 @@ export class IconComponent implements AfterViewInit, OnDestroy {
   private cleanups: (() => void)[] = [];
 
   ngAfterViewInit(): void {
+    ensureLoaded();
     const el = this.elementRef.nativeElement;
 
     // Forward host attributes to inner wa-* element
